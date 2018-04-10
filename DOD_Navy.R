@@ -1,13 +1,10 @@
-library(tidyverse)
-library(magrittr)
-options(stringsAsFactors = FALSE)
-
-#read in file and create agency column
-file.name <- "NAVY 2013-2016-DJL.csv" 
-data <- read.csv(file.name, stringsAsFactors = FALSE)
-data$agency <- "DOD"
-
-
+# This script defines a function to clean hand-coded google sheets 
+clean.DOD_NAVY <- function(file.name){
+  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # create agency column 
+  data$agency <- file.name
+  
 # Format date, year, Congress, member name etc. 
 data$DATE %<>% as.Date("%m/%d/%y")
 
@@ -30,7 +27,6 @@ data %<>%
   mutate(last_name = ifelse(grepl("\\W", last_name), NA, last_name))
 
 
-
 #create variable for first name of the Sen/Rep
 data %<>%
   mutate(first_name = gsub(pattern = ".*, (\\w+).*", 
@@ -39,9 +35,13 @@ data %<>%
   mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name))
 
 #rearrange new columns to the front 
-data %<>% select(X, FROM, first_name, last_name, title, everything())
-  
-  
-  
- 
-#write.csv(data, paste("new", file.name)) # save as new file
+data %<>% select(DATE, FROM, SUBJECT, everything())
+
+data$CERTAINTY %<>% as.character()
+data$NOTES %<>% as.character()
+
+
+return(data)
+
+} # end function
+

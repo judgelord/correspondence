@@ -1,25 +1,18 @@
-library(tidyverse)
-library(magrittr)
-options(stringsAsFactors = FALSE)
-
-#read in file and create agency column
-file.name <- "DOD Aviation Logistics 2009-2017.csv" 
-data <- read.csv(file.name, stringsAsFactors = FALSE)
-data$agency <- "DOD"
-
-
+# This script defines a function to clean hand-coded google sheets 
+clean.DOD_Aviation <- function(file.name){
+  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # create agency column 
+  data$agency <- file.name
 
 # Format date, year, Congress, member name etc. 
 data$DATE %<>% as.Date("%m/%d/%y")
 data$date.closed %<>% as.Date("%m/%d/%y")
 
-
 #create year and congress columns
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 data$DATE[58] = as.Date('2010-07-14')
-
-
 
 #Create variable for position title (Senator or Representative)
 data %<>%
@@ -46,12 +39,10 @@ data %<>%
   mutate(last_name = gsub(pattern= "(\\w+) .*", replacement= "\\1", x=last_name))
 
 
-#rearrange new columns to the front 
-data %<>% select(FROM, first_name, last_name, title, everything())
-
-
 #specific correction
-data[31,2:4] = NA
+data[31,2:4] = NA # DAN, THIS NEEDS TO BE DEFINED WITH RESPECT TO AN ID NUMBER AND VARS, NOT POSITION AS THIS MAY CHANGE
 
+#rearrange new columns to the front 
+data %<>% select(DATE, FROM, SUBJECT, everything())
 
-#write.csv(data, paste("new", file.name)) # save as new file
+} # end function
