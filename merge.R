@@ -1,10 +1,17 @@
+# This script combines clean data files with other data sources.
 source("setup.R")
 
-source("EPA.R")
-epa <- clean.EPA("Adam EPA")
-source("DOD_Navy.R")
-dod.navy <- clean.DOD_NAVY("NAVY.csv")
+agency <- "EPA" # the title of the R script for cleaning these data
+status <- "recoded" # c("coded", "recoded", NA)
+coders <- c("Adam ","Avery ") # coder names that preface the agency name in the title of their google sheet
+epa <- clean.agency() # adds a sheet of unresolved coder discrepencies to drive
 
+agency <- "DOD_Navy" 
+status <- "NA"
+coders <- NA
+dod.navy <- clean.agency()
+
+# combine data
 data <- full_join(
   epa,
   dod.navy
@@ -13,4 +20,7 @@ data <- full_join(
 # now merge with voteview etc. ...
 
 
-rm(list=ls(all=TRUE)) # clean up workspace 
+#####################################
+# clean up workspace before committ #
+#####################################
+rm(list=ls(all=TRUE)) 

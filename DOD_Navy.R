@@ -1,5 +1,6 @@
-# This script defines a function to clean hand-coded google sheets 
-clean.DOD_NAVY <- function(file.name){
+# This script defines a function to clean google sheets of correspondence logs that may have been hand coded
+# It may also auto-code variables based on agency-specific information
+clean <- function(file.name){
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # create agency column 
@@ -35,11 +36,10 @@ data %<>%
   mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name))
 
 #rearrange new columns to the front 
-data %<>% select(DATE, FROM, SUBJECT, everything())
+data %<>% select(agency, ID, DATE, FROM, SUBJECT, everything())
 
 data$CERTAINTY %<>% as.character()
 data$NOTES %<>% as.character()
-
 
 return(data)
 
