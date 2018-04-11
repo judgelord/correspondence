@@ -1,10 +1,22 @@
-library(tidyverse)
-library(magrittr)
-options(stringsAsFactors = FALSE)
+# This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
+# It may also auto-code variables like TYPE based on agency-specific information
 
-file.name <- "USDA-DJL.csv"
-agency <- "USDA"
-data <- read.csv(file.name)
+# clean("USDA Robert") # for testing 
+
+clean <- function(file.name){
+  
+  # get data from google drive 
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # create agency column 
+  data$agency <- file.name
+  
+  # First, format date, year, Congress, member name etc. (things found in all logs)
+  data$DATE %<>% as.Date("%m/%d/%y")
+  data %<>% mutate(year = as.integer(substr(DATE,1,4)))
+  
+
+# Next, clean up SUBJECT for auto-coding (notice if TYPE has been hand coded)  
 unique(data$SUBJECT) # view SUBJECT strings
 log <- data %>% group_by(SUBJECT) %>% count() %>% arrange(desc(n))
 
@@ -24,36 +36,19 @@ data %<>%
   mutate(SUBJECT = ifelse (grepl("Food|FOOD|DRUG|Drug|LABELING", SUBJECT), "Food and Drug Saftey", SUBJECT)) %>%
   mutate(SUBJECT = ifelse (grepl("Animal|ANIMAL", SUBJECT), "Animal Health", SUBJECT))
   
+# most common SUBJECTS, useful for plotting 
+# major.subjects <- c("Appropriations", "Nutrition", "Forestry", "Environment","Farms", "Research", "Price Support", "Government", "Food and Drug Saftey")
 
 
-# select only the common SUBJECTS, useful for plotting 
-major.subjects <- c("Appropriations", "Nutrition",
-                    "Forestry", 
-                    "Environment","Farms", 
-                    "Research", "Price Support", "Government", "Food and Drug Saftey")
 
-  # data %<>% filter(SUBJECT %in% major.subjects)
-  mocs <- data %>% group_by(FROM) %>% 
-    count() %>% 
-    arrange(desc(n)) %>% 
-    ungroup()
-  mocs <- mocs$FROM[1:10]
-  mocs <- mocs[which(mocs != "")]
-  
-  
-  unique(data$SUBJECT) # view SUBJECT strings
-  
 
-data$DATE %<>% as.Date("%m/%d/%y")
 
-data %<>% mutate(year = as.integer(substr(DATE,1,4)))
 
-# data %<>% group_by(year) %>% count()
+# arrange columns for further hand coding
+data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+}
 
-ggplot(data %>% filter(FROM %in% mocs), aes(x = year, fill = FROM)) + geom_histogram() +
-  labs(x = "", y = "", title = paste("Letters from top 9 Members of Congress to the", agency)) +
-  theme(legend.position = "right", legend.title = element_blank(),
-        panel.background = element_blank()) +
-  scale_fill_hue(l=80)
-  
+
+
+
 
