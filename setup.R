@@ -6,7 +6,9 @@ library(googlesheets)
 library(googledrive)
 library(Rvoteview)
 
-members <- member_search(congress = c(110:120)) # get voteview data for selected Congresses
+members <- member_search(congress = c(110:120)) %>% # get voteview data for selected Congresses
+  mutate(last_name = gsub(", .*", "", bioname)) %>%
+  mutate(first_name = gsub(".+?, ", "", bioname)) # FIX THIS
 
 source("stateFromLower.R") # format state names
 source("clean.R") 
