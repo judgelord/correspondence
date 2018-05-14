@@ -1,14 +1,15 @@
-library(googlesheets)
-library(tidyverse)
-library(magrittr)
-options(stringsAsFactors = FALSE)
+# This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
+# It may also auto-code variables like TYPE based on agency-specific information
 
-file.name <- "FAA Sam"
+  #file.name <- "FAA Sam" # for testing
+
+
+clean <- function(file.name) {
 gs_ls() # log in 
 data <- gs_title(file.name) %>% gs_read() # get data
 
 # create agency column
-data$agency <- "FAA"
+data$agency <- file.name
 
 # Format date, year, Congress, member name etc. 
 data$DATE %<>% as.Date("%d-%b-%y")
@@ -26,10 +27,6 @@ data %<>%
   mutate(last_name = ifelse(grepl("Diaz-Balart", FROM), "Diaz-Balart", last_name)) %>% 
   mutate(last_name = ifelse(grepl("Shea-Porter", FROM), "Shea-Porter", last_name))
 
-  
-sum(grepl("/", data$last_name))
-
-
 #create variable for first name of the Sen/Rep
 data %<>%
   mutate(first_name = gsub(pattern = ".*(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
@@ -38,17 +35,18 @@ data %<>%
  
 #Create variable for position title (Senator or Representative)
 data %<>%
-  mutate(title = ifelse (grepl("Senator", FROM), "Senator", NA)) %>% 
+  mutate(title = ifelse (grepl("Senator|Senate", FROM), "Senator", NA)) %>% 
   mutate(title = ifelse(grepl("Representative", FROM), "Representative", title)) %>% 
   mutate(title = ifelse(grepl("Representative", assigned), "Representative", title)) %>% 
   mutate(title = ifelse(grepl("Senate", assigned), "Senator", title)) 
+
+#create ID variable 
+data$ID <- c(1:nrow(data))
   
-  
+# arrange columns for hand coding
+data %<>% select(ID, DATE, FROM, SUBJECT, everything())
 
-
-
-data %<>% select(FROM, first_name, last_name, title, DATE, everything())
-
+}
 
 
 

@@ -1,12 +1,18 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
+#file.name <- "DOD_DLA_Aviation" # for testing
+
+
 clean <- function(file.name) {
   # get data from google drive
   data <- gs_title(file.name) %>% gs_read()
   
   # create agency column
   data$agency <- file.name
+  
+  # create ID variable
+  data$ID <- c(1:nrow(data))
   
   # Format date, year, Congress, member name etc.
   data$DATE %<>% as.Date("%m/%d/%y")
@@ -15,8 +21,7 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
-  data$DATE[58] = as.Date('2010-07-14')
-  
+
   #Create variable for position title (Senator or Representative)
   data %<>%
     mutate(title = ifelse (grepl("Sen", FROM), "Senator", NA)) %>%
@@ -58,11 +63,16 @@ clean <- function(file.name) {
       pattern = "(\\w+) .*",
       replacement = "\\1",
       x = last_name
-    ))
+    )) %>% 
+    mutate(first_name = ifelse(grepl("(|) ", first_name), NA, first_name))
   
   
   #specific correction
-  data[31, 2:4] = NA # DAN, THIS NEEDS TO BE DEFINED WITH RESPECT TO AN ID NUMBER AND VARS, NOT POSITION AS THIS MAY CHANGE. THANKS!
+  data %<>%
+    mutate(last_name = ifelse(ID == 31, NA, last_name)) %>%
+    mutate(first_name = ifelse(ID == 31, NA, first_name)) %>%
+    mutate(title = ifelse(ID == 31, NA, title))
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())

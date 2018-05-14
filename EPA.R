@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "EPA Adam" # for testing
+#file.name <- "EPA Adam" # for testing
 
 clean <- function(file.name) {
   # get data from google drive
@@ -57,15 +57,10 @@ clean <- function(file.name) {
         x = state
       )
     )
-  
-  data$state %<>% stateFromLower()
-  
   data %<>%
     mutate(state =  ifelse(grepl(pattern = "\\W+", x = state), NA, state))
   
-  # check (for now) PLEASE CLEAN THIS UP WHEN FINISHED
-  #sum(grepl(pattern = "\\W+", x = data$state))
-  #sum(is.na(data$state))
+  data$state %<>% stateFromLower()
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
