@@ -10,7 +10,9 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(last_name = gsub(", .*", "", bioname)) %>%
   mutate(first_name = gsub(".+?, ", "", bioname)) # FIX THIS
 
+stateFromLower(members$state)
 source("stateFromLower.R") # format state names
 source("clean.R") 
 
 gs_ls() # log in to google
+

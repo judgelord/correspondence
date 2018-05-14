@@ -19,12 +19,23 @@ prc <- clean.agency()
 # merge data
 data <- plyr::join_all(list(
                   epa,
-                  #prc, # script works, but not all data are in google sheet
+                  #prc, # script works, but not all PRC data are in google sheet
                   dod.navy
                   ), type = 'full')
 
 # merge with voteview etc. ... TO BE IMPROVED
+for(i in length(members)){
+  data %<>% mutate(first_name = 
+                     ifelse(
+                       is.na(first_name) & last_name==members$last_name[i] & state == members$state[i],
+                       members$first_name,
+                       first_name))
+}
+
 data %<>% left_join(members, by = "last_name")
+
+
+
 
 
 
@@ -54,16 +65,17 @@ ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year)), aes(x = fac
 # plot by nominate and TYPE
 data %>% group_by(last_name, congress.x, nominate.dim1, chamber, TYPE, agency) %>%
   tally() %>% ungroup() %>%
-  filter(agency == "EPA" & !is.na(TYPE) & TYPE != 0, TYPE != 6 & !is.na(chamber)) %>%
+  filter(agency == "EPA" & TYPE != 0 & TYPE != 6 & !is.na(chamber)) %>%
   ggplot() +
-  geom_jitter(aes(x = congress.x, y = n,  color = nominate.dim1),
-              alpha = .3) +
-  scale_colour_gradient2(low = "red", mid = "purple", high = "blue") +
+  geom_jitter(aes(x = congress.x, y = agency,  color = nominate.dim1, size = n),
+              alpha = .5) +
+  scale_colour_gradient2(low = "red", mid = "grey", high = "blue") +
   geom_text(
     data = data %>% group_by(last_name, congress.x, nominate.dim1, chamber, TYPE, agency) %>%
       tally() %>% ungroup() %>%
-      filter(n > 100 & agency == "EPA" & !is.na(TYPE) & TYPE != 0 & TYPE != 6 & !is.na(chamber)),
-    aes(x = congress.x, y = n , label = last_name)
+      filter(n > 50 & agency == "EPA" & TYPE != 0 & TYPE != 6 & !is.na(chamber)),
+    aes(x = congress.x, y = agency, label = last_name, size = n/4 ),
+    position=position_jitter(width=0,height=.4)
   ) +
   facet_grid(TYPE ~ chamber)  
 
