@@ -21,8 +21,10 @@ clean <- function(file.name){
   data$ID <- c(1:nrow(data))
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
+  data %<>% mutate(year = as.integer(substr(DATE,1,4)))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
 
 # Next, clean up SUBJECT for auto-coding (notice if TYPE has been hand coded)  
