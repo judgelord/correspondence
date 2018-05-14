@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# clean("USDA Robert") # for testing 
+ #file.name <- "USDA" #for testing
 
 clean <- function(file.name){
   
@@ -12,9 +12,9 @@ clean <- function(file.name){
   data$agency <- file.name
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
-  
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001  
 
 # Next, clean up SUBJECT for auto-coding (notice if TYPE has been hand coded)  
 unique(data$SUBJECT) # view SUBJECT strings
@@ -39,10 +39,24 @@ data %<>%
 # most common SUBJECTS, useful for plotting 
 # major.subjects <- c("Appropriations", "Nutrition", "Forestry", "Environment","Farms", "Research", "Price Support", "Government", "Food and Drug Saftey")
 
+# create variable for first name
+data %<>%
+  mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
+  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
 
-
-
-
+# create variable for last name
+data %<>%
+  mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
+  mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
+  mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
+  mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
+  mutate(last_name = gsub(pattern = ".* (\\w+, Jr.|\\w+ Jr.)", replacement = "\\1", last_name)) %>% 
+  mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
+  mutate(last_name = gsub(pattern = ".* (\\w+, ..)", replacement = "\\1", last_name))  %>% 
+  mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM), gsub(pattern=".* (\\w+, ..)", 
+                                                               replacement = "\\1", FROM), last_name)) %>% 
+  mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM), gsub(pattern=".* (\\w+ ..)", 
+                                                               replacement = "\\1", FROM), last_name)) 
 
 # arrange columns for further hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())

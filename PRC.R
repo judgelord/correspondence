@@ -10,17 +10,17 @@ clean <- function(file.name) {
   # create agency column
   data$agency <- file.name
   
-  
+  #create year and congress columns
+  data$DATE %<>% as.Date("%m/%d/%y")
+  data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
   #Create variable for position title (Senator or Representative)
   data %<>%
     mutate(title = ifelse (grepl("Sen\\.|Sen |Senator ", FROM), "Senator", NA)) %>%
     mutate(title = ifelse(grepl("Rep\\.|Rep |Representative ", FROM), "Representative", title))
   
-  #create year and congress columns
-  data$DATE %<>% as.Date("%m/%d/%y")
-  data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
-  data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
+  
   
   
   #reformat state column
