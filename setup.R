@@ -28,14 +28,8 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
 # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
 
 
-stateFromLower(members$state)
 source("stateFromLower.R") # format state names
 source("clean.R") 
 
 gs_ls() # log in to google
 
-
-#####################################
-# clean up workspace before commit #
-#####################################
-rm(list = ls(all = TRUE))
