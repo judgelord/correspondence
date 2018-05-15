@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-file.name <- "EPA Adam" # for testing
+#file.name <- "EPA Adam" # for testing
 
 clean <- function(file.name) {
   # get data from google drive
@@ -25,7 +25,9 @@ clean <- function(file.name) {
       replacement = "\\1",
       x = FROM
     ))%>% 
-    mutate(last_name = str_to_upper(last_name))
+    mutate(last_name = str_to_upper(last_name)) %>% 
+    mutate(last_name = gsub("^MC", replacement = "Mc", last_name))
+  
   
   # create variable for first name of Sen/Rep
   data %<>%
