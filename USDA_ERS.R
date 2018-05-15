@@ -32,19 +32,23 @@ clean <- function(file.name){
   data %<>%
     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
     mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
-    mutate(first_name =  ifelse(grepl("Butch", first_name), "C.L. 'Butch'", first_name))
+    mutate(first_name =  ifelse(grepl("Butch", first_name), "C.L. 'Butch'", first_name)) %>% 
+    mutate(first_name = stri_trans_totitle(first_name))
+  
   
   # create variable for last name
   data %<>%
     mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-    mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))  
+    mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))  %>% 
+    mutate(last_name = str_to_upper(last_name))
   
-  #Create variable for position title (Senator or Representative)
+  
+  #Create variable for chamber (Senator or Representative)
   data %<>%
-    mutate(title = ifelse (grepl("Senator", Position), "Senator", NA)) %>% 
-    mutate(title = ifelse(grepl("Congress", Position), "Representative", title)) 
+    mutate(chamber = ifelse (grepl("Senator", Position), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("Congress", Position), "House", chamber)) 
   
   
   # Consolidate and rename like subjects

@@ -42,7 +42,9 @@ data %<>%
 # create variable for first name
 data %<>%
   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
+  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
+  mutate(first_name = stri_trans_totitle(first_name))
+
 
 # create variable for last name
 data %<>%
@@ -56,7 +58,9 @@ data %<>%
   mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM), gsub(pattern=".* (\\w+, ..)", 
                                                                replacement = "\\1", FROM), last_name)) %>% 
   mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM), gsub(pattern=".* (\\w+ ..)", 
-                                                               replacement = "\\1", FROM), last_name)) 
+                                                               replacement = "\\1", FROM), last_name)) %>% 
+  mutate(last_name = str_to_upper(last_name))
+
 
 # arrange columns for further hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())

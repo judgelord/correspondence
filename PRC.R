@@ -15,10 +15,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
-  #Create variable for position title (Senator or Representative)
+  #Create variable for chamber (Senator or Representative)
   data %<>%
-    mutate(title = ifelse (grepl("Sen\\.|Sen |Senator ", FROM), "Senator", NA)) %>%
-    mutate(title = ifelse(grepl("Rep\\.|Rep |Representative ", FROM), "Representative", title))
+    mutate(chamber = ifelse (grepl("Sen\\.|Sen |Senator ", FROM), "Senate", NA)) %>%
+    mutate(chamber = ifelse(grepl("Rep\\.|Rep |Representative ", FROM), "House", chamber))
   
   
   
@@ -33,7 +33,8 @@ clean <- function(file.name) {
       pattern = ".* |.*\\.",
       replacement = "",
       x = FROM
-    ))
+    ))%>% 
+    mutate(last_name = str_to_upper(last_name))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
