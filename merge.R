@@ -27,13 +27,8 @@ dod.navy <- clean.agency()
 agency <- "DOT_FAA"
 status <- "NA"
 coders <- NA
-USDA <- clean.agency()
+DOT_FAA <- clean.agency()
 
-# DOT 
-agency <- "FAA"
-status <- "NA"
-coders <- NA
-USDA <- clean.agency()
 
 # USDA 
 agency <- "USDA"
@@ -41,30 +36,30 @@ status <- "NA"
 coders <- NA
 USDA <- clean.agency()
 
-agency <- "USDA_Forest Service"
+agency <- "USDA_FS"
 status <- "NA"
 coders <- NA
-USDA_ForestService <- clean.agency()
+USDA_FS <- clean.agency()
 
 agency <- "USDA_RD"
 status <- "NA"
 coders <- NA
-USDA <- clean.agency()
+USDA_RD <- clean.agency()
 
 agency <- "USDA_ERS"
 status <- "NA"
 coders <- NA
-USDA <- clean.agency()
+USDA_ERS <- clean.agency()
 
 agency <- "USDA_NASS"
 status <- "NA"
 coders <- NA
-USDA <- clean.agency()
+USDA_NASS <- clean.agency()
 
 agency <- "USDA_NRCS"
 status <- "NA"
 coders <- NA
-USDA <- clean.agency()
+USDA_NRCS <- clean.agency()
 
 # merge data
 data <- plyr::join_all(list(
