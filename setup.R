@@ -8,7 +8,7 @@ library(Rvoteview)
 
 members <- member_search(congress = c(110:120)) %>% # get voteview data for selected Congresses
   mutate(last_name = gsub(", .*", "", bioname)) %>%
-  mutate(first_name = gsub("^.*?, |, Jr.|, III| III", "", bioname)) %>%
+  mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| II|, II", "", bioname)) %>%
   mutate(common_name = stringr::str_extract(bioname, "\\(.*\\)")) %>%
   mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
   mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
