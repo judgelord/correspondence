@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "EPA Adam" # for testing
+file.name <- "EPA Adam" # for testing
 
 clean <- function(file.name) {
   # get data from google drive
@@ -24,24 +24,33 @@ clean <- function(file.name) {
       pattern = "(.*),.*",
       replacement = "\\1",
       x = FROM
-    ))
+    ))%>% 
+    mutate(last_name = str_to_upper(last_name))
   
   # create variable for first name of Sen/Rep
   data %<>%
     mutate(first_name =  gsub(
-      pattern = "(.*), (\\w+).*",
+      pattern = "(.*), (\\w+).*-.*",
       replacement = "\\2",
       x = FROM
-    ))
+    )) %>% 
+    mutate(first_name = stri_trans_totitle(first_name))
   
-  # create variable for position title (Senator or Representative)
+  
+  # create variable for middle name/initial of Sen/Rep
+  data%<>%
+    mutate(middle_name = ifelse(grepl(pattern="(.*), (\\w+ )(\\w+|\\w+.)-.*", x=FROM), gsub(
+      pattern = "(.*), (\\w+ )(\\w+|\\w+.)-.*", replacement = "\\3", x= FROM), NA))
+  
+  
+  # create variable for chamber position  (Senator or Representative)
   data %<>%
-    mutate(title = ifelse (grepl("Senate|SENATE", FROM), "Senator", NA)) %>%
-    mutate(title = ifelse(
+    mutate(chamber = ifelse (grepl("Senate|SENATE", FROM), "Senate", NA)) %>%
+    mutate(chamber = ifelse(
       grepl("Representative|REPRESENTATIVE|Repesentatives", FROM),
-      "Representative",
-      title
-    ))
+      "House",
+      chamber
+    )) 
   
   # create state variable (if given)
   data %<>%

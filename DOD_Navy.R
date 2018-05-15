@@ -1,7 +1,7 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
- #file.name <- "DOD_Navy" # for testing
+ file.name <- "DOD_Navy" # for testing
 
 
 clean <- function(file.name) {
@@ -18,10 +18,10 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
   
-  #Create variable for position title (Senator or Representative)
+  #Create variable for chamber (Senator or Representative)
   data %<>%
-    mutate(title = ifelse (grepl("Sen|SEN", FROM), "Senator", NA)) %>%
-    mutate(title = ifelse(grepl("Rep|REP", FROM), "Representative", title))
+    mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
+    mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
   
   
   #create variable for last name of the Sen/Rep
@@ -33,8 +33,10 @@ clean <- function(file.name) {
         x = FROM
       )
     ) %>%
-    mutate(last_name = ifelse(is.na(title), NA, last_name)) %>%
-    mutate(last_name = ifelse(grepl("\\W", last_name), NA, last_name))
+    mutate(last_name = ifelse(is.na(chamber), NA, last_name)) %>%
+    mutate(last_name = ifelse(grepl("\\W", last_name), NA, last_name)) %>% 
+    mutate(last_name = toupper(last_name)) 
+  
   
   
   #create variable for first name of the Sen/Rep
@@ -44,8 +46,10 @@ clean <- function(file.name) {
       replacement = "\\1",
       x = FROM
     )) %>%
-    mutate(first_name = ifelse(is.na(title), NA, first_name)) %>%
-    mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name))
+    mutate(first_name = ifelse(is.na(chamber), NA, first_name)) %>%
+    mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name)) %>% 
+    mutate(first_name = stri_trans_totitle(first_name))
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())

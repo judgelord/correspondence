@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "USDA_NRCS" # for testing
+file.name <- "USDA_NRCS" # for testing
 
 clean <- function(file.name){
   
@@ -26,7 +26,9 @@ clean <- function(file.name){
   # create variable for first name
   data %<>%
     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-    mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
+    mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
+    mutate(first_name = stri_trans_totitle(first_name)) 
+  
   
   # create variable for last name
   data %<>%
@@ -35,7 +37,10 @@ clean <- function(file.name){
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
     mutate(last_name = gsub(pattern = ".* (\\w+, Jr.)", replacement = "\\1", last_name)) %>% 
-    mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name))
+    mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
+    mutate(last_name = str_to_upper(last_name))
+  
+    
   
   
   # Consolidate and rename like subjects

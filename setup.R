@@ -1,10 +1,11 @@
 options(stringsAsFactors = FALSE)
-# devtools::install_github("voteview/Rvoteview")
+#devtools::install_github("voteview/Rvoteview")
 library(tidyverse)
 library(magrittr)
 library(googlesheets)
 library(googledrive)
 library(Rvoteview)
+library(stringi)
 
 members <- member_search(congress = c(110:120)) %>% # get voteview data for selected Congresses
   mutate(last_name = gsub(", .*", "", bioname)) %>%
