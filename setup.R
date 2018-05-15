@@ -16,3 +16,8 @@ source("clean.R")
 
 gs_ls() # log in to google
 
+
+#####################################
+# clean up workspace before commit #
+#####################################
+rm(list = ls(all = TRUE))
