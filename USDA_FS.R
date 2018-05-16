@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- #file.name <- "USDA_Forest Service" # for testing
+#file.name <- "USDA_FS" # for testing
 
 clean <- function(file.name){
   
@@ -30,8 +30,8 @@ clean <- function(file.name){
     mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
     mutate(first_name =  ifelse(grepl("Butch", first_name), "C.L. 'Butch'", first_name)) %>% 
     mutate(first_name = stri_trans_totitle(first_name)) 
-    
-    
+  
+  
   
   
   # create variable for last name
@@ -42,7 +42,7 @@ clean <- function(file.name){
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))  %>% 
     mutate(last_name = str_to_upper(last_name))
   
-    
+  
   
   
   

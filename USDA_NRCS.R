@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-file.name <- "USDA_NRCS" # for testing
+# file.name <- "USDA_NRCS" # for testing
 
 clean <- function(file.name){
   
@@ -23,6 +23,11 @@ clean <- function(file.name){
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
+  # chamber 
+  data %<>% 
+    mutate(chamber = ifelse(`VIP Type` == "U.S. Senator", "Senate", NA)) %>%
+    mutate(chamber = ifelse(`VIP Type` == "Member of Congress", "House", chamber)) 
+  
   # create variable for first name
   data %<>%
     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 

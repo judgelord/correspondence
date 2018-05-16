@@ -14,9 +14,8 @@ intercoder.agreement <- function(data) {
   recode <- "recode.csv"
   filter(data,!is.na(TYPE)) %>% group_by(ID) %>% filter(length(unique(TYPE)) == 2) %>% arrange(ID) %>% select(agency, ID, everything()) %>%
     write.csv(recode) # saving file locally is faster
-  drive_upload(recode,
-               path = paste0("Correspondence/", agency, " to Recode"),
-               type = "spreadsheet")
+  drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
+  drive_upload(recode, path = paste0("Correspondence/", agency, " to Recode"), type = "spreadsheet")
   file.remove(recode) # remove local file
   
   return(
@@ -41,14 +40,19 @@ intercoder.agreement <- function(data) {
 clean.agency <- function() {
   source(paste0(agency, ".R"))
   
-  if (status == "NA") {
+  if (status == "not coded") {
     data <- clean(agency)
   }
   
   if (status == "coded") {
-    data <- full_join(clean(paste(agency, coders[1])),
-                      clean(paste(agency, coders[2])))
-    print(intercoder.agreement(data))
+    if (length(coders) == 1) {
+      data <- clean(paste(agency, coders[1]))
+    }
+    if(length(coders) == 2) {
+      data <- full_join(clean(paste(agency, coders[1])),
+                        clean(paste(agency, coders[2])))
+      print(intercoder.agreement(data))
+    }
   }
   
   if (status == "recoded") {
@@ -60,8 +64,23 @@ clean.agency <- function() {
     print(intercoder.agreement(data))
   }
   
-  data %<>% group_by(ID) %<>% top_n(1, ID) %>% ungroup() # select on observation
+  data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() # select on observation
   data$agency <- agency # name agency
+  
+ # things to match on
+  for(i in 1:length(members$id)) {
+    tryCatch(
+    data %<>% 
+      mutate(first_name = ifelse(last_name == members$last_name[i] &
+                                   first_name == members$common_name[i] & 
+                                   congress == members$congress[i] & 
+                                   chamber == members$chamber[i],
+                                 members$first_name[i], first_name))
+    )
+  }
+  
+  # problem vars
+  data$ALT_TYPE <-NA
   return(data)
 }
 
