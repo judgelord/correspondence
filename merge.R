@@ -1,34 +1,54 @@
 # This script combines clean log/letter files with other data sources.
+# agency = the title of the R script for cleaning these data
+# status = c("coded", "recoded", "NA"), NA if not yet coded
+# coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
+# clean.agency() # cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+
+# load functions
 source("setup.R")
 
-# INDEPENDENT AGENCIES 
-agency <- "EPA" # the title of the R script for cleaning these data
-status <- "coded" # c("coded", "recoded", "NA")
-coders <- c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
-epa <- clean.agency() # adds a sheet of unresolved coder discrepencies to google drive
+# Departments and agencies are listed A-Z
 
-agency <- "PRC"
+# DHS
+agency <- "DHS"
 status <- "NA"
 coders <- NA
-prc <- clean.agency()
+dhs <- clean.agency()
 
 # DOD 
-agency <- "DOD_Navy"
+agency <- "DOD_Aviation"
 status <- "NA"
 coders <- NA
 dod.navy <- clean.agency()
 
-agency <- "DOD_Aviation"
+agency <- "DOD_Navy"
 status <- "NA"
 coders <- NA
 dod.navy <- clean.agency()
 
 # DOT 
 agency <- "DOT_FAA"
-status <- "NA"
-coders <- NA
+status <- "coded"
+coders <- c("Sam")
 DOT_FAA <- clean.agency()
 
+#EPA
+agency <- "EPA" # the title of the R script for cleaning these data
+status <- "coded" # c("coded", "recoded", "NA") NA if not yet coded
+coders <- c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
+epa <- clean.agency() # adds a sheet of unresolved coder discrepencies to google drive
+
+#FCC
+agency <- "FCC"
+status <- "coded"
+coders <- "Devin"
+prc <- clean.agency()
+
+#PRC
+agency <- "PRC"
+status <- "NA"
+coders <- NA
+prc <- clean.agency()
 
 # USDA 
 agency <- "USDA"
@@ -36,20 +56,15 @@ status <- "NA"
 coders <- NA
 USDA <- clean.agency()
 
-agency <- "USDA_FS"
-status <- "NA"
-coders <- NA
-USDA_FS <- clean.agency()
-
-agency <- "USDA_RD"
-status <- "NA"
-coders <- NA
-USDA_RD <- clean.agency()
-
 agency <- "USDA_ERS"
 status <- "NA"
 coders <- NA
 USDA_ERS <- clean.agency()
+
+agency <- "USDA_FS"
+status <- "NA"
+coders <- NA
+USDA_FS <- clean.agency()
 
 agency <- "USDA_NASS"
 status <- "NA"
@@ -60,6 +75,13 @@ agency <- "USDA_NRCS"
 status <- "NA"
 coders <- NA
 USDA_NRCS <- clean.agency()
+
+agency <- "USDA_RD"
+status <- "NA"
+coders <- NA
+USDA_RD <- clean.agency()
+
+
 
 # merge data
 data <- plyr::join_all(list(
