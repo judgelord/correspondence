@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- file.name <- "USDA" #for testing
+ #file.name <- "USDA" #for testing
 
 clean <- function(file.name){
   
@@ -49,7 +49,6 @@ data %<>%
 data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV", "", data$FROM)
 
 
-
 # create variable for last name
 data %<>%
   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM2)) %>% 
@@ -69,15 +68,18 @@ data %<>%
   mutate(last_name = gsub("ANN EMERSON", replacement = "EMERSON", last_name)) %>% 
   mutate(last_name = gsub("MICHAEL CONAWAY", replacement = "CONAWAY", last_name)) %>% 
   mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name)) %>%  
-  mutate(first_name = gsub("BENJAMIN NELSON", replacement = "Earl", last_name)) %>% 
+  mutate(first_name = gsub("BENJAMIN NELSON", replacement = "Earl", first_name)) %>% 
   mutate(last_name = gsub("BENJAMIN NELSON", replacement = "NELSON", last_name)) %>% 
-  mutate(first_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "John", last_name)) %>% 
+  mutate(first_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "John", first_name)) %>% 
   mutate(last_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "ROCKEFELLER", last_name)) %>% 
-  mutate(first_name = gsub(".*SANDLIN.*", replacement = "Stephanie", last_name)) %>% 
-  mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name))
+  mutate(first_name = gsub(".*SANDLIN.*", replacement = "Stephanie", first_name)) %>% 
+  mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name)) %>% 
+  mutate(last_name = gsub("SCHULTZ", replacement = "WASSERMAN SCHULTZ", last_name))
+
   
   
 
+data <- data[,!(names(data) %in% "FROM2")]
 
   
 

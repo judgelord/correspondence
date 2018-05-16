@@ -42,7 +42,47 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
 # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
 # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
 
+<<<<<<< HEAD
 members$congresses <- NA # this list format throughs errors in merge
+=======
+
+# Formats last_name to similiar format as members$last_namme
+# Capitalizes letters and fixes common errors 
+formatLastName <- function(data){
+  
+  data %<>%
+    mutate(last_name = str_to_upper(last_name)) %>% 
+    mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
+    mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name)) %>% 
+    mutate(last_name = gsub("DELAURO", replacement = "DeLAURO", last_name)) %>% 
+    mutate(last_name = gsub("DEMINT", replacement = "DeMINT", last_name)) %>% 
+    mutate(last_name = gsub("LOBIONDO", replacement = "LoBIONDO", last_name)) %>% 
+    mutate(last_name = gsub("LATOURETTE", replacement = "LaTOURETTE", last_name)) %>% 
+    mutate(last_name = gsub("LAHOOD", replacement = "LaHOOD", last_name)) %>% 
+    mutate(last_name = gsub("DEGETTE", replacement = "DeGETTE", last_name)) %>% 
+    mutate(last_name = gsub("DELBENE", replacement = "DelBENE", last_name)) %>% 
+    mutate(last_name = gsub("DESANTIS", replacement = "DeSANTIS", last_name)) %>% 
+    mutate(last_name = gsub("MACARTHUR", replacement = "MacARTHUR", last_name)) %>% 
+    mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
+    mutate(last_name = gsub("DUNCAN JOHN.*", replacement = "DUNCAN", last_name)) %>% 
+    mutate(last_name = gsub("JOHNSON HENRY.*", replacement = "JOHNSON", last_name)) %>% 
+    mutate(last_name = gsub("BONO MACK.*", replacement = "BONO", last_name)) %>% 
+    mutate(last_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "ROCKEFELLER", last_name)) %>% 
+    mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Lujan, Ben.*", FROM),gsub("Lujan, Ben.*", replacement = "LUJÁN", FROM), last_name)) %>% 
+    mutate(last_name = gsub("MOORE CAPITO.*", replacement = "CAPITO", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Milkulski, Barbara", FROM), "MIKULSKI", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("GRESHAM BARRETT", last_name), "BARRETT", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Shelley Moore", FROM), "CAPITO", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Cathy McMorris|McMorris, Cathy", FROM), "McMORRIS RODGERS", last_name)) %>% 
+    mutate(last_name = gsub(".*SCHULTZ.*", replacement = "WASSERMAN SCHULTZ", last_name)) 
+  
+  return(data)
+  
+}
+
+members$congresses <- NA
+>>>>>>> c632368cf8832ff4fae6bca7872e859e8da6c7fc
 
 
 
