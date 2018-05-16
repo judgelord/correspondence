@@ -14,19 +14,22 @@ agency <- "DHS"
 status <- "coded"
 coders <- "Katie" # c("Katie", "Megha")
 DHS <- clean.agency()
-DHS %<>% left_join(members, by = c("congress", "chamber", "last_name"))
+DHS %<>% left_join(members, by = c("congress", "chamber", "first_name", "last_name"))
 
 # DOD 
 agency <- "DOD_DLA_Aviation"
 status <- "not coded"
 coders <- NA
 DOD_DLA_Aviation <- clean.agency()
+DOD_DLA_Aviation %<>% left_join(members, by = c("congress", "chamber", "first_name", "last_name"))
+
+
 
 agency <- "DOD_Navy"
 status <- "coded"
 coders <- c("Delaney")
 DOD_Navy <- clean.agency() 
-DOD_Navy %<>% left_join(members, by = c("last_name", "congress", "chamber"))
+DOD_Navy %<>% left_join(members, by = c("congress", "chamber", "last_name"))
 
 # DOT 
 agency <- "DOT_FAA"
@@ -52,12 +55,14 @@ agency <- "PRC"
 status <- "not coded"
 coders <- NA
 PRC <- clean.agency()
+PRC %<>% left_join(members, by = c("congress", "chamber", "last_name"))
 
 # USDA 
 agency <- "USDA"
 status <- "not coded"
 coders <- NA
 USDA <- clean.agency()
+USDA %<>% left_join(members, by = c("congress", "chamber", "last_name"))
 
 agency <- "USDA_ERS"
 status <- "not coded"
@@ -81,13 +86,13 @@ agency <- "USDA_NRCS"
 status <- "not coded"
 coders <- NA
 USDA_NRCS <- clean.agency()
-USDA_NRCS %<>% left_join(members, by = c("congress", "first_name", "last_name")) # change to chamber when USDA_NRCS.R is updated
+USDA_NRCS %<>% left_join(members, by = c("congress", "chamber", "last_name")) 
 
 agency <- "USDA_RD"
 status <- "not coded"
 coders <- NA
 USDA_RD <- clean.agency() 
-USDA_NASS %<>% left_join(members, by = c("congress", "first_name", "last_name"))
+USDA_RD %<>% left_join(members, by = c("congress", "first_name", "last_name"))
 
 
 # merge data
@@ -144,7 +149,7 @@ data %>% group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
     aes(x = congress, y = agency, label = last_name, size = n/4 ),
     position=position_jitter(width=0,height=.4)
   ) +
-  scale_x_continuous(breaks = seq(107, 115, 1)) + 
+  scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
   facet_grid(. ~ chamber)  +
   labs(y = "", 
        title = paste("Letters")) +

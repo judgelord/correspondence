@@ -66,7 +66,21 @@ clean.agency <- function() {
   
   data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() # select on observation
   data$agency <- agency # name agency
-    # data %<>% full_join(members) # moved to merge file
+  
+ # things to match on
+  for(i in 1:length(members$id)) {
+    tryCatch(
+    data %<>% 
+      mutate(first_name = ifelse(last_name == members$last_name[i] &
+                                   first_name == members$common_name[i] & 
+                                   congress == members$congress[i] & 
+                                   chamber == members$chamber[i],
+                                 members$first_name[i], first_name))
+    )
+  }
+  
+  # problem vars
+  data$ALT_TYPE <-NA
   return(data)
 }
 
