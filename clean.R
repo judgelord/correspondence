@@ -41,14 +41,19 @@ intercoder.agreement <- function(data) {
 clean.agency <- function() {
   source(paste0(agency, ".R"))
   
-  if (status == "NA") {
+  if (status == "not coded") {
     data <- clean(agency)
   }
   
   if (status == "coded") {
-    data <- full_join(clean(paste(agency, coders[1])),
-                      clean(paste(agency, coders[2])))
-    print(intercoder.agreement(data))
+    if (length(coders) == 1) {
+      data <- clean(paste(agency, coders[1]))
+    }
+    if(length(coders) == 2) {
+      data <- full_join(clean(paste(agency, coders[1])),
+                        clean(paste(agency, coders[2])))
+      print(intercoder.agreement(data))
+    }
   }
   
   if (status == "recoded") {
@@ -60,8 +65,9 @@ clean.agency <- function() {
     print(intercoder.agreement(data))
   }
   
-  data %<>% group_by(ID) %<>% top_n(1, ID) %>% ungroup() # select on observation
+  data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() # select on observation
   data$agency <- agency # name agency
+  # data %<>% full_join(members) # moved to merge file
   return(data)
 }
 

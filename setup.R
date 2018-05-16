@@ -18,6 +18,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(middle_name = gsub(" ", "", middle_name)) %>%
   mutate(middle_initial = substr(middle_name, 1, 1)) %>%
   mutate(first_name = gsub(" .*", "", first_name)) %>%
+  mutate(state = tolower(state)) %>%
   select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything())
 # missing non-voting members:
 # American Samoa at-large	Delegate	Amata Coleman Radewagen	Republican	2014

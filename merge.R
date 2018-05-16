@@ -1,6 +1,6 @@
 # This script combines clean log/letter files with other data sources.
 # agency = the title of the R script for cleaning these data
-# status = c("coded", "recoded", "NA"), NA if not yet coded
+# status = c("coded", "recoded", "not coded"), NA if not yet coded
 # coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 # clean.agency() # cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
@@ -11,20 +11,21 @@ source("setup.R")
 
 # DHS
 agency <- "DHS"
-status <- "NA"
-coders <- NA
-dhs <- clean.agency()
+status <- "coded"
+coders <- c("Katie", "Megha")
+DHS <- clean.agency()
 
 # DOD 
 agency <- "DOD_DLA_Aviation"
-status <- "NA"
+status <- "not coded"
 coders <- NA
-dod.navy <- clean.agency()
+DOD_DLA_Aviation <- clean.agency()
 
 agency <- "DOD_Navy"
-status <- "NA"
-coders <- NA
-dod.navy <- clean.agency()
+status <- "coded"
+coders <- c("Delaney")
+DOD_Navy <- clean.agency() 
+DOD_Navy %<>% left_join(members, by = c("last_name", "congress", "chamber"))
 
 # DOT 
 agency <- "DOT_FAA"
@@ -34,75 +35,68 @@ DOT_FAA <- clean.agency()
 
 #EPA
 agency <- "EPA" # the title of the R script for cleaning these data
-status <- "coded" # c("coded", "recoded", "NA") NA if not yet coded
+status <- "coded" # c("coded", "recoded", "not coded") NA if not yet coded
 coders <- c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
-epa <- clean.agency() # adds a sheet of unresolved coder discrepencies to google drive
+EPA <- clean.agency() 
+EPA %<>% left_join(members, by = c("last_name", "congress", "chamber", "state"))
 
 #FCC
 agency <- "FCC"
 status <- "coded"
 coders <- "Devin"
-prc <- clean.agency()
+FCC <- clean.agency()
 
 #PRC
 agency <- "PRC"
-status <- "NA"
+status <- "not coded"
 coders <- NA
-prc <- clean.agency()
+PRC <- clean.agency()
 
 # USDA 
 agency <- "USDA"
-status <- "NA"
+status <- "not coded"
 coders <- NA
 USDA <- clean.agency()
 
 agency <- "USDA_ERS"
-status <- "NA"
+status <- "not coded"
 coders <- NA
 USDA_ERS <- clean.agency()
 
 agency <- "USDA_FS"
-status <- "NA"
+status <- "not coded"
 coders <- NA
 USDA_FS <- clean.agency()
 
 agency <- "USDA_NASS"
-status <- "NA"
-coders <- NA
+status <- "coded"
+coders <- c("Robert", "Henry")
 USDA_NASS <- clean.agency()
 
 agency <- "USDA_NRCS"
-status <- "NA"
+status <- "not coded"
 coders <- NA
 USDA_NRCS <- clean.agency()
 
 agency <- "USDA_RD"
-status <- "NA"
+status <- "not coded"
 coders <- NA
-USDA_RD <- clean.agency()
+USDA_RD <- clean.agency() 
 
 
 
 # merge data
 data <- plyr::join_all(list(
-                  epa,
-                  #prc, # script works, but not all PRC data are in google sheet
-                  dod.navy
-                  ), type = 'full')
-
-# merge with voteview etc. ... TO BE IMPROVED
-for(i in length(members)){
-  data %<>% mutate(first_name = 
-                     ifelse(
-                       is.na(first_name) & last_name==members$last_name[i] & state == members$state[i],
-                       members$first_name,
-                       first_name))
-}
-
-data %<>% left_join(members, by = "last_name")
-
-
-
+  DOD_DLA_Aviation,
+  DOD_NAVY,
+  EPA,
+  PRC, # incomplete, need to add sheets
+  USDA,
+  USDA_ERS,
+  USDA_FS,
+  USDA_NASS,
+  USDA_NRCS
+  ), type = 'full')
 
 
 
@@ -111,17 +105,17 @@ data %<>% left_join(members, by = "last_name")
 ###################
 
 # identify top members
-mocs <- data %>% filter(!is.na(last_name), !is.na(title)) %>%
-  group_by(last_name, title, agency) %>% tally() %>% ungroup() %>%
-  group_by(agency, title) %>% top_n(2, n) %>% ungroup()
+mocs <- data %>% filter(!is.na(last_name), !is.na(chamber)) %>%
+  group_by(last_name, chamber, agency) %>% tally() %>% ungroup() %>%
+  group_by(agency, chamber) %>% top_n(2, n) %>% ungroup()
 
 # plot by agency 
-ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year)), aes(x = factor(year), fill = last_name)) +
+ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year), !is.na(chamber)), 
+       aes(x = factor(year), fill = last_name)) +
   geom_bar() +
   facet_grid(agency ~ chamber) + 
   labs(x = "", y = "", 
-       title = paste("Letters from top 2 members of each chamber to the", 
-                     paste(unique(data$agency), collapse = ", "))) +
+       title = paste("Letters from top 2 members of each chamber to each agency")) +
   theme(
     legend.title = element_blank(),
     panel.background = element_blank()
@@ -130,24 +124,31 @@ ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year)), aes(x = fac
 
 
 # plot by nominate and TYPE
-data %>% group_by(last_name, congress.x, nominate.dim1, chamber, TYPE, agency) %>%
+agenciesToPlot <- c("EPA", "DOT_FAA", "DOD_Navy")
+data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
   tally() %>% ungroup() %>%
-  filter(agency == "EPA" & TYPE != 0 & TYPE != 6 & !is.na(chamber)) %>%
+  filter(agency %in% agenciesToPlot & TYPE != 0 & TYPE != 6 & !is.na(chamber)) %>%
   ggplot() +
-  geom_jitter(aes(x = congress.x, y = agency,  color = nominate.dim1, size = n),
+  geom_jitter(aes(x = congress, y = agency,  color = nominate.dim1, size = n),
               alpha = .5) +
   scale_colour_gradient2(low = "red", mid = "grey", high = "blue") +
   geom_text(
-    data = data %>% group_by(last_name, congress.x, nominate.dim1, chamber, TYPE, agency) %>%
+    data = data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
       tally() %>% ungroup() %>%
-      filter(n > 50 & agency == "EPA" & TYPE != 0 & TYPE != 6 & !is.na(chamber)),
-    aes(x = congress.x, y = agency, label = last_name, size = n/4 ),
+      filter(n > 10 & agency %in% agenciesToPlot & TYPE != 0 & TYPE != 6 & !is.na(chamber)),
+    aes(x = congress, y = agency, label = last_name, size = n/4 ),
     position=position_jitter(width=0,height=.4)
   ) +
-  facet_grid(TYPE ~ chamber)  
+  facet_grid(TYPE ~ chamber)  +
+  labs(y = "", 
+       title = paste("Letters to ", agenciesToPlot)) +
+  theme(
+    #axis.text.y = element_blank(),
+    axis.ticks = element_blank()
+  ) 
 
 
 #####################################
 # clean up workspace before commit #
 #####################################
-rm(list = ls(all = TRUE))
+# rm(list = ls(all = TRUE))
