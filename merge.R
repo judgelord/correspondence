@@ -16,7 +16,7 @@ coders <- NA
 dhs <- clean.agency()
 
 # DOD 
-agency <- "DOD_Aviation"
+agency <- "DOD_DLA_Aviation"
 status <- "NA"
 coders <- NA
 dod.navy <- clean.agency()

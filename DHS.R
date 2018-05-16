@@ -4,14 +4,17 @@ library(tidyverse)
 library(magrittr)
 options(stringsAsFactors = FALSE)
 
-file.name <- "DHS Megha"
-gs_ls() # log in 
-data <- gs_title(file.name) %>% gs_read() # get data
+# file.name <- "DHS Megha" # for testing
 
-
-
+clean <- function(file.name) {
+  gs_ls() # log in 
+  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # create agency column
+  data$agency <- file.name
+  
 #rename agency column
-colnames(data)[colnames(data) == 'AGENCY'] <- 'agency'
+colnames(data)[colnames(data) == 'AGENCY'] <- 'subagency'
 data %<>%
   mutate(agency = ifelse(is.na(agency), 'DHS', agency))
 
@@ -64,5 +67,9 @@ data %<>%
   mutate(last_name = ifelse(grepl("O'Rourke", FROM), "O'Rourke", last_name)) %>% 
   mutate(last_name = ifelse(is.na(title), NA, last_name))
 
-data %<>% select(X1, FROM, first_name, last_name, title, DATE, everything())
+
+# arrange columns for hand coding
+data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+
+}
 
