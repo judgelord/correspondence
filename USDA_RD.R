@@ -7,6 +7,11 @@ clean <- function(file.name) {
   # get data from google drive
   data <- gs_title(file.name) %>% gs_read()
   
+  # create ID column
+  names(data)[names(data) == 'X1'] <- 'ID'
+  
+  
+  
   # create agency column
   data$agency <- file.name
   
@@ -15,6 +20,30 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
+  
+  data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II ", "", data$FROM)
+ 
+  # Creates name variables
+  data %<>%
+    mutate(last_name = gsub(", .*", "", FROM2)) %>%
+    mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| II|, II", "", FROM2)) %>%
+    mutate(common_name = stringr::str_extract(FROM2, "\\(.*\\)")) %>%
+    mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
+    mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
+    mutate(middle_name = stringr::str_extract(first_name, " .*")) %>%
+    mutate(middle_name = gsub(" ", "", middle_name)) %>%
+    mutate(middle_initial = substr(middle_name, 1, 1)) %>%
+    mutate(first_name = gsub(" .*", "", first_name)) %>%
+    mutate(last_name = gsub("Jr.| Jr.|, III| III| II|, II|IV", "", last_name)) %>% 
+    mutate(last_name = str_to_upper(last_name)) %>% 
+    mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>%
+    mutate(last_name = ifelse(grepl("(\\w+) ", last_name),  gsub(".*?(\\w+)$", replace= "\\1", last_name), last_name)) %>% 
+    mutate(first_name = stri_trans_totitle(first_name)) %>% 
+    select(FROM, first_name, common_name, middle_name, middle_initial, last_name, everything()) 
+  
+  
+
+    
   
   # Next, create variables custome to the agency
   # For example, in the USDA logs, they record the state of the property the letter is about:
