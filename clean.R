@@ -14,9 +14,8 @@ intercoder.agreement <- function(data) {
   recode <- "recode.csv"
   filter(data,!is.na(TYPE)) %>% group_by(ID) %>% filter(length(unique(TYPE)) == 2) %>% arrange(ID) %>% select(agency, ID, everything()) %>%
     write.csv(recode) # saving file locally is faster
-  drive_upload(recode,
-               path = paste0("Correspondence/", agency, " to Recode"),
-               type = "spreadsheet")
+  drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
+  drive_upload(recode, path = paste0("Correspondence/", agency, " to Recode"), type = "spreadsheet")
   file.remove(recode) # remove local file
   
   return(
@@ -67,7 +66,7 @@ clean.agency <- function() {
   
   data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() # select on observation
   data$agency <- agency # name agency
-  # data %<>% full_join(members) # moved to merge file
+    # data %<>% full_join(members) # moved to merge file
   return(data)
 }
 

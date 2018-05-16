@@ -12,8 +12,9 @@ source("setup.R")
 # DHS
 agency <- "DHS"
 status <- "coded"
-coders <- c("Katie", "Megha")
+coders <- "Katie" # c("Katie", "Megha")
 DHS <- clean.agency()
+DHS %<>% left_join(members, by = c("congress", "chamber", "last_name"))
 
 # DOD 
 agency <- "DOD_DLA_Aviation"
@@ -61,41 +62,47 @@ USDA <- clean.agency()
 agency <- "USDA_ERS"
 status <- "not coded"
 coders <- NA
-USDA_ERS <- clean.agency()
+USDA_ERS <- clean.agency() 
+USDA_ERS %<>% left_join(members, by = c("congress", "chamber", "last_name"))
 
 agency <- "USDA_FS"
 status <- "not coded"
 coders <- NA
 USDA_FS <- clean.agency()
+USDA_FS %<>% left_join(members, by = c("congress", "first_name", "last_name"))
 
 agency <- "USDA_NASS"
 status <- "coded"
 coders <- c("Robert", "Henry")
 USDA_NASS <- clean.agency()
+USDA_NASS %<>% left_join(members, by = c("congress", "first_name", "last_name"))
 
 agency <- "USDA_NRCS"
 status <- "not coded"
 coders <- NA
 USDA_NRCS <- clean.agency()
+USDA_NRCS %<>% left_join(members, by = c("congress", "first_name", "last_name")) # change to chamber when USDA_NRCS.R is updated
 
 agency <- "USDA_RD"
 status <- "not coded"
 coders <- NA
 USDA_RD <- clean.agency() 
-
+USDA_NASS %<>% left_join(members, by = c("congress", "first_name", "last_name"))
 
 
 # merge data
 data <- plyr::join_all(list(
+  DHS,
   DOD_DLA_Aviation,
-  DOD_NAVY,
+  DOD_Navy,
   EPA,
   PRC, # incomplete, need to add sheets
   USDA,
   USDA_ERS,
   USDA_FS,
   USDA_NASS,
-  USDA_NRCS
+  USDA_NRCS,
+  USDA_RD
   ), type = 'full')
 
 
@@ -122,9 +129,35 @@ ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year), !is.na(chamb
   ) 
 
 
+# plot by nominate and agency
+data %>% group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
+  tally() %>% ungroup() %>%
+  filter(!is.na(chamber), !is.na(congress)) %>%
+  ggplot() +
+  geom_jitter(aes(x = congress, y = agency,  color = nominate.dim1, size = n),
+              alpha = .3) +
+  scale_colour_gradient2(low = "red", mid = "grey", high = "blue") +
+  geom_text(
+    data = data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
+      tally() %>% ungroup() %>%
+      filter(n > 50 & !is.na(chamber)),
+    aes(x = congress, y = agency, label = last_name, size = n/4 ),
+    position=position_jitter(width=0,height=.4)
+  ) +
+  scale_x_continuous(breaks = seq(107, 115, 1)) + 
+  facet_grid(. ~ chamber)  +
+  labs(y = "", 
+       title = paste("Letters")) +
+  theme(
+    #axis.text.y = element_blank(),
+    axis.ticks = element_blank()
+  ) 
+
+
+
 
 # plot by nominate and TYPE
-agenciesToPlot <- c("EPA", "DOT_FAA", "DOD_Navy")
+agenciesToPlot <- c("EPA", "DOT_FAA", "DOD_Navy", "DHS")
 data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
   tally() %>% ungroup() %>%
   filter(agency %in% agenciesToPlot & TYPE != 0 & TYPE != 6 & !is.na(chamber)) %>%

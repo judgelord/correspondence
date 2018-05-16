@@ -1,10 +1,8 @@
-#install.packages("googlesheets")
-library(googlesheets)
-library(tidyverse)
-library(magrittr)
-options(stringsAsFactors = FALSE)
+# This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
+# It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "DHS Megha" # for testing
+
+# file.name <- "DHS Katie" # for testing
 
 clean <- function(file.name) {
   gs_ls() # log in 
@@ -12,6 +10,7 @@ clean <- function(file.name) {
   
   # create agency column
   data$agency <- file.name
+
   
 #rename agency column
 colnames(data)[colnames(data) == 'AGENCY'] <- 'subagency'
@@ -21,7 +20,7 @@ data %<>%
 
 # Format date, year, Congress, member name etc.
 
-#####   FIXME
+#####   FIXM
 data %<>%
   mutate(DATE = gsub(pattern = "120", replacement = "/20", x=DATE)) %>% 
   mutate(DATE = gsub(pattern = "(4|5|6|7|8|9|10|11|12)1(\\d)", replacement = "\\1/\\2", x=DATE)) 
@@ -57,8 +56,6 @@ data %<>%
 
 
 
-
-
 #create variable for last name of the Sen/Rep
 data %<>%
   mutate(last_name = gsub(pattern = ".* (\\w+)$", 
@@ -66,6 +63,14 @@ data %<>%
   mutate(last_name = ifelse(grepl("Jason Cha", FROM), "Chaffetz", last_name)) %>%
   mutate(last_name = ifelse(grepl("O'Rourke", FROM), "O'Rourke", last_name)) %>% 
   mutate(last_name = ifelse(is.na(title), NA, last_name))
+
+data$last_name %<>% toupper()
+
+
+# chamber 
+data %<>% 
+  mutate(chamber = ifelse(title == "Senator", "Senate", NA)) %>%
+  mutate(chamber = ifelse(title == "Representative", "House", chamber)) 
 
 
 # arrange columns for hand coding
