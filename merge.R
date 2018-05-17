@@ -14,14 +14,14 @@ agency <- "DHS"
 status <- "coded"
 coders <- "Katie" # c("Katie", "Megha")
 DHS <- clean.agency()
-DHS %<>% left_join(members, by = c("congress", "chamber", "first_name", "last_name"))
+DHS %<>% left_join(members) #, by = c("congress", "chamber", "first_name", "last_name"))
 
 # DOD 
 agency <- "DOD_DLA_Aviation"
 status <- "not coded"
 coders <- NA
 DOD_DLA_Aviation <- clean.agency()
-DOD_DLA_Aviation %<>% left_join(members, by = c("congress", "chamber", "first_name", "last_name"))
+DOD_DLA_Aviation %<>% left_join(members) #, by = c("congress", "chamber", "first_name", "last_name"))
 
 
 
@@ -29,7 +29,7 @@ agency <- "DOD_Navy"
 status <- "coded"
 coders <- c("Delaney")
 DOD_Navy <- clean.agency() 
-DOD_Navy %<>% left_join(members, by = c("congress", "chamber", "last_name"))
+DOD_Navy %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
 
 # DOT 
 agency <- "DOT_FAA"
@@ -42,7 +42,8 @@ agency <- "EPA" # the title of the R script for cleaning these data
 status <- "coded" # c("coded", "recoded", "not coded") NA if not yet coded
 coders <- c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
 EPA <- clean.agency() 
-EPA %<>% left_join(members, by = c("last_name", "congress", "chamber", "state"))
+EPA %<>% select(-middle_name)
+EPA %<>% left_join(members) #, by = c("last_name", "congress", "chamber", "state"))
 
 #FCC
 agency <- "FCC"
@@ -55,44 +56,44 @@ agency <- "PRC"
 status <- "not coded"
 coders <- NA
 PRC <- clean.agency()
-PRC %<>% left_join(members, by = c("congress", "chamber", "last_name"))
+PRC %<>% left_join(members) #, by = c("congress", "chamber", "last_name", "state")) # matching on state may fail to match out-of-state advocacy, but false positives without it
 
 # USDA 
 agency <- "USDA"
 status <- "not coded"
 coders <- NA
 USDA <- clean.agency()
-USDA %<>% left_join(members, by = c("congress", "chamber", "last_name"))
+USDA %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
 
 agency <- "USDA_ERS"
 status <- "not coded"
 coders <- NA
 USDA_ERS <- clean.agency() 
-USDA_ERS %<>% left_join(members, by = c("congress", "chamber", "last_name"))
+USDA_ERS %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
 
 agency <- "USDA_FS"
 status <- "not coded"
 coders <- NA
 USDA_FS <- clean.agency()
-USDA_FS %<>% left_join(members, by = c("congress", "first_name", "last_name"))
+USDA_FS %<>% left_join(members) #, by = c("congress", "first_name", "last_name"))
 
 agency <- "USDA_NASS"
 status <- "coded"
 coders <- c("Robert", "Henry")
 USDA_NASS <- clean.agency()
-USDA_NASS %<>% left_join(members, by = c("congress", "first_name", "last_name"))
+USDA_NASS %<>% left_join(members) #, by = c("congress", "first_name", "last_name"))
 
 agency <- "USDA_NRCS"
 status <- "not coded"
 coders <- NA
 USDA_NRCS <- clean.agency()
-USDA_NRCS %<>% left_join(members, by = c("congress", "chamber", "last_name")) 
+USDA_NRCS %<>% left_join(members) #, by = c("congress", "chamber", "last_name")) 
 
 agency <- "USDA_RD"
 status <- "not coded"
 coders <- NA
 USDA_RD <- clean.agency() 
-USDA_RD %<>% left_join(members, by = c("congress", "first_name", "last_name"))
+USDA_RD %<>% left_join(members) #, by = c("congress", "first_name", "last_name"))
 
 
 # merge data
@@ -110,6 +111,22 @@ data <- plyr::join_all(list(
   USDA_RD
   ), type = 'full')
 
+data <- USDA %>% left_join(members)
+diff <- data %>% group_by(ID, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
+data %<>% 
+  mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
+  mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
+  mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
+  filter(bioname != "PAYNE, Donald Milford" | DATE < as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
+  filter(bioname != "PAYNE, Donald, Jr." | DATE > as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
+  filter(bioname != "SPECTER, Arlen" | party_name != "Democratic Party" | DATE > as.Date("2009-04-28")) %>% # SPECTER, Arlen changed to DEM
+  filter(bioname != "SPECTER, Arlen" | party_name != "Republican Party" | DATE < as.Date("2009-04-28")) %>% 
+  filter(bioname != "GRIFFITH, Parker" | party_name != "Republican Party" | DATE > as.Date("2009-12-22")) %>% # GRIFFITH, Parker changed to GOP
+  filter(bioname != "GRIFFITH, Parker" | party_name != "Democratic Party" | DATE < as.Date("2009-12-22")) %>%
+  filter(bioname != "GILLIBRAND, Kirsten" | chamber != "House" | DATE < as.Date("2009-01-26")) %>% # GILLIBRAND APPOINTED TO SENATE FROM HOUSE January 26, 2009
+  filter(bioname != "GILLIBRAND, Kirsten" | chamber != "Senate" | DATE > as.Date("2009-01-26")) %>%
+  filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
+  filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
 
 
 ###################
