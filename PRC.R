@@ -23,8 +23,8 @@ clean <- function(file.name) {
   
   
   
-  #reformat state column
-  data$State %<>% stateFromLower()
+  # format state column
+  data$state <- as.character(stateFromLower(data$State))
   
   
   #create last name variable for Sen/Rep

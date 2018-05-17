@@ -69,6 +69,7 @@ clean.agency <- function() {
   
  # things to match on
   for(i in 1:length(members$id)) {
+    
     if(sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4){
     data %<>% 
       mutate(first_name = ifelse(last_name == members$last_name[i] &
@@ -77,6 +78,35 @@ clean.agency <- function() {
                                    chamber == members$chamber[i],
                                  members$first_name[i], first_name))
     }
+    
+    if(sum(c("first_name", "last_name", "state", "chamber", "congress") %in% names(data)) == 5) {
+      data %<>% 
+        mutate(first_name = ifelse(is.na(first_name) &
+                                     last_name == members$last_name[i] &
+                                     state == members$state[i] & 
+                                     congress == members$congress[i] & 
+                                     chamber == members$chamber[i],
+                                   members$first_name[i], first_name)) %>%
+        mutate(state = ifelse(is.na(state) &
+                                     last_name == members$last_name[i] &
+                                     first_name == members$first_name[i] & 
+                                     congress == members$congress[i] & 
+                                     chamber == members$chamber[i],
+                                   members$first_name[i], state)) %>%
+        mutate(chamber = ifelse(is.na(chamber) &
+                                last_name == members$last_name[i] &
+                                first_name == members$first_name[i] & 
+                                congress == members$congress[i] & 
+                                state == members$state[i],
+                              members$first_name[i], chamber)) %>%
+        mutate(middle_name = ifelse(chamber == members$chamber[i] &
+                                  last_name == members$last_name[i] &
+                                  first_name == members$first_name[i] & 
+                                  congress == members$congress[i] & 
+                                  state == members$state[i],
+                                members$middle_name[i], NA))
+    }
+    
   }
   
   # problem vars
