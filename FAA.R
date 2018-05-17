@@ -27,9 +27,6 @@ data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
 
-
-
-
 # create duplicate FROM column and preprocess
 #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
 data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV| ll| Jr,", "", data$FROM)
@@ -37,10 +34,6 @@ data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.
                    replacement = ",", data$FROM2)
 data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
 data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
-
-### Delete when finished
-data<-data[!(grepl(pattern="Employee|Aviation Industry", data$FROM2)),]
-
 
 #create variable for last name of the Sen/Rep
 data %<>%

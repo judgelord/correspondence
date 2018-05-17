@@ -53,16 +53,14 @@ data %<>%
 # create variable for first name
 data %<>%
   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
-  mutate(first_name = stri_trans_totitle(first_name)) 
-
+  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name))
+data <- formatFirstName(data)
   
 # create variable for last name
 data %<>%
   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
-  mutate(last_name = ifelse(grepl("Mazie K. Hirono", FROM), "Hirono", last_name)) %>% 
-  mutate(last_name = str_to_upper(last_name))
-
+  mutate(last_name = ifelse(grepl("Mazie K. Hirono", FROM), "Hirono", last_name))
+data <- formatLastName(data)
 
 
 

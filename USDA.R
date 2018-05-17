@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- #file.name <- "USDA" #for testing
+ file.name <- "USDA" #for testing
 
 clean <- function(file.name){
   
@@ -42,12 +42,14 @@ data %<>%
 # create variable for first name
 data %<>%
   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
-  mutate(first_name = stri_trans_totitle(first_name))
+  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
+data <- formatFirstName(data)
+
+
+
 
 
 data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV", "", data$FROM)
-
 
 # create variable for last name
 data %<>%
@@ -61,23 +63,12 @@ data %<>%
   mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM2), gsub(pattern=".* (\\w+, ..)", 
                                                                replacement = "\\1", FROM2), last_name)) %>% 
   mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM2), gsub(pattern=".* (\\w+ ..)", 
-                                                               replacement = "\\1", FROM2), last_name)) %>% 
-  mutate(last_name = str_to_upper(last_name)) %>% 
-  mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
-  mutate(last_name = gsub("DELAURO", replacement = "DeLAURO", last_name)) %>% 
-  mutate(last_name = gsub("ANN EMERSON", replacement = "EMERSON", last_name)) %>% 
-  mutate(last_name = gsub("MICHAEL CONAWAY", replacement = "CONAWAY", last_name)) %>% 
-  mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name)) %>%  
-  mutate(first_name = gsub("BENJAMIN NELSON", replacement = "Earl", first_name)) %>% 
-  mutate(last_name = gsub("BENJAMIN NELSON", replacement = "NELSON", last_name)) %>% 
-  mutate(first_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "John", first_name)) %>% 
-  mutate(last_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "ROCKEFELLER", last_name)) %>% 
-  mutate(first_name = gsub(".*SANDLIN.*", replacement = "Stephanie", first_name)) %>% 
-  mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name)) %>% 
-  mutate(last_name = gsub("SCHULTZ", replacement = "WASSERMAN SCHULTZ", last_name))
+                                                               replacement = "\\1", FROM2), last_name))
+data <- formatLastName(data)
 
   
-  
+ 
+ 
 
 data <- data[,!(names(data) %in% "FROM2")]
 
