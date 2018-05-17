@@ -117,9 +117,10 @@ data <- plyr::join_all(list(
 ###################
 
 # identify top members
+
 mocs <- data %>% filter(!is.na(last_name), !is.na(chamber)) %>%
-  group_by(last_name, chamber, agency) %>% tally() %>% ungroup() %>%
-  group_by(agency, chamber) %>% top_n(2, n) %>% ungroup()
+  group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
+  tally() %>% top_n(2, n) %>% ungroup() 
 
 # plot by agency 
 ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year), !is.na(chamber)), 
@@ -143,9 +144,7 @@ data %>% group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
               alpha = .3) +
   scale_colour_gradient2(low = "red", mid = "grey", high = "blue") +
   geom_text(
-    data = data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
-      tally() %>% ungroup() %>%
-      filter(n > 50 & !is.na(chamber)),
+    data = mocs,
     aes(x = congress, y = agency, label = last_name, size = n/4 ),
     position=position_jitter(width=0,height=.4)
   ) +
@@ -155,7 +154,8 @@ data %>% group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
        title = paste("Letters")) +
   theme(
     #axis.text.y = element_blank(),
-    axis.ticks = element_blank()
+    axis.ticks = element_blank(),
+    panel.background = element_blank()
   ) 
 
 

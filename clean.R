@@ -69,14 +69,14 @@ clean.agency <- function() {
   
  # things to match on
   for(i in 1:length(members$id)) {
-    tryCatch(
+    if(sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4){
     data %<>% 
       mutate(first_name = ifelse(last_name == members$last_name[i] &
                                    first_name == members$common_name[i] & 
                                    congress == members$congress[i] & 
                                    chamber == members$chamber[i],
                                  members$first_name[i], first_name))
-    )
+    }
   }
   
   # problem vars
