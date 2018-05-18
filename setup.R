@@ -14,6 +14,7 @@ gs_ls() # log in to google
 members <- member_search(congress = c(110:120)) %>% # get voteview data for selected Congresses
   # format state
   mutate(state = tolower(state)) %>%
+  mutate(state = as.character(state)) %>%
   # extract first, middle, last, and common names
   mutate(last_name = gsub(", .*", "", bioname)) %>%
   mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| IV", "", bioname)) %>%

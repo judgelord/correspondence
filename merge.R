@@ -42,7 +42,7 @@ agency <- "EPA" # the title of the R script for cleaning these data
 status <- "coded" # c("coded", "recoded", "not coded") NA if not yet coded
 coders <- c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
 EPA <- clean.agency() 
-EPA %<>% select(-middle_name)
+EPA %<>% select(-middle_name) 
 EPA %<>% left_join(members) #, by = c("last_name", "congress", "chamber", "state"))
 
 #FCC
@@ -64,6 +64,7 @@ status <- "not coded"
 coders <- NA
 USDA <- clean.agency()
 USDA %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
+# (still have a false positive problem with Johnson and Rogers, hard to match without state or chamber)
 
 agency <- "USDA_ERS"
 status <- "not coded"
@@ -99,20 +100,20 @@ USDA_RD %<>% left_join(members) #, by = c("congress", "first_name", "last_name")
 # merge data
 data <- plyr::join_all(list(
   DHS,
-  DOD_DLA_Aviation,
+  # DOD_DLA_Aviation,
   DOD_Navy,
   EPA,
-  PRC, # incomplete, need to add sheets
-  USDA,
-  USDA_ERS,
-  USDA_FS,
-  USDA_NASS,
-  USDA_NRCS,
-  USDA_RD
+  # PRC, # incomplete, need to add sheets
+  USDA
+  # USDA_ERS,
+  #USDA_FS,
+  #USDA_NASS,
+  # USDA_NRCS
+  # USDA_RD
   ), type = 'full')
 
-data <- USDA %>% left_join(members)
-diff <- data %>% group_by(ID, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
+
+
 data %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
@@ -128,6 +129,8 @@ data %<>%
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
 
+problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
+
 
 ###################
 # summay analysis # TO BE MOVED TO ANOTHER FILE 
@@ -135,43 +138,27 @@ data %<>%
 
 # identify top members
 
-mocs <- data %>% filter(!is.na(last_name), !is.na(chamber)) %>%
+mocs <- data %>% filter(!is.na(last_name), !is.na(chamber), last_name != "", chamber %in% c("House", "Senate")) %>%
   group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
-  tally() %>% top_n(2, n) %>% ungroup() 
-
-# plot by agency 
-ggplot(data %>% filter(last_name %in% mocs$last_name, !is.na(year), !is.na(chamber)), 
-       aes(x = factor(year), fill = last_name)) +
-  geom_bar() +
-  facet_grid(agency ~ chamber) + 
-  labs(x = "", y = "", 
-       title = paste("Letters from top 2 members of each chamber to each agency")) +
-  theme(
-    legend.title = element_blank(),
-    panel.background = element_blank()
-  ) 
+  tally() %>% ungroup() 
 
 
 # plot by nominate and agency
-data %>% group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
-  tally() %>% ungroup() %>%
-  filter(!is.na(chamber), !is.na(congress)) %>%
+mocs %>%
   ggplot() +
-  geom_jitter(aes(x = congress, y = agency,  color = nominate.dim1, size = n),
-              alpha = .3) +
-  scale_colour_gradient2(low = "red", mid = "grey", high = "blue") +
   geom_text(
-    data = mocs,
-    aes(x = congress, y = agency, label = last_name, size = n/4 ),
+    aes(x = congress, y = agency, label = last_name, size = n, alpha = n, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
   scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
   facet_grid(. ~ chamber)  +
   labs(y = "", 
-       title = paste("Letters")) +
+       title = paste("")) +
   theme(
     #axis.text.y = element_blank(),
     axis.ticks = element_blank(),
+    #legend.text = element_blank(),
     panel.background = element_blank()
   ) 
 
