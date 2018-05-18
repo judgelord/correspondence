@@ -6,11 +6,14 @@
 
 #### Has multiple congressman in some rows, need to duplicate rows yet. 
   
-#file.name <- "DOT_FAA Sam" # for testing
+file.name <- "DOT_FAA Sam" # for testing
 
 
 clean <- function(file.name) {
 data <- gs_title(file.name) %>% gs_read() # get data
+
+#create ID variable 
+data$ID <- c(1:nrow(data))
 
 # create agency column
 data$agency <- file.name
@@ -24,18 +27,13 @@ data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
 
-
-
-
 # create duplicate FROM column and preprocess
 #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
 data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV| ll| Jr,", "", data$FROM)
-
-
-
-### Delete when finished
-data<-data[!(grepl(pattern="Employee|Aviation Industry", data$FROM2)),]
-
+data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,",
+                   replacement = ",", data$FROM2)
+data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
+data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
 
 #create variable for last name of the Sen/Rep
 data %<>%
@@ -50,7 +48,7 @@ data <- formatLastName(data)
 
 #create variable for first name of the Sen/Rep
 data %<>%
-  mutate(first_name = gsub(pattern = ".*(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
+  mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
                            replacement = "\\2", x=FROM2)) 
 data <- formatFirstName(data)
 
@@ -70,8 +68,7 @@ data$state = stateFromLower(data$state)
 
 
 
-#create ID variable 
-data$ID <- c(1:nrow(data))
+
   
 # arrange columns for hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())

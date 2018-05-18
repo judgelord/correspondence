@@ -1,7 +1,13 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "USDA_NRCS" # for testing
+
+
+# FIX multiple congressman in some rows
+
+
+
+ #file.name <- "USDA_NRCS" # for testing
 
 clean <- function(file.name){
   
