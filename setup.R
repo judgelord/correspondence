@@ -40,15 +40,13 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "EVERETT, Robert Terry", "Terry", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "WAMP, Zachary Paul", "Zach", common_name)) %>%
   mutate(common_name = ifelse(bioname == "DEAL, John Nathan", "Nathan", common_name)) %>% 
-  mutate(common_name = ifelse(bioname == "COCHRAN, William Thad", "Thad", common_name)) 
+  mutate(common_name = ifelse(bioname == "COCHRAN, William Thad", "Thad", common_name)) %>% 
   
   
   mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
   mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
-  mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name))
-
-
-
+  mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) %>% 
+  mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
 
   
 
@@ -106,6 +104,9 @@ formatLastName <- function(data){
     mutate(last_name = ifelse( grepl("Michael",FROM)&grepl("Conaway",FROM), "CONAWAY", last_name)) %>%
     mutate(last_name = ifelse( grepl("Ben",FROM)&grepl("Nelson",FROM), "NELSON", last_name)) %>% 
     mutate(last_name = ifelse( grepl("Beutler",FROM)&grepl("Herrera",FROM), "HERRERA BEUTLER", last_name)) %>%
+    mutate(last_name = ifelse( grepl("Gillbrand",FROM), "GILLIBRAND", last_name)) %>%
+    mutate(last_name = ifelse( grepl("Hillary|Hilary",FROM)&grepl("Rodham",FROM), "CLINTON", last_name)) %>%
+    
     
     
     
