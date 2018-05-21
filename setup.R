@@ -1,5 +1,5 @@
 options(stringsAsFactors = FALSE)
-# devtools::install_github("voteview/Rvoteview")
+y# devtools::install_github("voteview/Rvoteview")
 library(tidyverse)
 library(magrittr)
 library(googlesheets)
