@@ -4,7 +4,7 @@
  #file.name <- "PRC" # for testing
 
 clean <- function(file.name) {
-  # get data from google drive
+  #  get data from google drive
   data <- gs_title(file.name) %>% gs_read()
   
   # create agency column
@@ -38,5 +38,13 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+  data %<>% mutate(TYPE =
+                     ifelse (grepl(
+                       # i.e. if SUBJECT contains:
+                       # (& means "AND",  | means "OR")
+                       "Service", 
+                       Category), 
+                       1, TYPE))  # then make it TYPE 1, otherwise keep TYPE
   
 } # end function
