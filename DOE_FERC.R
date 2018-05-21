@@ -1,9 +1,15 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-file.name <- "DOE_FERC" # for testing
+
+# Duplicate members in some rows needs to be addressed
+# Many spelling errors need to be addressed
+
+
+#file.name <- "DOE_FERC" # for testing
 
 clean <- function(file.name) {
+ 
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # create ID column
@@ -20,17 +26,43 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
-  #data$FROM <- gsub(pattern = '(US|United States) (Representative) (\\w+ \\w+).*', replacement = "\\3", data$Summary)
+  data <- extractMemberName(data, members)
   
- # grepl("(Senate|Senator)", data$Summary) &grepl("Represenatative|Congressman|Congresswoman", data$Summary)
+#   data %<>%
+#     mutate(Summary = gsub(pattern = "(.*)(Represenative|Representativess)(.*)", replacement = '\\1Representatives\\3', Summary) )
+#   
+#    data %<>%
+#     mutate(FROM = gsub(pattern = '.*(US|United States) (Representative|Senator|Senate|Congress) (\\w+ \\w+|\\w+ \\w \\w+|\\w+ \\w\\. \\w+|\\w \\w+ \\w+|\\w\\. \\w+ \\w+).*',
+#                        replacement = "\\3", data$Summary)) %>% 
+#     mutate(FROM = gsub(pattern = '.*(Congressman|Congresswoman|Congresswomen|Representative|Senator|Representatives|Chairman) (\\w+ \\w+|\\w+ \\w \\w+|\\w+ \\w\\. \\w+|\\w \\w+ \\w+|\\w\\. \\w+ \\w+).*', replacement = "\\2", FROM))
+# #remove Represenatatives to see duplicates in rows
+#    
+#    
+#   data %<>%
+#     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
+#     mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name))
+#   data <- formatFirstName(data)
+#   
+#   
+#   data %<>%
+#     mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
+#     mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
+#     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
+#     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))
+#     
+#   data <- formatLastName(data)
+  
   
   data %<>%
     mutate(chamber = ifelse(grepl("(Senate|Senator)",Summary), 'Senate', NA)) %>% 
-    mutate(chamber = ifelse(grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman", Summary), "House", chamber))# %>% 
-   # mutate(chamber = grepl("(Senate|Senator)", data$Summary) &grepl("Represenatative|Congressman|Congresswoman", data$Summary), 'FIXME', chamber )
+    mutate(chamber = ifelse(grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", Summary), "House", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("(Senate|Senator)", data$Summary) &grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", data$Summary), 'FIXME', chamber ))
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+    data %<>% select(ID, DATE, FROM, everything())
   
 }
+
+
+
 
