@@ -87,12 +87,7 @@ clean.agency <- function() {
                                      congress == members$congress[i] & 
                                      chamber == members$chamber[i],
                                    members$first_name[i], first_name)) %>%
-        mutate(state = ifelse(is.na(state) &
-                                     last_name == members$last_name[i] &
-                                     first_name == members$first_name[i] & 
-                                     congress == members$congress[i] & 
-                                     chamber == members$chamber[i],
-                                   members$first_name[i], state)) %>%
+
         mutate(chamber = ifelse(is.na(chamber) &
                                 last_name == members$last_name[i] &
                                 first_name == members$first_name[i] & 
