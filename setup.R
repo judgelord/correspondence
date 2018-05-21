@@ -42,12 +42,24 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "WAMP, Zachary Paul", "Zach", common_name)) %>%
   mutate(common_name = ifelse(bioname == "DEAL, John Nathan", "Nathan", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "COCHRAN, William Thad", "Thad", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "GOODLATTE, Robert William", "Bob", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "THOMPSON, Michael", "Mike", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "WILSON, Charlie", "Charles", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "PENCE, Mike", "Michael", common_name)) %>% 
+  
+  
+  mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", "E", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "BOND, Christopher Samuel (Kit)", "S", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "PENCE, Mike", "R", middle_initial)) %>% 
   
   
   mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
   mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
-  mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) %>% 
-  mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
+  mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) 
+  
+members %<>%
+   mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
 
   
 
