@@ -49,11 +49,6 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name))
 
 
-
-
-  
-
-  
   
   # select
   members %<>% select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything())
