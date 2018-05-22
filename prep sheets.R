@@ -2,11 +2,11 @@
 source("setup.R")
 
 sheets <- gs_ls()
-sheets %<>% filter(author == "correspondenceresearch") %>% select("sheet_title")
-sheets <- sheets$sheet_title
+sheets %<>% filter(author == "correspondenceresearch") %>% select("sheet_key")
+sheets <- sheets$sheet_key
 
 for (i in sheets) {
-  data <- gs_title(i) %>% gs_read()
+  data <- gs_key(i) %>% gs_read()
   
   variables <-
     c(
@@ -24,13 +24,10 @@ for (i in sheets) {
   
   data[, variables[which(!(variables %in% names(data)))]] <- "" # create new empty variables
   
+  gs_key(i) %>% gs_edit_cells(input = names(data), trim = F, byrow = T) # save 
 
-  gs_title(i) %>% gs_edit_cells(input = names(data), trim = F, byrow = T) # save 
   
-}
-
-
-
+} # end function
 
 
 
@@ -38,10 +35,13 @@ for (i in sheets) {
 
 # EXTRA 
 
+
 if (!("ID" %in% names(data))) {
   data$ID <- seq(1:dim(data)[1])
-  
 }
+
+# gs_key(i) %>% gs_edit_cells(input = data$ID, trim = F, byrow = F) # save ID col (NEEDS TO BE FIXED TO APPEND AFTER LAST COL)
+
 data %<>% select(
   ID,
   DATE,
