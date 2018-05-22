@@ -39,12 +39,39 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
-  data %<>% mutate(TYPE =
-                     ifelse (grepl(
-                       # i.e. if SUBJECT contains:
-                       # (& means "AND",  | means "OR")
-                       "Service", 
+  data %<>% 
+    mutate(TYPE =
+                     ifelse (!grepl("[0-9]", TYPE) &grepl(
+                     "Service", 
                        Category), 
-                       1, TYPE))  # then make it TYPE 1, otherwise keep TYPE
+                       1, TYPE))  %>%
+    mutate(TYPE =
+             ifelse (!grepl("[0-9]", TYPE) &grepl(
+               "PO Closing", 
+               Issue), 
+               1, TYPE)) %>% #Post Office Closing 
+    mutate(TYPE =
+           ifelse (!grepl("[0-9]", TYPE) &grepl(
+             "Rates", 
+             Category), 
+             2, TYPE)) %>%
+    mutate(TYPE =
+           ifelse (!grepl("[0-9]", TYPE) & grepl(
+             "Lobby Hours", 
+             Issue), 
+             1, TYPE)) %>%
+    mutate(TYPE =
+           ifelse (!grepl("[0-9]", TYPE) & grepl(
+             "Delayed Mail", 
+             Issue), 
+             1, TYPE))
+  
+  data %<>%
+     mutate(TYPE =
+             ifelse (!grepl("[0-9]", TYPE) &grepl("Undelivered Mail", 
+               Sub_Issue), 
+               1, TYPE))
+    
+  
   
 } # end function
