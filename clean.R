@@ -14,8 +14,9 @@ intercoder.agreement <- function(data) {
   recode <- "recode.csv"
   filter(data,!is.na(TYPE)) %>% group_by(ID) %>% filter(length(unique(TYPE)) == 2) %>% arrange(ID) %>% select(agency, ID, everything()) %>%
     write.csv(recode) # saving file locally is faster
-  drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
-  drive_upload(recode, path = paste0("Correspondence/", agency, " to Recode"), type = "spreadsheet")
+  # REMOVED FOR NOW FOR SPEED 
+  # drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
+  # drive_upload(recode, path = paste0("Correspondence/", agency, " to Recode"), type = "spreadsheet")
   file.remove(recode) # remove local file
   
   return(
