@@ -1,7 +1,7 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
- file.name <- "DOD_Navy" # for testing
+ #file.name <- "DOD_Navy" # for testing
 
 
 clean <- function(file.name) {
@@ -56,8 +56,52 @@ clean <- function(file.name) {
   
   data$NOTES %<>% as.character()
   
+  data %<>% 
+    mutate(TYPE =
+             ifelse(grepl(
+               "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENT|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death", 
+               SUBJECT, ignore.case = TRUE), 
+               1, TYPE))
+  data %<>%
+    mutate(CERTAINTY =
+             ifelse(grepl(
+               "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENET|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death", 
+               SUBJECT, ignore.case = TRUE), 
+               1, CERTAINTY))
+  data %<>%
+    mutate(TYPE =
+             ifelse(grepl("STOPLIGHT",
+                    SUBJECT, ignore.case = TRUE),
+                    5, TYPE))
+  data %<>%
+    mutate(CERTAINTY =
+             ifelse(grepl("STOPLIGHT",
+                    SUBJECT, ignore.case = TRUE),
+                    2, CERTAINTY))
+  data %<>%
+    mutate(TYPE =
+             ifelse(grepl("COMMITTEE",
+                          SUBJECT, ignore.case = TRUE),
+                    5, TYPE))
+  data %<>%
+    mutate(CERTAINTY =
+             ifelse(grepl("COMMITTEE",
+                          SUBJECT, ignore.case = TRUE),
+                  1, CERTAINTY))
+  data %<>%
+    mutate(TYPE =
+             ifelse(grepl("EMPLOYMENT",
+                          SUBJECT, ignore.case = TRUE),
+                    1, TYPE))
+  data %<>%
+    mutate(CERTAINTY =
+             ifelse(grepl("EMPLOYMENT",
+                          SUBJECT, ignore.case = TRUE),
+                    2, CERTAINTY))
   
   
+
+
   return(data)
   
 } # end function
