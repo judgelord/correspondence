@@ -1,4 +1,5 @@
 # prep sheets for hand coding
+source("setup.R")
 
 sheets <- gs_ls()
 sheets %<>% filter(author == "correspondenceresearch") %>% select("sheet_title")

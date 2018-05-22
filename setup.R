@@ -1,5 +1,11 @@
 options(stringsAsFactors = FALSE)
-y# devtools::install_github("voteview/Rvoteview")
+# install.packages("tidyverse")
+# install.packages("magrittr")
+# install.packages("googlesheets")
+# install.packages("googledrive")
+# install.packages("devtools")
+# install.packages("stringi")
+# devtools::install_github("voteview/Rvoteview")
 library(tidyverse)
 library(magrittr)
 library(googlesheets)
@@ -56,11 +62,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   
   mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
   mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
-<<<<<<< HEAD
-  mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name))
 
-
-=======
   mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) 
   
 members %<>%
@@ -68,8 +70,6 @@ members %<>%
 
   
 
-  
->>>>>>> 03e4f602c18595a718278ebafc55e88b23701ed4
   
   # select
   members %<>% select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything())
@@ -125,10 +125,6 @@ formatLastName <- function(data){
     mutate(last_name = ifelse( grepl("Beutler",FROM)&grepl("Herrera",FROM), "HERRERA BEUTLER", last_name)) %>%
     mutate(last_name = ifelse( grepl("Gillbrand",FROM), "GILLIBRAND", last_name)) %>%
     mutate(last_name = ifelse( grepl("Hillary|Hilary",FROM)&grepl("Rodham",FROM), "CLINTON", last_name)) %>%
-    
-    
-    
-    
     mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) 
     
   
