@@ -58,29 +58,29 @@ clean <- function(file.name) {
   
   data %<>% 
     mutate(TYPE =
-             ifelse(grepl(
+             ifelse(!grepl("[0-9]", TYPE) & grepl(
                "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENT|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death", 
                SUBJECT, ignore.case = TRUE), 
                1, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(grepl(
+             ifelse(!grepl("[0-9]", TYPE) & grepl(
                "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENET|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death", 
                SUBJECT, ignore.case = TRUE), 
                1, CERTAINTY))
   data %<>%
     mutate(TYPE =
-             ifelse(grepl("STOPLIGHT",
+             ifelse(!grepl("[0-9]", TYPE) & grepl("STOPLIGHT",
                     SUBJECT, ignore.case = TRUE),
                     5, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(grepl("STOPLIGHT",
+             ifelse(!grepl("[0-9]", TYPE) & grepl("STOPLIGHT",
                     SUBJECT, ignore.case = TRUE),
                     2, CERTAINTY))
   data %<>%
     mutate(TYPE =
-             ifelse(grepl("COMMITTEE",
+             ifelse(!grepl("[0-9]", TYPE) & grepl("COMMITTEE",
                           SUBJECT, ignore.case = TRUE),
                     5, TYPE))
   data %<>%
@@ -90,12 +90,12 @@ clean <- function(file.name) {
                   1, CERTAINTY))
   data %<>%
     mutate(TYPE =
-             ifelse(grepl("EMPLOYMENT",
-                          SUBJECT, ignore.case = TRUE),
-                    1, TYPE))
+             ifelse(!grepl("[0-9]", TYPE) & grepl("EMPLOYMENT",
+              SUBJECT, ignore.case = TRUE),
+                1, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(grepl("EMPLOYMENT",
+             ifelse(!grepl("[0-9]", TYPE) & grepl("EMPLOYMENT",
                           SUBJECT, ignore.case = TRUE),
                     2, CERTAINTY))
   
