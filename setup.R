@@ -149,7 +149,7 @@ formatFirstName <- function(data){
     mutate(first_name = ifelse( grepl("Fred",FROM)&grepl("Upton",FROM), "Frederick", first_name)) %>%
     mutate(first_name = ifelse( grepl("Thad",FROM)&grepl("Cochran",FROM), "William", first_name)) %>%
     mutate(first_name = ifelse( grepl("Kristen",FROM)&grepl("Gillibrand",FROM), "Kirsten", first_name)) %>%
-    mutate(first_name = ifelse( grepl("C.A|C. A",FROM)&grepl("Ruppersberger",FROM), "Dutch", first_name)) %>%
+    mutate(first_name = ifelse( grepl("C",FROM)&grepl("Ruppersberger",FROM), "Dutch", first_name)) %>%
     mutate(first_name = ifelse( grepl("Paul",FROM)&grepl("Gosar",FROM), "Paul", first_name)) %>%
     mutate(first_name = ifelse( grepl("Ros-Lehtinen",FROM), "Ileana", first_name)) %>%
     mutate(first_name = ifelse( grepl("Beutler",FROM)&grepl("Herrera",FROM), "Jaime", first_name)) %>%
