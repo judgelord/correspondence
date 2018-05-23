@@ -6,7 +6,7 @@
 # duplicates members in some rows, needs to be fixed
 
 
-file.name <- "DOL_VETS" # for testing
+#file.name <- "DOL_VETS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
