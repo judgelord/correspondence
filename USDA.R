@@ -109,7 +109,7 @@ data %<>%
   mutate(ALT_TYPE = ifelse (grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+  mutate(ALT_TYPE = ifelse (grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (grepl("NOMINATION", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
   mutate(EVENT_NAME = ifelse (grepl("NOMINATION", SUBJECT, ignore.case = TRUE), "Nomination", EVENT_NAME)) %>%
   mutate(TYPE = ifelse (grepl("SOIL", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
@@ -146,7 +146,7 @@ data %<>%
   mutate(CERTAINTY = ifelse (grepl("FIRE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%      
   mutate(CERTAINTY = ifelse (grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "6", ALT_TYPE)) %>%        #THIS WOULD BE THE CASE IF "PUB REL" ENTAILED MEETING W/ CONSTITUENT GROUPS. CANNOT TELL IF THAT IS THE CASE THOUGH
+  mutate(ALT_TYPE = ifelse (grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%        #THIS WOULD BE THE CASE IF "PUB REL" ENTAILED MEETING W/ CONSTITUENT GROUPS. CANNOT TELL IF THAT IS THE CASE THOUGH
   mutate(TYPE = ifelse (grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE))    
