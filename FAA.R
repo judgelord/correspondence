@@ -6,7 +6,7 @@
 
 #### Has multiple congressman in some rows, need to duplicate rows yet. 
   
-file.name <- "DOT_FAA Sam" # for testing
+#file.name <- "DOT_FAA Sam" # for testing
 
 
 clean <- function(file.name) {
@@ -43,14 +43,14 @@ data %<>%
   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
   mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
   mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
-data <- formatLastName(data)
+data$last_name <- formatLastName(data, 'last_name')
   
 
 #create variable for first name of the Sen/Rep
 data %<>%
   mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
                            replacement = "\\2", x=FROM2)) 
-data <- formatFirstName(data)
+data$first_name <- formatFirstName(data, 'first_name')
 
  
  
@@ -67,9 +67,6 @@ data %<>%
 data$state = stateFromLower(data$state)
 
 
-
-
-  
 # arrange columns for hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())
 

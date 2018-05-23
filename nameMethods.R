@@ -250,7 +250,7 @@ getFirstLast.Comma <- function(data, col_name){
  
    # create variable for first name of Sen/Rep
   data %<>%
-    mutate(first = gsub(pattern = ".*?(,|, |,\\w |,\\w. |,, \\w |, \\w. |, \\w.|, \\w+|,\\w+)(\\w+|\\w+\\.)( |.|).*",
+    mutate(first = gsub(pattern = ".*?(,|, |,\\w |,\\w. |,, \\w |, \\w. |, \\w.|, \\w+|,\\w+)(\\w+)( |.|).*",
                         replacement = "\\1\\2", x=FROM2)) %>% 
     mutate(first = gsub("(,|, )", "", first))
   
