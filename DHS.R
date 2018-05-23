@@ -5,7 +5,6 @@
 # file.name <- "DHS Katie" # for testing
 
 clean <- function(file.name) {
-  gs_ls() # log in 
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # create agency column
@@ -28,7 +27,7 @@ data %<>%
 # %>% 
 #   mutate(DATE = gsub(pattern = "^1(\\d)/20", replacement = "\\1/\\2", x=DATE))
 
-
+data <- extractMemberName(data, members, 'FROM')
 
 
 data$DATE %<>% as.Date("%m/%d/%y")
@@ -48,23 +47,23 @@ data %<>%
   mutate(title = ifelse(grepl("Congressman", FROM), "Representative", title)) 
 
 
-#create variable for first name of the Sen/Rep
-data %<>%
-  mutate(first_name = gsub(pattern = "(Congressman|Senator) (\\w+).*", replacement = "\\2", x=FROM)) %>% 
-  mutate(first_name = ifelse(is.na(title), NA, first_name)) %>% 
-  mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name))
-
-
-
-#create variable for last name of the Sen/Rep
-data %<>%
-  mutate(last_name = gsub(pattern = ".* (\\w+)$", 
-                          replacement = "\\1", x=FROM)) %>% 
-  mutate(last_name = ifelse(grepl("Jason Cha", FROM), "Chaffetz", last_name)) %>%
-  mutate(last_name = ifelse(grepl("O'Rourke", FROM), "O'Rourke", last_name)) %>% 
-  mutate(last_name = ifelse(is.na(title), NA, last_name))
-
-data$last_name %<>% toupper()
+# #create variable for first name of the Sen/Rep
+# data %<>%
+#   mutate(first_name = gsub(pattern = "(Congressman|Senator) (\\w+).*", replacement = "\\2", x=FROM)) %>% 
+#   mutate(first_name = ifelse(is.na(title), NA, first_name)) %>% 
+#   mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name))
+# 
+# 
+# 
+# #create variable for last name of the Sen/Rep
+# data %<>%
+#   mutate(last_name = gsub(pattern = ".* (\\w+)$", 
+#                           replacement = "\\1", x=FROM)) %>% 
+#   mutate(last_name = ifelse(grepl("Jason Cha", FROM), "Chaffetz", last_name)) %>%
+#   mutate(last_name = ifelse(grepl("O'Rourke", FROM), "O'Rourke", last_name)) %>% 
+#   mutate(last_name = ifelse(is.na(title), NA, last_name))
+# 
+# data$last_name %<>% toupper()
 
 
 # chamber 

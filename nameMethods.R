@@ -100,7 +100,10 @@ formatFirstName <- function(data, col_name){
 
 # function will extract names found in members dataset from data$Summary column 
 
-extractMemberName <- function(data, members){
+extractMemberName <- function(data, members, col_name){
+  
+  data$Summary <- data[[col_name]]
+  
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
   members$first_last <- paste(members$first_name, members$last_name, sep = " ")
@@ -110,8 +113,12 @@ extractMemberName <- function(data, members){
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   
-  # create FROM varible extracting name from data$Summary
-  data$FROM <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
+  
+  data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
+  
+  
+  # create FROM2 varible extracting name from data$Summary
+  data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
                     replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[850:1700], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
@@ -171,14 +178,12 @@ extractMemberName <- function(data, members){
          replacement = "\\1", data$Summary, ignore.case = TRUE) 
   
   
+  data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
+  data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM2)
   
-  data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM)
-  data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM)
   
-  
-  data %<>%
-    formatFirstName() %>% 
-    formatLastName()
+  data$first_name <- formatFirstName(data, 'first_name')
+  data$last_name <- formatLastName(data, 'last_name')
   
   
   data %<>%
@@ -210,7 +215,7 @@ extractMemberName <- function(data, members){
         grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
         grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE), 
       last_name, NA)) %>% 
-    mutate(FROM = ifelse( is.na(first_name) & is.na(last_name), NA, FROM))
+    mutate(FROM2 = ifelse( is.na(first_name) & is.na(last_name), NA, FROM2))
   
   
   
