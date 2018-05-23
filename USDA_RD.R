@@ -93,17 +93,25 @@ clean <- function(file.name) {
   # data %<>% filter(SUBJECT %in% major.subjects)
   
   # Assign TYPE In most cases, human coders will have done this already.
-  data %<>% mutate(TYPE =
-                     ifelse(
-                       grepl(
-                         # i.e. if SUBJECT contains:
-                         # (& means "AND",  | means "OR")
-                         "Payment|Delinquency|Insurance|Servicing|Foreclosure|Debt Settlement|Escrow|Recapture Receivable Account|Payoff",
-                         SUBJECT
-                       ),
-                       2,
-                       TYPE
-                     ))  # then make it TYPE 2, otherwise keep TYPE as is
+  
+  
+  data %<>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Payment|Delinquency|Insurance|Servicing|Foreclosure|Debt Settlement|Escrow|Recapture Receivable Account|Payoff|Debt|Deferment|RELEASE OF LIABILITY|GENERAL SERVICE|CREDIT|REAMORTIZATION|BANKRUPTCY|Service Complaint|UNA|Unauthroized Assistance|RECAPTURE|MAINTENANCE|Compliance|Refinance|FUNDS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Payment|Delinquency|Insurance|Servicing|Foreclosure|Debt Settlement|Escrow|Recapture Receivable Account|Payoff|Debt|Deferment|Release of LIability|GENERAL SERVICE|CREDIT|REAMORTIZATION|BANKRUPTCY|Service Complaint|UNA|Unauthorized Assistance|RECAPTURE|MAINTENANCE|Compliance|Refinance|FUNDS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%  
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TOP", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TOP", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REAL ESTATE PROPERTY", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("REAL ESTATE PROPERTY", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+    mutate(ALT.TYPE = ifelse (!grepl("[0-9]", ALT.TYPE) & grepl("REAL ESTATE PROPERTY", SUBJECT, ignore.case = TRUE), "2", ALT.TYPE)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MISDIRECTED CONGRESSIONAL|Misdirected", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MISDIRECTED CONGRESSIONAL|Misdirected", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+    
+    
+    
+    
+    
+    
+    # then make it TYPE 2, otherwise keep TYPE as is
   
   # Notice how the odd spaces are not needed to return a match
   # Also notice how "Payment Assistance" is matched with just "Payment"

@@ -82,74 +82,74 @@ data %<>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Rural|RURAL", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Nutrition|NUTRITION|SNAP|WIC|FOODSTAMP|FOOD STAMP|LUNCH|LABEL|REGULATION", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Nutrition|NUTRITION|SNAP|WIC|FOODSTAMP|FOOD STAMP|LUNCH|LABEL|REGULATION", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Nutrition|NUTRITION|SNAP|WIC|FOODSTAMP|FOOD STAMP|LUNCH|LABEL|REGULATION", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Nutrition|NUTRITION|SNAP|WIC|FOODSTAMP|FOOD STAMP|LUNCH|LABEL|REGULATION", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FORESTRY|Forestry", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("FORESTRY|Forestry", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FORESTRY|Forestry", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FORESTRY|Forestry", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("FORESTRY|Forestry", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENVIRONMENT|Environment|WATER", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("ENVIRONMENT|Environment|WATER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ENVIRONMENT|Environment|WATER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT|Grant", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT|Grant", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT|Grant", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT|Grant", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("GRANT|Grant", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Research|RESEARCH", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("Research|RESEARCH", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Research|RESEARCH", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Research|RESEARCH", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Research|RESEARCH", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Price Support", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("Price Support", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Price Support", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONTRACT|PURCHASE", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("CONTRACT|PURCHASE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONTRACT|PURCHASE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Food|FOOD|DRUG|Drug|LABELING|PESTICIDE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("Food|FOOD|DRUG|Drug|LABELING|PESTICIDE", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Food|FOOD|DRUG|Drug|LABELING|PESTICIDE", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Food|FOOD|DRUG|Drug|LABELING|PESTICIDE", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Food|FOOD|DRUG|Drug|LABELING|PESTICIDE", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NOMINATION", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
-  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", TYPE) & grepl("NOMINATION", SUBJECT, ignore.case = TRUE), "Nomination", EVENT_NAME)) %>%
+  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("NOMINATION", SUBJECT, ignore.case = TRUE), "Nomination", EVENT_NAME)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SOIL", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("SOIL", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SOIL", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SOIL", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("SOIL", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CIVIL RIGHTS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("CIVIL RIGHTS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CIVIL RIGHTS", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CIVIL RIGHTS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("CIVIL RIGHTS", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DISASTER ASSISTANCE", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("DISASTER ASSISTANCE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DISASTER ASSISTANCE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NUTRITION ASSISTANCE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("NUTRITION ASSISTANCE", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NUTRITION ASSISTANCE", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HOUSING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("HOUSING", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HOUSING", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HOUSING", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("HOUSING", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EDUCATION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("EDUCATION", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EDUCATION", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TELECOM", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("TELECOM", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TELECOM", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TELECOM", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("TELECOM", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SPACE|CLOSING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%      #SPACE seems to relate to office space/office closings
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("SPACE|CLOSING", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SPACE|CLOSING", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REPORTS", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse(grepl("Reports", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FERTILIZER", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("FERTLIZER", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FERTLIZER", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FOREIGN REL", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("FOREIGN REL", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FOREIGN REL", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TRAVEL", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("TRAVEL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TRAVEL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PERSONNEL", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%   #NOT QUITE SURE WHAT IS MEANT BY "PERSONNEL" BUT IT SHOWS UP A LOT
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("PERSONNEL", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PERSONNEL", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FIRE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%      #FIRE PREVENTION
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("FIRE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FIRE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%      
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%        #THIS WOULD BE THE CASE IF "PUB REL" ENTAILED MEETING W/ CONSTITUENT GROUPS. CANNOT TELL IF THAT IS THE CASE THOUGH
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("PUB REL|PUBLIC RELATIONS", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%        #THIS WOULD BE THE CASE IF "PUB REL" ENTAILED MEETING W/ CONSTITUENT GROUPS. CANNOT TELL IF THAT IS THE CASE THOUGH
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE))    
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE))    
 
 
 
