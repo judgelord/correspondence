@@ -54,7 +54,10 @@ file.name <- "FCC Devin" # for testing
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NUMBERING", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%   #figure businesses and individuals could be making requests about getting their number changed
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ALLOCATION", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ALLOCATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("ALLOCATION", SUBJECT, ignore.case = TRUE), "DECISION", EVENT_NAME)) 
+  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("ALLOCATION", SUBJECT, ignore.case = TRUE), "DECISION", EVENT_NAME)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("AGENCY REFORM|PUBLIC INTEREST OBLIGATION", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("AGENCY REFORM|PUBLIC INTEREST OBLIGATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+  
   
   
 }
