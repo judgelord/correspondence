@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- file.name <- "USDA_NASS Henry" # for testing
+ #file.name <- "USDA_NASS Henry" # for testing
 
 
 #
@@ -48,20 +48,8 @@ data %<>%
 # most common SUBJECTS, useful for plotting 
 # major.subjects <- c("Appropriations", "Nutrition", "Forestry", "Environment","Farms", "Research", "Price Support", "Government", "Food and Drug Saftey")
 
-
-# create variable for first name
-data %<>%
-  mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name))
-data <- formatFirstName(data)
-  
-# create variable for last name
-data %<>%
-  mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
-  mutate(last_name = ifelse(grepl("Mazie K. Hirono", FROM), "Hirono", last_name))
-data <- formatLastName(data)
-
-
+# create variable  for first and last name
+data <- extractMemberName(data, members, 'FROM')
 
 
 # arrange columns for further hand coding

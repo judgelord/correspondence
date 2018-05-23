@@ -18,31 +18,8 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
-  # create variable for last name of Sen/Rep
-  data %<>%
-    mutate(last_name = gsub(
-      pattern = "(.*),.*",
-      replacement = "\\1",
-      x = FROM
-    ))%>% 
-    mutate(last_name = str_to_upper(last_name)) %>% 
-    mutate(last_name = gsub("^MC", replacement = "Mc", last_name))
-  
-  
-  # create variable for first name of Sen/Rep
-  data %<>%
-    mutate(first_name =  gsub(
-      pattern = "(.*), (\\w+).*-.*",
-      replacement = "\\2",
-      x = FROM
-    )) %>% 
-    mutate(first_name = stri_trans_totitle(first_name))
-  
-  
-  # create variable for middle name/initial of Sen/Rep
-  data%<>%
-    mutate(middle_name = ifelse(grepl(pattern="(.*), (\\w+ )(\\w+|\\w+.)-.*", x=FROM), gsub(
-      pattern = "(.*), (\\w+ )(\\w+|\\w+.)-.*", replacement = "\\3", x= FROM), NA))
+  # create first and last name variables
+  data <- getFirstLast.Comma(data, 'FROM')
   
   
   # create variable for chamber position  (Senator or Representative)
