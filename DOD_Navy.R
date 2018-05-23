@@ -1,7 +1,7 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
- #file.name <- "DOD_Navy" # for testing
+#file.name <- "DOD_Navy" # for testing
 
 
 clean <- function(file.name) {
@@ -23,32 +23,36 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
   
-  
-  #create variable for last name of the Sen/Rep
-  data %<>%
-    mutate(
-      last_name = gsub(
-        pattern = "(REP|SEN)(.|- | - |. )(\\w+)(,| ,).*",
-        replacement = "\\3",
-        x = FROM
-      )
-    ) %>%
-    mutate(last_name = ifelse(is.na(chamber), NA, last_name)) %>%
-    mutate(last_name = ifelse(grepl("\\W", last_name), NA, last_name)) %>% 
-    mutate(last_name = toupper(last_name)) 
+  # create variable for first and last name
+  data <- getFirstLast.Comma(data, "FROM")
   
   
   
-  #create variable for first name of the Sen/Rep
-  data %<>%
-    mutate(first_name = gsub(
-      pattern = ".*, (\\w+).*",
-      replacement = "\\1",
-      x = FROM
-    )) %>%
-    mutate(first_name = ifelse(is.na(chamber), NA, first_name)) %>%
-    mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name)) %>% 
-    mutate(first_name = stri_trans_totitle(first_name))
+  # #create variable for last name of the Sen/Rep
+  # data %<>%
+  #   mutate(
+  #     last_name = gsub(
+  #       pattern = "(REP|SEN)(.|- | - |. )(\\w+)(,| ,).*",
+  #       replacement = "\\3",
+  #       x = FROM
+  #     )
+  #   ) %>%
+  #   mutate(last_name = ifelse(is.na(chamber), NA, last_name)) %>%
+  #   mutate(last_name = ifelse(grepl("\\W", last_name), NA, last_name)) %>% 
+  #   mutate(last_name = toupper(last_name)) 
+  # 
+  # 
+  # 
+  # #create variable for first name of the Sen/Rep
+  # data %<>%
+  #   mutate(first_name = gsub(
+  #     pattern = ".*, (\\w+).*",
+  #     replacement = "\\1",
+  #     x = FROM
+  #   )) %>%
+  #   mutate(first_name = ifelse(is.na(chamber), NA, first_name)) %>%
+  #   mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name)) %>% 
+  #   mutate(first_name = stri_trans_totitle(first_name))
   
   
   # arrange columns for hand coding
@@ -59,13 +63,13 @@ clean <- function(file.name) {
   data %<>% 
     mutate(TYPE =
              ifelse(!grepl("[0-9]", TYPE) & grepl(
-               "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENT|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death", 
+               "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENT|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death|Constituent|DD|Security Clearance|Travel Pay|Spousal|Job|His Application|His Pending|Would Like|Awards|Deck Logs|Records Request", 
                SUBJECT, ignore.case = TRUE), 
                1, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(!grepl("[0-9]", TYPE) & grepl(
-               "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENET|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death", 
+             ifelse(!grepl("[0-9]", CERTAINTY) & grepl(
+               "DECEASED|MEDAL|ENLIST|DISCHARGE|SPOUSE|RIBBON|ASSAULT|DISABILITY|RETIREMENT|WIFE|FAMILY|BENEFITS|DEPENDENET|REQUEST.*RECORDS|MEDICAL|PURPLE HEART|FOIA|Elgibility|Scholarship|Death|Constituent|DD|Security Clearance|Travel Pay|Spousal|Job|His Application|His Pending|Would Like|Awards|Deck Logs", 
                SUBJECT, ignore.case = TRUE), 
                1, CERTAINTY))
   data %<>%
@@ -75,17 +79,17 @@ clean <- function(file.name) {
                     5, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(!grepl("[0-9]", TYPE) & grepl("STOPLIGHT",
+             ifelse(!grepl("[0-9]", CERTAINTY) & grepl("STOPLIGHT|Records Request",
                     SUBJECT, ignore.case = TRUE),
                     2, CERTAINTY))
   data %<>%
     mutate(TYPE =
-             ifelse(!grepl("[0-9]", TYPE) & grepl("COMMITTEE",
+             ifelse(!grepl("[0-9]", TYPE) & grepl("COMMITTEE|Policy",
                           SUBJECT, ignore.case = TRUE),
                     5, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(grepl("COMMITTEE",
+             ifelse(grepl("COMMITTEE|Policy",
                           SUBJECT, ignore.case = TRUE),
                   1, CERTAINTY))
   data %<>%
@@ -95,7 +99,7 @@ clean <- function(file.name) {
                 1, TYPE))
   data %<>%
     mutate(CERTAINTY =
-             ifelse(!grepl("[0-9]", TYPE) & grepl("EMPLOYMENT",
+             ifelse(!grepl("[0-9]", CERTAINTY) & grepl("EMPLOYMENT",
                           SUBJECT, ignore.case = TRUE),
                     2, CERTAINTY))
   

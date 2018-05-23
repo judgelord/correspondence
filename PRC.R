@@ -33,8 +33,8 @@ clean <- function(file.name) {
       pattern = ".* |.*\\.",
       replacement = "",
       x = FROM
-    ))%>% 
-    mutate(last_name = str_to_upper(last_name))
+    ))
+  data$last_name <- formatLastName(data, 'last_name')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
