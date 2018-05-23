@@ -21,13 +21,17 @@ clean <- function(file.name){
   
   # create agency column 
   data$agency <- file.name
+
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
   names(data)[names(data) == 'Date on Letter'] <- 'DATE'
   data$DATE %<>% as.Date("%m/%d/%Y")
+  data <- data[ , !duplicated(colnames(data))]
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  
+
   # create variable for first name
   data %<>%
     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
