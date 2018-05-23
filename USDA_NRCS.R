@@ -104,8 +104,8 @@
     mutate(TYPE = ifelse (grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
     mutate(CERTAINTY = ifelse (grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
     mutate(ALT_TYPE = ifelse (grepl("Animal|ANIMAL", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
-    mutate(TYPE = ifelse (grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+    mutate(TYPE = ifelse (grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN|TOBACCO", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN|TOBACCO", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
     mutate(ALT_TYPE = ifelse (grepl("MEAT|DAIRY|FRUIT|POULTRY|INSECT|Trees|Plants|Cotton|Nuts|BEEF|Potato|CROP|FUEL|MARKETING|VEGETABLE|LIVESTOCK|SUGAR|WHEAT|CORN", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
     mutate(TYPE = ifelse (grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
     mutate(CERTAINTY = ifelse (grepl("FARM CREDIT|FARM PR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
