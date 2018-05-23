@@ -304,6 +304,9 @@ getFirstLast.Comma <- function(data, col_name){
       last, NA)) 
   
   
+  
+  
+  
   data$first_name <- formatFirstName(data, 'first_name')
   data$last_name <- formatLastName(data, 'last_name')
   
