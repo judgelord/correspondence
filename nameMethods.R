@@ -113,7 +113,7 @@ extractMemberName <- function(data, members, col_name){
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   
-  
+  data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
   
