@@ -33,6 +33,7 @@ agency <- "DOE_FERC"
 status <- "not coded"
 coders <- NA
 DOE_FERC <- clean.agency() 
+DOE_FERC %<>% select(-id)
 DOE_FERC %<>% left_join(members) 
 
 # DOL
@@ -65,6 +66,8 @@ agency <- "DOT_FAA"
 status <- "coded"
 coders <- c("Sam")
 DOT_FAA <- clean.agency()
+DOT_FAA %<>% select(-middle_name) 
+DOT_FAA %<>% left_join(members)
 
 #EPA
 agency <- "EPA" # the title of the R script for cleaning these data
@@ -129,19 +132,26 @@ USDA_RD %<>% left_join(members) #, by = c("congress", "first_name", "last_name")
 # merge data
 data <- plyr::join_all(list(
   DHS,
-  # DOD_DLA_Aviation,
+  DOD_DLA_Aviation,
   DOD_Navy,
+  DOE_FERC,
+  DOL_EBSA,
+  DOL_OCFO,
+  DOL_OFCCP,
+  DOL_VETS,
+  DOT_FAA,
   EPA,
-  # PRC
-  USDA
-  # USDA_ERS,
-  #USDA_FS,
-  #USDA_NASS,
-  # USDA_NRCS
-  # USDA_RD
+  FCC,
+  PRC,
+  USDA,
+  USDA_ERS,
+  USDA_FS,
+  USDA_NASS,
+  USDA_NRCS,
+  USDA_RD
   ), type = 'full')
 
-
+data$department <- gsub("_.*", "", data$agency)
 
 data %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
@@ -167,56 +177,69 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 
 # identify top members
 
-mocs <- data %>% filter(!is.na(last_name), !is.na(chamber), last_name != "", chamber %in% c("House", "Senate")) %>%
-  group_by(last_name, congress, nominate.dim1, chamber, agency) %>%
+mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) %>%
+  group_by(bioname, congress, chamber, department) %>%
   tally() %>% ungroup() 
 
+mocs %<>% group_by(department) %>% mutate(percent = dplyr::ntile(n,100)) %>% ungroup()
 
-# plot by nominate and agency
+mocs$name <- gsub(",.*", "", mocs$bioname)
+
+
+# plot by nominate and dept
 mocs %>%
   ggplot() +
   geom_text(
-    aes(x = congress, y = agency, label = last_name, size = n, alpha = n, color = nominate.dim1),
+    aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = percent, alpha = percent, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
   scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
-  facet_grid(. ~ chamber)  +
+  facet_grid(department ~ .)  +
   labs(y = "", 
        title = paste("")) +
   theme(
     #axis.text.y = element_blank(),
     axis.ticks = element_blank(),
     #legend.text = element_blank(),
-    panel.background = element_blank()
+    panel.grid = element_blank()
   ) 
 
 
 
+# plot by nominate and dept
+mocsTYPE <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) %>%
+  group_by(bioname, nominate.dim1, chamber, department, TYPE) %>%
+  tally() %>% ungroup() 
 
-# plot by nominate and TYPE
-agenciesToPlot <- c("EPA", "DOT_FAA", "DOD_Navy", "DHS")
-data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
-  tally() %>% ungroup() %>%
-  filter(agency %in% agenciesToPlot & TYPE != 0 & TYPE != 6 & !is.na(chamber)) %>%
+mocsTYPE %<>% group_by(department) %>% mutate(percent = dplyr::cume_dist(n)) %>% ungroup()
+
+mocsTYPE$name <- gsub(",.*", "", mocsTYPE$bioname)
+
+mocsTYPE %>% filter(!is.na(TYPE)) %>% filter(agency != "DHS") %>%
   ggplot() +
-  geom_jitter(aes(x = congress, y = agency,  color = nominate.dim1, size = n),
-              alpha = .5) +
-  scale_colour_gradient2(low = "red", mid = "grey", high = "blue") +
   geom_text(
-    data = data %>% group_by(last_name, congress, nominate.dim1, chamber, TYPE, agency) %>%
-      tally() %>% ungroup() %>%
-      filter(n > 10 & agency %in% agenciesToPlot & TYPE != 0 & TYPE != 6 & !is.na(chamber)),
-    aes(x = congress, y = agency, label = last_name, size = n/4 ),
+    aes(x = TYPE, y = chamber, label = name, size = n, alpha = percent, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
-  facet_grid(TYPE ~ chamber)  +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  #scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
+  facet_grid(department ~ .)  +
   labs(y = "", 
-       title = paste("Letters to ", agenciesToPlot)) +
+       title = paste("")) +
   theme(
     #axis.text.y = element_blank(),
-    axis.ticks = element_blank()
+    axis.ticks = element_blank(),
+    #legend.text = element_blank(),
+    panel.grid = element_blank()
   ) 
+
+
+
+
+
+
+
 
 
 #####################################
