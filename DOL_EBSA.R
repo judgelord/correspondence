@@ -20,10 +20,6 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
-  #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
