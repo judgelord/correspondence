@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-file.name <- "DOL_EBSA" # for testing
+# file.name <- "DOL_EBSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -20,13 +20,9 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
-  #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
+  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   
 }

@@ -25,8 +25,8 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  
-  data <- extractMemberName(data, members)
+  data$FROM <- data$SUBJECT
+  data <- extractMemberName(data, members, "FROM")
   
 #   data %<>%
 #     mutate(Summary = gsub(pattern = "(.*)(Represenative|Representativess)(.*)", replacement = '\\1Representatives\\3', Summary) )

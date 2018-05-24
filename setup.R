@@ -14,6 +14,7 @@ library(Rvoteview)
 library(stringi)
 source("stateFromLower.R") # format state names
 source("clean.R") # data cleaning and intercoder agreement functions 
+source("nameMethods.R") # functions for cleaning member names
 
 gs_ls() # log in to google
 
@@ -33,7 +34,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(middle_initial = substr(middle_name, 1, 1)) %>%
   mutate(first_name = gsub(" .*", "", first_name)) %>%
   mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
-  # correct mistakes
+  # common names
   mutate(common_name = ifelse(bioname == "BUNNING, James Paul David", "Jim", common_name)) %>%
   mutate(common_name = ifelse(bioname == "FORBES, J. Randy", "Randy", common_name)) %>%
   mutate(common_name = ifelse(bioname == "GRIFFITH, H. Morgan", "Morgan", common_name)) %>%
@@ -56,30 +57,44 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "STABENOW, Deborah Ann", "Debbie", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "VAN HOLLEN, Christopher", "Chris", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "ROSS, Michael Avery", "Mike", common_name)) %>% 
-
+<<<<<<< HEAD
+=======
+  mutate(common_name = ifelse(bioname == "GRAVES, Samuel", "Sam", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DOYLE, Michael F.", "Mike", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "UPTON, Frederick Stephen", "Fred", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DOYLE, Michael F.", "Mike", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "MURPHY, Timothy", "Tim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARNEY, Chris", "Christopher", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CAMP, David Lee", "Dave", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CRAPO, Michael Dean", "Mike", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "LANGEVIN, James", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "SANDERS, Bernard", "Bernie", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "PAUL, Ronald Ernest", "Ron", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "PASCRELL, William J., Jr.", "Bill", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  
+>>>>>>> b86bf737fd47c7d030ff3043a2fb53e83c454fa7
   mutate(common_name = ifelse(bioname == "DENT, Charles W.", "Charlie", common_name)) %>% 
-
-  
-  
+  # middle initials
   mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", "E", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "BOND, Christopher Samuel (Kit)", "S", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "PENCE, Mike", "R", middle_initial)) %>% 
-  
-  
+  # first names
   mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
   mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
-
   mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) 
-  
+
+# make blank common names NA
 members %<>%
    mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
 
-  
-
-  
-  # select
-  members %<>% select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything())
+# select
+members %<>% 
+  select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything())
 
 # NOTE: 
 # Voteview is missing non-voting members:
@@ -92,7 +107,6 @@ members %<>%
 
 
 members$congresses <- NA # this list format throughs errors in merge
-
 
 
 

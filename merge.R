@@ -12,7 +12,7 @@ source("setup.R")
 # DHS
 agency <- "DHS"
 status <- "coded"
-coders <- "Katie" # c("Katie", "Megha")
+coders <- "Katie" # c("Katie", "Megha") # Megha's work is not there
 DHS <- clean.agency()
 DHS %<>% left_join(members) #, by = c("congress", "chamber", "first_name", "last_name"))
 
@@ -23,13 +23,42 @@ coders <- NA
 DOD_DLA_Aviation <- clean.agency()
 DOD_DLA_Aviation %<>% left_join(members) #, by = c("congress", "chamber", "first_name", "last_name"))
 
-
-
 agency <- "DOD_Navy"
 status <- "coded"
 coders <- c("Delaney")
 DOD_Navy <- clean.agency() 
 DOD_Navy %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
+
+agency <- "DOE_FERC"
+status <- "not coded"
+coders <- NA
+DOE_FERC <- clean.agency() 
+DOE_FERC %<>% left_join(members) 
+
+# DOL
+agency <- "DOL_EBSA"
+status <- "not coded"
+coders <- NA
+DOL_EBSA <- clean.agency() 
+DOL_EBSA %<>% left_join(members)
+
+agency <- "DOL_OCFO"
+status <- "not coded"
+coders <- NA
+DOL_OCFO <- clean.agency() 
+DOL_OCFO %<>% left_join(members)
+
+agency <- "DOL_OFCCP"
+status <- "not coded"
+coders <- NA
+DOL_OFCCP <- clean.agency() 
+DOL_OFCCP %<>% left_join(members)
+
+agency <- "DOL_VETS"
+status <- "not coded"
+coders <- NA
+DOL_VETS <- clean.agency() 
+DOL_VETS %<>% left_join(members)
 
 # DOT 
 agency <- "DOT_FAA"

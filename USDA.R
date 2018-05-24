@@ -1,7 +1,11 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
+<<<<<<< HEAD
 #file.name <- "USDA" #for testing
+=======
+ #file.name <- "USDA" #for testing
+>>>>>>> 54942c2517054aa736c97cee15c7ef58c6d67533
 
 clean <- function(file.name){
   
@@ -38,38 +42,43 @@ data %<>%
 # most common SUBJECTS, useful for plotting 
 # major.subjects <- c("Appropriations", "Nutrition", "Forestry", "Environment","Farms", "Research", "Price Support", "Government", "Food and Drug Saftey")
 
-# create variable for first name
-data %<>%
-  mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-  mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
-data <- formatFirstName(data)
+data$FROM <- ifelse( grepl("Ben|E. B",data$FROM)&grepl("Nelson",data$FROM), "Earl Nelson", data$FROM)
+
+data <- extractMemberName(data, members, 'FROM')
 
 
-
-
-
-data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV", "", data$FROM)
-
-# create variable for last name
-data %<>%
-  mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM2)) %>% 
-  mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
-  mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-  mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
-  mutate(last_name = gsub(pattern = ".* (\\w+, Jr.|\\w+ Jr.)", replacement = "\\1", last_name)) %>% 
-  mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
-  mutate(last_name = gsub(pattern = ".* (\\w+, ..)", replacement = "\\1", last_name))  %>% 
-  mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM2), gsub(pattern=".* (\\w+, ..)", 
-                                                               replacement = "\\1", FROM2), last_name)) %>% 
-  mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM2), gsub(pattern=".* (\\w+ ..)", 
-                                                               replacement = "\\1", FROM2), last_name))
-data <- formatLastName(data)
-
-  
- 
- 
-
-data <- data[,!(names(data) %in% "FROM2")]
+# # create variable for first name
+# data %<>%
+#   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
+#   mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
+# data$first_name <- formatFirstName(data, 'first_name')
+# 
+# 
+# 
+# 
+# 
+# data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV", "", data$FROM)
+# 
+# # create variable for last name
+# data %<>%
+#   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM2)) %>% 
+#   mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
+#   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
+#   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
+#   mutate(last_name = gsub(pattern = ".* (\\w+, Jr.|\\w+ Jr.)", replacement = "\\1", last_name)) %>% 
+#   mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
+#   mutate(last_name = gsub(pattern = ".* (\\w+, ..)", replacement = "\\1", last_name))  %>% 
+#   mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM2), gsub(pattern=".* (\\w+, ..)", 
+#                                                                replacement = "\\1", FROM2), last_name)) %>% 
+#   mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM2), gsub(pattern=".* (\\w+ ..)", 
+#                                                                replacement = "\\1", FROM2), last_name))
+# data$last_name <- formatLastName(data, 'last_name')
+# 
+#   
+#  
+#  
+# 
+# data <- data[,!(names(data) %in% "FROM2")]
 
   
 data %<>%
