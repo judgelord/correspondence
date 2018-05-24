@@ -37,5 +37,26 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
   
+  data %<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("VETERAN NEEDS ASSISTANCE|WRONGFUL|TERMINATE|USERRA VIOLATION|COMPLAINT|ASSISTANCE|UNFAIR|SUPPORT APPLICATION|GRANT APPLICATION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VETERAN NEEDS ASSISTANCE|WRONGFUL|TERMINATE|USERRA VIOLATION|COMPLAINT|ASSISTANCE|UNFAIR|SUPPORT APPLICATION|GRANT APPLICATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))  %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("LEGISLATION", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LEGISLATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("LEGISLATION", SUBJECT, ignore.case = TRUE), "LEGISLATION", EVENT_NAME)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT PROPOSAL", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT PROPOSAL", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("GRANT PROPOSAL", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 }
