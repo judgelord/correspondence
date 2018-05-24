@@ -6,7 +6,7 @@
 # duplicate member names in rows needs to be fixed
 # only 15 observations not in member set (half shouldn't be, other half are spelling errors)
 
-# file.name <- "DOL_OFCCP" # for testing
+ #file.name <- "DOL_OFCCP" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -31,6 +31,19 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
+  
+  data %<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMPLAINT|WRONGFUL|HARASS|TERMINATION|UNFAIR|DISCRIMINATION|REQUEST|IBM|AFFIRMATIVE ACTION|DISABLED|VIOLATION|ASSISTANCE|LAID OFF|TERMINATED|DENIED|DISABILITY", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMPLAINT|WRONGFUL|HARASS|TERMINATION|UNFAIR|DISCRIMINATION|REQUEST|IBM|AFFIRMATIVE ACTION|DISABLED|VIOLATION|ASSISTANCE|LAID OFF|TERMINATED|DENIED|DISABILITY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("AFFIRMATIVE ACTION GUIDELINE|WHISTLEBLOWER PROTECTIONS|READJUSTMENT ACT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("AFFIRMATIVE ACTION GUIDELINE|WHISTLEBLOWER PROTECTIONS|READJUSTMENT ACT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("AFFIRMATIVE ACTION GUIDELINE|WHISTLEBLOWER PROTECTIONS", SUBJECT, ignore.case = TRUE), "RULE", EVENT_NAME)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CGI|EMPLOYMENT PRACTICES", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CGI|EMPLOYMENT PRACTICES", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+   
+  
+  
+  
   
   
 }
