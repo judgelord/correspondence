@@ -57,8 +57,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "STABENOW, Deborah Ann", "Debbie", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "VAN HOLLEN, Christopher", "Chris", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "ROSS, Michael Avery", "Mike", common_name)) %>% 
-<<<<<<< HEAD
-=======
+
   mutate(common_name = ifelse(bioname == "GRAVES, Samuel", "Sam", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "DOYLE, Michael F.", "Mike", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "UPTON, Frederick Stephen", "Fred", common_name)) %>% 
@@ -72,11 +71,43 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "SANDERS, Bernard", "Bernie", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "PAUL, Ronald Ernest", "Ron", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "PASCRELL, William J., Jr.", "Bill", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "YOUNG, Donald Edwin", "Don", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "COBURN, Thomas Allen", "Tom", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "BUYER, Stephen Earle", "Steve", common_name)) %>%  
+  mutate(common_name = ifelse(bioname == "WYDEN, Ronald Lee", "Ron", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DELAHUNT, Bill", "William", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "BOYD, F. Allen, Jr.", "Allen", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "HOEKSTRA, Peter", "Pete", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "REICHERT, David G.", "Dave", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "BOREN, Daniel David", "Dan", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "PASCRELL, William J., Jr.", "Bill", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "MACK, Connie, IV", "Connie", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "HALVORSON, Deborah L.", "Debbie", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "COHEN, Stephen", "Steve", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "INGLIS, Robert Durden", "Bob", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "ETHERIDGE, Bobby R.", "Bob", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "BOUCHER, Frederick C.", "Rick", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "RYAN, Timothy J.", "Tim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "KAGEN, Steven", "Steve", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "BURTON, Danny Lee", "Dan", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "LATHAM, Thomas", "Tom", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "COOPER, James Hayes Shofner", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "GORDON, Barton Jennings", "Bart", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DICKS, Norman DeValois", "Norm", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "HONDA, Mike", "Michael", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "JOHNSON, Ron", "Ronald", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
   
->>>>>>> b86bf737fd47c7d030ff3043a2fb53e83c454fa7
+
+
+  
   mutate(common_name = ifelse(bioname == "DENT, Charles W.", "Charlie", common_name)) %>% 
   # middle initials
   mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
