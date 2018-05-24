@@ -314,7 +314,20 @@ getFirstLast.Comma <- function(data, col_name){
   
   data %<>%
     mutate(last_name = ifelse(grepl("HERSETH", last)|grepl('SANDLIN', last), "HERSETH SANDLIN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("HERSETH", last)|grepl('SANDLIN', last), "Stephanie", first_name))
+    mutate(first_name = ifelse(grepl("HERSETH", last)|grepl('SANDLIN', last), "Stephanie", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Ben|E.B|E B", FROM2)& grepl('NELSON', FROM2), "NELSON", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Ben|E.B|E B", first_last)& grepl('NELSON', first_last), "Ben", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Casey", FROM2)& grepl('Rob|Bob|Jr', FROM2), "CASEY", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Casey", FROM2)& grepl('Rob|Bob|Jr', FROM2), "Robert", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("RUPPERSBERGER", FROM2), "RUPPERSBERGER", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("RUPPERSBERGER", FROM2), "Dutch", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("KRATOVIL", FROM2), "KRATOVIL", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("KRATOVIL", FROM2), "Frank", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Sheila", FROM2)&grepl("JACKSON", FROM2), "JACKSON LEE", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Sheila", FROM2)&grepl("JACKSON", FROM2), "Sheila", first_name)) 
+    
+    
+  
   
   
    #Remove colums. Comment out for debugging
