@@ -4,7 +4,7 @@
 
 #file.name <- "FCC Devin" # for testing
 
-#clean <- function(file.name) {
+clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # create ID variable
@@ -56,7 +56,15 @@
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ALLOCATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("ALLOCATION", SUBJECT, ignore.case = TRUE), "DECISION", EVENT_NAME)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("AGENCY REFORM|PUBLIC INTEREST OBLIGATION", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("AGENCY REFORM|PUBLIC INTEREST OBLIGATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("AGENCY REFORM|PUBLIC INTEREST OBLIGATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MERGER", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MERGER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
+  mutate(NOTES = ifelse (!grepl("[A-Z]", NOTES) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "NOT SURE IF EMERGENCY ALERTS WOULD BE POLICY OR SOLELY FOR CONSTITUENT BENEFITS", NOTES)) %>%
+    
+  
   
   
   
