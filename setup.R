@@ -57,6 +57,12 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "STABENOW, Deborah Ann", "Debbie", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "VAN HOLLEN, Christopher", "Chris", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "ROSS, Michael Avery", "Mike", common_name)) %>% 
+<<<<<<< HEAD
+=======
+  mutate(common_name = ifelse(bioname == "GRAVES, Samuel", "Sam", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "GRAVES, Samuel", "Sam", common_name)) %>% 
+  
+>>>>>>> b86bf737fd47c7d030ff3043a2fb53e83c454fa7
   mutate(common_name = ifelse(bioname == "DENT, Charles W.", "Charlie", common_name)) %>% 
   # middle initials
   mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
@@ -91,35 +97,3 @@ members$congresses <- NA # this list format throughs errors in merge
 
 
 
-# # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
-# # It may also auto-code variables like TYPE based on agency-specific information
-# 
-# 
-# #file.name <- "USPS" # for testing
-# 
-# clean <- function(file.name) {
-#   data <- gs_title(file.name) %>% gs_read() # get data
-#   
-#   
-#   # create agency column
-#   data$agency <- file.name
-#   
-#   # Format date, year, Congress, member name etc. 
-#   data$DATE %<>% as.Date("%Y-%m-%d")
-#   
-#   #create year and congress columns
-#   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-#   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-#   
-#   data <- getFirstLast.Comma(data, 'FROM')
-#   
-#   #Create variable for chamber position  (Senator or Representative)
-#   data %<>%
-#     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
-#     mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
-#   
-#   # arrange columns for hand coding
-#   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
-#   
-#   
-# }

@@ -310,6 +310,13 @@ getFirstLast.Comma <- function(data, col_name){
   data$first_name <- formatFirstName(data, 'first_name')
   data$last_name <- formatLastName(data, 'last_name')
   
+  # Fix specific common errors
+  
+  data %<>%
+    mutate(last_name = ifelse(grepl("HERSETH", last)|grepl('SANDLIN', last), "HERSETH SANDLIN", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("HERSETH", last)|grepl('SANDLIN', last), "Stephanie", first_name))
+  
+  
    #Remove colums. Comment out for debugging
  # data <- subset(data, select = -c(first, last, first_last, FROM2))
   
