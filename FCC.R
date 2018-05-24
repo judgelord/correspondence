@@ -39,8 +39,8 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENFORCEMENT|LICENSING", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ENFORCEMENT|LICENSING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("LICENSING", SUBJECT, ignore.case = TRUE), "DECISION", EVENT_NAME)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("LEGISLATIVE|Incentive Auction|OPEN INTERNET|BUDGET", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LEGISLATIVE|Incentive Auction|OPEN INTERNET|BUDGET", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%   #come back to Incentive auction tomorrow
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("LEGISLATIVE|OPEN INTERNET|BUDGET", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LEGISLATIVE|OPEN INTERNET|BUDGET", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%   #come back to Incentive auction tomorrow
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DISABILITY ACCESSIBILITY", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DISABILITY ACCESSIBILITY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Privacy", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
@@ -63,9 +63,37 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
   mutate(NOTES = ifelse (!grepl("[A-Z]", NOTES) & grepl("EMERGENCY COMMUNICATIONS", SUBJECT, ignore.case = TRUE), "NOT SURE IF EMERGENCY ALERTS WOULD BE POLICY OR SOLELY FOR CONSTITUENT BENEFITS", NOTES)) %>%
+  mutate(TYPE = ifelse (grepl("INCENTIVE AUCTIONS", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (grepl("INCENTIVE AUCTIONS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (grepl("SERVICES", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (grepl("SERVICES", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (grepl("SERVICES", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSUMER INFORMATION|HUMAN RESOURCES", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSUMER INFORMATION|HUMAN RESOURCES", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("CONSUMER INFORMATION|HUMAN RESOURCES", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+  mutate(NOTES = ifelse (!grepl("[A-Z]", NOTES) & grepl("CONSUMER INFORMATION", SUBJECT, ignore.case = TRUE), "ASSUME THIS IS POLICY (WITH REGARDS TO CONSUMER INFORMATION) TO PROTECT CONSUMERS, BUT COULD ALSO BE FOR THE BENEFIT OF SPECIFIC MARKETING BUSINESSES I SUPPOSE", NOTES)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MEDIA|DIVERSITY|OWNERSHIP|LOCALISM", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MEDIA|DIVERSITY|OWNERSHIP|LOCALISM", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INDECENT PROGRAMMING|ACCESS CHARGES", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INDECENT PROGRAMMING|ACCESS CHARGES", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("911|PROGRAMMING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%   #"PUBLIC SAFETY LEADS ME TO BELIEVE THIS IS POLICY
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("911|PROGRAMMING", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9, A-Z]", ALT_TYPE) & grepl("911|PROGRAMMING", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("BROADBAND COVERAGE", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("BROADBAND COVERAGE", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("BROADBAND COVERAGE", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INTERFERENCE", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INTERFERENCE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+ 
+  
+  
+
     
-  
-  
-  
-  
+    
 }
+
+  
+  
+  
+  
+
