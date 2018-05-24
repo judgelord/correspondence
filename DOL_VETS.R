@@ -11,6 +11,11 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  #rename ID column and remove duplicated observations
+  colnames(data)[colnames(data) == 'SIMS ID'] <- 'ID'
+  data <- data[!duplicated(data[,c('ID')]),]  
+  
+  
   
   # create agency column
   data$agency <- file.name
@@ -30,7 +35,7 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
   
   # arrange columns for hand coding
-  data %<>% select('SIMS ID', DATE, FROM, SUBJECT, chamber, everything())
+  data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
   
   
 }

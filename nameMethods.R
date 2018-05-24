@@ -52,6 +52,7 @@ formatLastName <- function(data, col_name){
 formatFirstName <- function(data, col_name){
   
   data$first_name <- data[[col_name]]
+  #data %<>% mutate(FROM = ifelse("FROM2" %in% names(data), FROM2, FROM))
   
   data %<>%
     mutate(first_name = stri_trans_totitle(first_name)) %>% 
