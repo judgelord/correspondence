@@ -178,10 +178,10 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 # identify top members
 
 mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) %>%
-  group_by(bioname, congress, nominate.dim1, chamber, department) %>%
+  group_by(bioname, congress, chamber, department) %>%
   tally() %>% ungroup() 
 
-mocs %<>% group_by(department, congress) %>% mutate(percent = dplyr::cume_dist(n)) %>% ungroup()
+mocs %<>% group_by(department) %>% mutate(percent = dplyr::ntile(n,100)) %>% ungroup()
 
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
@@ -190,7 +190,7 @@ mocs$name <- gsub(",.*", "", mocs$bioname)
 mocs %>%
   ggplot() +
   geom_text(
-    aes(x = congress, y = chamber, label = name, size = percent, alpha = percent, color = nominate.dim1),
+    aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = percent, alpha = percent, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
@@ -212,14 +212,14 @@ mocsTYPE <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", cha
   group_by(bioname, nominate.dim1, chamber, department, TYPE) %>%
   tally() %>% ungroup() 
 
-mocsTYPE %<>% group_by(department,TYPE) %>% mutate(percent = dplyr::cume_dist(n)) %>% ungroup()
+mocsTYPE %<>% group_by(department) %>% mutate(percent = dplyr::cume_dist(n)) %>% ungroup()
 
 mocsTYPE$name <- gsub(",.*", "", mocsTYPE$bioname)
 
-mocsTYPE %>% filter(!is.na(TYPE)) %>%
+mocsTYPE %>% filter(!is.na(TYPE)) %>% filter(agency != "DHS") %>%
   ggplot() +
   geom_text(
-    aes(x = TYPE, y = chamber, label = name, size = n, alpha = n, color = nominate.dim1),
+    aes(x = TYPE, y = chamber, label = name, size = n, alpha = percent, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
