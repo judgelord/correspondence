@@ -54,6 +54,7 @@ clean <- function(file.name) {
   mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("DOL PROGRAMS|SUPPORT VOA|SUPPORT FOR THE|SUPPORT FUND", SUBJECT, ignore.case = TRUE), "PROGRAM SUPPORT", EVENT_NAME))  %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SUPPORT FOR BUSINESS", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SUPPORT FOR BUSINESS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+
   
   
   

@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DHS Katie" # for testing
+#file.name <- "DHS Katie" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -74,6 +74,16 @@ data %<>%
 
 # arrange columns for hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+
+
+
+data%<>%
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NONPROFIT|JEWISH", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NONPROFIT|JEWISH", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ON BEHALF OF CON", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ON BEHALF OF CON", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+
+
 
 }
 
