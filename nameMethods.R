@@ -80,6 +80,7 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = ifelse( grepl("Nelson",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "Earl", first_name)) %>%
     mutate(first_name = ifelse( grepl("Carson",FROM,ignore.case=TRUE)&grepl("Andr",FROM,ignore.case=TRUE), "André", first_name)) %>%
     mutate(first_name = ifelse( grepl("Griv",FROM,ignore.case=TRUE)&grepl("Raul",FROM,ignore.case=TRUE), "Raúl", first_name)) %>%
+    mutate(first_name = ifelse( grepl("Scott",FROM,ignore.case=TRUE)&grepl("Bobby",FROM,ignore.case=TRUE), "Bob", first_name)) %>%
     
     
     mutate(first_name = ifelse( grepl("Young",FROM,ignore.case=TRUE)&grepl("C.W|C. W|CW",FROM,ignore.case=TRUE), "Charles", first_name)) %>%
@@ -225,6 +226,7 @@ extractMemberName <- function(data, members, col_name){
     mutate(FROM2 = ifelse( is.na(first_name) & is.na(last_name), NA, FROM2))
   
   
+ 
   
   return(data)
 }
@@ -317,7 +319,6 @@ getFirstLast.Comma <- function(data, col_name){
   data$last_name <- formatLastName(data, 'last_name')
   
   # Fix specific common errors
-  
   data %<>%
     mutate(last_name = ifelse(grepl("HERSETH", last, ignore.case = TRUE )|grepl('SANDLIN', last, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% 
     mutate(first_name = ifelse(grepl("HERSETH", last,ignore.case = TRUE)|grepl('SANDLIN', last,ignore.case = TRUE), "Stephanie", first_name)) %>%
