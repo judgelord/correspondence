@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 1116 out of 1403 last names matched. Go back and fix spelling
+# 1130 out of 1403 last names matched. Go back and fix spelling
 
 # file.name <- "DOI_NPS" # for testing
 
@@ -25,7 +25,10 @@ clean <- function(file.name) {
   
   
   # create variable for last name
-  data$last_name <- formatLastName(data, 'FROM')
+  data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+  data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.",
+                     replacement = ",", data$FROM2)
+  data$last_name <- formatLastName(data, 'FROM2')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
