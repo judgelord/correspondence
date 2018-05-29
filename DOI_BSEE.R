@@ -9,22 +9,40 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data$FROM <- data$`Congressional Office`
-  
   # create ID variable
   data$ID <- c(1:nrow(data))
+ 
+  
+  data$FROM <- data$`Congressional Office`
   
   #create agency column
   data$agency <- file.name
   
-  # Format date, year, Congress, member name etc. 
+  # Format date, year, Congress
   data$DATE %<>% as.Date("%m/%d/%y")
-  
-  
-  #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  
+  # add in notes if a number of unspecified congressman contributed
+  data %<>%
+    mutate(NOTES = ifelse(grepl("other", FROM), paste(NOTES, FROM), NOTES))
+  
+  
+  ###     ###     ###
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  ###     ###     ###
   
   # create variable for last name
   data <- extractMemberName(data, members, 'FROM')
