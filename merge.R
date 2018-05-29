@@ -16,47 +16,64 @@ source("setup.R")
 
 
 data_list <- matrix(c(
-  # Agency      # coded     # coders 
+# Agency    # coded     # coders 
 "DHHS_ACL", "not coded", NA,
-"DHHS_CDC",    "not coded", NA,
+"DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,
 # DHS
-"DHS", "coded", "Katie", # "Katie", "Megha") # Megha's work is not there
+"DHS", "coded", "Katie", # "Katie", "Megha") # but Megha's work is not there
 "DHS_ICE", "not coded", NA,
+# DOC
+"DOC_MBDA", "not coded", NA,
 # DOD
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney",
+# DOE
 "DOE_FERC", "not coded", NA,
+# DOI 
+"DOI_BSEE", "not coded", NA,
+"DOI_NPS", "not coded", NA,
+"DOI_USGS", "not coded", NA,
+# DOJ 
+"DOJ_CIV", "not coded", NA,
+# DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_VETS", "not coded", NA,
+# DOT 
 "DOT_FAA", "coded", "Sam",
-#EPA
+# Education
+"ED", "not coded", NA,
+# EPA
 "EPA", "coded", "Adam", # c("Adam", "Avery"),
-#FCC
+# FCC
 "FCC", "coded", "Devin",
-#PRC
+# PRC
 "PRC", "not coded", NA,
+# USDA 
 "USDA", "not coded", NA,
 "USDA_ERS", "not coded", NA,
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
 "USDA_NRCS", "not coded", NA,
-"USDA_RD", "not coded", NA
-), ncol = 3, nrow = 33, byrow = T)
+"USDA_RD", "not coded", NA,
+# USPS
+"USPS", "not coded", NA
+), ncol = 3, byrow = T)
 
 # merge data
-agency <- data_list[1,1]
-status <- data_list[1,2]
-coders <- data_list[1,3]
-data <- clean.agency()
+i = 1
+data <- clean.agency(agency = data_list[i, 1],
+                     status = data_list[i, 2],
+                     coders = data_list[i, 3])
 
 for (i in 2:nrow(data.list)) {
-  agency <- data_list[i,1]
-  status <- data_list[i,2]
-  coders <- data_list[i,3]
-  data %<>% full_join(clean.agency())
+  data %<>% full_join(clean.agency(
+    agency = data_list[i, 1],
+    status = data_list[i, 2],
+    coders = data_list[i, 3]
+  ))
 }
 
 data$department <- gsub("_.*", "", data$agency)

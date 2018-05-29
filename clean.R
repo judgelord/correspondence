@@ -38,7 +38,7 @@ intercoder.agreement <- function(data) {
 }
 
 # calling agency-specific clean() function and joining data depending on status of hand-coding
-clean.agency <- function() {
+clean.agency <- function(agency, status, coders) {
   source(paste0(agency, ".R"))
   
   if (status == "not coded") {
@@ -107,6 +107,14 @@ clean.agency <- function() {
   
   # problem vars
   data$ALT_TYPE <-NA
+  
+  # make everything char
+  data$TYPE %<>% as.character()
+  data$CERTAINTY %<>% as.character()
+  data$POLICY_EVENT %<>% as.character()
+  data$EVENT_NAME %<>% as.character()
+  data$EVENT_DATE %<>% as.character()
+  data$NOTES %<>% as.character()
   return(data)
 }
 
