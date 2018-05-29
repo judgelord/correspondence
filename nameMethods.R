@@ -123,6 +123,7 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
   
   
   # create FROM2 varible extracting name from data$Summary
