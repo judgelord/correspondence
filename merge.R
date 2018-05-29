@@ -7,164 +7,57 @@
 # load functions
 source("setup.R")
 
+
+# the title of the R script for cleaning these data
+# c("coded", "recoded", "not coded") NA if not yet coded
+# coders c(NA, "one coder", or multiple coders c("Adam", "Avery")
+
 # Departments and agencies are listed A-Z
 
-# DHHS 
-agency.list <- as.matrix(
-c("DHHS_ACL",   "not coded", NA),
-c"DHHS_CDC",    "not coded", NA),
-c("DHHS_HRSA", "not coded", NA),
 
-
-
+data_list <- matrix(c(
+  # Agency      # coded     # coders 
+"DHHS_ACL", "not coded", NA,
+"DHHS_CDC",    "not coded", NA,
+"DHHS_HRSA", "not coded", NA,
 # DHS
-"DHS"
-"coded"
-"Katie" # c("Katie", "Megha") # Megha's work is not there
-DHS
-DHS %<>%  #, by = c("congress", "chamber", "first_name", "last_name"))
-
-"DHHS_ICE"
-"not coded"
-NA # c("Katie", "Megha") # Megha's work is not there
-DHS
-DHS_ICE %<>% 
-
-
-# DOD 
-"DOD_DLA_Aviation"
-"not coded"
-NA
-DOD_DLA_Aviation
-DOD_DLA_Aviation %<>%  #, by = c("congress", "chamber", "first_name", "last_name"))
-
-"DOD_Navy"
-"coded"
-c("Delaney")
-DOD_Navy 
-DOD_Navy %<>%  #, by = c("congress", "chamber", "last_name"))
-
-"DOE_FERC"
-"not coded"
-NA
-DOE_FERC 
-DOE_FERC %<>% select(-id)
-DOE_FERC %<>%  
-
-# DOL
-"DOL_EBSA"
-"not coded"
-NA
-DOL_EBSA 
-DOL_EBSA %<>% 
-
-"DOL_OCFO"
-"coded"
-"Devin"
-DOL_OCFO 
-DOL_OCFO %<>% 
-
-"DOL_OFCCP"
-"not coded"
-NA
-DOL_OFCCP 
-DOL_OFCCP %<>% 
-
-"DOL_VETS"
-"not coded"
-NA
-DOL_VETS 
-DOL_VETS %<>% 
-
-# DOT 
-"DOT_FAA"
-"coded"
-c("Sam")
-DOT_FAA
-DOT_FAA %<>% select(-middle_name) 
-DOT_FAA %<>% 
-
+"DHS", "coded", "Katie", # "Katie", "Megha") # Megha's work is not there
+"DHS_ICE", "not coded", NA,
+# DOD
+"DOD_DLA_Aviation", "not coded", NA,
+"DOD_Navy", "coded", "Delaney",
+"DOE_FERC", "not coded", NA,
+"DOL_EBSA", "not coded", NA,
+"DOL_OCFO", "coded", "Devin",
+"DOL_OFCCP", "not coded", NA,
+"DOL_VETS", "not coded", NA,
+"DOT_FAA", "coded", "Sam",
 #EPA
-"EPA" # the title of the R script for cleaning these data
-"coded" # c("coded", "recoded", "not coded") NA if not yet coded
-c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
-EPA 
-EPA %<>% select(-middle_name) 
-EPA %<>%  #, by = c("last_name", "congress", "chamber", "state"))
-
+"EPA", "coded", "Adam", # c("Adam", "Avery"),
 #FCC
-"FCC"
-"coded"
-"Devin"
-FCC
-
+"FCC", "coded", "Devin",
 #PRC
-"PRC"
-"not coded"
-NA
-PRC
-PRC %<>%  #, by = c("congress", "chamber", "last_name", "state")) # matching on state may fail to match out-of-state advocacy, but false positives without it
-
-# USDA 
-"USDA"
-"not coded"
-NA
-USDA
-USDA %<>%  #, by = c("congress", "chamber", "last_name"))
-# (still have a false positive problem with Johnson and Rogers, hard to match without state or chamber)
-
-"USDA_ERS"
-"not coded"
-NA
-USDA_ERS 
-USDA_ERS %<>%  #, by = c("congress", "chamber", "last_name"))
-
-"USDA_FS"
-"not coded"
-NA
-USDA_FS
-USDA_FS %<>%  #, by = c("congress", "first_name", "last_name"))
-
-"USDA_NASS"
-"coded"
-c("Robert", "Henry")
-USDA_NASS
-USDA_NASS %<>%  #, by = c("congress", "first_name", "last_name"))
-
-"USDA_NRCS"
-"not coded"
-NA
-USDA_NRCS
-USDA_NRCS %<>%  #, by = c("congress", "chamber", "last_name")) 
-
-"USDA_RD"
-"not coded"
-NA
-USDA_RD 
-USDA_RD %<>%  #, by = c("congress", "first_name", "last_name"))
-)
+"PRC", "not coded", NA,
+"USDA", "not coded", NA,
+"USDA_ERS", "not coded", NA,
+"USDA_FS", "not coded", NA,
+"USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
+"USDA_NRCS", "not coded", NA,
+"USDA_RD", "not coded", NA
+), ncol = 3, nrow = 33, byrow = T)
 
 # merge data
-data <- plyr::join_all(list(
-  DHS,
-  DOD_DLA_Aviation,
-  DOD_Navy,
-  DOE_FERC,
-  DOL_EBSA,
-  DOL_OCFO,
-  DOL_OFCCP,
-  DOL_VETS,
-  DOT_FAA,
-  EPA,
-  FCC,
-  PRC,
-  USDA,
-  USDA_ERS,
-  USDA_FS,
-  USDA_NASS,
-  USDA_NRCS,
-  USDA_RD
-  ), type = 'full')
+agency <- data_list[1,1]
+status <- data_list[1,2]
+coders <- data_list[1,3]
+data <- clean.agency()
+
+for (i in 2:nrow(data.list)) {
+  agency <- data_list[i,1]
+  status <- data_list[i,2]
+  coders <- data_list[i,3]
+  data %<>% full_join(clean.agency())
+}
 
 data$department <- gsub("_.*", "", data$agency)
 
