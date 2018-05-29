@@ -7,6 +7,10 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  
+  # ID variable
+  data$ID <- c(1:nrow(data))
+  
   #create agency column
   data$agency <- file.name
   
