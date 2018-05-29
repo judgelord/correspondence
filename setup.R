@@ -5,6 +5,7 @@ options(stringsAsFactors = FALSE)
 # install.packages("googledrive")
 # install.packages("devtools")
 # install.packages("stringi")
+# install.packages("stringr")
 # devtools::install_github("voteview/Rvoteview")
 library(tidyverse)
 library(magrittr)
@@ -12,6 +13,7 @@ library(googlesheets)
 library(googledrive)
 library(Rvoteview)
 library(stringi)
+library(stringr)
 source("stateFromLower.R") # format state names
 source("clean.R") # data cleaning and intercoder agreement functions 
 source("nameMethods.R") # functions for cleaning member names
