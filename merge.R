@@ -9,125 +9,140 @@ source("setup.R")
 
 # Departments and agencies are listed A-Z
 
+# DHHS 
+agency.list <- as.matrix(
+c("DHHS_ACL",   "not coded", NA),
+c"DHHS_CDC",    "not coded", NA),
+c("DHHS_HRSA", "not coded", NA),
+
+
+
 # DHS
-agency <- "DHS"
-status <- "coded"
-coders <- "Katie" # c("Katie", "Megha") # Megha's work is not there
-DHS <- clean.agency()
-DHS %<>% left_join(members) #, by = c("congress", "chamber", "first_name", "last_name"))
+"DHS"
+"coded"
+"Katie" # c("Katie", "Megha") # Megha's work is not there
+DHS
+DHS %<>%  #, by = c("congress", "chamber", "first_name", "last_name"))
+
+"DHHS_ICE"
+"not coded"
+NA # c("Katie", "Megha") # Megha's work is not there
+DHS
+DHS_ICE %<>% 
+
 
 # DOD 
-agency <- "DOD_DLA_Aviation"
-status <- "not coded"
-coders <- NA
-DOD_DLA_Aviation <- clean.agency()
-DOD_DLA_Aviation %<>% left_join(members) #, by = c("congress", "chamber", "first_name", "last_name"))
+"DOD_DLA_Aviation"
+"not coded"
+NA
+DOD_DLA_Aviation
+DOD_DLA_Aviation %<>%  #, by = c("congress", "chamber", "first_name", "last_name"))
 
-agency <- "DOD_Navy"
-status <- "coded"
-coders <- c("Delaney")
-DOD_Navy <- clean.agency() 
-DOD_Navy %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
+"DOD_Navy"
+"coded"
+c("Delaney")
+DOD_Navy 
+DOD_Navy %<>%  #, by = c("congress", "chamber", "last_name"))
 
-agency <- "DOE_FERC"
-status <- "not coded"
-coders <- NA
-DOE_FERC <- clean.agency() 
+"DOE_FERC"
+"not coded"
+NA
+DOE_FERC 
 DOE_FERC %<>% select(-id)
-DOE_FERC %<>% left_join(members) 
+DOE_FERC %<>%  
 
 # DOL
-agency <- "DOL_EBSA"
-status <- "not coded"
-coders <- NA
-DOL_EBSA <- clean.agency() 
-DOL_EBSA %<>% left_join(members)
+"DOL_EBSA"
+"not coded"
+NA
+DOL_EBSA 
+DOL_EBSA %<>% 
 
-agency <- "DOL_OCFO"
-status <- "not coded"
-coders <- NA
-DOL_OCFO <- clean.agency() 
-DOL_OCFO %<>% left_join(members)
+"DOL_OCFO"
+"coded"
+"Devin"
+DOL_OCFO 
+DOL_OCFO %<>% 
 
-agency <- "DOL_OFCCP"
-status <- "not coded"
-coders <- NA
-DOL_OFCCP <- clean.agency() 
-DOL_OFCCP %<>% left_join(members)
+"DOL_OFCCP"
+"not coded"
+NA
+DOL_OFCCP 
+DOL_OFCCP %<>% 
 
-agency <- "DOL_VETS"
-status <- "not coded"
-coders <- NA
-DOL_VETS <- clean.agency() 
-DOL_VETS %<>% left_join(members)
+"DOL_VETS"
+"not coded"
+NA
+DOL_VETS 
+DOL_VETS %<>% 
 
 # DOT 
-agency <- "DOT_FAA"
-status <- "coded"
-coders <- c("Sam")
-DOT_FAA <- clean.agency()
+"DOT_FAA"
+"coded"
+c("Sam")
+DOT_FAA
 DOT_FAA %<>% select(-middle_name) 
-DOT_FAA %<>% left_join(members)
+DOT_FAA %<>% 
 
 #EPA
-agency <- "EPA" # the title of the R script for cleaning these data
-status <- "coded" # c("coded", "recoded", "not coded") NA if not yet coded
-coders <- c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
-EPA <- clean.agency() 
+"EPA" # the title of the R script for cleaning these data
+"coded" # c("coded", "recoded", "not coded") NA if not yet coded
+c("Adam", "Avery") # coder names that preface the agency name in the title of their google sheet
+EPA 
 EPA %<>% select(-middle_name) 
-EPA %<>% left_join(members) #, by = c("last_name", "congress", "chamber", "state"))
+EPA %<>%  #, by = c("last_name", "congress", "chamber", "state"))
 
 #FCC
-agency <- "FCC"
-status <- "coded"
-coders <- "Devin"
-FCC <- clean.agency()
+"FCC"
+"coded"
+"Devin"
+FCC
 
 #PRC
-agency <- "PRC"
-status <- "not coded"
-coders <- NA
-PRC <- clean.agency()
-PRC %<>% left_join(members) #, by = c("congress", "chamber", "last_name", "state")) # matching on state may fail to match out-of-state advocacy, but false positives without it
+"PRC"
+"not coded"
+NA
+PRC
+PRC %<>%  #, by = c("congress", "chamber", "last_name", "state")) # matching on state may fail to match out-of-state advocacy, but false positives without it
 
 # USDA 
-agency <- "USDA"
-status <- "not coded"
-coders <- NA
-USDA <- clean.agency()
-USDA %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
+"USDA"
+"not coded"
+NA
+USDA
+USDA %<>%  #, by = c("congress", "chamber", "last_name"))
 # (still have a false positive problem with Johnson and Rogers, hard to match without state or chamber)
 
-agency <- "USDA_ERS"
-status <- "not coded"
-coders <- NA
-USDA_ERS <- clean.agency() 
-USDA_ERS %<>% left_join(members) #, by = c("congress", "chamber", "last_name"))
+"USDA_ERS"
+"not coded"
+NA
+USDA_ERS 
+USDA_ERS %<>%  #, by = c("congress", "chamber", "last_name"))
 
-agency <- "USDA_FS"
-status <- "not coded"
-coders <- NA
-USDA_FS <- clean.agency()
-USDA_FS %<>% left_join(members) #, by = c("congress", "first_name", "last_name"))
+"USDA_FS"
+"not coded"
+NA
+USDA_FS
+USDA_FS %<>%  #, by = c("congress", "first_name", "last_name"))
 
-agency <- "USDA_NASS"
-status <- "coded"
-coders <- c("Robert", "Henry")
-USDA_NASS <- clean.agency()
-USDA_NASS %<>% left_join(members) #, by = c("congress", "first_name", "last_name"))
+"USDA_NASS"
+"coded"
+c("Robert", "Henry")
+USDA_NASS
+USDA_NASS %<>%  #, by = c("congress", "first_name", "last_name"))
 
-agency <- "USDA_NRCS"
-status <- "not coded"
-coders <- NA
-USDA_NRCS <- clean.agency()
-USDA_NRCS %<>% left_join(members) #, by = c("congress", "chamber", "last_name")) 
+"USDA_NRCS"
+"not coded"
+NA
+USDA_NRCS
+USDA_NRCS %<>%  #, by = c("congress", "chamber", "last_name")) 
 
-agency <- "USDA_RD"
-status <- "not coded"
-coders <- NA
-USDA_RD <- clean.agency() 
-USDA_RD %<>% left_join(members) #, by = c("congress", "first_name", "last_name"))
-
+"USDA_RD"
+"not coded"
+NA
+USDA_RD 
+USDA_RD %<>%  #, by = c("congress", "first_name", "last_name"))
+)
 
 # merge data
 data <- plyr::join_all(list(
