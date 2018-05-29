@@ -120,6 +120,10 @@ extractMemberName <- function(data, members, col_name){
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   
+  # code commented out was preprocessing from getFirstLast.Comma() method. Might be useful later. 
+  # data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$Summary)
+  # data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+  #                    replacement = "", data$Summary)
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
@@ -250,7 +254,7 @@ getFirstLast.Comma <- function(data, col_name){
   # create duplicate FROM column and preprocess
   #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
   data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
-  data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.",
+  data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
                      replacement = ",", data$FROM2)
   data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
