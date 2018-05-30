@@ -406,8 +406,12 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse(grepl("Sanford", FROM2,ignore.case = TRUE)&grepl("Bishop", FROM2,ignore.case = TRUE), "Sanford", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Matso|Masto", FROM2,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Matso|Masto", FROM2,ignore.case = TRUE), "Catherine", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Lujan", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Lujan", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "Michelle", first_name))
+    mutate(last_name = ifelse(grepl("Lujan|Michelle", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Lujan|Michelle", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "Michelle", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Donovan||Donavan", FROM2,ignore.case = TRUE)&grepl("Dan", FROM2,ignore.case=TRUE), "DONOVAN", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Donovan|Donavan", FROM2,ignore.case = TRUE)&grepl("Dan", FROM2,ignore.case=TRUE), "Daniel", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Randy| j.|james", FROM2,ignore.case = TRUE)&grepl("Forbes", FROM2,ignore.case=TRUE), "FORBES", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Randy| j.|james", FROM2,ignore.case = TRUE)&grepl("Forbes", FROM2,ignore.case=TRUE), "James", first_name))
   
     
   
