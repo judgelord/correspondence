@@ -4,9 +4,6 @@
  #file.name <- "USDA_NASS Henry" # for testing
 
 
-#
-#### FIXME
-## Some rows have multiple representativies --> need to split into duplicate rows
 
 
 clean <- function(file.name){
@@ -47,6 +44,26 @@ data %<>%
   
 # most common SUBJECTS, useful for plotting 
 # major.subjects <- c("Appropriations", "Nutrition", "Forestry", "Environment","Farms", "Research", "Price Support", "Government", "Food and Drug Saftey")
+
+
+
+# preprocess
+data$FROM <- gsub(", 2nd District Hawaii","",data$FROM)
+
+###############    
+# Creates duplicate rows for lines with multiple representatives
+for(i in 1:nrow(data)){
+  if(grepl(",", data$FROM[i])) {
+    
+    new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
+    new$FROM <- unlist(str_split(data$FROM[i], ","))
+    
+    data <- rbind(data, new)
+    
+  }
+}
+data <- data[-grep(",", data$FROM),] # removes orginal row with all data
+################
 
 # create variable  for first and last name
 data <- extractMemberName(data, members, 'FROM')

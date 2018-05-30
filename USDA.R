@@ -21,7 +21,7 @@ clean <- function(file.name){
 unique(data$SUBJECT) # view SUBJECT strings
 log <- data %>% group_by(SUBJECT) %>% count() %>% arrange(desc(n))
 
-# Consolidate and rename like subjects
+# Consolidate and rename like subjects 
 data %<>%
   mutate(SUBJECT = ifelse (grepl("Appropriation|APPROPRIATION|Funding|FUNDING", SUBJECT), "Appropriations", SUBJECT)) %>% 
   mutate(SUBJECT = ifelse (grepl("Rural|RURAL", SUBJECT), "Rural Development", SUBJECT)) %>%

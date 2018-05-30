@@ -1,10 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 1235 out of 1272 observations matched by last name. Fix spelling errors. 
-
 #file.name <- "Treasury_OCC" # for testing
-
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -24,8 +21,6 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
     mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
-  
-  
   
   data %<>% 
     mutate(FROM = Senator) %>% 
@@ -47,10 +42,11 @@ clean <- function(file.name) {
   ################
   
   
-  
+  data$FROM <- gsub(", Jr.", ",", data$FROM)
   
   # create variable for first and last name
  data <- getFirstLast.Comma(data, "FROM")
+ data$first_name <- formatFirstName(data, "first_name")
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())

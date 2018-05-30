@@ -3,14 +3,6 @@
 
 #file.name <- "USDA_ERS" # for testing
 
-
-
-#### FIXME
-## Some rows have multiple representativies --> need to split into duplicate rows
-
-
-
-
 clean <- function(file.name){
   
   # get data from google drive 
@@ -30,8 +22,27 @@ clean <- function(file.name){
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(",", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ","))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
+  ################
 
+  
+  
+  
+  
+  
+  
   # create variable for first name
   data %<>%
     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
@@ -45,8 +56,8 @@ clean <- function(file.name){
     mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-    mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))  %>% 
-    mutate(last_name = str_to_upper(last_name))
+    mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))
+  data$last_name <- formatLastName(data, "last_name")
   
   
   #Create variable for chamber (Senator or Representative)
