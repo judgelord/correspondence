@@ -43,7 +43,10 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse( grepl("Linda",FROM,ignore.case=TRUE)&grepl("Sanchez",FROM,ignore.case=TRUE), "SÁNCHEZ", last_name)) %>%
     
     
-    mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) 
+    mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name))
+  
+  data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
+  
   
   return(data$last_name)
   
