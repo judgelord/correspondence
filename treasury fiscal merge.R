@@ -27,5 +27,8 @@ d <- full_join(
   full_join(read.csv("FOIA 2018-02-106 Enclosures 2015 Redacted (Powell).csv")) %>%
   full_join(read.csv("FOIA 2018-02-106 Enclosures 2016 Redacted (Powell).csv")) %>%
   full_join(read.csv("FOIA 2018-02-106 Enclosures 2017 Redacted (Powell).csv")) %>%
-  full_join(read.csv("FOIA 2018-02-106 Enclosures 2018 Redacted (Powell).csv"))
+  full_join(read.csv("FOIA 2018-02-106 Enclosures 2018 Redacted (Powell).csv")) %>%
+  full_join(read.csv("FOIA 2018-02-106 Enclosures 2007 Redacted (Powell).csv"))
 
+write.csv(d, "Treasury_Fiscal.csv")
+s
