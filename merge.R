@@ -71,20 +71,20 @@ data_list <- matrix(c(
 ), ncol = 3, byrow = T)
 
 # merge data
-i = 1
+i = 5
 data <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
 
 for (i in 2:nrow(data_list)) {
-  print(data_list[i, 1])
-  tryCatch(
+  #print(data_list[i, 1])
+  tryCatch({
   data %<>% full_join(clean.agency(
     agency = data_list[i, 1],
     status = data_list[i, 2],
     coders = data_list[i, 3]
-  )
   ))
+  }, error = print(data_list[i, 1]))
 }
 
 data$department <- gsub("_.*", "", data$agency)
