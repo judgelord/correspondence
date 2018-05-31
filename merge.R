@@ -9,7 +9,7 @@ source("setup.R")
 # 2 status = c("coded", "recoded", "not coded"), NA if not yet coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
-data_list <- matrix(c(
+data_list <- as.data.frame(matrix(c(
 # Agency    # coded     # coders 
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA,
@@ -62,7 +62,9 @@ data_list <- matrix(c(
 "USDA_RMA", "not coded", NA,
 # USPS
 "USPS", "not coded", NA
-), ncol = 3, byrow = T)
+), ncol = 3, byrow = T), col.names = c("agency", "status", "coders"))
+
+names(data_list) <- c("agency", "status", "coders")
 
 # merge data
 i = 1
@@ -116,7 +118,7 @@ mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber
 
 mocs %<>% 
   group_by(department) %>% 
-  mutate(PercentOfDept = dplyr::ntile(n,100)) %>% ungroup()  %>% 
+  mutate(PercentOfDept = dplyr::ntile(n,100)) %>% ungroup() %>% 
   group_by(agency) %>%
   mutate(PercentOfAgency = dplyr::ntile(n,100)) %>% ungroup()
 
@@ -125,11 +127,11 @@ mocs$name <- gsub(",.*", "", mocs$bioname)
 
 # plot by nominate and dept
 mocs %>%
-  group_by(bioname, congress, chamber, department, agency, TYPE) %>%
+  group_by(bioname, congress, chamber, department, agency, TYPE, name, nominate.dim1) %>%
   tally() %>% ungroup() %>%
   ggplot() +
   geom_text(
-    aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = percent, alpha = percent, color = nominate.dim1),
+    aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = n, alpha = n, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
@@ -153,11 +155,10 @@ mocs %>%
 
 
 mocs %>% 
-  filter(!is.na(TYPE)) %>% group_by(bioname, nominate.dim1, chamber, department, TYPE) %>% tally() %>% ungroup()  %>% 
-  filter(agency != "DHS") %>%
+  filter(!is.na(TYPE)) %>% group_by(bioname, nominate.dim1, chamber, department, TYPE, name) %>% tally() %>% ungroup()  %>% 
   ggplot() +
   geom_text(
-    aes(x = TYPE, y = chamber, label = name, size = n, alpha = percent, color = nominate.dim1),
+    aes(x = TYPE, y = chamber, label = name, size = n, alpha = n, color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
@@ -174,86 +175,32 @@ mocs %>%
 
 
 
-# member by year by agency HOUSE
-mocs %>%
-  filter(chamber == "House") %>%
-  group_by(bioname, nominate.dim1, agency, year) %>% 
-  tally() %>% ungroup() %>%
-    arrange(nominate.dim1) %>%
-ggplot() +
-  geom_point(
-    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
-    position=position_jitter(width=.4,height=0)
-  ) +
-  labs(y = "Members by nominate d1", 
-       x = "",
-       title = paste("House")) +
-  theme(
-    #axis.text.y = element_blank(),
-    axis.ticks = element_blank()
-  ) 
 
-# member by year by agency Senate
+
+# member by year by agency 
+chamb <- "Senate" # "Senate"
 mocs %>%
-  filter(chamber == "Senate") %>%
-  group_by(bioname, nominate.dim1, agency, year) %>% 
-  tally() %>% ungroup() %>%
-  arrange(nominate.dim1) %>%
+  filter(chamber == chamb) %>%
+  group_by(bioname, nominate.dim1, agency, year, TYPE) %>% tally() %>% ungroup() %>%
   ggplot() +
   geom_point(
-    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
+    aes(x = year, y = reorder(bioname, nominate.dim1), 
+        label = agency, size = n,  color = agency), 
+    alpha = .3,
     position=position_jitter(width=.4,height=0)
   ) +
-  labs(y = "Members by nominate d1", 
-       x = "",
-       title = paste("Senate")) +
-  theme(
-    #axis.text.y = element_blank(),
-    axis.ticks = element_blank()
-  ) 
-
-# member by year by agency HOUSE
-mocs %>%
-  filter(chamber == "House") %>%
-  group_by(bioname, nominate.dim1, agency, year, TYPE) %>% 
-  tally() %>% ungroup() %>%
-  arrange(nominate.dim1) %>%
-  ggplot() +
-  geom_point(
-    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
-    position=position_jitter(width=.4,height=0)
-  ) +
-  labs(y = "Members by nominate d1", 
-       x = "",
-       title = paste("House")) +
+  labs(title = paste(chamb,
+                     "
+Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 1),
+                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 1 )),
+       y = "Members by NOMINATE D1", 
+       x = "" ) +
   facet_grid(. ~ TYPE) +
   theme(
-    #axis.text.y = element_blank(),
     axis.ticks = element_blank(),
-    #legend.text = element_blank(),
-    panel.grid = element_blank()
-  ) 
-
-# member by year by agency Senate
-mocs %>%
-  filter(chamber == "Senate") %>%
-  group_by(bioname, nominate.dim1, agency, year, TYPE) %>% 
-  tally() %>% ungroup() %>%
-  arrange(nominate.dim1) %>%
-  ggplot() +
-  geom_point(
-    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
-    position=position_jitter(width=.4,height=0)
-  ) +
-  labs(y = "Members by nominate d1", 
-       x = "",
-       title = paste("Senate")) +
-  facet_grid(. ~ TYPE) +
-  theme(
-    #axis.text.y = element_blank(),
-    axis.ticks = element_blank(),
-    #legend.text = element_blank(),
-    panel.grid = element_blank()
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 45)
   ) 
 
 
@@ -262,12 +209,8 @@ mocs %>%
 
 
 
-paste("Var House Members over Time =", var(mocs %>% filter(chamber == "House") %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ),"
-      Var Senate Members over Time =", var(mocs %>% filter(chamber == "Senate") %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ) )
 
 
-paste("Var House Members over Agencies =", var(mocs %>% filter(chamber == "House") %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ) )
-paste("Var Senate Members over Agencies =", var(mocs %>% filter(chamber == "Senate") %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ) )
 
 #####################################
 # clean up workspace before commit #
