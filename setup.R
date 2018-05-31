@@ -72,7 +72,9 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(  (first_name == "Matt")&(common_name==""), "Matthew", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Edward")&(common_name==""), "Ed", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Theodore")&(common_name==""), "Ted", common_name)) %>% 
-  mutate(common_name = ifelse(  (first_name == "Stevan|Stephen|Steven")&(common_name==""), "Steve", common_name)) %>% 
+  mutate(common_name = ifelse(  (first_name == "Stevan")&(common_name==""), "Steve", common_name)) %>% 
+  mutate(common_name = ifelse(  (first_name == "Stephen")&(common_name==""), "Steve", common_name)) %>% 
+  mutate(common_name = ifelse(  (first_name == "Steven")&(common_name==""), "Steve", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Steve")&(common_name==""), "Steven", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Brad")&(common_name==""), "Bradley", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Bradley|Bradly")&(common_name==""), "Brad", common_name)) %>% 
