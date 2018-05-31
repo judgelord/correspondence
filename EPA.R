@@ -6,7 +6,7 @@
 clean <- function(file.name) {
   # get data from google drive
   data <- gs_title(file.name) %>% gs_read()
-  
+   
   # create agency column
   data$agency <- file.name
   
