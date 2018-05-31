@@ -2,8 +2,6 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# 284 (out of 4363) not matching, go back and fix
-
 #file.name <- "DHHS_CDC" # for testing
 
 
