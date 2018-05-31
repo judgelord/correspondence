@@ -18,6 +18,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  # chamber variable
+  data %<>%
+    mutate(chamber = ifelse(grepl("Senate", chamber), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("House", chamber), "House", chamber))
   
   # create variable for first and last name
   data$first_name <- formatFirstName(data, 'first_name')
