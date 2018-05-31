@@ -36,7 +36,7 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(ID == 31, NA, last_name)) %>%
     mutate(first_name = ifelse(ID == 31, NA, first_name)) %>%
     mutate(chamber = ifelse(ID == 31, NA, chamber))
-  
+   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
