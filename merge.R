@@ -24,13 +24,17 @@ data_list <- matrix(c(
 "DHS", "coded", "Katie", # "Katie", "Megha") # but Megha's work is not there
 "DHS_ICE", "not coded", NA,
 # DOC
+"DOC_IOS", "not coded", NA,
 "DOC_MBDA", "not coded", NA,
 # DOD
+"DOD_DeCA", "not coded", NA,
+"DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney",
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
+"DOI_BOEM", "not coded", NA,
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
@@ -43,6 +47,7 @@ data_list <- matrix(c(
 "DOL_VETS", "not coded", NA,
 # DOT 
 "DOT_FAA", "coded", "Sam",
+"DOT_FHWA", "not coded", NA,
 # Education
 "ED", "not coded", NA,
 # EPA
@@ -51,6 +56,8 @@ data_list <- matrix(c(
 "FCC", "coded", "Devin",
 # PRC
 "PRC", "not coded", NA,
+# Treasury
+"Treasury_OCC", "not coded", NA,
 # USDA 
 "USDA", "not coded", NA,
 "USDA_ERS", "not coded", NA,
@@ -58,22 +65,26 @@ data_list <- matrix(c(
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
+"USDA_RMA", "not coded", NA,
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T)
 
 # merge data
-i = 1
+i = 5
 data <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
 
-for (i in 2:nrow(data.list)) {
+for (i in 2:nrow(data_list)) {
+  #print(data_list[i, 1])
+  tryCatch({
   data %<>% full_join(clean.agency(
     agency = data_list[i, 1],
     status = data_list[i, 2],
     coders = data_list[i, 3]
   ))
+  }, error = print(data_list[i, 1]))
 }
 
 data$department <- gsub("_.*", "", data$agency)

@@ -15,9 +15,8 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$Date %<>% as.Date("%m/%d/%y")
-  colnames(data)[colnames(data) == 'Date'] <- 'DATE'
-  
+  data$DATE %<>% as.Date("%m/%d/%y")
+
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))

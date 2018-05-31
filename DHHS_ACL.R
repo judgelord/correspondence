@@ -4,9 +4,6 @@
 
 file.name <- "DHHS_ACL" # for testing
 
-
-# Handful of naming errors, go back and fix
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -24,6 +21,24 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(",", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ","))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
+  ################
+  
+  
+  
   # create variable for first and last name
   data <- extractMemberName(data,members,'FROM')
   
@@ -32,6 +47,11 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
     mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+  
+  # create variable for state
+  data %<>%
+    mutate(state = gsub(".*\\((\\w{2})\\).*", "\\1", data$FROM))
+  data$state <- stateFromLower(data$state)
     
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
