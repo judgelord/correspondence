@@ -74,6 +74,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(  (first_name == "Stevan")&(common_name==""), "Steve", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Brad")&(common_name==""), "Bradley", common_name)) %>% 
   mutate(common_name = ifelse(  (first_name == "Bradley|Bradly")&(common_name==""), "Brad", common_name)) %>% 
+  mutate(common_name = ifelse(  (first_name == "Nicholas")&(common_name==""), "Nick", common_name)) %>% 
   
   mutate(common_name = ifelse(bioname == "HURD, William Ballard", "Will", common_name)) %>%
   mutate(common_name = ifelse(bioname == "BUNNING, James Paul David", "Jim", common_name)) %>%
@@ -100,7 +101,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "ROSS, Michael Avery", "Mike", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "ASHFORD, John Bradley", "Brad", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "MCEACHIN, Aston Donald", "Donald", common_name)) %>% 
-  mutate(common_name = ifelse(bioname == "SENSENBRENNER, Frank James, Jr.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "WITTMAN, Robert J.", "Rob", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "SENSENBRENNER, Frank James, Jr.", "Jim", common_name)) %>% 
   
   mutate(common_name = ifelse(bioname == "AKIN, W. Todd", "Todd", common_name)) %>% 
@@ -150,7 +151,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "LABRADOR, Raúl R.", "Raul", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "HOLLINGSWORTH, Joseph Albert III", "Trey", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "NOLAN, Richard Michael", "Rick", common_name)) %>% 
-  mutate(common_name = ifelse(bioname == "DeMINT, James W.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "SAXTON, Hugh James", "Jim", common_name)) %>% 
   
 
   
