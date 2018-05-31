@@ -2,7 +2,10 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "USDA" #for testing
+# 573 non matches out of 4748
+
+
+file.name <- "USDA" #for testing
 
 clean <- function(file.name){
   
