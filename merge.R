@@ -1,19 +1,13 @@
 # This script combines clean log/letter files with other data sources.
-# agency = the title of the R script for cleaning these data
-# status = c("coded", "recoded", "not coded"), NA if not yet coded
-# coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
-# clean.agency() # cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
-
 # load functions
 source("setup.R")
-
-
-# the title of the R script for cleaning these data
-# c("coded", "recoded", "not coded") NA if not yet coded
-# coders c(NA, "one coder", or multiple coders c("Adam", "Avery")
+# clean.agency() # cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
 # Departments and agencies are listed A-Z
-
+# Columns:
+# 1 agency = the title of the R script for cleaning these data
+# 2 status = c("coded", "recoded", "not coded"), NA if not yet coded
+# 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 data_list <- matrix(c(
 # Agency    # coded     # coders 
@@ -71,21 +65,26 @@ data_list <- matrix(c(
 ), ncol = 3, byrow = T)
 
 # merge data
-i = 5
+i = 1
 data <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
+data %<>% left_join(members)
+
+errors <- "Failed to merge:"
 
 for (i in 2:nrow(data_list)) {
   #print(data_list[i, 1])
   tryCatch({
-  data %<>% full_join(clean.agency(
-    agency = data_list[i, 1],
-    status = data_list[i, 2],
-    coders = data_list[i, 3]
-  ))
-  }, error = print(data_list[i, 1]))
+    dt <- clean.agency(
+      agency = data_list[i, 1],
+      status = data_list[i, 2],
+      coders = data_list[i, 3]) %>% 
+    left_join(members)
+  data %<>% full_join(dt)
+  }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
 }
+errors
 
 data$department <- gsub("_.*", "", data$agency)
 
@@ -113,17 +112,21 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 
 # identify top members
 
-mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) %>%
-  group_by(bioname, congress, chamber, department) %>%
-  tally() %>% ungroup() 
+mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) 
 
-mocs %<>% group_by(department) %>% mutate(percent = dplyr::ntile(n,100)) %>% ungroup()
+mocs %<>% 
+  group_by(department) %>% 
+  mutate(PercentOfDept = dplyr::ntile(n,100)) %>% ungroup()  %>% 
+  group_by(agency) %>%
+  mutate(PercentOfAgency = dplyr::ntile(n,100)) %>% ungroup()
 
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
 
 # plot by nominate and dept
 mocs %>%
+  group_by(bioname, congress, chamber, department, agency, TYPE) %>%
+  tally() %>% ungroup() %>%
   ggplot() +
   geom_text(
     aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = percent, alpha = percent, color = nominate.dim1),
@@ -144,15 +147,14 @@ mocs %>%
 
 
 # plot by nominate and dept
-mocsTYPE <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) %>%
-  group_by(bioname, nominate.dim1, chamber, department, TYPE) %>%
-  tally() %>% ungroup() 
 
-mocsTYPE %<>% group_by(department) %>% mutate(percent = dplyr::cume_dist(n)) %>% ungroup()
 
-mocsTYPE$name <- gsub(",.*", "", mocsTYPE$bioname)
 
-mocsTYPE %>% filter(!is.na(TYPE)) %>% filter(agency != "DHS") %>%
+
+
+mocs %>% 
+  filter(!is.na(TYPE)) %>% group_by(bioname, nominate.dim1, chamber, department, TYPE) %>% tally() %>% ungroup()  %>% 
+  filter(agency != "DHS") %>%
   ggplot() +
   geom_text(
     aes(x = TYPE, y = chamber, label = name, size = n, alpha = percent, color = nominate.dim1),
@@ -172,11 +174,100 @@ mocsTYPE %>% filter(!is.na(TYPE)) %>% filter(agency != "DHS") %>%
 
 
 
+# member by year by agency HOUSE
+mocs %>%
+  filter(chamber == "House") %>%
+  group_by(bioname, nominate.dim1, agency, year) %>% 
+  tally() %>% ungroup() %>%
+    arrange(nominate.dim1) %>%
+ggplot() +
+  geom_point(
+    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
+    position=position_jitter(width=.4,height=0)
+  ) +
+  labs(y = "Members by nominate d1", 
+       x = "",
+       title = paste("House")) +
+  theme(
+    #axis.text.y = element_blank(),
+    axis.ticks = element_blank()
+  ) 
+
+# member by year by agency Senate
+mocs %>%
+  filter(chamber == "Senate") %>%
+  group_by(bioname, nominate.dim1, agency, year) %>% 
+  tally() %>% ungroup() %>%
+  arrange(nominate.dim1) %>%
+  ggplot() +
+  geom_point(
+    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
+    position=position_jitter(width=.4,height=0)
+  ) +
+  labs(y = "Members by nominate d1", 
+       x = "",
+       title = paste("Senate")) +
+  theme(
+    #axis.text.y = element_blank(),
+    axis.ticks = element_blank()
+  ) 
+
+# member by year by agency HOUSE
+mocs %>%
+  filter(chamber == "House") %>%
+  group_by(bioname, nominate.dim1, agency, year, TYPE) %>% 
+  tally() %>% ungroup() %>%
+  arrange(nominate.dim1) %>%
+  ggplot() +
+  geom_point(
+    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
+    position=position_jitter(width=.4,height=0)
+  ) +
+  labs(y = "Members by nominate d1", 
+       x = "",
+       title = paste("House")) +
+  facet_grid(. ~ TYPE) +
+  theme(
+    #axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    #legend.text = element_blank(),
+    panel.grid = element_blank()
+  ) 
+
+# member by year by agency Senate
+mocs %>%
+  filter(chamber == "Senate") %>%
+  group_by(bioname, nominate.dim1, agency, year, TYPE) %>% 
+  tally() %>% ungroup() %>%
+  arrange(nominate.dim1) %>%
+  ggplot() +
+  geom_point(
+    aes(x = year, y = bioname, label = agency, size = n,  color = agency), alpha = .3,
+    position=position_jitter(width=.4,height=0)
+  ) +
+  labs(y = "Members by nominate d1", 
+       x = "",
+       title = paste("Senate")) +
+  facet_grid(. ~ TYPE) +
+  theme(
+    #axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    #legend.text = element_blank(),
+    panel.grid = element_blank()
+  ) 
 
 
 
 
 
+
+
+paste("Var House Members over Time =", var(mocs %>% filter(chamber == "House") %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ),"
+      Var Senate Members over Time =", var(mocs %>% filter(chamber == "Senate") %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ) )
+
+
+paste("Var House Members over Agencies =", var(mocs %>% filter(chamber == "House") %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ) )
+paste("Var Senate Members over Agencies =", var(mocs %>% filter(chamber == "Senate") %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ) )
 
 #####################################
 # clean up workspace before commit #

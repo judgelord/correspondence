@@ -106,7 +106,7 @@ clean.agency <- function(agency, status, coders) {
   }
   
   # problem vars
-  data$ALT_TYPE <-NA
+  data %<>% select(-ALT_TYPE, -middle_name)
   
   # make everything char
   data$TYPE %<>% as.character()
