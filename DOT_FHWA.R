@@ -3,7 +3,11 @@
 
 
 
+<<<<<<< HEAD
 # file.name <- "DOT_FHWA" # for testing
+=======
+#file.name <- "DOT_FHWA" # for testing
+>>>>>>> 4583d7ec732fd5fd33f334ddb4b24479531b4d01
 
 
 clean <- function(file.name) {
