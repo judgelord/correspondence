@@ -81,6 +81,7 @@ clean.agency <- function(agency, status, coders) {
   
   # make consitant classes
   data$ID %<>% as.character()
+  data$FROM %<>% as.character()
   data$SUBJECT %<>% as.character()
   data$TYPE %<>% as.character()
   data$CERTAINTY %<>% as.character()
