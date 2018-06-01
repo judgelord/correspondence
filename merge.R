@@ -201,10 +201,10 @@ members.year.agency <- mocs %>% group_by(bioname, chamber, year, agency) %>% tal
     aes(x = year, 
         y = bioname, #reorder(bioname, nominate.dim1), 
         label = agency, 
-        size = n,  
+        alpha = n,  
         color = agency), 
-    position=position_jitter(width=.4,height=0),
-    alpha = .3
+    position=position_jitter(width=.4,height=0)#,
+    #alpha = .3
   ) +
   scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
   labs(title = paste(chamb,
