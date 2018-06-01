@@ -117,18 +117,18 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) 
 
 mocs %<>% 
-  group_by(department) %>% 
-  mutate(PercentOfDept = dplyr::ntile(n,100)) %>% ungroup() %>% 
-  group_by(agency) %>%
-  mutate(PercentOfAgency = dplyr::ntile(n,100)) %>% ungroup()
+  group_by(department, bioname, chamber) %>% 
+  mutate(perDept = n()) %>% ungroup() %>%
+  mutate(PercentOfDept = dplyr::ntile(perDept,100)) %>% ungroup()%>% 
+  group_by(agency, bioname, chamber) %>%
+  mutate(perAgency = n()) %>% ungroup() %>%
+  mutate(PercentOfAgency = dplyr::ntile(perAgency,100)) %>% ungroup()
 
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
 
 # plot by nominate and dept
 mocs %>%
-  group_by(bioname, congress, chamber, department, agency, TYPE, name, nominate.dim1) %>%
-  tally() %>% ungroup() %>%
   ggplot() +
   geom_text(
     aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = n, alpha = n, color = nominate.dim1),

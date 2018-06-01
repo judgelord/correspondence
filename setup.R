@@ -1,12 +1,12 @@
 options(stringsAsFactors = FALSE)
-# install.packages("tidyverse")
-# install.packages("magrittr")
-# install.packages("googlesheets")
-# install.packages("googledrive")
-# install.packages("devtools")
-# install.packages("stringi")
-# install.packages("stringr")
-# devtools::install_github("voteview/Rvoteview")
+
+requires <- c("tidyverse","magrittr","googlesheets","googledrive","devtools","stringi","stringr")
+to_install <- (requires %in% rownames(installed.packages()) == FALSE)
+cloud_url <- "https://cloud.r-project.org/"
+install.packages(requires[to_install], repos = cloud_url)
+if(require("Rvoteview")==F) {
+  devtools::install_github("voteview/Rvoteview")
+}
 library(tidyverse)
 library(magrittr)
 library(googlesheets)
