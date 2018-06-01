@@ -1,9 +1,9 @@
 options(stringsAsFactors = FALSE)
 
 requires <- c("tidyverse","magrittr","googlesheets","googledrive","devtools","stringi","stringr")
-to_install <- (requires %in% rownames(installed.packages()) == FALSE)
-cloud_url <- "https://cloud.r-project.org/"
-install.packages(requires[to_install], repos = cloud_url)
+to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+install.packages(requires[to_install]) 
+
 if(require("Rvoteview")==F) {
   devtools::install_github("voteview/Rvoteview")
 }
