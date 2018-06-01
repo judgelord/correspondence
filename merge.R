@@ -72,19 +72,22 @@ data <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
 data %<>% left_join(members)
+data$ID %<>% as.character()
 
 errors <- "Failed to merge:"
 
 for (i in 2:nrow(data_list)) {
-  #print(data_list[i, 1])
-  tryCatch({
+  # print(data_list[i, 1])
+  # tryCatch({
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
     left_join(members)
+    dt$ID %<>% as.character()
   data %<>% full_join(dt)
-  }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
+  errors <- paste(errors, data_list[i, 1])
+  # }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
 }
 errors
 
@@ -113,9 +116,9 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 ###################
 
 # identify top members
-
 mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) 
 
+# bin into percentiles of letter writers per agency and per dept
 mocs %<>% 
   group_by(department) %>% 
   mutate(PercentOfDept = dplyr::ntile(n,100)) %>% ungroup() %>% 
@@ -125,6 +128,7 @@ mocs %<>%
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
 
+##########################################################################################################################################################################################################################
 # plot by nominate and dept
 mocs %>%
   group_by(bioname, congress, chamber, department, agency, TYPE, name, nominate.dim1) %>%
@@ -148,12 +152,7 @@ mocs %>%
 
 
 
-# plot by nominate and dept
-
-
-
-
-
+# Name jitter plot by nominate and dept
 mocs %>% 
   filter(!is.na(TYPE)) %>% group_by(bioname, nominate.dim1, chamber, department, TYPE, name) %>% tally() %>% ungroup()  %>% 
   ggplot() +
@@ -191,8 +190,8 @@ mocs %>%
   ) +
   labs(title = paste(chamb,
                      "
-Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 1),
-                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 1 )),
+Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 0),
+                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 0 )),
        y = "Members by NOMINATE D1", 
        x = "" ) +
   facet_grid(. ~ TYPE) +
