@@ -3,7 +3,7 @@
 
 
 
-file.name <- "DOT_FHWA" # for testing
+#file.name <- "DOT_FHWA" # for testing
 
 
 clean <- function(file.name) {
