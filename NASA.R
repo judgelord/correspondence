@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
+# 178 non matches on last_name
 
 #file.name <- "NASA.csv" # for testing
 
@@ -39,6 +39,8 @@ clean <- function(file.name) {
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
 
+  data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
+  data <- data[!data$last_name == "",] # removes blank observations
     # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
   
