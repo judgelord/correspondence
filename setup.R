@@ -186,6 +186,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(last_name = ifelse(grepl("LUJÁN, Ben Ray", bioname), "LUJAN", last_name)) %>% 
   
  
+  mutate(middle_name = ifelse(grepl("PLATTS, Todd", bioname), "Russell", middle_name)) %>% 
   
 
   
