@@ -6,7 +6,6 @@
 
 #file.name <- "DHHS_HRSA" # for testing
 
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -42,7 +41,7 @@ clean <- function(file.name) {
   ################
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
-  
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
