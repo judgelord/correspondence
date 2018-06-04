@@ -2,9 +2,10 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# 1202 out of 1316 matches. I think all non-matches are non-members after checking, should be good. 
+# 1204 out of 1316 matches. I think all non-matches are non-members after checking, should be good. 
+# Complete
 
-# file.name <- "DHHS_CDC" # for testing
+ file.name <- "DHHS_CDC" # for testing
 
 
 clean <- function(file.name) {

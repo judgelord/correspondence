@@ -3,7 +3,7 @@
 
 
 
-#file.name <- "DOI_BOEM" # for testing
+file.name <- "DOI_BOEM" # for testing
 
 
 clean <- function(file.name) {
