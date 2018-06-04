@@ -6,7 +6,7 @@
 # Many spelling errors need to be addressed
 
 
-#file.name <- "DOE_FERC" # for testing
+file.name <- "DOE_FERC" # for testing
 
 clean <- function(file.name) {
  
