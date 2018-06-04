@@ -1,12 +1,12 @@
 options(stringsAsFactors = FALSE)
-# install.packages("tidyverse")
-# install.packages("magrittr")
-# install.packages("googlesheets")
-# install.packages("googledrive")
-# install.packages("devtools")
-# install.packages("stringi")
-# install.packages("stringr")
-# devtools::install_github("voteview/Rvoteview")
+
+requires <- c("tidyverse","magrittr","googlesheets","googledrive","devtools","stringi","stringr")
+to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+install.packages(requires[to_install]) 
+
+if(require("Rvoteview")==F) {
+  devtools::install_github("voteview/Rvoteview")
+}
 library(tidyverse)
 library(magrittr)
 library(googlesheets)
@@ -23,7 +23,7 @@ gs_ls() # log in to google
 members <- member_search(congress = c(110:120)) %>% # get voteview data for selected Congresses
   # format state
   mutate(state = tolower(state)) %>%
-  mutate(state = as.character(state)) %>%
+  # mutate(state = as.character(state)) %>%
   # extract first, middle, last, and common names
   mutate(last_name = gsub(", .*", "", bioname)) %>%
   mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| IV", "", bioname)) %>%
@@ -113,7 +113,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "MCEACHIN, Aston Donald", "Donald", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "WITTMAN, Robert J.", "Rob", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "ALLARD, A. Wayne", "Wayne", common_name)) %>% 
-  mutate(common_name = ifelse(bioname == "SENSENBRENNER, Frank James, Jr.", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "GRASSLEY, Charles Ernest", "Chuck", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "SENSENBRENNER, Frank James, Jr.", "Jim", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "SENSENBRENNER, Frank James, Jr.", "Jim", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "SENSENBRENNER, Frank James, Jr.", "Jim", common_name)) %>% 
@@ -168,6 +168,22 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "HOLLINGSWORTH, Joseph Albert III", "Trey", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "NOLAN, Richard Michael", "Rick", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "SAXTON, Hugh James", "Jim", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  
+  # remove accent marks
+  mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
+  mutate(last_name = ifelse(grepl("VEL.ZQUEZ, Nydia M.", bioname), "VELAZQUEZ", last_name)) %>% 
+  mutate(last_name = ifelse(grepl("C.RDENAS, Tony", bioname), "CARDENAS", last_name)) %>% 
+  mutate(last_name = ifelse(grepl("GUTI.RREZ, Luis V.", bioname), "GUTIERREZ", last_name)) %>% 
+  mutate(first_name = ifelse(grepl("SERRANO, Jos. E.", bioname), "Jose", first_name)) %>% 
+  mutate(first_name = ifelse(grepl("CARSON, Andr.", bioname), "Andre", first_name)) %>% 
+  mutate(last_name = ifelse(grepl("LUJÁN, Ben Ray", bioname), "LUJAN", last_name)) %>% 
+  
+ 
   
 
   
@@ -199,7 +215,26 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(middle_initial = ifelse(bioname == "TIBERI, Patrick (Pat)", "J", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "BRALEY, Bruce", "L", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "HAGAN, Kay", "R", middle_initial)) %>% 
-
+  mutate(middle_initial = ifelse(bioname == "WARNER, Mark", "R", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "BEYER, Donald Sternoff Jr.", "E", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "RICHMOND, Cedric", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "ADERHOLT, Robert", "B", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "McKINLEY, David", "B", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "SEWELL, Terri", "A", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "HANNA, Richard", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  
   # first names
   mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
   mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
@@ -211,7 +246,8 @@ members %<>%
 
 # select
 members %<>% 
-  select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything())
+  select(first_name, common_name, middle_name, middle_initial, last_name, bioname, everything()) %>% 
+  select(-middle_name)
 
 # NOTE: 
 # Voteview is missing non-voting members:

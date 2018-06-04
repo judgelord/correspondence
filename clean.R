@@ -14,9 +14,9 @@ intercoder.agreement <- function(data) {
   recode <- "recode.csv"
   filter(data,!is.na(TYPE)) %>% group_by(ID) %>% filter(length(unique(TYPE)) == 2) %>% arrange(ID) %>% select(agency, ID, everything()) %>%
     write.csv(recode) # saving file locally is faster
-  # REMOVED FOR NOW FOR SPEED 
-  # drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
-  # drive_upload(recode, path = paste0("Correspondence/", agency, " to Recode"), type = "spreadsheet")
+
+  drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
+  drive_upload(recode, path = paste0("Correspondence/", agency, " to Recode"), type = "spreadsheet")
   file.remove(recode) # remove local file
   
   return(
@@ -37,6 +37,16 @@ intercoder.agreement <- function(data) {
   )
 }
 
+
+
+
+
+
+
+
+
+
+
 # calling agency-specific clean() function and joining data depending on status of hand-coding
 clean.agency <- function(agency, status, coders) {
   source(paste0(agency, ".R"))
@@ -52,8 +62,12 @@ clean.agency <- function(agency, status, coders) {
     if(length(coders) == 2) {
       data <- full_join(clean(paste(agency, coders[1])),
                         clean(paste(agency, coders[2])))
-      print(intercoder.agreement(data))
+      
+      ############################ FIX ME ########################
+      # TEMP REMOVED INTERCODER AGREEMENT METHOD FOR SPEED  #
+      # print(intercoder.agreement(data))
     }
+    #### extend if data get tripple coded ###
   }
   
   if (status == "recoded") {
@@ -65,7 +79,20 @@ clean.agency <- function(agency, status, coders) {
     print(intercoder.agreement(data))
   }
   
-  data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() # select on observation
+  # make consitant classes
+  data$ID %<>% as.character()
+  data$FROM %<>% as.character()
+  data$SUBJECT %<>% as.character()
+  data$TYPE %<>% as.character()
+  data$CERTAINTY %<>% as.character()
+  data$ALT_TYPE %<>% as.character()
+  data$POLICY_EVENT %<>% as.character()
+  data$EVENT_NAME %<>% as.character()
+  data$EVENT_DATE %<>% as.Date()
+  data$NOTES %<>% as.character()
+  
+  # select one observation where coders disagree (disagreements are uploaded to drive in recode file)
+  data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() 
   data$agency <- agency # name agency
   
  # things to match on
@@ -94,27 +121,12 @@ clean.agency <- function(agency, status, coders) {
                                 first_name == members$first_name[i] & 
                                 congress == members$congress[i] & 
                                 state == members$state[i],
-                              members$first_name[i], chamber)) %>%
-        mutate(middle_name = ifelse(chamber == members$chamber[i] &
-                                  last_name == members$last_name[i] &
-                                  first_name == members$first_name[i] & 
-                                  congress == members$congress[i] & 
-                                  state == members$state[i],
-                                members$middle_name[i], NA))
+                              members$first_name[i], chamber)) 
     }
     
   }
   
-  # problem vars
-  data %<>% select(-ALT_TYPE, -middle_name)
-  
-  # make everything char
-  data$TYPE %<>% as.character()
-  data$CERTAINTY %<>% as.character()
-  data$POLICY_EVENT %<>% as.character()
-  data$EVENT_NAME %<>% as.character()
-  data$EVENT_DATE %<>% as.character()
-  data$NOTES %<>% as.character()
+
   return(data)
 }
 

@@ -6,7 +6,6 @@
 
 #file.name <- "DHHS_HRSA" # for testing
 
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -29,20 +28,20 @@ clean <- function(file.name) {
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   for(i in 1:nrow(data)){
-    if(grepl(" and ", data$FROM[i])) {
+    if(grepl(" and | Sen | Rep | Sen.| Rep.", data$FROM[i])) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " and ") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], " and "))
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " and | Sen | Rep | Sen.| Rep.") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], " and | Sen | Rep | Sen.| Rep."))
       
       data <- rbind(data, new)
       
     }
   }
-  data <- data[-grep(" and ", data$FROM),] # removes orginal row with all data
+  data <- data[-grep(" and | Sen | Rep | Sen.| Rep.", data$FROM),] # removes orginal row with all data
   ################
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
-  
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())

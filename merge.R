@@ -72,19 +72,22 @@ data <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
 data %<>% left_join(members)
+data$ID %<>% as.character()
 
 errors <- "Failed to merge:"
 
 for (i in 2:nrow(data_list)) {
-  #print(data_list[i, 1])
-  tryCatch({
+  # print(data_list[i, 1])
+  # tryCatch({
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
     left_join(members)
+    dt$ID %<>% as.character()
   data %<>% full_join(dt)
-  }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
+  errors <- paste(errors, data_list[i, 1])
+  # }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
 }
 errors
 
@@ -113,25 +116,41 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 ###################
 
 # identify top members
+mocs <- data %>% 
+  filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate"))  %>% 
+  group_by(ID, agency, bioname) %>% mutate(n = n()) %>% filter(n == 1) %>% ungroup() %>%
+  select(ID, bioname, TYPE, congress, year, chamber, agency, department, nominate.dim1)
 
-mocs <- data %>% filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate")) 
 
+
+# bin into percentiles of letter writers per agency and per dept
 mocs %<>% 
-  group_by(department) %>% 
-  mutate(PercentOfDept = dplyr::ntile(n,100)) %>% ungroup() %>% 
-  group_by(agency) %>%
-  mutate(PercentOfAgency = dplyr::ntile(n,100)) %>% ungroup()
-
+  group_by(department, bioname, chamber) %>% 
+  mutate(perDept = n()) %>% group_by(department, bioname, chamber, congress) %>%
+  mutate(perDeptperCongress = n()) %>% group_by(department, bioname, chamber, year) %>%
+  mutate(perDeptperYear = n()) %>% ungroup() %>%
+  mutate(DeptPercentile = dplyr::ntile(perDept,100)) %>% 
+  group_by(agency, bioname, chamber) %>%
+  mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
+  mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
+  mutate(perAgencyperYear = n()) %>% ungroup() %>%
+  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) 
+  
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
 
+##########################################################################################################################################################################################################################
 # plot by nominate and dept
-mocs %>%
-  group_by(bioname, congress, chamber, department, agency, TYPE, name, nominate.dim1) %>%
-  tally() %>% ungroup() %>%
+mocs %>%  group_by(congress, chamber, department, bioname, name, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  group_by(department) %>% mutate(percent = cume_dist(n, 100)) %>%
   ggplot() +
   geom_text(
-    aes(x = congress, y = chamber, label = paste0(name, "(", n,")"), size = n, alpha = n, color = nominate.dim1),
+    aes(x = congress, 
+        y = chamber, 
+        label = paste0(name, "(", n,")"), 
+        size = percent, 
+        alpha = percent, 
+        color = nominate.dim1),
     position=position_jitter(width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
@@ -148,14 +167,10 @@ mocs %>%
 
 
 
-# plot by nominate and dept
-
-
-
-
-
+# Name jitter plot by nominate and dept
 mocs %>% 
-  filter(!is.na(TYPE)) %>% group_by(bioname, nominate.dim1, chamber, department, TYPE, name) %>% tally() %>% ungroup()  %>% 
+  filter(!is.na(TYPE)) %>% 
+  group_by(bioname, nominate.dim1, chamber, department, TYPE, name) %>% tally() %>% ungroup()  %>% 
   ggplot() +
   geom_text(
     aes(x = TYPE, y = chamber, label = name, size = n, alpha = n, color = nominate.dim1),
@@ -179,34 +194,63 @@ mocs %>%
 
 # member by year by agency 
 chamb <- "Senate" # "Senate"
-mocs %>%
+members.year.agency <- mocs %>% group_by(bioname, chamber, year, agency) %>% tally() %>%
   filter(chamber == chamb) %>%
-  group_by(bioname, nominate.dim1, agency, year, TYPE) %>% tally() %>% ungroup() %>%
   ggplot() +
   geom_point(
-    aes(x = year, y = reorder(bioname, nominate.dim1), 
-        label = agency, size = n,  color = agency), 
-    alpha = .3,
-    position=position_jitter(width=.4,height=0)
+    aes(x = year, 
+        y = bioname, #reorder(bioname, nominate.dim1), 
+        label = agency, 
+        alpha = n,  
+        color = agency), 
+    position=position_jitter(width=.4,height=0)#,
+    #alpha = .3
   ) +
+  scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
   labs(title = paste(chamb,
                      "
-Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 1),
-                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 1 )),
+Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 0),
+                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 0 )),
        y = "Members by NOMINATE D1", 
        x = "" ) +
-  facet_grid(. ~ TYPE) +
   theme(
-    axis.ticks = element_blank(),
+    #axis.ticks = element_blank(),
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) 
 
+members.year.agency
 
 
 
+members.year.agency.TYPE  <- mocs %>% group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
+  filter(chamber == chamb) %>%
+  ggplot() +
+  geom_point(
+    aes(x = year, 
+        y = bioname, #reorder(bioname, nominate.dim1), 
+        label = agency, 
+        size = n,  
+        color = agency), 
+    position=position_jitter(width=.4,height=0),
+    alpha = .3
+  ) +
+  scale_x_continuous(breaks = seq(2007, 2018, 2), limits = c(2007,2018)) + 
+  labs(title = paste(chamb,
+                     "
+                     Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 0),
+                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 0 )),
+       y = "Members by NOMINATE D1", 
+       x = "" ) +
+  theme(
+    #axis.ticks = element_blank(),
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 45)
+  ) + facet_grid(. ~ TYPE) 
 
+members.year.agency.TYPE
 
 
 
