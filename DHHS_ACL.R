@@ -1,6 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
+# Completed Matching on last_name
 
 #file.name <- "DHHS_ACL" # for testing
 
