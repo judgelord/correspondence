@@ -3,7 +3,7 @@
 
 # Minor spelling stuff, format rows and subjects yet
 
-file.name <- "DOC_MBDA" # for testing
+#file.name <- "DOC_MBDA" # for testing
 
 
 clean <- function(file.name) {
