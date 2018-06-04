@@ -19,9 +19,10 @@ data_list <- as.data.frame(matrix(c(
 "DHS_ICE", "not coded", NA,
 # DOC
 "DOC_IOS", "not coded", NA,
-"DOC_MBDA", "not coded", NA,
+"DOC_SBA", "not coded", NA,
+## "DOC_MBDA", "not coded", NA,
 # DOD
-"DOD_DeCA", "not coded", NA,
+"DOD_DeCA", "coded", "Devin",
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney",
@@ -42,6 +43,7 @@ data_list <- as.data.frame(matrix(c(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA,
+"DOT_SLDC", "not coded", NA,
 # Education
 "ED", "not coded", NA,
 # EPA
@@ -49,6 +51,7 @@ data_list <- as.data.frame(matrix(c(
 # FCC
 "FCC", "coded", "Devin",
 # PRC
+"NASA", "not coded", NA,
 "PRC", "not coded", NA,
 # Treasury
 "Treasury_OCC", "not coded", NA,
@@ -68,32 +71,32 @@ names(data_list) <- c("agency", "status", "coders")
 
 # merge data
 i = 1
-data <- clean.agency(agency = data_list[i, 1],
+d <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
-data %<>% left_join(members)
-data$ID %<>% as.character()
+d %<>% left_join(members)
+d$ID %<>% as.character()
 
 errors <- "Failed to merge:"
 
 for (i in 2:nrow(data_list)) {
-  # print(data_list[i, 1])
-  # tryCatch({
+  print(data_list[i, 1])
+  tryCatch({
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
     left_join(members)
     dt$ID %<>% as.character()
-  data %<>% full_join(dt)
-  errors <- paste(errors, data_list[i, 1])
-  # }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
+  d %<>% full_join(dt)
+  length(unique(d$agency)) == i
+  }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
 }
 errors
 
-data$department <- gsub("_.*", "", data$agency)
+d$department <- gsub("_.*", "", d$agency)
 
-data %<>% 
+d %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
   mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
@@ -108,7 +111,7 @@ data %<>%
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
 
-problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
+problems <- d %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
 
 
 ###################
@@ -116,7 +119,7 @@ problems <- data %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally
 ###################
 
 # identify top members
-mocs <- data %>% 
+mocs <- d %>% 
   filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate"))  %>% 
   group_by(ID, agency, bioname) %>% mutate(n = n()) %>% filter(n == 1) %>% ungroup() %>%
   select(ID, bioname, TYPE, congress, year, chamber, agency, department, nominate.dim1)
@@ -142,7 +145,7 @@ mocs$name <- gsub(",.*", "", mocs$bioname)
 ##########################################################################################################################################################################################################################
 # plot by nominate and dept
 mocs %>%  group_by(congress, chamber, department, bioname, name, nominate.dim1) %>% tally() %>% ungroup() %>% 
-  group_by(department) %>% mutate(percent = cume_dist(n, 100)) %>%
+  group_by(department) %>% mutate(percent = ntile(n, 10000)) %>%
   ggplot() +
   geom_text(
     aes(x = congress, 
@@ -170,23 +173,41 @@ mocs %>%  group_by(congress, chamber, department, bioname, name, nominate.dim1) 
 # Name jitter plot by nominate and dept
 mocs %>% 
   filter(!is.na(TYPE)) %>% 
-  group_by(bioname, nominate.dim1, chamber, department, TYPE, name) %>% tally() %>% ungroup()  %>% 
+  group_by(bioname, nominate.dim1, chamber, TYPE, name) %>% tally() %>% ungroup()  %>% 
+  group_by(chamber, TYPE) %>% mutate(percentile = ntile(n, 100)) %>%
   ggplot() +
   geom_text(
-    aes(x = TYPE, y = chamber, label = name, size = n, alpha = n, color = nominate.dim1),
-    position=position_jitter(width=0,height=.4)
+    aes(x = TYPE, y = chamber, label = name, size = n, alpha = percentile, color = nominate.dim1),
+    position=position_jitter()#width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
   #scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
-  facet_grid(department ~ .)  +
+  #facet_grid(department ~ .)  +
   labs(y = "", 
        title = paste("")) +
   theme(
     #axis.text.y = element_blank(),
     axis.ticks = element_blank(),
     #legend.text = element_blank(),
+    panel.background = element_blank(),
     panel.grid = element_blank()
   ) 
+
+
+
+
+mocs %<>%
+  group_by(chamber, agency) %>% 
+  mutate(mean.agency = mean(n()), var.agency = var(n()), sd.agency = sd(n())) %>% ungroup() %>% 
+  group_by(chamber, year) %>% 
+  mutate(n.year = n()) %>%
+  mutate(mean.year = mean( n() ) ) %>% 
+  mutate(var.year = var(n) ) %>%  
+  mutate(sd.year = sd(n) ) %>% ungroup() 
+
+
+
+
 
 
 
@@ -200,17 +221,14 @@ members.year.agency <- mocs %>% group_by(bioname, chamber, year, agency) %>% tal
   geom_point(
     aes(x = year, 
         y = bioname, #reorder(bioname, nominate.dim1), 
-        label = agency, 
+        #label = agency, 
         alpha = n,  
         color = agency), 
     position=position_jitter(width=.4,height=0)#,
     #alpha = .3
   ) +
   scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
-  labs(title = paste(chamb,
-                     "
-Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 0),
-                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 0 )),
+  labs(title = paste(chamb),
        y = "Members by NOMINATE D1", 
        x = "" ) +
   theme(
@@ -219,38 +237,51 @@ Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(b
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) 
-
 members.year.agency
 
-
+# mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
 members.year.agency.TYPE  <- mocs %>% group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb) %>%
+  filter(chamber == chamb, TYPE != "0", TYPE != "6") %>%
   ggplot() +
   geom_point(
     aes(x = year, 
         y = bioname, #reorder(bioname, nominate.dim1), 
         label = agency, 
-        size = n,  
+        alpha = n,  
         color = agency), 
-    position=position_jitter(width=.4,height=0),
-    alpha = .3
+    position=position_jitter(width=.4,height=0)
   ) +
   scale_x_continuous(breaks = seq(2007, 2018, 2), limits = c(2007,2018)) + 
-  labs(title = paste(chamb,
-                     "
-                     Var(letters/year) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, year) %>% tally() %>% ungroup() %>% select(n) ), 0),
-                     "& Var(letters/agency) =", round(var(mocs %>% filter(chamber == chamb) %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>% select(n) ), 0 )),
+  labs(title = paste(chamb),
        y = "Members by NOMINATE D1", 
        x = "" ) +
   theme(
     #axis.ticks = element_blank(),
-    legend.title = element_blank(),
+    #legend.title = element_blank(),
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) + facet_grid(. ~ TYPE) 
 
 members.year.agency.TYPE
+
+
+
+
+# boxplots
+mocs %>% group_by(bioname, year) %>% tally() %>% ungroup() %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = factor(year), y = n)) + 
+  coord_flip() +
+  labs(title = paste(chamb),  y = "Varience across agencies", 
+                                                      x = "" ) +
+
+mocs %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = factor(agency), y = n)) + coord_flip()
+
 
 
 

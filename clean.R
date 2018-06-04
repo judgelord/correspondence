@@ -88,9 +88,9 @@ clean.agency <- function(agency, status, coders) {
   data$ALT_TYPE %<>% as.character()
   data$POLICY_EVENT %<>% as.character()
   data$EVENT_NAME %<>% as.character()
-  data$EVENT_DATE %<>% as.Date()
+  data$EVENT_DATE %<>% as.character()
   data$NOTES %<>% as.character()
-  
+
   # select one observation where coders disagree (disagreements are uploaded to drive in recode file)
   data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup() 
   data$agency <- agency # name agency

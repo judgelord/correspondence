@@ -20,6 +20,7 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m-%d-%y")
+  data$DateSigned %<>% as.Date("%m-%d-%y")
   
   
   #create year and congress columns
