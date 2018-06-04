@@ -4,6 +4,8 @@ formatLastName <- function(data, col_name){
   
   data$last_name <- data[[col_name]]
   
+  data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
+  
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
     # correct capitalization
@@ -47,10 +49,11 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse(grepl("Wasserman", FROM,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% 
     mutate(last_name = ifelse(grepl("McMorris", FROM,ignore.case=TRUE), "McMORRIS RODGERS", last_name)) %>% 
     mutate(last_name = ifelse(grepl("ROS-LEHTINEN", FROM,ignore.case=TRUE), "ROS-LEHTINEN", last_name)) %>% 
+    mutate(last_name = ifelse(grepl(".SCLOSKY", FROM,ignore.case=TRUE), "VISCLOSKY", last_name)) %>% 
     
     mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name))
   
-  data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
+  #data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
   
   
 
