@@ -273,6 +273,7 @@ members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PLASKETT";
 members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "RADEWAGEN"; members$first_name[nrow(members)] <- "Amata"
 members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "CHRISTENSEN"; members$first_name[nrow(members)] <- "Donna"
 members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PIERLUISI"; members$first_name[nrow(members)] <- "Pedro"
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "WHITEHOUSE";
 
 
 # select

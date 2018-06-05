@@ -40,10 +40,17 @@ clean <- function(file.name) {
     }
   }
   data <- data[-grep(";|&| and |/", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  
   ################
   
   
   data <- getFirstLast.Comma(data, 'FROM')
+  
+  data %<>%
+    mutate(last_name = ifelse(grepl("^\\w+$",data$FROM2), formatLastName(data,'FROM2'), last_name))
+  
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
