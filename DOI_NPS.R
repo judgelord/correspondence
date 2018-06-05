@@ -1,9 +1,9 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 1130 out of 1403 last names matched. Go back and fix spelling
+# 232 out of 1403 last names not matched. Wait for better data from agency. 
 
- #  file.name <- "DOI_NPS" # for testing
+   file.name <- "DOI_NPS" # for testing
 
 
 clean <- function(file.name) {
