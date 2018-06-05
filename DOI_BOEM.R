@@ -2,6 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
+# Complete. Matched perfectly on last_name
 
 file.name <- "DOI_BOEM" # for testing
 
@@ -42,6 +43,7 @@ clean <- function(file.name) {
     }
   }
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ ", "", data$FROM)
   ###     ###     ###
   
   # create variable for first and last name
