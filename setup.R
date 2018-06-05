@@ -178,9 +178,17 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(common_name = ifelse(bioname == "McNERNEY, Jerry", "Gerald", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "KHANNA, Rohit", "Ro", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "KRISHNAMOORTHI, S. Raja", "Raja", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "JOHNSON, Hank", "Henry", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "  DUNCAN, John J., Jr.", "Jim", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
   mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
-  
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+  mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+
   # remove accent marks
   mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
   mutate(last_name = ifelse(grepl("VEL.ZQUEZ, Nydia M.", bioname), "VELAZQUEZ", last_name)) %>% 
@@ -264,6 +272,8 @@ members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "SABLAN"; m
 members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PLASKETT"; members$first_name[nrow(members)] <- "Stacey"
 members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "RADEWAGEN"; members$first_name[nrow(members)] <- "Amata"
 members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "CHRISTENSEN"; members$first_name[nrow(members)] <- "Donna"
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PIERLUISI"; members$first_name[nrow(members)] <- "Pedro"
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "WHITEHOUSE";
 
 
 # select
