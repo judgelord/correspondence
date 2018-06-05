@@ -24,4 +24,25 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
+  
+  data%<>%
+  mutate(SUBJECT=paste(`LeadOffice`,"-",SUBJECT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CAPITAL ACCESS|GOVERNMENT CONTRACTING|DISASTER ASSISTANCE|BUSINESS DEVELOPMENT|ENTREPRENEURIAL DEVELOPMENT|HUBZONE|CONGRESSIONAL AND LEGISLATIVE|CONGRESSIONAL AFFAIRS|OFFICE OF CHIEF|INVESTMENT", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CAPITAL ACCESS|GOVERNMENT CONTRACTING|DISASTER ASSISTANCE|BUSINESS DEVELOPMENT|ENTREPRENEURIAL DEVELOPMENT|HUBZONE|CONGRESSIONAL AND LEGISLATIVE|CONGRESSIONAL AFFAIRS|OFFICE OF CHIEF|INVESTMENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU|ADMINISTRATOR", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU|ADMINISTRATOR", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POLICY PLANNING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU|ADMINISTRATOR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) 
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
