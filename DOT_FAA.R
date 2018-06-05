@@ -6,7 +6,7 @@
 
 #### Has multiple congressman in some rows, need to duplicate rows yet. 
 
-#file.name <- "DOT_FAA Sam" # for testing
+file.name <- "DOT_FAA Sam" # for testing
 
 
 clean <- function(file.name) {
