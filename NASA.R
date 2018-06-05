@@ -3,12 +3,13 @@
 
 # 178 non matches on last_name
 
-file.name <- "NASA.csv" # for testing
+# file.name <- "NASA" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  data$DATE %<>% as.Date() # FIX ME 
   
   data <- data[-which(is.na(data$FROM)),]
   # create ID variable
