@@ -45,7 +45,7 @@ data_list <- as.data.frame(matrix(c(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA,
-"DOT_SLDC", "not coded", NA,
+"DOT_SLSDC", "not coded", NA,
 # Education
 "ED", "not coded", NA,
 # EPA
@@ -53,7 +53,7 @@ data_list <- as.data.frame(matrix(c(
 # FCC
 "FCC", "coded", "Devin",
 # NASA
-"NASA", "not coded", NA,
+#"NASA", "not coded", NA, # needs cleanup, esp of dates 
 # PRC
 "PRC", "not coded", NA,
 # Treasury
@@ -83,11 +83,8 @@ d %>% select(DATE, year, congress, TYPE, bioname)
 d %<>% left_join(members)
 d$ID %<>% as.character()
 
-errors <- "Failed to merge:"
 
-for (i in 2:nrow(data_list)) {
-  data_list[i, 1]
-  tryCatch({
+while(length(unique(d$agency) == i)) {
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
@@ -97,10 +94,9 @@ for (i in 2:nrow(data_list)) {
     dt %<>% left_join(members)
     dt$ID %<>% as.character()
     d %<>% full_join(dt)
-  }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
-  length(unique(d$agency)) == i
+  print(data_list[i,1])
+  if(length(unique(d$agency)) == i) {i <- i+1 }
 }
-errors
 
 d$department <- gsub("_.*", "", d$agency)
 
@@ -145,7 +141,15 @@ mocs %<>%
   mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
   mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
   mutate(perAgencyperYear = n()) %>% ungroup() %>%
-  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) 
+  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) %>%
+  group_by(chamber, agency)
+
+  mutate(mean.agency = mean(n()), var.agency = var(n()), sd.agency = sd(n())) %>% ungroup() %>% 
+  group_by(chamber, year) %>% 
+  mutate(n.year = n()) %>%
+  mutate(mean.year = mean( n() ) ) %>% 
+  mutate(var.year = var(n) ) %>%  
+  mutate(sd.year = sd(n) ) %>% ungroup() 
   
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
@@ -204,20 +208,6 @@ mocs %>%
 
 
 
-mocs %<>%
-  group_by(chamber, agency) %>% 
-  mutate(mean.agency = mean(n()), var.agency = var(n()), sd.agency = sd(n())) %>% ungroup() %>% 
-  group_by(chamber, year) %>% 
-  mutate(n.year = n()) %>%
-  mutate(mean.year = mean( n() ) ) %>% 
-  mutate(var.year = var(n) ) %>%  
-  mutate(sd.year = sd(n) ) %>% ungroup() 
-
-
-
-
-
-
 
 
 
@@ -254,7 +244,7 @@ members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency,
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = bioname, #reorder(bioname, nominate.dim1), 
+        y = reorder(bioname, nominate.dim1), 
         label = agency, 
         #alpha = n,  
         color = agency), 
@@ -276,20 +266,22 @@ members.year.agency.TYPE
 
 
 
-
+chamb <- "Senate"
 # boxplots
-mocs %>% group_by(bioname, year) %>% tally() %>% ungroup() %>%
+mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == chamb) %>%
   ggplot() + 
   geom_boxplot(
-    aes(x = factor(year), y = n)) + 
+    aes(x = reorder(bioname, n), y = n, color = nominate.dim1)) + 
+  #abline(mean) +
   coord_flip() +
-  labs(title = paste(chamb),  y = "Varience across agencies", 
-                                                      x = "" ) +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(title = paste("Letters per year,", chamb))
+  
 
-mocs %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = factor(agency), y = n)) + coord_flip()
+
+
 
 
 
