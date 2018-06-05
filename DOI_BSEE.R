@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
+# Finished. Matched perfectly on last_name
 
 #file.name <- "DOI_BSEE" # for testing
 
@@ -52,6 +52,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Sen.", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("Rep.", FROM), "House", chamber)) %>% 
     mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+  
+  data %<>% filter(!is.na(FROM))
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())
