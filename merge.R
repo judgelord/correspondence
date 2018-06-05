@@ -1,7 +1,7 @@
-# This script combines clean log/letter files with other data sources.
+# This script combines clean log/letter files and merges in other data sources.
+
 # load functions
-source("setup.R")
-# clean.agency() # cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
 # Departments and agencies are listed A-Z
 # Columns:
@@ -19,7 +19,7 @@ data_list <- as.data.frame(matrix(c(
 "DHS", "coded", "Katie", # "Katie", "Megha") # but Megha's work is not there
 "DHS_ICE", "not coded", NA,
 # DOC
-"DOC_IOS", "not coded", NA,
+"DOC_IOS", "coded", "Aaron",
 "DOC_SBA", "not coded", NA,
 ## "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 # DOD
@@ -31,7 +31,7 @@ data_list <- as.data.frame(matrix(c(
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
-"DOI_BOEM", "not coded", NA,
+"DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
@@ -49,7 +49,7 @@ data_list <- as.data.frame(matrix(c(
 # Education
 "ED", "not coded", NA,
 # EPA
-"EPA", "coded", "Adam", # c("Adam", "Avery"),
+"EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCC
 "FCC", "coded", "Devin",
 # NASA
@@ -69,8 +69,7 @@ data_list <- as.data.frame(matrix(c(
 "USDA_RMA", "not coded", NA,
 # USPS
 "USPS", "not coded", NA
-), ncol = 3, byrow = T), col.names = c("agency", "status", "coders"))
-
+), ncol = 3, byrow = T))
 names(data_list) <- c("agency", "status", "coders")
 
 # merge data
@@ -81,24 +80,24 @@ d <- clean.agency(agency = data_list[i, 1],
 d %<>% left_join(members)
 d %>% select(DATE, year, congress, TYPE, bioname)
 d %<>% left_join(members)
-d$ID %<>% as.character()
-
 
 while(length(unique(d$agency) == i)) {
+  
+  print(data_list[i,1])
+  
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
       left_join(members) %<>% 
-      select(ID, agency, DATE, year, congress, TYPE, bioname)
-    dt %<>% left_join(members)
-    dt$ID %<>% as.character()
+      select(ID, agency, DATE, year, congress, TYPE, bioname) %>% 
+      left_join(members)
+    
     d %<>% full_join(dt)
-  print(data_list[i,1])
+    
   if(length(unique(d$agency)) == i) {i <- i+1 }
 }
 
-d$department <- gsub("_.*", "", d$agency)
 
 d %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
@@ -277,12 +276,54 @@ mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup
   #abline(mean) +
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(title = paste("Letters per year,", chamb))
+  labs(title = paste("Letters per year,", chamb)) + 
+  theme(axis.text.y = element_text(size=5))
   
+chamb <- "Senate"
+# boxplots
+mocs %>% 
+  group_by(agency) %>% filter(n() > 1000) %>%
+  group_by(bioname, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == chamb) %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = reorder(bioname, n), y = n, color = nominate.dim1)) + 
+  #abline(mean) +
+  coord_flip() +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(title = paste("Letters per agency,", chamb)) + 
+  theme(axis.text.y = element_text(size=5))
 
+# DENSITY
+# distribution over agencies ranked
+# bar plot of all members
+mocs %>% 
+  group_by(bioname, agency, chamber) %>% tally () %>% ungroup() %>% 
+  group_by(bioname, chamber) %>% 
+  mutate(agency.rank = dense_rank(-n)) %>% ungroup() %>% 
+  mutate(member.quartile = ntile(n, 4)) %>% 
+  ggplot() +
+  geom_density(aes(x= agency.rank, fill = factor(member.quartile)), color = NA, alpha = .3) + 
+  facet_grid(. ~ chamber) 
 
+# line plot of members 
+mocs %>% 
+  group_by(bioname, department, chamber) %>% tally () %>% ungroup() %>% group_by(bioname) %>%
+  mutate(agency.rank = dense_rank(-n)) %>%
+  ggplot() +
+  geom_line(aes(x= agency.rank, y= n, group = bioname), alpha = .2) + 
+  geom_point(aes(x= agency.rank, y= n, color = department)) + 
+  facet_grid(. ~ chamber)
 
-
+# bar plot of complete agnecies over time 
+mocs %>% 
+  #filter(!(agency %in% c("USPS", "DHS", "DHS_ICE", "DHHS_CDC", "DOI_NPS", "DOI_BOEM", "DOD_DFAS", "DOD_OSDJS", "DOD_Navy"))) %>%
+  filter(agency %in% c("DOL_EBSA", "DOD_DeCA", "DOL_OFCCP", "DOL_VETS", "EPA", "ED", " PRC", "USDA")) %>%
+  #filter(TYPE != "6", TYPE != "0") %>%
+  filter(TYPE %in% c(2,4)) %>%
+  ggplot() +
+  geom_bar(aes(x = year, fill = agency)) + facet_grid(TYPE ~ .)
 
 
 
