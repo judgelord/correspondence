@@ -2,6 +2,8 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
+# Finished. 100% match on first_name/last_name
+
 #file.name <- "DOL_EBSA" # for testing
 
 clean <- function(file.name) {
