@@ -250,6 +250,12 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
 members %<>%
    mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
 
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JEWELL"; members$first_name[nrow(members)] <- "Sally"
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "NORTON"; members$first_name[nrow(members)] <- "Eleanor"
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "SABLAN"; members$first_name[nrow(members)] <- "Gregorio"
+members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PLASKETT"; members$first_name[nrow(members)] <- "Stacey"
+
+
 # select
 members %<>% 
   select(first_name, first_initial ,common_name, middle_name, middle_initial, last_name, bioname, everything()) 
