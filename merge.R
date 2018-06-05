@@ -11,6 +11,7 @@ source("setup.R")
 
 data_list <- as.data.frame(matrix(c(
 # Agency    # coded     # coders 
+"Amtrak", "not coded", NA,
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,
@@ -20,12 +21,13 @@ data_list <- as.data.frame(matrix(c(
 # DOC
 "DOC_IOS", "not coded", NA,
 "DOC_SBA", "not coded", NA,
-## "DOC_MBDA", "not coded", NA,
+## "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 # DOD
 "DOD_DeCA", "coded", "Devin",
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney",
+"DOD_OSDJS", "not coded", NA,
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
@@ -43,17 +45,19 @@ data_list <- as.data.frame(matrix(c(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA,
-"DOT_SLDC", "not coded", NA,
+"DOT_SLSDC", "not coded", NA,
 # Education
 "ED", "not coded", NA,
 # EPA
 "EPA", "coded", "Adam", # c("Adam", "Avery"),
 # FCC
 "FCC", "coded", "Devin",
+# NASA
+#"NASA", "not coded", NA, # needs cleanup, esp of dates 
 # PRC
-"NASA", "not coded", NA,
 "PRC", "not coded", NA,
 # Treasury
+"Treasury_Fiscal", "not coded", NA,
 "Treasury_OCC", "not coded", NA,
 # USDA 
 "USDA", "not coded", NA,
@@ -75,24 +79,24 @@ d <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
 d %<>% left_join(members)
+d %>% select(DATE, year, congress, TYPE, bioname)
+d %<>% left_join(members)
 d$ID %<>% as.character()
 
-errors <- "Failed to merge:"
 
-for (i in 2:nrow(data_list)) {
-  print(data_list[i, 1])
-  tryCatch({
+while(length(unique(d$agency) == i)) {
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
-    left_join(members)
+      left_join(members) %<>% 
+      select(ID, agency, DATE, year, congress, TYPE, bioname)
+    dt %<>% left_join(members)
     dt$ID %<>% as.character()
-  d %<>% full_join(dt)
-  length(unique(d$agency)) == i
-  }, error = function(e) {errors <- paste(errors, data_list[i, 1], e)})
+    d %<>% full_join(dt)
+  print(data_list[i,1])
+  if(length(unique(d$agency)) == i) {i <- i+1 }
 }
-errors
 
 d$department <- gsub("_.*", "", d$agency)
 
@@ -122,7 +126,7 @@ problems <- d %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally() 
 mocs <- d %>% 
   filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate"))  %>% 
   group_by(ID, agency, bioname) %>% mutate(n = n()) %>% filter(n == 1) %>% ungroup() %>%
-  select(ID, bioname, TYPE, congress, year, chamber, agency, department, nominate.dim1)
+  select(ID, DATE, bioname, TYPE, congress, year, chamber, agency, department, nominate.dim1)
 
 
 
@@ -137,7 +141,15 @@ mocs %<>%
   mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
   mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
   mutate(perAgencyperYear = n()) %>% ungroup() %>%
-  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) 
+  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) %>%
+  group_by(chamber, agency)
+
+  mutate(mean.agency = mean(n()), var.agency = var(n()), sd.agency = sd(n())) %>% ungroup() %>% 
+  group_by(chamber, year) %>% 
+  mutate(n.year = n()) %>%
+  mutate(mean.year = mean( n() ) ) %>% 
+  mutate(var.year = var(n) ) %>%  
+  mutate(sd.year = sd(n) ) %>% ungroup() 
   
 mocs$name <- gsub(",.*", "", mocs$bioname)
 
@@ -196,38 +208,24 @@ mocs %>%
 
 
 
-mocs %<>%
-  group_by(chamber, agency) %>% 
-  mutate(mean.agency = mean(n()), var.agency = var(n()), sd.agency = sd(n())) %>% ungroup() %>% 
-  group_by(chamber, year) %>% 
-  mutate(n.year = n()) %>%
-  mutate(mean.year = mean( n() ) ) %>% 
-  mutate(var.year = var(n) ) %>%  
-  mutate(sd.year = sd(n) ) %>% ungroup() 
-
-
-
-
-
-
 
 
 
 # member by year by agency 
-chamb <- "Senate" # "Senate"
-members.year.agency <- mocs %>% group_by(bioname, chamber, year, agency) %>% tally() %>%
+chamb <- "House" # "Senate"
+members.year.agency <- mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
   filter(chamber == chamb) %>%
   ggplot() +
   geom_point(
-    aes(x = year, 
+    aes(x = DATE, 
         y = bioname, #reorder(bioname, nominate.dim1), 
         #label = agency, 
-        alpha = n,  
+        #alpha = n,  
         color = agency), 
-    position=position_jitter(width=.4,height=0)#,
-    #alpha = .3
+    #position=position_jitter(width=.4,height=0),
+    alpha = .2
   ) +
-  scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
+  #scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
   labs(title = paste(chamb),
        y = "Members by NOMINATE D1", 
        x = "" ) +
@@ -235,24 +233,25 @@ members.year.agency <- mocs %>% group_by(bioname, chamber, year, agency) %>% tal
     #axis.ticks = element_blank(),
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45)
+    axis.text.x = element_text(angle = 45, color = "blue")#scale_colour_gradient2(low = "blue", mid = "grey", high = "red"))
   ) 
 members.year.agency
 
-# mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
+ mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
-members.year.agency.TYPE  <- mocs %>% group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
+members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
   filter(chamber == chamb, TYPE != "0", TYPE != "6") %>%
   ggplot() +
   geom_point(
-    aes(x = year, 
-        y = bioname, #reorder(bioname, nominate.dim1), 
+    aes(x = DATE, 
+        y = reorder(bioname, nominate.dim1), 
         label = agency, 
-        alpha = n,  
+        #alpha = n,  
         color = agency), 
-    position=position_jitter(width=.4,height=0)
+    alpha = .2
+    #position=position_jitter(width=.4,height=0)
   ) +
-  scale_x_continuous(breaks = seq(2007, 2018, 2), limits = c(2007,2018)) + 
+  #scale_x_continuous(breaks = seq(2007, 2018, 2), limits = c(2007,2018)) + 
   labs(title = paste(chamb),
        y = "Members by NOMINATE D1", 
        x = "" ) +
@@ -267,20 +266,22 @@ members.year.agency.TYPE
 
 
 
-
+chamb <- "Senate"
 # boxplots
-mocs %>% group_by(bioname, year) %>% tally() %>% ungroup() %>%
+mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == chamb) %>%
   ggplot() + 
   geom_boxplot(
-    aes(x = factor(year), y = n)) + 
+    aes(x = reorder(bioname, n), y = n, color = nominate.dim1)) + 
+  #abline(mean) +
   coord_flip() +
-  labs(title = paste(chamb),  y = "Varience across agencies", 
-                                                      x = "" ) +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(title = paste("Letters per year,", chamb))
+  
 
-mocs %>% group_by(bioname, agency) %>% tally() %>% ungroup() %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = factor(agency), y = n)) + coord_flip()
+
+
 
 
 
