@@ -3,10 +3,9 @@
 
 
 
-# duplicate member names in rows needs to be fixed
-# only 15 observations not in member set (half shouldn't be, other half are spelling errors)
+# Finished. Non matches are correctly non matching
 
- #file.name <- "DOL_OFCCP" # for testing
+# file.name <- "DOL_OFCCP" # for testing 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
