@@ -12,7 +12,7 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   ### Remove duplicate IDs
-  data <- data[!duplicated(data$ID), ]
+  data <- data[!duplicated(data$ID), ] # multiple IDs are TO different people 
   
   #create agency column
   data$agency <- file.name

@@ -83,6 +83,9 @@ clean.agency <- function(agency, status, coders) {
     print(intercoder.agreement(data))
   }
   
+  # select one observation where coders disagree (disagreements are uploaded to drive in recode file)
+  data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup()
+  
   # make consitant classes
   data$ID %<>% as.character()
   data$FROM %<>% as.character()
@@ -94,17 +97,15 @@ clean.agency <- function(agency, status, coders) {
   data$EVENT_NAME %<>% as.character()
   data$EVENT_DATE %<>% as.character()
   data$NOTES %<>% as.character()
-  data$department <- gsub("_.*", "", data$agency)
+  data$agency <- agency # name agency
+  data$department <- gsub("_.*", "", data$agency) # name dept
   
   if ("state" %in% names(data)) {
     data$state %<>% as.character()
   }
   
-  # select one observation where coders disagree (disagreements are uploaded to drive in recode file)
-  data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup()
-  data$agency <- agency # name agency
   
-  # things to match on
+  # completing incomplete vars which will be used in merge
   for (i in 1:length(members$id)) {
     if (sum(c("first_name", "last_name", "state", "chamber", "congress") %in% names(data)) == 5) {
       data %<>%
@@ -112,8 +113,7 @@ clean.agency <- function(agency, status, coders) {
         mutate(
           first_name = ifelse(
             is.na(first_name) &
-              !is.na(last_name) &
-              !is.na(state) & !is.na(congress) & !is.na(chamber) &
+              !is.na(last_name) & !is.na(state) & !is.na(congress) & !is.na(chamber) &
               last_name == members$last_name[i] &
               state == members$state[i] &
               congress == members$congress[i] &
@@ -126,8 +126,7 @@ clean.agency <- function(agency, status, coders) {
         mutate(
           chamber = ifelse(
             is.na(chamber) &
-              !is.na(last_name) &
-              !is.na(state) & !is.na(congress) & !is.na(first_name) &
+              !is.na(last_name) & !is.na(state) & !is.na(congress) & !is.na(first_name) &
               last_name == members$last_name[i] &
               first_name == members$first_name[i] &
               congress == members$congress[i] &
@@ -140,8 +139,7 @@ clean.agency <- function(agency, status, coders) {
         mutate(
           state = ifelse(
             is.na(state) &
-              !is.na(last_name) &
-              !is.na(first_name) & !is.na(congress) & !is.na(chamber) &
+              !is.na(last_name) & !is.na(first_name) & !is.na(congress) & !is.na(chamber) &
               last_name == members$last_name[i] &
               first_name == members$first_name[i] &
               congress == members$congress[i] &
@@ -154,7 +152,7 @@ clean.agency <- function(agency, status, coders) {
     
     if (sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4) {
       data %<>%
-        # if first name is blank
+        # incomplete first name 
         mutate(
           first_name = ifelse(
             is.na(first_name) &
@@ -165,7 +163,7 @@ clean.agency <- function(agency, status, coders) {
             members$first_name[i],
             first_name
           )
-        )
+        ) %>%
       # if first name is common name
       mutate(
         first_name = ifelse(
@@ -177,14 +175,12 @@ clean.agency <- function(agency, status, coders) {
           members$first_name[i],
           first_name
         )
-      )
+      ) %>% 
       # if chamber is missing
-      data %<>%
         mutate(
           chamber = ifelse(
             is.na(chamber) &
-              !is.na(first_name) &
-              !is.na(last_name) & !is.na(congress) &
+              !is.na(first_name) & !is.na(last_name) & !is.na(congress) &
               last_name == members$last_name[i] &
               first_name == members$first_name[i] &
               congress == members$congress[i],

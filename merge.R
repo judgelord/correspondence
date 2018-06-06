@@ -80,7 +80,7 @@ d <- clean.agency(agency = data_list[i, 1],
 # merge with voteview data
 d %<>% 
   left_join(members) %>%
-  select(DATE, year, congress, TYPE, bioname) %>% 
+  select(ID, agency, DATE, year, congress, TYPE, bioname) %>% 
   left_join(members)
 
 # repeat merge while successful
@@ -137,7 +137,16 @@ file.remove(mismatch) # remove local file
 } 
 
 # testing
-data <- clean.agency("DOC_IOS", "not coded", NA) %>% 
+data <- clean.agency("DOC_SBA", "not coded", NA) %>% 
   left_join(members) %>% 
   filter(is.na(bioname))
 
+for(i in 1:length(members$id)) {
+data %<>% 
+  # if first name is common name
+  mutate(first_name = ifelse(!is.na(first_name) & !is.na(last_name) & !is.na(congress) &
+                               last_name == members$last_name[i] &
+                               first_name == members$common_name[i] & 
+                               congress == members$congress[i], 
+                             members$first_name[i], first_name)) 
+}
