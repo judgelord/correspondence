@@ -137,7 +137,7 @@ file.remove(mismatch) # remove local file
 } 
 
 # testing
-data <- clean.agency("DHHS_CDC", "not coded", NA) %>% 
+data <- clean.agency("DOC_IOS", "not coded", NA) %>% 
   left_join(members) %>% 
   filter(is.na(bioname), TYPE == 2)
 
