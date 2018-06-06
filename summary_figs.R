@@ -1,12 +1,12 @@
 
 # get the latest FOIA data 
-source(merge.R) # this may take a while as it loads and cleans each sheet, incorperating any new coding
+# source(merge.R) # this may take a while as it loads and cleans each sheet, incorperating any new coding
 
 
 # select unique observations matched in voteview
 mocs <- d %>% 
   filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))  %>% 
-  group_by(ID, agency, bioname) %>% mutate(n = n()) %>% filter(n == 1) %>% ungroup() 
+  group_by(ID, agency, bioname) %>%  filter(n() == 1) %>% ungroup() 
 
 
 # bin percentiles of letter writers per agency and per dept
@@ -25,8 +25,11 @@ mocs %<>%
 
 
 ##########################################################################################################################################################################################################################
-# plot by nominate and dept
-mocs %>%  group_by(congress, chamber, department, bioname, last_name, nominate.dim1) %>% tally() %>% ungroup() %>% 
+
+
+# Name jitter plot by congress and dept
+mocs %>%  filter(complete == T) %>% 
+  group_by(congress, chamber, department, bioname, last_name, nominate.dim1) %>% tally() %>% ungroup() %>% 
   group_by(department) %>% mutate(percent = ntile(n, 100)) %>%
   ggplot() +
   geom_text(
@@ -44,17 +47,15 @@ mocs %>%  group_by(congress, chamber, department, bioname, last_name, nominate.d
   labs(y = "", 
        title = paste("")) +
   theme(
-    #axis.text.y = element_blank(),
     axis.ticks = element_blank(),
-    #legend.text = element_blank(),
     panel.grid = element_blank()
   ) 
 
 
 
-# Name jitter plot by nominate and dept
+# Name jitter plot by TYPE 
 mocs %>% 
-  filter(!is.na(TYPE)) %>% 
+  filter(!is.na(TYPE), TYPE != "0", TYPE != "6") %>% 
   group_by(bioname, nominate.dim1, chamber, TYPE, last_name) %>% tally() %>% ungroup()  %>% 
   group_by(chamber, TYPE) %>% mutate(percentile = ntile(n, 100)) %>%
   ggplot() +
@@ -63,14 +64,10 @@ mocs %>%
     position=position_jitter()#width=0,height=.4)
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  #scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
-  #facet_grid(department ~ .)  +
   labs(y = "", 
        title = paste("")) +
   theme(
-    #axis.text.y = element_blank(),
     axis.ticks = element_blank(),
-    #legend.text = element_blank(),
     panel.background = element_blank(),
     panel.grid = element_blank()
   ) 
@@ -82,52 +79,46 @@ mocs %>%
 
 
 # member by year by agency 
-chamb <- "House" # "Senate"
+chamb <- "Senate" # "Senate"
 members.year.agency <- mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
-  filter(chamber == chamb) %>%
+  filter(chamber == chamb, complete == T) %>%
+  group_by(bioname) %>%
+  mutate(n = n()) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = bioname, #reorder(bioname, nominate.dim1), 
-        #label = agency, 
-        #alpha = n,  
+        y = reorder(bioname, n), # sort by total number of lewters writen
         color = agency), 
-    #position=position_jitter(width=.4,height=0),
-    alpha = .2
+    alpha = .3
   ) +
-  #scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
   labs(title = paste(chamb),
        y = "Members by NOMINATE D1", 
        x = "" ) +
   theme(
-    #axis.ticks = element_blank(),
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45, color = "blue")#scale_colour_gradient2(low = "blue", mid = "grey", high = "red"))
+    axis.text.x = element_text(angle = 45)
   ) 
 members.year.agency
 
 mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
 members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6") %>%
+  filter(chamber == chamb, TYPE != "0", TYPE != "6")  %>%
+  group_by(bioname) %>%
+  mutate(n = n()) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = reorder(bioname, nominate.dim1), 
+        y = reorder(bioname, n), 
         label = agency, 
-        #alpha = n,  
         color = agency), 
     alpha = .2
-    #position=position_jitter(width=.4,height=0)
   ) +
-  #scale_x_continuous(breaks = seq(2007, 2018, 2), limits = c(2007,2018)) + 
   labs(title = paste(chamb),
        y = "Members by NOMINATE D1", 
        x = "" ) +
   theme(
-    #axis.ticks = element_blank(),
-    #legend.title = element_blank(),
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) + facet_grid(. ~ TYPE) 
@@ -137,7 +128,7 @@ members.year.agency.TYPE
 
 
 chamb <- "Senate"
-# boxplots
+# boxplots by year 
 mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
   filter(chamber == chamb) %>%
@@ -151,7 +142,7 @@ mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup
   theme(axis.text.y = element_text(size=5))
 
 chamb <- "Senate"
-# boxplots
+# boxplots by agency 
 mocs %>% 
   group_by(agency) %>% filter(n() > 1000) %>%
   group_by(bioname, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
@@ -168,17 +159,21 @@ mocs %>%
 
 # DENSITY
 # distribution over agencies ranked
-# bar plot of all members
+
+# density over all members
 mocs %>% 
-  group_by(bioname, agency, chamber) %>% tally () %>% ungroup() %>% 
+  group_by(bioname, agency, chamber) %>% 
+  mutate(permemberperagency = n()) %>% ungroup() %>% 
   group_by(bioname, chamber) %>% 
-  mutate(agency.rank = dense_rank(-n)) %>% ungroup() %>% 
-  mutate(member.quartile = ntile(n, 4)) %>% 
+  mutate(agency.rank = dense_rank(-permemberperagency)) %>% 
+  mutate(permember = sum(permemberperagency)) %>%  ungroup() %>% group_by(chamber) %>% 
+  mutate(member.rank = min_rank(permember)) %>%
+  mutate(member.quartile = ntile(member.rank, 4)) %>% 
   ggplot() +
-  geom_density(aes(x= agency.rank, fill = factor(member.quartile)), color = NA, alpha = .3) + 
+  geom_bar(aes(x= agency.rank)) +# , fill = factor(member.quartile)))+ 
   facet_grid(. ~ chamber) 
 
-# line plot of members 
+# line plot of density over agencies by member
 mocs %>% 
   group_by(bioname, department, chamber) %>% tally () %>% ungroup() %>% group_by(bioname) %>%
   mutate(agency.rank = dense_rank(-n)) %>%
@@ -187,14 +182,14 @@ mocs %>%
   geom_point(aes(x= agency.rank, y= n, color = department)) + 
   facet_grid(. ~ chamber)
 
-# bar plot of complete agnecies over time 
+# histogram of complete agnecies over time 
 mocs %>% 
-  #filter(!(agency %in% c("USPS", "DHS", "DHS_ICE", "DHHS_CDC", "DOI_NPS", "DOI_BOEM", "DOD_DFAS", "DOD_OSDJS", "DOD_Navy"))) %>%
-  filter(agency %in% c("DOL_EBSA", "DOD_DeCA", "DOL_OFCCP", "DOL_VETS", "EPA", "ED", " PRC", "USDA")) %>%
-  #filter(TYPE != "6", TYPE != "0") %>%
-  filter(TYPE %in% c(2,4)) %>%
+  filter(complete == T) %>% 
+  filter(TYPE %in% c(1,2,3, 4,5, "to be coded")) %>%
   ggplot() +
-  geom_bar(aes(x = year, fill = agency)) + facet_grid(TYPE ~ .)
+  labs(title = "Letters per month for agencies with complete data") +
+  geom_histogram(aes(x = DATE, fill = agency), alpha = 1, bins = 120)  +
+  facet_grid(TYPE ~ .)
 
 
 
