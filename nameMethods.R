@@ -155,6 +155,7 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
+  data$Summary <- gsub("Courntey", "Courtney", data$Summary)
   
   
   # create FROM2 varible extracting name from data$Summary
@@ -413,6 +414,7 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
+  data$FROM2 <- gsub("Courntey", "Courtney", data$FROM2, ignore.case = TRUE)
   
   
   #create variable for last name of the Sen/Rep
