@@ -90,7 +90,7 @@ clean.agency <- function(agency, status, coders) {
   data$EVENT_NAME %<>% as.character()
   data$EVENT_DATE %<>% as.character()
   data$NOTES %<>% as.character()
-  d$department <- gsub("_.*", "", d$agency)
+  data$department <- gsub("_.*", "", data$agency)
   
   if("state" %in% names(data)){data$state %<>% as.character()}
 
@@ -165,10 +165,9 @@ clean.agency <- function(agency, status, coders) {
                                      last_name == members$last_name[i] &
                                      first_name == members$common_name[i] & 
                                      congress == members$congress[i] & 
-                                     chamber == members$chamber[i],
-                                   members$first_name[i], first_name)) 
+                                     members$first_name[i], first_name)) 
 
-    
+    }
     
     
     
