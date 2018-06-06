@@ -6,7 +6,7 @@
 # Finished. 20 non-matches on last_name (shouldn't be matching)
 
 
-file.name <- "DOL_VETS" # for testing
+# file.name <- "DOL_VETS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
