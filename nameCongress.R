@@ -168,9 +168,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
     mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
+   
     
     # remove accent marks
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
