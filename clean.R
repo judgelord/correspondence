@@ -101,23 +101,7 @@ clean.agency <- function(agency, status, coders) {
  # things to match on
   for(i in 1:length(members$id)) {
     
-    if(sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4){
-    data %<>% 
-        # if first name is common name
-      mutate(first_name = ifelse(!is.na(first_name) & !is.na(last_name) & !is.na(congress) & !is.na(chamber) &
-                                   last_name == members$last_name[i] &
-                                   first_name == members$common_name[i] & 
-                                   congress == members$congress[i] & 
-                                   chamber == members$chamber[i],
-                                 members$first_name[i], first_name)) 
-      # if chamber is missing
-      data %<>% 
-        mutate(chamber = ifelse(is.na(chamber) & 
-                                  !is.na(first_name) & !is.na(last_name) & !is.na(congress) &
-                                  last_name == members$last_name[i] &
-                                     first_name == members$first_name[i] & 
-                                     congress == members$congress[i], 
-                                   members$chamber[i], chamber))
+
     }
     
     if(sum(c("first_name", "last_name", "state", "chamber", "congress") %in% names(data)) == 5) {
@@ -147,6 +131,47 @@ clean.agency <- function(agency, status, coders) {
                                   chamber == members$chamber[i],
                                 members$state[i], state)) 
     }
+  
+  
+  
+  if(sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4){
+    data %<>% 
+      # if first name is blank
+      mutate(first_name = ifelse(is.na(first_name) & !is.na(last_name) & !is.na(congress) & !is.na(chamber) &
+                                   last_name == members$last_name[i] &
+                                   congress == members$congress[i] & 
+                                   chamber == members$chamber[i],
+                                 members$first_name[i], first_name)) 
+    # if first name is common name
+    mutate(first_name = ifelse(!is.na(last_name) & !is.na(congress) & !is.na(chamber) &
+                                 last_name == members$last_name[i] &
+                                 first_name == members$common_name[i] & 
+                                 congress == members$congress[i] & 
+                                 chamber == members$chamber[i],
+                               members$first_name[i], first_name)) 
+    # if chamber is missing
+    data %<>% 
+      mutate(chamber = ifelse(is.na(chamber) & 
+                                !is.na(first_name) & !is.na(last_name) & !is.na(congress) &
+                                last_name == members$last_name[i] &
+                                first_name == members$first_name[i] & 
+                                congress == members$congress[i], 
+                              members$chamber[i], chamber))
+    
+    if(sum(c("last_name", "first_name", "congress") %in% names(data)) == 3){
+      data %<>% 
+        # if first name is common name
+        mutate(first_name = ifelse(!is.na(first_name) & !is.na(last_name) & !is.na(congress) &
+                                     last_name == members$last_name[i] &
+                                     first_name == members$common_name[i] & 
+                                     congress == members$congress[i] & 
+                                     chamber == members$chamber[i],
+                                   members$first_name[i], first_name)) 
+
+    
+    
+    
+    
     
   }
   
