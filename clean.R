@@ -164,7 +164,7 @@ clean.agency <- function(agency, status, coders) {
         mutate(first_name = ifelse(!is.na(first_name) & !is.na(last_name) & !is.na(congress) &
                                      last_name == members$last_name[i] &
                                      first_name == members$common_name[i] & 
-                                     congress == members$congress[i] & 
+                                     congress == members$congress[i], 
                                      members$first_name[i], first_name)) 
 
     }
