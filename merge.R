@@ -80,7 +80,7 @@ d <- clean.agency(agency = data_list[i, 1],
 # merge with voteview data
 d %<>% 
   left_join(members) %>%
-  select(ID, agency, DATE, year, congress, TYPE, bioname) %>% 
+  select(ID, agency, DATE, year, congress, FROM, bioname, SUBJECT, TYPE) %>% 
   left_join(members)
 
 # repeat merge while successful
@@ -93,7 +93,7 @@ while(length(unique(d$agency) == i)) {
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
       left_join(members) %<>% 
-      select(ID, agency, DATE, year, congress, TYPE, bioname) %>% 
+      select(ID, agency, DATE, year, congress, FROM, bioname, SUBJECT, TYPE) %>% 
       left_join(members)
     
     d %<>% full_join(dt)
@@ -103,9 +103,11 @@ while(length(unique(d$agency) == i)) {
 
 # identify timeframe and completeness for each agency
 d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = " ")) %>%
-  mutate(complete = ifelse(nchar(timeframe)>53, T, F))
+  mutate(complete = ifelse(nchar(timeframe) > 48, T, F))
 
-d %>% select(agency, timeframe) %>% distinct()
+unique(cbind(d$agency, d$complete, d$timeframe))
+
+
 
 # fix member names and parties
 d %<>% 
@@ -123,11 +125,13 @@ d %<>%
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
 
+d$department <- gsub("_.*", "", d$agency) # name dept
+
 problems <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
 
 dmiss <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
-# upload obs of certian types failing to match with voteview
+# upload google sheet of obs failing to match with voteview
 for (type in c(2,4)) { 
 mismatch <- "mismatch.csv"
 dmiss %>% filter(TYPE == type) %>% write.csv(mismatch) # saving file locally is faster
@@ -136,17 +140,3 @@ drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type 
 file.remove(mismatch) # remove local file
 } 
 
-# testing
-data <- clean.agency("DOC_SBA", "not coded", NA) %>% 
-  left_join(members) %>% 
-  filter(is.na(bioname))
-
-for(i in 1:length(members$id)) {
-data %<>% 
-  # if first name is common name
-  mutate(first_name = ifelse(!is.na(first_name) & !is.na(last_name) & !is.na(congress) &
-                               last_name == members$last_name[i] &
-                               first_name == members$common_name[i] & 
-                               congress == members$congress[i], 
-                             members$first_name[i], first_name)) 
-}
