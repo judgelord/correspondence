@@ -169,7 +169,7 @@ clean.agency <- function(agency, status, coders) {
       # if first name is common name
       mutate(
         first_name = ifelse(
-          !is.na(last_name) & !is.na(congress) & !is.na(chamber) &
+          !is.na(last_name) & !is.na(congress) & !is.na(chamber) & !is.na(members$common_name[i]) & 
             last_name == members$last_name[i] &
             first_name == members$common_name[i] &
             congress == members$congress[i] &
@@ -199,7 +199,7 @@ clean.agency <- function(agency, status, coders) {
           # if first name is common name
           mutate(
             first_name = ifelse(
-              !is.na(first_name) & !is.na(last_name) & !is.na(congress) &
+              !is.na(first_name) & !is.na(last_name) & !is.na(congress) & !is.na(members$common_name[i]) & 
                 last_name == members$last_name[i] &
                 first_name == members$common_name[i] &
                 congress == members$congress[i],
