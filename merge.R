@@ -139,5 +139,5 @@ file.remove(mismatch) # remove local file
 # testing
 data <- clean.agency("DOC_IOS", "not coded", NA) %>% 
   left_join(members) %>% 
-  filter(is.na(bioname), TYPE == 2)
+  filter(is.na(bioname))
 
