@@ -2,9 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-
-
-#### Has multiple congressman in some rows, need to duplicate rows yet. 
+# 194 mismatches on last_name
 
 #file.name <- "DOT_FAA Sam" # for testing
 
@@ -34,6 +32,7 @@ clean <- function(file.name) {
                      replacement = ",", data$FROM2)
   data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
+  
   
   #create variable for last name of the Sen/Rep
   data %<>%
