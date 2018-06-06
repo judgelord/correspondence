@@ -125,3 +125,19 @@ d %<>%
 
 problems <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
 
+dmiss <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+
+# upload obs of certian types failing to match with voteview
+for (type in c(2,4)) { 
+mismatch <- "mismatch.csv"
+dmiss %>% filter(TYPE == type) %>% write.csv(mismatch) # saving file locally is faster
+drive_rm(paste0("Correspondence/", "mismatch", type)) # remove old recode file
+drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type = "spreadsheet")
+file.remove(mismatch) # remove local file
+} 
+
+# testing
+data <- clean.agency("DHHS_CDC", "not coded", NA) %>% 
+  left_join(members) %>% 
+  filter(is.na(bioname), TYPE == 2)
+
