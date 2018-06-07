@@ -1,7 +1,7 @@
-# This script combines clean log/letter files with other data sources.
+# This script combines clean log/letter files and merges in other data sources.
+
 # load functions
-source("setup.R")
-# clean.agency() # cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
 # Departments and agencies are listed A-Z
 # Columns:
@@ -19,7 +19,7 @@ data_list <- as.data.frame(matrix(c(
 "DHS", "coded", "Katie", # "Katie", "Megha") # but Megha's work is not there
 "DHS_ICE", "not coded", NA,
 # DOC
-"DOC_IOS", "not coded", NA,
+"DOC_IOS", "coded", "Aaron",
 "DOC_SBA", "not coded", NA,
 ## "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 # DOD
@@ -31,7 +31,7 @@ data_list <- as.data.frame(matrix(c(
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
-"DOI_BOEM", "not coded", NA,
+"DOI_BOEM", "not coded", NA, #coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
@@ -49,7 +49,7 @@ data_list <- as.data.frame(matrix(c(
 # Education
 "ED", "not coded", NA,
 # EPA
-"EPA", "coded", "Adam", # c("Adam", "Avery"),
+"EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCC
 "FCC", "coded", "Devin",
 # NASA
@@ -69,37 +69,47 @@ data_list <- as.data.frame(matrix(c(
 "USDA_RMA", "not coded", NA,
 # USPS
 "USPS", "not coded", NA
-), ncol = 3, byrow = T), col.names = c("agency", "status", "coders"))
-
+), ncol = 3, byrow = T))
 names(data_list) <- c("agency", "status", "coders")
 
-# merge data
+# clean one file
 i = 1
 d <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
-d %<>% left_join(members)
-d %>% select(DATE, year, congress, TYPE, bioname)
-d %<>% left_join(members)
-d$ID %<>% as.character()
+# merge with voteview data
+d %<>% 
+  left_join(members) %>%
+  select(ID, agency, DATE, year, congress, FROM, bioname, SUBJECT, TYPE) %>% 
+  left_join(members)
 
-
+# repeat merge while successful
 while(length(unique(d$agency) == i)) {
+  
+  print(data_list[i,1])
+  
     dt <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
       left_join(members) %<>% 
-      select(ID, agency, DATE, year, congress, TYPE, bioname)
-    dt %<>% left_join(members)
-    dt$ID %<>% as.character()
+      select(ID, agency, DATE, year, congress, FROM, bioname, SUBJECT, TYPE) %>% 
+      left_join(members)
+    
     d %<>% full_join(dt)
-  print(data_list[i,1])
-  if(length(unique(d$agency)) == i) {i <- i+1 }
+    
+    i <- i+1
 }
 
-d$department <- gsub("_.*", "", d$agency)
+# identify timeframe and completeness for each agency
+d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = " ")) %>%
+  mutate(complete = ifelse(nchar(timeframe) > 48, T, F))
 
+unique(cbind(d$agency, d$complete, d$timeframe))
+
+
+
+# fix member names and parties
 d %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
@@ -115,180 +125,18 @@ d %<>%
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
 
-problems <- d %>% group_by(agency, ID, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
+d$department <- gsub("_.*", "", d$agency) # name dept
 
+problems <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
 
-###################
-# summay analysis # TO BE MOVED TO ANOTHER FILE 
-###################
+dmiss <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
-# identify top members
-mocs <- d %>% 
-  filter(!is.na(bioname), !is.na(chamber), bioname != "", chamber %in% c("House", "Senate"))  %>% 
-  group_by(ID, agency, bioname) %>% mutate(n = n()) %>% filter(n == 1) %>% ungroup() %>%
-  select(ID, DATE, bioname, TYPE, congress, year, chamber, agency, department, nominate.dim1)
+# upload google sheet of obs failing to match with voteview
+for (type in c(2,4)) { 
+mismatch <- "mismatch.csv"
+dmiss %>% filter(TYPE == type) %>% write.csv(mismatch) # saving file locally is faster
+drive_rm(paste0("Correspondence/", "mismatch", type)) # remove old recode file
+drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type = "spreadsheet")
+file.remove(mismatch) # remove local file
+} 
 
-
-
-# bin into percentiles of letter writers per agency and per dept
-mocs %<>% 
-  group_by(department, bioname, chamber) %>% 
-  mutate(perDept = n()) %>% group_by(department, bioname, chamber, congress) %>%
-  mutate(perDeptperCongress = n()) %>% group_by(department, bioname, chamber, year) %>%
-  mutate(perDeptperYear = n()) %>% ungroup() %>%
-  mutate(DeptPercentile = dplyr::ntile(perDept,100)) %>% 
-  group_by(agency, bioname, chamber) %>%
-  mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
-  mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
-  mutate(perAgencyperYear = n()) %>% ungroup() %>%
-  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) %>%
-  group_by(chamber, agency)
-
-  mutate(mean.agency = mean(n()), var.agency = var(n()), sd.agency = sd(n())) %>% ungroup() %>% 
-  group_by(chamber, year) %>% 
-  mutate(n.year = n()) %>%
-  mutate(mean.year = mean( n() ) ) %>% 
-  mutate(var.year = var(n) ) %>%  
-  mutate(sd.year = sd(n) ) %>% ungroup() 
-  
-mocs$name <- gsub(",.*", "", mocs$bioname)
-
-
-##########################################################################################################################################################################################################################
-# plot by nominate and dept
-mocs %>%  group_by(congress, chamber, department, bioname, name, nominate.dim1) %>% tally() %>% ungroup() %>% 
-  group_by(department) %>% mutate(percent = ntile(n, 10000)) %>%
-  ggplot() +
-  geom_text(
-    aes(x = congress, 
-        y = chamber, 
-        label = paste0(name, "(", n,")"), 
-        size = percent, 
-        alpha = percent, 
-        color = nominate.dim1),
-    position=position_jitter(width=0,height=.4)
-  ) +
-  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
-  facet_grid(department ~ .)  +
-  labs(y = "", 
-       title = paste("")) +
-  theme(
-    #axis.text.y = element_blank(),
-    axis.ticks = element_blank(),
-    #legend.text = element_blank(),
-    panel.grid = element_blank()
-  ) 
-
-
-
-# Name jitter plot by nominate and dept
-mocs %>% 
-  filter(!is.na(TYPE)) %>% 
-  group_by(bioname, nominate.dim1, chamber, TYPE, name) %>% tally() %>% ungroup()  %>% 
-  group_by(chamber, TYPE) %>% mutate(percentile = ntile(n, 100)) %>%
-  ggplot() +
-  geom_text(
-    aes(x = TYPE, y = chamber, label = name, size = n, alpha = percentile, color = nominate.dim1),
-    position=position_jitter()#width=0,height=.4)
-  ) +
-  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  #scale_x_continuous(breaks = seq(110, 115, 1), limits = c(110,115)) + 
-  #facet_grid(department ~ .)  +
-  labs(y = "", 
-       title = paste("")) +
-  theme(
-    #axis.text.y = element_blank(),
-    axis.ticks = element_blank(),
-    #legend.text = element_blank(),
-    panel.background = element_blank(),
-    panel.grid = element_blank()
-  ) 
-
-
-
-
-
-
-
-# member by year by agency 
-chamb <- "House" # "Senate"
-members.year.agency <- mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
-  filter(chamber == chamb) %>%
-  ggplot() +
-  geom_point(
-    aes(x = DATE, 
-        y = bioname, #reorder(bioname, nominate.dim1), 
-        #label = agency, 
-        #alpha = n,  
-        color = agency), 
-    #position=position_jitter(width=.4,height=0),
-    alpha = .2
-  ) +
-  #scale_x_continuous(breaks = seq(2007, 2018, 1), limits = c(2007,2018)) + 
-  labs(title = paste(chamb),
-       y = "Members by NOMINATE D1", 
-       x = "" ) +
-  theme(
-    #axis.ticks = element_blank(),
-    legend.title = element_blank(),
-    axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45, color = "blue")#scale_colour_gradient2(low = "blue", mid = "grey", high = "red"))
-  ) 
-members.year.agency
-
- mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
-
-members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6") %>%
-  ggplot() +
-  geom_point(
-    aes(x = DATE, 
-        y = reorder(bioname, nominate.dim1), 
-        label = agency, 
-        #alpha = n,  
-        color = agency), 
-    alpha = .2
-    #position=position_jitter(width=.4,height=0)
-  ) +
-  #scale_x_continuous(breaks = seq(2007, 2018, 2), limits = c(2007,2018)) + 
-  labs(title = paste(chamb),
-       y = "Members by NOMINATE D1", 
-       x = "" ) +
-  theme(
-    #axis.ticks = element_blank(),
-    #legend.title = element_blank(),
-    axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45)
-  ) + facet_grid(. ~ TYPE) 
-
-members.year.agency.TYPE
-
-
-
-chamb <- "Senate"
-# boxplots
-mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
-  mutate(mean = mean(n)) %>%
-  filter(chamber == chamb) %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = reorder(bioname, n), y = n, color = nominate.dim1)) + 
-  #abline(mean) +
-  coord_flip() +
-  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(title = paste("Letters per year,", chamb))
-  
-
-
-
-
-
-
-
-
-
-#####################################
-# clean up workspace before commit #
-#####################################
-# rm(list = ls(all = TRUE))

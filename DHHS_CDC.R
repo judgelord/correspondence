@@ -5,20 +5,22 @@
 # 1204 out of 1316 matches. I think all non-matches are non-members after checking, should be good. 
 # Complete
 
- file.name <- "DHHS_CDC" # for testing
+# file.name <- "DHHS_CDC" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   ### Remove duplicate IDs
-  data <- data[!duplicated(data$ID), ]
+  data <- data[!duplicated(data$ID), ] # multiple IDs are TO different people 
   
   #create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE <- gsub("/201", "/1", data$DATE)
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE %<>% as.Date("%m/%d/%y")
   
   
   #create year and congress columns

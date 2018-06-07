@@ -4,7 +4,7 @@
 
 # 170 (out of 4363) not matching, go back and fix
 
-file.name <- "DHHS_HRSA" # for testing
+# file.name <- "DHHS_HRSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -47,15 +47,11 @@ clean <- function(file.name) {
   #data$FROM2 <- gsub("^Sen\\.|^Rep\\.|^Reps\\.|Senator", "", data$FROM2)
   
   # create data set of non matching data so extractMemberName() can be called on differently formatted observations
-  dataNoMatch <- data[which(!data$last_name %in% members$last_name),]
+  dataNoMatch <- data[which(!data$last_name %in% members$last_name),] 
   dataNoMatch <- extractMemberName(dataNoMatch, members, 'FROM2')
   
-  data <- merge(data, dataNoMatch, by = c("FROM", "SUBJECT", "Organization", "ID", "DATE"), all.x = TRUE)
-  data %<>%
-    mutate(last_name = ifelse(last_name.x %in% members$last_name, last_name.x, last_name.y)) %>% 
-    mutate(first_name = ifelse(first_name.x %in% members$first_name, first_name.x, first_name.y))
-  
-  
+  data %<>% left_join(dataNoMatch)
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())

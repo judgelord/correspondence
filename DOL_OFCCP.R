@@ -3,10 +3,9 @@
 
 
 
-# duplicate member names in rows needs to be fixed
-# only 15 observations not in member set (half shouldn't be, other half are spelling errors)
+# Finished. Non matches are correctly non matching
 
- #file.name <- "DOL_OFCCP" # for testing
+# file.name <- "DOL_OFCCP" # for testing 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -22,8 +21,32 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";|&|/| and ", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|&|/| and ") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";|&|/| and "))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";|&|/| and ", data$FROM),] # removes orginal row with all data
+  ################
+  data$FROM <- gsub("  |   |    ", " ", data$FROM)
+  data$FROM <- gsub("^ | $", "", data$FROM)
+  data <- data[-which(data$FROM == ""),]
   data <- getFirstLast.Comma(data, 'FROM')
   
+  data %<>%
+    mutate(last_name = ifelse(grepl("^\\w+$",FROM), formatLastName(data, 'FROM'), last_name)) %>% 
+    mutate(last_name = ifelse(grepl("^(\\w) (\\w+)$", first_last),gsub("^(\\w) (\\w+)$", '\\2', first_last), last_name)) %>% 
+    mutate(first_initial = ifelse(grepl("^(\\w) (\\w+)$", first_last),
+                                  gsub("^(\\w) (\\w+)$", '\\1', first_last), NA))%>% 
+    mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
+
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 

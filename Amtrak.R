@@ -17,6 +17,17 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  data$chamber[data$chamber == "H"] <- "House"
+  data$chamber[data$chamber == "S"] <- "Senate"
+  data$chamber[data$chamber=="O"] <- "Other"
+  
+  chamberswitchers <- filter(data, chamber %in% c("H-S","S-H"))
+  chamberswitchers$chamber[chamberswitchers$chamber %in% c("H-S","S-H")] <- "Senate"
+  data$chamber[data$chamber %in% c("H-S","S-H")] <- "House"
+  
+  data <- rbind(data, chamberswitchers)
+  
+  
   ##     ###     ###
   # Creates duplicate rows for lines with multiple representatives
   for(i in 1:nrow(data)){

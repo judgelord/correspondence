@@ -3,7 +3,7 @@
 
 
 
-# Spelling Errors and name errors from duplicating rows, need to fix
+# Finished. 20 non-matches on last_name (shouldn't be matching)
 
 
 #file.name <- "DOL_VETS" # for testing
@@ -40,10 +40,25 @@ clean <- function(file.name) {
     }
   }
   data <- data[-grep(";|&| and |/", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  
   ################
   
   
   data <- getFirstLast.Comma(data, 'FROM')
+  
+  data$FROM2 <- gsub("^\\w+\\. (\\w)( |. )(\\w+)", '\\1 \\3', data$FROM2)
+  
+  data %<>%
+    #mutate(first_initial = ifelse(grepl("^(\\w) \\w+$",FROM2), gsub("^(\\w) (\\w+)$", '\\1',FROM2), NA)) %>% 
+    #mutate(FROM2 = ifelse(grepl("^(\\w) \\w+$",FROM2), gsub("^(\\w) (\\w+)$", '\\2',FROM2), FROM2)) %>% 
+    mutate(last_name = ifelse(grepl("^\\w+$",FROM2), formatLastName(data,'FROM2'), last_name)) %>% 
+    mutate(last_name = ifelse(grepl("\\d Others",FROM2), "Multiple Congressman", last_name)) %>% 
+    mutate(NOTES = ifelse(grepl("\\d Others",FROM2), paste(NOTES, ": Multiple Congressman"), NOTES) )
+
+    
+    
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%

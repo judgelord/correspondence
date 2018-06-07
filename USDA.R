@@ -5,7 +5,7 @@
 # 573 non matches out of 4748
 
 
-file.name <- "USDA" #for testing
+#file.name <- "USDA" #for testing
 
 clean <- function(file.name){
   
