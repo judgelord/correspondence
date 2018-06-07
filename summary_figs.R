@@ -1,6 +1,6 @@
 
 # get the latest FOIA data 
-# source(merge.R) # this may take a while as it loads and cleans each sheet, incorperating any new coding
+if( !exists("d") ) { source(merge.R) } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 
 
 # select unique observations matched in voteview

@@ -2,7 +2,7 @@ options(stringsAsFactors = FALSE)
 
 requires <- c("tidyverse","magrittr","googlesheets","googledrive","devtools","stringi","stringr")
 to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
-install.packages(requires[to_install]) 
+install.packages(c(requires[to_install], "NA") )
 
 if(require("Rvoteview")==F) {
   devtools::install_github("voteview/Rvoteview")

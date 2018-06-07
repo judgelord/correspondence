@@ -80,7 +80,7 @@ d <- clean.agency(agency = data_list[i, 1],
 # merge with voteview data
 d %<>% 
   left_join(members) %>%
-  select(ID, agency, DATE, year, congress, FROM, bioname, SUBJECT, TYPE) %>% 
+  select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
   left_join(members)
 
 # repeat merge while successful
@@ -93,7 +93,7 @@ while(length(unique(d$agency) == i)) {
       status = data_list[i, 2],
       coders = data_list[i, 3]) %>% 
       left_join(members) %<>% 
-      select(ID, agency, DATE, year, congress, FROM, bioname, SUBJECT, TYPE) %>% 
+      select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
       left_join(members)
     
     d %<>% full_join(dt)
