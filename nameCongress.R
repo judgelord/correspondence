@@ -360,6 +360,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
     mutate(last_name = ifelse(grepl("SÁNCHEZ, Linda T.", bioname), "SANCHEZ", last_name)) %>% 
     mutate(first_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", first_name)) %>% 
     mutate(first_name = ifelse(grepl("HINOJOSA, Rubén", bioname), "Ruben", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("SÁNCHEZ, Linda T.", bioname), "SANCHEZ", last_name)) %>% 
     
     
     
