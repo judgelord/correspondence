@@ -1,6 +1,5 @@
-
 # get the latest FOIA data 
-# source(merge.R) # this may take a while as it loads and cleans each sheet, incorperating any new coding
+if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 
 
 # select unique observations matched in voteview
@@ -179,7 +178,8 @@ mocs %>%
   mutate(agency.rank = dense_rank(-n)) %>%
   ggplot() +
   geom_line(aes(x= agency.rank, y= n, group = bioname), alpha = .2) + 
-  geom_point(aes(x= agency.rank, y= n, color = department)) + 
+  labs(title = "Letters per agency ranked") +
+  #geom_point(aes(x= agency.rank, y= n, color = department)) + 
   facet_grid(. ~ chamber)
 
 # histogram of complete agnecies over time 
@@ -189,7 +189,19 @@ mocs %>%
   ggplot() +
   labs(title = "Letters per month for agencies with complete data") +
   geom_histogram(aes(x = DATE, fill = agency), alpha = 1, bins = 120)  +
+  facet_grid(TYPE ~ .) 
+
+mocs %<>% mutate(month = format(DATE, "%Y-%m")) %>% 
+  group_by(bioname, month) %>% mutate(permonth = n())
+
+mocs %>% 
+  filter(complete == T) %>% 
+  filter(TYPE %in% c(1,2,3, 4,5, "to be coded")) %>%
+  ggplot() +
+  labs(title = "Letters per month for agencies with complete data") +
+  geom_line(aes(x = month, y = permonth, group = bioname), alpha = .2)  +
   facet_grid(TYPE ~ .)
+
 
 
 
