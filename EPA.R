@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "EPA Adam" # for testing
+#file.name <- "EPA Aaron" # for testing
 
 clean <- function(file.name) {
   # get data from google drive
@@ -64,7 +64,7 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU FOR|AWARDS ANNOUNCEMENT", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU FOR|AWARDS ANNOUNCEMENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CITY OF|GRANT APPLICATION FOR|UNIVERSITY|TOWNSHIP OF|GRANT PROGRAM|GRANT APPLICATION SUBMITTED BY ", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF|GRANT APPLICATION FOR|UNIVERSITY|TOWNSHIP OF|GRANT PROGRAM|GRANT APPLICATION SUBMITTED BY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF|GRANT APPLICATION FOR|UNIVERSITY|TOWNSHIP OF|GRANT PROGRAM|GRANT APPLICATION SUBMITTED BY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
 
   
 
