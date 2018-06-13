@@ -40,17 +40,17 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM,  chamber, everything())
   
-  data%<>%
+  data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CASEWORK|(b)(6)", Category, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CASEWORK|(b)(6)", Category, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|REQUEST|NATURALIZATION ISSUE|GREEN CARD|(C)|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|QUESTION", `Issue/Overview`, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|REQUEST|NATURALIZATION ISSUE|GREEN CARD|(C)|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|QUESTION", `Issue/Overview`, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DETENTION FACILITIES", `Issue/Overview`, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DETENTION FACILITIES", `Issue/Overview`, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SECURE COMMUNITIES", `Issue/Overview`, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SECURE COMMUNITIES", `Issue/Overview`, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("SECURE COMMUNITIES", `Issue/Overview`, ignore.case = TRUE), "3", ALT_TYPE)) %>%
-  mutate(NOTES = ifelse (!grepl("[A-Z]", NOTES) & grepl("SECURE COMMUNITIES", `Issue/Overview`, ignore.case = TRUE), "SECURE COMMUNITIES IS A PARTNERSHIP B/W LOCAL GOV'TS/LAW ENFORCEMENT AND THE ICE", NOTES)) 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|REQUEST|NATURALIZATION ISSUE|GREEN CARD|(C)|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|QUESTION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|REQUEST|NATURALIZATION ISSUE|GREEN CARD|(C)|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|QUESTION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DETENTION FACILITIES", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DETENTION FACILITIES", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SECURE COMMUNITIES", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SECURE COMMUNITIES", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("SECURE COMMUNITIES", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
+  mutate(NOTES = ifelse (!grepl("[A-Z]", NOTES) & grepl("SECURE COMMUNITIES", SUBJECT, ignore.case = TRUE), "SECURE COMMUNITIES IS A PARTNERSHIP B/W LOCAL GOV'TS/LAW ENFORCEMENT AND THE ICE", NOTES)) 
     
   
   
