@@ -41,6 +41,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM,  chamber, everything())
   
   data %<>%
+  mutate(SUBJECT = paste(SUBJECT,Category)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CASEWORK|(b)(6)", Category, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CASEWORK|(b)(6)", Category, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|NATURALIZATION ISSUE|GREEN CARD|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|CONSTITUENT COMPLAINT|);|DENIED|REIMBURSEMENT|TIP",SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%

@@ -27,10 +27,11 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE,  FROM,  everything())
   
   data%<>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE", SUBJECT, ignore.case = TRUE), "1",CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TOWNSHIP|SCHOOL DISTRICT|CITY", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TOWNSHIP|SCHOOL DISTRICT|CITY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(SUBJECT=paste(SUBJECT,Constituent)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE|STATUS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE|STATUS", SUBJECT, ignore.case = TRUE), "1",CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TOWNSHIP|SCHOOL DISTRICT|CITY|LETTER IN SUPPORT OF", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TOWNSHIP|SCHOOL DISTRICT|CITY|LETTER IN SUPPORT OF", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MAYOR OF|MAYOR", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MAYOR OF|MAYOR", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("MAYOR OF|MAYOR", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
