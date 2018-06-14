@@ -8,6 +8,8 @@ if(require("Rvoteview")==F) {
   devtools::install_github("voteview/Rvoteview")
 }
 library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(magrittr)
 library(googlesheets)
 library(googledrive)
