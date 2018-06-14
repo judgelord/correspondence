@@ -1,12 +1,16 @@
 # get the latest FOIA data 
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
-
+if( !exists("members") ) { source("setup.R") }
 
 # select unique observations matched in voteview
 mocs <- d %>% 
   filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))  %>% 
   group_by(ID, agency, bioname) %>%  filter(n() == 1) %>% ungroup() 
 
+mocs %<>% mutate(month = format(DATE, "%Y-%m")) %>% 
+  group_by(bioname, month) %>% mutate(permonth = n())
+
+mocs %<>% mutate(cal.month = format(DATE, "%b"))
 
 # bin percentiles of letter writers per agency and per dept
 mocs %<>% 
@@ -24,7 +28,8 @@ mocs %<>%
 
 
 ##########################################################################################################################################################################################################################
-
+# plots #
+#########
 
 # Name jitter plot by congress and dept
 mocs %>%  filter(complete == T) %>% 
@@ -50,7 +55,7 @@ mocs %>%  filter(complete == T) %>%
     panel.grid = element_blank()
   ) 
 
-ggsave("namesbydept.pdf", width = 8.5, height = 11)
+ggsave("namesbydept.pdf", width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 # Name jitter plot by TYPE 
@@ -71,7 +76,7 @@ mocs %>%
     panel.background = element_blank(),
     panel.grid = element_blank()
   ) 
-ggsave("namesbytype.pdf", width = 8.5, height = 11)
+ggsave("namesbytype.pdf", width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -100,7 +105,7 @@ mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) 
-ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11)
+ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
@@ -125,7 +130,7 @@ members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency,
     axis.text.x = element_text(angle = 45)
   ) + facet_grid(. ~ TYPE) 
 
-ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, height = 11)
+ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -141,7 +146,8 @@ mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
   labs(title = paste("Letters per Year,", chamb)) + 
   theme(axis.text.y = element_text(size=5))
-ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11)
+
+ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 # boxplots by agency 
 mocs %>% 
@@ -158,7 +164,7 @@ mocs %>%
   labs(title = paste("Letters per Agency,", chamb)) + 
   theme(axis.text.y = element_text(size=5))
 
-ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11)
+ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 
 
@@ -189,7 +195,7 @@ mocs %>%
   labs(title = "Letters per agency ranked") +
   #geom_point(aes(x= agency.rank, y= n, color = department)) + 
   facet_grid(. ~ chamber)
-ggsave(paste("density_by_agencyrank_member.pdf"), width = 8.5, height = 11)
+ggsave(paste("density_by_agencyrank_member.pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 
 # histogram of complete agnecies over time 
@@ -200,11 +206,10 @@ mocs %>%
   labs(title = "Letters per month for agencies with complete data") +
   geom_histogram(aes(x = DATE, fill = agency), alpha = 1, bins = 120)  +
   facet_grid(TYPE ~ .) 
-ggsave(paste("letters_per_month_by_type_agency.pdf"), height = 8.5, width = 11)
+ggsave(paste("letters_per_month_by_type_agency.pdf"), height = 8.5, width = 11,  path = "~/correspondence/figs")
 
 
-mocs %<>% mutate(month = format(DATE, "%Y-%m")) %>% 
-  group_by(bioname, month) %>% mutate(permonth = n())
+
 
 mocs %>% 
   filter(complete == T) %>% 
@@ -213,9 +218,9 @@ mocs %>%
   labs(title = "Letters per month for agencies with complete data") +
   geom_line(aes(x = month, y = permonth, group = bioname, color = chamber), alpha = .2)  +
   facet_grid(TYPE ~ .)
-ggsave(paste("letters_per_month_by_type_member.pdf"), height = 8.5, width = 11)
+ggsave(paste("letters_per_month_by_type_member.pdf"), height = 8.5, width = 11, path = "~/correspondence/figs")
 
-mocs %<>% mutate(cal.month = substr(DATE, 6,7))
+
 
 
 # histogram of complete agnecies over time 
@@ -225,7 +230,7 @@ mocs %>%
   labs(title = "Letters per month") +
   geom_bar(aes(x = cal.month, fill = agency), alpha = 1)  +
   facet_grid(TYPE ~ .) 
-ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 8.5, width = 11)
+ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.5, path = "~/correspondence/figs")
 
 
 
