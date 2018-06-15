@@ -60,6 +60,11 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
     data %<>% select(ID, DATE, FROM, everything())
+
+  data%<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))  
+  
   
 }
 
