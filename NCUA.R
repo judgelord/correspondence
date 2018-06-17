@@ -21,7 +21,7 @@ clean <- function(file.name) {
   
   
   # Pre process FROM column
-  data$FROM <- gsub("Senator |Sen ", "", data$FROM)
+  data$FROM <- gsub("Senator |Sen |Congressman ", "", data$FROM)
   
   # create first and last name variables
   data <- extractMemberName(data, members, 'FROM')
@@ -29,16 +29,9 @@ clean <- function(file.name) {
   data2 <- getFirstLast.Comma(data2, 'FROM')
    
   data %<>%
-    mutate(first_name = ifelse(data$last_name %in% members$last_name, data2$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
-  
-  
-  
-  
-   data[which(!data$last_name %in% members$last_name),]
-  data2 <- getFirstLast.Comma(data2, 'FROM')
-  
-
+    mutate(first_name = ifelse(data$last_name %in% members$last_name, data$first_name  , data2$first_name  )) %>% 
+    mutate(last_name = ifelse(data$last_name %in% members$last_name, data$last_name , data2$last_name))
+ 
   data %<>%
     mutate(last_name = ifelse(grepl("^\\w+$", FROM), formatLastName(data, 'FROM'), last_name))
   
