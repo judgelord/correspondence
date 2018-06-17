@@ -2,13 +2,19 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-file.name <- "PBGC" # for testing
+#file.name <- "PBGC" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  data <- data[-which(is.na(data$LNAME)),]
+  data <- data[-which(data$LNAME == "LNAME"),]
+  
   # create ID variable
-  data$ID <- c(1:nrow(data))  
+  data$ID <- c(1:nrow(data)) 
+  
+  # create Subject variable
+  data$SUBJECT <- data$SUMMARY
   
   # create agency column
   data$agency <- file.name
@@ -23,11 +29,11 @@ clean <- function(file.name) {
   
   
   # create variable for full name
-  data$full_name <- 
-  data <- getFirstLast.Comma(data, 'FROM')
+  data$FROM <- paste(data$FNAME, data$LNAME, sep = " ")
+  data <- extractMemberName(data, members, 'FROM')
   
-  # format state variable
-  data$state <- stateFromLower(data$state)
+  
+ 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   

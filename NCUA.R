@@ -20,10 +20,27 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
+  # Pre process FROM column
+  data$FROM <- gsub("Senator |Sen ", "", data$FROM)
+  
   # create first and last name variables
   data <- extractMemberName(data, members, 'FROM')
+  data2 <- data
+  data2 <- getFirstLast.Comma(data2, 'FROM')
+   
+  data %<>%
+    mutate(first_name = ifelse(data$last_name %in% members$last_name, data2$first_name  , data$first_name  )) %>% 
+    mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
   
   
+  
+  
+   data[which(!data$last_name %in% members$last_name),]
+  data2 <- getFirstLast.Comma(data2, 'FROM')
+  
+
+  data %<>%
+    mutate(last_name = ifelse(grepl("^\\w+$", FROM), formatLastName(data, 'FROM'), last_name))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
