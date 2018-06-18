@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "USPS" # for testing
+file.name <- "USPS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -23,6 +23,42 @@ clean <- function(file.name) {
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+  data%<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INJURY COMPENSATION|LOST MAIL REPORTS|EMPLOYEE|RETIREMENT ISSUES|DELAYED MAIL|ACCESSIBILITY|FOIA|FORWARDING|ZIPCODES|INDEMNITY|PRIORITY MAIL|LOBBY SERVICE|COLLECTION|FRAUD|REASSIGNMENT|REINSTATEMENT|SPECIAL SERVICES|HARDSHIP DELIVERY|PERIODICALS|MAIL DELIVERY TIME|LEGAL ISSUES|SELECT|POST OFFICE BOXES|MAILABILITY|EEO|PHILATELIC|MISC", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INJURY COMPENSATION|LOST MAIL REPORTS|EMPLOYEE|RETIREMENT ISSUES|DELAYED MAIL|ACCESSIBILITY|FOIA|FORWARDING|ZIPCODES|INDEMNITY|PRIORITY MAIL|LOBBY SERVICE|COLLECTION|FRAUD|REASSIGNMENT|REINSTATEMENT|SPECIAL SERVICES|HARDSHIP DELIVERY|PERIODICALS|MAIL DELIVERY TIME|LEGAL ISSUES|SELECT|POST OFFICE BOXES|MAILABILITY|EEO|PHILATELIC|MISC", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POST OFFICE ACTIONS", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("POST OFFICE ACTIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("POST OFFICE ACTIONS", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DELIVERY METHOD|STAMP SUGGESTIONS|RATES|OPERATIONS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DELIVERY METHOD|STAMP SUGGESTIONS|RATES|OPERATIONS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("DELIVERY METHOD|STAMP SUGGESTIONS|RATES|OPERATIONS", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DEL SVC|PROCUREMENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DEL SVC|PROCUREMENT", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INSPECTION", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INSPECTION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("INSPECTION", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POSTMASTER ISSUES", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("POSTMASTER ISSUES", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("STAFFING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("STAFFING", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("STAFFING", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MAIL PROCESSING|FACILITIES", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MAIL PROCESSING|FACILITIES", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("MAIL PROCESSING|FACILITIES", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(EVENT_NAME = ifelse (!grepl("[A-Z]", EVENT_NAME) & grepl("EEO", SUBJECT, ignore.case = TRUE), "EQUAL EMPLOYMENT OPPORTUNITIES", EVENT_NAME)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ADVERTISING MAIL|MARKETING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ADVERTISING MAIL|MARKETING", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("ADVERTISING MAIL|MARKETING", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE))
+    
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 }
