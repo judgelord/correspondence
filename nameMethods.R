@@ -1,3 +1,4 @@
+
 # Formats col_name (usually last_name) to similiar format as members$last_name
 # Capitalizes letters and fixes common errors 
 formatLastName <- function(data, col_name){
@@ -163,6 +164,7 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   data$Summary <- gsub("Courntey", "Courtney", data$Summary)
   data$Summary <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$Summary)
+  data$Summary <- gsub("Christophers", "Christopher", data$Summary)
   
   
   # create FROM2 varible extracting name from data$Summary
@@ -433,6 +435,8 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
   data$FROM2 <- gsub("Courntey", "Courtney", data$FROM2, ignore.case = TRUE)
   data$FROM2 <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$FROM2)
+  data$FROM2 <- gsub("Christophers", "Christopher", data$Summary)
+  
   
   
   #create variable for last name of the Sen/Rep

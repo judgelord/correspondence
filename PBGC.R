@@ -15,7 +15,7 @@ clean <- function(file.name) {
   data$ID <- c(1:nrow(data)) 
   
   # create Subject variable
-  data$SUBJECT <- data$SUMMARY
+ # data$SUBJECT <- data$SUMMARY
   
   # create agency column
   data$agency <- file.name
@@ -36,7 +36,7 @@ clean <- function(file.name) {
   
  
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  data %<>% select(ID, DATE, FROM, everything())
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
