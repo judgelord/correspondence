@@ -40,7 +40,14 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("IN FICON", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  data%<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RADIATION COMPENSATION|911 VICTIM|REFUND|RETURN|(6)|REQUEST|CLAIM|BREAST", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RADIATION COMPENSATION|911 VICTIM|REFUND|RETURN|(6)|REQUEST|CLAIM|BREAST", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PROSECUTION|ILLEGAL DRUG RAIDS|HEARING|DOD|REQ|NAVAL AIR STATION", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PROSECUTION|ILLEGAL DRUG RAIDS|HEARING|DOD|REQ|NAVAL AIR STATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("PROSECUTION", SUBJECT, ignore.case = TRUE), "ENFORCEMENT", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TOBACCO", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TOBACCO", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
   
   
