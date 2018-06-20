@@ -3,7 +3,7 @@
 
 
 
- #file.name <- "DOJ_CIV" # for testing
+ file.name <- "DOJ_CIV" # for testing
 
 
 clean <- function(file.name) {
@@ -39,4 +39,11 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
+  
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("IN FICON", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  
+  
+  
+  
+  
 }
