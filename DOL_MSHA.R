@@ -1,9 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 151 mismatches on last_name. Done coding. 
 
-#file.name <- "DOI_NPS2" # for testing
+#file.name <- "DOL_MSHA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
