@@ -13,6 +13,7 @@ clean <- function(file.name) {
   
   # create FROM variable
   data$FROM <- data$Addressee
+  data <- data[-which((grepl("^OCL,|^FNP|^Director|^SIO", data$FROM))),]
   # create agency column
   data$agency <- file.name
   
