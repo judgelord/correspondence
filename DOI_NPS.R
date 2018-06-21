@@ -3,7 +3,7 @@
 
 # 232 out of 1403 last names not matched. Wait for better data from agency. 
 
-   file.name <- "DOI_NPS" # for testing
+  file.name <- "DOI_NPS" # for testing
 
 
 clean <- function(file.name) {
@@ -36,8 +36,8 @@ clean <- function(file.name) {
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|ON BEHALF OF .*6", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|ON BEHALF OF .*6", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION|TOWNSHIP", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION|TOWNSHIP", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("CITY OF|GRANT APPLICATION", SUBJECT, ignore.case = TRUE), "EARMARK", POLICY_EVENT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTRUCTION APPROVAL", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTRUCTION APPROVAL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
@@ -46,7 +46,7 @@ clean <- function(file.name) {
   mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "THANK YOU", EVENT_NAME)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONGRESSIONAL SUPPORT", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONGRESSIONAL SUPPORT", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("IN FICON", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("CONGRESSIONAL SUPPORT", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE))
   
   
   
