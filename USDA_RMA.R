@@ -6,7 +6,7 @@
 # there is probably spelling errors and missed matches 
 
 
- #file.name <- "USDA_RMA" # for testing
+ file.name <- "USDA_RMA" # for testing
 
 
 clean <- function(file.name) {
