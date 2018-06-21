@@ -435,7 +435,7 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
   data$FROM2 <- gsub("Courntey", "Courtney", data$FROM2, ignore.case = TRUE)
   data$FROM2 <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$FROM2)
-  data$FROM2 <- gsub("Christophers", "Christopher", data$Summary)
+  data$FROM2 <- gsub("Christophers", "Christopher", data$FROM2)
   
   
   

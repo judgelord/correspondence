@@ -8,20 +8,16 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data <- data[-which(is.na(data$LNAME)),]
-  data <- data[-which(data$LNAME == "LNAME"),]
-  
   # create ID variable
   data$ID <- c(1:nrow(data)) 
   
-  # create Subject variable
-  # data$SUBJECT <- data$SUMMARY
-  
+  # create FROM variable
+  data$FROM <- data$Addressee
   # create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE <-  as.Date(data$'Input Date', "%m/%d/%Y")
   
   
   #create year and congress columns
@@ -29,9 +25,26 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  
+  ################
+  
   # create variable for full name
-  data$FROM <- paste(data$FNAME, data$LNAME, sep = " ")
-  data <- extractMemberName(data, members, 'FROM')
+  data <- getFirstLast.Comma(data, 'FROM')
   
   
   
