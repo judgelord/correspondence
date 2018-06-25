@@ -10,7 +10,7 @@ mocs <- d %>%
 mocs %<>% mutate(month = format(DATE, "%Y-%m")) %>% 
   group_by(bioname, month) %>% mutate(permonth = n())
 
-mocs %<>% mutate(cal.month = format(DATE, "%b"))
+mocs %<>% mutate(cal.month = format(DATE, "%m(%b)"))
 
 # bin percentiles of letter writers per agency and per dept
 mocs %<>% 
@@ -82,91 +82,6 @@ ggsave("namesbytype.pdf", width = 8.5, height = 11,  path = "~/correspondence/fi
 
 
 
-chamb <- "Senate" # "Senate"
-
-# member by year by agency 
-
-mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
-  filter(chamber == chamb, complete == T) %>%
-  group_by(bioname) %>%
-  mutate(n = n()) %>%
-  ggplot() +
-  geom_point(
-    aes(x = DATE, 
-        y = reorder(bioname, n), # sort by total number of lewters writen
-        color = agency), 
-    alpha = .3
-  ) +
-  labs(title = paste(chamb),
-       y = paste("Members by", "n"), 
-       x = "" ) +
-  theme(
-    legend.title = element_blank(),
-    axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45)
-  ) 
-ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
-
-
-mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
-
-members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6")  %>%
-  group_by(bioname) %>%
-  mutate(n = n()) %>%
-  ggplot() +
-  geom_point(
-    aes(x = DATE, 
-        y = reorder(bioname, n), 
-        label = agency, 
-        color = agency), 
-    alpha = .2
-  ) +
-  labs(title = paste(chamb),
-       y = paste("Members by", "n"), 
-       x = "" ) +
-  theme(
-    axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45)
-  ) + facet_grid(. ~ TYPE) 
-
-ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
-
-
-
-# boxplots by year 
-mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
-  mutate(mean = mean(n)) %>%
-  filter(chamber == chamb) %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = reorder(bioname, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
-  #abline(mean) +
-  coord_flip() +
-  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(title = paste("Letters per Year,", chamb)) + 
-  theme(axis.text.y = element_text(size=5))
-
-ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
-
-# boxplots by agency 
-mocs %>% 
-  group_by(agency) %>% filter(n() > 1000) %>%
-  group_by(bioname, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
-  mutate(mean = mean(n)) %>%
-  filter(chamber == chamb) %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = reorder(bioname, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
-  #abline(mean) +
-  coord_flip() +
-  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(title = paste("Letters per Agency,", chamb)) + 
-  theme(axis.text.y = element_text(size=5))
-
-ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
-
-
 
 # DENSITY
 # distribution over agencies ranked
@@ -233,6 +148,103 @@ mocs %>%
 ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.5, path = "~/correspondence/figs")
 
 
+
+
+
+
+
+
+##############################################################
+# plots by chamber # 
+####################
+
+chamb <- "Senate" # "Senate"
+
+# member by year by agency 
+
+mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
+  filter(chamber == chamb, complete == T) %>%
+  group_by(bioname) %>%
+  mutate(n = n()) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(bioname, n), # sort by total number of lewters writen
+        color = agency), 
+    alpha = .3
+  ) +
+  labs(title = paste(chamb),
+       y = paste("Members by", "n"), 
+       x = "" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 45)
+  ) 
+ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+
+
+mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
+
+members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
+  filter(chamber == chamb, TYPE != "0", TYPE != "6")  %>%
+  group_by(bioname) %>%
+  mutate(n = n()) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(bioname, n), 
+        label = agency, 
+        color = agency), 
+    alpha = .2
+  ) +
+  labs(title = paste(chamb),
+       y = paste("Members by", "n"), 
+       x = "" ) +
+  theme(
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 45)
+  ) + facet_grid(. ~ TYPE) 
+
+ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+
+
+
+
+
+
+
+# boxplots by year 
+mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == chamb) %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = reorder(bioname, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+  #abline(mean) +
+  coord_flip() +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(title = paste("Letters per Year,", chamb)) + 
+  theme(axis.text.y = element_text(size=5))
+
+ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
+
+# boxplots by agency 
+mocs %>% 
+  group_by(agency) %>% filter(n() > 1000) %>%
+  group_by(bioname, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == chamb) %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = reorder(bioname, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+  #abline(mean) +
+  coord_flip() +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(title = paste("Letters per Agency,", chamb)) + 
+  theme(axis.text.y = element_text(size=5))
+
+ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 #####################################
 # clean up workspace before commit #
