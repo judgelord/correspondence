@@ -4,14 +4,14 @@
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
 # Departments and agencies are listed A-Z
-# Columns:
 # 1 agency = the title of the R script for cleaning these data
 # 2 status = c("coded", "recoded", "not coded"), NA if not yet coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 data_list <- as.data.frame(matrix(c(
-# Agency    # coded     # coders 
+# Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA,
+# "DHHS_ACF", "not coded, NA,
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,
@@ -19,15 +19,21 @@ data_list <- as.data.frame(matrix(c(
 "DHS", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is not there
 "DHS_ICE", "not coded", NA,
 # DOC
+# "DOC_OCPA", "not coded", NA,
 "DOC_IOS", "coded", "Aaron",
+# "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
+# "DOC_NIST", "not coded", NA,
+# "DOC_NOAA", "not coded", NA,
+# "DOC_OCPA", "not coded", NA,
+# "DOC_OS", "not coded", NA,
 "DOC_SBA", "not coded", NA,
-## "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 # DOD
 "DOD_DeCA", "coded", "Devin",
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney",
 "DOD_OSDJS", "not coded", NA,
+# "DOD_USACE", "not coded", NA,
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
@@ -39,8 +45,10 @@ data_list <- as.data.frame(matrix(c(
 "DOJ_CIV", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
+# "DOL_MSHA", "not coded", NA,
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
+# "DOL_OSHA", "not coded", NA,
 "DOL_VETS", "not coded", NA,
 # DOT 
 "DOT_FAA", "coded", "Sam",
@@ -48,17 +56,33 @@ data_list <- as.data.frame(matrix(c(
 "DOT_SLSDC", "not coded", NA,
 # Education
 "ED", "not coded", NA,
+# EDA
+# "EDA", "not coded", NA, 
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
+# FCA
+# "FCA", "not coded", NA,
 # FCC
 "FCC", "coded", "Devin",
+# FDA
+# "FDA", "not coded", NA,
+# FHFA
+# "FHFA", "not coded", NA,
+# FMC
+# "FMC", "not coded", NA,
+# GSA
+# "GSA", "not coded", NA,
 # NASA
-#"NASA", "not coded", NA, # needs cleanup, esp of dates 
+# "NASA", "not coded", NA, # needs cleanup, esp of dates 
+# NCPC
+# "NCPC", "not coded", NA,
 # PRC
 "PRC", "not coded", NA,
+# SSA
+# "SSA", "not coded", NA,
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
-"Treasury_OCC", "not coded", NA,
+"Treasury_OCC", "coded", "Aaron",
 # USDA 
 "USDA", "not coded", NA,
 "USDA_ERS", "not coded", NA,
