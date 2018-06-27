@@ -3,7 +3,7 @@
 
 # 2000+ non matches, but most shouldn't be matching. 
 
-#file.name <- "DHHS_SAMHSA" # for testing
+file.name <- "DHHS_SAMHSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -32,6 +32,23 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, everything())
+  
+  data %<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT SUPPORT LETTER", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT SUPPORT LETTER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("GRANT SUPPORT LETTER", SUBJECT, ignore.case = TRUE), "EARMARK", POLICY_EVENT))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
