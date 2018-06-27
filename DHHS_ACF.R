@@ -1,27 +1,25 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
+# 84 mismatches on last_name
 
 #file.name <- "DHHS_ACF" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data <- data[-which(is.na(data$LNAME)),]
-  data <- data[-which(data$LNAME == "LNAME"),]
-  
+  # duplicate DOC ID rows were all invalid observations (removes 44 rows)
+  data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]
+
   # create ID variable
-  data$ID <- c(1:nrow(data)) 
-  
-  # create Subject variable
-  # data$SUBJECT <- data$SUMMARY
-  
+  data$ID <- c(1:nrow(data))
+
+      
   # create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE %<>% as.Date("%m/%d/%Y")
   
   
   #create year and congress columns
@@ -30,8 +28,8 @@ clean <- function(file.name) {
   
   
   # create variable for full name
-  data$FROM <- paste(data$FNAME, data$LNAME, sep = " ")
-  data <- extractMemberName(data, members, 'FROM')
+  
+  data <- getFirstLast.Comma(data, "FROM")
   
   
   
