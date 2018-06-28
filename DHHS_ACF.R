@@ -3,7 +3,7 @@
 
 # 84 mismatches on last_name
 
-file.name <- "DHHS_ACF" # for testing
+#file.name <- "DHHS_ACF" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
