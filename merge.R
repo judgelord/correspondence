@@ -164,3 +164,4 @@ drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type 
 file.remove(mismatch) # remove local file
 } 
 
+d %<>% left_join(comittees)
