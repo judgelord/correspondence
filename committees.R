@@ -7,11 +7,17 @@ myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "senio
 
 hcd_late<-read.xls("http://web.mit.edu/cstewart/www/data/house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
 
-# [1] "congress"              "commcode"              "stewarticpsr"          "name"                  "partystatus"          
-# [6] "partyrank"             "party"                 "assigneddate"          "terminationdate"       "seniorstatus"         
-# [11] "committeeseniority"    "committeeperiod"       "assignmentstatusatend" "assignmentstatusnext"  "ac"                   
-# [16] "committeename"         "statenumber"           "cd"                    "state.name"            "notes"                
-# [21] "notes1"  
+# [1] "Congress"                                            "Committee.code"                                     
+# [3] "ID.."                                                "Name"                                               
+# [5] "Maj.Min"                                             "Rank.Within.Party.Status"                           
+# [7] "Party"                                               "Date.of.Assignment"                                 
+# [9] "Date.of.Termination"                                 "Senior.Party.Member"                                
+# [11] "Committee.Seniority"                                 "Committee.Period.of.Service"                        
+# [13] "Committee.status.at.end.of.this.Congress"            "Committee.continuity.of.assignment.in.next.Congress"
+# [15] "Appointment.Citation"                                "Committee.Name"                                     
+# [17] "State"                                               "CD"                                                 
+# [19] "State.Name"                                          "Notes"                                              
+# [21] "X" 
 
 # rename consistant with Powell names 
 names(hcd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes","notes1")
@@ -501,6 +507,6 @@ stew<-stew[stew$cong>95,]
 
 stew<-stew[stew$name!="[Vacant]",]
 
-comittees <- filter(stew, congress > 105)
-comittees$congress %<>% as.numeric()
+committees <- filter(stew, congress > 105)
+committees$congress %<>% as.numeric()
 
