@@ -5,7 +5,9 @@ if( !exists("members") ) { source("setup.R") }
 # select unique observations matched in voteview
 mocs <- d %>% 
   filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))  %>% 
-  group_by(ID, agency, bioname) %>%  filter(n() == 1) %>% ungroup() 
+  group_by(ID, agency, bioname) %>%  
+  #filter(n() == 1) %>% 
+  ungroup() 
 
 mocs %<>% mutate(month = format(DATE, "%Y-%m")) %>% 
   group_by(bioname, month) %>% mutate(permonth = n())
@@ -190,7 +192,7 @@ ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height 
 
 mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
-members.year.agency.TYPE  <- mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   filter(chamber == chamb, TYPE != "0", TYPE != "6")  %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
@@ -198,7 +200,6 @@ members.year.agency.TYPE  <- mocs %>% # group_by(yaxis, chamber, year, agency, T
   geom_point(
     aes(x = DATE, 
         y = reorder(yaxis, n), 
-        label = agency, 
         color = agency), 
     alpha = .2
   ) +
@@ -213,8 +214,38 @@ members.year.agency.TYPE  <- mocs %>% # group_by(yaxis, chamber, year, agency, T
 ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
+# not by year
+mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+  filter(chamber == chamb)  %>%
+  group_by(yaxis, agency) %>% tally() %>%
+  #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
+  ggplot() +
+  geom_col(
+    aes(x= yaxis, 
+        y= n, 
+        fill = agency)  ) +
+  labs(title = paste(chamb), x = "") +
+  theme(axis.text.x = element_text(size = 5),
+        axis.ticks.x = element_blank()  ) + 
+  coord_flip()
+ggsave(paste("comittees_by_agency", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
-
+# not by year, but by type
+mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+  filter(chamber == chamb, TYPE != "0", TYPE != "6", TYPE != "to be coded")  %>%
+  group_by(yaxis, agency, TYPE) %>% tally() %>%
+  #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
+  ggplot() +
+  geom_col(
+    aes(x= yaxis, 
+        y= n, 
+        fill = agency)  ) +
+  labs(title = paste(chamb), x = "") +
+  facet_grid(. ~ TYPE) +   
+  theme(axis.text.x = element_text(size = 5),
+    axis.ticks.x = element_blank()  ) + 
+  coord_flip()
+ggsave(paste("comittees_by_agency_type", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 
 

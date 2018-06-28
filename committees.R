@@ -504,4 +504,3 @@ stew<-stew[stew$name!="[Vacant]",]
 comittees <- filter(stew, congress > 105)
 comittees$congress %<>% as.numeric()
 
-d %<>% left_join(comittees)
