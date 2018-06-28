@@ -1,31 +1,19 @@
 
-# install.packages("gdata")
-library(gdata)
-library(readr)
 
-## Stewart's House Committee Assignments 96-102.  Dataset Date: September 15, 2005.  Downloaded July 12, 2016.
-
-hcd_early<-read.xls("house_assignments_96-102.xls")
-
-names(hcd_early)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac", "notes", "committeename", "statenumber", "cd", "state.name", "notes1")
-
-hcd_early$chamber<-"House"
-
-myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode" )
-
-hcdesmall<-hcd_early[,myvars]
+myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename" )
 
 
+## Stewart's House Committee Assignments 103-113.  
 
+hcd_late<-read.xls("http://web.mit.edu/cstewart/www/data/house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
 
+# [1] "congress"              "commcode"              "stewarticpsr"          "name"                  "partystatus"          
+# [6] "partyrank"             "party"                 "assigneddate"          "terminationdate"       "seniorstatus"         
+# [11] "committeeseniority"    "committeeperiod"       "assignmentstatusatend" "assignmentstatusnext"  "ac"                   
+# [16] "committeename"         "statenumber"           "cd"                    "state.name"            "notes"                
+# [21] "notes1"  
 
-
-
-
-## Stewart's House Committee Assignments 103-113.  Dataset Date: March 9, 2016.  Downloaded July 12, 2016.
-
-hcd_late<-read.xls("house_assignments_103-113-1.xls", stringsAsFactors=FALSE)
-
+# rename consistant with Powell names 
 names(hcd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes","notes1")
 
 hcd_late$chamber<-"House"
@@ -37,17 +25,17 @@ hcdlsmall<-hcd_late[,myvars]
 
 ## Stewart's Senate Committee Assignments 80-102. Downloaded July 12, 2016.
 
-scd_early<-read_fwf("snc80102.mit.txt", fwf_widths(c(2,1,2,2,1,1,1,3,1,5,1,25,1,1,3,3,1,2,2,2,1,2,2,2,2,2,4,2,2,4,1,1,1,1,1,1,5,1,1)))
+# scd_early<-read_fwf("snc80102.mit.txt", fwf_widths(c(2,1,2,2,1,1,1,3,1,5,1,25,1,1,3,3,1,2,2,2,1,2,2,2,2,2,4,2,2,4,1,1,1,1,1,1,5,1,1)))
 
-scd_early<-as.data.frame(scd_early)
+# scd_early<-as.data.frame(scd_early)
 
-names(scd_early)<-c("constant", "office",  "statenumber", "districtclass", "occupancy", "means", "reserved1", "party", "period", "stewarticpsr", "reserved2", "name", "chamber", "typecomm","congress", "commcode", "partystatus", "partyrank", "seniorstatus", "chamberseniority","committeeperiod","committeeseniority" ,"committeeorder", "statename", "assignedmonth", "assignedday", "assignedyear", "terminatedmonth", "terminatedday", "terminatedyear", "reserved3", "assignmentstatusatend","reserved4" ,"memberstatusnext", "reserved5", "assignmentstatusnext", "tempmember", "reserved6", "commcategory")
+# names(scd_early)<-c("constant", "office",  "statenumber", "districtclass", "occupancy", "means", "reserved1", "party", "period", "stewarticpsr", "reserved2", "name", "chamber", "typecomm","congress", "commcode", "partystatus", "partyrank", "seniorstatus", "chamberseniority","committeeperiod","committeeseniority" ,"committeeorder", "statename", "assignedmonth", "assignedday", "assignedyear", "terminatedmonth", "terminatedday", "terminatedyear", "reserved3", "assignmentstatusatend","reserved4" ,"memberstatusnext", "reserved5", "assignmentstatusnext", "tempmember", "reserved6", "commcategory")
 
-scd_early$cd<-0
+# scd_early$cd<-0
 
-scd_early$chamber<-"Senate"
+# scd_early$chamber<-"Senate"
 
-scdesmall<-scd_early[,myvars]
+# scdesmall<-scd_early[,myvars]
 
 
 
@@ -57,7 +45,7 @@ scdesmall<-scd_early[,myvars]
 
 ## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2016.
 
-scd_late<-read.xls("senate_assignments_103-112-1 (1).xls", stringsAsFactors=FALSE)
+scd_late<-read.xls("http://web.mit.edu/cstewart/www/data/senate_assignments_103-115-3.xls", stringsAsFactors=FALSE)
 
 names(scd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes","X.1", "X.2", "X.3")
 
@@ -73,7 +61,7 @@ scdlsmall<-scd_late[,myvars]
 
 #### Merging all Stewart's committee data into a single file
 
-stew<-as.data.frame(rbind(hcdesmall,hcdlsmall, scdesmall, scdlsmall))
+stew<-as.data.frame(rbind(hcdlsmall, scdlsmall))
 
 #### But Stewart uses a different ICPSR number convention that doesn't match with other ICPSR numbers. 
 
@@ -483,27 +471,23 @@ stew$icpsr<-as.numeric(stew$icpsr)
 
 
 
-
-
-
-
 ### variable to merge with 
 
-electionlist<-c(seq(from=1978, to=2012, by=2))
+electionlist<-c(seq(from=1978, to=2016, by=2))
 
-conglist<-c(seq(from=96, to=113, by=1))
+conglist<-c(seq(from=96, to=115, by=1))
 
-stew$year<-NA
+stew$yearelected<-NA
 
 for (i in 1:length(electionlist)){
   
-  stew$year[stew$cong==conglist[i]]<-electionlist[i]
+  stew$yearelected[stew$cong==conglist[i]]<-electionlist[i]
   
 }
 
 
 
-stew$ICPSRYear<-paste(stew$icpsr, stew$year, sep="")
+stew$ICPSRYear<-paste(stew$icpsr, stew$yearelected, sep="")
 
 
 
@@ -520,4 +504,4 @@ stew<-stew[stew$name!="[Vacant]",]
 comittees <- filter(stew, congress > 105)
 comittees$congress %<>% as.numeric()
 
-data <- left_join(d, comittees)
+d %<>% left_join(comittees)

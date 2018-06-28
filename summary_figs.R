@@ -154,22 +154,26 @@ ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.
 
 
 
+
+
+
+
 ##############################################################
 # plots by chamber # 
 ####################
 
 chamb <- "Senate" # "Senate"
-
+mocs$yaxis <- mocs$committeename
 # member by year by agency 
 
-mocs %>% # group_by(bioname, chamber, year, agency) %>% tally() %>%
+mocs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
   filter(chamber == chamb, complete == T) %>%
-  group_by(bioname) %>%
+  group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = reorder(bioname, n), # sort by total number of lewters writen
+        y = reorder(yaxis, n), # sort by total number of lewters writen
         color = agency), 
     alpha = .3
   ) +
@@ -186,14 +190,14 @@ ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height 
 
 mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
-members.year.agency.TYPE  <- mocs %>% # group_by(bioname, chamber, year, agency, TYPE) %>% tally() %>%
+members.year.agency.TYPE  <- mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   filter(chamber == chamb, TYPE != "0", TYPE != "6")  %>%
-  group_by(bioname) %>%
+  group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = reorder(bioname, n), 
+        y = reorder(yaxis, n), 
         label = agency, 
         color = agency), 
     alpha = .2
@@ -215,12 +219,12 @@ ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, hei
 
 
 # boxplots by year 
-mocs %>% group_by(bioname, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+mocs %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
   filter(chamber == chamb) %>%
   ggplot() + 
   geom_boxplot(
-    aes(x = reorder(bioname, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+    aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
   #abline(mean) +
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
@@ -232,12 +236,12 @@ ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = 
 # boxplots by agency 
 mocs %>% 
   group_by(agency) %>% filter(n() > 1000) %>%
-  group_by(bioname, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+  group_by(yaxis, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
   filter(chamber == chamb) %>%
   ggplot() + 
   geom_boxplot(
-    aes(x = reorder(bioname, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+    aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
   #abline(mean) +
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
