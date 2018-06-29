@@ -16,7 +16,7 @@ data_list <- as.data.frame(matrix(c(
 "DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,
 # DHS
-"DHS", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is not there
+"DHS", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
 "DHS_ICE", "not coded", NA,
 # DOC
 # "DOC_OCPA", "not coded", NA,
@@ -101,6 +101,7 @@ i = 1
 d <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
+
 # merge with voteview data
 d %<>% 
   left_join(members) %>%
@@ -126,8 +127,8 @@ while(length(unique(d$agency) == i)) {
 }
 
 # identify timeframe and completeness for each agency
-d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = " ")) %>%
-  mutate(complete = ifelse(nchar(timeframe) > 48, T, F))
+d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = ":")) %>%
+  mutate(complete = ifelse(nchar(timeframe) > (10*4+8), T, F))
 
 unique(cbind(d$agency, d$complete, d$timeframe))
 
@@ -164,4 +165,4 @@ drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type 
 file.remove(mismatch) # remove local file
 } 
 
-d %<>% left_join(comittees)
+d %<>% left_join(committees)

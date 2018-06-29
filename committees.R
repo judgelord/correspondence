@@ -1,6 +1,13 @@
+if(require("Rvoteview")==F) {
+  devtools::install_github("voteview/Rvoteview")
+}
+library(Rvoteview)
+library(dplyr)
+library(magrittr)
+library(gdata)
+library(readr)
 
-
-myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename" )
+myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename", "assigneddate", "terminationdate")
 
 
 ## Stewart's House Committee Assignments 103-113.  
@@ -449,7 +456,14 @@ stew$seniorstatus[stew$icpsr==14873 & stew$cong==106 & stew$commcode==142] <-21 
 
 stew$seniorstatus[stew$icpsr==14039 & stew$cong==106 & stew$commcode==176] <-21 ## Adding John Moakley Ranking Member Rules
 
-stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
+###################################################
+# FIXME ###########################################
+###################################################
+# need to add dates to this and should not be indexed 
+# stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
+
+# \FIXME ##########################################
+
 
 stew$seniorstatus[stew$icpsr==15448 & stew$cong==106 & stew$commcode==242] <-0 ## Removing Pelosi who wasn't ranking member of House Select Intelligence
 
@@ -509,4 +523,14 @@ stew<-stew[stew$name!="[Vacant]",]
 
 committees <- filter(stew, congress > 105)
 committees$congress %<>% as.numeric()
+committees$assigneddate %<>% as.Date()
+committees$terminationdate %<>% as.Date()
 
+
+# read in members from voteview
+
+member.names <- member_search(congress = c(110:120))
+
+merged <- left_join(member.names, committees)
+
+problems <- merged[is.na(merged$stewarticpsr),]

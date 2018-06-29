@@ -164,12 +164,12 @@ ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.
 # plots by chamber # 
 ####################
 
-chamb <- "Senate" # "Senate"
+chamb <- "House" # "Senate"
 mocs$yaxis <- mocs$committeename
 # member by year by agency 
 
 mocs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
-  filter(chamber == chamb, complete == T) %>%
+  filter(chamber == chamb, complete == T, seniorstatus ==11) %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
@@ -193,7 +193,7 @@ ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height 
 mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
 mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6")  %>%
+  filter(chamber == chamb, TYPE != "0", TYPE != "6", complete == T, seniorstatus > 0)  %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
@@ -216,7 +216,7 @@ ggsave(paste("members_by_year_agency_type", "n", chamb,".pdf"), width = 8.5, hei
 
 # not by year
 mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb)  %>%
+  filter(chamber == chamb, seniorstatus >0)  %>%
   group_by(yaxis, agency) %>% tally() %>%
   #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
   ggplot() +
@@ -228,11 +228,11 @@ mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   theme(axis.text.x = element_text(size = 5),
         axis.ticks.x = element_blank()  ) + 
   coord_flip()
-ggsave(paste("comittees_by_agency", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
+ggsave(paste("committeeseniors_by_agency", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 # not by year, but by type
 mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6", TYPE != "to be coded")  %>%
+  filter(chamber == chamb, TYPE != "0", TYPE != "6", TYPE != "to be coded", seniorstatus > 0)  %>%
   group_by(yaxis, agency, TYPE) %>% tally() %>%
   #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
   ggplot() +
@@ -245,7 +245,7 @@ mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   theme(axis.text.x = element_text(size = 5),
     axis.ticks.x = element_blank()  ) + 
   coord_flip()
-ggsave(paste("comittees_by_agency_type", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
+ggsave(paste("committeeseniors_by_agency_type", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 
 
@@ -280,6 +280,37 @@ mocs %>%
   theme(axis.text.y = element_text(size=5))
 
 ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
+
+
+
+
+# Chairs
+
+chairs <- filter(mocs, seniorstatus == 11)
+chairs %<>% mutate(assignedyear = as.numeric(substring(assigneddate, 1, 4)))
+chairs %<>% mutate(chair = paste(committeename, assignedyear, last_name))
+
+chairs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
+  filter(chamber == chamb, complete == T) %>%
+  group_by(chair) %>%
+  mutate(n = n()) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, # sort by total number of lewters writen
+        color = agency), 
+    alpha = .3
+  ) +
+  labs(title = paste(chamb),
+       y = paste("Committee Chairs"), 
+       x = "" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 45)
+  ) 
+ggsave(paste("committeechairs_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+
 
 #####################################
 # clean up workspace before commit #
