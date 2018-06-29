@@ -64,7 +64,13 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU FOR|AWARDS ANNOUNCEMENT", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU FOR|AWARDS ANNOUNCEMENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CITY OF|GRANT APPLICATION FOR|UNIVERSITY|TOWNSHIP OF|GRANT PROGRAM|GRANT APPLICATION SUBMITTED BY ", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF|GRANT APPLICATION FOR|UNIVERSITY|TOWNSHIP OF|GRANT PROGRAM|GRANT APPLICATION SUBMITTED BY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF|GRANT APPLICATION FOR|UNIVERSITY|TOWNSHIP OF|GRANT PROGRAM|GRANT APPLICATION SUBMITTED BY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SUPERFUND", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SUPERFUND", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("SUPERFUND", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT)) 
 
   
 
