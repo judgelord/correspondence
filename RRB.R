@@ -7,9 +7,6 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # duplicate DOC ID rows were all invalid observations (removes 44 rows)
-  data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]
-  
   # create ID variable
   data$ID <- c(1:nrow(data))
   
@@ -18,7 +15,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%d-%b-%y")
   
   
   #create year and congress columns
@@ -27,37 +24,13 @@ clean <- function(file.name) {
   
   
   # create variable for full name
-  
-  data <- getFirstLast.Comma(data, "FROM")
+  data$FROM <- gsub("Tanko", "Tonko", data$FROM)
+  data <- extractMemberName(data, members,"FROM")
   
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
-  
-  data %<>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ON BEHALF OF.*CONSTITUENT|CHILD SUPPORT|CHILD CUSTODY|CONSTITUENT|EMPLOYMENT|SEXUAL ASSAULT|PARENTAL RIGHTS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ON BEHALF OF.*CONSTITUENT|CHILD SUPPORT|CHILD CUSTODY|CONSTITUENT|EMPLOYMENT|SEXUAL ASSAULT|PARENTAL RIGHTS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT SUPPORT|PREP FOR SIG|SCHOOL|CITY OF|WEST VIRGINIA|OHIO|GRANT APPLICATION|GRANT LETTER|APPLICATION FOR FUNDING|CHILD CARE CENTER|CALIFORNIA|COUNTY|UNIV|CHURCH", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT SUPPORT|PREP FOR SIG|SCHOOL|CITY OF|WEST VIRGINIA|OHIO|GRANT APPLICATION|GRANT LETTER|APPLICATION FOR FUNDING|CHILD CARE CENTER|CALIFORNIA|COUNTY|UNIV|CHURCH", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-    mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("GRANT SUPPORT|PREP FOR SIG|SCHOOL|CITY OF|WEST VIRGINIA|OHIO|GRANT APPLICATION|GRANT LETTER|APPLICATION FOR FUNDING|COUNTY|UNIV|CHURCH", SUBJECT, ignore.case = TRUE), "EARMARK", POLICY_EVENT)) %>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TRANSITION PROCESS|INCREASING ADOPTION|OVERSIGHT|IMMEDIATE RELEASE|INTERAGENCY", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TRANSITION PROCESS|INCREASING ADOPTION|OVERSIGHT|IMMEDIATE RELEASE|INTERAGENCY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-    mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("INCREASING ADOPTION", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT)) %>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INVITATION", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INVITATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-    mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("INVITATION", SUBJECT, ignore.case = TRUE), "INVITE", POLICY_EVENT)) %>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PROGRAM", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PROGRAM", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-    mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("PROGRAM", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT|CONGRESSIONAL SUPPORT LETTER", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT|CONGRESSIONAL SUPPORT LETTER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HEAD START", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEAD START", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-    mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("HEAD START", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE))
-  
-  
-  
   
 }
 
