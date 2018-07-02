@@ -4,7 +4,7 @@
 # 63 mismatches
 
 
-# file.name <- "RRB" # for testing
+file.name <- "RRB" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -33,6 +33,20 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
+  
+  data %<>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("APPLICATION|CALL REQUEST|OPERATION|LETTER|EMAIL|CIS|CALL|H&A|OLA", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("APPLICATION|CALL REQUEST|OPERATION|LETTER|EMAIL|CIS|CALL|H&A|OLA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 }
 
