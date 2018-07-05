@@ -164,7 +164,7 @@ ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.
 # plots by chamber # 
 ####################
 
-chamb <- "House" # "Senate"
+chamb <- "Senate" # "House" # 
 mocs$yaxis <- mocs$committeename
 # member by year by agency 
 
@@ -286,15 +286,20 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 # Chairs
 
-chairs <- filter(mocs, seniorstatus == 11)
+chairs <- filter(d, seniorstatus == 11) 
+chairs %<>%
+  filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate")) 
 chairs %<>% mutate(assignedyear = as.numeric(substring(assigneddate, 1, 4)))
-chairs %<>% mutate(chair = paste(committeename, assignedyear, last_name))
+chairs %<>% group_by(committeename, last_name) %<>% mutate(firstassigned = min(assignedyear))
+chairs %<>% mutate(chair = paste(committeename, firstassigned,  last_name))
 
 chairs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
   filter(chamber == chamb, complete == T) %>%
   group_by(chair) %>%
   mutate(n = n()) %>%
   ggplot() +
+  geom_segment(aes(y = chair, yend = chair, x = assigneddate, xend = terminationdate)) +
+  # scale_colour_gradient2(low = "blue", mid = "grey", high = "red") 
   geom_point(
     aes(x = DATE, 
         y = chair, # sort by total number of lewters writen
@@ -309,8 +314,27 @@ chairs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) 
-ggsave(paste("committeechairs_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
+
+
+chairs %<>% mutate(chairs_by_term = paste(committeename, congress,  last_name))
+
+# not by year 
+chairs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+  filter(chamber == chamb)  %>%
+  group_by(chairs_by_term, agency) %>% tally() %>%
+  #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
+  ggplot() +
+  geom_col(
+    aes(x= chairs_by_term, 
+        y= n, 
+        fill = agency)  ) +
+  labs(title = paste(chamb), x = "") +
+  theme(axis.text = element_text(size = 5),
+        axis.ticks.x = element_blank()  ) + 
+  coord_flip()
+ggsave(paste("committeechairs_by_agency", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 #####################################
 # clean up workspace before commit #

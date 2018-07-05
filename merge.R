@@ -166,3 +166,5 @@ file.remove(mismatch) # remove local file
 } 
 
 d %<>% left_join(committees)
+d$assigneddate %<>% as.Date()
+d$terminationdate %<>% as.Date()
