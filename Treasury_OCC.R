@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-file.name <- "Treasury_OCC" # for testing
+#file.name <- "Treasury_OCC" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -53,9 +53,22 @@ clean <- function(file.name) {
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT, `Specific Subject`)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("VOLCKER RULE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VOLCKER RULE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("VOLCKER RULE", SUBJECT, ignore.case = TRUE), "RULE", POLICY_EVENT))
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("VOLCKER RULE|OUTREACH|RULE|MSB|MEETING|STANDARDS|RATIO|MARIJUANA|RECORD|TESTIFY|INVESTIGATION|FSOC|LCR|CEASE AND DESIST|TESTIMONY|MIKE FLYNN|FISMA|PURCHASE REQUIREMENT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VOLCKER RULE|OUTREACH|RULE|MSB|MEETING|STANDARDS|RATIO|MARIJUANA|RECORD|TESTIFY|INVESTIGATION|FSOC|LCR|CEASE AND DESIST|TESTIMONY|MIKE FLYNN|FISMA|PURCHASE REQUIREMENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("VOLCKER RULE|RULE", SUBJECT, ignore.case = TRUE), "RULE", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HEARING|OPERATION CHOKE POINT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEARING|OPERATION CHOKE POINT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("HEARING", SUBJECT, ignore.case = TRUE), "HEARING", POLICY_EVENT)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("OPERATION CHOKE POINT|TESTIFY|INFORMATION", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|REMITTANCE|CLOSING OF BANK ACCOUNTS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|REMITTANCE|DOCUMENT REQUEST|CLOSING OF BANK ACCOUNTS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("WELLS FARGO|DOCUMENT REQUEST", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("WELLS FARGO", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("WELLS FARGO", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RISK MANAGEMENT|FINTECH|BANK OF TEXAS|BITCOIN", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RISK MANAGEMENT|FINTECH|BANK OF TEXAS|BITCOIN", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
   
   
