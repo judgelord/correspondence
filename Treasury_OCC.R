@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "Treasury_OCC" # for testing
+file.name <- "Treasury_OCC" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -50,4 +50,20 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())
+  
+  data %<>%
+  mutate(SUBJECT = paste(SUBJECT, `Specific Subject`)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("VOLCKER RULE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VOLCKER RULE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("VOLCKER RULE", SUBJECT, ignore.case = TRUE), "RULE", POLICY_EVENT))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
