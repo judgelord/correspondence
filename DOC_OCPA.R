@@ -28,28 +28,7 @@ clean <- function(file.name) {
   
   
   
-  # IS THIS OCPA, or coppied from CENSUS? 
-  data%<>%
-  mutate(SUBJECT=paste(SUBJECT,Constituent)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE|STATUS|CHECK|DISCRIMINATION|TERMINAT|BENEFIT|ACCIDENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE|STATUS|CHECK|DISCRIMINATION|TERMINAT|BENEFIT|ACCIDENT", SUBJECT, ignore.case = TRUE), "1",CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TOWNSHIP|SCHOOL DISTRICT|CITY|LETTER IN SUPPORT OF", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TOWNSHIP|SCHOOL DISTRICT|CITY|LETTER IN SUPPORT OF", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MAYOR OF|MAYOR", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MAYOR OF|MAYOR", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("MAYOR OF|MAYOR", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POPULATION ESTIMATE", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("POPULATION ESTIMATE", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("POPULATION ESTIMATE", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SAME SEX MARRIAGE|FOIA|COMMITTEE|RULE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SAME SEX MARRIAGE|FOIA|COMMITTEE|RULE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "THAN YOU", EVENT_NAME))
-  
-  
-  
-  
+
   
   
   
