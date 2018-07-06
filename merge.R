@@ -11,7 +11,7 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 data_list <- as.data.frame(matrix(c(
 # Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA,
-# "DHHS_ACF", "not coded, NA,
+"DHHS_ACF", "not coded", NA,
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,

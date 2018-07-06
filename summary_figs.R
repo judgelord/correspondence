@@ -286,11 +286,9 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 # Chairs
 
-chairs <- filter(d, seniorstatus == 11) 
-chairs %<>%
-  filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate")) 
+chairs <- filter(d, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"), bioname %in% (unique(d$bioname[which(seniorstatus == 11)]))) 
 chairs %<>% mutate(assignedyear = as.numeric(substring(assigneddate, 1, 4)))
-chairs %<>% group_by(committeename, last_name) %<>% mutate(firstassigned = min(assignedyear))
+chairs %<>% group_by(committeename, last_name) %<>% mutate(firstassigned = min(assignedyear)) %>% ungroup()
 chairs %<>% mutate(chair = paste(committeename, firstassigned,  last_name))
 
 chairs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
@@ -318,12 +316,12 @@ ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, heig
 
 
 
-chairs %<>% mutate(chairs_by_term = paste(committeename, congress,  last_name))
+chairs %<>% mutate(member_party = paste(committeename, last_name, party))
 
 # not by year 
-chairs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+plot <- chairs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   filter(chamber == chamb)  %>%
-  group_by(chairs_by_term, agency) %>% tally() %>%
+  group_by(member_party, agency, committeename) %>% tally() %>%
   #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
   ggplot() +
   geom_col(
@@ -333,7 +331,9 @@ chairs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   labs(title = paste(chamb), x = "") +
   theme(axis.text = element_text(size = 5),
         axis.ticks.x = element_blank()  ) + 
-  coord_flip()
+  coord_flip() + 
+  facet_grid(committeename ~ .) 
+plot
 ggsave(paste("committeechairs_by_agency", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 #####################################
