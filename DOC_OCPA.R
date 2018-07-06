@@ -3,7 +3,7 @@
 
 # Minor spelling stuff, format rows and subjects yet
 
-#file.name <- "DOC_OS" # for testing
+#file.name <- "DOC_OCPA" # for testing
 
 
 clean <- function(file.name) {
@@ -15,17 +15,20 @@ clean <- function(file.name) {
   data$agency <- file.name 
   
   
-   data$DATE %<>% as.Date("%m/%d/%y")
+   data$DATE %<>% as.Date("%m/%d/%Y")
    data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
    data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
    
   
   # create variable for first and last name
-   data$FROM %<>% {gsub(" [A-Z]. "," ",.)}
   data <- extractMemberName(data, members, 'FROM')
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM,  everything())
   
+  # paste all subject content 
+  data %<>% mutate(SUBJECT = paste(`ACTION TYPE`, SUBJECT, `ADDITIONAL NOTES`, staffer, stafferCONTACT_INFO, ACTIONS, STATUS ))
+  
+  
+  
+  # IS THIS OCPA, or coppied from CENSUS? 
   data%<>%
   mutate(SUBJECT=paste(SUBJECT,Constituent)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|AMERICAN COMMUNITY SURVEY|POPULATION SURVEY|SURVEY|CENSUS|EMPLOYMENT|WRONGFUL|ISSUE|STATUS|CHECK|DISCRIMINATION|TERMINAT|BENEFIT|ACCIDENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
