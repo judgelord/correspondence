@@ -31,10 +31,7 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, "FROM")
   
-  
-  
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE, FROM, everything())
+  data %<>% mutate(SUBJECT = paste(SUBJECT, `Refd. To`, `Action Required`))
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ON BEHALF OF.*CONSTITUENT|CHILD SUPPORT|CHILD CUSTODY|CONSTITUENT|EMPLOYMENT|SEXUAL ASSAULT|PARENTAL RIGHTS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
