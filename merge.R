@@ -19,12 +19,11 @@ data_list <- as.data.frame(matrix(c(
 "DHS", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
 "DHS_ICE", "not coded", NA,
 # DOC
-# "DOC_OCPA", "not coded", NA,
 "DOC_IOS", "coded", "Aaron",
 # "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 # "DOC_NIST", "not coded", NA,
 # "DOC_NOAA", "not coded", NA,
-# "DOC_OCPA", "not coded", NA,
+"DOC_OCPA", "not coded", NA,
 # "DOC_OS", "not coded", NA,
 "DOC_SBA", "not coded", NA,
 # DOD
@@ -78,6 +77,8 @@ data_list <- as.data.frame(matrix(c(
 # "NCPC", "not coded", NA,
 # PRC
 "PRC", "not coded", NA,
+# RRB
+# "RRB", "not coded", NA, # not much subject content
 # SSA
 # "SSA", "not coded", NA,
 # Treasury
