@@ -23,6 +23,9 @@ clean <- function(file.name) {
   # create variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
   
+  data %<>% mutate(chamber = ifelse(grepl("Sen. ", FROM), "Senate", NA))
+  data %<>% mutate(chamber = ifelse(grepl("Rep. ", FROM), "House", chamber))
+  
   # paste all subject content 
   data %<>% mutate(SUBJECT = paste(`ACTION TYPE`, SUBJECT, `ADDITIONAL NOTES`, staffer, stafferCONTACT_INFO, ACTIONS, STATUS ))
   
