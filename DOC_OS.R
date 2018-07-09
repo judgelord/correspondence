@@ -7,24 +7,21 @@
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   data$ID <- c(1:nrow(data))
   
-  #create agency column
+  #create agency, date, congress columns
   data$agency <- file.name 
-  
-  
    data$DATE %<>% as.Date("%m/%d/%y")
    data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
    data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
    
   
   # create variable for first and last name
-   data$FROM %<>% {gsub(" [A-Z]. "," ",.)}
   data <- extractMemberName(data, members, 'FROM')
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM,  everything())
+
   
   
   
