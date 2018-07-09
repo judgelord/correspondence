@@ -13,15 +13,12 @@ clean <- function(file.name) {
   
   
   # # create agency column
-  # data$agency <- file.name
+  data$agency <- file.name
   # 
   # # Format date, year, Congress, member name etc. 
-  # data$DATE <-  as.Date(data$'Input Date', "%m/%d/%Y")
-  # 
-  # 
-  # #create year and congress columns
-  # data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-  # data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  data$DATE <-  as.Date(data$'Input Date', "%m/%d/%Y")
+  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   # 
   # 
   # ###############    
