@@ -153,19 +153,19 @@ d %<>%
 
 d$department <- gsub("_.*", "", d$agency) # name dept
 
-# names that don't match
-probem.names1 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+# names that match more than one member - false positives
+problem.names1 <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
-# names that match more than one member
-problem.names2 <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1)
+# names that don't match - potentially typos / false negatives
+probem.names2 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # date typos 
-problem.dates <- d %>% filter(year > 2018, year < 2000)
+problem.dates <- d %>% filter(year > 2018, year < 2000) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # upload google sheet of obs failing to match with voteview
 for (type in c(2,4)) { 
 mismatch <- "mismatch.csv"
-problem.names1 %>% filter(TYPE == type) %>% write.csv(mismatch) # saving file locally is faster
+problem.names2 %>% filter(TYPE == type) %>% write.csv(mismatch) # saving file locally is faster
 drive_rm(paste0("Correspondence/", "mismatch", type)) # remove old recode file
 drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type = "spreadsheet")
 file.remove(mismatch) # remove local file
