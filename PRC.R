@@ -4,7 +4,7 @@
 # Only last_name info and some state and chamber info
 # 24 mismatches on last_name
 
-# file.name <- "PRC" # for testing
+#file.name <- "PRC" # for testing
 
 clean <- function(file.name) {
   #  get data from google drive
@@ -45,37 +45,8 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   data %<>% 
-    mutate(TYPE =
-                     ifelse (!grepl("[0-9]", TYPE) &grepl(
-                     "Service", 
-                       Category), 
-                       1, TYPE))  %>%
-    mutate(TYPE =
-             ifelse (!grepl("[0-9]", TYPE) &grepl(
-               "PO Closing", 
-               Issue), 
-               1, TYPE)) %>% #Post Office Closing 
-    mutate(TYPE =
-           ifelse (!grepl("[0-9]", TYPE) &grepl(
-             "Rates", 
-             Category), 
-             2, TYPE)) %>%
-    mutate(TYPE =
-           ifelse (!grepl("[0-9]", TYPE) & grepl(
-             "Lobby Hours", 
-             Issue), 
-             1, TYPE)) %>%
-    mutate(TYPE =
-           ifelse (!grepl("[0-9]", TYPE) & grepl(
-             "Delayed Mail", 
-             Issue), 
-             1, TYPE))
-  
-  data %<>%
-     mutate(TYPE =
-             ifelse (!grepl("[0-9]", TYPE) &grepl("Undelivered Mail", 
-               Sub_Issue), 
-               1, TYPE))
+  mutate(SUBJECT = paste(SUBJECT,Sub_Issue)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POLICY PLANNING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
     
   
   
