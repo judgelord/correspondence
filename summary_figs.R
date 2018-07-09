@@ -2,6 +2,27 @@
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 if( !exists("members") ) { source("setup.R") }
 
+d$TYPE[is.na(d$TYPE)] <- "To be coded"
+d$TYPE[d$TYPE == 0] <- "To be coded"
+d$TYPE[d$TYPE == 1] <- "Indiv. Constituent"
+d$TYPE[d$TYPE == 2] <- "Corp. Constituent"
+d$TYPE[d$TYPE == 3] <- "501c3 or Local Gov."
+d$TYPE[d$TYPE == 4] <- "Corp. Policy"
+d$TYPE[d$TYPE == 5] <- "Policy"
+d$TYPE[d$TYPE == 6] <- "To be coded"
+
+d$party[d$party == 100] <- "(D)"
+d$party[d$party == 200] <- "(R)"
+d$party[d$party == 328] <- "(I)"
+
+d %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", position)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) %>%
+  mutate(alpha = ifelse(TYPE %in% c("To be coded", "Indiv. Constituent"), .3, .7))
+
+
+
 # select unique observations matched in voteview
 mocs <- d %>% 
   filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))  %>% 
@@ -62,7 +83,7 @@ ggsave("namesbydept.pdf", width = 8.5, height = 11,  path = "~/correspondence/fi
 
 # Name jitter plot by TYPE 
 mocs %>% 
-  filter(!is.na(TYPE), TYPE != "0", TYPE != "6") %>% 
+  filter(TYPE != "To be coded") %>% 
   group_by(bioname, nominate.dim1, chamber, TYPE, last_name) %>% tally() %>% ungroup()  %>% 
   group_by(chamber, TYPE) %>% mutate(percentile = ntile(n, 100)) %>%
   ggplot() +
@@ -118,7 +139,6 @@ ggsave(paste("density_by_agencyrank_member.pdf"), width = 8.5, height = 11, path
 # histogram of complete agnecies over time 
 mocs %>% 
   filter(complete == T) %>% 
-  filter(TYPE %in% c(1,2,3, 4,5, "to be coded")) %>%
   ggplot() +
   labs(title = "Letters per month for agencies with complete data") +
   geom_histogram(aes(x = DATE, fill = agency), alpha = 1, bins = 120)  +
@@ -130,7 +150,6 @@ ggsave(paste("letters_per_month_by_type_agency.pdf"), height = 8.5, width = 11, 
 
 mocs %>% 
   filter(complete == T) %>% 
-  filter(TYPE %in% c(1,2,3, 4,5, "to be coded")) %>%
   ggplot() +
   labs(title = "Letters per month for agencies with complete data") +
   geom_line(aes(x = month, y = permonth, group = bioname, color = chamber), alpha = .2)  +
@@ -142,7 +161,6 @@ ggsave(paste("letters_per_month_by_type_member.pdf"), height = 8.5, width = 11, 
 
 # histogram of complete agnecies over time 
 mocs %>% 
-  filter(TYPE %in% c(1,2,3, 4,5, "to be coded")) %>%
   ggplot() +
   labs(title = "Letters per month") +
   geom_bar(aes(x = cal.month, fill = agency), alpha = 1)  +
@@ -190,10 +208,9 @@ mocs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
 ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
-mocs$TYPE[is.na(mocs$TYPE)] <- "to be coded"
 
 mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6", complete == T, seniorstatus > 0)  %>%
+  filter(chamber == chamb,  complete == T, seniorstatus > 0)  %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
@@ -232,7 +249,7 @@ ggsave(paste("committeeseniors_by_agency", chamb,".pdf"), width = 11, height = 8
 
 # not by year, but by type
 mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb, TYPE != "0", TYPE != "6", TYPE != "to be coded", seniorstatus > 0)  %>%
+  filter(chamber == chamb,  TYPE != "To be coded", seniorstatus > 0)  %>%
   group_by(yaxis, agency, TYPE) %>% tally() %>%
   #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
   ggplot() +
@@ -286,54 +303,56 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 # Chairs
 
-chairs <- filter(d, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"), bioname %in% (unique(d$bioname[which(seniorstatus == 11)]))) 
+chairs <- filter(d, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"), bioname %in% (unique(d$bioname[which(position == "Chair")]))) 
 chairs %<>% mutate(assignedyear = as.numeric(substring(assigneddate, 1, 4)))
 chairs %<>% group_by(committeename, last_name) %<>% mutate(firstassigned = min(assignedyear)) %>% ungroup()
-chairs %<>% mutate(chair = paste(committeename, firstassigned,  last_name))
+chairs %<>% mutate(chair = paste(firstassigned,  last_name, party))
+chairs %<>% mutate(member_party = paste(last_name, party))
 
-chairs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
+
+chairs %>% 
   filter(chamber == chamb, complete == T) %>%
   group_by(chair) %>%
   mutate(n = n()) %>%
   ggplot() +
-  geom_segment(aes(y = chair, yend = chair, x = assigneddate, xend = terminationdate)) +
+  geom_segment(aes(y = chair, yend = chair, x = assigneddate, xend = terminationdate, linetype = factor(position))) +
   # scale_colour_gradient2(low = "blue", mid = "grey", high = "red") 
   geom_point(
     aes(x = DATE, 
-        y = chair, # sort by total number of lewters writen
-        color = agency), 
-    alpha = .3
+        y = chair, 
+        shape = TYPE,
+        alpha = alpha,
+        color = agency)
   ) +
   labs(title = paste(chamb),
        y = paste("Committee Chairs"), 
        x = "" ) +
   theme(
+    strip.text.y = element_text(angle = 0),
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
-  ) 
+  ) + 
+  facet_grid(committeename ~ ., scales = "free_y") 
 ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
-chairs %<>% mutate(member_party = paste(committeename, last_name, party))
 
 # not by year 
-plot <- chairs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+chairs %>% 
   filter(chamber == chamb)  %>%
   group_by(member_party, agency, committeename) %>% tally() %>%
-  #mutate(n = n()) %>% arrange(-n) %>% select(committeename, agency, n)
   ggplot() +
   geom_col(
-    aes(x= chairs_by_term, 
-        y= n, 
+    aes(x = member_party, 
+        y = n, 
         fill = agency)  ) +
   labs(title = paste(chamb), x = "") +
   theme(axis.text = element_text(size = 5),
         axis.ticks.x = element_blank()  ) + 
   coord_flip() + 
-  facet_grid(committeename ~ .) 
-plot
+  facet_grid(committeename ~ ., scales = "free_y") 
 ggsave(paste("committeechairs_by_agency", chamb,".pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 #####################################

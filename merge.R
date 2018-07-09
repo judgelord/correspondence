@@ -154,10 +154,10 @@ d %<>%
 d$department <- gsub("_.*", "", d$agency) # name dept
 
 # names that match more than one member - false positives
-problem.names1 <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+problem.names1 <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1) %>% select(agency, DATE, FROM, first_name, last_name)
 
 # names that don't match - potentially typos / false negatives
-probem.names2 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+problem.names2 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # date typos 
 problem.dates <- d %>% filter(year > 2018, year < 2000) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
