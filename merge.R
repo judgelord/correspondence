@@ -171,6 +171,8 @@ drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type 
 file.remove(mismatch) # remove local file
 } 
 
-dcommittees %<>% left_join(committees)
+dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
-dcomittees$terminationdate %<>% as.Date()
+dcommittees$terminationdate %<>% as.Date()
+
+save.image("correspondence07102018.RData")

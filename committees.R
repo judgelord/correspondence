@@ -7,7 +7,7 @@ library(magrittr)
 library(gdata)
 library(readr)
 
-myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename", "assigneddate", "terminationdate")
+myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename", "assigneddate", "terminationdate", "partystatus")
 
 
 ## Stewart's House Committee Assignments 103-113.  
@@ -534,3 +534,4 @@ member.names <- member_search(congress = c(110:120))
 merged <- left_join(member.names, committees)
 
 problems <- merged[is.na(merged$stewarticpsr),]
+
