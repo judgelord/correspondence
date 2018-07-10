@@ -36,8 +36,8 @@ clean <- function(file.name) {
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|ON BEHALF OF .*6|EMPLOYEE|(B) (6)", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|ON BEHALF OF .*6|EMPLOYEE|(B) (6)", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION|TOWNSHIP|REBUILD|SUPPORT APPLICATION|APPLICATION|GRANT", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION|TOWNSHIP|REBUILD|SUPPORT APPLICATION|APPLICATION|GRANT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION|TOWNSHIP|REBUILD|SUPPORT APPLICATION|APPLICATION|GRANT|HISTORIC PRESERVATION", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SCHOOL DISTRICT|CITY OF|GRANT APPLICATION|TOWNSHIP|REBUILD|SUPPORT APPLICATION|APPLICATION|GRANT|HISTORIC PRESERVATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("CITY OF|GRANT APPLICATION|SUPPORT APPLICATION", SUBJECT, ignore.case = TRUE), "EARMARK", POLICY_EVENT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTRUCTION APPROVAL", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTRUCTION APPROVAL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
@@ -53,9 +53,11 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MEETING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MEETING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("MEETING", SUBJECT, ignore.case = TRUE), "MEETING", POLICY_EVENT)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RESOLUTION|CONGRESSIONAL CONCERN", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RESOLUTION|CONGRESSIONAL CONCERN", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("RESOLUTION|CONGRESSIONAL CONCERN", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT))
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RESOLUTION|CONGRESSIONAL CONCERN|HEARING|SURVEY", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RESOLUTION|CONGRESSIONAL CONCERN|HEARING|SURVEY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("RESOLUTION|CONGRESSIONAL CONCERN", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("HEARING", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("SURVEY", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT))
   
   
   
