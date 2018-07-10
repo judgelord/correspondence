@@ -4,7 +4,7 @@
 # Only last_name info and some state and chamber info
 # 24 mismatches on last_name
 
-# file.name <- "PRC" # for testing
+#file.name <- "PRC" # for testing
 
 clean <- function(file.name) {
   #  get data from google drive
@@ -45,37 +45,33 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   data %<>% 
-    mutate(TYPE =
-                     ifelse (!grepl("[0-9]", TYPE) &grepl(
-                     "Service", 
-                       Category), 
-                       1, TYPE))  %>%
-    mutate(TYPE =
-             ifelse (!grepl("[0-9]", TYPE) &grepl(
-               "PO Closing", 
-               Issue), 
-               1, TYPE)) %>% #Post Office Closing 
-    mutate(TYPE =
-           ifelse (!grepl("[0-9]", TYPE) &grepl(
-             "Rates", 
-             Category), 
-             2, TYPE)) %>%
-    mutate(TYPE =
-           ifelse (!grepl("[0-9]", TYPE) & grepl(
-             "Lobby Hours", 
-             Issue), 
-             1, TYPE)) %>%
-    mutate(TYPE =
-           ifelse (!grepl("[0-9]", TYPE) & grepl(
-             "Delayed Mail", 
-             Issue), 
-             1, TYPE))
+  mutate(SUBJECT = paste(SUBJECT,Sub_Issue)) %>%
+  mutate(SUBJECT = paste(SUBJECT,Issue)) %>%
+  mutate(SUBJECT = paste(SUBJECT, Category)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|WORKMEN'S|UNDELIVERED MAIL|REIMBURSEMENT|SATURDAY MAIL|DISABILITY|PASSPORT|LOBBY HOURS|FRAUD|MISSING MAIL|SERVICE", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|WORKMEN'S|UNDELIVERED MAIL|REIMBURSEMENT|SATURDAY MAIL|DISABILITY|PASSPORT|LOBBY HOURS|FRAUD|MISSING MAIL|SERVICE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POST OFFICE CLOSING|PO CLOSING|POSSIBLE CLOSING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("POST OFFICE CLOSING|PO CLOSING|POSSIBLE CLOSING", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("POST OFFICE CLOSING|PO CLOSING|POSSIBLE CLOSING", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("POST OFFICE CLOSING|PO CLOSING|POSSIBLE CLOSING", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("VALASSIS", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VALASSIS", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("VALASSIS", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("TESTIMONY|HEARING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("TESTIMONY|HEARING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("TESTIMONY|HEARING", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("APPEAL PROCESS|INFORMATION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("APPEAL PROCESS|INFORMATION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RATE CHANGE", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RATE CHANGE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+    
   
-  data %<>%
-     mutate(TYPE =
-             ifelse (!grepl("[0-9]", TYPE) &grepl("Undelivered Mail", 
-               Sub_Issue), 
-               1, TYPE))
+  
+    
+    
+    
+    
+    
     
   
   
