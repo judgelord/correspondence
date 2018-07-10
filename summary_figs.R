@@ -1,7 +1,7 @@
 # get the latest FOIA data 
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 if( !exists("members") ) { source("setup.R") }
-# load("correspondence20180629.RData")
+# load("correspondence20180710.RData")
 
 
 d$TYPE[is.na(d$TYPE)] <- "To be coded"
@@ -17,21 +17,17 @@ d$party[d$party == 100] <- "(D)"
 d$party[d$party == 200] <- "(R)"
 d$party[d$party == 328] <- "(I)"
 
-d %<>% 
+dcommittees <- d %>% left_join(committees)
+dcommittees$assigneddate %<>% as.Date()
+dcommittees$terminationdate %<>% as.Date()
+
+dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
   mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) %>%
   mutate(alpha = ifelse(TYPE %in% c("To be coded", "Indiv. Constituent"), .3, .7))
 
-simpleCap <- function(x) {
-  s <- strsplit(x, " ")[[1]]
-  s <- tolower(s)
-  s <- paste(toupper(substring(s, 1,1)), substring(s, 2),
-        sep="", collapse=" ")
-  return(s)
-}
-
-d %<>% 
+dcommittees %<>% 
   mutate(committeename = toupper(committeename))
 
 # select unique observations matched in voteview
@@ -198,7 +194,7 @@ mocs$yaxis <- mocs$committeename
 # member by year by agency 
 
 mocs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
-  filter(chamber == chamb, complete == T, seniorstatus ==11) %>%
+  filter(chamber == chamb, complete == T) %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
@@ -221,7 +217,7 @@ ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height 
 
 
 mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
-  filter(chamber == chamb,  complete == T, seniorstatus > 0)  %>%
+  filter(chamber == chamb,  complete == T)  %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
   ggplot() +
@@ -311,13 +307,14 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 # Comittee Chairs
 
-chairs <- filter(d, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))
+chairs <- filter(dcommittees, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))
 chairs %<>% mutate(member_committee = paste(bioname, committeename)) 
 # chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
 chairs %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
 chairs %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
 chairs %<>% mutate(chair = paste(firstassigned,  last_name, party))
 chairs %<>% mutate(member_party = paste(congress, last_name, party)) %>%
+  mutate(member_term = paste(congress, bioname)) %>%
   mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
 
 chairs %>% 
@@ -350,26 +347,44 @@ chairs %>%
 
 ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
-
-
+install.packages("lemon")
+library(lemon)
 
 # not by year 
 chairs %>% 
   filter(chamber == chamb, agency != "Amtrak", agency != "PRC", DATE < as.Date("2017-01-01"))  %>%
-  #group_by(department, committee) %>% tally() %>%
+  group_by(department, committee, member_term, position) %>% tally() %>%
   ggplot() +
-  geom_bar(
-    aes(x = party, 
-        #y = n, 
-        fill = position)  ) +
-  labs(title = paste("Letters from All", chamb, "Committee Members"),
+  geom_boxplot(
+    aes(y = n, 
+        # fill = position,
+        x = department)) +
+  geom_point(aes(y = n, 
+                     color = factor(position),
+                     x = department), na.rm = TRUE
+             ) + 
+  scale_color_discrete(na.translate = FALSE) +
+  labs(title = paste("Letters per term from Each", chamb, "Committee Member"),
        x = "", 
-       y = "Total Number of Contacts from All Committee Members 2008-2016" ) +
+       y = "Number of Contacts per Congress from Each Committee Member 2008-2016" ) +
   theme(legend.title = element_blank(),
         strip.text.y = element_text(angle = 0, size = 5),
-        strip.text.x = element_text(angle = 0, size = 5)) + 
-  facet_grid(committee ~ department)
-ggsave(paste("committees_by_agency", chamb," (policy only).pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
+        axis.text.x = element_text(angle = 0, size = 5),
+        axis.text.y = element_text(angle = 0, size = 5)) + 
+  facet_rep_grid(committee ~ ., scales = "free_y", space = "free_y", repeat.tick.labels = 'bottom') 
+
+ggsave(paste("committees_by_agency", chamb,".pdf"), width = 8.5, height = 22,  path = "~/correspondence/figs")
+
+
+# Variance across all members 
+all <- d %>% group_by(agency, bioname) %>% tally() 
+var(all$n)
+# Variance across all chairs within committee
+all <- d %>% group_by(agency, bioname) %>% tally() 
+var(all$n)
+# Variance across committees
+
+# Within-member variance between chairs and non-chair
 
 #####################################
 # clean up workspace before commit #

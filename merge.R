@@ -160,7 +160,7 @@ problem.names1 <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) 
 problem.names2 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # date typos 
-problem.dates <- d %>% filter(year > 2018, year < 2000) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+problem.dates <- d %>% filter(year > 2018 | year < 2000) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # upload google sheet of obs failing to match with voteview
 for (type in c(2,4)) { 
