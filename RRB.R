@@ -4,7 +4,7 @@
 # 63 mismatches
 
 
-file.name <- "RRB" # for testing
+# file.name <- "RRB" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
