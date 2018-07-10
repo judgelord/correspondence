@@ -78,7 +78,7 @@ data_list <- as.data.frame(matrix(c(
 # PRC
 "PRC", "not coded", NA,
 # RRB
-# "RRB", "not coded", NA, # not much subject content
+"RRB", "not coded", NA, # not much subject content
 # SSA
 # "SSA", "not coded", NA,
 # Treasury
@@ -171,6 +171,6 @@ drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type 
 file.remove(mismatch) # remove local file
 } 
 
-d %<>% left_join(committees)
-d$assigneddate %<>% as.Date()
-d$terminationdate %<>% as.Date()
+dcommittees %<>% left_join(committees)
+dcommittees$assigneddate %<>% as.Date()
+dcomittees$terminationdate %<>% as.Date()

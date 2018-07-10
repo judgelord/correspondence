@@ -313,7 +313,7 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 chairs <- filter(d, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))
 chairs %<>% mutate(member_committee = paste(bioname, committeename)) 
-chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
+# chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
 chairs %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
 chairs %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
 chairs %<>% mutate(chair = paste(firstassigned,  last_name, party))
@@ -355,18 +355,20 @@ ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, heig
 
 # not by year 
 chairs %>% 
-  filter(TYPE == "Policy", chamber == chamb, position == "Chair", agency != "Amtrak", agency != "PRC", DATE < as.Date("2017-01-01"))  %>%
-  group_by(department, committee) %>% tally() %>%
+  filter(chamber == chamb, agency != "Amtrak", agency != "PRC", DATE < as.Date("2017-01-01"))  %>%
+  #group_by(department, committee) %>% tally() %>%
   ggplot() +
-  geom_col(
-    aes(x = committee, 
-        y = n, 
-        fill = department)  ) +
-  labs(title = paste("Policy Letters from All", chamb, "Committee Chairs"),
+  geom_bar(
+    aes(x = party, 
+        #y = n, 
+        fill = position)  ) +
+  labs(title = paste("Letters from All", chamb, "Committee Members"),
        x = "", 
-       y = "Total Number of Contacts from All Committee Chairs 2008-2016" ) +
-  theme(legend.title = element_blank()  ) + 
-  coord_flip() 
+       y = "Total Number of Contacts from All Committee Members 2008-2016" ) +
+  theme(legend.title = element_blank(),
+        strip.text.y = element_text(angle = 0, size = 5),
+        strip.text.x = element_text(angle = 0, size = 5)) + 
+  facet_grid(committee ~ department)
 ggsave(paste("committees_by_agency", chamb," (policy only).pdf"), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 #####################################
