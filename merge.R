@@ -80,7 +80,7 @@ data_list <- as.data.frame(matrix(c(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-# "SSA", "not coded", NA,
+"SSA", "not coded", NA,
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
 "Treasury_OCC", "coded", "Aaron",
