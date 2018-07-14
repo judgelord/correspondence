@@ -16,7 +16,7 @@ data_list <- as.data.frame(matrix(c(
 "DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,
 # DHS
-"DHS", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
+"DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
 "DHS_ICE", "not coded", NA,
 # DOC
 "DOC_IOS", "coded", "Aaron",
