@@ -110,6 +110,7 @@ d %<>%
   left_join(members)
 
 # repeat merge while successful
+# i <- i -1 # to resume merge after error 
 while(length(unique(d$agency) == i)) {
   
   print(data_list[i,1])
@@ -175,4 +176,4 @@ dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
-save.image("correspondence07102018.RData")
+save.image("correspondence07132018.RData")
