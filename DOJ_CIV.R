@@ -3,19 +3,20 @@
 
 
 
- file.name <- "DOJ_CIV" # for testing
+# file.name <- "DOJ_CIV" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   
+  data$ID <- c(1:nrow(data)) 
   
   #create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%m/%d/%y")
 
   
   #create year and congress columns
@@ -24,11 +25,13 @@ clean <- function(file.name) {
   
 
   
-  data$last_name <-  formatLastName(data, "Last Name")
+  data$last_name <-  formatLastName(data, "Last.Name")
   data$last_name <- gsub("\\*", "", data$last_name)
   
-  data$first_name <- formatFirstName(data, 'First Name')
+  data$first_name <- formatFirstName(data, 'First.Name')
   data$first_name <- gsub("^(\\w+).*", "\\1", data$first_name)
+  
+  data$FROM <- paste(data$first_name, data$last_name)
   
   data %<>%
     mutate(first_name = ifelse(data$last_name == "YOUNG", "Bill", data$first_name))  
