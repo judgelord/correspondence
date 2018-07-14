@@ -15,7 +15,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%m/%d/%y")
 
   
   #create year and congress columns
