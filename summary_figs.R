@@ -13,13 +13,16 @@ d$TYPE[d$TYPE == 4] <- "Corp. Policy"
 d$TYPE[d$TYPE == 5] <- "Policy"
 d$TYPE[d$TYPE == 6] <- "To be coded"
 
-d$party[d$party == 100] <- "(D)"
-d$party[d$party == 200] <- "(R)"
-d$party[d$party == 328] <- "(I)"
 
 dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
+
+dcommittees$party[dcommittees$party == 100] <- "(D)"
+dcommittees$party[dcommittees$party == 200] <- "(R)"
+dcommittees$party[dcommittees$party == 328] <- "(I)"
+
+
 
 dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
