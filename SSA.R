@@ -4,7 +4,7 @@
 # 63 mismatches
 
 
-# file.name <- "SSA" # for testing
+#file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -25,6 +25,20 @@ clean <- function(file.name) {
   
   # member name
   data %<>% extractMemberName(members,"FROM")
+  
+  data %<>%
+  mutate(SUBJECT = paste(SUBJECT,ACTION)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("UNDERPAYMENT|INITIAL CLAIM|CITIZENSHIP|OVERPAYMENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("UNDERPAYMENT|INITIAL CLAIM|CITIZENSHIP|OVERPAYMENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FIRST DRAFT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FIRST DRAFT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("FIRST DRAFT", SUBJECT, ignore.case = TRUE), "LEGISLATION", POLICY_EVENT))
+  
+  
+  
+  
+  
+  
   
   
   
