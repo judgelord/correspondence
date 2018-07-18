@@ -50,9 +50,9 @@ dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
 # to text
-dcommittees$party[dcommittees$party == 100] <- "(D)"
-dcommittees$party[dcommittees$party == 200] <- "(R)"
-dcommittees$party[dcommittees$party == 328] <- "(I)"
+dcommittees$party[dcommittees$party_code == 100] <- "(D)"
+dcommittees$party[dcommittees$party_code == 200] <- "(R)"
+dcommittees$party[dcommittees$party_code == 328] <- "(I)"
 
 dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
