@@ -20,8 +20,8 @@ data_list <- as.data.frame(matrix(c(
 "DHS_ICE", "not coded", NA,
 # DOC
 "DOC_IOS", "coded", "Aaron",
-# "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
-# "DOC_NIST", "not coded", NA,
+"DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
+"DOC_NIST", "not coded", NA,
 # "DOC_NOAA", "not coded", NA,
 "DOC_OCPA", "not coded", NA,
 "DOC_OS", "not coded", NA,
@@ -44,7 +44,7 @@ data_list <- as.data.frame(matrix(c(
 "DOJ_CIV", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
-# "DOL_MSHA", "not coded", NA,
+"DOL_MSHA", "not coded", NA,
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 # "DOL_OSHA", "not coded", NA,
@@ -110,7 +110,8 @@ d %<>%
   left_join(members)
 
 # repeat merge while successful
-# i <- i -1 # to resume merge after error 
+# i <- i -1 # to resume merge 
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones
 while(length(unique(d$agency) == i)) {
   
   print(data_list[i,1])
@@ -127,6 +128,8 @@ while(length(unique(d$agency) == i)) {
     
     i <- i+1
 }
+
+
 
 # identify timeframe and completeness for each agency
 d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = ":")) %>%
