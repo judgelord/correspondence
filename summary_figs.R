@@ -1,55 +1,37 @@
-# get the latest FOIA data 
+options(stringsAsFactors = FALSE)
+
+requires <- c("dplyr", "ggplot2", "magrittr")
+to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+library(dplyr) 
+library(ggplot2)
+library(magrittr)
+
+# get latest data 
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
-if( !exists("members") ) { source("setup.R") }
+if( !exists("committees") ) { source("setup.R") }
+# or load an archived data file:
 # load("correspondence07132018.RData")
 
+df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
 # numeric to text 
-d$TYPE[is.na(d$TYPE)] <- "To be coded"
-d$TYPE[d$TYPE == 0] <- "To be coded"
-d$TYPE[d$TYPE == 1] <- "Indiv. Constituent"
-d$TYPE[d$TYPE == 2] <- "Corp. Constituent"
-d$TYPE[d$TYPE == 3] <- "501c3 or Local Gov."
-d$TYPE[d$TYPE == 4] <- "Corp. Policy"
-d$TYPE[d$TYPE == 5] <- "Policy"
-d$TYPE[d$TYPE == 6] <- "To be coded"
+df$TYPE[is.na(df$TYPE)] <- "To be coded"
+df$TYPE[df$TYPE == 0] <- "To be coded"
+df$TYPE[df$TYPE == 1] <- "Indiv. Constituent"
+df$TYPE[df$TYPE == 2] <- "Corp. Constituent"
+df$TYPE[df$TYPE == 3] <- "501c3 or Local Gov."
+df$TYPE[df$TYPE == 4] <- "Corp. Policy"
+df$TYPE[df$TYPE == 5] <- "Policy"
+df$TYPE[df$TYPE == 6] <- "To be coded"
 
-# merge committee data to one obs per member per committee per term
-dcommittees <- d %>% left_join(committees)
-dcommittees$assigneddate %<>% as.Date()
-dcommittees$terminationdate %<>% as.Date()
-
-dcommittees$party[dcommittees$party == 100] <- "(D)"
-dcommittees$party[dcommittees$party == 200] <- "(R)"
-dcommittees$party[dcommittees$party == 328] <- "(I)"
-
-
-
-dcommittees %<>% 
-  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
-  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) %>%
-  mutate(alpha = ifelse(TYPE %in% c("To be coded", "Indiv. Constituent"), .3, .7))
-
-dcommittees %<>% 
-  mutate(committeename = toupper(committeename)) %>% # combine upper and lower case stewart committee names
-  filter(!is.na(bioname))
-  
-
-# select unique observations matched in voteview
-mocs <- d %>% 
-  filter(!is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))  %>% 
-  group_by(ID, agency, bioname) %>%  
-  #filter(n() == 1) %>% 
-  ungroup() 
-
-mocs %<>% mutate(month = format(DATE, "%Y-%m")) %>% 
-  group_by(bioname, month) %>% mutate(permonth = n())
-
-mocs %<>% mutate(cal.month = format(DATE, "%m(%b)"))
+df %<>% 
+  mutate(month = format(DATE, "%Y-%m")) %>% 
+  group_by(bioname, month) %>% mutate(permonth = n()) %>% ungroup() %>% 
+  mutate(cal.month = format(DATE, "%m(%b)"))
 
 # bin percentiles of letter writers per agency and per dept
-mocs %<>% 
+df %<>% 
   group_by(department, bioname, chamber) %>% 
   mutate(perDept = n()) %>% group_by(department, bioname, chamber, congress) %>%
   mutate(perDeptperCongress = n()) %>% group_by(department, bioname, chamber, year) %>%
@@ -59,8 +41,42 @@ mocs %<>%
   mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
   mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
   mutate(perAgencyperYear = n()) %>% ungroup() %>%
-  mutate(AgencyPercentile = dplyr::ntile(perAgency,100)) %>%
-  group_by(chamber, agency)
+  mutate(AgencyPercentile = dplyr::ntile(perAgency, 100)) 
+
+
+# re-merge committee data to one obs per letter per committee
+dcommittees <- df %>% left_join(committees)
+dcommittees$assigneddate %<>% as.Date()
+dcommittees$terminationdate %<>% as.Date()
+
+# to text
+dcommittees$party[dcommittees$party == 100] <- "(D)"
+dcommittees$party[dcommittees$party == 200] <- "(R)"
+dcommittees$party[dcommittees$party == 328] <- "(I)"
+
+dcommittees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) %>%
+  mutate(alpha = ifelse(TYPE %in% c("To be coded", "Indiv. Constituent"), .3, .7))
+
+dcommittees %<>% 
+  mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
+
+# short committee name
+dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
+# year first assigned to a committee
+dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
+dcommittees %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
+dcommittees %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
+dcommittees %<>% 
+  mutate(chair = paste(firstassigned,  bioname, party)) %>%
+  mutate(member_party = paste(congress, bioname, party))
+
+
+
+
+
 
 
 ##########################################################################################################################################################################################################################
@@ -68,7 +84,7 @@ mocs %<>%
 #########
 
 # Name jitter plot by congress and dept
-mocs %>%  filter(complete == T) %>% 
+df %>%  filter(complete == T) %>% 
   group_by(congress, chamber, department, bioname, last_name, nominate.dim1) %>% tally() %>% ungroup() %>% 
   group_by(department) %>% mutate(percent = ntile(n, 100)) %>%
   ggplot() +
@@ -95,7 +111,7 @@ ggsave("namesbydept.pdf", width = 8.5, height = 11,  path = "~/correspondence/fi
 
 
 # Name jitter plot by TYPE 
-mocs %>% 
+df %>% 
   filter(TYPE != "To be coded") %>% 
   group_by(bioname, nominate.dim1, chamber, TYPE, last_name) %>% tally() %>% ungroup()  %>% 
   group_by(chamber, TYPE) %>% mutate(percentile = ntile(n, 100)) %>%
@@ -123,7 +139,7 @@ ggsave("namesbytype.pdf", width = 8.5, height = 11,  path = "~/correspondence/fi
 # distribution over agencies ranked
 
 # density over all members
-mocs %>% 
+df %>% 
   group_by(bioname, agency, chamber) %>% 
   mutate(permemberperagency = n()) %>% ungroup() %>% 
   group_by(bioname, chamber) %>% 
@@ -138,7 +154,7 @@ mocs %>%
 ggsave(paste("density_by_agencyrank.pdf"), width = 8.5, height = 11)
 
 # line plot of density over agencies by member
-mocs %>% 
+df %>% 
   group_by(bioname, department, chamber) %>% tally () %>% ungroup() %>% group_by(bioname) %>%
   mutate(agency.rank = dense_rank(-n)) %>%
   ggplot() +
@@ -150,7 +166,7 @@ ggsave(paste("density_by_agencyrank_member.pdf"), width = 8.5, height = 11, path
 
 
 # histogram of complete agnecies over time 
-mocs %>% 
+df %>% 
   filter(complete == T) %>% 
   ggplot() +
   labs(title = "Letters per month for agencies with complete data") +
@@ -161,7 +177,7 @@ ggsave(paste("letters_per_month_by_type_agency.pdf"), height = 8.5, width = 11, 
 
 
 
-mocs %>% 
+df %>% 
   filter(complete == T) %>% 
   ggplot() +
   labs(title = "Letters per month for agencies with complete data") +
@@ -173,7 +189,7 @@ ggsave(paste("letters_per_month_by_type_member.pdf"), height = 8.5, width = 11, 
 
 
 # histogram of complete agnecies over time 
-mocs %>% 
+df %>% 
   ggplot() +
   labs(title = "Letters per month") +
   geom_bar(aes(x = cal.month, fill = agency), alpha = 1)  +
@@ -196,10 +212,12 @@ ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.
 ####################
 
 chamb <- "Senate" # "House" # 
-mocs$yaxis <- mocs$bioname
-# member by year by agency 
 
-mocs %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
+# define y axis
+df$yaxis <- df$bioname
+
+# member by year by agency 
+df %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
   filter(chamber == chamb, complete == T) %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
@@ -222,7 +240,7 @@ ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height 
 
 
 
-mocs %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+df %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   filter(chamber == chamb,  complete == T)  %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
@@ -249,7 +267,7 @@ ggsave(paste("members_by_year_agency_type", chamb,".pdf"), width = 8.5, height =
 
 
 # boxplots by year 
-mocs %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+df %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
   filter(chamber == chamb) %>%
   ggplot() + 
@@ -263,7 +281,7 @@ mocs %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup()
 ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 # boxplots by agency 
-mocs %>% 
+df %>% 
   group_by(agency) %>% filter(n() > 1000) %>%
   group_by(yaxis, agency, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
@@ -281,17 +299,9 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 
 
-# Comittee Chairs
+# Select Comittee Chairs
+chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")]))) 
 
-chairs <- filter(dcommittees, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))
-chairs %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
-chairs %<>% mutate(member_committee = paste(bioname, committee)) 
-chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
-chairs %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
-chairs %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
-chairs %<>% 
-  mutate(chair = paste(firstassigned,  bioname, party)) %>%
-  mutate(member_party = paste(congress, bioname, party))
 
 chairs %>% 
   filter(chamber == chamb, complete == T, agency != "Amtrak", agency != "PRC", DATE < as.Date("2017-01-01")) %>%
@@ -388,16 +398,6 @@ chairs %>%
         axis.text.y = element_text(angle = 0, size = 5))
 
 ggsave(paste("committee effect for chairs", chamb, "DHS.pdf", collapse = ""), width = 11, height = 8.5,  path = "~/correspondence/figs")
-
-# Variance across all members 
-all <- d %>% group_by(agency, bioname) %>% tally() 
-var(all$n)
-# Variance across all chairs within committee
-all <- d %>% group_by(agency, bioname) %>% tally() 
-var(all$n)
-# Variance across committees
-
-# Within-member variance between chairs and non-chair
 
 
 tenure <- chairs %>%
