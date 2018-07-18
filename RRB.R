@@ -20,6 +20,7 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%d-%b-%y")
   
   
+  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
@@ -33,8 +34,6 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
-  
-  data %<>%
   
   
   

@@ -16,7 +16,7 @@ data_list <- as.data.frame(matrix(c(
 "DHHS_CDC", "not coded", NA,
 "DHHS_HRSA", "not coded", NA,
 # DHS
-"DHS", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
+"DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
 "DHS_ICE", "not coded", NA,
 # DOC
 "DOC_IOS", "coded", "Aaron",
@@ -80,7 +80,7 @@ data_list <- as.data.frame(matrix(c(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-# "SSA", "not coded", NA,
+"SSA", "not coded", NA,
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
 "Treasury_OCC", "coded", "Aaron",
@@ -110,6 +110,7 @@ d %<>%
   left_join(members)
 
 # repeat merge while successful
+# i <- i -1 # to resume merge after error 
 while(length(unique(d$agency) == i)) {
   
   print(data_list[i,1])
@@ -175,4 +176,4 @@ dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
-save.image("correspondence07102018.RData")
+save.image("correspondence07132018.RData")
