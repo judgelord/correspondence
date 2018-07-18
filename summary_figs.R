@@ -286,7 +286,7 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 chairs <- filter(dcommittees, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))
 chairs %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
 chairs %<>% mutate(member_committee = paste(bioname, committee)) 
-#chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
+chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
 chairs %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
 chairs %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
 chairs %<>% 
@@ -413,10 +413,38 @@ tenure %>%
   ggplot() + 
   geom_text(aes(x = tenure, y = n, label = member_committee), size  = 2) + 
   geom_boxplot(aes(x = tenure, y = n)) + 
-  facet_grid(chamber ~ .)
+  facet_grid(chamber ~ .,  scales = "free_y")
 
-ggsave(paste("chair effect all", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+ggsave(paste("chair effect all.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
+# define matchable committees and depts
+depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
+comms <- c("HOMELAND SECURITY", "SCIENCE", "ENVIRONMENT", "AGRICULTURE", "TRANSPORTATION", "EDUCATION")
+
+tenure <- chairs %>%
+  mutate(tenure = ifelse(year == firstassigned, "Year After", NA)) %>% 
+  mutate(tenure = ifelse(year == firstassigned-1, "Year  Before", tenure)) %>% 
+  group_by(member_committee, tenure, year ,committee, department) %>% 
+  tally() %>% ungroup() %>% 
+  filter(!is.na(tenure) & department %in% depts & committee %in% comms)
+
+
+tenure %>% 
+  ggplot() + 
+  geom_text(aes(x = tenure, y = n, label = gsub(",.*", "", member_committee)), size = 2) + 
+  geom_boxplot(aes(x = tenure, y = n))  + 
+  facet_grid(committee ~ department,  scales = "free_y") + 
+  theme(legend.title = element_blank(),
+        strip.text.y = element_text(angle = 0, size = 5),
+        axis.text.x = element_text(angle = 0, size = 5),
+        axis.text.y = element_text(angle = 0, size = 5))
+
+ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+
+
+
+
+# years before and after 
 tenure <- chairs %>%
   mutate(tenure = ifelse(year >= firstassigned, "Years After", NA)) %>% 
   mutate(tenure = ifelse(year < firstassigned, "Years  Before", tenure)) %>% 
@@ -449,7 +477,7 @@ tenure %>%
         axis.text.x = element_text(angle = 0, size = 5),
         axis.text.y = element_text(angle = 0, size = 5))
   
-ggsave(paste("chair effect selected pairs", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 tenure <- chairs %>%
