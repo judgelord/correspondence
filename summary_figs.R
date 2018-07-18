@@ -286,7 +286,7 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 chairs <- filter(dcommittees, !is.na(bioname), bioname != "", chamber %in% c("House", "Senate"))
 chairs %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
 chairs %<>% mutate(member_committee = paste(bioname, committee)) 
-#chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
+chairs %<>% filter(member_committee %in% c(unique(chairs$member_committee[which(chairs$position == "Chair")]))) 
 chairs %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
 chairs %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
 chairs %<>% 
