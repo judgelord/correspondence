@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-file.name <- "DOL_MSHA" # for testing
+#file.name <- "DOL_MSHA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -16,7 +16,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   # 
   # # Format date, year, Congress, member name etc. 
-  data$DATE <-  as.Date(data$'Input Date', "%m/%d/%Y")
+  data$DATE <-  as.Date(data$DateEntered, "%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   # 
