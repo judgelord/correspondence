@@ -59,11 +59,11 @@ data_list <- as.data.frame(matrix(c(
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
-# "FCA", "not coded", NA,
+# "FCA", "not coded", NA, # not many member names to extract, only 100 obs, but full time period
 # FCC
 "FCC", "coded", "Devin",
 # FDA
-# "FDA", "not coded", NA,
+"FDA", "not coded", NA,
 # FHFA
 # "FHFA", "not coded", NA,
 # FMC
