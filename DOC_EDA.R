@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOC_EDA" # for testing
+ file.name <- "DOC_EDA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -40,6 +40,8 @@ clean <- function(file.name) {
   
   # extract member names
   data %<>% extractMemberName(members, "FROM")
+  
+  
   
 
   
