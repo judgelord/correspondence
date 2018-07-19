@@ -5,7 +5,7 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 
 # Departments and agencies are listed A-Z
 # 1 agency = the title of the R script for cleaning these data
-# 2 status = c("coded", "recoded", "not coded"), NA if not yet coded
+# 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 data_list <- as.data.frame(matrix(c(
@@ -19,6 +19,7 @@ data_list <- as.data.frame(matrix(c(
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
 "DHS_ICE", "not coded", NA,
 # DOC
+"DOC_EDA", "not coded", NA, 
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 "DOC_NIST", "not coded", NA,
@@ -36,7 +37,7 @@ data_list <- as.data.frame(matrix(c(
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
-"DOI_BOEM", "not coded", NA, #coded", "Aaron",
+"DOI_BOEM", "not coded", NA, # "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
@@ -55,8 +56,6 @@ data_list <- as.data.frame(matrix(c(
 "DOT_SLSDC", "not coded", NA,
 # Education
 "ED", "not coded", NA,
-# EDA
-# "EDA", "not coded", NA, 
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
@@ -167,7 +166,7 @@ bad.names2 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_
 bad.dates <- d %>% filter(year > 2018 | year < 2000) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # party discrepencies between stewart and voteview data
-bad.partyfoul <- d %>% left_join(committees) %>% filter(party < 328 & party != party_code) %>% select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% distinct()
+bad.partyfoul <- d %>% left_join(committees) %>% filter(party != party_code) %>% select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% distinct()
 
 dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
