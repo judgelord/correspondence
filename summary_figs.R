@@ -257,7 +257,7 @@ df %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
   theme(
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
-  ) + facet_grid(. ~ TYPE, scales = "free_y", space = "free_y") 
+  ) + facet_grid(. ~ TYPE) 
 
 ggsave(paste("members_by_year_agency_type", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
