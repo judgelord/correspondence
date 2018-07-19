@@ -22,7 +22,7 @@ data_list <- as.data.frame(matrix(c(
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 "DOC_NIST", "not coded", NA,
-# "DOC_NOAA", "not coded", NA,
+"DOC_NOAA", "not coded", NA,
 "DOC_OCPA", "not coded", NA,
 "DOC_OS", "not coded", NA,
 "DOC_SBA", "not coded", NA,
@@ -32,7 +32,7 @@ data_list <- as.data.frame(matrix(c(
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney",
 "DOD_OSDJS", "not coded", NA,
-# "DOD_USACE", "not coded", NA,
+"DOD_USACE", "not coded", NA,
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
@@ -47,7 +47,7 @@ data_list <- as.data.frame(matrix(c(
 "DOL_MSHA", "not coded", NA,
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
-# "DOL_OSHA", "not coded", NA,
+"DOL_OSHA", "not coded", NA,
 "DOL_VETS", "not coded", NA,
 # DOT 
 "DOT_FAA", "coded", "Sam",
