@@ -33,13 +33,36 @@ clean <- function(file.name) {
   
   
   
+  
+  
+  # chamber
+  data %<>%
+    mutate(chamber = ifelse (grepl("Senator", FROM), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("Congressman", FROM), "House", chamber)) 
+  
+
+  # fix FROM 
+  data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
+  data$FROM <- gsub(",", ".", data$FROM)
+  data$FROM <- gsub("Ti m |Tim ", "", data$FROM)
+  data$FROM <- gsub("l l|ll", "", data$FROM)
+  data$FROM <- gsub("Bun-", "Bun", data$FROM)
+  data$FROM <- gsub("Ban-", "Ban", data$FROM)
+  data$FROM <- gsub("C.Johnson", "C. Johnson", data$FROM)
+  data$FROM <- gsub("y' ", "y ", data$FROM)
+  data$FROM <- gsub("A1 ", "Al ", data$FROM)
+  data$FROM <- gsub(" 1. ", " L. ", data$FROM)
+  data$FROM <- gsub("Hany", "Harry", data$FROM)
+  data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
+  
+  
+  
+  # names 
   data <- extractMemberName(data, members, 'FROM')
   
-  
-  #Create variable for position title (Senator or Representative)
   data %<>%
-    mutate(title = ifelse (grepl("Senator", FROM), "Senator", NA)) %>% 
-    mutate(title = ifelse(grepl("Congressman", FROM), "Representative", title)) 
+    mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
+    mutate(first_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
   
   
   # #create variable for first name of the Sen/Rep
@@ -61,12 +84,7 @@ clean <- function(file.name) {
   # data$last_name %<>% toupper()
   
   
-  # chamber 
-  data %<>% 
-    mutate(chamber = ifelse(title == "Senator", "Senate", NA)) %>%
-    mutate(chamber = ifelse(title == "Representative", "House", chamber)) 
-  
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   

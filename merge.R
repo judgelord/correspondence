@@ -157,17 +157,29 @@ d %<>%
 d$department <- gsub("_.*", "", d$agency) # name dept
 
 # names that match more than one member - false positives
-bad.names1 <- d %>% group_by(agency, ID, DATE, FROM, first_name, last_name) %>% tally() %>% filter(n>1) %>% select(agency, DATE, FROM, first_name, last_name)
+bad.names1 <- d %>% 
+  group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
+  mutate(n =) %>% filter(n>1) %>% 
+  select(agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress)
 
 # names that don't match - potentially typos / false negatives
-bad.names2 <- d %>% filter(is.na(bioname)) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+bad.names2 <- d %>% 
+  filter(is.na(bioname)) %>% 
+  select(agency, DATE, FROM, first_name, last_name,  chamber, state, SUBJECT, TYPE)
 
 # date typos 
-bad.dates <- d %>% filter(year > 2018 | year < 2000) %>% select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+bad.dates <- d %>% 
+  filter(year > 2018 | year < 2000) %>% 
+  select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # party discrepencies between stewart and voteview data
-bad.partyfoul <- d %>% left_join(committees) %>% filter(party != party_code) %>% select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% distinct()
+bad.partyfoul <- d %>% 
+  left_join(committees) %>% 
+  filter(party != party_code) %>% 
+  select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% 
+  distinct()
 
+# one obs per letter per committee assignment 
 dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()

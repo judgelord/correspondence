@@ -66,11 +66,13 @@ dcommittees %<>%
 # short committee name
 dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
 # year first assigned to a committee
-dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
-dcommittees %<>% mutate(assignedyear = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
+dcommittees %<>% mutate(member_committee = paste(bioname, committeename)) 
+dcommittees %<>% mutate(assignedyear = as.numeric(substring(assigneddate, 1, 4)))
 dcommittees %<>% group_by(member_committee) %<>% mutate(firstassigned = min(assignedyear, na.rm = TRUE)) %>% ungroup()
+dcommittees %<>% mutate(assignedchair = ifelse(position == "Chair", as.numeric(substring(assigneddate, 1, 4)), 9999))
+dcommittees %<>% group_by(member_committee) %<>% mutate(firstassignedchair = min(assignedchair, na.rm = TRUE)) %>% ungroup()
 dcommittees %<>% 
-  mutate(chair = paste(firstassigned,  bioname, party)) %>%
+  mutate(chair = paste(firstassignedchair,  bioname, party)) %>%
   mutate(member_party = paste(congress, bioname, party))
 
 
@@ -401,8 +403,8 @@ ggsave(paste("committee effect for chairs", chamb, "DHS.pdf", collapse = ""), wi
 
 
 tenure <- chairs %>%
-  mutate(tenure = ifelse(year == firstassigned, "Year After", NA)) %>% 
-  mutate(tenure = ifelse(year == firstassigned-1, "Year  Before", tenure)) %>% 
+  mutate(tenure = ifelse(year == firstassignedchair, "Year After", NA)) %>% 
+  mutate(tenure = ifelse(year == firstassignedchair-1, "Year  Before", tenure)) %>% 
   group_by(member_committee, tenure, chamber) %>% tally() %>% ungroup() %>% 
   filter(!is.na(tenure)) 
 
@@ -422,8 +424,8 @@ depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
 comms <- c("HOMELAND SECURITY", "SCIENCE", "ENVIRONMENT", "AGRICULTURE", "TRANSPORTATION", "EDUCATION")
 
 tenure <- chairs %>%
-  mutate(tenure = ifelse(year == firstassigned, "Year After", NA)) %>% 
-  mutate(tenure = ifelse(year == firstassigned-1, "Year  Before", tenure)) %>% 
+  mutate(tenure = ifelse(year == firstassignedchair, "Year After", NA)) %>% 
+  mutate(tenure = ifelse(year == firstassignedchair-1, "Year  Before", tenure)) %>% 
   group_by(member_committee, tenure, year ,committee, department) %>% 
   tally() %>% ungroup() %>% 
   filter(!is.na(tenure) & department %in% depts & committee %in% comms)
@@ -446,8 +448,8 @@ ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path
 
 # years before and after 
 tenure <- chairs %>%
-  mutate(tenure = ifelse(year >= firstassigned, "Years After", NA)) %>% 
-  mutate(tenure = ifelse(year < firstassigned, "Years  Before", tenure)) %>% 
+  mutate(tenure = ifelse(year >= firstassignedchair, "Years After", NA)) %>% 
+  mutate(tenure = ifelse(year < firstassignedchair, "Years  Before", tenure)) %>% 
   group_by(member_committee, tenure, year) %>% 
   tally() %>% ungroup() %>% 
   filter(!is.na(tenure))
@@ -460,8 +462,8 @@ depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
 comms <- c("HOMELAND SECURITY", "SCIENCE", "ENVIRONMENT", "AGRICULTURE", "TRANSPORTATION", "EDUCATION")
 
 tenure <- chairs %>%
-  mutate(tenure = ifelse(year >= firstassigned, "Years After", NA)) %>% 
-  mutate(tenure = ifelse(year < firstassigned, "Years  Before", tenure)) %>% 
+  mutate(tenure = ifelse(year >= firstassignedchair, "Years After", NA)) %>% 
+  mutate(tenure = ifelse(year < firstassignedchair, "Years  Before", tenure)) %>% 
   group_by(member_committee, tenure, year ,committee, department) %>% 
   tally() %>% ungroup() %>% 
   filter(!is.na(tenure) & department %in% depts & committee %in% comms)
@@ -481,8 +483,8 @@ ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path
 
 
 tenure <- chairs %>%
-  mutate(tenure = ifelse(year >= firstassigned, "Years After", NA)) %>% 
-  mutate(tenure = ifelse(year < firstassigned, "Years  Before", tenure)) %>% 
+  mutate(tenure = ifelse(year >= firstassignedchair, "Years After", NA)) %>% 
+  mutate(tenure = ifelse(year < firstassignedchair, "Years  Before", tenure)) %>% 
   group_by(member_committee, tenure, year ,committee, department, TYPE) %>% 
   tally() %>% ungroup() %>% 
   filter(!is.na(tenure) & department %in% depts & committee %in% comms, TYPE == "Policy")
@@ -502,6 +504,46 @@ tenure %>%
 
 ggsave(paste("chair effect selected pairs", chamb," (policy only).pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
+
+
+
+
+# years before and after 
+tenure <- dcommittees %>%
+  mutate(tenure = year - firstassigned) %>% 
+  group_by(member_committee, tenure) %>% 
+  mutate(n = n()) %>% ungroup() %>% 
+  filter(!is.na(tenure))
+
+mean(tenure$n[tenure$tenure == -1])
+mean(tenure$n[tenure$tenure == 1])
+
+# define matchable committees and depts
+depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
+comms <- c("HOMELAND SECURITY", "SCIENCE", "ENVIRONMENT", "AGRICULTURE", "TRANSPORTATION", "EDUCATION")
+
+tenure  %<>% 
+  filter(!is.na(tenure) & department %in% depts & committee %in% comms)
+
+
+tenure %>% 
+  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
+  filter(!is.na(TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
+  mutate(member_committee_TYPE = paste(member_committee, TYPE)) %>%
+  ggplot() + 
+  # geom_text(aes(x = tenure, y = n, label = gsub(",.*", "", member_committee)), size = 2) + 
+  geom_vline(aes(xintercept = 0), color = "grey") + 
+  geom_smooth(aes(x = tenure, y = n, color = TYPE))+#, color = "black")  + 
+  # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE)) +
+  # facet_grid(committee ~ department, scales = "free_y") + 
+  theme(legend.title = element_blank(),
+        strip.text.y = element_text(angle = 0, size = 5),
+        axis.text.x = element_text(angle = 0, size = 5),
+        axis.text.y = element_text(angle = 0, size = 5))
+
+ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 #####################################
 # clean up workspace before commit #
