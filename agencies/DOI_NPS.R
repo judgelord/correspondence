@@ -47,8 +47,12 @@ clean <- function(file.name) {
   # data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.", replacement = ",", data$FROM2)
   # data$last_name <- formatLastName(data, 'FROM2')
   
+  
+  data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
+  data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM)
   data <- getFirstLast.Comma(data, 'FROM')
   
+  data$last_name <- ifelse(grepl("^^(\\w+)$", data$FROM), formatLastName(data, 'FROM'), data$last_name)
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
