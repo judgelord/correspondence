@@ -4,15 +4,15 @@ if(require("Rvoteview")==F) {
 library(Rvoteview)
 library(dplyr)
 library(magrittr)
-library(gdata)
 library(readr)
+library(readxl)
 
 myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename", "assigneddate", "terminationdate", "partystatus")
 
 
 ## Stewart's House Committee Assignments 103-113.  
 
-hcd_late<- read.xls("http://web.mit.edu/cstewart/www/data/house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
+hcd_late<- readxl:: ("house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
 # library(readxl)
 # hcd_late <- read_excel("house_assignments_103-115-3.xls")
 
@@ -60,7 +60,7 @@ hcdlsmall<-hcd_late[,myvars]
 
 ## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2016.
 
-scd_late<-read.xls("http://web.mit.edu/cstewart/www/data/senate_assignments_103-115-3.xls", stringsAsFactors=FALSE)
+scd_late<-read.xls("senate_assignments_103-115-3.xls", stringsAsFactors=FALSE)
 # scd_late <- read_excel("senate_assignments_103-115-3.xls")
 
 names(scd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes","X.1", "X.2", "X.3")

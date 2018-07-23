@@ -103,7 +103,7 @@ d <- clean.agency(agency = data_list[i, 1],
                      coders = data_list[i, 3])
 
 # merge with voteview data
-d %<>% 
+dcommittees %<>% 
   left_join(members) %>%
   select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
   left_join(members)
@@ -134,7 +134,7 @@ while(length(unique(d$agency) == i)) {
 d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = ":")) %>%
   mutate(complete = ifelse(nchar(timeframe) > (10*4+8), T, F))
 
-unique(cbind(d$agency, d$complete, d$timeframe))
+timeframe <- unique(cbind(d$agency, d$complete, d$timeframe))
 
 
 
