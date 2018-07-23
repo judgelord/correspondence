@@ -99,7 +99,8 @@ data_list <- as.data.frame(matrix(c(
 names(data_list) <- c("agency", "status", "coders")
 
 # clean one file
-i = 1
+i = 1 # initialize for full merge 
+# i <- which(data_list$agency == "USPS") # or choose one agency
 d <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -111,7 +112,7 @@ d %<>%
   left_join(members)
 
 # repeat merge while successful
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or to restart interrupted merge
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {
   
@@ -140,7 +141,7 @@ timeframe <- unique(cbind(d$agency, d$complete, d$timeframe))
 
 
 
-# fix member names and parties
+# fix date-specific member name and party issues 
 d %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
@@ -190,8 +191,8 @@ dcommittees$terminationdate %<>% as.Date()
 
 # upload google sheet of obs failing to match with voteview
 
-  problem.names2 %>% filter(TYPE %in% c(2,4,5)) %>% write.csv("mismatch.csv") # saving file locally is faster
-  drive_rm(paste0("Correspondence/mismatch")) # remove old recode file
-  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
-  file.remove("mismatch.csv") # remove local file
+#  problem.names2 %>% filter(TYPE %in% c(2,4,5)) %>% write.csv("mismatch.csv") # saving file locally is faster
+#  drive_rm(paste0("Correspondence/mismatch")) # remove old recode file
+#  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
+#  file.remove("mismatch.csv") # remove local file
  
