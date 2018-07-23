@@ -26,7 +26,7 @@ data_list <- as.data.frame(matrix(c(
 "DOC_NOAA", "not coded", NA,
 "DOC_OCPA", "not coded", NA,
 "DOC_OS", "not coded", NA,
-"DOC_SBA", "not coded", NA,
+"DOC_SBA", "not coded", NA, # no records before 2010
 # DOD
 "DOD_DeCA", "coded", "Devin",
 "DOD_DFAS", "not coded", NA,
@@ -79,7 +79,9 @@ data_list <- as.data.frame(matrix(c(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-"SSA", "not coded", NA,
+"SSA", "not coded", NA, # revisit merge and remove NAs?
+# STB
+# "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
 "Treasury_OCC", "coded", "Aaron",
@@ -159,7 +161,7 @@ d$department <- gsub("_.*", "", d$agency) # name dept
 # names that match more than one member - false positives
 bad.names1 <- d %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
-  mutate(n =) %>% filter(n>1) %>% 
+  mutate(n = n()) %>% filter(n>1) %>% 
   select(agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress)
 
 # names that don't match - potentially typos / false negatives
@@ -173,7 +175,7 @@ bad.dates <- d %>%
   select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
 
 # party discrepencies between stewart and voteview data
-bad.partyfoul <- d %>% 
+bad.party <- d %>% 
   left_join(committees) %>% 
   filter(party != party_code) %>% 
   select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% 
@@ -187,10 +189,9 @@ dcommittees$terminationdate %<>% as.Date()
 # save.image(paste("correspondence", Sys.Date(), ".RData"))
 
 # upload google sheet of obs failing to match with voteview
-for (type in c(2,4)) { 
-  mismatch <- "mismatch.csv"
-  problem.names2 %>% filter(TYPE == type) %>% write.csv(mismatch) # saving file locally is faster
-  drive_rm(paste0("Correspondence/", "mismatch", type)) # remove old recode file
-  drive_upload(mismatch, path = paste0("Correspondence/", "mismatch", type), type = "spreadsheet")
-  file.remove(mismatch) # remove local file
+
+  problem.names2 %>% filter(TYPE %in% c(2,4,5)) %>% write.csv("mismatch.csv") # saving file locally is faster
+  drive_rm(paste0("Correspondence/mismatch")) # remove old recode file
+  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
+  file.remove("mismatch.csv") # remove local file
 } 
