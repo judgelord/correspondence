@@ -12,8 +12,9 @@ myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "senio
 
 ## Stewart's House Committee Assignments 103-113.  
 
-hcd_late<-read.xls("http://web.mit.edu/cstewart/www/data/house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
-#hcd_late <- read_excel("house_assignments_103-115-3.xls")
+hcd_late<- gdata::read.xls("http://web.mit.edu/cstewart/www/data/house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
+# library(readxl)
+# hcd_late <- read_excel("house_assignments_103-115-3.xls")
 
 # [1] "Congress"                                            "Committee.code"                                     
 # [3] "ID.."                                                "Name"                                               
