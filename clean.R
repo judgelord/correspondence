@@ -87,7 +87,7 @@ clean.agency <- function(agency, status, coders) {
   data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup()
   
   # make consitant classes
-  data %<>% mutate_at(names(data)[which(names(data) != "DATE")], as.character)
+  data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
 
   
   data$agency <- agency # name agency

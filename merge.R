@@ -105,7 +105,7 @@ d <- clean.agency(agency = data_list[i, 1],
                      coders = data_list[i, 3])
 
 # merge with voteview data
-dcommittees %<>% 
+d %<>% 
   left_join(members) %>%
   select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
   left_join(members)
@@ -194,4 +194,4 @@ dcommittees$terminationdate %<>% as.Date()
   drive_rm(paste0("Correspondence/mismatch")) # remove old recode file
   drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
   file.remove("mismatch.csv") # remove local file
-} 
+ 
