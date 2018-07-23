@@ -66,7 +66,7 @@ clean.agency <- function(agency, status, coders) {
       data <- full_join(clean(paste(agency, coders[1])),
                         clean(paste(agency, coders[2])))
       
-      ############################ FIX ME ########################
+      # ######################FIXME ########################
       # TEMP REMOVED INTERCODER AGREEMENT METHOD FOR SPEED  #
       # print(intercoder.agreement(data))
     }
@@ -87,16 +87,9 @@ clean.agency <- function(agency, status, coders) {
   data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup()
   
   # make consitant classes
-  data$ID %<>% as.character()
-  data$FROM %<>% as.character()
-  data$SUBJECT %<>% as.character()
-  data$TYPE %<>% as.character()
-  data$CERTAINTY %<>% as.character()
-  data$ALT_TYPE %<>% as.character()
-  data$POLICY_EVENT %<>% as.character()
-  data$EVENT_NAME %<>% as.character()
-  data$EVENT_DATE %<>% as.character()
-  data$NOTES %<>% as.character()
+  data %<>% mutate_at(names(data)[which(names(data) != "DATE")], as.character)
+
+  
   data$agency <- agency # name agency
   data$department <- gsub("_.*", "", data$agency) # name dept
   

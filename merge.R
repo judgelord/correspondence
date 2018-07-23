@@ -67,9 +67,9 @@ data_list <- as.data.frame(matrix(c(
 # FHFA
 # "FHFA", "not coded", NA,
 # FMC
-# "FMC", "not coded", NA,
+# "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress
 # GSA
-# "GSA", "not coded", NA,
+# "GSA", "not coded", NA, # 6k entries 2007-2017, but no member names
 # NASA
 # "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
@@ -109,8 +109,8 @@ d %<>%
   left_join(members)
 
 # repeat merge while successful
-# i <- i -1 # to resume merge 
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones
+i = 1
 while(length(unique(d$agency) == i)) {
   
   print(data_list[i,1])
