@@ -52,7 +52,7 @@ intercoder.agreement <- function(data) {
 
 # calling agency-specific clean() function and joining data depending on status of hand-coding
 clean.agency <- function(agency, status, coders) {
-  source(paste0(agency, ".R"))
+  source(paste0("agencies/",agency, ".R"))
   
   if (status == "not coded") {
     data <- clean(agency)

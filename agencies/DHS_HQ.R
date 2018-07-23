@@ -56,7 +56,8 @@ clean <- function(file.name) {
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
   
   
-  
+  data$FROM <- gsub("Coins", 'Collins', data$FROM, ignore.case = TRUE)
+  data$FROM <- gsub('Bi', 'Bill', data$FROM, ignore.case = FALSE)
   # names 
   data <- extractMemberName(data, members, 'FROM')
   
