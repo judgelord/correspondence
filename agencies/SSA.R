@@ -4,23 +4,47 @@
 # 63 mismatches
 
 
-file.name <- "SSA" # for testing
+# file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # Remove rows containing NA in both FROM and SUBJECT column
+  data <- data[!(is.na(data$FROM)&is.na(data$SUBJECT)),]
+  
   # create ID variable
   data$ID <- c(1:nrow(data))
   
-  
   # create agency column
   data$agency <- file.name
+  
+  # Some names contained in the DATE column
+  # data %<>% extractMemberName(members,"DATE")
+  
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%Y-%m-%d")
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  # Duplicates need fixing, commas appear on non-duplicates (go back and fix after manual cleaning)
+  # ###############    
+  # # Creates duplicate rows for lines with multiple representatives
+  # for(i in 1:nrow(data)){
+  #   if(grepl(",", data$FROM[i])) {
+  #     
+  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
+  #     new$FROM <- unlist(str_split(data$FROM[i], ","))
+  #     
+  #     data <- rbind(data, new)
+  #     
+  #   }
+  # }
+  # data <- data[-grep(",", data$FROM),] # removes orginal row with all data
+  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  # data <- data[!data$FROM == "",] # removes blank observations
+  # ################
   
   
   # member name

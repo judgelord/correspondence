@@ -227,11 +227,11 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
     mutate(middle_initial = ifelse(bioname == "WENSTRUP, Brad", "R", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "RENACCI, Jim", "B", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "TONKO, Paul", "D", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "JOHNSON, Hank", "C", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "VISCLOSKY, Peter", "J", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "OBAMA, Barack", "H", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "OWENS, William", "L", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "WILSON, Heather", "A", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
