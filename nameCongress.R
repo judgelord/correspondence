@@ -271,6 +271,8 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
   
+  members$congress %<>% as.character()
+  
   
   members$congresses <- NA # this list format throughs errors in merge
 
