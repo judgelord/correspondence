@@ -12,7 +12,7 @@ myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "senio
 
 ## Stewart's House Committee Assignments 103-113.  
 
-hcd_late<- readxl:: ("house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
+hcd_late<- readxl::read_excel("committees/house_assignments_103-115-3.xls")
 # library(readxl)
 # hcd_late <- read_excel("house_assignments_103-115-3.xls")
 
@@ -29,7 +29,7 @@ hcd_late<- readxl:: ("house_assignments_103-115-3.xls", stringsAsFactors=FALSE)
 # [21] "X" 
 
 # rename consistant with Powell names 
-names(hcd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes","notes1")
+names(hcd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
 
 hcd_late$chamber<-"House"
 
@@ -60,10 +60,10 @@ hcdlsmall<-hcd_late[,myvars]
 
 ## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2016.
 
-scd_late<-read.xls("senate_assignments_103-115-3.xls", stringsAsFactors=FALSE)
+scd_late<-readxl::read_excel("committees/senate_assignments_103-115-3.xls")
 # scd_late <- read_excel("senate_assignments_103-115-3.xls")
 
-names(scd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes","X.1", "X.2", "X.3")
+names(scd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
 
 scd_late$cd<-0
 

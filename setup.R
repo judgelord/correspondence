@@ -21,8 +21,8 @@
 
 source("stateFromLower.R") # format state names
 source("clean.R") # data cleaning and intercoder agreement functions 
-source("nameCongress.R") # augments voteview member names
-source("nameMethods.R") # functions for cleaning member names to match the augmented member file
-source("committees.R")
+source("members/nameCongress.R") # augments voteview member names
+source("members/nameMethods.R") # functions for cleaning member names to match the augmented member file
+source("committees/committees.R")
 gs_ls() # log in to google
 

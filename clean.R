@@ -16,9 +16,9 @@ intercoder.agreement <- function(data) {
   filter(data, !is.na(TYPE)) %>% group_by(ID) %>% filter(length(unique(TYPE)) == 2) %>% arrange(ID) %>% select(agency, ID, everything()) %>%
     write.csv(recode) # saving file locally is faster
   
-  drive_rm(paste0("Correspondence/", agency, " to Recode")) # remove old recode file
+  drive_rm(paste0("Correspondence/agencies/", agency, " to Recode")) # remove old recode file
   drive_upload(recode,
-               path = paste0("Correspondence/", agency, " to Recode"),
+               path = paste0("Correspondence/agencies/", agency, " to Recode"),
                type = "spreadsheet")
   file.remove(recode) # remove local file
   
@@ -52,7 +52,7 @@ intercoder.agreement <- function(data) {
 
 # calling agency-specific clean() function and joining data depending on status of hand-coding
 clean.agency <- function(agency, status, coders) {
-  source(paste0(agency, ".R"))
+  source(paste0("agencies/",agency, ".R"))
   
   if (status == "not coded") {
     data <- clean(agency)

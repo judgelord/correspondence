@@ -98,6 +98,26 @@ chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_
 # plots #
 #########
 
+# inspect data completeness coding
+df %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  ggplot() + 
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = complete), alpha = .2)
+# CDC is rolling release 
+# SBA has no records before 2010
+# DOJ_CIV is a rolling release - 2009-2011 recieved in July 2018
+# CBP waiting since april 2017
+# USDA RMA has no logs prior to 2010
+# 
+
+df %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  ggplot() + 
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = TYPE), alpha = .2)
+
+
+
+
 # Name jitter plot by congress and dept
 df %>%  filter(complete == T) %>% 
   group_by(congress, chamber, department, bioname, last_name, nominate.dim1) %>% tally() %>% ungroup() %>% 
@@ -556,7 +576,7 @@ tenure %>%
   facet_grid(TYPE ~ ., scales = "free_y") +
   #facet_grid(committee ~ department, scales = "free_y") +
   # facet_wrap(~committee, scales = "free_y") +
-  scale_x_continuous(limits = c(-6,6), breaks = seq(-8,8,by =1)) + 
+  scale_x_continuous(limits = c(-8,8), breaks = seq(-8,8,by =1)) + 
   labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
        x = "Years Before and After Appointment to Committee Chair",
        y = "Number of Letters")
@@ -583,7 +603,7 @@ chairs %>%
   ggplot() + 
   labs(title = paste(chamb, "Committee Chairs Before and After Appointment"),
        x = "Days Before and Affter Appointment") + 
-  geom_density(aes(x = daysAsChair, fill = committee_member))+#, color = position))  + 
+  geom_density(aes(x = daysAsChair, fill = committee_member), alpha = .3)+#, color = position))  + 
   #scale_color_grey() +
   #scale_x_continuous(breaks = seq(-1800,1800,90), limits = c(-1800,1800)) + 
   facet_grid(TYPE ~ ., scales = "free_y") 
