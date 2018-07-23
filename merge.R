@@ -19,7 +19,7 @@ data_list <- as.data.frame(matrix(c(
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
 "DHS_ICE", "not coded", NA,
 # DOC
-"DOC_EDA", "not coded", NA, 
+"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 "DOC_NIST", "not coded", NA,
@@ -45,7 +45,7 @@ data_list <- as.data.frame(matrix(c(
 "DOJ_CIV", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA,
+"DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
@@ -109,7 +109,7 @@ d %<>%
   left_join(members)
 
 # repeat merge while successful
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or to restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {
   

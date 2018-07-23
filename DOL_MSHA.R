@@ -10,13 +10,11 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data)) 
   
-  
-  
   # # create agency column
   data$agency <- file.name
   # 
   # # Format date, year, Congress, member name etc. 
-  data$DATE <-  as.Date(data$DateEntered, "%m/%d/%Y")
+  data$DATE <-  as.Date(data$DATE, "%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   # 
@@ -40,12 +38,19 @@ clean <- function(file.name) {
   # ################
   # 
   # # create variable for full name
-  # data <- getFirstLast.Comma(data, 'FROM')
-  # 
-  # 
-  # 
-  # # arrange columns for hand coding
-  # data %<>% select(ID, DATE, FROM, everything())
+  
+  #Create variable for chamber position  (Senator or Representative)
+  data %<>%
+    mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senat", FROM), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("\\(Cong|\\(Song.\\)|Congressman", FROM), "House", chamber)) 
+  
+  
+  data <- getFirstLast.Comma(data, 'FROM')
+  
+  # arrange columns for hand coding
+  data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
+  
+  #
   # 
   # data%<>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%

@@ -24,8 +24,10 @@ clean <- function(file.name) {
 
   # member name
   data %<>% 
-    mutate(SUBJECT = paste(Correspondent, SUBJECT)) %>%
-      extractMemberName(members, "SUBJECT")
+    mutate(SUBJECT = paste(FROM, SUBJECT)) 
+  
+  data %<>%
+      extractMemberName(members, "FROM")
   
   
   
