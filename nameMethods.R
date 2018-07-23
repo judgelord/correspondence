@@ -396,8 +396,9 @@ extractMemberName <- function(data, members, col_name){
    mutate(last_name = ifelse( grepl("Jane",Summary,ignore.case=TRUE)&grepl("Harmon",Summary,ignore.case=TRUE), "HARMAN", last_name)) %>% 
    mutate(first_name = ifelse( grepl("Jane",Summary,ignore.case=TRUE)&grepl("Harmon",Summary,ignore.case=TRUE), "Jane", first_name))%>% 
    mutate(last_name = ifelse( grepl("Butterfield",Summary,ignore.case=TRUE)&grepl("G",Summary,ignore.case=TRUE), "BUTTERFIELD", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Butterfied",Summary,ignore.case=TRUE)&grepl("G",Summary,ignore.case=TRUE), "George", first_name))
- 
+   mutate(first_name = ifelse( grepl("Butterfied",Summary,ignore.case=TRUE)&grepl("G",Summary,ignore.case=TRUE), "George", first_name)) %>% 
+   mutate(last_name = ifelse( grepl("Jon",Summary,ignore.case=TRUE)&grepl("Kyi",Summary,ignore.case=TRUE), "KYL", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("Jon",Summary,ignore.case=TRUE)&grepl("Kyi",Summary,ignore.case=TRUE), "Jon", first_name))
  
  
 
@@ -620,7 +621,9 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(last_name = ifelse( grepl("Jane",FROM2,ignore.case=TRUE)&grepl("Harmon",FROM2,ignore.case=TRUE), "HARMAN", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Jane",FROM2,ignore.case=TRUE)&grepl("Harmon",FROM2,ignore.case=TRUE), "Jane", first_name))%>% 
     mutate(last_name = ifelse( grepl("Butterfield",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "BUTTERFIELD", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Butterfied",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "George", first_name))
+    mutate(first_name = ifelse( grepl("Butterfied",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "George", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("Jon",FROM2,ignore.case=TRUE)&grepl("Kyi",FROM2,ignore.case=TRUE), "KYL", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("Jon",FROM2,ignore.case=TRUE)&grepl("Kyi",FROM2,ignore.case=TRUE), "Jon", first_name))
   
 
     
@@ -639,3 +642,36 @@ getFirstLast.Comma <- function(data, col_name){
 }
 
 
+#Dingell, Conolly, Hillary, Russell, SWALWELL, Chellie, Udall, Woodall, Marshall, William, Cantwell
+# Miller, Wally, Allen
+
+
+# Function adds "ll" to names in vector that should contain "ll", but were misread.
+# ex. Changes "Hiary" and "Donoy" to "Hillary" and "Donolly"
+add.ll <- function(FROM){
+  FROM <- gsub("Hiary", "Hillary", FROM)
+  FROM <- gsub("Dinge", "Dingell", FROM)
+  FROM <- gsub("Conoy", "Conolly", FROM)
+  FROM <- gsub("Russe", "Russell", FROM)
+  FROM <- gsub("Swalwe", "Swalwell", FROM)
+  FROM <- gsub("Cheie", "Chellie", FROM)
+  FROM <- gsub("Uda", "Udall", FROM)
+  FROM <- gsub("Wooda", "Woodall", FROM)
+  FROM <- gsub("Marhsa$", "Marshall", FROM)
+  FROM <- gsub("Wiiam", "William", FROM)
+  FROM <- gsub("Cantwe", "Cantwell", FROM)
+  FROM <- gsub("Mier$", "Miller", FROM)
+  FROM <- gsub("Way$", "Wally", FROM)
+  FROM <- gsub("Aen$", "Allen", FROM)
+  FROM <- gsub("Bi ", "Bill ", FROM)
+  FROM <- gsub("Coins", "Collins", FROM)
+  FROM <- gsub("Paone", "Pallone", FROM)
+  FROM <- gsub("Campbe", "Campell", FROM)
+  FROM <- gsub("Hoen", "Hollen", FROM)
+  FROM <- gsub("Darre ", "Darrell", FROM)
+  FROM <- gsub("Gaegly", "Gallegly", FROM)
+  FROM <- gsub("Giibrand", "Gillibrand", FROM)
+  FROM <- gsub("Hiary", "Hillary", FROM)
+  FROM <- gsub("Hiary", "Hillary", FROM)
+  return(FROM)
+}
