@@ -62,7 +62,7 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
-    mutate(first_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
+    mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
   
   
   # #create variable for first name of the Sen/Rep

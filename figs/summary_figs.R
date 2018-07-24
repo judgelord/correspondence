@@ -103,7 +103,7 @@ df %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
   ggplot() + 
-  geom_point(aes(x = DATE, y = paste(n, agency), color = complete, alpha = coded))
+  geom_point(aes(x = DATE, y = paste(n, agency), color = coded, shape = complete), alpha = .2)
 # CDC is rolling release 
 # SBA has no records before 2010
 # DOJ_CIV is a rolling release - 2009-2011 recieved in July 2018
@@ -116,7 +116,7 @@ df %>%
   mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(agency, n), color = TYPE, alpha = coded))
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = TYPE, shape = coded), alpha = .2)
 
 
 
