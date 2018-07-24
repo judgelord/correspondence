@@ -55,8 +55,8 @@ clean <- function(file.name) {
   data$FROM <- gsub("Hany", "Harry", data$FROM)
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
 
-  # adds "ll" to names that were misread
-  data$FROM <- add.ll(data$FROM)
+  # adds "ll" to names that were misread and other ocr errors
+  data$FROM <- ocr.errors(data$FROM)
   # names 
   data <- extractMemberName(data, members, 'FROM')
   

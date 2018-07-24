@@ -672,20 +672,28 @@ add.ll <- function(FROM){
   FROM <- gsub("Gaegly", "Gallegly", FROM)
   FROM <- gsub("Giibrand", "Gillibrand", FROM)
   FROM <- gsub("McConne", "McConne", FROM, ignore.case = TRUE)
-  FROM <- gsub("(^| )Ayson", "Allyson", FROM)
-  FROM <- gsub("Keer($| )", "Keller\\1", FROM)
+  FROM <- gsub("(^| )Ayson", "\\1Allyson", FROM)
+  FROM <- gsub("Keer($| |,)", "Keller\\1", FROM)
   FROM <- gsub("(^| )Een", "(Ellen)", FROM)
   FROM <- gsub("Roybal-Aard", "Roybal-Allard", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
+  FROM <- gsub("Cuear($| |,)", "Cuellar\\1", FROM)
+  FROM <- gsub("Pascre($| |,)", "Pascrell\\1", FROM)
+  FROM <- gsub("Pa one", "Pallone", FROM)
+  FROM <- gsub("Gabriee", "Gabrielle", FROM)
+  FROM <- gsub("(^| )Aard", "\\1Allard", FROM)
+  FROM <- gsub("McCoum", "McCollum", FROM, ignore.case = TRUE)
+  FROM <- gsub("( |^)Eison( |$)", "\\1Ellison\\2", FROM)
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("Hiary", "Hillary", FROM)
   
   return(FROM)
+}
+
+
+# addresses common ocr errors that may repeat 
+# may not be usable for every agency
+ocr.errors <- function(FROM){
+  add.ll(FROM)
+  FROM <- ifelse(grepl(" Cha", FROM)&grepl("((^| )Ja)|(J a.son)", FROM)&grepl('etz', FROM), 'Jason Chaffetz', FROM)
 }
