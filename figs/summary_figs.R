@@ -11,7 +11,7 @@ library(magrittr)
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 if( !exists("committees") ) { source("setup.R") }
 # or load an archived data file:
-# load("correspondence 2018-07-24 .RData")
+# d <- load("correspondence 2018-07-24 .RData")
 
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
@@ -101,22 +101,26 @@ chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_
 # inspect data completeness coding
 df %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
-  mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
+  mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
   ggplot() + 
-  geom_point(aes(x = DATE, y = paste(n, agency), color = coded, shape = complete), alpha = .2)
-# CDC is rolling release 
+  labs(title = "Missing and Complete Data") +
+  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = coded), alpha = .2) +
+   facet_grid(complete ~., scales = "free_y", space = "free_y")
+# CDC is rolling release, 2010-2011 expected Nov 2018
 # SBA has no records before 2010
-# DOJ_CIV is a rolling release - 2009-2011 recieved in July 2018
+# DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
 # CBP waiting since april 2017
 # USDA RMA has no logs prior to 2010
-# 
+# PRC no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
 
 
 df %>% 
-  mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
+  mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(agency, n), color = TYPE, shape = coded), alpha = .2)
+  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = TYPE), alpha = .2) + 
+  labs(title = "Missing and Complete Data") +
+  facet_grid(complete ~ coded, scales = "free_y", space = "free_y")
 
 
 
