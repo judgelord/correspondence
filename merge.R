@@ -184,7 +184,18 @@ bad.party <- d %>%
 # identify timeframe and completeness for each agency
 d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collapse = ":")) %>%
   mutate(timeframe = paste(agency, timeframe)) %>%
-  mutate(complete = ifelse(2008 %in% timeframe & 2017 %in% timeframe, T, F)) %>% ungroup()
+  mutate(complete = ifelse(
+    grepl("2008", timeframe) & 
+      grepl("2009", timeframe) &
+      grepl("2010", timeframe) &
+      grepl("2011", timeframe) &
+      grepl("2012", timeframe) &
+      grepl("2013", timeframe) &
+      grepl("2014", timeframe) &
+      grepl("2015", timeframe) &
+      grepl("2016", timeframe) &
+      grepl("2017", timeframe)
+    , T, F)) %>% ungroup()
 
 unique(d$timeframe)
 
