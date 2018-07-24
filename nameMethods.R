@@ -718,7 +718,22 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Knoenberg( |$)", "\\1Knollenberg\\2", FROM)
   FROM <- gsub("(^| )Gimor( |$)", "\\1Gillmor\\2", FROM)
   FROM <- gsub("(^| )Jewe( |$)", "\\1Jewell\\2", FROM)
- 
+  # add 'll' to first names
+  FROM <- gsub("(^| )oyd( |$)", "\\1Lloyd\\2", FROM)
+  FROM <- gsub("(^| )Lucie( |$)", "\\1Lucille\\2", FROM)
+  FROM <- gsub("(^| )Michee( |$)", "\\1Michelle\\2", FROM)
+  FROM <- gsub("(^| )Bi( |$)", "\\1Bill\\2", FROM)
+  FROM <- gsub("(^| )Biy( |$)", "\\1Billy\\2", FROM)
+  FROM <- gsub("(^| )Coeen( |$)", "\\1Colleen\\2", FROM)
+  FROM <- gsub("(^| )Cheie( |$)", "\\1Chellie\\2", FROM)
+  FROM <- gsub("(^| )Sheey( |$)", "\\1Shelley\\2", FROM)
+  FROM <- gsub("(^| )Darre( |$)", "\\1Darrell\\2", FROM)
+  FROM <- gsub("(^| )Ayson( |$)", "\\1Allyson\\2", FROM)
+  FROM <- gsub("(^| )Aen( |$)", "\\1JAllen\\2", FROM)
+  FROM <- gsub("(^| )Say( |$)", "\\1Sally\\2", FROM)
+  FROM <- gsub("(^| )Wi( |$)", "\\1Will\\2", FROM)
+  FROM <- gsub("(^| )Way( |$)", "\\1Wally\\2", FROM)
+
   
   
   # other errors
