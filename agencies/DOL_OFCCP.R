@@ -5,11 +5,13 @@
 
 # Finished. Non matches are correctly non matching
 
-#file.name <- "DOL_OFCCP" # for testing 
+# file.name <- "DOL_OFCCP" # for testing 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # create ID variable
+  data$ID <- c(1:nrow(data))
   
   # create agency column
   data$agency <- file.name
@@ -35,17 +37,18 @@ clean <- function(file.name) {
   }
   data <- data[-grep(";|&|/| and ", data$FROM),] # removes orginal row with all data
   ################
+  
+  
   data$FROM <- gsub("  |   |    ", " ", data$FROM)
   data$FROM <- gsub("^ | $", "", data$FROM)
-  data <- data[-which(data$FROM == ""),]
-  data <- getFirstLast.Comma(data, 'FROM')
-  
+
+    
   data %<>%
-    mutate(last_name = ifelse(grepl("^\\w+$",FROM), formatLastName(data, 'FROM'), last_name)) %>% 
-    mutate(last_name = ifelse(grepl("^(\\w) (\\w+)$", first_last),gsub("^(\\w) (\\w+)$", '\\2', first_last), last_name)) %>% 
-    mutate(first_initial = ifelse(grepl("^(\\w) (\\w+)$", first_last),
-                                  gsub("^(\\w) (\\w+)$", '\\1', first_last), NA))%>% 
+    # mutate(last_name = ifelse(grepl("^\\w+$",FROM), formatLastName(data, 'FROM'), last_name)) %>%     # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
+    # mutate(last_name = ifelse(grepl("^(\\w) (\\w+)$", first_last),gsub("^(\\w) (\\w+)$", '\\2', first_last), last_name)) %>%  # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
     mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
+  
+  data <- getFirstLast.Comma(data, 'FROM')
 
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
