@@ -76,7 +76,7 @@ dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
 dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
-  mutate(firstassignedchair = as.numeric(substring(assigneddate, 1, 4)))
+  mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
 dcommittees %<>% 
   mutate(chair = paste(firstassignedchair,  bioname, party)) %>%
   mutate(member_party = paste(bioname, party)) 
@@ -101,8 +101,9 @@ chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_
 # inspect data completeness coding
 df %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(agency, n), color = complete), alpha = .2)
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = complete, alpha = coded))
 # CDC is rolling release 
 # SBA has no records before 2010
 # DOJ_CIV is a rolling release - 2009-2011 recieved in July 2018
@@ -110,10 +111,12 @@ df %>%
 # USDA RMA has no logs prior to 2010
 # 
 
+
 df %>% 
+  mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(agency, n), color = TYPE), alpha = .2)
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = TYPE, alpha = coded))
 
 
 
@@ -561,7 +564,11 @@ mean(tenure$n[tenure$tenure == 2])
 
 # define matchable committees and depts
 depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
-comms <- c("HOMELAND SECURITY", "ENVIRONMENT", "AGRICULTURE", "TRANSPORTATION", "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", "APPROPRIATIONS")
+comms <- c("HOMELAND SECURITY", 
+           "ENVIRONMENT", "AGRICULTURE", 
+           "TRANSPORTATION", "OVERSIGHT", 
+           "RULES", "BUDGET", "WAYS", "COMMERCE", 
+           "APPROPRIATIONS", "Energy", "Health")
 
 
 
@@ -591,22 +598,71 @@ ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path
 
 chairs %<>% 
   mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
-  mutate(committee_member = paste(committee, "-", last_name))
+  mutate(yearsAsChair = daysAsChair/365) %>%
+  group_by(year) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
 chairs %>%
   filter(committee %in% comms) %>%
   filter(chamber == chamb) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
   mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
   mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
   filter(!is.na(TYPE)) %>% 
   ggplot() + 
-  labs(title = paste(chamb, "Committee Chairs Before and After Appointment"),
+  labs(title = paste(chamb, "Committee Chairs Before and After Appointment (subset appointed 2009-2016)"),
        x = "Days Before and Affter Appointment") + 
   geom_density(aes(x = daysAsChair, fill = committee_member), alpha = .3)+#, color = position))  + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
   #scale_color_grey() +
-  #scale_x_continuous(breaks = seq(-1800,1800,90), limits = c(-1800,1800)) + 
-  facet_grid(TYPE ~ ., scales = "free_y") 
+  scale_x_continuous(breaks = seq(-720,720,90), limits = c(-720,720)) + 
+  facet_grid(committee ~ TYPE, scales = "free_y")  
+ 
+
+  ggsave(paste(chamb, "chair pre post density.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+  
+  
+chairs %>% 
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  ggplot() + 
+  # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
+  # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  geom_smooth(aes(x = yearsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
+  facet_grid(. ~ chamber, scales = "free_y") +
+  #facet_grid(committee ~ department, scales = "free_y") +
+  # facet_wrap(~committee, scales = "free_y") +
+  scale_x_continuous(limits = c(-2,2), breaks = seq(-2,2,by =1)) + 
+  labs(title = paste("Before and After Appointment to Committee Chair"),
+       x = "Years Before and After Appointment to Committee Chair",
+       y = "Number of Letters")
+
+chairs %>% 
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
+  filter(!is.na(TYPE)) %>% 
+  ggplot() + 
+  # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
+  # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  geom_smooth(aes(x = yearsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
+  facet_grid(TYPE ~ chamber, scales = "free_y") +
+  #facet_grid(committee ~ department, scales = "free_y") +
+  # facet_wrap(~committee, scales = "free_y") +
+  scale_x_continuous(limits = c(-2,2), breaks = seq(-2,2,by =1)) + 
+  labs(title = paste("Before and After Appointment to Committee Chair"),
+       x = "Years Before and After Appointment to Committee Chair",
+       y = "Number of Letters")
+theme(legend.title = element_blank(),
+      strip.text.y = element_text(angle = 0, size = 5),
+      axis.text.x = element_text(angle = 0, size = 5),
+      axis.text.y = element_text(angle = 0, size = 5))
+
+ggsave(paste("chair effect.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+
 
 
 #####################################
