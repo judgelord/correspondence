@@ -54,13 +54,9 @@ clean <- function(file.name) {
   data$FROM <- gsub(" 1. ", " L. ", data$FROM)
   data$FROM <- gsub("Hany", "Harry", data$FROM)
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
-  
-    # FROM category struggles with double l's (i.e. "ll"). They are often just missing. 
-  # Dingell, Conolly, Hillary, Russell, SWALWELL, Chellie, Udall, Woodall, Marshall, William, Cantwell
-  # Miller, Wally, Allen
 
-  # adds "ll" to names that were misread
-  data$FROM <- add.ll(data$FROM)
+  # adds "ll" to names that were misread and other ocr errors
+  data$FROM <- ocr.errors(data$FROM)
   # names 
   data <- extractMemberName(data, members, 'FROM')
   
