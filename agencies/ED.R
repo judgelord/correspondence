@@ -19,8 +19,9 @@ clean <- function(file.name) {
   
   
   # preprocess FROM column
-  data$FROM <- gsub("the|The|honorable|Honorable", "", data$FROM)
+  data$FROM <- gsub("the|The|honorable|Honorable|Senator", "", data$FROM)
   data$FROM <- gsub("Mr.", "",data$FROM, ignore.case = TRUE)
+  data$FROM <- ocr.errors(data$FROM)
   
   # create variable for first and last name
   data <- getFirstLast.Comma(data, 'FROM')
