@@ -3,7 +3,9 @@
 # load functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
-# Departments and agencies are listed A-Z
+# note for MERGING: all columns in d are character except DATE, year, and congress (see clean.R)
+
+# Master list of data: Departments and agencies are listed A-Z
 # 1 agency = the title of the R script for cleaning these data
 # 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
@@ -37,7 +39,7 @@ data_list <- as.data.frame(matrix(c(
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
-"DOI_BOEM", "not coded", NA, # "coded", "Aaron",
+"DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
@@ -53,7 +55,7 @@ data_list <- as.data.frame(matrix(c(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA,
-"DOT_SLSDC", "not coded", NA,
+"DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
 # EPA
@@ -133,12 +135,6 @@ while(length(unique(d$agency) == i)) {
 
 
 
-# identify timeframe and completeness for each agency
-d %<>% group_by(agency) %>% mutate(timeframe = paste(unique(year), collapse = ":")) %>%
-  mutate(complete = ifelse(nchar(timeframe) > (10*4+8), T, F))
-
-timeframe <- unique(cbind(d$agency, d$complete, d$timeframe))
-
 
 
 # fix date-specific member name and party issues 
@@ -162,18 +158,20 @@ d$department <- gsub("_.*", "", d$agency) # name dept
 # names that match more than one member - false positives
 bad.names1 <- d %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
-  mutate(n = n()) %>% filter(n>1) %>% 
+  mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   select(agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress)
 
 # names that don't match - potentially typos / false negatives
 bad.names2 <- d %>% 
-  filter(is.na(bioname)) %>% 
+  filter(is.na(bioname) | bioname == "") %>% 
   select(agency, DATE, FROM, first_name, last_name,  chamber, state, SUBJECT, TYPE)
 
 # date typos 
 bad.dates <- d %>% 
   filter(year > 2018 | year < 2000) %>% 
   select(agency, DATE, FROM, first_name, last_name, chamber, state, SUBJECT, TYPE)
+
+d %<>% filter(year < 2018 & year > 2006)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -182,12 +180,26 @@ bad.party <- d %>%
   select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% 
   distinct()
 
+
+# identify timeframe and completeness for each agency
+d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collapse = ":")) %>%
+  mutate(timeframe = paste(agency, timeframe)) %>%
+  mutate(complete = ifelse(2008 %in% timeframe & 2017 %in% timeframe, T, F)) %>% ungroup()
+
+unique(d$timeframe)
+
+
 # one obs per letter per committee assignment 
 dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
-# save.image(paste("correspondence", Sys.Date(), ".RData"))
+save.image(paste("correspondence", Sys.Date(), ".RData"))
+
+
+
+
+
 
 # upload google sheet of obs failing to match with voteview
 

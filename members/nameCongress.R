@@ -256,6 +256,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "WHITEHOUSE";
   members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "BORDALLO"; members$first_name[nrow(members)] <- "Madeleine"
   members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "FALEOMAVAEGA"; members$first_name[nrow(members)] <- "Eni"
+  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JOHNSON"; members$first_name[nrow(members)] <- "Tia"; members$common_name[nrow(members)] <- "M. Tia"
   
   
   # select
