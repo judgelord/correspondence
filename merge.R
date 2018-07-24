@@ -12,14 +12,14 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 
 data_list <- as.data.frame(matrix(c(
 # Agency, c(coded, not coded, recoded), coders,
-"Amtrak", "not coded", NA,
+"Amtrak", "not coded", NA, # complete but no subjects to code
 "DHHS_ACF", "not coded", NA,
 "DHHS_ACL", "not coded", NA,
-"DHHS_CDC", "not coded", NA,
+"DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
 # DHS
-"DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing
-"DHS_ICE", "not coded", NA,
+"DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
+"DHS_ICE", "not coded", NA, # not much to code
 # DOC
 "DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
 "DOC_IOS", "coded", "Aaron",
@@ -120,15 +120,16 @@ while(length(unique(d$agency) == i)) {
   
   print(data_list[i,1])
   
-    dt <- clean.agency(
+    data <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
-      coders = data_list[i, 3]) %>% 
+      coders = data_list[i, 3]) 
+    data %<>% 
       left_join(members) %<>% 
       select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
       left_join(members)
     
-    d %<>% full_join(dt)
+    d %<>% full_join(data)
     
     i <- i+1
 }

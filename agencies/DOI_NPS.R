@@ -2,19 +2,20 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "DOI_NPS" # for testing
+#  file.name <- "DOI_NPS" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # Remove duplicated rows 
-  data <- data[!duplicated(data[,c('ID')]),]  
+
+  
   #create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%m/%d/%y")
   
   
   #create year and congress columns
@@ -36,12 +37,13 @@ clean <- function(file.name) {
   }
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[!(is.na(data$ID)&is.na(data$FROM)&is.na(data$SUBJECT)),]
+
+
+  
+  ################ 
   
   
-  ################ We got better quality data, now ignoring FROM2 col
-  
+  #  We got better quality data, now ignoring FROM2 col
   # create variable for last name
   # data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
   # data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.", replacement = ",", data$FROM2)
@@ -50,9 +52,12 @@ clean <- function(file.name) {
   
   data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
   data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM)
+  
+
+  # names 
   data <- getFirstLast.Comma(data, 'FROM')
   
-  data$last_name <- ifelse(grepl("^^(\\w+)$", data$FROM), formatLastName(data, 'FROM'), data$last_name)
+  # data$last_name <- ifelse(grepl("^^(\\w+)$", data$FROM), formatLastName(data, 'FROM'), data$last_name)  # THIS DOES NOT LOOK RIGHT, TAKING IT OUT
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
