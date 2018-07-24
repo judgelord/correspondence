@@ -3,7 +3,7 @@
 
 # Lots of errors, needs fixing
 
-#file.name <- "ED" # for testing
+# file.name <- "ED" # for testing
 
 
 clean <- function(file.name) {
@@ -19,7 +19,10 @@ clean <- function(file.name) {
   
   
   # preprocess FROM column
-  data$FROM <- gsub("the|The|honorable|Honorable", "", data$FROM)
+  data$FROM <- gsub("( |^)The|honorable|Honorable|hon\\.|Senator|Name:", "", data$FROM, ignore.case = TRUE)
+  data$FROM <- gsub("Mr.|Ms.", "",data$FROM, ignore.case = TRUE)
+  data$FROM <- gsub("Wolff", "Wolf", data$FROM)
+  data$FROM <- ocr.errors(data$FROM)
   
   # create variable for first and last name
   data <- getFirstLast.Comma(data, 'FROM')
