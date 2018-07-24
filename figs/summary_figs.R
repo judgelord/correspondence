@@ -11,7 +11,7 @@ library(magrittr)
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 if( !exists("committees") ) { source("setup.R") }
 # or load an archived data file:
-# load("correspondence07132018.RData")
+# load("correspondence 2018-07-24 .RData")
 
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
@@ -103,7 +103,7 @@ df %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(coded = ifelse(TYPE == "To be coded", F, T)) %>% 
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(agency, n), color = complete, alpha = coded))
+  geom_point(aes(x = DATE, y = paste(n, agency), color = complete, alpha = coded))
 # CDC is rolling release 
 # SBA has no records before 2010
 # DOJ_CIV is a rolling release - 2009-2011 recieved in July 2018
