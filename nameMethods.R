@@ -642,13 +642,11 @@ getFirstLast.Comma <- function(data, col_name){
 }
 
 
-#Dingell, Conolly, Hillary, Russell, SWALWELL, Chellie, Udall, Woodall, Marshall, William, Cantwell
-# Miller, Wally, Allen
-
-
-# Function adds "ll" to names in vector that should contain "ll", but were misread.
-# ex. Changes "Hiary" and "Donoy" to "Hillary" and "Donolly"
-add.ll <- function(FROM){
+# Fixes common errors when names read in from OCR
+# May need adjustments for different agencies/formats
+ocr.errors <- function(FROM){
+  
+  # adds "ll" to last names
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("Dinge", "Dingell", FROM)
   FROM <- gsub("Connoy", "Connolly", FROM)
@@ -671,7 +669,7 @@ add.ll <- function(FROM){
   FROM <- gsub("Darre ", "Darrell", FROM)
   FROM <- gsub("Gaegly", "Gallegly", FROM)
   FROM <- gsub("Giibrand", "Gillibrand", FROM)
-  FROM <- gsub("McConne", "McConne", FROM, ignore.case = TRUE)
+  FROM <- gsub("McConne", "McConnell", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Ayson", "\\1Allyson", FROM)
   FROM <- gsub("Keer($| |,)", "Keller\\1", FROM)
   FROM <- gsub("(^| )Een", "(Ellen)", FROM)
@@ -682,18 +680,19 @@ add.ll <- function(FROM){
   FROM <- gsub("Gabriee", "Gabrielle", FROM)
   FROM <- gsub("(^| )Aard", "\\1Allard", FROM)
   FROM <- gsub("McCoum", "McCollum", FROM, ignore.case = TRUE)
-  FROM <- gsub("( |^)Eison( |$)", "\\1Ellison\\2", FROM)
+  FROM <- gsub("(^| )Eison( |$)", "\\1Ellison\\2", FROM)
+  FROM <- gsub("(^| )Weer( |$)", "\\1Weller\\2", FROM)
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("Hiary", "Hillary", FROM)
-  FROM <- gsub("Hiary", "Hillary", FROM)
+  
+  # other errors
+  FROM <- gsub(".1.", "", FROM)
+  FROM <- ifelse(grepl(" Cha", FROM)&grepl("((^| )Ja)|(J a.son)", FROM)&grepl('etz', FROM), 'Jason Chaffetz', FROM)
+  FROM <- ifelse(grepl("Tom", FROM)&grepl("Cobum|Co bum", FROM), 'Tom Coburn', FROM)
+  FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM)
   
   return(FROM)
 }
 
 
-# addresses common ocr errors that may repeat 
-# may not be usable for every agency
-ocr.errors <- function(FROM){
-  add.ll(FROM)
-  FROM <- ifelse(grepl(" Cha", FROM)&grepl("((^| )Ja)|(J a.son)", FROM)&grepl('etz', FROM), 'Jason Chaffetz', FROM)
-}
+

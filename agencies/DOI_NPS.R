@@ -1,17 +1,15 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 232 out of 1403 last names not matched. Wait for better data from agency. 
 
-  #file.name <- "DOI_NPS" # for testing
+#file.name <- "DOI_NPS" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # Remove duplicated rows
+  # Remove duplicated rows 
   data <- data[!duplicated(data[,c('ID')]),]  
-  
   #create agency column
   data$agency <- file.name
   
@@ -39,6 +37,8 @@ clean <- function(file.name) {
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
+  data <- data[!(is.na(data$ID)&is.na(data$FROM)&is.na(data$SUBJECT)),]
+  
   
   ################ We got better quality data, now ignoring FROM2 col
   
