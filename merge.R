@@ -154,11 +154,13 @@ d %<>%
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
 
 d$department <- gsub("_.*", "", d$agency) # name dept
+d %<>% mutate(id = paste(agency, ID))
 
 # names that match more than one member - false positives
 bad.names1 <- d %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress)
 
 # names that don't match - potentially typos / false negatives
