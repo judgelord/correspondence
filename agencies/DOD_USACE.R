@@ -11,6 +11,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
+  data$originalDATE <- data$DATE
   data$DATE <- gsub(" .*","", data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
   
@@ -33,7 +34,7 @@ clean <- function(file.name) {
   {gsub("-.*| .*|,.*|:.*", "", .)}
   
 
-data %<>% select(DATE, SUBJECT, last_name, chamber, everything())  
+data %<>% select(DATE, originalDATE, SUBJECT, last_name, chamber, everything())  
   
   
 }
