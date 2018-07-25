@@ -634,7 +634,7 @@ chairs %>%
   ggsave(paste("chair pre post density by type.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
   
 chairs %>%
-    filter(committee %in% comms, department %in% c("DHHS", "DHS", "DOC", "DOD", "DOE", "DOI", "DOL", "DOT", "EPA", "USDA")) %>%
+    filter(committee %in% comms, complete == T, department %in% c("DHHS", "DHS", "DOC", "DOD", "DOE", "DOI", "DOL", "DOT", "EPA", "USDA")) %>%
     #filter(chamber == chamb) %>%
     filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
     ggplot() + 
@@ -653,7 +653,7 @@ chairs %>%
   
   
 chairs %>% 
-  filter(committee %in% comms) %>%
+  filter(complete == T, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   ggplot() + 
   # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
