@@ -10,6 +10,9 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data))
   
+  # remove NA rows
+  data <- data[-which(is.na(data$FROM)),]
+  
   # create agency column
   data$agency <- file.name
   
