@@ -431,6 +431,8 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
   data$FROM2 <- gsub("(REP|SEN)(.|- | - |. )", "", data$FROM2)
+  data$FROM2 <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$FROM2)
+  data$FROM2 <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$FROM2)
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
