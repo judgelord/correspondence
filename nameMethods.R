@@ -158,7 +158,7 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
-  data$Summary <- gsub('\\"Bobby\\"|\\"Buddy\\"|\\"GT\\"', "", data$Summary)
+  data$Summary <- gsub('\\"Bobby\\"|\\"Buddy\\"|\\"GT\\"|\\"Buck\\"', "", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
@@ -431,6 +431,8 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
   data$FROM2 <- gsub("(REP|SEN)(.|- | - |. )", "", data$FROM2)
+  data$FROM2 <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$FROM2)
+  data$FROM2 <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$FROM2)
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
@@ -745,10 +747,22 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
   FROM <- ifelse(grepl("Comyn|Com yn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn","Cornyn", FROM), FROM)
   FROM <- gsub("Cwnmings", 'Cummings', FROM)
-  FROM <- gsub("Tnhofe", "Imhoff", FROM)
+  FROM <- gsub("Tnhofe", "Inhofe", FROM)
+  FROM <- gsub("Ellrners","Ellmers", FROM)
   
   return(FROM)
 }
 
+# (not a name function)
+# Formats DATE column when multiple date formats exist
+# example call:   data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
+multidate <- function(col, formats){
+  a<-list()
+  for(i in 1:length(formats)){
+    a[[i]]<- as.Date(col,format=formats[i])
+    a[[1]][!is.na(a[[i]])]<-a[[i]][!is.na(a[[i]])]
+  }
+  a[[1]]
+}
 
 

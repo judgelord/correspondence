@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 178 non matches on last_name
+# 122 non matches on last_name
 
  #file.name <- "NASA" # for testing
 
@@ -12,8 +12,13 @@ clean <- function(file.name) {
   
   data <- data[-which(is.na(data$FROM)),]
   
-  data$DATE %<>% as.Date() # FIX ME 
+  # format DATE to multiple formats
+  data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
   
+  #create year and congress columns
+  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
   # create ID variable
   data$ID <- c(1:nrow(data))
   
@@ -38,13 +43,17 @@ clean <- function(file.name) {
   data <- data[!data$FROM == "",] # removes blank observations
   ################
   
+  # preprocess
+  data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
+  
   data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
 
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
-    # arrange columns for hand coding
+  
+  # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
   
   data%<>%
