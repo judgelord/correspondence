@@ -28,8 +28,7 @@ clean <- function(file.name) {
   data %<>%
     getFirstLast.Comma("FROM")
   
-  data %<>%
-    arrange(last_name)
+  data %<>% arrange(DATE)
   
   
   

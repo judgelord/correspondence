@@ -13,7 +13,7 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 data_list <- as.data.frame(matrix(c(
 # Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA, # complete but no subjects to code
-"DHHS_ACF", "not coded", NA,
+"DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
@@ -27,15 +27,17 @@ data_list <- as.data.frame(matrix(c(
 "DOC_NIST", "not coded", NA,
 "DOC_NOAA", "not coded", NA,
 "DOC_OCPA", "not coded", NA,
-"DOC_OS", "not coded", NA,
+"DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
 # DOD
-"DOD_DeCA", "coded", "Devin",
+"DOD_DeCA", "coded", "Devin", # only some are on drive 
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
-"DOD_Navy", "coded", "Delaney",
-"DOD_OSDJS", "not coded", NA,
-"DOD_USACE", "not coded", NA,
+"DOD_Navy", "coded", "Delaney", # records post 2013
+# "DOD_OIG", "not coded", NA, # waiting for records back from Upwork Joe
+"DOD_OSDJS", "not coded", NA, # waiting on remaining records
+"DOD_USACE", "not coded", NA, # no records before fall 2013
+# "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI 
@@ -47,14 +49,16 @@ data_list <- as.data.frame(matrix(c(
 "DOJ_CIV", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT
+"DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
 "DOL_VETS", "not coded", NA,
+# DOS 
+"DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
-"DOT_FHWA", "not coded", NA,
+"DOT_FHWA", "not coded", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
@@ -65,19 +69,20 @@ data_list <- as.data.frame(matrix(c(
 # FCC
 "FCC", "coded", "Devin",
 # FDA
-"FDA", "not coded", NA,
+"FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
 # FHFA
 # "FHFA", "not coded", NA,
 # FMC
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress
 # GSA
-# "GSA", "not coded", NA, # 6k entries 2007-2017, but no member names
+# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
 # NASA
 # "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
 # "NCPC", "not coded", NA,
+# "NLRB" , "not coded", NA,
 # PRC
-"PRC", "not coded", NA,
+"PRC", "not coded", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
@@ -86,6 +91,7 @@ data_list <- as.data.frame(matrix(c(
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
+# "Treasury_Mint", "not coded", NA, # rich and complete, but not on drive needs to be assembled
 "Treasury_OCC", "coded", "Aaron",
 # USDA 
 "USDA", "not coded", NA,
@@ -94,7 +100,7 @@ data_list <- as.data.frame(matrix(c(
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
-"USDA_RMA", "not coded", NA,
+"USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
@@ -125,7 +131,7 @@ while(length(unique(d$agency) == i)) {
       status = data_list[i, 2],
       coders = data_list[i, 3]) 
     data %<>% 
-      left_join(members) %<>% 
+      left_join(members) %>% 
       select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
       left_join(members)
     
@@ -133,8 +139,6 @@ while(length(unique(d$agency) == i)) {
     
     i <- i+1
 }
-
-
 
 
 
@@ -196,8 +200,7 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe) &
-      grepl("2017", timeframe)
+      grepl("2016", timeframe) # & grepl("2017", timeframe)
     , T, F)) %>% ungroup()
 
 unique(d$timeframe)
