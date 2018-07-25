@@ -78,7 +78,7 @@ data_list <- as.data.frame(matrix(c(
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
 # NASA
-# "NASA", "not coded", NA, # needs cleanup, esp of dates 
+ "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
 # "NCPC", "not coded", NA,
 "NLRB" , "not coded", NA,
