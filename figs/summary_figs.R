@@ -108,9 +108,12 @@ df %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
   ggplot() + 
-  labs(title = "Missing and Complete Data") +
+  labs(title = "Data Sources Reasonably Complete?",
+       y = paste("Total observations matched with ICPSR =", nrow(df) )) +
   geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = coded), alpha = .2) +
    facet_grid(complete ~., scales = "free_y", space = "free_y")
+ggsave(paste("missing data.pdf"), width = 11, height = 8.5, path = "~/correspondence/figs")
+
 # CDC is rolling release, 2010-2011 expected Nov 2018
 # SBA has no records before 2010
 # DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
@@ -576,7 +579,7 @@ depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
 comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
            "TRANSPORTATION", "OVERSIGHT", 
            "RULES", "BUDGET", "WAYS", "COMMERCE", 
-           "APPROPRIATIONS", "ENERGY", "HEALTH")
+           "APPROPRIATIONS", "ENERGY")
 
 
 
@@ -607,7 +610,7 @@ ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path
 
 
 chairs %>%
-  filter(committee %in% comms) %>%
+  filter(committee %in% comms, last_name != "STARK") %>%
   #filter(chamber == chamb) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
@@ -615,16 +618,38 @@ chairs %>%
   mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
   filter(!is.na(TYPE)) %>% 
   ggplot() + 
-  labs(title = paste(chamb, "Committee Chairs Before and After Appointment (subset appointed 2009-2016)"),
+  labs(title = paste("Committee Chairs Before and After Appointment (subset appointed 2009-2015)"),
        x = "Days Before and Affter Appointment") + 
   geom_density(aes(x = daysAsChair, fill = paste(chamber, committee_member)), alpha = .3)+#, color = position))  + 
   geom_vline(aes(xintercept = 0), color = "black") + 
   #scale_color_grey() +
-  scale_x_continuous(breaks = seq(-720,720,90), limits = c(-720,720)) + 
-  facet_grid(committee ~ TYPE, scales = "free_y")  
+  scale_x_continuous(breaks = seq(-720,720,720), limits = c(-720,720)) + 
+  facet_grid(TYPE ~ committee, scales = "free_x")  + 
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 5)
+        )
  
 
-  ggsave(paste(chamb, "chair pre post density.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
+  ggsave(paste("chair pre post density by type.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
+  
+chairs %>%
+    filter(committee %in% comms, department %in% c("DHHS", "DHS", "DOC", "DOD", "DOE", "DOI", "DOL", "DOT", "EPA", "USDA")) %>%
+    #filter(chamber == chamb) %>%
+    filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+    ggplot() + 
+    labs(title = paste("Committee Chairs Before and After Appointment (subset appointed 2009-2015)"),
+         x = "Days Before and Affter Appointment") + 
+    geom_density(aes(x = daysAsChair, fill = paste(chamber, committee_member)), alpha = .3)+#, color = position))  + 
+    geom_vline(aes(xintercept = 0), color = "black") + 
+    #scale_color_grey() +
+    scale_x_continuous(breaks = seq(-720,720,720), limits = c(-720,720)) + 
+    facet_grid( department ~ committee, scales = "free_y")  + 
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 5))
+  
+  ggsave(paste("chair pre post density by dept.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
   
   
 chairs %>% 
