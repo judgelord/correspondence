@@ -402,8 +402,9 @@ extractMemberName <- function(data, members, col_name){
    mutate(last_name = ifelse( grepl("Lou",Summary,ignore.case=TRUE)&grepl("Gohmert",Summary,ignore.case=TRUE), "GOHMERT", last_name)) %>% 
    mutate(first_name = ifelse( grepl("Lou",Summary,ignore.case=TRUE)&grepl("Gohmert",Summary,ignore.case=TRUE), "Louie", first_name)) %>% 
    mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Jaime", first_name)) 
- 
+   mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Jaime", first_name)) %>% 
+ mutate(last_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",Summary,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Dianne", first_name))
   return(data)
  
  
@@ -628,7 +629,9 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(last_name = ifelse( grepl("Lou",FROM2,ignore.case=TRUE)&grepl("Gohmert",FROM2,ignore.case=TRUE), "GOHMERT", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Lou",FROM2,ignore.case=TRUE)&grepl("Gohmert",FROM2,ignore.case=TRUE), "Louie", first_name)) %>% 
     mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Jaime", first_name))
+    mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Jaime", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",FROM2,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Dianne", first_name))
   
 
     
@@ -752,7 +755,10 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Cwnmings", 'Cummings', FROM)
   FROM <- gsub("Tnhofe", "Inhofe", FROM)
   FROM <- gsub("Ellrners","Ellmers", FROM)
-  FROM <- gsub("TONKA", "TONKO")
+  FROM <- gsub("TONKA", "TONKO", FROM)
+  FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^ )Coryn( |$)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
+  
   
   return(FROM)
 }
