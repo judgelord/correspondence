@@ -30,7 +30,7 @@ data_list <- as.data.frame(matrix(c(
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
 # DOD
-"DOD_DeCA", "coded", "Devin",
+"DOD_DeCA", "coded", "Devin", # only some are on drive 
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # records post 2013
@@ -75,7 +75,7 @@ data_list <- as.data.frame(matrix(c(
 # FMC
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress
 # GSA
-# "GSA", "not coded", NA, # 6k entries 2007-2017, but no member names
+# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
 # NASA
 # "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
@@ -140,8 +140,6 @@ while(length(unique(d$agency) == i)) {
     i <- i+1
 }
 
-central$location <- "central"
-
 
 
 # fix date-specific member name and party issues 
@@ -202,8 +200,7 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe) &
-      grepl("2017", timeframe)
+      grepl("2016", timeframe) # & grepl("2017", timeframe)
     , T, F)) %>% ungroup()
 
 unique(d$timeframe)

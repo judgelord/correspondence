@@ -11,7 +11,7 @@ library(magrittr)
 if( !exists("d") ) { source("merge.R") } # this may take a while as it loads and cleans each sheet, incorperating any new coding
 if( !exists("committees") ) { source("setup.R") }
 # or load an archived data file:
-# d <- load("correspondence 2018-07-24 .RData")
+# load("correspondence 2018-07-24 .RData")
 
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
@@ -86,7 +86,12 @@ dcommittees %<>%
 # Select only Comittee Chairs
 chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")]))) 
 
-
+chairs %<>% 
+  mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
+  mutate(yearsAsChair = daysAsChair/365) %>%
+  mutate(monthsAsChair = daysAsChair/30) %>%
+  group_by(month) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
 
 
@@ -568,11 +573,10 @@ mean(tenure$n[tenure$tenure == 2])
 
 # define matchable committees and depts
 depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
-comms <- c("HOMELAND SECURITY", 
-           "ENVIRONMENT", "AGRICULTURE", 
+comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
            "TRANSPORTATION", "OVERSIGHT", 
            "RULES", "BUDGET", "WAYS", "COMMERCE", 
-           "APPROPRIATIONS", "Energy", "Health")
+           "APPROPRIATIONS", "ENERGY", "HEALTH")
 
 
 
@@ -600,15 +604,11 @@ ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path
 
 
 
-chairs %<>% 
-  mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
-  mutate(yearsAsChair = daysAsChair/365) %>%
-  group_by(year) %>% mutate(n = n()) %>% ungroup() %>%
-  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
+
 
 chairs %>%
   filter(committee %in% comms) %>%
-  filter(chamber == chamb) %>%
+  #filter(chamber == chamb) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
   mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
@@ -617,32 +617,35 @@ chairs %>%
   ggplot() + 
   labs(title = paste(chamb, "Committee Chairs Before and After Appointment (subset appointed 2009-2016)"),
        x = "Days Before and Affter Appointment") + 
-  geom_density(aes(x = daysAsChair, fill = committee_member), alpha = .3)+#, color = position))  + 
+  geom_density(aes(x = daysAsChair, fill = paste(chamber, committee_member)), alpha = .3)+#, color = position))  + 
   geom_vline(aes(xintercept = 0), color = "black") + 
   #scale_color_grey() +
   scale_x_continuous(breaks = seq(-720,720,90), limits = c(-720,720)) + 
   facet_grid(committee ~ TYPE, scales = "free_y")  
  
 
-  ggsave(paste(chamb, "chair pre post density.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+  ggsave(paste(chamb, "chair pre post density.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
   
   
 chairs %>% 
+  filter(committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   ggplot() + 
   # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
   # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
   geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_smooth(aes(x = yearsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
+  geom_smooth(aes(x = monthsAsChair, y = n, color = committee)) + 
+  #geom_smooth(aes(x = monthsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
   facet_grid(. ~ chamber, scales = "free_y") +
   #facet_grid(committee ~ department, scales = "free_y") +
   # facet_wrap(~committee, scales = "free_y") +
-  scale_x_continuous(limits = c(-2,2), breaks = seq(-2,2,by =1)) + 
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
   labs(title = paste("Before and After Appointment to Committee Chair"),
-       x = "Years Before and After Appointment to Committee Chair",
-       y = "Number of Letters")
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Number of Letters per Year")
 
 chairs %>% 
+  filter(committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
   mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
@@ -652,14 +655,14 @@ chairs %>%
   # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
   # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
   geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_smooth(aes(x = yearsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
-  facet_grid(TYPE ~ chamber, scales = "free_y") +
+  geom_smooth(aes(x = monthsAsChair, y = n, color = committee)) + #, color = TYPE))+#, color = "black")  + 
+  facet_grid(chamber ~ TYPE, scales = "free_y") +
   #facet_grid(committee ~ department, scales = "free_y") +
   # facet_wrap(~committee, scales = "free_y") +
-  scale_x_continuous(limits = c(-2,2), breaks = seq(-2,2,by =1)) + 
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
   labs(title = paste("Before and After Appointment to Committee Chair"),
-       x = "Years Before and After Appointment to Committee Chair",
-       y = "Number of Letters")
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Number of Letters per Month")
 theme(legend.title = element_blank(),
       strip.text.y = element_text(angle = 0, size = 5),
       axis.text.x = element_text(angle = 0, size = 5),
