@@ -59,7 +59,7 @@ data_list <- as.data.frame(matrix(c(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
-# "DOT_FTA", "not coded", NA, 
+ "DOT_FTA", "not coded", NA, 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
