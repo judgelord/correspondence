@@ -38,6 +38,11 @@ clean <- function(file.name) {
   data$last_name <- ifelse(grepl("^[A-Za-z]+$", data$FROM), formatLastName(data, 'FROM'), data$last_name)
   
   
+  #Create variable for chamber position  (Senator or Representative)
+  data %<>%
+    mutate(chamber = ifelse (grepl("Senate|Senator", SUBJECT), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("Congress|Cong |Cong\\.|Rep |Rep\\.|Represe|House", SUBJECT), "House", chamber)) 
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
   
