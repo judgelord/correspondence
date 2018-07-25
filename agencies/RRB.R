@@ -4,7 +4,7 @@
 # 63 mismatches
 
 
-# file.name <- "RRB" # for testing
+ #file.name <- "RRB" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -28,6 +28,7 @@ clean <- function(file.name) {
   
   # create variable for full name
   data$FROM <- gsub("Tanko", "Tonko", data$FROM)
+ # data$FROM <- ocr.errors(data$FROM)
   data <- extractMemberName(data, members,"FROM")
   
   
