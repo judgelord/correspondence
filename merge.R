@@ -59,6 +59,7 @@ data_list <- as.data.frame(matrix(c(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
+# "DOT_FTA", "not coded", NA, 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
@@ -80,7 +81,7 @@ data_list <- as.data.frame(matrix(c(
 # "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
 # "NCPC", "not coded", NA,
-# "NLRB" , "not coded", NA,
+"NLRB" , "not coded", NA,
 # PRC
 "PRC", "not coded", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
 # RRB
@@ -142,7 +143,8 @@ while(length(unique(d$agency) == i)) {
 
 
 
-# fix date-specific member name and party issues 
+# fix date-specific member name and party issues. 
+# See bad.party object for party switchers to check 
 d %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
@@ -157,6 +159,7 @@ d %<>%
   filter(bioname != "GILLIBRAND, Kirsten" | chamber != "Senate" | DATE > as.Date("2009-01-26")) %>%
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
+# NEED TO ADD LIEBERMAN
 
 d$department <- gsub("_.*", "", d$agency) # name dept
 d %<>% mutate(id = paste(agency, ID))
