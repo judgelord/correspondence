@@ -215,7 +215,7 @@ dcommittees <- d %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
-save.image(paste("correspondence", Sys.Date(), ".RData"))
+save.image(paste("correspondence.RData"))
 
 
 
