@@ -31,6 +31,8 @@ clean <- function(file.name) {
   data$FROM <- ocr.errors(data$FROM)
   data <- extractMemberName(data, members,"FROM")
   
+  data %<>% arrange(rev(last_name))
+  
   
   
   # arrange columns for hand coding
