@@ -16,19 +16,21 @@ if( !exists("committees") ) { source("setup.R") }
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
 # numeric to text 
-df$TYPE[is.na(df$TYPE)] <- "To be coded"
-df$TYPE[df$TYPE == 0] <- "To be coded"
-df$TYPE[df$TYPE == 1] <- "Indiv. Constituent"
-df$TYPE[df$TYPE == 2] <- "Corp. Constituent"
-df$TYPE[df$TYPE == 3] <- "501c3 or Local Gov."
-df$TYPE[df$TYPE == 4] <- "Corp. Policy"
-df$TYPE[df$TYPE == 5] <- "Policy"
-df$TYPE[df$TYPE == 6] <- "To be coded"
+df$Type[is.na(df$TYPE)] <- "To be coded"
+df$Type[df$TYPE == 0] <- "To be coded"
+df$Type[df$TYPE == 1] <- "Indiv. Constituent"
+df$Type[df$TYPE == 2] <- "Corp. Constituent"
+df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
+df$Type[df$TYPE == 4] <- "Corp. Policy"
+df$Type[df$TYPE == 5] <- "Policy"
+df$Type[df$TYPE == 6] <- "To be coded"
 
 df %<>% 
   mutate(month = format(DATE, "%Y-%m")) %>% 
   group_by(bioname, month) %>% mutate(permonth = n()) %>% ungroup() %>% 
-  mutate(cal.month = format(DATE, "%m(%b)"))
+  mutate(cal.month = format(DATE, "%m(%b)")) %>% 
+  mutate(name = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
+  mutate(name = factor(name, levels=rev(levels(name))))
 
 # bin percentiles of letter writers per agency and per dept
 df %<>% 
@@ -53,6 +55,10 @@ dcommittees$terminationdate %<>% as.Date()
 dcommittees$party[dcommittees$party_code == 100] <- "(D)"
 dcommittees$party[dcommittees$party_code == 200] <- "(R)"
 dcommittees$party[dcommittees$party_code == 328] <- "(I)"
+
+df$party[df$party_code == 100] <- "(D)"
+df$party[df$party_code == 200] <- "(R)"
+df$party[df$party_code == 328] <- "(I)"
 
 dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
@@ -130,6 +136,48 @@ df %>%
   labs(title = "Missing and Complete Data") +
   facet_grid(complete ~ coded, scales = "free_y", space = "free_y")
 
+
+
+# tile 
+df %<>% 
+  group_by(department, bioname, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
+  group_by(department, bioname) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
+  # add 0s where no observations
+  # left_join(data_frame(bioname = unique(df$bioname), perMember = 0) %>% full_join(data_frame(department = unique(df$department),perMember = 0))) %>% 
+  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup() 
+
+df %>%  
+  filter(chamber == "Senate") %>% 
+  filter(perAgency > 1000) %>%
+  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
+  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
+  group_by(name, state_abbrev, sd.from.mean, perMember, department) %>% tally() %>% ungroup() %>% 
+  ggplot() +
+  geom_tile(aes(x = department, y = name, fill = sd.from.mean))  + 
+  geom_text(aes(x = department, y = name, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year per Department or Agency
+(Showing members sending more than 10,000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(df$perMemberYear), 0), ", Mean Standard Deviation = ", round(mean(df$sd), 0)),
+       x = "",
+       y = "Senate")
+
+
+# tile type
+df %>%  
+  group_by(Type, name, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
+  group_by(Type, name) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
+  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup() %>%
+  filter(chamber == "Senate") %>% 
+  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
+  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
+  group_by(name, state_abbrev, sd.from.mean, perMember, Type, TYPE) %>% tally() %>%
+  ggplot() +
+  geom_tile(aes(x = reorder(Type, TYPE), y = name, fill = sd.from.mean))  + 
+  geom_text(aes(x = reorder(Type, TYPE), y = name, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year by Type
+(Showing members sending more than 10,000)"),
+       x = "",
+       y = "Senate")
 
 
 
@@ -569,8 +617,8 @@ tenure %<>%
 mean(tenure$year[tenure$tenure == 0])
 
 mean(tenure$n[tenure$tenure == -2])
-mean(tenure$n[tenure$tenure == -1])
-mean(tenure$n[tenure$tenure == 0])
+year.before.chair <- mean(tenure$n[tenure$tenure == -1])
+year.after.chair <- mean(tenure$n[tenure$tenure == 0])
 mean(tenure$n[tenure$tenure == 1])
 mean(tenure$n[tenure$tenure == 2])
 
