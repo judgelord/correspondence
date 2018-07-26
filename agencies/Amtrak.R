@@ -41,6 +41,8 @@ clean <- function(file.name) {
     }
   }
   data <- data[-grep("/", data$FROM),] # removes orginal row with all data
+  data <- data[-grep("--",data$FROM),]
+  data <- data[-grep("^\\d", data$FROM),]
   ###     ###     ###
   
   
