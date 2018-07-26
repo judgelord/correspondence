@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 63 mismatches
+# 291 mismatches
 
 
 # file.name <- "RRB" # for testing
@@ -28,6 +28,7 @@ clean <- function(file.name) {
   
   # create variable for full name
   data$FROM <- gsub("Tanko", "Tonko", data$FROM)
+  data$FROM <- ocr.errors(data$FROM)
   data <- extractMemberName(data, members,"FROM")
   
   
