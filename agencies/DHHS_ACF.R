@@ -13,6 +13,28 @@ clean <- function(file.name) {
 
   # create ID variable
   data$ID <- c(1:nrow(data))
+  
+  # Remove unwnated rows
+  data <- data[-grep("^(B|1|Unknown, Unknown)$",data$FROM),]
+  
+  
+  data$`Date Closed`[data$ID %in% c(446:463)] <- data$`Doc ID`[data$ID %in% c(446:463)]
+  data$`Doc ID`[data$ID %in% c(446:463)] <- data$`Assigned Due Date`[data$ID %in% c(446:463)]
+  data$`Assigned Due Date`[data$ID %in% c(446:463)] <- data$`Policy Coordinator`[data$ID %in% c(446:463)]
+  data$`Policy Coordinator`[data$ID %in% c(446:463)] <- data$`Status`[data$ID %in% c(446:463)]
+  data$`Status`[data$ID %in% c(446:463)] <- data$`DATE`[data$ID %in% c(446:463)]
+  data$`DATE`[data$ID %in% c(446:463)] <- data$`Action Required`[data$ID %in% c(446:463)]
+  data$`Action Required`[data$ID %in% c(446:463)] <- data$`SUBJECT`[data$ID %in% c(446:463)]
+  data$SUBJECT[data$ID %in% c(446:463)] <- data$FROM[data$ID %in% c(446:463)]
+  data$`FROM`[data$ID %in% c(446:463)] <- data$`Refd. To`[data$ID %in% c(446:463)]
+  
+
+  
+  
+  
+  
+  
+  
 
       
   # create agency column
@@ -32,6 +54,10 @@ clean <- function(file.name) {
   data <- getFirstLast.Comma(data, "FROM")
   
   data %<>% mutate(SUBJECT = paste(SUBJECT, `Refd. To`, `Action Required`))
+  
+  # arrange columns for hand coding
+  data %<>% select(ID, DATE,  FROM, everything())
+  
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ON BEHALF OF.*CONSTITUENT|CHILD SUPPORT|CHILD CUSTODY|CONSTITUENT|EMPLOYMENT|SEXUAL ASSAULT|PARENTAL RIGHTS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
