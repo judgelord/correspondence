@@ -17,7 +17,7 @@ clean <- function(file.name) {
   # Remove unwnated rows
   data <- data[-grep("^(B|1|Unknown, Unknown)$",data$FROM),]
   
-  
+  # Shift columns over for specified rows (because they were entered incorrectly)
   data$`Date Closed`[data$ID %in% c(446:463)] <- data$`Doc ID`[data$ID %in% c(446:463)]
   data$`Doc ID`[data$ID %in% c(446:463)] <- data$`Assigned Due Date`[data$ID %in% c(446:463)]
   data$`Assigned Due Date`[data$ID %in% c(446:463)] <- data$`Policy Coordinator`[data$ID %in% c(446:463)]
@@ -27,15 +27,6 @@ clean <- function(file.name) {
   data$`Action Required`[data$ID %in% c(446:463)] <- data$`SUBJECT`[data$ID %in% c(446:463)]
   data$SUBJECT[data$ID %in% c(446:463)] <- data$FROM[data$ID %in% c(446:463)]
   data$`FROM`[data$ID %in% c(446:463)] <- data$`Refd. To`[data$ID %in% c(446:463)]
-  
-
-  
-  
-  
-  
-  
-  
-
       
   # create agency column
   data$agency <- file.name
