@@ -39,6 +39,8 @@ clean <- function(file.name) {
   
   data <-  extractMemberName(data,members,"FROM")
   
+  data <- data[-grep("\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA", data$FROM),]
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())
