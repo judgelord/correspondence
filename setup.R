@@ -15,9 +15,6 @@
   library(googledrive)
   library(Rvoteview)
   library(stringi)
-  library(stringr)
-  library(gdata)
-  library(readr)
 
 source("functions/stateFromLower.R") # format state names
   source("functions/dateMethods.R")

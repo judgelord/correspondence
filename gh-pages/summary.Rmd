@@ -1,0 +1,322 @@
+---
+title: "Project Summary: How Legislators Actually Invest Their Time?"
+# author: "Devin Judge-Lord"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+setwd("/Users/judgelord/correspondence")
+load("correspondence.RData")
+library(magrittr)
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Abstract
+
+Legislators and their staff have limited time to serve constituents and advance policy goals. What determines their distribution of attention among constituents, potential donors, and policy goals? While scholarship has explored representational topics such as bill sponsorship, floor speeches, press releases, committee activity, and the like, much less is known about other, less visible forms of representation. In this paper, we contrast those traditional forms of representation against a much less visible form: how member’s advocate on behalf of their constituents, donors, and policy goals to federal agencies. By analyzing thousands of letters sent to government agencies by members of Congress, we develop new measures of legislator issue attention, specialization, and representational activity over time. 
+
+We use these data to examine relationships between committee membership, seniority, electoral security, and the type of advocacy behavior in which members engage.  Existing theories focusing on institutional position suggest that committee membership and seniority should drive letter-writing behavior and that it will focus on oversight of the agency's policy work. In contrast, theories focusing on electoral incentives and the creation of the personal vote suggest that constituent and donor service should drive letter-writing behavior and that it will focus on securing agency resources for constituents. Scholars have found that both institutional position and electoral incentive shape corporate donor service. Our data allow new tests of these theories, not just on the public forms of representation traditionally studied, but on the more subterranean forms of representation that have substantive policy consequences and may only be monitored by political insiders, if at all.  
+
+Do legislators shift attention to policy work as they gain seniority or electoral security? Do members in key fundraising positions or vulnerable districts disproportionately advocate on behalf of potential corporate supporters? Does a legislator's party or ideology influence the constituents on whose behalf legislators advocate? We address these questions with respect to which agencies legislators choose to contact, on whose behalf, and the distribution of attention to policy issues within and across federal agencies over time.
+
+
+## Data 
+
+Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?
+
+```{r fig1, fig.height = 8, fig.width = 11, fig.align = 'center'}
+# inspect data completeness coding
+df %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(Coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
+  ggplot() + 
+  geom_point(aes(x = DATE, y = paste(agency, n), color = Coded), alpha = .2) +
+  labs(x = "Date of Correspondence",
+       y = "Agency, N",
+       title = paste("Observations matched with ICPSR, N =", nrow(df) )) +
+   facet_grid(complete ~., scales = "free_y", space = "free_y")
+
+# USPS - filed remaining data 
+# CDC is rolling release, 2010-2011 expected Nov 2018
+# SBA has no records before 2010
+# DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
+# CBP waiting since april 2017
+# USDA RMA has no logs prior to 2010
+# PRC no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
+
+```
+
+#### Censoring 
+
+Unfortunately, our data are left/right censored right at some the most informative parts 2008-2009 and 2016-2017 party transitions. 
+
+Most right-censored series will be completed, but some agencies have changed systems such that logs are less useful or even terminated. For example, the DOL Office of Administrative Law Judges "discontinued the use of the spreadsheet" tracking congressional inquiries in November 2016. Similarly,DHS Immigration and Customs Enforcement (ICE) stopped keeping its own log in 2014, even though this correspondence logged by ICE was distinct from correspondence addressed to ICE logged by the DHS Secretary's Office.
+
+Left censoring comes from two sources:
+- Formal document retention cycles (agencies good at destroying documents such as DOD and the FCC)
+- Document loss and changing systems (agencies bad at keeping documents)
+Either one of these may correlate an agency's change in salience with the Bush-Obama or party control transition, but it does not seem huge. It does seem that the most contacted/controversial agencies (EPA, DHS) keep very good records. This might lead us to a slight bias toward older records being about policy, but if we control for the agency, this should be fine. 
+
+#### Timing
+
+Dates are generally the addressed date of the letter, but may alternatively be the date the letter was received by that agency--almost always, very small differences. 
+
+There might be some interesting signal in the formality of letterhead that changes things even when the agency knows what is coming. For example, the USGS recorded this note on a letter from McCain: "See all attachments including email string - Dave Applegate and John Godt are aware this is coming."
+
+
+# Data Collection and Coding Process
+We developed a [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit). Our coding process began with the authors coding a representative sample of records. We then trained undergraduate and graduate RAs. The first several thousand log entries were double coded. For example, of over 10,000 log entries for the Environmental Protection Agency, the first 2,500 were double-coded with inter-coder agreement of .9 where coders did not flag their coding as uncertain and  .78 overall.
+
+
+
+# To do:
+
+### Near term:
+
+Get district demand characteristics from census
+
+- industry codes (e.g.. Ag state percent farm)
+- size of state = staffers in senate 
+- the - bleed over - are you using staff to do policy work as well 
+- normal vote in district - previous presidential return 
+
+Get approps subcommittee membership data through the 115th
+
+Crosswalk agencies and oversight committees
+
+Correct committee data (there are some errors and missingness in appointment and termination dates)
+
+### Longer term:
+
+Use coding rules, SVMs, or topic models to auto-code entries where human coders have given us a good deal of data (e.g. USDA with coding rules, EPA with a topic model or SVM), or develop coding rules based on unsupervised clustering where we have a lot of text (e.g. FERC, CDC). 
+
+For many agencies, we have a sample of letters. These can be pasted into their respective google sheets. This could be a productive way to skim a broad sample of letters and will provide more text for analysis. 
+
+Use agencies where we have data on (some) calls and emails to estimate the bias in the letterhead correspondence that constitutes most logs. For example, DOD Defense Logistics received 8 calls but only 2 letters from members regarding the termination of a contract for parachutes, suggesting that letters may be a small portion of contacts for certain issues like corporate service. 
+
+Most agencies redact constituent names, but some have not, which may allow us to do some limited demographic analysis.
+
+For USDA and a few others, we have logs of non-congressional letters; it may be interesting to compare Congressional attention to direct public/constituent attention. 
+
+
+
+
+
+# Discriptives
+
+## Issue attention
+
+Which agencies do legislators choose to contact?
+
+```{r, fig.width = 11, fig.align = 'center'}
+# member-agency distance from the mean (cross-tab/tile)
+
+data <- df %<>% 
+  group_by(department, bioname, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
+  group_by(department, bioname) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
+  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup()  %>%  
+  filter(chamber == "Senate") %>% 
+  filter(perAgency > 1000) %>%
+  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
+  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
+  select(name, state_abbrev, sd.from.mean, perMember, department) 
+
+data %<>% 
+  full_join(data_frame(name = 
+                         df$name[which(df$name_agency %in% data$name_agency)], 
+                       sd.from.mean = 0,
+                       perMember = 0))
+
+ggplot(data) +
+  geom_tile(aes(x = department, y = name, fill = sd.from.mean))  + 
+  geom_text(aes(x = department, y = name, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year per Department or Agency
+(Showing members sending more than 10,000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(df$perMemberYear), 0), ", Mean Standard Deviation = ", round(mean(df$sd), 0)),
+       x = "",
+       y = "Senate")
+
+```
+How do legislators distribute attention among issues within federal agencies?
+*To do: *select within-agency analysis where issues are provided (USDA, FCC, CDC)
+
+How do legislators distribute attention among issues across federal agencies?
+*To do: *across-agency analysis of POLICY EVENT coding
+
+## Specialization
+
+Theories rooted in institutional position suggest that committee members, especially committee chairs will focus on governmental activities where they have formal oversight authority and responsibilities and where constituent service this authority may advantage them in securing benefits for constituents and potential donors. 
+
+## Forms of representation 
+
+On whose behalf do legislators usually write?  
+
+```{r}
+# member-TYPE distance from the mean (cross-tab/tile)
+data <- df %>%  
+  group_by(Type, name, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
+  group_by(Type, name) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
+  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup() %>%
+  filter(chamber == "Senate") %>% 
+  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
+  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
+  select(name, sd.from.mean, perMember, Type, TYPE, name_agency) 
+
+data %<>% 
+  full_join(data_frame(name = 
+                         df$name[which(df$name_agency %in% data$name_agency)], 
+                       sd.from.mean = 0,
+                       perMember = 0))
+            
+ggplot(data) +
+  geom_tile(aes(x = reorder(Type, TYPE), y = name, fill = sd.from.mean))  + 
+  geom_text(aes(x = reorder(Type, TYPE), y = name, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year by Type
+(Showing members sending more than 10,000)"),
+       x = "",
+       y = "Senate")
+```
+
+
+
+*To do: *TYPE/issue area x demand characteristics
+
+Does a legislator's party influence the constituents on whose behalf legislators advocate? 
+
+Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
+
+## Institutional position
+
+### Committee appointment
+
+Committee membership brings access to information, voting responsibilities, and prestige. Does it lead to more policy work or constituent service? Additional, committee chairs have agenda control and additional staff. How does a member's behavior change when they are appointed chair of a powerful committee?
+*To do: *Committee member effect, chair effect
+
+```{r}
+tenure <- dcommittees %>%
+  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
+  mutate(member_committee_TYPE = paste(member_committee, TYPE)) 
+
+tenure %<>%
+  mutate(tenure = year - firstassignedchair) %>%
+  group_by(member_committee, tenure, TYPE) %>% 
+  mutate(n = n()) %>% ungroup() %>% 
+  filter(!is.na(tenure))
+
+year.before.chair <- mean(tenure$n[tenure$tenure == -1])
+year.after.chair <- mean(tenure$n[tenure$tenure == 0])
+```
+
+Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. Across all agencies and committees, we find a similar increase from `year.before.chair` to `year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
+
+When we match committees and departments, we see some larger effects, but not consistently. For example, Science and Environment committee chairs averaged more letters to EPA after becoming chair, but they also wrote more to DOT. Similarly, Transportation chairs wrote more to both DOT and EPA, so, while becoming chair generally matters, committee oversight does not appear to be 1:1. 
+
+Ignoring timing and just looking at committee effects, chair-committee linkages seem stronger in the House than the Senate. It seems that this because other non-chair members are also engaged. This is especially clear for DHS where House Homeland Security Committee leaders write way more to DHS but a half dozen Senators write more letters then the Homeland Security Committee Chair
+
+Some members, even committee chairs, and especially senators, are sending in touch with a wide variety of agencies that seem fairly consistent over time. Committee leadership appears to mean way more in the House, where most members do very little.
+
+*to do:* committee members over time. 
+
+Two takeaways: (1) surprising mild committee-agency associations (this looks similar when we subset to policy letters only) and (2) chairs and ranking minority members often not the top letter-writers (e.g. Ag Committee chairs are not top letter-writers to USDA, though Senate Environment Committee and House Energy, Oversight, and Science Committees are top letter-writers to EPA). 
+
+*to do:* committee chairs over time. 
+
+The takeaway: comparing within-member over time, some committee chair positions matter (e.g.. House Oversight) but many committees chairs' attention is more a function of their previous behavior than their position. This is stark in the House Homeland Security Committee where King seems to attend to the same distribution of agencies before and after he is Chair, while McCaul seems more affected by taking on the Chair position. 
+
+
+### Representational Style
+
+We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a colorful "bar-code" with each line marking a letter.
+*to do:* bacoded plots
+
+Subsetting to committee chairs, we see that subsequent chairs of the same committee often target a very different set of agencies, suggesting that there is a lot to be said for style over institutional position or events of the day
+
+### Seniority
+
+Do legislators shift attention to policy work as they gain seniority? 
+*To do: *TYPE vs chamber seniority, committee seniority
+
+## Electoral security
+
+Do legislators shift attention to policy work as they gain electoral security? 
+
+## Institutional vs. electorial position
+
+Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
+
+Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
+
+
+
+
+
+<!-- Are earmarks policy or constituency service?  -->
+<!-- - earmark is enacted by law - an official process  -->
+<!-- - but carving out exemptions can also be part of official process -->
+
+<!-- Who is a constituent?  -->
+
+<!-- Coding for Groups? -->
+<!-- Discriptive representation / surragate representation  -->
+<!-- - veterans -->
+<!-- - women -->
+<!-- - race  -->
+<!-- - employees whose jobs are being outsourced  -->
+
+<!-- AFFECTED GROUP variable? -->
+<!-- - geographic  -->
+<!-- affinity group -->
+<!-- - indiv -->
+<!-- - nation -->
+
+<!-- Stats to investigate:  -->
+<!-- - the variance accross agencies vs. variance in number of letters   -->
+<!-- - over time correlation in legislators and where they write.  -->
+<!-- - committee non-committee by type  -->
+<!-- - correlation of committee membership and letters to each agency  - may reveal the right oversight committees -->
+
+<!-- What does the contact flow look like? -->
+<!-- - consistent v. punctuated  -->
+<!-- - distribution of police patrol (low variance) or fire alarm (high variance) attention -->
+
+<!-- Cyclical attention  -->
+<!-- - budgets, approps, etc.  -->
+
+<!-- what kinds of activities and topics correlate with each?  -->
+
+
+<!-- To discuss: -->
+<!-- - Conceptional difference between headline-getting and policy oversight. -->
+
+<!-- To keep in mind:  -->
+<!-- - Based on my interview, there does seem to be a risk of systematically missing sensitive, especially approps, communication. However, there may be certain high-level people who do most of this (in leg affairs or comptroller), so, someday, we may want to track down these point people and FOIA their email.  -->
+
+<!-- Interview highlights:  -->
+<!-- While in DC last week, I was able to interview a legislative affairs staffer who is very happy to help.  -->
+
+<!-- They identified 4 kinds of communication, 3 of which end up in logs: "some of it is headlines; some of it is pet issues; a lot of it--I was surprised at how much-- is constituent issues." -->
+<!-- 1. Forwarding constituent issues: usually routine -->
+<!-- 2. Authorizations: Usually, most substantive hill contact is with auth committee staffers, but not much going on this term: "[The committee chair & ranking minority] are good, but even they get a roadblock when it comes to the president." Often auth committee staff calls the leg affairs person who knows the answer to their question. Advocacy groups often meet with committee staff, who then call leg affairs. What gets logged is inconsistent, only certain when they need higher-level approval or a coordinated response to multiple members.  -->
+<!-- 3. Approps: "Definitely not going to be in any correspondence logs. That is all smoke and mirrors, and mahogany."  -->
+<!-- 4. Headlines: Other than constituent mail, members (esp. minority) are mostly trying to score points in the press. "every time they ask us a question, it about something to get ahead of a story." When are members proactive? "I can't think of anything besides something that gets a headline."  -->
+
+<!-- Members do attempt to circumvent legislative affairs: "sometimes we catch them and sometimes we don't" -->
+
+<!-- Important things are addressed to the secretary (In most cases, we have received records from the secretary's office as well as leg affairs, but I will check). -->
+
+
+
+<!-- More anecdotes: Meadows complained about marijuana on the National Mall, and Harry Reid passed on a complaint about "ISIS-looking individuals while shopping at Home Depot" to Homeland Security. -->
+
+<!-- More bureaucratic absurdism: The Equal Employment Opportunity Commission "administratively canceled" our FOIA request because they could not agree among themselves on how much to charge us. I appealed, but the appeal is incomplete until I send them a copy of their letter denying our request. Ironically, not only was the appeal a reply to their email denying our request, due to their small staff, the appeals officer is also the FOIA officer who sent the letter she is now asking us to send back to her.  -->
+
+<!-- - When do we expect policy oversight?  -->
+<!-- i) The minority is often looking to get headlines that question majority leadership: -->
+<!-- - What happens in divided government?  -->
+<!-- ii) Agencies differ in from whom they inspire oversight:  -->
+<!-- - Which agencies are always under attack vs. which agencies get differential treatment vs. which are never under attack or ignored -->

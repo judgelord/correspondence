@@ -1,3 +1,5 @@
+# this file is a sketchpad for developing figures. See summary.html for selected figures 
+
 options(stringsAsFactors = FALSE)
 
 requires <- c("dplyr", "ggplot2", "magrittr")
@@ -13,9 +15,11 @@ if( !exists("committees") ) { source("setup.R") }
 # or load an archived data file:
 # load("correspondence 2018-07-24 .RData")
 
+d %<>% ungroup()
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
 # numeric to text 
+df$Type <- NA
 df$Type[is.na(df$TYPE)] <- "To be coded"
 df$Type[df$TYPE == 0] <- "To be coded"
 df$Type[df$TYPE == 1] <- "Indiv. Constituent"
@@ -25,12 +29,21 @@ df$Type[df$TYPE == 4] <- "Corp. Policy"
 df$Type[df$TYPE == 5] <- "Policy"
 df$Type[df$TYPE == 6] <- "To be coded"
 
+df$party <- NA 
+df$party[df$party_code == 100] <- "(D)"
+df$party[df$party_code == 200] <- "(R)"
+df$party[df$party_code == 328] <- "(I)"
+
+committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
+
+# transformation vars 
 df %<>% 
   mutate(month = format(DATE, "%Y-%m")) %>% 
   group_by(bioname, month) %>% mutate(permonth = n()) %>% ungroup() %>% 
   mutate(cal.month = format(DATE, "%m(%b)")) %>% 
-  mutate(name = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
-  mutate(name = factor(name, levels=rev(levels(name))))
+  mutate(name.state = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
+  mutate(name.state = factor(name.state, levels=rev(levels(name.state)))) %>% 
+  mutate(name_agency = paste(name.state, agency))
 
 # bin percentiles of letter writers per agency and per dept
 df %<>% 
@@ -46,31 +59,26 @@ df %<>%
   mutate(AgencyPercentile = dplyr::ntile(perAgency, 100)) 
 
 
+
+
 # re-merge committee data to one obs per letter per committee
 dcommittees <- df %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
-# to text
-dcommittees$party[dcommittees$party_code == 100] <- "(D)"
-dcommittees$party[dcommittees$party_code == 200] <- "(R)"
-dcommittees$party[dcommittees$party_code == 328] <- "(I)"
-
-df$party[df$party_code == 100] <- "(D)"
-df$party[df$party_code == 200] <- "(R)"
-df$party[df$party_code == 328] <- "(I)"
-
+# lump inst positions
 dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) %>%
-  mutate(alpha = ifelse(TYPE %in% c("To be coded", "Indiv. Constituent"), .3, .7))
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
 
+# some committe names are upper and some sentence case 
 dcommittees %<>% 
   mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
 
 # short committee name
 dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
+
 # year first assigned to a committee
 dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
 dcommittees %<>% group_by(member_committee) %<>% 
@@ -86,7 +94,6 @@ dcommittees %<>% group_by(member_committee) %>%
 dcommittees %<>% 
   mutate(chair = paste(firstassignedchair,  bioname, party)) %>%
   mutate(member_party = paste(bioname, party)) 
-
 
 
 # Select only Comittee Chairs
@@ -745,7 +752,33 @@ ggsave(paste("chair effect.pdf"), width = 8.5, height = 11,  path = "~/correspon
 
 
 
-#####################################
-# clean up workspace before commit #
-#####################################
-# rm(list = ls(all = TRUE))
+ 
+
+
+#  tile 
+data <- df %>% 
+  group_by(department, name.state, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
+  group_by(department, name.state) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
+  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.from.mean = (perMember - mean)/sd, perAgency = n()) %>% ungroup() %>%
+  filter(perAgency > 1000, chamber == "Senate") %>% 
+  group_by(name.state) %>% filter(sum(perMember) > 10000) %>% ungroup() %>% 
+  select(name.state, name_agency, chamber, state_abbrev, sd.from.mean, perMember, perMemberYear, perAgency, department) 
+
+# add zeros
+zeros <- df 
+  
+  data_frame(name.state = unique(df$name.state), sd.from.mean = 0, perMember = 0) %>%
+  filter(!name.state %in% data$name.state)
+
+data %>% 
+  full_join(zeros) %>% # add zeros 
+
+ggplot() +
+  geom_tile(aes(x = department, y = name.state, fill = sd.from.mean))  + 
+  geom_text(aes(x = department, y = name.state, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year per Department or Agency
+(Showing members sending more than 10,000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(data$perMemberYear), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
+       x = "",
+       y = "Senate")
+###
