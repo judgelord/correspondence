@@ -210,10 +210,100 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
 unique(d$timeframe)
 
 
-# one obs per letter per committee assignment 
-dcommittees <- d %>% left_join(committees)
+d %<>% ungroup()
+df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
+
+# numeric to text 
+df$Type <- NA
+df$Type[is.na(df$TYPE)] <- "To be coded"
+df$Type[df$TYPE == 0] <- "To be coded"
+df$Type[df$TYPE == 1] <- "Indiv. Constituent"
+df$Type[df$TYPE == 2] <- "Corp. Constituent"
+df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
+df$Type[df$TYPE == 4] <- "Corp. Policy"
+df$Type[df$TYPE == 5] <- "Policy"
+df$Type[df$TYPE == 6] <- "To be coded"
+
+df$party <- NA 
+df$party[df$party_code == 100] <- "(D)"
+df$party[df$party_code == 200] <- "(R)"
+df$party[df$party_code == 328] <- "(I)"
+
+committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
+
+# transformation vars 
+df %<>% 
+  mutate(month = format(DATE, "%Y-%m")) %>% 
+  group_by(bioname, month) %>% mutate(permonth = n()) %>% ungroup() %>% 
+  mutate(cal.month = format(DATE, "%m(%b)")) %>% 
+  mutate(name.state = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
+  mutate(name.state = factor(name.state, levels=rev(levels(name.state)))) %>% 
+  mutate(name_agency = paste(name.state, agency))
+
+# bin percentiles of letter writers per agency and per dept
+df %<>% 
+  group_by(department, bioname, chamber) %>% 
+  mutate(perDept = n()) %>% group_by(department, bioname, chamber, congress) %>%
+  mutate(perDeptperCongress = n()) %>% group_by(department, bioname, chamber, year) %>%
+  mutate(perDeptperYear = n()) %>% ungroup() %>%
+  mutate(DeptPercentile = dplyr::ntile(perDept,100)) %>% 
+  group_by(agency, bioname, chamber) %>%
+  mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
+  mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
+  mutate(perAgencyperYear = n()) %>% ungroup() %>%
+  mutate(AgencyPercentile = dplyr::ntile(perAgency, 100)) 
+
+
+
+
+# merge committee data to one obs per letter per committee
+dcommittees <- df %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
+
+# lump inst positions
+dcommittees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+
+# some committe names are upper and some sentence case 
+dcommittees %<>% 
+  mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
+
+# short committee name
+dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
+
+# year first assigned to a committee
+dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
+dcommittees %<>% group_by(member_committee) %<>% 
+  mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
+dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4)))
+# assigned chair
+dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
+dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
+dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
+dcommittees %<>% group_by(member_committee) %>% 
+  mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
+  mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
+dcommittees %<>% 
+  mutate(chair = paste(firstassignedchair,  bioname, party)) %>%
+  mutate(member_party = paste(bioname, party)) 
+
+
+# Select only Comittee Chairs
+chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")]))) 
+
+chairs %<>% 
+  mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
+  mutate(yearsAsChair = daysAsChair/365) %>%
+  mutate(monthsAsChair = daysAsChair/30) %>%
+  group_by(month) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
+
+
+
+
 
 save.image(paste("correspondence.RData"))
 
