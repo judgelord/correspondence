@@ -40,6 +40,8 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Sen\\.|Sen |Senator |Sen,", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep\\.|Rep |Representative |Rep,", FROM), "House", chamber))
   
+  # Format State
+  data$State <- stateFromLower(data$State)
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
