@@ -2,10 +2,10 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "DOT_FTA" # for testing
+# file.name <- "DOT_FTA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() # get data from google sheet
   
   # rename Subject column
   colnames(data)[colnames(data) == 'Subject'] <- 'SUBJECT'

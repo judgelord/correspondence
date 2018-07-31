@@ -1,11 +1,14 @@
-# This script combines clean log/letter files and merges in other data sources.
+# This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
-# load functions
+# load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
-# note for MERGING: all columns in d are character except DATE, year, and congress (see clean.R)
+# note for MERGING: all columns in d are class character except DATE, year, and congress (see clean.R)
 
-# Master list of data: Departments and agencies are listed A-Z
+########################
+# Master list of data: #
+########################
+# Departments and agencies are listed A-Z
 # 1 agency = the title of the R script for cleaning these data
 # 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
@@ -107,21 +110,32 @@ data_list <- as.data.frame(matrix(c(
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
 names(data_list) <- c("agency", "status", "coders")
+data_list
 
-# clean one file
-i = 1 # initialize for full merge 
-# i <- which(data_list$agency == "USPS") # or choose one agency
-d <- clean.agency(agency = data_list[i, 1],
+##################
+# clean one file #
+##################
+
+i = 1 # initialize for full merge (default)
+
+# or choose one agency
+# i <- which(data_list$agency == "DOT_FTA") 
+
+d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
-
-# merge with voteview data
-d %<>% 
+d1 %<>% # and merge with voteview data
   left_join(members) %>%
   select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
   left_join(members)
 
-# repeat merge while successful
+# if continuing with merge 
+d <- d1
+
+##################################
+# Repeat merge while successful: #
+##################################
+
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {
