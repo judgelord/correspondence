@@ -5,5 +5,3 @@
 
 ![alt_text](https://github.com/judgelord/correspondence/blob/master/11427401.png)
 
-
-![alt_text](https://github.com/judgelord/correspondence/blob/master/20180607-0009(32935060).tif)
