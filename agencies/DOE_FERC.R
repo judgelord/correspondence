@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# Duplicate members in some rows needs to be addressed
+# Duplicate members in some rows needs to be addressed (a few are comma separated)
 # Many spelling errors need to be addressed
 
 
@@ -26,32 +26,28 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   data$FROM <- data$SUBJECT
+  
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl("&", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "&") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], "&"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep("&", data$FROM),] # removes orginal row with all data
+  ################
+  
+  
+  
   data <- extractMemberName(data, members, "FROM")
   
-#   data %<>%
-#     mutate(Summary = gsub(pattern = "(.*)(Represenative|Representativess)(.*)", replacement = '\\1Representatives\\3', Summary) )
-#   
-#    data %<>%
-#     mutate(FROM = gsub(pattern = '.*(US|United States) (Representative|Senator|Senate|Congress) (\\w+ \\w+|\\w+ \\w \\w+|\\w+ \\w\\. \\w+|\\w \\w+ \\w+|\\w\\. \\w+ \\w+).*',
-#                        replacement = "\\3", data$Summary)) %>% 
-#     mutate(FROM = gsub(pattern = '.*(Congressman|Congresswoman|Congresswomen|Representative|Senator|Representatives|Chairman) (\\w+ \\w+|\\w+ \\w \\w+|\\w+ \\w\\. \\w+|\\w \\w+ \\w+|\\w\\. \\w+ \\w+).*', replacement = "\\2", FROM))
-# #remove Represenatatives to see duplicates in rows
-#    
-#    
-#   data %<>%
-#     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-#     mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name))
-#   data <- formatFirstName(data)
-#   
-#   
-#   data %<>%
-#     mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
-#     mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
-#     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-#     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))
-#     
-#   data <- formatLastName(data)
-  
+
   
   data %<>%
     mutate(chamber = ifelse(grepl("(Senate|Senator)",Summary), 'Senate', NA)) %>% 
