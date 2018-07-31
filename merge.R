@@ -1,11 +1,14 @@
-# This script combines clean log/letter files and merges in other data sources.
+# This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
-# load functions
+# load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
-# note for MERGING: all columns in d are character except DATE, year, and congress (see clean.R)
+# note for MERGING: all columns in d are class character except DATE, year, and congress (see clean.R)
 
-# Master list of data: Departments and agencies are listed A-Z
+########################
+# Master list of data: #
+########################
+# Departments and agencies are listed A-Z
 # 1 agency = the title of the R script for cleaning these data
 # 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
@@ -107,21 +110,32 @@ data_list <- as.data.frame(matrix(c(
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
 names(data_list) <- c("agency", "status", "coders")
+data_list
 
-# clean one file
-i = 1 # initialize for full merge 
-# i <- which(data_list$agency == "USPS") # or choose one agency
-d <- clean.agency(agency = data_list[i, 1],
+##################
+# clean one file #
+##################
+
+i = 1 # initialize for full merge (default)
+
+# or choose one agency
+# i <- which(data_list$agency == "DOT_FTA") 
+
+d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
-
-# merge with voteview data
-d %<>% 
+d1 %<>% # and merge with voteview data
   left_join(members) %>%
   select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
   left_join(members)
 
-# repeat merge while successful
+# if continuing with merge 
+d <- d1
+
+##################################
+# Repeat merge while successful: #
+##################################
+
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {
@@ -210,10 +224,100 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
 unique(d$timeframe)
 
 
-# one obs per letter per committee assignment 
-dcommittees <- d %>% left_join(committees)
+d %<>% ungroup()
+df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
+
+# numeric to text 
+df$Type <- NA
+df$Type[is.na(df$TYPE)] <- "To be coded"
+df$Type[df$TYPE == 0] <- "To be coded"
+df$Type[df$TYPE == 1] <- "Indiv. Constituent"
+df$Type[df$TYPE == 2] <- "Corp. Constituent"
+df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
+df$Type[df$TYPE == 4] <- "Corp. Policy"
+df$Type[df$TYPE == 5] <- "Policy"
+df$Type[df$TYPE == 6] <- "To be coded"
+
+df$party <- NA 
+df$party[df$party_code == 100] <- "(D)"
+df$party[df$party_code == 200] <- "(R)"
+df$party[df$party_code == 328] <- "(I)"
+
+committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
+
+# transformation vars 
+df %<>% 
+  mutate(month = format(DATE, "%Y-%m")) %>% 
+  group_by(bioname, month) %>% mutate(permonth = n()) %>% ungroup() %>% 
+  mutate(cal.month = format(DATE, "%m(%b)")) %>% 
+  mutate(name.state = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
+  mutate(name.state = factor(name.state, levels=rev(levels(name.state)))) %>% 
+  mutate(name_agency = paste(name.state, agency))
+
+# bin percentiles of letter writers per agency and per dept
+df %<>% 
+  group_by(department, bioname, chamber) %>% 
+  mutate(perDept = n()) %>% group_by(department, bioname, chamber, congress) %>%
+  mutate(perDeptperCongress = n()) %>% group_by(department, bioname, chamber, year) %>%
+  mutate(perDeptperYear = n()) %>% ungroup() %>%
+  mutate(DeptPercentile = dplyr::ntile(perDept,100)) %>% 
+  group_by(agency, bioname, chamber) %>%
+  mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
+  mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
+  mutate(perAgencyperYear = n()) %>% ungroup() %>%
+  mutate(AgencyPercentile = dplyr::ntile(perAgency, 100)) 
+
+
+
+
+# merge committee data to one obs per letter per committee
+dcommittees <- df %>% left_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
+
+# lump inst positions
+dcommittees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+
+# some committe names are upper and some sentence case 
+dcommittees %<>% 
+  mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
+
+# short committee name
+dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
+
+# year first assigned to a committee
+dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
+dcommittees %<>% group_by(member_committee) %<>% 
+  mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
+dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4)))
+# assigned chair
+dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
+dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
+dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
+dcommittees %<>% group_by(member_committee) %>% 
+  mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
+  mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
+dcommittees %<>% 
+  mutate(chair = paste(firstassignedchair,  bioname, party)) %>%
+  mutate(member_party = paste(bioname, party)) 
+
+
+# Select only Comittee Chairs
+chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")]))) 
+
+chairs %<>% 
+  mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
+  mutate(yearsAsChair = daysAsChair/365) %>%
+  mutate(monthsAsChair = daysAsChair/30) %>%
+  group_by(month) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
+
+
+
+
 
 save.image(paste("correspondence.RData"))
 
