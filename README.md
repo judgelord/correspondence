@@ -1,1 +1,1 @@
-[Project Summary](https://htmlpreview.github.com/judgelord/correspondence/blob/master/docs/summary.html) 
+[Project Summary](https://judgelord.github.io/correspondence/gh-pages/summary.html) 
