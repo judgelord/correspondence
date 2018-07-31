@@ -56,7 +56,7 @@ data_list <- as.data.frame(matrix(c(
 "DOL_VETS", "not coded", NA,
 "DOL_OWCP", "not coded", NA,
 # DOS 
-"DOS", "not coded", NA, # waiting on dept of state foia 
+# "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
