@@ -7,6 +7,10 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # Remove NA rows
+  data <- data[!is.na(data$FROM)&!is.na(data$DATE),]
+  
+  
   # create ID variable
   data$ID <- c(1:nrow(data)) 
   
@@ -17,8 +21,13 @@ clean <- function(file.name) {
   data$DATE <-  as.Date(data$DATE, "%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-  # 
-  # 
+  
+  
+  data %<>% mutate(FROM = ifelse(grepl("^69",data$FROM), data$Organization, data$FROM))
+  
+  
+  
+  
   # ###############    
   # # Creates duplicate rows for lines with multiple representatives
   # for(i in 1:nrow(data)){
@@ -60,6 +69,9 @@ clean <- function(file.name) {
   data <- data[-grep("/", data$FROM),] # removes orginal row with all data
   # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
+  
+  
+  data$FROM <- ocr.errors(data$FROM)
   
   # get names 
   data <- getFirstLast.Comma(data, 'FROM')
