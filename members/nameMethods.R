@@ -633,7 +633,7 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(last_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",FROM2,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Dianne", first_name)) %>%
     mutate(first_name = ifelse( grepl("Jon",FROM2,ignore.case=TRUE)&grepl("Kyi",FROM2,ignore.case=TRUE), "Jon", first_name)) %>%
-    mutate(last_name = ifelse( grepl("Jon",FROM2,ignore.case=TRUE)&grepl("Kyi",FROM2,ignore.case=TRUE), "KYL", last_name)) %>% 
+    mutate(last_name = ifelse( grepl("Jon",FROM2,ignore.case=TRUE)&grepl("Kyi",FROM2,ignore.case=TRUE), "KYL", last_name)) 
 
     
   
