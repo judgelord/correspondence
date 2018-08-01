@@ -3,6 +3,7 @@ title: "Project Summary: How Legislators Actually Invest Their Time?"
 # author: "Devin Judge-Lord"
 output: 
   html_document:
+    toc: true
     code_folding: hide
 ---
 
@@ -14,7 +15,11 @@ library(tidyverse)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
-### Abstract
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=11, fig.path='Figs/',
+                      warning=FALSE, message=FALSE, fig.align = 'center')
+```
+# Abstract
 
 Legislators and their staff have limited time to serve constituents and advance policy goals. What determines their distribution of attention among constituents, potential donors, and policy goals? While scholarship has explored representational topics such as bill sponsorship, floor speeches, press releases, committee activity, and the like, much less is known about other, less visible forms of representation. In this paper, we contrast those traditional forms of representation against a much less visible form: how member’s advocate on behalf of their constituents, donors, and policy goals to federal agencies. By analyzing thousands of letters sent to government agencies by members of Congress, we develop new measures of legislator issue attention, specialization, and representational activity over time. 
 
@@ -23,11 +28,11 @@ We use these data to examine relationships between committee membership, seniori
 Do legislators shift attention to policy work as they gain seniority or electoral security? Do members in key fundraising positions or vulnerable districts disproportionately advocate on behalf of potential corporate supporters? Does a legislator's party or ideology influence the constituents on whose behalf legislators advocate? We address these questions with respect to which agencies legislators choose to contact, on whose behalf, and the distribution of attention to policy issues within and across federal agencies over time.
 
 
-## Data 
+# Data 
 
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?
 
-```{r fig1, fig.height = 8, fig.width = 11, fig.align = 'center'}
+```{r}
 # inspect data completeness coding
 df %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
@@ -49,16 +54,30 @@ df %>%
 
 ```
 
+```{r}
+df %>% 
+  mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
+  filter(TYPE != "To be coded") %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  ggplot() + 
+  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = TYPE), alpha = .2) + 
+  labs(x = "Date of Correspondence",
+       y = "Agency, N",
+       title = paste("Coded Observations, N =", sum(df$TYPE != "To be coded") ) ) +
+  facet_grid(complete ~ ., scales = "free_y", space = "free_y")
+
+```
+
 #### Censoring 
 
-Unfortunately, our data are left/right censored right at some the most informative parts 2008-2009 and 2016-2017 party transitions. 
+Unfortunately, our data are left/right censored right at some the most informative time periods around the 2008-2009 and 2016-2017 party transitions. 
 
 Most right-censored series will be completed, but some agencies have changed systems such that logs are less useful or even terminated. For example, the DOL Office of Administrative Law Judges "discontinued the use of the spreadsheet" tracking congressional inquiries in November 2016. Similarly,DHS Immigration and Customs Enforcement (ICE) stopped keeping its own log in 2014, even though this correspondence logged by ICE was distinct from correspondence addressed to ICE logged by the DHS Secretary's Office.
 
 Left censoring comes from two sources:
-- Formal document retention cycles (agencies good at destroying documents such as DOD and the FCC)
-- Document loss and changing systems (agencies bad at keeping documents)
-Either one of these may correlate an agency's change in salience with the Bush-Obama or party control transition, but it does not seem huge. It does seem that the most contacted/controversial agencies (EPA, DHS) keep very good records. This might lead us to a slight bias toward older records being about policy, but if we control for the agency, this should be fine. 
+(1) Formal document retention cycles (agencies good at destroying documents such as DOD and the FCC), and
+(2) Document loss and changing systems (agencies bad at keeping documents). 
+Either one of these may correlate with changes in an agency's salience due to changes in party control. It does seem that the most contacted/controversial agencies (EPA, DHS) keep very good records. This might lead us to a slight bias toward older records being about policy, but should not be a problem if controling for the target agency.
 
 #### Timing
 
@@ -67,14 +86,14 @@ Dates are generally the addressed date of the letter, but may alternatively be t
 There might be some interesting signal in the formality of letterhead that changes things even when the agency knows what is coming. For example, the USGS recorded this note on a letter from McCain: "See all attachments including email string - Dave Applegate and John Godt are aware this is coming."
 
 
-# Data Collection and Coding Process
+## Data Collection and Coding Process
 We developed a [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit). Our coding process began with the authors coding a representative sample of records. We then trained undergraduate and graduate RAs. The first several thousand log entries were double coded. For example, of over 10,000 log entries for the Environmental Protection Agency, the first 2,500 were double-coded with inter-coder agreement of .9 where coders did not flag their coding as uncertain and  .78 overall.
 
 
 
-# To do:
+## To do:
 
-### Near term:
+### Near term
 
 Get district demand characteristics from census
 
@@ -89,7 +108,7 @@ Crosswalk agencies and oversight committees
 
 Correct committee data (there are some errors and missingness in appointment and termination dates)
 
-### Longer term:
+### Longer term
 
 Use coding rules, SVMs, or topic models to auto-code entries where human coders have given us a good deal of data (e.g. USDA with coding rules, EPA with a topic model or SVM), or develop coding rules based on unsupervised clustering where we have a lot of text (e.g. FERC, CDC). 
 
@@ -111,33 +130,35 @@ For USDA and a few others, we have logs of non-congressional letters; it may be 
 
 Which agencies do legislators choose to contact?
 
-```{r, fig.width = 11, fig.align = 'center'}
+```{r}
 # member-agency distance from the mean (cross-tab/tile)
+Chamber = "House"
 
-data <- df %<>% 
-  group_by(department, bioname, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
-  group_by(department, bioname) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
-  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup()  %>%  
-  filter(chamber == "Senate") %>% 
-  filter(perAgency > 1000) %>%
-  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
-  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
-  select(name, state_abbrev, sd.from.mean, perMember, department) 
+zeros <- data_frame(
+  name_state = rep(unique(df$name_state), n_distinct(df$department)), 
+  department =  rep(unique(df$department), n_distinct(df$name_state)),
+  perMember = 0) %>%
+  mutate(name_dept = paste(name_state, department)) %>% 
+  filter(!name_dept %in% df$name_dept)
 
-data %<>% 
-  full_join(data_frame(name = 
-                         df$name[which(df$name_agency %in% data$name_agency)], 
-                       sd.from.mean = 0,
-                       perMember = 0))
+data <- df %>% 
+  filter(chamber == Chamber) %>%
+  group_by(department, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(department, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
+  full_join(zeros) %>% # add zeros
+  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd, perAgency = n()) %>% ungroup() %>%
+  filter(perAgency > 1000) %>% # select agencies with significant data
+  group_by(name_state) %>% filter(sum(perMember) > 10000) %>% ungroup() %>% # select prolific members
+  group_by(department, name_state, sd.above.mean, perMember, sd) %>% tally() %>% ungroup()
 
-ggplot(data) +
-  geom_tile(aes(x = department, y = name, fill = sd.from.mean))  + 
-  geom_text(aes(x = department, y = name, label = round(perMember, 0 ))) + 
+ggplot(data) + # plot
+  geom_tile(aes(x = department, y = name_state, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = name_state, label = round(perMember, 0 ))) + 
   labs(title = paste("Average Letters per Year per Department or Agency
-(Showing members sending more than 10,000 and agencies receiving more than 1,000)
-Ovarall mean =", round(mean(df$perMemberYear), 0), ", Mean Standard Deviation = ", round(mean(df$sd), 0)),
+(Showing members averaging more than 1000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
        x = "",
-       y = "Senate")
+       y = Chamber)
 
 ```
 How do legislators distribute attention among issues within federal agencies?
@@ -154,30 +175,27 @@ Theories rooted in institutional position suggest that committee members, especi
 
 On whose behalf do legislators usually write?  
 
-```{r}
+```{r, fig.height=8}
 # member-TYPE distance from the mean (cross-tab/tile)
-data <- df %>%  
-  group_by(Type, name, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
-  group_by(Type, name) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
-  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup() %>%
-  filter(chamber == "Senate") %>% 
-  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
-  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
-  select(name, sd.from.mean, perMember, Type, TYPE, name_agency) 
+Chamber = "House"
 
-data %<>% 
-  full_join(data_frame(name = 
-                         df$name[which(df$name_agency %in% data$name_agency)], 
-                       sd.from.mean = 0,
-                       perMember = 0))
-            
-ggplot(data) +
-  geom_tile(aes(x = reorder(Type, TYPE), y = name, fill = sd.from.mean))  + 
-  geom_text(aes(x = reorder(Type, TYPE), y = name, label = round(perMember, 0 ))) + 
-  labs(title = paste("Average Letters per Year by Type
-(Showing members sending more than 10,000)"),
+data <- df %>% 
+  filter(chamber == Chamber, Type != "To be coded") %>%
+  group_by(Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(Type, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
+  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd) %>% ungroup() %>%
+  group_by(name_state) %>% filter(sum(perMember) > 5000) %>% ungroup() %>% # select prolific members
+  group_by(Type, name_state, sd.above.mean, perMember, sd) %>% tally() %>% ungroup()
+
+ggplot(data) + # plot
+  geom_tile(aes(x = Type, y = name_state, fill = sd.above.mean))  + 
+  geom_text(aes(x = Type, y = name_state, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year per Type or Agency
+(Showing members averaging more than 1000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
        x = "",
-       y = "Senate")
+       y = Chamber)
+
 ```
 
 
