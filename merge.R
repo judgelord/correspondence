@@ -126,7 +126,7 @@ d1 <- clean.agency(agency = data_list[i, 1],
                      coders = data_list[i, 3])
 d1 %<>% # and merge with voteview data
   left_join(members) %>%
-  select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
+  select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
   left_join(members)
 
 # if continuing with merge 
@@ -142,16 +142,16 @@ while(length(unique(d$agency) == i)) {
   
   print(data_list[i,1])
   
-    data <- clean.agency(
+    d1 <- clean.agency(
       agency = data_list[i, 1],
       status = data_list[i, 2],
       coders = data_list[i, 3]) 
-    data %<>% 
+    d1 %<>% 
       left_join(members) %>% 
-      select(DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ID) %>% 
+      select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
       left_join(members)
     
-    d %<>% full_join(data)
+    d %<>% full_join(d1)
     
     i <- i+1
 }
@@ -228,15 +228,15 @@ d %<>% ungroup()
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
 # numeric to text 
-df$Type <- NA
-df$Type[is.na(df$TYPE)] <- "To be coded"
-df$Type[df$TYPE == 0] <- "To be coded"
-df$Type[df$TYPE == 1] <- "Indiv. Constituent"
-df$Type[df$TYPE == 2] <- "Corp. Constituent"
-df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
-df$Type[df$TYPE == 4] <- "Corp. Policy"
-df$Type[df$TYPE == 5] <- "Policy"
-df$Type[df$TYPE == 6] <- "To be coded"
+# df$Type <- NA
+# df$Type[is.na(df$TYPE)] <- "To be coded"
+# df$Type[df$TYPE == 0] <- "To be coded"
+# df$Type[df$TYPE == 1] <- "Indiv. Constituent"
+# df$Type[df$TYPE == 2] <- "Corp. Constituent"
+# df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
+# df$Type[df$TYPE == 4] <- "Corp. Policy"
+# df$Type[df$TYPE == 5] <- "Policy"
+# df$Type[df$TYPE == 6] <- "To be coded"
 
 df$party <- NA 
 df$party[df$party_code == 100] <- "(D)"
@@ -250,24 +250,10 @@ df %<>%
   mutate(month = format(DATE, "%Y-%m")) %>% 
   group_by(bioname, month) %>% mutate(permonth = n()) %>% ungroup() %>% 
   mutate(cal.month = format(DATE, "%m(%b)")) %>% 
-  mutate(name.state = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
-  mutate(name.state = factor(name.state, levels=rev(levels(name.state)))) %>% 
-  mutate(name_agency = paste(name.state, agency))
-
-# bin percentiles of letter writers per agency and per dept
-df %<>% 
-  group_by(department, bioname, chamber) %>% 
-  mutate(perDept = n()) %>% group_by(department, bioname, chamber, congress) %>%
-  mutate(perDeptperCongress = n()) %>% group_by(department, bioname, chamber, year) %>%
-  mutate(perDeptperYear = n()) %>% ungroup() %>%
-  mutate(DeptPercentile = dplyr::ntile(perDept,100)) %>% 
-  group_by(agency, bioname, chamber) %>%
-  mutate(perAgency = n()) %>% group_by(agency, bioname, chamber, congress) %>%
-  mutate(perAgencyperCongress = n()) %>% group_by(agency, bioname, chamber, year) %>%
-  mutate(perAgencyperYear = n()) %>% ungroup() %>%
-  mutate(AgencyPercentile = dplyr::ntile(perAgency, 100)) 
-
-
+  mutate(name_state = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
+  mutate(name_state = factor(name_state, levels=rev(levels(name_state)))) %>% 
+  mutate(name_agency = paste(name_state, agency)) %>%
+  mutate(name_dept = paste(name_state, department))
 
 
 # merge committee data to one obs per letter per committee
@@ -315,7 +301,7 @@ chairs %<>%
   group_by(month) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
-
+# add committee chair data to df (still on obs per letter, unlike dcommittees)
 
 
 

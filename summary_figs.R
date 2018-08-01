@@ -14,13 +14,13 @@ ifelse( F ,  source("merge.R"), load("correspondence.RData") )
 # inspect data completeness and coding
 df %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
-  mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
+  # mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
   ggplot() + 
   labs(title = "Data Sources Reasonably Complete?",
        y = paste("Total observations matched with ICPSR =", nrow(df) )) +
   geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = coded), alpha = .2) +
    facet_grid(complete ~., scales = "free_y", space = "free_y")
-ggsave(paste("missing data.pdf"), width = 11, height = 8.5, path = "~/correspondence/figs")
+ggsave(paste("coding status.pdf"), width = 11, height = 8.5, path = "~/correspondence/figs")
 
 # CDC is rolling release, 2010-2011 expected Nov 2018
 # SBA has no records before 2010
@@ -32,54 +32,14 @@ ggsave(paste("missing data.pdf"), width = 11, height = 8.5, path = "~/correspond
 
 df %>% 
   mutate(coded = ifelse(TYPE == "To be coded", "To be coded", "Coded")) %>% 
+  filter(TYPE != "To be coded") %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   ggplot() + 
   geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = TYPE), alpha = .2) + 
   labs(title = "Missing and Complete Data") +
-  facet_grid(complete ~ coded, scales = "free_y", space = "free_y")
+  facet_grid(complete ~ ., scales = "free_y", space = "free_y")
 
 
-
-# tile 
-df %<>% 
-  group_by(department, bioname, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
-  group_by(department, bioname) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
-  # add 0s where no observations
-  # left_join(data_frame(bioname = unique(df$bioname), perMember = 0) %>% full_join(data_frame(department = unique(df$department),perMember = 0))) %>% 
-  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup() 
-
-df %>%  
-  filter(chamber == "Senate") %>% 
-  filter(perAgency > 1000) %>%
-  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
-  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
-  group_by(name, state_abbrev, sd.from.mean, perMember, department) %>% tally() %>% ungroup() %>% 
-  ggplot() +
-  geom_tile(aes(x = department, y = name, fill = sd.from.mean))  + 
-  geom_text(aes(x = department, y = name, label = round(perMember, 0 ))) + 
-  labs(title = paste("Average Letters per Year per Department or Agency
-(Showing members sending more than 10,000 and agencies receiving more than 1,000)
-Ovarall mean =", round(mean(df$perMemberYear), 0), ", Mean Standard Deviation = ", round(mean(df$sd), 0)),
-       x = "",
-       y = "Senate")
-
-
-# tile type
-df %>%  
-  group_by(Type, name, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
-  group_by(Type, name) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
-  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), perAgency = n()) %>% ungroup() %>%
-  filter(chamber == "Senate") %>% 
-  mutate(sd.from.mean = (perMember - mean)/sd) %>% ungroup()  %>% 
-  group_by(name) %>% filter(sum(perMember) > 10000) %>% ungroup() %>%
-  group_by(name, state_abbrev, sd.from.mean, perMember, Type, TYPE) %>% tally() %>%
-  ggplot() +
-  geom_tile(aes(x = reorder(Type, TYPE), y = name, fill = sd.from.mean))  + 
-  geom_text(aes(x = reorder(Type, TYPE), y = name, label = round(perMember, 0 ))) + 
-  labs(title = paste("Average Letters per Year by Type
-(Showing members sending more than 10,000)"),
-       x = "",
-       y = "Senate")
 
 
 
@@ -301,7 +261,7 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 
 chairs %>% 
-  filter(chamber == chamb, complete == T, agency != "Amtrak", agency != "PRC", DATE < as.Date("2017-01-01")) %>%
+  filter(chamber == chamb, complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
@@ -334,7 +294,7 @@ ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, heig
 
 # not by year 
 chairs %>% 
-  filter(chamber == chamb, agency != "Amtrak", agency != "PRC", DATE < as.Date("2017-01-01"))  %>%
+  filter(chamber == chamb, agency != "PRC", DATE < as.Date("2017-01-01"))  %>%
   group_by(department, committee, member_party, position) %>% tally() %>%
   ggplot() +
   geom_boxplot(
@@ -403,13 +363,13 @@ tenure <- chairs %>%
   group_by(member_committee, tenure, chamber) %>% tally() %>% ungroup() %>% 
   filter(!is.na(tenure)) 
 
-mean(tenure$n[tenure$tenure == "Year  Before"])
-mean(tenure$n[tenure$tenure == "Year After"])
+mean(tenure$nn[tenure$tenure == "Year  Before"])
+mean(tenure$nn[tenure$tenure == "Year After"])
 
 tenure %>% 
   ggplot() + 
-  geom_text(aes(x = tenure, y = n, label = member_committee), size  = 2) + 
-  geom_boxplot(aes(x = tenure, y = n)) + 
+  geom_text(aes(x = tenure, y = nn, label = member_committee), size  = 2) + 
+  geom_boxplot(aes(x = tenure, y = nn)) + 
   facet_grid(chamber ~ .,  scales = "free_y")
 
 ggsave(paste("chair effect all.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
@@ -651,29 +611,53 @@ ggsave(paste("chair effect.pdf"), width = 8.5, height = 11,  path = "~/correspon
 
 
 #  tile 
+Chamber = "House"
+
+# zeros
+zeros <- data_frame(
+  name_state = rep(unique(df$name_state), n_distinct(df$department)), 
+  department =  rep(unique(df$department), n_distinct(df$name_state)),
+  perMember = 0) %>%
+  mutate(name_dept = paste(name_state, department)) %>% 
+  filter(!name_dept %in% df$name_dept)
+
 data <- df %>% 
-  group_by(department, name.state, year) %>% mutate(perMemberYear = n()) %>% ungroup() %>% 
-  group_by(department, name.state) %>% mutate(perMember = mean(perMemberYear)) %>% ungroup() %>% 
-  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.from.mean = (perMember - mean)/sd, perAgency = n()) %>% ungroup() %>%
-  filter(perAgency > 1000, chamber == "Senate") %>% 
-  group_by(name.state) %>% filter(sum(perMember) > 10000) %>% ungroup() %>% 
-  select(name.state, name_agency, chamber, state_abbrev, sd.from.mean, perMember, perMemberYear, perAgency, department) 
+  filter(chamber == Chamber) %>%
+  group_by(department, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(department, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
+  full_join(zeros) %>% # add zeros
+  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd, perAgency = n()) %>% ungroup() %>%
+  filter(perAgency > 1000) %>% # select agencies with significant data
+  group_by(name_state) %>% filter(sum(perMember) > 10000) %>% ungroup() %>% # select prolific members
+  group_by(department, name_state, sd.above.mean, perMember, sd) %>% tally() %>% ungroup()
 
-# add zeros
-zeros <- df 
-  
-  data_frame(name.state = unique(df$name.state), sd.from.mean = 0, perMember = 0) %>%
-  filter(!name.state %in% data$name.state)
-
-data %>% 
-  full_join(zeros) %>% # add zeros 
-
-ggplot() +
-  geom_tile(aes(x = department, y = name.state, fill = sd.from.mean))  + 
-  geom_text(aes(x = department, y = name.state, label = round(perMember, 0 ))) + 
+ggplot(data) + # plot
+  geom_tile(aes(x = department, y = name_state, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = name_state, label = round(perMember, 0 ))) + 
   labs(title = paste("Average Letters per Year per Department or Agency
-(Showing members sending more than 10,000 and agencies receiving more than 1,000)
-Ovarall mean =", round(mean(data$perMemberYear), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
+(Showing members averaging more than 1000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
        x = "",
-       y = "Senate")
+       y = Chamber)
 ###
+
+
+# member-TYPE distance from the mean (cross-tab/tile)
+Chamber = "Senate"
+
+data <- df %>% 
+  filter(chamber == Chamber, Type != "To be coded") %>%
+  group_by(Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(Type, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
+  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd) %>% ungroup() %>%
+  group_by(name_state) %>% filter(sum(perMember) > 5000) %>% ungroup() %>% # select prolific members
+  group_by(Type, name_state, sd.above.mean, perMember, sd) %>% tally() %>% ungroup()
+
+ggplot(data) + # plot
+  geom_tile(aes(x = Type, y = name_state, fill = sd.above.mean))  + 
+  geom_text(aes(x = Type, y = name_state, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year per Type or Agency
+(Showing members averaging more than 1000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
+       x = "",
+       y = Chamber)

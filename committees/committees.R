@@ -12,7 +12,7 @@ myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "senio
 
 ## Stewart's House Committee Assignments 103-113.  
 
-hcd_late<- readxl::read_excel("committees/house_assignments_103-115-3.xls")
+hcd <- readxl::read_excel("committees/house_assignments_103-115-3.xls")
 # library(readxl)
 # hcd_late <- read_excel("house_assignments_103-115-3.xls")
 
@@ -29,11 +29,11 @@ hcd_late<- readxl::read_excel("committees/house_assignments_103-115-3.xls")
 # [21] "X" 
 
 # rename consistant with Powell names 
-names(hcd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
+names(hcd)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
 
-hcd_late$chamber<-"House"
+hcd$chamber<-"House"
 
-hcdlsmall<-hcd_late[,myvars]
+hcd<-hcd[,myvars]
 
 
 
@@ -60,16 +60,16 @@ hcdlsmall<-hcd_late[,myvars]
 
 ## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2016.
 
-scd_late<-readxl::read_excel("committees/senate_assignments_103-115-3.xls")
+scd<-readxl::read_excel("committees/senate_assignments_103-115-3.xls")
 # scd_late <- read_excel("senate_assignments_103-115-3.xls")
 
-names(scd_late)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
+names(scd)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
 
-scd_late$cd<-0
+scd$cd<-0
 
-scd_late$chamber<-"Senate"
+scd$chamber<-"Senate"
 
-scdlsmall<-scd_late[,myvars]
+scd<-scd[,myvars]
 
 
 
@@ -77,7 +77,7 @@ scdlsmall<-scd_late[,myvars]
 
 #### Merging all Stewart's committee data into a single file
 
-stew<-as.data.frame(rbind(hcdlsmall, scdlsmall))
+stew<-as.data.frame(rbind(hcd, scd))
 
 
 #### But Stewart uses a different ICPSR number convention that doesn't match with other ICPSR numbers. 
@@ -531,11 +531,16 @@ committees$assigneddate %<>% as.Date()
 committees$terminationdate %<>% as.Date()
 
 
-# read in members from voteview
 
+###############################################################
+# THE BELOW IS ONLY FOR IDENTIFYING ERRORS IN COMMITTEE DATA #
+##############################################################
+# FIXME 
+
+# read in members from voteview
 member.names <- member_search(congress = c(110:120))
 
-merged <- left_join(member.names, committees)
+committee.membership <- left_join(member.names, committees)
 
-problems <- merged[is.na(merged$stewarticpsr),]
+bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
 
