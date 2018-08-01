@@ -319,3 +319,13 @@ save.image(paste("correspondence.RData"))
 #  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
 #  file.remove("mismatch.csv") # remove local file
  
+library(gmailr)
+
+test_email <- mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
+  From = "correspondenceresearch@gmail.com",
+  Subject = "merge.R finished",
+  body = paste("merge.R finished at i =", i))
+send_message(test_email)
+  
+  
