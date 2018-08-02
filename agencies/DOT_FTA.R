@@ -6,18 +6,16 @@
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data from google sheet
-  
-  # rename Subject column
-  colnames(data)[colnames(data) == 'Subject'] <- 'SUBJECT'
-  
+
   # create agency column
   data$agency <- file.name
   
   data$ID <- seq(1:nrow(data))
   
  
+  data$originalDATE <- data$DATE 
   
-  data$DATE <- as.Date(data$DateCreated, "%m/%d/%y")
+  data$DATE <- as.Date(data$DATE, "%m/%d/%y")
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))

@@ -171,36 +171,37 @@ ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.
 # plots by chamber # 
 ####################
 
-chamb <- "Senate" # "House" # 
+Chamber <- "Senate" # "House" # 
 
 # define y axis
 df$yaxis <- df$bioname
 
 # member by year by agency 
-df %>% # group_by(yaxis, chamber, year, agency) %>% tally() %>%
-  filter(chamber == chamb, complete == T) %>%
-  group_by(yaxis) %>%
-  mutate(n = n()) %>%
+df %>% 
+  filter(chamber == Chamber, complete == T) %>%
+  group_by(yaxis) %>% mutate(n = n()) %>% ungroup() %>% 
   ggplot() +
   geom_point(
     aes(x = DATE, 
         y = reorder(yaxis, n), # sort by total number of lewters writen
         color = agency), 
-    alpha = .3
+    alpha = .3,
+    shape = 73,
+    size=2
   ) +
-  labs(title = paste(chamb),
+  labs(title = paste(Chamber),
        y = paste("Members by", "n"), 
-       x = "" ) +
+       x = "Date of Correspondence" ) +
   theme(
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) 
-ggsave(paste("members_by_year_agency", chamb, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+ggsave(paste("members_by_year_agency", Chamber, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
-df %>% # group_by(yaxis, chamber, year, agency, TYPE) %>% tally() %>%
+df %>% 
   filter(chamber == chamb,  complete == T)  %>%
   group_by(yaxis) %>%
   mutate(n = n()) %>%
@@ -225,17 +226,17 @@ ggsave(paste("members_by_year_agency_type", chamb,".pdf"), width = 8.5, height =
 
 
 
-
+Chamber = "Senate"
 # boxplots by year 
 df %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
-  filter(chamber == chamb) %>%
+  filter(chamber == Chamber) %>%
   ggplot() + 
   geom_boxplot(
     aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(title = paste("Letters per Year,", chamb)) + 
+  labs(title = paste("Letters per Year from Members of the U.S.", Chamber)) + 
   theme(axis.text.y = element_text(size=5))
 
 ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
@@ -259,9 +260,9 @@ ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path 
 
 
 
-
+Chamber = "Senate"
 chairs %>% 
-  filter(chamber == chamb, complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
+  filter(chamber == Chamber, complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
@@ -274,7 +275,7 @@ chairs %>%
                    x = assigneddate, xend = terminationdate, 
                    linetype = factor(position)),
                position = position_nudge(y = -0.3)) +
-  labs(title = paste(chamb, "Committee Chairs"),
+  labs(title = paste(Chamber, "Committee Chairs"),
        y = "", 
        x = "" ) +
   scale_y_discrete(position = "right") +

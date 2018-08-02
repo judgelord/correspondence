@@ -155,6 +155,13 @@ while(length(unique(d$agency) == i)) {
     
     i <- i+1
 }
+library(gmailr)
+
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
+  From = "correspondenceresearch@gmail.com",
+  Subject =  paste("merge.R stopped at", data_list$agency[i]),
+  body = paste("merge.R stopped at", data_list$agency[i])))
 
 
 
@@ -228,15 +235,15 @@ d %<>% ungroup()
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
 # numeric to text 
-# df$Type <- NA
-# df$Type[is.na(df$TYPE)] <- "To be coded"
-# df$Type[df$TYPE == 0] <- "To be coded"
-# df$Type[df$TYPE == 1] <- "Indiv. Constituent"
-# df$Type[df$TYPE == 2] <- "Corp. Constituent"
-# df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
-# df$Type[df$TYPE == 4] <- "Corp. Policy"
-# df$Type[df$TYPE == 5] <- "Policy"
-# df$Type[df$TYPE == 6] <- "To be coded"
+ df$Type <- NA
+ df$Type[is.na(df$TYPE)] <- "To be coded"
+ df$Type[df$TYPE == 0] <- "To be coded"
+ df$Type[df$TYPE == 1] <- "Indiv. Constituent"
+ df$Type[df$TYPE == 2] <- "Corp. Constituent"
+ df$Type[df$TYPE == 3] <- "501c3 or Local Gov."
+ df$Type[df$TYPE == 4] <- "Corp. Policy"
+ df$Type[df$TYPE == 5] <- "Policy"
+ df$Type[df$TYPE == 6] <- "To be coded"
 
 df$party <- NA 
 df$party[df$party_code == 100] <- "(D)"
@@ -319,13 +326,5 @@ save.image(paste("correspondence.RData"))
 #  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
 #  file.remove("mismatch.csv") # remove local file
  
-library(gmailr)
 
-test_email <- mime(
-  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
-  From = "correspondenceresearch@gmail.com",
-  Subject = "merge.R finished",
-  body = paste("merge.R stopped at", data_list$agency[i]))
-send_message(test_email)
-  
   

@@ -451,7 +451,6 @@ stew$icpsr[stew$stewarticpsr==15406& stew$name=="Campbell, Ben Nighthorse"]<-154
 ### Note: Tried using Adler and Wilkerson's ICPSR Crosswalk (Congressional Bills Project) to convert alternate icpsr scores to NOMINATE scores.  But their alternate scores didn't match stewart's icpsr scores. 
 
 
-
 ### Adding missing committee leadership positions
 
 ### Source: CQ's Politics in America 
@@ -461,7 +460,7 @@ stew$seniorstatus[stew$icpsr==14873 & stew$cong==106 & stew$commcode==142] <-21 
 stew$seniorstatus[stew$icpsr==14039 & stew$cong==106 & stew$commcode==176] <-21 ## Adding John Moakley Ranking Member Rules
 
 ###################################################
-# FIXME ###########################################
+# FIXME 
 ###################################################
 # need to add dates to this and should not be indexed 
 # stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
@@ -514,16 +513,8 @@ for (i in 1:length(electionlist)){
 stew$ICPSRYear<-paste(stew$icpsr, stew$yearelected, sep="")
 
 
-
-### Keeping only 96th congress and above 
-
-stew<-stew[stew$cong>95,]
-
-
-
 ### Dropping "[Vacant]" entries
-
-stew<-stew[stew$name!="[Vacant]",]
+# stew<-stew[stew$name!="[Vacant]",]
 
 committees <- filter(stew, congress > 105)
 committees$congress %<>% as.numeric()
@@ -537,10 +528,7 @@ committees$terminationdate %<>% as.Date()
 ##############################################################
 # FIXME 
 
-# read in members from voteview
-member.names <- member_search(congress = c(110:120))
-
-committee.membership <- left_join(member.names, committees)
+committee.membership <- left_join(member_search(congress = c(110:120)), committees)
 
 bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
 
