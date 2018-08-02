@@ -166,6 +166,7 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$Summary)
   data$Summary <- gsub("Christophers", "Christopher", data$Summary)
   
+  data$Summary <- ocr.errors(data$Summary)
   
   # create FROM2 varible extracting name from data$Summary
   data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
@@ -404,7 +405,10 @@ extractMemberName <- function(data, members, col_name){
    mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% 
    mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Jaime", first_name)) %>% 
  mutate(last_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",Summary,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Dianne", first_name))
+   mutate(first_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Dianne", first_name)) %>% 
+   mutate(last_name = ifelse( grepl("Issa",Summary,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",Summary,ignore.case=TRUE), "ISSA", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("Issa",Summary,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",Summary,ignore.case=TRUE), "Darrell", first_name))
+ 
   return(data)
  
  
@@ -442,6 +446,7 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$FROM2)
   data$FROM2 <- gsub("Christophers", "Christopher", data$FROM2)
   
+  data$FROM2 <- ocr.errors(data$FROM2)
   
   
   #create variable for last name of the Sen/Rep
@@ -631,7 +636,9 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Jaime", first_name)) %>% 
     mutate(last_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",FROM2,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Dianne", first_name))
+    mutate(first_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Dianne", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("Issa",FROM2,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",FROM2,ignore.case=TRUE), "ISSA", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("Issa",FROM2,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",FROM2,ignore.case=TRUE), "Darrell", first_name))
   
 
     
@@ -757,8 +764,8 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Ellrners","Ellmers", FROM)
   FROM <- gsub("TONKA", "TONKO", FROM)
   FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE)
-  FROM <- gsub("(^ )Coryn( |$)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
-  
+  FROM <- gsub("(^| )Coryn( |$)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Connelly( |$)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
   
   return(FROM)
 }

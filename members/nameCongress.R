@@ -255,18 +255,19 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   members %<>%
     mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
   
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JEWELL"; members$first_name[nrow(members)] <- "Sally"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "NORTON"; members$first_name[nrow(members)] <- "Eleanor"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "SABLAN"; members$first_name[nrow(members)] <- "Gregorio"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PLASKETT"; members$first_name[nrow(members)] <- "Stacey"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "RADEWAGEN"; members$first_name[nrow(members)] <- "Amata"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "CHRISTENSEN"; members$first_name[nrow(members)] <- "Donna";members$middle_initial[nrow(members)] <- "M"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PIERLUISI"; members$first_name[nrow(members)] <- "Pedro"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "WHITEHOUSE";
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "BORDALLO"; members$first_name[nrow(members)] <- "Madeleine"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "FALEOMAVAEGA"; members$first_name[nrow(members)] <- "Eni"
-  members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JOHNSON"; members$first_name[nrow(members)] <- "Tia"; members$common_name[nrow(members)] <- "M. Tia"
-  
+  # # Creates new rows in member dataset. These are not actual members, but common names that we know shouldn't be matching
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JEWELL"; members$first_name[nrow(members)] <- "Sally"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "NORTON"; members$first_name[nrow(members)] <- "Eleanor"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "SABLAN"; members$first_name[nrow(members)] <- "Gregorio"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PLASKETT"; members$first_name[nrow(members)] <- "Stacey"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "RADEWAGEN"; members$first_name[nrow(members)] <- "Amata"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "CHRISTENSEN"; members$first_name[nrow(members)] <- "Donna";members$middle_initial[nrow(members)] <- "M"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "PIERLUISI"; members$first_name[nrow(members)] <- "Pedro"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "WHITEHOUSE";
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "BORDALLO"; members$first_name[nrow(members)] <- "Madeleine"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "FALEOMAVAEGA"; members$first_name[nrow(members)] <- "Eni"
+  # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JOHNSON"; members$first_name[nrow(members)] <- "Tia"; members$common_name[nrow(members)] <- "M. Tia"
+  # 
   
   # select
   members %<>% 
