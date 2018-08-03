@@ -305,7 +305,7 @@ chairs %<>%
   mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
   mutate(yearsAsChair = daysAsChair/365) %>%
   mutate(monthsAsChair = daysAsChair/30) %>%
-  group_by(month) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() %>%
   mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
 # add committee chair data to df (still on obs per letter, unlike dcommittees)

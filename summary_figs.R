@@ -71,18 +71,21 @@ ggsave("namesbydept.pdf", width = 8.5, height = 11,  path = "~/correspondence/fi
 
 
 # Name jitter plot by TYPE 
+df$TYPE %<>% as.numeric()
 df %>% 
-  filter(TYPE != "To be coded") %>% 
-  group_by(bioname, nominate.dim1, chamber, TYPE, last_name) %>% tally() %>% ungroup()  %>% 
-  group_by(chamber, TYPE) %>% mutate(percentile = ntile(n, 100)) %>%
+  filter(Type != "To be coded") %>% 
+  group_by(bioname, nominate.dim1, chamber, Type, TYPE, last_name) %>% tally() %>% ungroup()  %>% 
+  group_by(chamber, Type) %>% mutate(percentile = ntile(n, 100)) %>%
   ggplot() +
+  geom_tile(aes(x= chamber, y = Type), fill = "white", color = "grey") +
   geom_text(
-    aes(x = TYPE, y = chamber, label = last_name, size = n, alpha = percentile, color = nominate.dim1),
+    aes(x = chamber, y = reorder(Type, TYPE), label = last_name, size = n, alpha = percentile, color = nominate.dim1),
     position=position_jitter()
   ) +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(y = "", 
-       title = paste("")) +
+  labs(y = "Type", 
+       x= "Chamber",
+       title = paste("Types of Correspondence")) +
   theme(
     axis.ticks = element_blank(),
     panel.background = element_blank(),
@@ -544,9 +547,14 @@ chairs %>%
 
   ggsave(paste("chair pre post density by type.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
   
+  
+  comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
+             "TRANSPORTATION", "OVERSIGHT", 
+             "RULES", "BUDGET", "WAYS", "COMMERCE", 
+             "APPROPRIATIONS", "ENERGY")
 chairs %>%
     filter(committee %in% comms, complete == T, department %in% c("DHHS", "DHS", "DOC", "DOD", "DOE", "DOI", "DOL", "DOT", "EPA", "USDA")) %>%
-    #filter(chamber == chamb) %>%
+    filter(chamber == Chamber) %>%
     filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
     ggplot() + 
     labs(title = paste("Committee Chairs Before and After Appointment (subset appointed 2009-2015)"),
@@ -555,46 +563,50 @@ chairs %>%
     geom_vline(aes(xintercept = 0), color = "black") + 
     #scale_color_grey() +
     scale_x_continuous(breaks = seq(-720,720,720), limits = c(-720,720)) + 
-    facet_grid( department ~ committee, scales = "free_y")  + 
+    facet_grid(committee ~ ., scales = "free_y")  + 
   theme(legend.position = "bottom",
         legend.title = element_blank(),
         legend.text = element_text(size = 5))
   
   ggsave(paste("chair pre post density by dept.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
   
-  
+  comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
+             "TRANSPORTATION", "OVERSIGHT", 
+             "RULES", "BUDGET", "WAYS", "COMMERCE", 
+             "APPROPRIATIONS", "ENERGY")
 chairs %>% 
-  filter(complete == T, committee %in% comms) %>%
+  filter(complete == T, committee %in% comms, last_name != "STARK") %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   ggplot() + 
   # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
   # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
   geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_smooth(aes(x = monthsAsChair, y = n, color = committee)) + 
+  geom_density(aes(x = monthsAsChair, fill = committee, color = committee), alpha = .1) + 
   #geom_smooth(aes(x = monthsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
   facet_grid(. ~ chamber, scales = "free_y") +
   #facet_grid(committee ~ department, scales = "free_y") +
   # facet_wrap(~committee, scales = "free_y") +
-  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
   labs(title = paste("Before and After Appointment to Committee Chair"),
        x = "Months Before and After Appointment to Committee Chair",
-       y = "Number of Letters per Year")
+       y = "Density")
 
+
+comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
+           "TRANSPORTATION", "OVERSIGHT", 
+           "RULES", "BUDGET", "WAYS", "COMMERCE", 
+           "APPROPRIATIONS", "ENERGY")
 chairs %>% 
-  filter(committee %in% comms) %>%
+  #filter(committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
   mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
   mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
   filter(!is.na(TYPE)) %>% 
   ggplot() + 
-  # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
-  # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
   geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_smooth(aes(x = monthsAsChair, y = n, color = committee)) + #, color = TYPE))+#, color = "black")  + 
-  facet_grid(chamber ~ TYPE, scales = "free_y") +
-  #facet_grid(committee ~ department, scales = "free_y") +
-  # facet_wrap(~committee, scales = "free_y") +
+  geom_smooth(aes(x = monthsAsChair, y = permonth_permember))+#, color = Type))+#, color = "black")  + 
+  facet_grid(chamber ~ ., scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
   labs(title = paste("Before and After Appointment to Committee Chair"),
        x = "Months Before and After Appointment to Committee Chair",

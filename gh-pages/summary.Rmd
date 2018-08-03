@@ -13,7 +13,7 @@ load("correspondence.RData")
 library(magrittr)
 library(tidyverse)
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = T)
 ```
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=11, fig.path='Figs/',
@@ -246,7 +246,7 @@ Does a legislator's party influence the constituents on whose behalf legislators
 
 Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
 
-## Institutional position
+## Institutional position matters byond formal power
 
 ### Committee appointment
 
@@ -269,13 +269,57 @@ tenure %<>%
 year.before.chair <- mean(tenure$n[tenure$tenure == -1])
 year.after.chair <- mean(tenure$n[tenure$tenure == 0])
 
-year.before.chair <- mean(tenure$n[tenure$tenure == -1 & tenure$department == "DOL"])
-year.after.chair <- mean(tenure$n[tenure$tenure == 0 & tenure$department == "DOL"])
+year.before.chair.DOL <- mean(tenure$n[tenure$tenure == -1 & tenure$department == "DOL"])
+year.after.chair.DOL <- mean(tenure$n[tenure$tenure == 0 & tenure$department == "DOL"])
 ```
 
-Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. Averaging across all departments and committees, we find a similar increase from `year.before.chair` to `year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
+Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. For our study time period, 2007-2017, we find an average of `year.before.chair.DOL` before and `year.after.chair.DOL` after being appointed chair. Averaging across all departments and committees, we find a increase from `year.before.chair` to `year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
 
-When we match committees and departments, we see some larger effects, but not consistently. For example, Science and Environment committee chairs averaged more letters to EPA after becoming chair, but they also wrote more to DOT. Similarly, Transportation chairs wrote more to both DOT and EPA, so, while becoming chair generally matters, committee oversight does not appear to be 1:1. 
+```{r chaireffect}
+comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
+           "TRANSPORTATION", "OVERSIGHT", 
+           "RULES", "BUDGET", "WAYS", "COMMERCE", 
+           "APPROPRIATIONS", "ENERGY")
+chairs %>% 
+  #filter(committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
+  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
+  filter(!is.na(TYPE)) %>% 
+  ggplot() + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  geom_smooth(aes(x = monthsAsChair, y = permonth_permember))+#, color = Type))+#, color = "black")  + 
+  facet_grid(chamber ~ ., scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
+  labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Correspondence per Month")
+
+
+comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
+             "TRANSPORTATION", "OVERSIGHT", 
+             "RULES", "BUDGET", "WAYS", "COMMERCE", 
+             "APPROPRIATIONS", "ENERGY")
+chairs %>% 
+  filter(complete == T, committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  ggplot() + 
+  # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
+  # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  geom_density(aes(x = monthsAsChair, fill = committee, color = committee), alpha = .1) + 
+  #geom_smooth(aes(x = monthsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
+  facet_grid(chamber ~ ., scales = "free_y") +
+  #facet_grid(committee ~ department, scales = "free_y") +
+  # facet_wrap(~committee, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Density of Correspondence")
+```
+
+When we match committees and departments, we see some larger effects, but not consistently. For example, Science and Environment committee chairs averaged more letters to EPA after becoming chair, but they also wrote more to DOT. Similarly, Transportation chairs wrote more to both DOT and EPA, so, while becoming chair generally matters, changes in correspondence behavior are broader than changes in formal oversight powers. 
 
 Ignoring timing and just looking at committee effects, chair-committee linkages seem stronger in the House than the Senate. It seems that this because other non-chair members are also engaged. This is especially clear for DHS where House Homeland Security Committee leaders write way more to DHS but a half dozen Senators write more letters then the Homeland Security Committee Chair
 
@@ -290,14 +334,37 @@ Two results are particularly interesting: (1) surprisingly mild committee-agency
 Comparing within-member over time, some committee chair positions matter (e.g.. House Oversight) but many committees chairs' attention is more a function of their previous behavior than their position. This is stark in the House Homeland Security Committee where King seems to attend to the same distribution of agencies before and after he is Chair, while McCaul seems more affected by taking on the Chair position. 
 
 
-### Representational Style
+### Lobbying agencies is a representational style
 
-Some members write significantly more letters per year than others:
+Some members write significantly more letters per year than others, and those who write do so across issues and agencies. For example, Senator Schumer lobbies more than anyone on behalf of local governments and nonprofits, but he is also among those Senators lobbying most on behalf of individuals and companies and on policy issues. 
 
-```{r boxplot_peryear}
+```{r}
+df$TYPE %<>% as.numeric()
+df %>% 
+  filter(Type != "To be coded") %>% 
+  group_by(bioname, nominate.dim1, chamber, Type, TYPE, last_name) %>% tally() %>% ungroup()  %>%
+  group_by(chamber, Type) %>% mutate(percentile = ntile(n, 100)) %>%
+  ggplot() +
+  geom_tile(aes(x= chamber, y = Type), fill = "white", color = "grey") +
+  geom_text(
+    aes(x = chamber, y = reorder(Type, TYPE), label = last_name, size = n, alpha = percentile, color = nominate.dim1),
+    position=position_jitter()
+  ) +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(y = "Type", 
+       x= "Chamber",
+       title = paste("Types of Correspondence")) +
+  theme(
+    axis.ticks = element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank()
+  ) 
+```
+
+```{r boxplot_peryear, height = 11}
 Chamber = "Senate"
 # boxplots by year 
-df %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %>% 
+df %>% group_by(yaxis, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
   filter(chamber == Chamber) %>%
   ggplot() + 
@@ -305,13 +372,31 @@ df %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %
     aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
-  labs(title = paste("Letters per Year from Members of the U.S.", Chamber)) + 
+  labs(x = Chamber,
+       y = "Number of Letters, Emails, or Phone Calls",
+       title = paste("Correspondence per Year from Members of the U.S.", Chamber)) + 
+  facet_grid(. ~ Type, scales = "free_x") + 
+  theme(axis.text.y = element_text(size=5))
+
+Chamber = "House"
+# boxplots by year 
+df %>% group_by(yaxis, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == Chamber) %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+  coord_flip() +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(x = Chamber,
+       y = "Number of Letters, Emails, or Phone Calls",title = paste("Correspondence per Year from Members of the U.S.", Chamber)) + 
+  facet_grid(. ~ Type, scales = "free_x") + 
   theme(axis.text.y = element_text(size=5))
 ```
 
 We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a colorful "bar-code" for each member with each line marking a letter.
 
-```{r members_barcoded, fig.height=11}
+```{r members_barcoded, fig.height=12}
 # barcode plot of committee members 
 
 
@@ -329,7 +414,7 @@ df %>%
     aes(x = DATE, 
         y = reorder(yaxis, n), # sort by total number of lewters writen
         color = agency), 
-    alpha = .4,
+    # alpha = .6,
     shape = 73,
     size=2
   ) +
@@ -343,7 +428,7 @@ df %>%
   )
 
 ```
-Subsetting to those who served as a committee chair, we see that subsequent chairs of the same committee often target a very different set of agencies, suggesting that there is a lot to be said for style over institutional position or events of the day
+Subsetting to members appointed to serve as a committee chair, we see that subsequent chairs of the same committee often target a very different set of agencies, suggesting that there is a lot to be said for style over institutional position or events of the day
 
 ```{r committeechiars_barcode, fig.height=11}
 Chamber = "Senate"
@@ -390,7 +475,6 @@ Do legislators shift attention to policy work as they gain electoral security?
 Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
 
 Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
-
 
 
 
