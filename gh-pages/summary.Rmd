@@ -33,7 +33,6 @@ Do legislators shift attention to policy work as they gain seniority or electora
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?
 
 ```{r missing_data, fig.height=9}
-# inspect data completeness coding
 df %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(Coded = ifelse(Type == "To be coded", "To be coded", "Coded")) %>% 
@@ -47,16 +46,52 @@ df %>%
        title = paste("Observations matched with ICPSR, N =", nrow(df) )) +
    facet_grid(complete ~., scales = "free_y", space = "free_y")
 
-# USPS - filed remaining data 
-# CDC is rolling release, 2010-2011 expected Nov 2018
-# SBA has no records before 2010
+# MISSING DATA STATUS: 
+# DHHS_ACL - no logs before 2017
+# DHHS_CDC is rolling release, 2010-2011 expected Nov 2018
+# DHS_CBP waiting since april 2017
+# DHS_ICE - no records before 2010, stopped using system 2014ish
+# DOD_NAVY - No records before 2013
+# DOD_OSDJS waiting on remaining records
+# DOD_USACE no records before fall 2013
+# DOI_NPS no records before mid 2008
 # DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
-# CBP waiting since april 2017
+# DOL_OSHA filed for 2009-2017
+# DOT_FHWA - COMPLETE, but waiting on pdf conversion 
+# EPA filed for 2017
+# FDA waiting on 2007-2011 from Sarah B. Kotler  
+# PRC - Tracking did not start until FY 2009
+# SBA - no records before 2010
+# USDA_FS filed for 2017
+# USDA_HQ filed for 2017
+# USDA_NRCS filed for 2017
 # USDA RMA has no logs prior to 2010
-# PRC no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
+# USPS - filed for remaining data 
 
+# TO DO:
+# DOD_DeCA - waiting on pdf conversion? only some are on drive 
+# DOD_OIG  waiting for pdf conversion
+# DOL_OFCO is COMPLETE, just sparse?
+# DOT_FAA has an odd gap in 2010 + File for 2017
+# DOT_SLDC is COMPLETE, just sparse
+# NASA - very few matches, FIX
+# SSA - FIX DATES 
+# USDA_NASS file for 2017
+# USDA_ERS file for 2017
+
+# Treasurry_OCC?
+# NLRB?
+# FCA
+# DOI_USGS
+# DOI_BSEE
+# DOI_BOEM 
+# DOD_DLA Aviation
+# DOD_DFAS
+# DOC_OS
+# DOC_OCPA
+# DOC_MBDA
 ```
-
+All time-series analysis below subsets to agencies with ten years of data. 
 ```{r data_coded, fig.height=9}
 df %>% 
   filter(Type != "To be coded") %>% 
