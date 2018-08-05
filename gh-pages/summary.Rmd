@@ -8,17 +8,15 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-setwd("/Users/judgelord/correspondence")
 load("correspondence.RData")
 library(magrittr)
 library(tidyverse)
-
-knitr::opts_chunk$set(echo = TRUE, cache = T)
 ```
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=11, fig.path='Figs/',
+```{r global.options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = T, fig.width=17, fig.path='Figs/',
                       warning=FALSE, message=FALSE, fig.align = 'center')
 ```
+
 # Abstract
 
 Legislators and their staff have limited time to serve constituents and advance policy goals. What determines their distribution of attention among constituents, potential donors, and policy goals? While scholarship has explored representational topics such as bill sponsorship, floor speeches, press releases, committee activity, and the like, much less is known about other, less visible forms of representation. In this paper, we contrast those traditional forms of representation against a much less visible form: how member’s advocate on behalf of their constituents, donors, and policy goals to federal agencies. By analyzing thousands of letters sent to government agencies by members of Congress, we develop new measures of legislator issue attention, specialization, and representational activity over time. 
@@ -275,48 +273,82 @@ year.after.chair.DOL <- mean(tenure$n[tenure$tenure == 0 & tenure$department == 
 
 Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. For our study time period, 2007-2017, we find an average of `year.before.chair.DOL` before and `year.after.chair.DOL` after being appointed chair. Averaging across all departments and committees, we find a increase from `year.before.chair` to `year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
 
-```{r chaireffect}
-comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
-           "TRANSPORTATION", "OVERSIGHT", 
-           "RULES", "BUDGET", "WAYS", "COMMERCE", 
-           "APPROPRIATIONS", "ENERGY")
+```{r chair_effect}
+comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
+           "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
 chairs %>% 
-  #filter(committee %in% comms) %>%
+  filter(complete == T) %>% #, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
-  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
-  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
-  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
-  filter(!is.na(TYPE)) %>% 
+  mutate(prestige = ifelse(committee %in% c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
+     "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) %>% 
+  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
+  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
+  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
+  filter(!is.na(Type)) %>% 
+  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
   ggplot() + 
+  geom_density(aes(x = monthsAsChair, fill = prestige, color = prestige), alpha = .2, bw = 2) + 
   geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_smooth(aes(x = monthsAsChair, y = permonth_permember))+#, color = Type))+#, color = "black")  + 
-  facet_grid(chamber ~ ., scales = "free_y") +
-  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
-  labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
-       x = "Months Before and After Appointment to Committee Chair",
-       y = "Correspondence per Month")
+  facet_grid(Type ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Density of Correspondence Before and After Appointment to Committee Chair"),
+       x = "Months Before and After First Appointment to Committee Chair",
+       y = "Correspondence Density")
+```
+```{r committee_chair_density, fig.height=8}
 
-
-comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
-             "TRANSPORTATION", "OVERSIGHT", 
-             "RULES", "BUDGET", "WAYS", "COMMERCE", 
-             "APPROPRIATIONS", "ENERGY")
+# prestige committee members
+# density 
 chairs %>% 
   filter(complete == T, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
+  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
+  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
+  filter(!is.na(Type)) %>% 
+  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
   ggplot() + 
-  # geom_text(aes(x = ifelse(tenure == 0, tenure, NA), y = ifelse(n>100, n, NA), label = member_committee, color = TYPE), size = 2, check_overlap = T) + 
-  # geom_line(aes(x = tenure, y = n, color = TYPE, group = member_committee_TYPE), alpha = .2) +
+  geom_density(aes(
+    x = monthsAsChair, 
+    fill = paste(chamber, committee_member), 
+    color = paste(chamber, committee_member)), alpha = .1, bw = 2, position = "stack") + 
   geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_density(aes(x = monthsAsChair, fill = committee, color = committee), alpha = .1) + 
-  #geom_smooth(aes(x = monthsAsChair, y = n)) + #, color = TYPE))+#, color = "black")  + 
-  facet_grid(chamber ~ ., scales = "free_y") +
-  #facet_grid(committee ~ department, scales = "free_y") +
-  # facet_wrap(~committee, scales = "free_y") +
+  facet_grid(Type ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
-  labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Density of Correspondence Before and After Appointment to Prestige Committee Chair"),
        x = "Months Before and After Appointment to Committee Chair",
-       y = "Density of Correspondence")
+       y = "Correspondence Density")
+```
+
+
+Appointments to committee chair seem to be especially important in the house. However,the vast majority of correspondence was initiated by three chairs. 
+```{r committee_chair_volume, fig.height=8}
+
+# count
+chairs %>% 
+  filter(complete == T, committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
+  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
+  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
+  filter(!is.na(Type)) %>% 
+  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  ggplot() + 
+  geom_density(aes(
+    x = monthsAsChair, 
+    y = ..count.., 
+    fill = paste(chamber, committee_member), 
+    color = paste(chamber, committee_member)), alpha = .1, bw = 2) + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Volume of Correspondence Before and After Appointment to Prestige Committee Chair"),
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Correspondence per Month")
+
 ```
 
 When we match committees and departments, we see some larger effects, but not consistently. For example, Science and Environment committee chairs averaged more letters to EPA after becoming chair, but they also wrote more to DOT. Similarly, Transportation chairs wrote more to both DOT and EPA, so, while becoming chair generally matters, changes in correspondence behavior are broader than changes in formal oversight powers. 
@@ -338,7 +370,7 @@ Comparing within-member over time, some committee chair positions matter (e.g.. 
 
 Some members write significantly more letters per year than others, and those who write do so across issues and agencies. For example, Senator Schumer lobbies more than anyone on behalf of local governments and nonprofits, but he is also among those Senators lobbying most on behalf of individuals and companies and on policy issues. 
 
-```{r}
+```{r namefreq}
 df$TYPE %<>% as.numeric()
 df %>% 
   filter(Type != "To be coded") %>% 
@@ -361,31 +393,32 @@ df %>%
   ) 
 ```
 
-```{r boxplot_peryear, height = 11}
+```{r boxplot_peryearSenate, fig.height = 14}
 Chamber = "Senate"
 # boxplots by year 
-df %>% group_by(yaxis, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
+df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
-  filter(chamber == Chamber) %>%
-  ggplot() + 
+  filter(chamber == Chamber) %>% 
+  ggplot() +  
   geom_boxplot(
-    aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+    aes(x = reorder(name_state, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
   labs(x = Chamber,
        y = "Number of Letters, Emails, or Phone Calls",
        title = paste("Correspondence per Year from Members of the U.S.", Chamber)) + 
   facet_grid(. ~ Type, scales = "free_x") + 
-  theme(axis.text.y = element_text(size=5))
-
+  theme(axis.text.y = element_text(size=5)) 
+```
+```{r boxplot_peryearHouse, fig.height = 32} 
 Chamber = "House"
-# boxplots by year 
-df %>% group_by(yaxis, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
+# boxplots by year  
+df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
   mutate(mean = mean(n)) %>%
-  filter(chamber == Chamber) %>%
+  filter(chamber == Chamber) %>% 
   ggplot() + 
   geom_boxplot(
-    aes(x = reorder(yaxis, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+    aes(x = reorder(name_state, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
   coord_flip() +
   scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
   labs(x = Chamber,
@@ -396,23 +429,20 @@ df %>% group_by(yaxis, year, chamber, nominate.dim1, Type) %>% tally() %>% ungro
 
 We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a colorful "bar-code" for each member with each line marking a letter.
 
-```{r members_barcoded, fig.height=12}
+```{r members_barcoded, fig.height=18, fig.width=11}
 # barcode plot of committee members 
 
 
-Chamber <- "Senate" # "House" # 
-
-# define y axis
-df$yaxis <- df$bioname
-
+Chamber <- "Senate" # "House" #  
+ 
 # member by year by agency 
 df %>% 
-  filter(chamber == Chamber, complete == T) %>%
-  group_by(yaxis) %>% mutate(n = n()) %>% ungroup() %>% 
+  filter(chamber == Chamber, complete == T) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = reorder(yaxis, n), # sort by total number of lewters writen
+        y = reorder(name_state, n), # sort by total number of lewters writen
         color = agency), 
     # alpha = .6,
     shape = 73,
@@ -421,6 +451,7 @@ df %>%
   labs(title = paste(Chamber),
        y = paste("Members by", "n"), 
        x = "Date of Correspondence" ) +
+    guides(fill=guide_legend(ncol=1)) +
   theme(
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
@@ -430,7 +461,7 @@ df %>%
 ```
 Subsetting to members appointed to serve as a committee chair, we see that subsequent chairs of the same committee often target a very different set of agencies, suggesting that there is a lot to be said for style over institutional position or events of the day
 
-```{r committeechiars_barcode, fig.height=11}
+```{r committeechiars_barcode, fig.height=10}
 Chamber = "Senate"
 chairs %>% 
   filter(chamber == Chamber, complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
@@ -440,7 +471,7 @@ chairs %>%
         y = chair, 
         color = department),
     shape = 73,
-    size=2
+    size=2 
   ) +
   geom_segment(aes(y = chair, yend = chair, 
                    x = assigneddate, xend = terminationdate, 

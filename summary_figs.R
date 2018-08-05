@@ -674,3 +674,74 @@ ggplot(data) + # plot
 Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
        x = "",
        y = Chamber)
+
+comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
+            "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
+
+chairs %>% 
+  filter(complete == T) %>% #, committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(prestige = ifelse(committee %in% c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
+     "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) %>% 
+  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
+  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
+  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
+  filter(!is.na(Type)) %>% 
+  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  ggplot() + 
+  geom_density(aes(x = monthsAsChair, fill = prestige, color = prestige), alpha = .2, bw = 2) + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
+       x = "Months Before and After First Appointment to Committee Chair",
+       y = "Correspondence per Month")
+
+
+# prestige committee members
+# density 
+chairs %>% 
+  filter(complete == T, committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
+  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
+  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
+  filter(!is.na(Type)) %>% 
+  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  ggplot() + 
+  geom_density(aes(
+    x = monthsAsChair, 
+    fill = paste(chamber, committee_member), 
+    color = paste(chamber, committee_member)), alpha = .1, bw = 2, position = "stack") + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Correspondence Before and After Appointment to Prestige Committee Chair"),
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Correspondence per Month")
+
+
+# count
+chairs %>% 
+  filter(complete == T, committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
+  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
+  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
+  filter(!is.na(Type)) %>% 
+  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  ggplot() + 
+  geom_density(aes(
+    x = monthsAsChair, 
+    y = ..count.., 
+    fill = paste(chamber, committee_member), 
+    color = paste(chamber, committee_member)), alpha = .1, bw = 2) + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Correspondence Before and After Appointment to Prestige Committee Chair"),
+       x = "Months Before and After Appointment to Committee Chair",
+       y = "Correspondence per Month")
