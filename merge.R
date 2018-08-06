@@ -271,9 +271,7 @@ df %<>%
   mutate(name_agency = paste(name_state, agency)) %>%
   mutate(name_dept = paste(name_state, department))
 
-df %<>% left_join(committees[ , c("icpsr", "congress", "partystatus")])
-df$partystatus[df$partystatus == 1] <- "Majority"
-df$partystatus[df$partystatus == 2] <- "Minority"
+
 
 # merge committee data to one obs per letter per committee
 dcommittees <- df %>% full_join(committees)
@@ -322,6 +320,9 @@ chairs %<>%
   mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
 # add committee chair data to df (still on obs per letter, unlike dcommittees)
+df %<>% left_join(committees[ , c("icpsr", "congress", "partystatus")])
+df$partystatus[df$partystatus == 1] <- "Majority"
+df$partystatus[df$partystatus == 2] <- "Minority"
 
 
 
