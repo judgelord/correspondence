@@ -8,9 +8,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-load("correspondence.RData")
+requires <- c("dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse")
+  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+  install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+  
 library(magrittr)
 library(tidyverse)
+  
+load("correspondence.RData")
 ```
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = T, fig.width=17, fig.path='Figs/',
@@ -125,6 +130,9 @@ There might be some interesting signal in the formality of letterhead that chang
 
 
 ## Data Collection and Coding Process
+
+This paper presents a new dataset of letters, phone calls, and emails recieved by all federal agencies and subagencies. 
+
 We developed a [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit). Our coding process began with the authors coding a representative sample of records. We then trained undergraduate and graduate RAs. The first several thousand log entries were double coded. For example, of over 10,000 log entries for the Environmental Protection Agency, the first 2,500 were double-coded with inter-coder agreement of .9 where coders did not flag their coding as uncertain and  .78 overall.
 
 
@@ -209,9 +217,9 @@ How do legislators distribute attention among issues across federal agencies?
 
 Theories rooted in institutional position suggest that committee members, especially committee chairs will focus on governmental activities where they have formal oversight authority and responsibilities and where constituent service this authority may advantage them in securing benefits for constituents and potential donors. 
 
-Our data show limited support for the imortance of formal oversight powers in directing the attention of committee members. In some case, like the Agrcultuer and Judicery, we see strong relationships between committee membership and which agencies they lobby. In many other case, however, members of committees with formal oversight powers are not the most attentive. Instead, members of certian committees tend to lobby widely accross the federal bureuaucy. 
+Our data show limited support for the importance of formal oversight powers in directing the attention of committee members. In some case, like the Agriculture and Judiciary, we see strong relationships between committee membership and which agencies they lobby. In many other case, however, members of committees with formal oversight powers are not the most attentive. Instead, members of certain committees tend to lobby widely across the federal bureaucracy. 
 
-In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committes. 
+In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committees. 
 
 ```{r committee_deptSenate}
 Chamber <- "Senate"
@@ -248,7 +256,7 @@ data <- dcommittees %>%
 
 ```
 
-In the House, the Transportation, Energy, Financial Services, Armed Services, and Appropriations Committees are the most active. Notably, members of the Budget, Rules, and Ways and Means committees, often considerd prestige appointments, are not as active. 
+In the House, the Transportation, Energy, Financial Services, Armed Services, and Appropriations Committees are the most active. Notably, members of the Budget, Rules, and Ways and Means committees, often considered prestige appointments, are not as active. 
 
 ```{r committee_deptHouse}
 Chamber <- "House"
@@ -313,22 +321,39 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
 ```
 
 
-
 *To do: *TYPE/issue area x demand characteristics
 
+
+
+## Party and Majority Status
+
+Party control does appear to increase legislator advocacy behavior, possibly due to the additional staff resources it provides. 
+
+```{r party_status}
+  df %>% 
+    filter(complete == T, party != "(I)") %>%
+    ggplot() +
+    geom_density(aes(x = DATE, fill = party, color = party), alpha = .1) + facet_grid(chamber ~.) 
+
+  df %>% 
+    filter(party != "(I)", partystatus %in% c("Majority", "Minority")) %>% 
+    group_by(party, partystatus, chamber, member_state, year) %>% tally() %>% 
+    group_by(chamber, party, partystatus) %>% mutate(perParty = mean(n))%>% ungroup() %>% 
+    group_by(chamber) %>% mutate(sd = sd(perParty), mean = mean(perParty)) %>%
+    mutate(sd.above.mean = (perParty - mean)/sd, 0) %>% ungroup() %>%
+    group_by(party, sd.above.mean, perParty, partystatus, chamber) %>% tally() %>% 
+    ggplot() + 
+    geom_tile(aes(x = party, y = partystatus, fill = sd.above.mean))  +
+    geom_text(aes(x = party, y = partystatus, label = round(perParty, 0)))  +
+    facet_grid(. ~ chamber) + 
+    labs(title = "Average Correspondence per Year by Party and Majority Status")
+  
+  
+```
 Does a legislator's party influence the constituents on whose behalf legislators advocate? 
 
 *To do:* Type x party
 
-```{r party_type}
-df %>% 
-  group_by(party, chamber, member_state, Type, year) %>% tally() %>% 
-  group_by(party, chamber, Type) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
-  filter(Type != "To be coded", Type != "Indiv. Constituent") %>% 
-  ggplot() + 
-  geom_text(aes(x = party, y = mean, label = Type))  +
-  facet_grid(chamber ~ ., scales = "free_y")
-```
 Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
 
 ## Institutional position matters byond formal power
@@ -410,7 +435,7 @@ chairs %>%
 ```
 
 
-Appointments to committee chair seem to be especially important in the house. However,the vast majority of correspondence was initiated by three chairs. 
+Appointments to committee chair seem to be especially important in the house. However, the vast majority of correspondence was initiated by three chairs. 
 ```{r committee_chair_volume, fig.height=8}
 
 # count
