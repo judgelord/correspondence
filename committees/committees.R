@@ -531,8 +531,20 @@ committees %<>%
   mutate(party = ifelse(name == "Byrne, Bradley", 200, party)) %>% 
   mutate(party = ifelse(name == "Johnson, Tim", 100, party)) %>% 
   mutate(party = ifelse(name == "Johnson, Bill", 200, party)) %>% 
-  mutate(party = ifelse(name == "Davis, Rodney", 200, party)) 
-
+  mutate(party = ifelse(name == "Davis, Rodney", 200, party)) %>% 
+  
+  
+  mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
+  mutate(seniorstatus = ifelse(name == "Brown, Corrine" & assigneddate == as.Date("2015-01-06"), 22, seniorstatus)) %>% 
+  mutate(seniorstatus = ifelse(name == "Stark, Fortney Pete" & assigneddate == as.Date("2009-01-07"), 0, seniorstatus)) %>% 
+  
+  mutate(terminationdate = if_else(name =="Rangel, Charles B." & assigneddate == as.Date('2009-01-06')& committeename == "Ways and Means",
+                                as.Date('2010-03-03'), terminationdate)) %>% 
+  mutate(assigneddate = if_else(name =="Levin, Sander M." & assigneddate == as.Date('2009-01-07')& committeename == "Ways and Means",
+                                   as.Date('2010-03-04'), assigneddate)) %>% 
+  
+  mutate(assigneddate = if_else(name =="Brady, Kevin" & assigneddate == as.Date('2015-01-13')& committeename == "Ways and Means",
+                               as.Date('2015-10-29'), assigneddate))
 # FIXME 
 
 
