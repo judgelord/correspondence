@@ -232,6 +232,20 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
 unique(d$timeframe)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 d %<>% ungroup()
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
@@ -320,7 +334,9 @@ chairs %<>%
   mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
 # add committee chair data to df (still on obs per letter, unlike dcommittees)
-df %<>% left_join(committees[ , c("icpsr", "congress", "partystatus")])
+committee.membership <- committees %>% select(icpsr, congress, partystatus)
+committee.membership %<>% distinct()
+df %<>% left_join(committee.membership)
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
 
