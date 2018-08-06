@@ -745,3 +745,40 @@ chairs %>%
   labs(title = paste("Correspondence Before and After Appointment to Prestige Committee Chair"),
        x = "Months Before and After Appointment to Committee Chair",
        y = "Correspondence per Month")
+
+
+
+# COMMITTEES 
+Chamber <- "House"
+# zeros
+zeros <- data_frame(
+  committee = rep(unique(dcommittees$committee[dcommittees$chamber == Chamber]), n_distinct(dcommittees$department) ), 
+  department =  rep(unique(dcommittees$department), n_distinct(dcommittees$committee[dcommittees$chamber == Chamber]) ),
+  n = 0) %>%
+  mutate(committee_dept = paste(committee, department)) %>% 
+  filter(!committee_dept %in% dcommittees$committee_dept)
+
+data <- dcommittees %>% 
+  filter(chamber == Chamber) %>% 
+  filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
+  filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER"))%>% 
+  group_by(committee, department, chamber, year) %>% tally() %>% ungroup() %>% 
+  group_by(committee, department, chamber) %>% summarise(n = mean(n)) %>% ungroup() %>%
+  full_join(zeros) %>% 
+  filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
+  filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER", "ENERGY INDEPENDENCE", "DEFICIT REDUCTION", "STANDARDS OF OFFICIAL CONDUCT"))%>% 
+  group_by(department) %>% mutate(mean = mean(n), sd = sd(n)) %>% 
+  mutate(above = n - mean) %>% 
+  mutate(sd.above.mean = above/sd) %>% ungroup %>%
+  mutate(prestige = ifelse(committee %in% c( "RULES", "BUDGET", "WAYS", "COMMERCE", 
+                                             "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) 
+  
+  ggplot(data) + # plot
+  geom_tile(aes(x = department, y = committee, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = committee, label = round(n, 0 ))) +
+  facet_grid(prestige ~ ., scales = "free_y", space = "free_y") +
+  labs(title = paste(Chamber, "Committee Correspondence per Year per Department or Agency 2007-2017"),
+       x = "Department",
+       y = "")
+  
+  

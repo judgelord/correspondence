@@ -244,11 +244,19 @@ df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
  df$Type[df$TYPE == 4] <- "Corp. Policy"
  df$Type[df$TYPE == 5] <- "Policy"
  df$Type[df$TYPE == 6] <- "To be coded"
+ 
+ df %<>% 
+   mutate(Type2 = ifelse(Type %in% c("policy", "Corp. Policy"), "Policy", NA)) %>%
+   mutate(Type2 = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type2)) 
 
 df$party <- NA 
 df$party[df$party_code == 100] <- "(D)"
 df$party[df$party_code == 200] <- "(R)"
 df$party[df$party_code == 328] <- "(I)"
+
+df %<>%
+  mutate(member_party = paste(bioname, party)) %>%  
+  mutate(member_state = paste(bioname, party, state)) 
 
 committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
 
@@ -280,6 +288,8 @@ dcommittees %<>%
 
 # short committee name
 dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
+dcommittees %<>% mutate(committee = gsub(" $", "", committee))
+dcommittees %<>% mutate(committee_dept = paste(committee, department))
 
 # year first assigned to a committee
 dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
@@ -294,8 +304,7 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
 dcommittees %<>% 
-  mutate(chair = paste(firstassignedchair,  bioname, party)) %>%
-  mutate(member_party = paste(bioname, party)) 
+  mutate(chair = paste(firstassignedchair,  bioname, party)) 
 
 
 # Select only Comittee Chairs
