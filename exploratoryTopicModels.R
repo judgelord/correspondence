@@ -6,6 +6,7 @@ library(topicmodels)
 #install.packages('dplyr')
 #install.packages('tidyverse')
 #install.packages('glmnet')
+#install.packages('SnowballC')
 
 library(glmnet)
 
