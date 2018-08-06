@@ -782,3 +782,44 @@ data <- dcommittees %>%
        y = "")
   
   
+  
+  
+  
+  
+  # party
+
+  
+  
+  df %>% 
+    filter(party != "(I)", partystatus %in% c("Majority", "Minority")) %>% 
+    group_by(party, partystatus, chamber, member_state, year) %>% tally() %>% 
+    group_by(chamber, party, partystatus) %>% mutate(perParty = mean(n))%>% ungroup() %>% 
+    group_by(chamber) %>% mutate(sd = sd(perParty), mean = mean(perParty)) %>%
+    mutate(sd.above.mean = (perParty - mean)/sd, 0) %>% ungroup() %>%
+    group_by(party, sd.above.mean, perParty, partystatus, chamber) %>% tally() %>% 
+    ggplot() + 
+    geom_tile(aes(x = party, y = partystatus, fill = sd.above.mean))  +
+    geom_text(aes(x = party, y = partystatus, label = round(perParty, 0)))  +
+    facet_grid(. ~ chamber) + 
+    labs(title = "Average Correspondence per Year by Party and Majority Status")
+  
+  
+  df %>% 
+    filter(party != "(I)", partystatus %in% c("Majority", "Minority"), Type != "To be coded") %>% 
+    group_by(Type, party, partystatus, chamber, member_state, year) %>% tally() %>% 
+    group_by(Type, chamber, party, partystatus) %>% mutate(perParty = mean(n))%>% ungroup() %>% 
+    group_by(Type, chamber) %>% mutate(sd = sd(perParty), mean = mean(perParty)) %>%
+    mutate(sd.above.mean = (perParty - mean)/sd, 0) %>% ungroup() %>%
+    group_by(Type, party, sd.above.mean, perParty, partystatus, chamber) %>% tally() %>% 
+    ggplot() + 
+    geom_tile(aes(x = party, y = partystatus, fill = sd.above.mean))  +
+    geom_text(aes(x = party, y = partystatus, label = round(perParty, 1)))  +
+    facet_grid(Type ~ chamber) + 
+    labs(title = "Average Correspondence per Year by Party and Type")
+  
+  df %>% 
+    filter(complete == T, party != "(I)") %>%
+    ggplot() +
+    geom_density(aes(x = DATE, fill = party, color = party), alpha = .1) + facet_grid(chamber ~.)
+  
+  

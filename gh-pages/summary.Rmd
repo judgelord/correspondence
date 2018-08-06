@@ -318,22 +318,39 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
 ```
 
 
-
 *To do: *TYPE/issue area x demand characteristics
 
+
+
+## Party and Majority Status
+
+Party control does appear to increase legislator advocacy behavior, possibly due to the additional staff resources it provides. 
+
+```{r party_status}
+  df %>% 
+    filter(complete == T, party != "(I)") %>%
+    ggplot() +
+    geom_density(aes(x = DATE, fill = party, color = party), alpha = .1) + facet_grid(chamber ~.) 
+
+  df %>% 
+    filter(party != "(I)", partystatus %in% c("Majority", "Minority")) %>% 
+    group_by(party, partystatus, chamber, member_state, year) %>% tally() %>% 
+    group_by(chamber, party, partystatus) %>% mutate(perParty = mean(n))%>% ungroup() %>% 
+    group_by(chamber) %>% mutate(sd = sd(perParty), mean = mean(perParty)) %>%
+    mutate(sd.above.mean = (perParty - mean)/sd, 0) %>% ungroup() %>%
+    group_by(party, sd.above.mean, perParty, partystatus, chamber) %>% tally() %>% 
+    ggplot() + 
+    geom_tile(aes(x = party, y = partystatus, fill = sd.above.mean))  +
+    geom_text(aes(x = party, y = partystatus, label = round(perParty, 0)))  +
+    facet_grid(. ~ chamber) + 
+    labs(title = "Average Correspondence per Year by Party and Majority Status")
+  
+  
+```
 Does a legislator's party influence the constituents on whose behalf legislators advocate? 
 
 *To do:* Type x party
 
-```{r party_type, include=FALSE}
-df %>% 
-  group_by(party, chamber, member_state, Type, year) %>% tally() %>% 
-  group_by(party, chamber, Type) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
-  filter(Type != "To be coded", Type != "Indiv. Constituent") %>% 
-  ggplot() + 
-  geom_text(aes(x = party, y = mean, label = Type))  +
-  facet_grid(chamber ~ ., scales = "free_y")
-```
 Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
 
 ## Institutional position matters byond formal power

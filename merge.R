@@ -271,9 +271,12 @@ df %<>%
   mutate(name_agency = paste(name_state, agency)) %>%
   mutate(name_dept = paste(name_state, department))
 
+df %<>% left_join(committees[ , c("icpsr", "congress", "partystatus")])
+df$partystatus[df$partystatus == 1] <- "Majority"
+df$partystatus[df$partystatus == 2] <- "Minority"
 
 # merge committee data to one obs per letter per committee
-dcommittees <- df %>% left_join(committees)
+dcommittees <- df %>% full_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
