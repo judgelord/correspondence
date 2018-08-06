@@ -530,16 +530,14 @@ committees$terminationdate %<>% as.Date()
 committees %<>%
   mutate(party = ifelse(name == "Byrne, Bradley", 200, party)) %>% 
   mutate(party = ifelse(name == "Johnson, Tim", 100, party)) %>% 
-  mutate(party = ifelse(name == "Johnson, Bill", 200, party)) 
-  
- 
-
-
-
-
-
+  mutate(party = ifelse(name == "Johnson, Bill", 200, party)) %>% 
+  mutate(party = ifelse(name == "Davis, Rodney", 200, party)) 
 
 # FIXME 
+
+
+
+
 
 committee.membership <- left_join(member_search(congress = c(110:120)), committees)
 
