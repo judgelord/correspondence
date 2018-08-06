@@ -325,7 +325,7 @@ Does a legislator's party influence the constituents on whose behalf legislators
 
 *To do:* Type x party
 
-```{r party_type}
+```{r party_type, include=FALSE}
 df %>% 
   group_by(party, chamber, member_state, Type, year) %>% tally() %>% 
   group_by(party, chamber, Type) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
