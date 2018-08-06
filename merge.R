@@ -191,7 +191,8 @@ bad.names1 <- d %>%
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE)
+  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE) %>% 
+  mutate(common_error = ifelse(bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike", "2 Mike Rogers's", NA)) # 2 different members with name Mike Rogers
 
 # names that don't match - potentially typos / false negatives
 bad.names2 <- d %>% 
