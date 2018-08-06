@@ -8,9 +8,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-load("correspondence.RData")
+requires <- c("dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse")
+  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+  install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+  
 library(magrittr)
 library(tidyverse)
+  
+load("correspondence.RData")
 ```
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = T, fig.width=17, fig.path='Figs/',
@@ -209,9 +214,9 @@ How do legislators distribute attention among issues across federal agencies?
 
 Theories rooted in institutional position suggest that committee members, especially committee chairs will focus on governmental activities where they have formal oversight authority and responsibilities and where constituent service this authority may advantage them in securing benefits for constituents and potential donors. 
 
-Our data show limited support for the imortance of formal oversight powers in directing the attention of committee members. In some case, like the Agrcultuer and Judicery, we see strong relationships between committee membership and which agencies they lobby. In many other case, however, members of committees with formal oversight powers are not the most attentive. Instead, members of certian committees tend to lobby widely accross the federal bureuaucy. 
+Our data show limited support for the importance of formal oversight powers in directing the attention of committee members. In some case, like the Agriculture and Judiciary, we see strong relationships between committee membership and which agencies they lobby. In many other case, however, members of committees with formal oversight powers are not the most attentive. Instead, members of certain committees tend to lobby widely across the federal bureaucracy. 
 
-In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committes. 
+In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committees. 
 
 ```{r committee_deptSenate}
 Chamber <- "Senate"
@@ -248,7 +253,7 @@ data <- dcommittees %>%
 
 ```
 
-In the House, the Transportation, Energy, Financial Services, Armed Services, and Appropriations Committees are the most active. Notably, members of the Budget, Rules, and Ways and Means committees, often considerd prestige appointments, are not as active. 
+In the House, the Transportation, Energy, Financial Services, Armed Services, and Appropriations Committees are the most active. Notably, members of the Budget, Rules, and Ways and Means committees, often considered prestige appointments, are not as active. 
 
 ```{r committee_deptHouse}
 Chamber <- "House"
@@ -410,7 +415,7 @@ chairs %>%
 ```
 
 
-Appointments to committee chair seem to be especially important in the house. However,the vast majority of correspondence was initiated by three chairs. 
+Appointments to committee chair seem to be especially important in the house. However, the vast majority of correspondence was initiated by three chairs. 
 ```{r committee_chair_volume, fig.height=8}
 
 # count

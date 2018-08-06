@@ -322,7 +322,7 @@ chairs %<>%
 
 
 
-save.image(paste("correspondence.RData"))
+save.image(paste("gh-pages/correspondence.RData"))
 
 
 
