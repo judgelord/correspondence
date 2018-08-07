@@ -148,7 +148,7 @@ while(length(unique(d$agency) == i)) {
       coders = data_list[i, 3]) 
     d1 %<>% 
       left_join(members) %>% 
-      select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
+      select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
       left_join(members)
     
     d %<>% full_join(d1)
@@ -209,18 +209,18 @@ bad.names1 <- d %>%
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE) %>% 
+  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) %>% 
   mutate(common_error = ifelse(bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike", "2 Mike Rogers's", NA)) # 2 different members with name Mike Rogers
 
 # names that don't match - potentially typos / false negatives
 bad.names2 <- d %>% 
   filter(is.na(bioname) | bioname == "") %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE)
+  select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 # date typos 
 bad.dates <- d %>% 
   filter(year > 2018 | year < 2000) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE)
+  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 d %<>% filter(year < 2018 & year > 2006)
 
@@ -228,7 +228,7 @@ d %<>% filter(year < 2018 & year > 2006)
 bad.party <- d %>% 
   left_join(committees) %>% 
   filter(party != party_code) %>% 
-  select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% 
+  select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
   distinct()
 
 
@@ -278,6 +278,12 @@ df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
  df$Type[df$TYPE == 5] <- "Policy"
  df$Type[df$TYPE == 6] <- "To be coded"
  
+
+ df$Type %<>% as.factor()
+ df$Type <- factor(df$Type, c("Indiv. Constituent", "Corp. Constituent", "501c3 or Local Gov.", 
+                                 "Corp. Policy", "Policy", "To be coded"))   
+ 
+ 
  df %<>% 
    mutate(Type2 = ifelse(Type %in% c("policy", "Corp. Policy"), "Policy", NA)) %>%
    mutate(Type2 = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type2)) 
@@ -289,7 +295,8 @@ df$party[df$party_code == 328] <- "(I)"
 
 df %<>%
   mutate(member_party = paste(bioname, party)) %>%  
-  mutate(member_state = paste(bioname, party, state)) 
+  mutate(member_state = paste(bioname, party, state_abbrev))  %>% 
+  mutate(member_state = gsub(",.*\\("," \\(", member_state))
 
 committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
 
@@ -351,12 +358,18 @@ chairs %<>%
   group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() %>%
   mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
-# add committee chair data to df (still on obs per letter, unlike dcommittees)
-committee.membership <- committees %>% select(icpsr, congress, partystatus)
-committee.membership %<>% distinct()
-df %<>% left_join(committee.membership)
+# add committee chair data to df (still one observation per letter, unlike dcommittees)
+df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
+
+committees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+
+df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
+
 
 
 

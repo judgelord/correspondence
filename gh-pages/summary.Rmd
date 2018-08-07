@@ -167,14 +167,97 @@ Most agencies redact constituent names, but some have not, which may allow us to
 For USDA and a few others, we have logs of non-congressional letters; it may be interesting to compare Congressional attention to direct public/constituent attention. 
 
 
+# Advocacy: A personal style, enhanced by institutional power
+
+## A few members advocate across agencies and topics
+
+```{r gini}
+library(ineq)
+gini <- df %>% group_by(agency) %>% mutate(perAgency = n()) %>% ungroup() %>% 
+  filter(perAgency >100) %>% 
+  group_by(member_state, agency, chamber, year) %>% tally() %>% ungroup() %>% 
+  group_by(member_state, agency, chamber) %>% mutate(n = mean(n)) %>% ungroup() %>% 
+  group_by(agency, chamber) %>% 
+  mutate(byAgency = round(Gini(n),2)) %>% ungroup() %>% 
+  group_by(chamber) %>%
+  mutate(byChamber = round(Gini(n),2)) %>% 
+  select(chamber, agency, byChamber, byAgency) %>% distinct() %>% arrange(byAgency)
+```
+
+  The volume of correspondence per legislator is highly unequal. Within the `r length(unique(gini$agency))` agencies receiving more than 100 letters, the Gini coeficient of letters per member per year is `r unique(gini$byChamber[which(gini$chamber=="Senate")])` for Senators and `r unique(gini$byChamber[which(gini$chamber=="House")])` for Representatives, similar to income inequality estimates for Mexico and the United States respectivly and higher than inequality in campaign spending (The Gini coeficient for House campaign spending in 2016 was .29).  
+  
+  
+  
+```{r quartiles}
+quartiles <- df %>% 
+  group_by(member_state, chamber, year) %>% tally() %>%
+  group_by(member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(quartile = ntile(mean, 4)) %>% 
+  group_by(quartile, chamber) %>% summarise(n = sum(n)) %>% ungroup() %>% 
+  mutate(top = ifelse(quartile ==4, T, F)) %>% 
+  group_by(top, chamber) %>% 
+  summarise(tvb = sum(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(percent = round(100*tvb/sum(tvb), 0)) %>% 
+  filter(top == T)
+```
+In terms of letters per year, the top 25% of Senators and Representatives write `r quartiles$percent[2]` and `r quartiles$percent[1]` percent of all letters from each chamber. 
+
+This skewed distribution holds across types of advocacy. As illustrated below, whether it is policy advocacy, lobbying on behalf of corperations, or individual-level constituent service a small number of legislators are doing a disproportionae share of letters. Moreover, it is often the same legislators engaging in constituent service and policy advocacy. When ranked by overall volume of correspondence, regardless of type, the top quartile of members are disproportionatly ammount of advocacy for individuals, nonprofits, local governments, and policy. Advocacy on behalf of business interests is notably more diffuse. 
+```{r percentiles}
+# grouping by type 
+df %>% 
+  filter(Type != "To be coded") %>%
+    group_by(Type, member_state, chamber, year) %>% tally() %>%
+    group_by(Type, member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+    group_by(Type, chamber) %>% mutate(Percentile = ntile(mean, 100)) %>% 
+  arrange(-Percentile) %>% 
+    group_by(Type, Percentile, chamber, mean) %>% mutate(n = sum(n)) %>% ungroup() %>% 
+  select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
+    ggplot() + 
+    geom_line(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_point(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+    facet_grid(Type ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Percential and Type
+(labels = 95th percentile)",
+       x = "Percentile (Calculated within types)")
+
+# not grouping 
+df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(Type, member_state, chamber, year) %>% tally() %>% ungroup() %>% 
+  group_by(Type, member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+  group_by(member_state, chamber, year) %>% mutate(np = sum(n)) %>%
+  group_by(member_state, chamber) %>% mutate(meanp = mean(np)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(Percentile = ntile(meanp, 100)) %>% 
+  arrange(-Percentile) %>% 
+  select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
+  ggplot() + 
+  #geom_line(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_point(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+  facet_grid(Type ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Overall Percentile
+(labels = 95th percentile)",
+       x = "Overall Percentile (Calculated across types)")
+```
+
+## What distinguishes letter-writers? 
+
+###  Constituent demand for advocacy
+
+*TO DO:* map of senators
+
+*TO DO:* map of house
 
 
+### Institutional positions empower, rather than distract, advocates
 
-# Discriptives
+# Questions
 
 ## Issue attention
 
-Which agencies do legislators choose to contact?
+#### Which agencies do legislators choose to contact?
 
 ```{r distance_above_mean_by_agency}
 # member-agency distance from the mean (cross-tab/tile)
@@ -207,10 +290,10 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
        y = Chamber)
 
 ```
-How do legislators distribute attention among issues within federal agencies?
+#### How do legislators distribute attention among issues within federal agencies?
 *To do: *select within-agency analysis where issues are provided (USDA, FCC, CDC)
 
-How do legislators distribute attention among issues across federal agencies?
+#### How do legislators distribute attention among issues across federal agencies?
 *To do: *across-agency analysis of POLICY EVENT coding
 
 ## Specialization
@@ -295,7 +378,7 @@ data <- dcommittees %>%
 
 ## Forms of representation 
 
-On whose behalf do legislators usually write?  
+#### On whose behalf do legislators usually write?  
 
 ```{r distance_above_mean_by_type, fig.height=8}
 # member-TYPE distance from the mean (cross-tab/tile)
@@ -350,11 +433,11 @@ Party control does appear to increase legislator advocacy behavior, possibly due
   
   
 ```
-Does a legislator's party influence the constituents on whose behalf legislators advocate? 
+#### Does a legislator's party influence the constituents on whose behalf legislators advocate? 
 
 *To do:* Type x party
 
-Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
+#### Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
 
 ## Institutional position matters byond formal power
 
@@ -383,7 +466,7 @@ year.before.chair.DOL <- mean(tenure$n[tenure$tenure == -1 & tenure$department =
 year.after.chair.DOL <- mean(tenure$n[tenure$tenure == 0 & tenure$department == "DOL"])
 ```
 
-Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. For our study time period, 2007-2017, we find an average of `year.before.chair.DOL` before and `year.after.chair.DOL` after being appointed chair. Averaging across all departments and committees, we find a increase from `year.before.chair` to `year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
+Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. For our study time period, 2007-2017, we find an average of `r year.before.chair.DOL` before and `r year.after.chair.DOL` after being appointed chair. Averaging across all departments and committees, we find a increase from `r year.before.chair` to `r year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
 
 ```{r chair_effect}
 comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
@@ -478,7 +561,7 @@ Two results are particularly interesting: (1) surprisingly mild committee-agency
 Comparing within-member over time, some committee chair positions matter (e.g.. House Oversight) but many committees chairs' attention is more a function of their previous behavior than their position. This is stark in the House Homeland Security Committee where King seems to attend to the same distribution of agencies before and after he is Chair, while McCaul seems more affected by taking on the Chair position. 
 
 
-### Lobbying agencies is a representational style
+### Lobbying agencies is an individual decision / representational tactic
 
 Some members write significantly more letters per year than others, and those who write do so across issues and agencies. For example, Senator Schumer lobbies more than anyone on behalf of local governments and nonprofits, but he is also among those Senators lobbying most on behalf of individuals and companies and on policy issues. 
 
@@ -604,20 +687,20 @@ chairs %>%
 
 ### Seniority
 
-Do legislators shift attention to policy work as they gain seniority? 
+#### Do legislators shift attention to policy work as they gain seniority? 
 *To do: *TYPE vs chamber seniority, committee seniority
 
 ## Electoral security
 
-Do legislators shift attention to policy work as they gain electoral security? 
+#### Do legislators shift attention to policy work as they gain electoral security? 
 
 *To do:* Presidential vote share by TYPE (overall, and within-member over time)
 
 ## Institutional vs. electorial position
 
-Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
+#### Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
 
-Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
+#### Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
 
 
 
