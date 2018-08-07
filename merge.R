@@ -271,6 +271,23 @@ unique(d$timeframe)
 
 
 
+
+
+####################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 d %<>% ungroup()
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
 
@@ -380,19 +397,23 @@ df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, c
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 save.image(paste("gh-pages/correspondence.RData"))
-
-
-
-
-
-
-# upload google sheet of obs failing to match with voteview
-
-#  problem.names2 %>% filter(TYPE %in% c(2,4,5)) %>% write.csv("mismatch.csv") # saving file locally is faster
-#  drive_rm(paste0("Correspondence/mismatch")) # remove old recode file
-#  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
-#  file.remove("mismatch.csv") # remove local file
- 
-
-  
