@@ -189,10 +189,10 @@ d %<>%
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) %>% 
   filter(!(bioname == "KIRK, Mark Steven" & DATE > as.Date("2010-11-29") & chamber == "House")) %>% # Went from House to Senate, filled in Obama's vacancy in Senate when he was president elect
   filter(!(bioname == "KIRK, Mark Steven" & DATE < as.Date("2010-11-29") & chamber == "Senate")) %>% 
-  filter(!(bioname == "HELLER, Dean" & DATE > as.Date("2011-5-09") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
-  filter(!(bioname == "HELLER, Dean" & DATE < as.Date("2011-5-09") & chamber == "Senate")) %>% 
-  filter(!(bioname == "WICKER, Roger F." & DATE > as.Date("2011-5-09") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
-  filter(!(bioname == "WICKER, Roger F." & DATE < as.Date("2011-5-09") & chamber == "Senate"))
+  filter(!(bioname == "HELLER, Dean" & DATE > as.Date("2011-05-09") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
+  filter(!(bioname == "HELLER, Dean" & DATE < as.Date("2011-05-09") & chamber == "Senate")) %>% 
+  filter(!(bioname == "WICKER, Roger F." & DATE > as.Date("2007-12-18") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
+  filter(!(bioname == "WICKER, Roger F." & DATE < as.Date("2007-12-18") & chamber == "Senate"))
 # NEED TO ADD LIEBERMAN
 
 
