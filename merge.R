@@ -333,11 +333,16 @@ dcommittees <- df %>% full_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
+# totals
+dcommittees %<>%   
+  group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() 
+
+
 # lump inst positions
 dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) 
 
 # some committe names are upper and some sentence case 
 dcommittees %<>% 
@@ -352,7 +357,9 @@ dcommittees %<>% mutate(committee_dept = paste(committee, department))
 dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
 dcommittees %<>% group_by(member_committee) %<>% 
   mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
-dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4)))
+dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4))) %>%
+  mutate(committee_member = paste(committee, "-", last_name, firstassigned))
+
 # assigned chair
 dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
 dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
@@ -361,18 +368,16 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
 dcommittees %<>% 
-  mutate(chair = paste(firstassignedchair,  bioname, party)) 
-
-
-# Select only Comittee Chairs
-chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")]))) 
-
-chairs %<>% 
+  mutate(chair = paste(firstassignedchair,  bioname, party)) %>% 
+  mutate(committee_chair = paste(committee, "-", last_name, firstassignedchair)) %>% 
   mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
   mutate(yearsAsChair = daysAsChair/365) %>%
-  mutate(monthsAsChair = daysAsChair/30) %>%
-  group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() %>%
-  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
+  mutate(monthsAsChair = daysAsChair/30) 
+
+
+# ID Comittee Chairs
+dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) ) 
+
 
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
 df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))

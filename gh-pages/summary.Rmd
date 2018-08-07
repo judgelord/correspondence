@@ -204,6 +204,23 @@ In terms of letters per year, the top 25% of Senators and Representatives write 
 
 This skewed distribution holds across types of advocacy. As illustrated below, whether it is policy advocacy, lobbying on behalf of corporations, or individual-level constituent service a small number of legislators are doing a disproportionate share of letters. Moreover, it is often the same legislators engaging in constituent service and policy advocacy. When ranked by overall volume of correspondence, regardless of type, the top quartile of members are disproportionately amount of advocacy for individuals, nonprofits, local governments, and policy. Advocacy on behalf of business interests is notably more diffuse. 
 ```{r percentiles}
+# all 
+df %>% 
+    group_by(member_state, chamber, year) %>% tally() %>%
+    group_by(member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+    group_by(chamber) %>% mutate(Percentile = ntile(mean, 100)) %>% 
+  arrange(-Percentile) %>% 
+  select(member_state, Percentile, mean, chamber) %>% distinct() %>% 
+    ggplot() + 
+    geom_line(aes(x = Percentile, y = mean), color = "grey") + 
+  geom_point(aes(x = Percentile, y = mean), color = "grey") + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+    facet_grid(. ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Percentile
+(labels = 95th percentile)",
+       x = "Percentile")
+
+
 # grouping by type 
 df %>% 
   filter(Type != "To be coded") %>%
@@ -218,7 +235,7 @@ df %>%
   geom_point(aes(x = Percentile, y = mean, color = Type)) + 
   geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
     facet_grid(Type ~ chamber , scales = "free_y") + 
-  labs(title = "Average Correspondence per Year by Percential and Type
+  labs(title = "Average Correspondence per Year by Percentile and Type
 (labels = 95th percentile)",
        x = "Percentile (Calculated within types)")
 
@@ -450,6 +467,7 @@ Committee membership brings access to information, voting responsibilities, and 
 
 ```{r}
 tenure <- dcommittees %>%
+  filter(chair_since_2007 == T)
   mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
   mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
   mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
@@ -473,8 +491,8 @@ Ritchie (2017) finds the mean number of policy-relevant letters to the Departmen
 ```{r chair_effect}
 comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
            "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
-chairs %>% 
-  filter(complete == T) %>% #, committee %in% comms) %>%
+dcommittees %>% 
+  filter(complete == T,chair_since_2007 == T) %>% #, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(prestige = ifelse(committee %in% c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
      "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) %>% 
@@ -497,7 +515,7 @@ chairs %>%
 
 # prestige committee members
 # density 
-chairs %>% 
+dcommittees %>% 
   filter(complete == T, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
@@ -508,8 +526,8 @@ chairs %>%
   ggplot() + 
   geom_density(aes(
     x = monthsAsChair, 
-    fill = paste(chamber, committee_member), 
-    color = paste(chamber, committee_member)), alpha = .1, bw = 2, position = "stack") + 
+    fill = paste(chamber, committee_chair), 
+    color = paste(chamber, committee_chair)), alpha = .1, bw = 2, position = "stack") + 
   geom_vline(aes(xintercept = 0), color = "black") + 
   facet_grid(Type ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
@@ -524,8 +542,8 @@ Appointments to committee chair seem to be especially important in the house. Ho
 ```{r committee_chair_volume, fig.height=8}
 
 # count
-chairs %>% 
-  filter(complete == T, committee %in% comms) %>%
+dcommittees %>% 
+  filter(chair_since_2007 == T, complete == T, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
   mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
@@ -536,8 +554,8 @@ chairs %>%
   geom_density(aes(
     x = monthsAsChair, 
     y = ..count.., 
-    fill = paste(chamber, committee_member), 
-    color = paste(chamber, committee_member)), alpha = .1, bw = 2) + 
+    fill = paste(chamber, committee_chair), 
+    color = paste(chamber, committee_chair)), alpha = .1, bw = 2) + 
   geom_vline(aes(xintercept = 0), color = "black") + 
   facet_grid(Type ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
@@ -660,8 +678,8 @@ Subsetting to members appointed to serve as a committee chair, we see that subse
 
 ```{r committeechiars_barcode, fig.height=10}
 Chamber = "Senate"
-chairs %>% 
-  filter(chamber == Chamber, complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
+dcommittees %>% 
+  filter(chamber == Chamber, chair_since_2007 == T,  complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
