@@ -355,10 +355,12 @@ df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
 
-df %<>% left_join(distinct(select(committees, icpsr, congress, seniorstatus))) %<>% 
+committees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
   mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+
+df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
 
 
 
