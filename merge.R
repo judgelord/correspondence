@@ -201,7 +201,8 @@ d %<>%
 d %<>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
-  mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR))
+  mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
+  mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR))
 
 
   
@@ -211,17 +212,20 @@ d %<>% mutate(id = paste(agency, ID))
 
 # names that match more than one member - false positives
 bad.names1 <- d %>% 
+  filter(is.na(ERROR)) %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
 # names that don't match - potentially typos / false negatives
 bad.names2 <- d %>% 
+  filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 # date typos 
 bad.dates <- d %>% 
+  filter(is.na(ERROR)) %>% 
   filter(year > 2018 | year < 2000) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
@@ -229,6 +233,7 @@ d %<>% filter(year < 2018 & year > 2006)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
+  filter(is.na(ERROR)) %>% 
   left_join(committees) %>% 
   filter(party != party_code) %>% 
   select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
