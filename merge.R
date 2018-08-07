@@ -158,7 +158,6 @@ while(length(unique(d$agency) == i)) {
     i <- i+1
 }
 library(gmailr)
-
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
   From = "correspondenceresearch@gmail.com",
