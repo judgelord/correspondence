@@ -22,6 +22,7 @@ df %>%
    facet_grid(complete ~., scales = "free_y", space = "free_y")
 ggsave(paste("coding status.pdf"), width = 11, height = 8.5, path = "~/correspondence/figs")
 
+
 # CDC is rolling release, 2010-2011 expected Nov 2018
 # SBA has no records before 2010
 # DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
@@ -822,4 +823,41 @@ data <- dcommittees %>%
     ggplot() +
     geom_density(aes(x = DATE, fill = party, color = party), alpha = .1) + facet_grid(chamber ~.)
   
+  
+# grouping by type 
+df %>% 
+  filter(Type != "To be coded") %>%
+    group_by(Type, member_state, chamber, year) %>% tally() %>%
+    group_by(Type, member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+    group_by(Type, chamber) %>% mutate(Percentile = ntile(mean, 100)) %>% 
+  arrange(-Percentile) %>% 
+    group_by(Type, Percentile, chamber, mean) %>% mutate(n = sum(n)) %>% ungroup() %>% 
+  select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
+    ggplot() + 
+    geom_line(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_point(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+    facet_grid(Type ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Percential and Type
+(labels = 95th percentile)",
+       x = "Percentile (Calculated within types)")
+
+# not grouping 
+df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(Type, member_state, chamber, year) %>% tally() %>% ungroup() %>% 
+  group_by(Type, member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+  group_by(member_state, chamber, year) %>% mutate(np = sum(n)) %>%
+  group_by(member_state, chamber) %>% mutate(meanp = mean(np)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(Percentile = ntile(meanp, 100)) %>% 
+  arrange(-Percentile) %>% 
+  select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
+  ggplot() + 
+  #geom_line(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_point(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+  facet_grid(Type ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Overall Percentile
+(labels = 95th percentile)",
+       x = "Overall Percentile (Calculated across types)")
   

@@ -270,6 +270,12 @@ df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
  df$Type[df$TYPE == 5] <- "Policy"
  df$Type[df$TYPE == 6] <- "To be coded"
  
+
+ df$Type %<>% as.factor()
+ df$Type <- factor(df$Type, c("Indiv. Constituent", "Corp. Constituent", "501c3 or Local Gov.", 
+                                 "Corp. Policy", "Policy", "To be coded"))   
+ 
+ 
  df %<>% 
    mutate(Type2 = ifelse(Type %in% c("policy", "Corp. Policy"), "Policy", NA)) %>%
    mutate(Type2 = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type2)) 
@@ -281,7 +287,8 @@ df$party[df$party_code == 328] <- "(I)"
 
 df %<>%
   mutate(member_party = paste(bioname, party)) %>%  
-  mutate(member_state = paste(bioname, party, state)) 
+  mutate(member_state = paste(bioname, party, state_abbrev))  %>% 
+  mutate(member_state = gsub(",.*\\("," \\(", member_state))
 
 committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
 
@@ -349,6 +356,9 @@ committee.membership %<>% distinct()
 df %<>% left_join(committee.membership)
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
+
+committee.membership <- dcommittees %>% select(icpsr, congress, seniorstatus)
+comittee.membership %<>% 
 
 
 
