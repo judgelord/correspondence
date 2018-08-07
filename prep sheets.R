@@ -19,7 +19,8 @@ for (i in sheets) {
       "POLICY_EVENT",
       "EVENT_NAME",
       "EVENT_DATE",
-      "NOTES"
+      "NOTES",
+      "ERROR"
     )
   
   data[, variables[which(!(variables %in% names(data)))]] <- "" # create new empty variables
