@@ -436,7 +436,10 @@ Party control does appear to increase legislator advocacy behavior, possibly due
     filter(complete == T, party != "(I)") %>%
     ggplot() +
     geom_density(aes(x = DATE, fill = party, color = party), alpha = .1) + facet_grid(chamber ~.) 
+```
 
+In the House, both parties average just slightly more letters per year while in the majority, but in the Senate, Republicans average more per year while in the minority.
+```{r party_distance_above_mean}
   df %>% 
     filter(party != "(I)", partystatus %in% c("Majority", "Minority")) %>% 
     group_by(party, partystatus, chamber, member_state, year) %>% tally() %>% 
@@ -467,7 +470,7 @@ Committee membership brings access to information, voting responsibilities, and 
 
 ```{r}
 tenure <- dcommittees %>%
-  filter(chair_since_2007 == T)
+  filter(chair_since_2007 == T) %>% 
   mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
   mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
   mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
@@ -477,7 +480,8 @@ tenure %<>%
   mutate(tenure = as.numeric(year) - firstassignedchair) %>%
   group_by(member_committee, tenure, Type, department) %>% 
   tally() %>% ungroup() %>% 
-  filter(!is.na(tenure))
+  filter(!is.na(tenure)) %>% 
+  mutate(n = round(n, 0))
 
 year.before.chair <- mean(tenure$n[tenure$tenure == -1])
 year.after.chair <- mean(tenure$n[tenure$tenure == 0])
@@ -487,6 +491,8 @@ year.after.chair.DOL <- mean(tenure$n[tenure$tenure == 0 & tenure$department == 
 ```
 
 Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. For our study time period, 2007-2017, we find an average of `r year.before.chair.DOL` before and `r year.after.chair.DOL` after being appointed chair. Averaging across all departments and committees, we find a increase from `r year.before.chair` to `r year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
+
+Committee chair appointment is most impactful in the House with respect to policy advocacy. 
 
 ```{r chair_effect}
 comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
