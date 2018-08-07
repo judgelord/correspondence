@@ -200,6 +200,9 @@ quartiles <- df %>%
   group_by(chamber) %>% mutate(percent = round(100*tvb/sum(tvb), 0)) %>% 
   filter(top == T)
 ```
+In terms of letters per year, the top 25% of Senators and Representatives write `r quartiles$percent[2]` and `r quartiles$percent[1]` percent of all letters from each chamber. 
+
+This skewed distribution holds across types of advocacy. As illustrated below, whether it is policy advocacy, lobbying on behalf of corperations, or individual-level constituent service a small number of legislators are doing a disproportionae share of letters. Moreover, it is often the same legislators engaging in constituent service and policy advocacy. When ranked by overall volume of correspondence, regardless of type, the top quartile of members are disproportionatly ammount of advocacy for individuals, nonprofits, local governments, and policy. Advocacy on behalf of business interests is notably more diffuse. 
 ```{r percentiles}
 # grouping by type 
 df %>% 
@@ -238,24 +241,23 @@ df %>%
 (labels = 95th percentile)",
        x = "Overall Percentile (Calculated across types)")
 ```
-In terms of letters per year, the top 25% of Senators and Representatives write `r quartiles$percent[2]` and `r quartiles$percent[1]` percent of all letters. 
 
 ## What distinguishes letter-writers? 
 
-###  Constituents demand advocacy
+###  Constituent demand for advocacy
 
 *TO DO:* map of senators
 
 *TO DO:* map of house
 
 
-# 
+### Institutional positions empower, rather than distract, advocates
 
-# Discriptives
+# Questions
 
 ## Issue attention
 
-Which agencies do legislators choose to contact?
+#### Which agencies do legislators choose to contact?
 
 ```{r distance_above_mean_by_agency}
 # member-agency distance from the mean (cross-tab/tile)
@@ -288,10 +290,10 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
        y = Chamber)
 
 ```
-How do legislators distribute attention among issues within federal agencies?
+#### How do legislators distribute attention among issues within federal agencies?
 *To do: *select within-agency analysis where issues are provided (USDA, FCC, CDC)
 
-How do legislators distribute attention among issues across federal agencies?
+#### How do legislators distribute attention among issues across federal agencies?
 *To do: *across-agency analysis of POLICY EVENT coding
 
 ## Specialization
@@ -376,7 +378,7 @@ data <- dcommittees %>%
 
 ## Forms of representation 
 
-On whose behalf do legislators usually write?  
+#### On whose behalf do legislators usually write?  
 
 ```{r distance_above_mean_by_type, fig.height=8}
 # member-TYPE distance from the mean (cross-tab/tile)
@@ -431,11 +433,11 @@ Party control does appear to increase legislator advocacy behavior, possibly due
   
   
 ```
-Does a legislator's party influence the constituents on whose behalf legislators advocate? 
+#### Does a legislator's party influence the constituents on whose behalf legislators advocate? 
 
 *To do:* Type x party
 
-Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
+#### Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
 
 ## Institutional position matters byond formal power
 
@@ -559,7 +561,7 @@ Two results are particularly interesting: (1) surprisingly mild committee-agency
 Comparing within-member over time, some committee chair positions matter (e.g.. House Oversight) but many committees chairs' attention is more a function of their previous behavior than their position. This is stark in the House Homeland Security Committee where King seems to attend to the same distribution of agencies before and after he is Chair, while McCaul seems more affected by taking on the Chair position. 
 
 
-### Lobbying agencies is a representational style
+### Lobbying agencies is an individual decision / representational tactic
 
 Some members write significantly more letters per year than others, and those who write do so across issues and agencies. For example, Senator Schumer lobbies more than anyone on behalf of local governments and nonprofits, but he is also among those Senators lobbying most on behalf of individuals and companies and on policy issues. 
 
@@ -685,20 +687,20 @@ chairs %>%
 
 ### Seniority
 
-Do legislators shift attention to policy work as they gain seniority? 
+#### Do legislators shift attention to policy work as they gain seniority? 
 *To do: *TYPE vs chamber seniority, committee seniority
 
 ## Electoral security
 
-Do legislators shift attention to policy work as they gain electoral security? 
+#### Do legislators shift attention to policy work as they gain electoral security? 
 
 *To do:* Presidential vote share by TYPE (overall, and within-member over time)
 
 ## Institutional vs. electorial position
 
-Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
+#### Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
 
-Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
+#### Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
 
 
 

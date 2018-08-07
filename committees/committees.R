@@ -533,6 +533,7 @@ committees %<>%
   mutate(party = ifelse(name == "Johnson, Bill", 200, party)) %>% 
   mutate(party = ifelse(name == "Davis, Rodney", 200, party)) %>% 
   mutate(party = ifelse(name == "Specter, Arlen" & assigneddate < as.Date("2009-04-28"), 200, party)) %>% 
+  mutate(party = ifelse(name == "Turner, Bob L.", 200, party)) %>% 
   
   
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 

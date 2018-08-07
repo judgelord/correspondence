@@ -126,7 +126,7 @@ d1 <- clean.agency(agency = data_list[i, 1],
                      coders = data_list[i, 3])
 d1 %<>% # and merge with voteview data
   left_join(members) %>%
-  select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
+  select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   left_join(members)
 
 # if continuing with merge 
@@ -148,7 +148,7 @@ while(length(unique(d$agency) == i)) {
       coders = data_list[i, 3]) 
     d1 %<>% 
       left_join(members) %>% 
-      select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
+      select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
       left_join(members)
     
     d %<>% full_join(d1)
@@ -173,18 +173,30 @@ d %<>%
   mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
   filter(bioname != "PAYNE, Donald Milford" | DATE < as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
   filter(bioname != "PAYNE, Donald, Jr." | DATE > as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
-   filter(bioname != "SPECTER, Arlen" | party_name != "Democratic Party" | DATE > as.Date("2009-04-28")) %>% # SPECTER, Arlen changed to DEM
-   filter(bioname != "SPECTER, Arlen" | party_name != "Republican Party" | DATE < as.Date("2009-04-28")) %>% 
+  filter(bioname != "SPECTER, Arlen" | party_name != "Democratic Party" | DATE > as.Date("2009-04-28")) %>% # SPECTER, Arlen changed to DEM
+  filter(bioname != "SPECTER, Arlen" | party_name != "Republican Party" | DATE < as.Date("2009-04-28")) %>% 
    
   # filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Democratic Party")) %>% 
   # filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Republican Party")) %>% 
+  
 
-  filter(bioname != "GRIFFITH, Parker" | party_name != "Republican Party" | DATE > as.Date("2009-12-22")) %>% # GRIFFITH, Parker changed to GOP
-  filter(bioname != "GRIFFITH, Parker" | party_name != "Democratic Party" | DATE < as.Date("2009-12-22")) %>%
+
+  # filter(bioname != "GRIFFITH, Parker" | party_name != "Republican Party" | DATE > as.Date("2009-12-22")) %>% # GRIFFITH, Parker changed to GOP
+  # filter(bioname != "GRIFFITH, Parker" | party_name != "Democratic Party" | DATE < as.Date("2009-12-22")) %>%
   filter(bioname != "GILLIBRAND, Kirsten" | chamber != "House" | DATE < as.Date("2009-01-26")) %>% # GILLIBRAND APPOINTED TO SENATE FROM HOUSE January 26, 2009
   filter(bioname != "GILLIBRAND, Kirsten" | chamber != "Senate" | DATE > as.Date("2009-01-26")) %>%
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
-  filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) 
+  filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) %>% 
+  filter(!(bioname == "KIRK, Mark Steven" & DATE > as.Date("2010-11-29") & chamber == "House")) %>% # Went from House to Senate, filled in Obama's vacancy in Senate when he was president elect
+  filter(!(bioname == "KIRK, Mark Steven" & DATE < as.Date("2010-11-29") & chamber == "Senate")) %>% 
+  
+  filter(!(bioname == "HELLER, Dean" & DATE > as.Date("2011-05-09") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
+  filter(!(bioname == "HELLER, Dean" & DATE < as.Date("2011-05-09") & chamber == "Senate")) %>% 
+  filter(!(bioname == "WICKER, Roger F." & DATE > as.Date("2007-12-31") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
+  filter(!(bioname == "WICKER, Roger F." & DATE < as.Date("2007-12-31") & chamber == "Senate")) %>% 
+  filter(!(bioname == "GRIFFITH, Parker" & DATE > as.Date("2009-12-22") & party_name == "Democratic Party")) %>% # GRIFFITH, Parker changed to GOP
+  filter(!(bioname == "GRIFFITH, Parker" & DATE < as.Date("2009-12-22") & party_name == "Republican Party"))
+# NEED TO ADD LIEBERMAN
 # NEED TO ADD LIEBERMAN
 
 
@@ -201,18 +213,18 @@ bad.names1 <- d %>%
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE) %>% 
+  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) %>% 
   mutate(common_error = ifelse(bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike", "2 Mike Rogers's", NA)) # 2 different members with name Mike Rogers
 
 # names that don't match - potentially typos / false negatives
 bad.names2 <- d %>% 
   filter(is.na(bioname) | bioname == "") %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE)
+  select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 # date typos 
 bad.dates <- d %>% 
   filter(year > 2018 | year < 2000) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE)
+  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 d %<>% filter(year < 2018 & year > 2006)
 
@@ -220,7 +232,7 @@ d %<>% filter(year < 2018 & year > 2006)
 bad.party <- d %>% 
   left_join(committees) %>% 
   filter(party != party_code) %>% 
-  select(bioname, chamber, DATE, congress, party, party_code, icpsr) %>% 
+  select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
   distinct()
 
 
@@ -350,15 +362,18 @@ chairs %<>%
   group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() %>%
   mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
 
-# add committee chair data to df (still on obs per letter, unlike dcommittees)
-committee.membership <- committees %>% select(icpsr, congress, partystatus)
-committee.membership %<>% distinct()
-df %<>% left_join(committee.membership)
+# add committee chair data to df (still one observation per letter, unlike dcommittees)
+df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
 
-committee.membership <- dcommittees %>% select(icpsr, congress, seniorstatus)
-comittee.membership %<>% 
+committees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+
+df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
+
 
 
 
