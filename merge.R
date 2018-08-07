@@ -191,6 +191,14 @@ d %<>%
 
 
 
+
+# ERRORS we can't fix
+d %<>% 
+  group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
+  mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) # 2 different members with name Mike Rogers
+
+
+
   
 
 d$department <- gsub("_.*", "", d$agency) # name dept

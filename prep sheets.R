@@ -2,7 +2,8 @@
 source("setup.R")
 
 sheets <- gs_ls()
-sheets %<>% filter(author %in% c("correspondenceresearch")) 
+unique(sheets$author)
+sheets %<>% filter(author %in% c("correspondenceresearch", "justin.grimmer")) 
 sheets <- sheets$sheet_key
 
 for (i in sheets) {
