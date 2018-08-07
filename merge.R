@@ -189,8 +189,8 @@ d %<>%
   filter(!(bioname == "GILLIBRAND, Kirsten" & DATE > as.Date("2009-01-26") & chamber == "House")) %>% # GILLIBRAND APPOINTED TO SENATE FROM HOUSE January 26, 2009
   filter(!(bioname == "GILLIBRAND, Kirsten"& DATE < as.Date("2009-01-26") & chamber == "Senate"))
 
-# NEED TO ADD LIEBERMAN
-# NEED TO ADD LIEBERMAN
+# LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
+# 
 
 
 
@@ -198,14 +198,21 @@ d %<>%
 
 
 # ERRORS we can't fix
+
+# Common reoccuring names
+#names <- list(a = c("Eleanor", "Norton"), b= c("Sally", 'Jewell'))
+
 d %<>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
-  mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR))
+  mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
+  mutate(ERROR = ifelse(grepl(  names[[2]]       )))
 
 
-  
+
+
+
 
 d$department <- gsub("_.*", "", d$agency) # name dept
 d %<>% mutate(id = paste(agency, ID))
