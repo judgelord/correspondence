@@ -421,9 +421,9 @@ df %<>%
 
 # ID Comittee Chairs
 df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(df$position == "Chair")])), T, F) )
-  mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
-  mutate(yearsAsChair = daysAsChair/365) %>%
-  mutate(monthsAsChair = daysAsChair/30) 
+  # mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
+  # mutate(yearsAsChair = daysAsChair/365) %>%
+  # mutate(monthsAsChair = daysAsChair/30) 
 
 
 
@@ -445,6 +445,6 @@ df %<>% mutate(popX1000000 = pop2010/1000000)
 
 
 
-df %<>% select(-n)
+df %<>% dplyr::select(-n)
 rm(d1)
 save.image(paste("gh-pages/correspondence.RData"))
