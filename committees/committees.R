@@ -1,3 +1,18 @@
+
+# This script merges committee assignment data with voteview member data
+
+# Data sources: 
+# Charles Stewart III and Jonathan Woon. 2017. Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017:  [Chamber], [date of data file].
+# http://web.mit.edu/17.251/www/data_page.html
+# Lewis, Jeffrey B., Keith Poole, Howard Rosenthal, Adam Boche, Aaron Rudkin, and Luke Sonnet. 2017. Voteview: Congressional Roll-Call Votes Database. https://voteview.com/
+# accessed via https://github.com/voteview/Rvoteview
+# Powell, Eleanor. 2017. Where Money Matters in Congress: A Window into How Parties Evolve, Cambridge University Press.
+
+options(stringsAsFactors = FALSE)
+requires <- c("dplyr", "magrittr", "readr", "readxl")
+to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+
 if(require("Rvoteview")==F) {
   devtools::install_github("voteview/Rvoteview")
 }
@@ -7,15 +22,9 @@ library(magrittr)
 library(readr)
 library(readxl)
 
-myvars<-c("congress", "stewarticpsr", "name","statenumber", "cd","party", "seniorstatus", "chamber", "commcode", "committeename", "assigneddate", "terminationdate", "partystatus")
-
-
-## Stewart's House Committee Assignments 103-113.  
+## House Committee Assignments 103-115. Downloaded July 12, 2018.  http://web.mit.edu/17.251/www/data_page.html
 
 hcd <- readxl::read_excel("committees/house_assignments_103-115-3.xls")
-# library(readxl)
-# hcd_late <- read_excel("house_assignments_103-115-3.xls")
-
 # [1] "Congress"                                            "Committee.code"                                     
 # [3] "ID.."                                                "Name"                                               
 # [5] "Maj.Min"                                             "Rank.Within.Party.Status"                           
@@ -33,12 +42,10 @@ names(hcd)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "pa
 
 hcd$chamber<-"House"
 
-hcd<-hcd[,myvars]
+hcd %<>% select(congress, stewarticpsr, name,statenumber, cd,party, seniorstatus, chamber, commcode, committeename, assigneddate, terminationdate, partystatus)
 
 
-
-
-## Stewart's Senate Committee Assignments 80-102. Downloaded July 12, 2016.
+## Stewart's Senate Committee Assignments 80-102. Downloaded July 12, 2018.
 
 # scd_early<-read_fwf("snc80102.mit.txt", fwf_widths(c(2,1,2,2,1,1,1,3,1,5,1,25,1,1,3,3,1,2,2,2,1,2,2,2,2,2,4,2,2,4,1,1,1,1,1,1,5,1,1)))
 
@@ -58,10 +65,9 @@ hcd<-hcd[,myvars]
 
 ## Note, warnings appear b/c in the data there are occasional xs (18 in total) in the committee order variable, where R expects to see numeric.  They are automatically reclassified as missing.  Not using the committee order variable. 
 
-## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2016.
+## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2018.
 
 scd<-readxl::read_excel("committees/senate_assignments_103-115-3.xls")
-# scd_late <- read_excel("senate_assignments_103-115-3.xls")
 
 names(scd)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
 
@@ -69,7 +75,8 @@ scd$cd<-0
 
 scd$chamber<-"Senate"
 
-scd<-scd[,myvars]
+scd %<>% select(congress, stewarticpsr, name,statenumber, cd,party, seniorstatus, chamber, commcode, committeename, assigneddate, terminationdate, partystatus)
+
 
 
 
@@ -517,16 +524,19 @@ stew$ICPSRYear<-paste(stew$icpsr, stew$yearelected, sep="")
 # stew<-stew[stew$name!="[Vacant]",]
 
 committees <- filter(stew, congress > 105)
+rm(hcd)
+rm(scd)
+rm(stew)
+
 committees$congress %<>% as.numeric()
 committees$assigneddate %<>% as.Date()
 committees$terminationdate %<>% as.Date()
 
 
 
-###############################################################
-# THE BELOW IS ONLY FOR IDENTIFYING ERRORS IN COMMITTEE DATA #
-##############################################################
-
+#########################################################
+# THE BELOW IS ONLY FOR FIXING ERRORS IN COMMITTEE DATA # (errors/mismatches in correspondence data should be fixed in merge.R or the [agency].R script if agency-specific)
+#########################################################
 committees %<>%
   mutate(party = ifelse(name == "Byrne, Bradley", 200, party)) %>% 
   mutate(party = ifelse(name == "Johnson, Tim", 100, party)) %>% 
@@ -534,6 +544,10 @@ committees %<>%
   mutate(party = ifelse(name == "Davis, Rodney", 200, party)) %>% 
   mutate(party = ifelse(name == "Specter, Arlen" & assigneddate < as.Date("2009-04-28"), 200, party)) %>% 
   mutate(party = ifelse(name == "Turner, Bob L.", 200, party)) %>% 
+  mutate(party = ifelse(name == "Schiff, Adam", 100, party)) %>% 
+  mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
+  mutate(party = ifelse(name == "Newhouse, Dan", 200, party)) %>% 
+  mutate(party = ifelse(name == "Bost, Mike", 200, party)) %>% 
   
   
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
@@ -548,13 +562,14 @@ committees %<>%
   
   mutate(assigneddate = if_else(name =="Brady, Kevin" & assigneddate == as.Date('2015-01-13')& committeename == "Ways and Means",
                                as.Date('2015-10-29'), assigneddate))
+
+
+
+
+
+
 # FIXME 
-
-
-
-
-
-committee.membership <- left_join(member_search(congress = c(110:120)), committees)
+committee.membership <- left_join(member_search(congress = c(110:120)), committees) # NOTE: only merging with 110th-present
 
 bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
 

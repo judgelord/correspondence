@@ -119,7 +119,7 @@ data_list
 i = 1 # initialize for full merge (default)
 
 # or choose one agency
-# i <- which(data_list$agency == "DOT_FTA") 
+# i <- which(data_list$agency == "Treasury_OCC") 
 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
@@ -174,47 +174,51 @@ d %<>%
   mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
   filter(bioname != "PAYNE, Donald Milford" | DATE < as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
   filter(bioname != "PAYNE, Donald, Jr." | DATE > as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
-  filter(bioname != "SPECTER, Arlen" | party_name != "Democratic Party" | DATE > as.Date("2009-04-28")) %>% # SPECTER, Arlen changed to DEM
-  filter(bioname != "SPECTER, Arlen" | party_name != "Republican Party" | DATE < as.Date("2009-04-28")) %>% 
-   
-  # filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Democratic Party")) %>% 
-  # filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Republican Party")) %>% 
-  
-  # filter(bioname != "GRIFFITH, Parker" | party_name != "Republican Party" | DATE > as.Date("2009-12-22")) %>% # GRIFFITH, Parker changed to GOP
-  # filter(bioname != "GRIFFITH, Parker" | party_name != "Democratic Party" | DATE < as.Date("2009-12-22")) %>%
-  # filter(bioname != "GILLIBRAND, Kirsten" | chamber != "House" | DATE < as.Date("2009-01-26")) %>% # GILLIBRAND APPOINTED TO SENATE FROM HOUSE January 26, 2009
-  # filter(bioname != "GILLIBRAND, Kirsten" | chamber != "Senate" | DATE > as.Date("2009-01-26")) %>%
+  filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Republican Party")) %>% # SPECTER, Arlen changed to DEM
+  filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Democratic Party")) %>% 
   filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
   filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) %>% 
   filter(!(bioname == "KIRK, Mark Steven" & DATE > as.Date("2010-11-29") & chamber == "House")) %>% # Went from House to Senate, filled in Obama's vacancy in Senate when he was president elect
   filter(!(bioname == "KIRK, Mark Steven" & DATE < as.Date("2010-11-29") & chamber == "Senate")) %>% 
-  
   filter(!(bioname == "HELLER, Dean" & DATE > as.Date("2011-05-09") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
   filter(!(bioname == "HELLER, Dean" & DATE < as.Date("2011-05-09") & chamber == "Senate")) %>% 
   filter(!(bioname == "WICKER, Roger F." & DATE > as.Date("2007-12-31") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
   filter(!(bioname == "WICKER, Roger F." & DATE < as.Date("2007-12-31") & chamber == "Senate")) %>% 
   filter(!(bioname == "GRIFFITH, Parker" & DATE > as.Date("2009-12-22") & party_name == "Democratic Party")) %>% # GRIFFITH, Parker changed to GOP
   filter(!(bioname == "GRIFFITH, Parker" & DATE < as.Date("2009-12-22") & party_name == "Republican Party")) %>% 
-  filter(!(bioname == "GILLIBRAND, Kirsten" & DATE > as.Date("2009-01-26") & chamber == "House")) %>%
+  filter(!(bioname == "GILLIBRAND, Kirsten" & DATE > as.Date("2009-01-26") & chamber == "House")) %>% # GILLIBRAND APPOINTED TO SENATE FROM HOUSE January 26, 2009
   filter(!(bioname == "GILLIBRAND, Kirsten"& DATE < as.Date("2009-01-26") & chamber == "Senate"))
 
-# NEED TO ADD LIEBERMAN
-# NEED TO ADD LIEBERMAN
-
+# LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
+# 
 
 
 
 
 
 # ERRORS we can't fix
+
+# Common reoccuring names
+names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
+              e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
+              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'))
+
+for(i in 1:length(names)){
+  d %<>%
+    mutate(ERROR = ifelse(grepl(names[[i]][1], FROM, ignore.case=T)&grepl(names[[i]][2], FROM, ignore.case=T), "Don't include", ERROR))
+}
+
 d %<>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
-  mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR))
+  mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
+  mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR))
 
 
-  
+
+
+
 
 d$department <- gsub("_.*", "", d$agency) # name dept
 d %<>% mutate(id = paste(agency, ID))
@@ -243,6 +247,7 @@ d %<>% filter(year < 2018 & year > 2006)
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
   filter(is.na(ERROR)) %>% 
+  filter(bioname != "LIEBERMAN, Joseph I.") %>% # Considered Dem and Independent. Voteview party (dem) will override
   left_join(committees) %>% 
   filter(party != party_code) %>% 
   select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
@@ -265,6 +270,23 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
     , T, F)) %>% ungroup()
 
 unique(d$timeframe)
+
+
+
+
+
+
+
+
+
+####################################################################################
+
+
+
+
+
+
+
 
 
 
@@ -325,11 +347,16 @@ dcommittees <- df %>% full_join(committees)
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
+# totals
+dcommittees %<>%   
+  group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() 
+
+
 # lump inst positions
 dcommittees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) 
 
 # some committe names are upper and some sentence case 
 dcommittees %<>% 
@@ -344,32 +371,39 @@ dcommittees %<>% mutate(committee_dept = paste(committee, department))
 dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
 dcommittees %<>% group_by(member_committee) %<>% 
   mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
-dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4)))
+dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4))) %>%
+  mutate(committee_member = paste(committee, "-", last_name, firstassigned))
+
 # assigned chair
 dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
 dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
 dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
+
+
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
 dcommittees %<>% 
-  mutate(chair = paste(firstassignedchair,  bioname, party)) 
+  mutate(chair = ifelse(position == "Chair", paste(firstassignedchair,  bioname, party), NA) ) %>% 
+  mutate(committee_chair = ifelse(position == "Chair", paste(committee, "-", last_name, firstassignedchair), NA))
 
-
-# Select only Comittee Chairs
-chairs <- filter(dcommittees, member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")]))) 
-
-chairs %<>% 
-  mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
+# ID Comittee Chairs
+dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) ) %>%
+  mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
   mutate(yearsAsChair = daysAsChair/365) %>%
-  mutate(monthsAsChair = daysAsChair/30) %>%
-  group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() %>%
-  mutate(committee_member = paste(committee, "-", last_name, firstassignedchair))
+  mutate(monthsAsChair = daysAsChair/30) 
+
+
+
 
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
 df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
+df$partystatus[df$partystatus == 4] <- "Other"
+df$partystatus[df$partystatus == 5] <- "Other"
+df$partystatus[df$partystatus == 6] <- "Other"
+df$partystatus[df$partystatus == 7] <- "Other"
 
 committees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
@@ -378,22 +412,30 @@ committees %<>%
 
 df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
 
+df %<>%
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, "A", position))
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+df %<>% select(-n)
+rm(d1)
 save.image(paste("gh-pages/correspondence.RData"))
-
-
-
-
-
-
-# upload google sheet of obs failing to match with voteview
-
-#  problem.names2 %>% filter(TYPE %in% c(2,4,5)) %>% write.csv("mismatch.csv") # saving file locally is faster
-#  drive_rm(paste0("Correspondence/mismatch")) # remove old recode file
-#  drive_upload(mismatch, path = paste0("Correspondence/mismatch"), type = "spreadsheet")
-#  file.remove("mismatch.csv") # remove local file
- 
-
-  

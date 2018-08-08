@@ -37,7 +37,7 @@ clean <- function(file.name) {
       
     }
   }
-  data <- data[-grep(" and | Sen | Rep | Sen.| Rep.", data$FROM),] # removes orginal row with all data
+  data %<>% filter(!grepl(" and | Sen | Rep | Sen.| Rep.", FROM))
   ################
   
   
