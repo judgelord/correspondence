@@ -196,18 +196,24 @@ d %<>%
 
 
 
-
 # ERRORS we can't fix
 
 # Common reoccuring names
-#names <- list(a = c("Eleanor", "Norton"), b= c("Sally", 'Jewell'))
+names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
+              e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
+              i= c('Eni','Bordallo'),j= c('(^| )Tia( |$)','Johnson'))
+
+for(i in 1:length(names)){
+  d %<>%
+    mutate(ERROR = ifelse(grepl(names[[i]][1], FROM, ignore.case=T)&grepl(names[[i]][2], FROM, ignore.case=T), "Don't include", ERROR))
+}
 
 d %<>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
   mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
-  mutate(ERROR = ifelse(grepl(  names[[2]]       )))
+  mutate(ERROR = ifelse(grepl("Eleanor", FROM)&grepl("Norton", FROM), "Eleanor", ERROR))
 
 
 
