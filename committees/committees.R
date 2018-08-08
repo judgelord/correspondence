@@ -548,6 +548,7 @@ committees %<>%
   mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
   mutate(party = ifelse(name == "Newhouse, Dan", 200, party)) %>% 
   mutate(party = ifelse(name == "Bost, Mike", 200, party)) %>% 
+  mutate(party = ifelse(name == "Hoeven, John", 200, party)) %>% 
   
   
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
