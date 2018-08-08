@@ -562,14 +562,13 @@ Committee membership brings access to information, voting responsibilities, and 
 
 ```{r}
 tenure <- dcommittees %>%
-  dplyr::select(-n) %>% 
   filter(chair_since_2007 == T) %>% 
   mutate(member_committee_Type = paste(member_committee, Type2)) 
 
 tenure %<>%
   mutate(tenure = as.numeric(year) - firstassignedchair) %>%
   group_by(member_committee, tenure, Type2, department) %>% 
-  tally() %>% ungroup() %>% 
+  summarise(n = n()) %>% ungroup() %>% 
   filter(!is.na(tenure)) %>% 
   mutate(n = round(n, 0))
 
