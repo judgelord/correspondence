@@ -435,6 +435,6 @@ df %<>%
 
 
 
-
+df %<>% select(-n)
 rm(d1)
 save.image(paste("gh-pages/correspondence.RData"))

@@ -470,10 +470,7 @@ Committee membership brings access to information, voting responsibilities, and 
 ```{r}
 tenure <- dcommittees %>%
   filter(chair_since_2007 == T) %>% 
-  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
-  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
-  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
-  mutate(member_committee_Type = paste(member_committee, Type)) 
+  mutate(member_committee_Type = paste(member_committee, Type2)) 
 
 tenure %<>%
   mutate(tenure = as.numeric(year) - firstassignedchair) %>%
@@ -517,7 +514,8 @@ dcommittees %>%
        y = "Correspondence Density")
 ```
 ```{r committee_chair_density, fig.height=8}
-
+comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
+           "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
 # prestige committee members
 # density 
 dcommittees %>% 
@@ -545,7 +543,8 @@ dcommittees %>%
 
 Appointments to committee chair seem to be especially important in the house. However, the majority of correspondence was initiated by just three chairs. 
 ```{r committee_chair_volume, fig.height=8}
-
+comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
+           "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
 # count
 dcommittees %>% 
   filter(chair_since_2007 == T, complete == T, committee %in% comms) %>%
