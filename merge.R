@@ -199,13 +199,13 @@ d %<>%
 # ERRORS we can't fix
 
 # Common reoccuring names
-names <- list(a = c("Eleanor", "Norton"), b= c("Sally", 'Jewell'), c=c('Gregorio','Sablan'), d = c('Stacey','Plaskett'),
-              e=c('Amata','Radewagen'), f= c("Donna",'Christensen'), g= c('Pedro','Pierluisi'), h= c('Madeleine','Bordallo'),
-              i= c('Eni','Bordallo'), j= c('(^| )Tia( |$)','Johnson'))
+names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
+              e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
+              i= c('Eni','Bordallo'),j= c('(^| )Tia( |$)','Johnson'))
 
 for(i in 1:length(names)){
   d %<>%
-    mutate(ERROR = ifelse(grepl(names[[i]][1], FROM)&grepl(names[[i]][2], FROM), "Don't include", ERROR))
+    mutate(ERROR = ifelse(grepl(names[[i]][1], FROM, ignore.case=T)&grepl(names[[i]][2], FROM, ignore.case=T), "Don't include", ERROR))
 }
 
 d %<>% 
