@@ -860,4 +860,21 @@ df %>%
   labs(title = "Average Correspondence per Year by Overall Percentile
 (labels = 95th percentile)",
        x = "Overall Percentile (Calculated across types)")
+
+
+# member-year distance from the mean (cross-tab/tile)
+Chamber = "House"
+
+data <- df %>% 
+  filter(chamber == Chamber, !is.na(year), complete == T) %>%
+  group_by(year, name_state) %>% tally() %>% ungroup() %>%
+  group_by(year) %>% mutate(mean = mean(n), sd = sd(n), sd.above.mean = (n - mean)/sd) %>% ungroup() %>% 
+  group_by(name_state) %>% filter(length(unique(year)) > 8) %>% ungroup()
+
+ggplot(data) + # plot
+  geom_tile(aes(x = year, y = name_state, fill = sd.above.mean))  + 
+  # geom_text(aes(x = year, y = name_state, label = round(n, 0 ))) + 
+  labs(title = paste("Letters per Year"),
+       x = "",
+       y = Chamber)
   
