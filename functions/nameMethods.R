@@ -142,6 +142,8 @@ extractMemberName <- function(data, members, col_name){
   
   data$Summary <- data[[col_name]]
   
+  # change NA to blanks for pasting purposes
+  members$common_name <- ifelse(is.na(members$common_name), "zq", members$common_name)
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
   members$first_last <- paste(members$first_name, members$last_name, sep = " ")
@@ -150,6 +152,8 @@ extractMemberName <- function(data, members, col_name){
   members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
+  
+  members$common_name <- ifelse(members$common_name == "zq", NA, members$common_name)
   
   # code commented out was preprocessing from getFirstLast.Comma() method. Might be useful later. 
   # data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$Summary)
@@ -410,6 +414,12 @@ extractMemberName <- function(data, members, col_name){
    mutate(first_name = ifelse( grepl("Issa",Summary,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",Summary,ignore.case=TRUE), "Darrell", first_name)) %>% 
    mutate(last_name = ifelse( grepl("Whitfield|Whitefield",Summary,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",Summary,ignore.case=TRUE), "WHITFIELD", last_name)) %>% 
    mutate(first_name = ifelse( grepl("Whitfield|Whitefield",Summary,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",Summary,ignore.case=TRUE), "Wayne", first_name)) %>% 
+   mutate(last_name = ifelse( grepl("(^| )Dana( |$)",Summary,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",Summary,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("(^| )Dana( |$)",Summary,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",Summary,ignore.case=TRUE), "Dana", first_name)) %>% 
+   mutate(last_name = ifelse( grepl("(^| )Womack( |$)",Summary,ignore.case=TRUE)&grepl("(^| )St",Summary,ignore.case=TRUE), "WOMACK", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("(^| )Womack( |$)",Summary,ignore.case=TRUE)&grepl("(^| )St",Summary,ignore.case=TRUE), "Steve", first_name)) %>% 
+   mutate(last_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "BONO", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "Mary", first_name)) %>% 
    
    
    
@@ -647,6 +657,12 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse( grepl("Issa",FROM2,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",FROM2,ignore.case=TRUE), "Darrell", first_name)) %>% 
     mutate(last_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "WHITFIELD", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "Wayne", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("(^| )Dana( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",FROM2,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Dana( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",FROM2,ignore.case=TRUE), "Dana", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("(^| )Womack( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "WOMACK", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Womack( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "Steve", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("(^| )Mary( |$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "BONO", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Mary( |$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% 
     
     
     

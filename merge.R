@@ -201,7 +201,7 @@ d %<>%
 # Common reoccuring names
 names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
-              i= c('Eni','Bordallo'),j= c('(^| )Tia( |$)','Johnson'))
+              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'))
 
 for(i in 1:length(names)){
   d %<>%
