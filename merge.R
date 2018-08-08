@@ -119,7 +119,7 @@ data_list
 i = 1 # initialize for full merge (default)
 
 # or choose one agency
-# i <- which(data_list$agency == "DOT_FTA") 
+# i <- which(data_list$agency == "Treasury_OCC") 
 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
@@ -419,5 +419,5 @@ df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, c
 
 
 
-
+rm(d1)
 save.image(paste("gh-pages/correspondence.RData"))

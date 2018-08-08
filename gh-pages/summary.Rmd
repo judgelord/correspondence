@@ -1,8 +1,7 @@
 ---
 title: "Project Summary: How Legislators Actually Invest Their Time"
-# author: "Devin Judge-Lord"
 output: 
-  html_document:
+   html_document:
     toc: true
     code_folding: hide
 ---
@@ -18,7 +17,7 @@ library(tidyverse)
 load("correspondence.RData")
 ```
 ```{r global.options, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = T, fig.width=17, fig.path='Figs/',
+knitr::opts_chunk$set(echo = TRUE, cache = T, fig.width=8.5, fig.path='Figs/',
                       warning=FALSE, message=FALSE, fig.align = 'center')
 ```
 
@@ -35,7 +34,7 @@ Do legislators shift attention to policy work as they gain seniority or electora
 
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?
 
-```{r missing_data, fig.height=9}
+```{r missing_data, fig.height=8}
 df %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(Coded = ifelse(Type == "To be coded", "To be coded", "Coded")) %>% 
@@ -95,7 +94,7 @@ df %>%
 # DOC_MBDA
 ```
 All time-series analysis below subsets to agencies with ten years of data. 
-```{r data_coded, fig.height=9}
+```{r data_coded, fig.height=7}
 df %>% 
   filter(Type != "To be coded") %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
@@ -287,10 +286,10 @@ zeros <- data_frame(
   department =  rep(unique(df$department), n_distinct(df$name_state)),
   perMember = 0) %>%
   mutate(name_dept = paste(name_state, department)) %>% 
-  filter(!name_dept %in% df$name_dept)
+  filter(!name_dept %in% df$name_dept, !is.na(department))
 
 data <- df %>% 
-  filter(chamber == Chamber) %>%
+  filter(chamber == Chamber, !is.na(department)) %>%
   group_by(department, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
   group_by(department, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
   full_join(zeros) %>% # add zeros
@@ -331,7 +330,7 @@ zeros <- data_frame(
   department =  rep(unique(dcommittees$department), n_distinct(dcommittees$committee[dcommittees$chamber == Chamber]) ),
   n = 0) %>%
   mutate(committee_dept = paste(committee, department)) %>% 
-  filter(!committee_dept %in% dcommittees$committee_dept)
+  filter(!committee_dept %in% dcommittees$committee_dept,  !is.na(department))
 
 data <- dcommittees %>% 
   filter(chamber == Chamber) %>% 
@@ -341,7 +340,7 @@ data <- dcommittees %>%
   group_by(committee, department, chamber) %>% summarise(n = mean(n)) %>% ungroup() %>%
   full_join(zeros) %>% 
   filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
-  filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER", "ENERGY INDEPENDENCE", "DEFICIT REDUCTION", "STANDARDS OF OFFICIAL CONDUCT"))%>% 
+  filter( !is.na(department), !is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER", "ENERGY INDEPENDENCE", "DEFICIT REDUCTION", "STANDARDS OF OFFICIAL CONDUCT"))%>% 
   group_by(department) %>% mutate(mean = mean(n), sd = sd(n)) %>% 
   mutate(above = n - mean) %>% 
   mutate(sd.above.mean = above/sd) %>% ungroup %>%
@@ -368,10 +367,10 @@ zeros <- data_frame(
   department =  rep(unique(dcommittees$department), n_distinct(dcommittees$committee[dcommittees$chamber == Chamber]) ),
   n = 0) %>%
   mutate(committee_dept = paste(committee, department)) %>% 
-  filter(!committee_dept %in% dcommittees$committee_dept)
+  filter(!committee_dept %in% dcommittees$committee_dept,  !is.na(department))
 
 data <- dcommittees %>% 
-  filter(chamber == Chamber) %>% 
+  filter(chamber == Chamber,  !is.na(department)) %>% 
   filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
   filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER"))%>% 
   group_by(committee, department, chamber, year) %>% tally() %>% ungroup() %>% 
@@ -399,12 +398,12 @@ data <- dcommittees %>%
 
 #### On whose behalf do legislators usually write?  
 
-```{r distance_above_mean_by_type, fig.height=8}
+```{r distance_above_mean_by_type, fig.height=5}
 # member-TYPE distance from the mean (cross-tab/tile)
 Chamber = "House"
 
 data <- df %>% 
-  filter(chamber == Chamber, Type != "To be coded") %>%
+  filter(chamber == Chamber, Type != "To be coded",  !is.na(department)) %>%
   group_by(Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
   group_by(Type, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
   group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd) %>% ungroup() %>%
@@ -439,7 +438,7 @@ Party control does appear to increase legislator advocacy behavior, possibly due
 ```
 
 In the House, both parties average just slightly more letters per year while in the majority, but in the Senate, Republicans average more per year while in the minority.
-```{r party_distance_above_mean}
+```{r party_distance_above_mean, fig.height=2}
   df %>% 
     filter(party != "(I)", partystatus %in% c("Majority", "Minority")) %>% 
     group_by(party, partystatus, chamber, member_state, year) %>% tally() %>% 
@@ -513,7 +512,7 @@ dcommittees %>%
   facet_grid(Type ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
   guides(fill=guide_legend(ncol=1))+
-  labs(title = paste("Density of Correspondence Before and After Appointment to Committee Chair"),
+  labs(title = paste("Before and After Committee Chair Appointment"),
        x = "Months Before and After First Appointment to Committee Chair",
        y = "Correspondence Density")
 ```
@@ -538,7 +537,7 @@ dcommittees %>%
   facet_grid(Type ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
   guides(fill=guide_legend(ncol=1))+
-  labs(title = paste("Density of Correspondence Before and After Appointment to Prestige Committee Chair"),
+  labs(title = paste("Before and After Committee Chair Appointment"),
        x = "Months Before and After Appointment to Committee Chair",
        y = "Correspondence Density")
 ```
@@ -631,7 +630,7 @@ df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% tally() %>% 
   facet_grid(. ~ Type, scales = "free_x") + 
   theme(axis.text.y = element_text(size=5)) 
 ```
-```{r boxplot_peryearHouse, fig.height = 32} 
+```{r boxplot_peryearHouse, fig.height = 34} 
 Chamber = "House"
 # boxplots by year  
 df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% tally() %>% ungroup() %>% 
@@ -650,7 +649,7 @@ df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% tally() %>% 
 
 We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a colorful "bar-code" for each member with each line marking a letter.
 
-```{r members_barcoded, fig.height=18, fig.width=11}
+```{r members_barcoded, fig.height=17, fig.width=11}
 # barcode plot of committee members 
 
 
@@ -676,7 +675,8 @@ df %>%
   theme(
     legend.title = element_blank(),
     axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 45)
+    axis.text.x = element_text(angle = 45),
+    legend.direction = "vertical"
   )
 
 ```
