@@ -8,7 +8,7 @@ library(fiftystater)
 library(mapproj)
 
 
-states <- read.csv("states.csv") 
+states <- read.csv("districts/states.csv") 
 states$state %<>% tolower() 
 states$pop2010 <- gsub(",","",states$pop2010)
 states$pop2010 %<>% as.numeric()
@@ -32,7 +32,7 @@ ggplot() +
         panel.background = element_blank())
 
 df %>% 
-  group_by(state, pop2010) %>% tally() %>%
+  filter(chamber == "Senate") %>% group_by(state, pop2010) %>% tally() %>%
   mutate(Per_Capita = n/pop2010) %>% 
   # map_id creates the aesthetic mapping to the state name column in your data
   ggplot() + 
@@ -47,6 +47,9 @@ df %>%
         panel.background = element_blank())
 
 
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
+popMod <- lm(permemberyear ~ pop2010 + position + partystatus, data = df %>% filter(Type2 == "Constituent Service"))
+summary(popMod)
 
 # by year 
 log.year <- group_by(data, state, year) %>% count()
