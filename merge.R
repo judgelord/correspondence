@@ -374,28 +374,31 @@ dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 
   mutate(committee_member = paste(committee, "-", last_name, firstassigned))
 
 # assigned chair
-dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
-dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
-dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
+dcommittees %<>% mutate(assignedchairdate = ifelse(position == "Chair", as.Date(assigneddate), NA) )
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
 dcommittees %<>% 
-  mutate(chair = paste(firstassignedchair,  bioname, party)) %>% 
-  mutate(committee_chair = paste(committee, "-", last_name, firstassignedchair)) %>% 
-  mutate(daysAsChair = subtract(DATE, firstassignedchairdate) ) %>%
+  mutate(chair = ifelse(position == "Chair", paste(firstassignedchair,  bioname, party), NA) ) %>% 
+  mutate(committee_chair = ifelse(position == "Chair", paste(committee, "-", last_name, firstassignedchair), NA))
+
+# ID Comittee Chairs
+dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) ) %>%
+  mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
   mutate(yearsAsChair = daysAsChair/365) %>%
   mutate(monthsAsChair = daysAsChair/30) 
 
 
-# ID Comittee Chairs
-dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) ) 
 
 
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
 df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
+df$partystatus[df$partystatus == 4] <- "Other"
+df$partystatus[df$partystatus == 5] <- "Other"
+df$partystatus[df$partystatus == 6] <- "Other"
+df$partystatus[df$partystatus == 7] <- "Other"
 
 committees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
@@ -404,6 +407,10 @@ committees %<>%
 
 df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
 
+df %<>%
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, "A", position))
 
 
 

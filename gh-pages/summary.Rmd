@@ -159,7 +159,7 @@ Use coding rules, SVMs, or topic models to auto-code entries where human coders 
 
 For many agencies, we have a sample of letters. These can be pasted into their respective Google sheets. This could be a productive way to skim a broad sample of letters and will provide more text for analysis. 
 
-Use agencies where we have data on (some) calls and emails to estimate the bias in the letterhead correspondence that constitutes most logs. For example, DOD Defense Logistics received 8 calls but only 2 letters from members regarding the termination of a contract for parachutes, suggesting that letters may be a small portion of contacts for certain issues like corporate service. 
+Use agencies where we have data on (some) calls and emails to estimate the bias in the letterhead correspondence that constitutes most logs. For example, DOD Defense Logistics received 8 calls but only 2 letters from members regarding the termination of a contract for parachutes, suggesting that letters may be a small portion of contacts for certain issues like corporate service. Between May 2015 and December 2017, the DOJ Office of Administrative Law Judges received 132 emails, 109 telephone calls, and only 54 letters. Between 2007 and 2017, the Postal Regulatory Commission received 100 emails, 30 faxes, 173 letters, 118 calls. 
 
 Most agencies redact constituent names, but some have not, which may allow us to do some limited demographic analysis.
 
@@ -543,17 +543,14 @@ dcommittees %>%
 ```
 
 
-Appointments to committee chair seem to be especially important in the house. However, the vast majority of correspondence was initiated by three chairs. 
+Appointments to committee chair seem to be especially important in the house. However, the majority of correspondence was initiated by just three chairs. 
 ```{r committee_chair_volume, fig.height=8}
 
 # count
 dcommittees %>% 
   filter(chair_since_2007 == T, complete == T, committee %in% comms) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
-  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
-  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
-  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
-  filter(!is.na(Type)) %>% 
+  filter(!is.na(Type2)) %>% 
   filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
   ggplot() + 
   geom_density(aes(
@@ -562,7 +559,7 @@ dcommittees %>%
     fill = paste(chamber, committee_chair), 
     color = paste(chamber, committee_chair)), alpha = .1, bw = 2) + 
   geom_vline(aes(xintercept = 0), color = "black") + 
-  facet_grid(Type ~ chamber, scales = "free_y") +
+  facet_grid(Type2 ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
   guides(fill=guide_legend(ncol=1))+
   labs(title = paste("Volume of Correspondence Before and After Appointment to Prestige Committee Chair"),
