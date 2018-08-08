@@ -213,7 +213,7 @@ d %<>%
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
   mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
-  mutate(ERROR = ifelse(grepl("Eleanor", FROM)&grepl("Norton", FROM), "Eleanor", ERROR))
+  mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR))
 
 
 
@@ -247,6 +247,7 @@ d %<>% filter(year < 2018 & year > 2006)
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
   filter(is.na(ERROR)) %>% 
+  filter(bioname != "LIEBERMAN, Joseph I.") %>% # Considered Dem and Independent. Voteview party (dem) will override
   left_join(committees) %>% 
   filter(party != party_code) %>% 
   select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
