@@ -374,7 +374,11 @@ dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 
   mutate(committee_member = paste(committee, "-", last_name, firstassigned))
 
 # assigned chair
-dcommittees %<>% mutate(assignedchairdate = ifelse(position == "Chair", as.Date(assigneddate), NA) )
+dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
+dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
+dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
+
+
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
