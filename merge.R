@@ -396,25 +396,33 @@ dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique
 
 
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
-df %<>% left_join(distinct(select(committees, icpsr, congress, partystatus)))
+df %<>% left_join(distinct(dplyr::select(committees, icpsr, congress, partystatus)))
 df$partystatus[df$partystatus == 1] <- "Majority"
 df$partystatus[df$partystatus == 2] <- "Minority"
-df$partystatus[df$partystatus == 4] <- "Other"
-df$partystatus[df$partystatus == 5] <- "Other"
-df$partystatus[df$partystatus == 6] <- "Other"
-df$partystatus[df$partystatus == 7] <- "Other"
+df$partystatus[df$partystatus == 4] <- "All Others"
+df$partystatus[df$partystatus == 5] <- "All Others"
+df$partystatus[df$partystatus == 6] <- "All Others"
+df$partystatus[df$partystatus == 7] <- "All Others"
 
 committees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
   mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
 
-df %<>% left_join(distinct(select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
+df %<>% left_join(distinct(dplyr::select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
+
+df %<>% mutate(seniorstatus = ifelse(is.na(seniorstatus), "All Others", seniorstatus))
 
 df %<>%
-  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
-  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, "A", position))
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", "All Others")) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  
+
+
+# ID Comittee Chairs
+df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(df$position == "Chair")])), T, F) )
+  mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
+  mutate(yearsAsChair = daysAsChair/365) %>%
+  mutate(monthsAsChair = daysAsChair/30) 
 
 
 
@@ -424,11 +432,12 @@ df %<>%
 
 
 
-
-
-
-
-
+states <- read.csv("districts/states.csv") 
+states$state %<>% tolower() 
+states$pop2010 <- gsub(",","",states$pop2010)
+states$pop2010 %<>% as.numeric()
+df %<>% left_join(states)
+df %<>% mutate(popX1000000 = pop2010/1000000)
 
 
 

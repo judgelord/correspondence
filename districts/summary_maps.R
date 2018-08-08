@@ -42,14 +42,59 @@ df %>%
   coord_map() +
   scale_x_continuous(breaks = NULL) + 
   scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Letters from Members of Congress")) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress Per Capita")) +
   theme(legend.position = "bottom", legend.title = element_blank(),
-        panel.background = element_blank())
+        panel.background = element_blank()) +
 
 
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
-popMod <- lm(permemberyear ~ pop2010 + position + partystatus, data = df %>% filter(Type2 == "Constituent Service"))
-summary(popMod)
+
+
+
+# not log pop
+policy <- lm(permemberyear ~ pop2010 + position + partystatus, data = df %>%
+               filter(partystatus != "All Others") %>%
+  #filter(Type2 == "Constituent Service") 
+  filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ pop2010 + position + partystatus, data = df %>%
+               filter(partystatus != "All Others") %>%
+               #filter(Type2 == "Constituent Service") 
+               filter(Type2 == "Constituent Service")
+)
+
+
+summary(policy)
+summary(constituents)
+
+
+# LOG POP
+policy <- lm(permemberyear ~ log(pop2010) + position + partystatus, data = df %>%
+               filter(partystatus != "All Others") %>%
+               #filter(Type2 == "Constituent Service") 
+               filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ log(pop2010) + position + partystatus, data = df %>%
+                     filter(partystatus != "All Others") %>%
+                     #filter(Type2 == "Constituent Service") 
+                     filter(Type2 == "Constituent Service")
+)
+
+
+summary(policy)
+summary(constituents)
+
+
+
+
+
+
+
+
+
+
 
 # by year 
 log.year <- group_by(data, state, year) %>% count()

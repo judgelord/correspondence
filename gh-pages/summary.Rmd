@@ -7,12 +7,17 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("ineq", "dplyr", "ggplot2", "magrittr")
+requires <- c("ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
 library(magrittr)
 library(tidyverse)
+  library(stargazer)
+  library(maps)
+library(fiftystater)
+library(mapproj)
+
   
 load("correspondence.RData")
 ```
@@ -262,12 +267,97 @@ df %>%
 
 ###  Constituent demand for advocacy
 
-*TO DO:* map of senators
+The number of constituents asking for assistace is a major driver of member advocacy. 
+
+```{r sentate_percapita_map, fig.height=4}
+Chamber = "Senate"
+
+df %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(state, Type) %>% tally() %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Letters from members of the", Chamber)) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) +
+  facet_grid(. ~ Type)
+
+df %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(state, pop2010, Type) %>% tally() %>% ungroup() %>% 
+  mutate(Per_Capita = n/pop2010*1000000) %>% 
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters Congress Per Million Residents from Members of the", Chamber)) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) +
+  facet_grid(. ~ Type)
+```
+
 
 *TO DO:* map of house
 
 
 ### Institutional positions empower, rather than distract, advocates
+
+
+```{r population_models}
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
+
+policy <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
+               filter(partystatus != "All Others") %>% 
+               filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
+                     filter(partystatus != "All Others") %>% 
+                     filter(Type2 == "Constituent Service")
+)
+
+
+```
+
+
+Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions. 
+```{r, results='asis'}
+stargazer(policy, constituents, title="Letters per Year", column.labels=c("Policy Advocacy","Constituent Service"), align=TRUE, dep.var.labels = "Letters per Year", keep.stat = "n", type = "html") 
+```
+
+```{r chair_models}
+
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
+
+policy <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
+               filter(partystatus != "All Others", chair_since_2007 == T) %>%
+               filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
+               filter(partystatus != "All Others", chair_since_2007 == T) %>%
+               filter(Type2 == "Constituent Service")
+)
+```
+
+Within members who served as chairs, becoming chare still has a small positive effect on constituent service.
+
+```{r, results='asis'}
+stargazer(policy, constituents, title="Letters per Year Within Those Appointed as Committee Chair between 2008 and 2016", dep.var.labels = "Letters per Year", column.labels=c("Policy Advocacy","Constituent Service"), align=TRUE, keep.stat = "n", type = "html") 
+```
+
+
+
 
 *TO DO:* advocacy ~ advocacy(t-1) * chair effect
 
@@ -454,6 +544,9 @@ In the House, both parties average just slightly more letters per year while in 
   
   
 ```
+
+
+
 ### Does a legislator's party influence the constituents on whose behalf legislators advocate? 
 
 *To do:* Type x party
@@ -498,15 +591,12 @@ dcommittees %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   mutate(prestige = ifelse(committee %in% c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
      "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) %>% 
-  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
-  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
-  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
-  filter(!is.na(Type)) %>% 
+  filter(!is.na(Type2)) %>% 
   filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
   ggplot() + 
   geom_density(aes(x = monthsAsChair, fill = prestige, color = prestige), alpha = .2, bw = 2) + 
   geom_vline(aes(xintercept = 0), color = "black") + 
-  facet_grid(Type ~ chamber, scales = "free_y") +
+  facet_grid(Type2 ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
   guides(fill=guide_legend(ncol=1))+
   labs(title = paste("Before and After Committee Chair Appointment"),
@@ -519,20 +609,18 @@ comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE",
 # prestige committee members
 # density 
 dcommittees %>% 
-  filter(complete == T, committee %in% comms) %>%
+  filter(complete == T, committee %in% comms, chair_since_2007 == T, !is.na(member_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
-  mutate(Type = ifelse(Type == "To be coded", NA, Type)) %>%
-  mutate(Type = ifelse(Type == "Corp. Policy", "Policy", Type)) %>%
-  mutate(Type = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type)) %>%
-  filter(!is.na(Type)) %>% 
+  filter(!is.na(Type2)) %>% 
   filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
   ggplot() + 
   geom_density(aes(
     x = monthsAsChair, 
-    fill = paste(chamber, committee_chair), 
-    color = paste(chamber, committee_chair)), alpha = .1, bw = 2, position = "stack") + 
+    fill = paste(chamber, committee, name_state), 
+    color = paste(chamber, committee, name_state) ), 
+    alpha = .1, bw = 2, position = "stack") + 
   geom_vline(aes(xintercept = 0), color = "black") + 
-  facet_grid(Type ~ chamber, scales = "free_y") +
+  facet_grid(Type2 ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
   guides(fill=guide_legend(ncol=1))+
   labs(title = paste("Before and After Committee Chair Appointment"),
@@ -547,7 +635,7 @@ comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE",
            "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
 # count
 dcommittees %>% 
-  filter(chair_since_2007 == T, complete == T, committee %in% comms) %>%
+  filter(chair_since_2007 == T, complete == T, committee %in% comms, !is.na(name_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   filter(!is.na(Type2)) %>% 
   filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
@@ -555,8 +643,8 @@ dcommittees %>%
   geom_density(aes(
     x = monthsAsChair, 
     y = ..count.., 
-    fill = paste(chamber, committee_chair), 
-    color = paste(chamber, committee_chair)), alpha = .1, bw = 2) + 
+    fill = paste(chamber, committee, name_state), 
+    color = paste(chamber, committee, name_state)), alpha = .1, bw = 2) + 
   geom_vline(aes(xintercept = 0), color = "black") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") +
   scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
