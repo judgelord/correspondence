@@ -35,6 +35,7 @@ clean <- function(file.name) {
     }
   }
   data <- data[-grep(" AND ", data$FROM),] # removes orginal row with all data
+  data %<>% distinct()
   ################
   
   data <-  extractMemberName(data,members,"FROM")

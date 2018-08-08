@@ -42,7 +42,7 @@ clean <- function(file.name) {
   data <- data[-grep(";|&| and |/", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
-  
+  data <- data[-grep(" other", data$FROM, ignore.case = TRUE),] 
   ################
   
   

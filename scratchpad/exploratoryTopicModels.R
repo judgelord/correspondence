@@ -18,10 +18,11 @@ docs <- out$documents
 vocab <- out$vocab
 meta <- out$meta
 
-k <- 15
+# k <- 0 will use Lee and Mimno technique and choose # of topics(will change depending on seed)
+k <- 0
 
-fit <- stm(documents = out$documents, vocab = out$vocab, K = 15, 
-           max.em.its = 75, data = out$meta, init.type = "Spectral")
+fit <- stm(documents = out$documents, vocab = out$vocab, K = k, 
+           max.em.its = 1000, data = out$meta, init.type = "Spectral")
 
 
 
@@ -33,7 +34,7 @@ estimateEffect(formula = 1:20 ~ rating + s(day), stmobj = fit,
 
 
 
-labelTopics(fit, c(1:k))
+x <- labelTopics(fit, c(1:k))
 
 
 
