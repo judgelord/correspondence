@@ -119,7 +119,7 @@ data_list
 i = 1 # initialize for full merge (default)
 
 # or choose one agency
-# i <- which(data_list$agency == "Treasury_OCC") 
+# i <- which(data_list$agency == "Treasury_Fiscal") 
 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],

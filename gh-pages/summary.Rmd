@@ -415,7 +415,7 @@ Theories rooted in institutional position suggest that committee members, especi
 
 Our data show limited support for the importance of formal oversight powers in directing the attention of committee members. In some case, like the Agriculture and Judiciary, we see strong relationships between the committee on which one sits and the agencies they lobby. In many other case, however, members of committees with formal oversight powers are not the most attentive. Instead, members of certain committees tend to lobby widely across the federal bureaucracy. 
 
-In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committees. 
+In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committees. Prestige Senate committees are consistently on the high end of distribution of requests coming in to each agency.
 
 ```{r committee_deptSenate}
 Chamber <- "Senate"

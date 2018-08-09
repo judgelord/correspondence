@@ -11,8 +11,6 @@ clean <- function(file.name) {
   data$FROM <- paste(data$AUTHOR.FIRST.NAME, data$AUTHOR.LAST.NAME, sep = " ")
   
   
-  # create ID column
-  names(data)[names(data) == 'X1'] <- 'ID'
   
   #create agency column
   data$agency <- file.name
@@ -59,3 +57,4 @@ clean <- function(file.name) {
   
   
 }
+
