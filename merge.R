@@ -384,8 +384,8 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
 dcommittees %<>% 
-  mutate(chair = ifelse(position == "Chair", paste(firstassignedchair,  bioname, party), NA) ) %>% 
-  mutate(committee_chair = ifelse(position == "Chair", paste(committee, "-", last_name, firstassignedchair), NA))
+  mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) %>% 
+  mutate(committee_chair = ifelse(chair_since_2007 == T, paste(committee, "-", last_name, firstassignedchair), NA))
 
 # ID Comittee Chairs
 dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) ) %>%

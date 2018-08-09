@@ -548,9 +548,9 @@ committees %<>%
   mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
   mutate(party = ifelse(name == "Newhouse, Dan", 200, party)) %>% 
   mutate(party = ifelse(name == "Bost, Mike", 200, party)) %>% 
-  mutate(party = ifelse(name == "Hoeven, John", 200, party)) %>% 
+  mutate(party = ifelse(name == "Hoeven, John", 200, party)) 
   
-  
+committees %<>%
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
   mutate(seniorstatus = ifelse(name == "Brown, Corrine" & assigneddate == as.Date("2015-01-06"), 22, seniorstatus)) %>% 
   mutate(seniorstatus = ifelse(name == "Stark, Fortney Pete" & assigneddate == as.Date("2009-01-07"), 0, seniorstatus)) %>% 
@@ -562,10 +562,36 @@ committees %<>%
                                    as.Date('2010-03-04'), assigneddate)) %>% 
   
   mutate(assigneddate = if_else(name =="Brady, Kevin" & assigneddate == as.Date('2015-01-13')& committeename == "Ways and Means",
-                               as.Date('2015-10-29'), assigneddate))
+                               as.Date('2015-10-29'), assigneddate)) %>% 
+  # Cantwell to Tester on feb 12 2014
+  mutate(terminationdate = if_else(name =="Cantwell, Maria" & congress == 113 & committeename == "Indian Affairs (Select Committee)",
+                                as.Date('2014-02-12'), terminationdate)) %>%
+  mutate(assigneddate = if_else(name =="Tester, Jon" & congress == 113 & committeename == "Indian Affairs (Select Committee)",
+                                as.Date('2014-02-12'), assigneddate)) %>% 
+  # Harkin to Blanch September 9, 2009
+  mutate(assigneddate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('2009-09-09'), assigneddate)) %>% 
+  mutate(terminationdate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('03-01-2011'), terminationdate)) %>%
+  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('2009-09-09'), terminationdate)) %>% 
+  mutate(terminationdate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('03-01-2009'), terminationdate))
 
+committees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+committees %<>% select(chamber, committeename, position, seniorstatus, congress, assigneddate, terminationdate, everything()) %>% 
+  arrange(position)
 
-
+# DATES TO FIX / FIXED 
+# ag - lincoln and harkin 2011
+# ethics - johnson and boxer 
+# finance wyden (bacus looks correct)
+# health - harkin 2009, kennedy looks correct 
+# small business - cantwell and landtreu 2013
+# 
 
 
 
