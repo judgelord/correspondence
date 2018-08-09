@@ -447,6 +447,7 @@ constituents &lt;- lm(permemberyear ~ popX1000000 + position + partystatus, data
                      filter(Type2 == &quot;Constituent Service&quot;)
 )</code></pre>
 <p>Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions.</p>
+<p>[NOTE: Obviously, these first-cut models are terribly simplistic. Errors should be clustered on members etc.]</p>
 <pre class="r"><code>stargazer(policy, constituents, title=&quot;Letters per Year&quot;, column.labels=c(&quot;Policy Advocacy&quot;,&quot;Constituent Service&quot;), align=TRUE, dep.var.labels = &quot;Letters per Year&quot;, keep.stat = &quot;n&quot;, type = &quot;html&quot;) </code></pre>
 <table style="text-align:center">
 <caption>
@@ -1092,7 +1093,7 @@ Ovarall mean =&quot;, round(mean(data$perMember), 0), &quot;, Mean Standard Devi
 <h2>Institutional position: formal and informal power</h2>
 <div id="committee-appointment" class="section level3">
 <h3>Committee appointment</h3>
-<p>Committee membership brings access to information, voting responsibilities, and prestige. Additionally, committee chairs have agenda control and additional staff. Some hypothesize that taking on leadership positions diverts attention from constituency service toward policy oversight. In contrast, others hypothesize that memebers will leverage the resources of office to better serve their constituents. How does a member’s behavior change when they are appointed chair of a powerful committee? Does committee appointement lead to more policy work or constituent service?</p>
+<p>Committee membership brings access to information, voting responsibilities, and prestige. Additionally, committee chairs have agenda control and additional staff. Some hypothesize that taking on leadership positions diverts attention from constituency service toward policy oversight. In contrast, others hypothesize that members will leverage the resources of office to better serve their constituents. How does a member’s behavior change when they are appointed chair of a powerful committee? Does committee appointment lead to more policy work or constituent service?</p>
 <p><em>To do: </em>Committee member effect, chair effect</p>
 <pre class="r"><code>tenure &lt;- dcommittees %&gt;%
   filter(chair_since_2007 == T, Type2 == &quot;Policy&quot;) %&gt;% 
