@@ -157,7 +157,7 @@ clean.agency <- function(agency, status, coders) {
             first_name
           )
         ) %>%
-      # if first name is common name
+      # if first name is common name, but we do have chamber
       mutate(
         first_name = ifelse(
           !is.na(last_name) & !is.na(congress) & !is.na(chamber) & !is.na(members$common_name[i]) & 
@@ -169,7 +169,7 @@ clean.agency <- function(agency, status, coders) {
           first_name
         )
       ) %>% 
-      # if chamber is missing
+      # if chamber is missing, but first name is correct
         mutate(
           chamber = ifelse(
             is.na(chamber) &
@@ -187,7 +187,7 @@ clean.agency <- function(agency, status, coders) {
     
       if (sum(c("last_name", "first_name", "congress") %in% names(data)) == 3) {
         data %<>%
-          # if first name is common name
+          # if first name is common name and missing chamber 
           mutate(
             first_name = ifelse(
               !is.na(first_name) & !is.na(last_name) & !is.na(congress) & !is.na(members$common_name[i]) & 
@@ -198,7 +198,14 @@ clean.agency <- function(agency, status, coders) {
               first_name
             )
           )
+        
+   
+        
       }
+    
+    
+    
+    
   }
   
   
