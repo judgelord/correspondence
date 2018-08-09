@@ -433,11 +433,8 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
 
 
 
-states <- read.csv("districts/states.csv") 
-states$state %<>% tolower() 
-states$pop2010 <- gsub(",","",states$pop2010)
-states$pop2010 %<>% as.numeric()
-df %<>% left_join(states)
+
+df %<>% left_join(read.csv("districts/states.csv") )
 df %<>% mutate(popX1000000 = pop2010/1000000)
 
 

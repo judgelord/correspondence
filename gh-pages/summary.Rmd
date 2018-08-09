@@ -1,5 +1,5 @@
 ---
-title: "Project Summary: How Legislators Actually Invest Their Time"
+title: "How Legislators Actually Invest Their Time"
 output: 
    html_document:
     toc: true
@@ -51,7 +51,8 @@ df %>%
   labs(x = "Date of Correspondence",
        y = "Agency, N",
        title = paste("Observations matched with ICPSR, N =", nrow(df) )) +
-   facet_grid(complete ~., scales = "free_y", space = "free_y")
+   facet_grid(complete ~., scales = "free_y", space = "free_y") + 
+  theme(legend.title = element_blank())
 
 # MISSING DATA STATUS: 
 # DHHS_ACL - no logs before 2017
@@ -560,30 +561,36 @@ In the House, both parties average just slightly more letters per year while in 
 Committee membership brings access to information, voting responsibilities, and prestige. Does it lead to more policy work or constituent service? Additional, committee chairs have agenda control and additional staff. How does a member's behavior change when they are appointed chair of a powerful committee?
 *To do: *Committee member effect, chair effect
 
-```{r}
+```{r chair_effect}
 tenure <- dcommittees %>%
-  filter(chair_since_2007 == T) %>% 
-  mutate(member_committee_Type = paste(member_committee, Type2)) 
-
-tenure %<>%
+  filter(chair_since_2007 == T, Type2 == "Policy") %>% 
   mutate(tenure = as.numeric(year) - firstassignedchair) %>%
-  group_by(member_committee, tenure, Type2, department) %>% 
+  group_by(bioname, tenure, department) %>% 
   summarise(n = n()) %>% ungroup() %>% 
   filter(!is.na(tenure)) %>% 
-  mutate(n = round(n, 0))
+  mutate(n = round(n, 1))
 
-year.before.chair <- mean(tenure$n[tenure$tenure == -1])
-year.after.chair <- mean(tenure$n[tenure$tenure == 0])
+year.before.chair.DOL <- round(mean(tenure$n[tenure$tenure == -1 & tenure$department == "DOL"]), 1)
+year.after.chair.DOL <- round(mean(tenure$n[tenure$tenure == 0 & tenure$department == "DOL"]), 1)
 
-year.before.chair.DOL <- mean(tenure$n[tenure$tenure == -1 & tenure$department == "DOL"])
-year.after.chair.DOL <- mean(tenure$n[tenure$tenure == 0 & tenure$department == "DOL"])
+tenure %<>%
+  group_by(bioname, tenure) %>% 
+  summarise(n = n()) %>% ungroup() %>% 
+  filter(!is.na(tenure)) %>% 
+  mutate(n = round(n, 1))
+
+year.before.chair <- round(mean(tenure$n[tenure$tenure == -1]), 1)
+year.after.chair <- round(mean(tenure$n[tenure$tenure == 0]), 1)
+
+#Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor is higher for members of their oversight committee 10.4, compared to non-members (7.7). 
+#For our study time period, 2007-2017, we find an average of `r year.before.chair.DOL` before and `r year.after.chair.DOL` after being appointed chair.
 ```
 
-Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor jumps from 7.7 to 10.4 for Oversight committee members. For our study time period, 2007-2017, we find an average of `r year.before.chair.DOL` before and `r year.after.chair.DOL` after being appointed chair. Averaging across all departments and committees, we find a increase from `r year.before.chair` to `r year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
+Averaging across all departments and committees, we find a increase from `r year.before.chair` to `r year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
 
 Committee chair appointment is most impactful in the House with respect to policy advocacy. 
 
-```{r chair_effect}
+```{r chair_effects}
 comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
            "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
 dcommittees %>% 
@@ -601,7 +608,9 @@ dcommittees %>%
   guides(fill=guide_legend(ncol=1))+
   labs(title = paste("Before and After Committee Chair Appointment"),
        x = "Months Before and After First Appointment to Committee Chair",
-       y = "Correspondence Density")
+       y = "Correspondence Density") + 
+    theme(
+    legend.title = element_blank())
 ```
 ```{r committee_chair_density, fig.height=8}
 comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
@@ -625,7 +634,9 @@ dcommittees %>%
   guides(fill=guide_legend(ncol=1))+
   labs(title = paste("Before and After Committee Chair Appointment"),
        x = "Months Before and After Appointment to Committee Chair",
-       y = "Correspondence Density")
+       y = "Correspondence Density") + 
+    theme(
+    legend.title = element_blank())
 ```
 
 
@@ -651,7 +662,9 @@ dcommittees %>%
   guides(fill=guide_legend(ncol=1))+
   labs(title = paste("Volume of Correspondence Before and After Appointment to Prestige Committee Chair"),
        x = "Months Before and After Appointment to Committee Chair",
-       y = "Correspondence per Month")
+       y = "Correspondence per Month") + 
+    theme(
+    legend.title = element_blank())
 
 ```
 

@@ -12,10 +12,7 @@ states <- read.csv("districts/states.csv")
 states$state %<>% tolower() 
 states$pop2010 <- gsub(",","",states$pop2010)
 states$pop2010 %<>% as.numeric()
-states$state
-df %<>% left_join(states)
-df$pop2010
-
+write.csv(states, "districts/states.csv")
 
 df %>% 
   group_by(state) %>% tally() %>%
