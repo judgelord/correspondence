@@ -4,27 +4,29 @@
 # Lots of errors, needs fixing
 # down to 264 errors, lots of spelling
 
- #file.name <- "ED" # for testing
+ file.name <- "ED" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # # Remove 69 NA rows
+  # data %<>% filter(!(is.na(data$FROM)&is.na(data$DATE)&is.na(data$SUBJECT)))
 
-    #create agency column
+  #create agency column
   data$agency <- file.name
   
   # Format date, year, Congress
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%m/%d/%y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
   # preprocess FROM column
-  data$FROM <- gsub("( |^)The|honorable|Honorable|hon\\.|honora ble|Honorab le|Senator|Name:", "", data$FROM, ignore.case = TRUE)
+  data$FROM <- gsub("( |^)The( |$)|honorable|Honorable|hon\\.|honora ble|Honorab le|Senator|Name:", "", data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Mr.|Ms.", "",data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
-  data$FROM <- ocr.errors(data$FROM)
-  
+
   # create variable for first and last name
   data <- getFirstLast.Comma(data, 'FROM')
   
