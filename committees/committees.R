@@ -548,9 +548,9 @@ committees %<>%
   mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
   mutate(party = ifelse(name == "Newhouse, Dan", 200, party)) %>% 
   mutate(party = ifelse(name == "Bost, Mike", 200, party)) %>% 
-  mutate(party = ifelse(name == "Hoeven, John", 200, party)) %>% 
+  mutate(party = ifelse(name == "Hoeven, John", 200, party)) 
   
-  
+committees %<>%
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
   mutate(seniorstatus = ifelse(name == "Brown, Corrine" & assigneddate == as.Date("2015-01-06"), 22, seniorstatus)) %>% 
   mutate(seniorstatus = ifelse(name == "Stark, Fortney Pete" & assigneddate == as.Date("2009-01-07"), 0, seniorstatus)) %>% 
@@ -562,7 +562,12 @@ committees %<>%
                                    as.Date('2010-03-04'), assigneddate)) %>% 
   
   mutate(assigneddate = if_else(name =="Brady, Kevin" & assigneddate == as.Date('2015-01-13')& committeename == "Ways and Means",
-                               as.Date('2015-10-29'), assigneddate))
+                               as.Date('2015-10-29'), assigneddate)) %>% 
+  # Cantwell to Tester on feb 12 2014
+  mutate(assigneddate = if_else(name =="Cantwell, Maria" & congress == 113 & committeename == "Indian Affairs (Select Committee)",
+                                as.Date('2014-02-12'), terminationdate)) %>%
+  mutate(assigneddate = if_else(name =="Cantwell, Maria" & congress == 113 & committeename == "Indian Affairs (Select Committee)",
+                                as.Date('2014-02-12'), assigneddate))
 
 
 
