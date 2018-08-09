@@ -268,7 +268,7 @@ df %>%
 
 ###  Constituent demand for advocacy
 
-The number of constituents asking for assistace is a major driver of member advocacy. 
+The number of constituents asking for assistance is a major driver of member advocacy. 
 
 ```{r sentate_percapita_map, fig.height=4}
 Chamber = "Senate"
@@ -308,7 +308,7 @@ df %>%
 ```
 
 
-*TO DO:* map of house
+*TO DO:* House districts
 
 
 ### Institutional positions empower, rather than distract, advocates
@@ -351,7 +351,7 @@ constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = 
 )
 ```
 
-Within members who served as chairs, becoming chare still has a small positive effect on constituent service.
+Within members who served as chairs, becoming chair still has a small positive effect on constituent service.
 
 ```{r, results='asis'}
 stargazer(policy, constituents, title="Letters per Year Within Those Appointed as Committee Chair between 2008 and 2016", dep.var.labels = "Letters per Year", column.labels=c("Policy Advocacy","Constituent Service"), align=TRUE, keep.stat = "n", type = "html") 
@@ -362,7 +362,7 @@ stargazer(policy, constituents, title="Letters per Year Within Those Appointed a
 
 *TO DO:* advocacy ~ advocacy(t-1) * chair effect
 
-# Questions
+# Additional Questions
 
 ## Issue attention
 
@@ -399,6 +399,8 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
        y = Chamber)
 
 ```
+
+
 ### How do legislators distribute attention among issues within federal agencies?
 *To do: *select within-agency analysis where issues are provided (USDA, FCC, CDC)
 
