@@ -3,7 +3,7 @@
 
 # 702 non-matches on last_name out of 10284
 
-# file.name <- "Treasury_Fiscal" # for testing
+ file.name <- "Treasury_Fiscal" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -20,19 +20,19 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(" AND ", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " AND ") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], " AND "))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(" AND ", data$FROM),] # removes orginal row with all data
+  # ###############    
+  # # Creates duplicate rows for lines with multiple representatives
+  # for(i in 1:nrow(data)){
+  #   if(grepl(" AND ", data$FROM[i])) {
+  #     
+  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " AND ") + 1))
+  #     new$FROM <- unlist(str_split(data$FROM[i], " AND "))
+  #     
+  #     data <- rbind(data, new)
+  #     
+  #   }
+  # }
+  # data <- data[-grep(" AND ", data$FROM),] # removes orginal row with all data
   data %<>% distinct()
   ################
   

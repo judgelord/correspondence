@@ -20,7 +20,7 @@ clean <- function(file.name) {
   
   
   # preprocess FROM column
-  data$FROM <- gsub("( |^)The|honorable|Honorable|hon\\.|honora ble|Honorab le|Senator|Name:", "", data$FROM, ignore.case = TRUE)
+  data$FROM <- gsub("( |^)The( |$)|honorable|Honorable|hon\\.|honora ble|Honorab le|Senator|Name:", "", data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Mr.|Ms.", "",data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
   data$FROM <- ocr.errors(data$FROM)
