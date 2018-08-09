@@ -676,9 +676,9 @@ dcommittees %>%
 
 When we match committees and departments, we see some larger effects, but not consistently. For example, Science and Environment committee chairs averaged more letters to EPA after becoming chair, but they also wrote more to DOT. Similarly, Transportation chairs wrote more to both DOT and EPA, so, while becoming chair generally matters, changes in correspondence behavior are broader than changes in formal oversight powers. 
 
-Ignoring timing and just looking at committee effects, chair-committee linkages seem stronger in the House than the Senate. It seems that this because other non-chair members are also engaged. This is especially clear for DHS where House Homeland Security Committee leaders write way more to DHS but a half dozen Senators write more letters then the Homeland Security Committee Chair
+Focusing on committee effects, chair-committee linkages seem stronger in the House than the Senate where non-chair members are also engaged. Committee leadership appears to mean more in the House, where most members do very little. This is especially clear for DHS where House Homeland Security Committee leaders write far more to DHS than other members but a half dozen Senators write more letters to DHS than the Homeland Security Committee Chair.
 
-Some members, even committee chairs, and especially senators, are sending in touch with a wide variety of agencies that seem fairly consistent over time. Committee leadership appears to mean way more in the House, where most members do very little.
+Some members, even committee chairs, and especially senators, distribute their attention across a wide variety of agencies. These distributions are fairly consistent over time. 
 
 *to do:* committee members over time. 
 
