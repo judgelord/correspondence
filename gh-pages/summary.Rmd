@@ -646,7 +646,7 @@ dcommittees %>%
 ```
 
 
-Appointments to committee chair seem to be especially important in the house. However, the majority of correspondence was initiated by just three chairs. 
+Committee chair appointments seem to be especially important in the house and most members appear to write slightly more letters after being appointed to chair. However, the density of correspondence by member misses the most interesting dynamic: The volume of correspondence is highly unequal, even across committee chairs. Indeed just three chairs initiated the majority of correspondence. 
 ```{r committee_chair_volume, fig.height=8}
 comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
            "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
@@ -750,7 +750,9 @@ df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% tally() %>% 
   theme(axis.text.y = element_text(size=5))
 ```
 
-We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a colorful "bar-code" for each member with each line marking a letter.
+### Does advocacy behavior vary over time?
+
+We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a "bar-code" for each member with each line marking a letter.
 
 ```{r members_barcoded, fig.height=17, fig.width=11}
 # barcode plot of committee members 
