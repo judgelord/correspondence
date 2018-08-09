@@ -569,14 +569,16 @@ committees %<>%
   mutate(assigneddate = if_else(name =="Tester, Jon" & congress == 113 & committeename == "Indian Affairs (Select Committee)",
                                 as.Date('2014-02-12'), assigneddate)) %>% 
   # Harkin to Blanch September 9, 2009
-  mutate(assigneddate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
-                                as.Date('2009-09-09'), assigneddate)) %>% 
-  mutate(terminationdate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
-                                as.Date('03-01-2011'), terminationdate)) %>%
-  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+  mutate(terminationdate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
                                 as.Date('2009-09-09'), terminationdate)) %>% 
-  mutate(terminationdate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
-                                as.Date('03-01-2009'), terminationdate))
+  mutate(assigneddate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('03-01-2009'), assigneddate)) %>% 
+  # Wyden Chair of the Senate Finance Committee February 12, 2014 – January 3, 2015
+  mutate(assigneddate = if_else(name =="Wyden, Ron" & congress == 113 & committeename == "Finance",
+                                as.Date('12-02-2014'), assigneddate)) %>% 
+  # Harkin moved to health sept 2009
+  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Health, Education, Labor, and Pensions",
+                                as.Date('09-09-2009'), assigneddate)) 
 
 committees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
@@ -589,7 +591,7 @@ committees %<>% select(chamber, committeename, position, seniorstatus, congress,
 # ag - lincoln and harkin 2011
 # ethics - johnson and boxer 
 # finance wyden (bacus looks correct)
-# health - harkin 2009, kennedy looks correct 
+# Health, Education, Labor, and Pensions - harkin 2009, kennedy looks correct 
 # small business - cantwell and landtreu 2013
 # 
 
