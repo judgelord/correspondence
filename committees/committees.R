@@ -571,6 +571,13 @@ committees %<>%
 
 
 
+# DATES TO FIX 
+# ag - lincoln and harkin 2011
+# ethics - johnson and boxer 
+# finance wyden (bacus looks correct)
+# health - harkin 2009, kennedy looks correct 
+# small business - cantwell and landtreu 2013
+# 
 
 
 
