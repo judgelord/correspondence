@@ -2,10 +2,6 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-
-# Finished. 20 non-matches on last_name (shouldn't be matching)
-
-
 #file.name <- "DOL_VETS" # for testing
 
 clean <- function(file.name) {

@@ -46,11 +46,11 @@ clean <- function(file.name) {
   data <- getFirstLast.Comma(data, "FROM")
   #data$FROM2 <- gsub("^Sen\\.|^Rep\\.|^Reps\\.|Senator", "", data$FROM2)
   
-  # create data set of non matching data so extractMemberName() can be called on differently formatted observations
-  dataNoMatch <- data[which(!data$last_name %in% members$last_name),] 
-  dataNoMatch <- extractMemberName(dataNoMatch, members, 'FROM2')
-  
-  data %<>% left_join(dataNoMatch)
+  # # create data set of non matching data so extractMemberName() can be called on differently formatted observations
+  # dataNoMatch <- data[which(!data$last_name %in% members$last_name),] 
+  # #colnames(dataNoMatch)[colnames(dataNoMatch) == 'FROM2'] <- 'FROM3'
+  # dataNoMatch <- extractMemberName(dataNoMatch, members, 'FROM2')
+  # data %<>% left_join(dataNoMatch)
 
   
   # arrange columns for hand coding
