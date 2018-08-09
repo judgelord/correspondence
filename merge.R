@@ -379,19 +379,18 @@ dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
 dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
 dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
 
+# ID Comittee Chairs
+dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) )
 
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
-  mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))
-dcommittees %<>% 
+  mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))  %>%
+  mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
+  mutate(yearsAsChair = daysAsChair/365) %>%
+  mutate(monthsAsChair = daysAsChair/30) %>%
   mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) %>% 
   mutate(committee_chair = ifelse(chair_since_2007 == T, paste(committee, "-", last_name, firstassignedchair), NA))
 
-# ID Comittee Chairs
-dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) ) %>%
-  mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
-  mutate(yearsAsChair = daysAsChair/365) %>%
-  mutate(monthsAsChair = daysAsChair/30) 
 
 
 
