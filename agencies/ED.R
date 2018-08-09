@@ -4,7 +4,7 @@
 # Lots of errors, needs fixing
 # down to 264 errors, lots of spelling
 
- #file.name <- "ED" # for testing
+ file.name <- "ED" # for testing
 
 
 clean <- function(file.name) {
