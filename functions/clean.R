@@ -1,54 +1,8 @@
+# These functions call the agency-specific R script and prep them to be merged
 
-
-
-intercoder.agreement <- function(data) {
-  # overall intercoder
-  intercoder <-
-    data %>% filter(!is.na(TYPE)) %>% group_by(ID) %>% summarize(n = length(unique(TYPE))) %>% ungroup() %>% count(n)
-  
-  # intercoder when certian
-  intercoder1 <-
-    data %>% filter(!is.na(TYPE) &
-                      CERTAINTY == 1) %>% group_by(ID) %>% summarize(n = length(unique(TYPE))) %>% ungroup() %>% count(n)
-  
-  # upload file of cases to recode
-  recode <- "recode.csv"
-  filter(data, !is.na(TYPE)) %>% group_by(ID) %>% filter(length(unique(TYPE)) == 2) %>% arrange(ID) %>% select(agency, ID, everything()) %>%
-    write.csv(recode) # saving file locally is faster
-  
-  drive_rm(paste0("Correspondence/agencies/", agency, " to Recode")) # remove old recode file
-  drive_upload(recode,
-               path = paste0("Correspondence/agencies/", agency, " to Recode"),
-               type = "spreadsheet")
-  file.remove(recode) # remove local file
-  
-  return(
-    paste(
-      "Intercoder agreement:",
-      intercoder[2, 2],
-      "of",
-      intercoder[1, 2],
-      "=",
-      1 - round(intercoder[2, 2] / intercoder[1, 2], 2),
-      "and intercoder agreement for CERTIAN==1:",
-      intercoder1[2, 2],
-      "of",
-      intercoder1[1, 2],
-      "=",
-      1 - round(intercoder1[2, 2] / intercoder1[1, 2], 2)
-    )
-  )
-}
-
-
-
-
-
-
-
-
-
-
+# agency <- ""
+# status <- "Not coded"
+# coders <- NA
 
 # calling agency-specific clean() function and joining data depending on status of hand-coding
 clean.agency <- function(agency, status, coders) {
@@ -81,10 +35,11 @@ clean.agency <- function(agency, status, coders) {
       full_join(gs_title(paste(agency, "Recoded")) %>% gs_read(), # if intercoder disagreement has been recoded
                 data)
     print(intercoder.agreement(data))
-  }
+  
   
   # select one observation where coders disagree (disagreements are uploaded to drive in recode file)
   data %<>% group_by(ID, last_name) %<>% top_n(1, agency) %>% ungroup()
+  }
   
   # make consitant classes
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
@@ -92,10 +47,6 @@ clean.agency <- function(agency, status, coders) {
   
   data$agency <- agency # name agency
   data$department <- gsub("_.*", "", data$agency) # name dept
-  
-  if ("state" %in% names(data)) {
-    data$state %<>% as.character()
-  }
   
   
   # completing incomplete vars which will be used in merge
@@ -145,7 +96,7 @@ clean.agency <- function(agency, status, coders) {
     
     if (sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4) {
       data %<>%
-        # incomplete first name 
+        # missing first name, but we do have chamber
         mutate(
           first_name = ifelse(
             is.na(first_name) &
