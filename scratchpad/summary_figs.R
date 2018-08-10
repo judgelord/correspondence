@@ -20,7 +20,7 @@ df %>%
        y = paste("Total observations matched with ICPSR =", nrow(df) )) +
   geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = coded), alpha = .2) +
    facet_grid(complete ~., scales = "free_y", space = "free_y")
-ggsave(paste("coding status.pdf"), width = 11, height = 8.5, path = "~/correspondence/figs")
+# ggsave(paste("coding status.pdf"), width = 11, height = 8.5, path = "~/correspondence/figs")
 
 
 # CDC is rolling release, 2010-2011 expected Nov 2018
@@ -68,7 +68,7 @@ df %>%  filter(complete == T) %>%
     panel.grid = element_blank()
   ) 
 
-ggsave("namesbydept.pdf", width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave("namesbydept.pdf", width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 # Name jitter plot by TYPE 
@@ -126,7 +126,7 @@ df %>%
   labs(title = "Letters per agency ranked") +
   #geom_point(aes(x= agency.rank, y= n, color = department)) + 
   facet_grid(. ~ chamber)
-ggsave(paste("density_by_agencyrank_member.pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
+# ggsave(paste("density_by_agencyrank_member.pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 
 # histogram of complete agnecies over time 
@@ -136,7 +136,7 @@ df %>%
   labs(title = "Letters per month for agencies with complete data") +
   geom_histogram(aes(x = DATE, fill = agency), alpha = 1, bins = 120)  +
   facet_grid(TYPE ~ ., scales = "free_y") 
-ggsave(paste("letters_per_month_by_type_agency.pdf"), height = 8.5, width = 11,  path = "~/correspondence/figs")
+# ggsave(paste("letters_per_month_by_type_agency.pdf"), height = 8.5, width = 11,  path = "~/correspondence/figs")
 
 
 
@@ -147,7 +147,7 @@ df %>%
   labs(title = "Letters per month for agencies with complete data") +
   geom_line(aes(x = month, y = permonth, group = bioname, color = chamber), alpha = .2)  +
   facet_grid(TYPE ~ ., scales = "free_y", space = "free_y")
-ggsave(paste("letters_per_month_by_type_member.pdf"), height = 8.5, width = 11, path = "~/correspondence/figs")
+# ggsave(paste("letters_per_month_by_type_member.pdf"), height = 8.5, width = 11, path = "~/correspondence/figs")
 
 
 
@@ -158,7 +158,7 @@ df %>%
   labs(title = "Letters per month") +
   geom_bar(aes(x = cal.month, fill = agency), alpha = 1)  +
   facet_grid(TYPE ~ .) 
-ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.5, path = "~/correspondence/figs")
+# ggsave(paste("letters_per_calmonth_by_type_agency.pdf"), height = 11, width = 8.5, path = "~/correspondence/figs")
 
 
 
@@ -201,7 +201,7 @@ df %>%
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 45)
   ) 
-ggsave(paste("members_by_year_agency", Chamber, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("members_by_year_agency", Chamber, "n", ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -224,7 +224,7 @@ df %>%
     axis.text.x = element_text(angle = 45)
   ) + facet_grid(. ~ TYPE) 
 
-ggsave(paste("members_by_year_agency_type", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("members_by_year_agency_type", chamb,".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -243,7 +243,7 @@ df %>% group_by(yaxis, year, chamber, nominate.dim1) %>% tally() %>% ungroup() %
   labs(title = paste("Letters per Year from Members of the U.S.", Chamber)) + 
   theme(axis.text.y = element_text(size=5))
 
-ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
+# ggsave(paste("boxplot_by_year", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 # boxplots by agency 
 df %>% 
@@ -259,21 +259,25 @@ df %>%
   labs(title = paste("Letters per Agency,", chamb)) + 
   theme(axis.text.y = element_text(size=5))
 
-ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
+# ggsave(paste("boxplot_by_agency", chamb,".pdf"), width = 8.5, height = 11, path = "~/correspondence/figs")
 
 
 
 
 Chamber = "Senate"
-chairs %>% 
-  filter(chamber == Chamber, complete == T, agency != "PRC", DATE < as.Date("2017-01-01")) %>%
+data <- dcommittees %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         agency != "PRC", 
+         DATE < as.Date("2017-01-01")) 
   ggplot() +
   geom_point(
     aes(x = DATE, 
         y = chair, 
         color = department),
     shape = 73,
-    size=2
+    size=2 
   ) +
   geom_segment(aes(y = chair, yend = chair, 
                    x = assigneddate, xend = terminationdate, 
@@ -291,56 +295,20 @@ chairs %>%
   ) + 
   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 
-ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("committeechairs_by_year_agency", chamb, ".pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
-# working on faceting
-# install.packages("lemon")
-# library(lemon)
 
-# not by year 
-chairs %>% 
-  filter(chamber == chamb, agency != "PRC", DATE < as.Date("2017-01-01"))  %>%
-  group_by(department, committee, member_party, position) %>% tally() %>%
-  ggplot() +
-  geom_boxplot(
-    aes(y = n, 
-        # fill = position,
-        x = department)) +
-  geom_point(aes(y = n, 
-                     color = factor(position),
-                     x = department), na.rm = TRUE
-             ) + 
-  scale_color_discrete(na.translate = FALSE) +
-  labs(title = paste("Letters per term from Each", chamb, "Committee Member"),
-       x = "", 
-       y = "Number of Contacts per Congress from Each Committee Member 2008-2016" ) +
-  theme(legend.title = element_blank(),
-        strip.text.y = element_text(angle = 0, size = 5),
-        axis.text.x = element_text(angle = 0, size = 5),
-        axis.text.y = element_text(angle = 0, size = 5)) + 
-  facet_grid(committee ~ ., scales = "free_y", space = "free_y")#, repeat.tick.labels = 'bottom') 
 
-ggsave(paste("committees_by_agency", chamb,".pdf"), width = 8.5, height = 22,  path = "~/correspondence/figs")
+# ggsave(paste("committees_by_agency", chamb,".pdf"), width = 8.5, height = 22,  path = "~/correspondence/figs")
 
 
 # define matchable committees and depts
 depts <- c("EPA", "USDA", "DOT", "ED")
 comms <- c("ENVIRONMENT", "SCIENCE", "AGRICULTURE", "TRANSPORTATION", "EDUCATION", "HEALTH")
-# committee effect for select dwepts 
-chairs %>% 
-  filter(department %in% depts & committee %in% comms & chamber == chamb) %>%
-  group_by(chamber, member_committee, department, committee, position) %>%  tally() %>% ungroup() %>%
-  ggplot() + 
-  geom_text(aes(x = position, y = n, label = gsub(",.*", "", member_committee), alpha = n), size = 2) + 
-  geom_boxplot(aes(x = position, y = n), outlier.shape = NA)  + 
-  facet_grid(committee ~ department,  scales = "free_y") + 
-  labs(title = chamb) + 
-  theme(legend.title = element_blank(),
-        strip.text.y = element_text(angle = 0, size = 5),
-        axis.text.x = element_text(angle = 0, size = 5),
-        axis.text.y = element_text(angle = 0, size = 5))
+# committee effect for select depts 
 
-ggsave(paste("committee effect for chairs", chamb, ".pdf", collapse = ""), width = 11, height = 8.5,  path = "~/correspondence/figs")
+
+# ggsave(paste("committee effect for chairs", chamb, ".pdf", collapse = ""), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 
 depts <- c("DHS")
@@ -359,7 +327,7 @@ chairs %>%
         axis.text.x = element_text(angle = 0, size = 5),
         axis.text.y = element_text(angle = 0, size = 5))
 
-ggsave(paste("committee effect for chairs", chamb, "DHS.pdf", collapse = ""), width = 11, height = 8.5,  path = "~/correspondence/figs")
+# ggsave(paste("committee effect for chairs", chamb, "DHS.pdf", collapse = ""), width = 11, height = 8.5,  path = "~/correspondence/figs")
 
 
 tenure <- chairs %>%
@@ -377,7 +345,7 @@ tenure %>%
   geom_boxplot(aes(x = tenure, y = nn)) + 
   facet_grid(chamber ~ .,  scales = "free_y")
 
-ggsave(paste("chair effect all.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("chair effect all.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 # define matchable committees and depts
 depts <- c("DHS", "EPA", "USDA", "DOT", "ED")
@@ -401,7 +369,7 @@ tenure %>%
         axis.text.x = element_text(angle = 0, size = 5),
         axis.text.y = element_text(angle = 0, size = 5))
 
-ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -439,7 +407,7 @@ tenure %>%
         axis.text.x = element_text(angle = 0, size = 5),
         axis.text.y = element_text(angle = 0, size = 5))
   
-ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 tenure <- chairs %>%
@@ -462,7 +430,7 @@ tenure %>%
         axis.text.x = element_text(angle = 0, size = 5),
         axis.text.y = element_text(angle = 0, size = 5))
 
-ggsave(paste("chair effect selected pairs", chamb," (policy only).pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("chair effect selected pairs", chamb," (policy only).pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -510,7 +478,7 @@ tenure %>%
   #facet_grid(committee ~ department, scales = "free_y") +
   # facet_wrap(~committee, scales = "free_y") +
   scale_x_continuous(limits = c(-8,8), breaks = seq(-8,8,by =1)) + 
-  labs(title = paste("Correspondence Before and After Appointment to Committee Chair"),
+  labs(title = paste("Before and After Committee Chair Appointment"),
        x = "Years Before and After Appointment to Committee Chair",
        y = "Number of Letters")
   theme(legend.title = element_blank(),
@@ -518,35 +486,13 @@ tenure %>%
         axis.text.x = element_text(angle = 0, size = 5),
         axis.text.y = element_text(angle = 0, size = 5))
 
-ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+# ggsave(paste("chair effect selected pairs.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
 
 
-chairs %>%
-  filter(committee %in% comms, last_name != "STARK") %>%
-  #filter(chamber == chamb) %>%
-  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
-  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
-  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
-  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
-  filter(!is.na(TYPE)) %>% 
-  ggplot() + 
-  labs(title = paste("Committee Chairs Before and After Appointment (subset appointed 2009-2015)"),
-       x = "Days Before and Affter Appointment") + 
-  geom_density(aes(x = daysAsChair, fill = paste(chamber, committee_member)), alpha = .3)+#, color = position))  + 
-  geom_vline(aes(xintercept = 0), color = "black") + 
-  #scale_color_grey() +
-  scale_x_continuous(breaks = seq(-720,720,720), limits = c(-720,720)) + 
-  facet_grid(TYPE ~ committee, scales = "free_x")  + 
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        legend.text = element_text(size = 5)
-        )
- 
-
-  ggsave(paste("chair pre post density by type.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
+#   ggsave(paste("chair pre post density by type.pdf"), width = 11, height =8.5,  path = "~/correspondence/figs")
   
   
   comms <- c("HOMELAND SECURITY", "AGRICULTURE", 
@@ -558,7 +504,7 @@ chairs %>%
     filter(chamber == Chamber) %>%
     filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
     ggplot() + 
-    labs(title = paste("Committee Chairs Before and After Appointment (subset appointed 2009-2015)"),
+    labs(title = paste("Committee Chairs Before and After Appointment"),
          x = "Days Before and Affter Appointment") + 
     geom_density(aes(x = daysAsChair, fill = paste(chamber, committee_member)), alpha = .3)+#, color = position))  + 
     geom_vline(aes(xintercept = 0), color = "black") + 
@@ -597,27 +543,9 @@ comms <- c("HOMELAND SECURITY", "AGRICULTURE",
            "TRANSPORTATION", "OVERSIGHT", 
            "RULES", "BUDGET", "WAYS", "COMMERCE", 
            "APPROPRIATIONS", "ENERGY")
-chairs %>% 
-  #filter(committee %in% comms) %>%
-  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
-  mutate(TYPE = ifelse(TYPE == "To be coded", NA, TYPE)) %>%
-  mutate(TYPE = ifelse(TYPE == "Corp. Policy", "Policy", TYPE)) %>%
-  mutate(TYPE = ifelse(TYPE %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", TYPE)) %>%
-  filter(!is.na(TYPE)) %>% 
-  ggplot() + 
-  geom_vline(aes(xintercept = 0), color = "black") + 
-  geom_smooth(aes(x = monthsAsChair, y = permonth_permember))+#, color = Type))+#, color = "black")  + 
-  facet_grid(chamber ~ ., scales = "free_y") +
-  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =1)) + 
-  labs(title = paste("Before and After Appointment to Committee Chair"),
-       x = "Months Before and After Appointment to Committee Chair",
-       y = "Number of Letters per Month")
-theme(legend.title = element_blank(),
-      strip.text.y = element_text(angle = 0, size = 5),
-      axis.text.x = element_text(angle = 0, size = 5),
-      axis.text.y = element_text(angle = 0, size = 5))
 
-ggsave(paste("chair effect.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
+
+# ggsave(paste("chair effect.pdf"), width = 8.5, height = 11,  path = "~/correspondence/figs")
 
 
 
@@ -877,4 +805,54 @@ ggplot(data) + # plot
   labs(title = paste("Letters per Year"),
        x = "",
        y = Chamber)
+
+
+
+
+# barcode, improved 
+Chamber = "Senate"
+dcommittees %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         agency != "PRC", 
+         DATE < as.Date("2017-01-01")) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = department),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
   
+
+
+
+
+
+df$month <- as.Date(paste0(df$month, "-01"), "%Y-%m-%d")
+df %>% 
+  filter(complete == T, party_name != "Independent") %>%
+  group_by(party_name, month, chamber) %>% summarise(perCapita = n()/) %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
+  scale_x_date(date_labels  = "%b %y") + 
+  facet_grid(chamber ~., scales = "free_y") +
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank())

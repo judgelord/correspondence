@@ -7,10 +7,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
+  library(tidyverse)
 library(magrittr)
   library(ineq)
   library(ggplot2)
@@ -19,6 +20,7 @@ library(magrittr)
   library(maps)
 library(fiftystater)
 library(mapproj)
+  library(knitr)
 
   
 load("correspondence.RData")
@@ -115,9 +117,63 @@ df %>%
   labs(x = "Date of Correspondence",
        y = "Agency, N",
        title = paste("Coded Observations, N =", sum(df$Type != "To be coded") ) ) +
-  facet_grid(complete ~ ., scales = "free_y", space = "free_y")
+  facet_grid(complete ~ ., scales = "free_y", space = "free_y") + 
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
 
 ```
+
+# Basic Facts
+```{r means_by_type, fig.height=2}
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+  # simple average
+df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(mean = mean(perType), sd = sd(perType) ) %>% 
+  mutate(sd.above.mean = (perType - mean)/sd ) %>% ungroup() %>%
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+  full_join(data) %>% 
+ggplot() + 
+  geom_tile(aes(x = Type, y = chamber, fill = sd.above.mean))  + 
+  geom_text(aes(x = Type, y = chamber, label = round(perType, 0 ))) + 
+  labs(title = paste("Average Correspondence per Year by Type"),
+       x = "",
+       y = "") 
+```
+
+```{r means_by_type_table}
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+kable(df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  mutate(perType = round(perType, 0)) %>% 
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+    full_join(data) %>% 
+  spread(Type, perType, fill = 0) %>% 
+  group_by(chamber) %>% 
+  summarise_all(max) %>% 
+    #rename(chamber = Chamber) %>% 
+  select(Chamber = chamber, everything()),
+  caption = "Average Correspondence per Year by Type")
+
+```
+
 
 #### Censoring 
 
@@ -530,7 +586,7 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
 
 Party control does appear to increase legislator advocacy behavior, possibly due to the additional staff resources it provides. 
 
-```{r party_status}
+```{r party_density_over_time}
   df %>% 
     filter(complete == T, party_name != "Independent") %>%
     ggplot() +
@@ -538,6 +594,19 @@ Party control does appear to increase legislator advocacy behavior, possibly due
     theme(axis.title.x = element_blank(),
           axis.ticks = element_blank(),
           axis.text.y = element_blank(),
+          legend.title = element_blank())
+```
+
+```{r party_mean_over_time}
+df$month <- as.Date(paste0(df$month, "-01"), "%Y-%m-%d")
+  df %>% 
+    filter(complete == T, party_name != "Independent") %>%
+  group_by(party_name, month, chamber) %>% summarise(n = n()) %>% 
+    ggplot() +
+    geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
+  scale_x_date(date_labels  = "%b %y") + 
+  facet_grid(chamber ~., scales = "free_y") +
+    theme(axis.title.x = element_blank(),
           legend.title = element_blank())
 ```
 
@@ -566,6 +635,70 @@ In the House, both parties average just slightly more letters per year while in 
 *To do:* Type x party
 
 ### Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
+
+No.
+
+```{r ideology_density}
+  df %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE Scores",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(. ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+          legend.title = element_blank())
+  df %>% 
+    filter(!is.na(Type2)) %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type2) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE Scores",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+      strip.text.y = element_text(size = 5),
+          legend.title = element_blank())
+  
+  df %>% 
+    filter(Type != "To be coded") %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber, Type) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE Scores",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(Type ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+      strip.text.y = element_text(size = 5),
+          legend.title = element_blank())
+```
 
 ## Institutional position: formal and informal power
 

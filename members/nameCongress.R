@@ -3,6 +3,7 @@
 members <- member_search(congress = c(110:120)) %>% # get voteview data for selected Congresses
   # format state
   mutate(state = tolower(state)) %>%
+  group_by(chamber, party_code, congress) %>% mutate(party_size = n()) %>% ungroup() %>% 
     # mutate(state = as.character(state)) %>%
     # extract first, middle, last, and common names
     mutate(last_name = gsub(", .*", "", bioname)) %>%
