@@ -336,7 +336,7 @@ constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = 
 
 Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions. 
 
-[NOTE: Obviously, these first-cut models are terribly simplistic. Errors should be clustered on members etc.]
+[NOTE: Obviously, these first-cut models are terribly simplistic. Fixed effects etc.]
 ```{r, results='asis'}
 stargazer(policy, constituents, title="Letters per Year", column.labels=c("Policy Advocacy    ","Constituent Service   "), align=TRUE, dep.var.labels = "Letters per Year", keep.stat = "n", type = "html") 
 ```
@@ -526,7 +526,7 @@ Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ",
 
 
 
-## Party and Majority Status
+## Party and Majority Status: Are there more contacts before or after an election?
 
 Party control does appear to increase legislator advocacy behavior, possibly due to the additional staff resources it provides. 
 

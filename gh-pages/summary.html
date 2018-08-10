@@ -166,7 +166,7 @@ $(document).ready(function () {
 </ul></li>
 <li><a href="#specialization">Specialization</a></li>
 <li><a href="#types-of-representation">Types of representation</a></li>
-<li><a href="#party-and-majority-status">Party and Majority Status</a><ul>
+<li><a href="#party-and-majority-status-are-there-more-contacts-before-or-after-an-election">Party and Majority Status: Are there more contacts before or after an election?</a><ul>
 <li><a href="#does-a-legislators-party-influence-the-constituents-on-whose-behalf-legislators-advocate">Does a legislator’s party influence the constituents on whose behalf legislators advocate?</a></li>
 <li><a href="#does-a-legislators-ideology-influence-the-constituents-on-whose-behalf-legislators-advocate">Does a legislator’s ideology influence the constituents on whose behalf legislators advocate?</a></li>
 </ul></li>
@@ -448,7 +448,7 @@ constituents &lt;- lm(permemberyear ~ popX1000000 + position + partystatus, data
                      filter(Type2 == &quot;Constituent Service&quot;)
 )</code></pre>
 <p>Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions.</p>
-<p>[NOTE: Obviously, these first-cut models are terribly simplistic. Errors should be clustered on members etc.]</p>
+<p>[NOTE: Obviously, these first-cut models are terribly simplistic. Fixed effects etc.]</p>
 <pre class="r"><code>stargazer(policy, constituents, title=&quot;Letters per Year&quot;, column.labels=c(&quot;Policy Advocacy    &quot;,&quot;Constituent Service   &quot;), align=TRUE, dep.var.labels = &quot;Letters per Year&quot;, keep.stat = &quot;n&quot;, type = &quot;html&quot;) </code></pre>
 <table style="text-align:center">
 <caption>
@@ -1062,8 +1062,8 @@ Ovarall mean =&quot;, round(mean(data$perMember), 0), &quot;, Mean Standard Devi
 <p><em>To do: </em>TYPE/issue area x demand characteristics</p>
 </div>
 </div>
-<div id="party-and-majority-status" class="section level2">
-<h2>Party and Majority Status</h2>
+<div id="party-and-majority-status-are-there-more-contacts-before-or-after-an-election" class="section level2">
+<h2>Party and Majority Status: Are there more contacts before or after an election?</h2>
 <p>Party control does appear to increase legislator advocacy behavior, possibly due to the additional staff resources it provides.</p>
 <pre class="r"><code>  df %&gt;% 
     filter(complete == T, party_name != &quot;Independent&quot;) %&gt;%
