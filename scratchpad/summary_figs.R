@@ -843,16 +843,27 @@ dcommittees %>%
   
 
 
-
-
-
-df$month <- as.Date(paste0(df$month, "-01"), "%Y-%m-%d")
 df %>% 
   filter(complete == T, party_name != "Independent") %>%
-  group_by(party_name, month, chamber) %>% summarise(perCapita = n()/) %>% 
   ggplot() +
-  geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
-  scale_x_date(date_labels  = "%b %y") + 
-  facet_grid(chamber ~., scales = "free_y") +
+  geom_density(aes(x = DATE, fill = party_name,  color = party_name), alpha = .5) + facet_grid(chamber ~.) + 
   theme(axis.title.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank(),
         legend.title = element_blank())
+
+
+df %>% 
+  mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
+  filter(complete == T, party_name != "Independent", agency != "NASA") %>%
+  group_by(party_name, month, department, chamber, party_size) %>% summarise(n = n()) %>% ungroup() %>%
+  mutate(n = n/party_size) %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = party_name), alpha = .2, position = "dodge") + 
+  geom_point(aes(x = month, y = n, color = party_name), alpha = .2) + 
+  scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
+  facet_grid(department ~ chamber, scales = "free_y") +
+  labs(title = "Letters per Capita by Party") +
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text.y = element_text(angle = 0, size = 5))

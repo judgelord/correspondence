@@ -105,6 +105,7 @@ df %>%
 # DOC_MBDA
 ```
 All time-series analysis below subsets to agencies with ten years of data. 
+
 ```{r data_coded, fig.height=7}
 df %>% 
   filter(Type != "To be coded") %>% 
@@ -125,30 +126,6 @@ df %>%
 ```
 
 # Basic Facts
-```{r means_by_type, fig.height=2}
-data <- df %>% 
-  group_by(member_state, year, chamber) %>% 
-  summarise(perYear = n()) %>% ungroup() %>%
-  group_by(chamber) %>% 
-  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
-  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
-
-  # simple average
-df %>% 
-  filter(Type != "To be coded") %>%
-  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
-  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
-  group_by(chamber) %>% mutate(mean = mean(perType), sd = sd(perType) ) %>% 
-  mutate(sd.above.mean = (perType - mean)/sd ) %>% ungroup() %>%
-  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
-  full_join(data) %>% 
-ggplot() + 
-  geom_tile(aes(x = Type, y = chamber, fill = sd.above.mean))  + 
-  geom_text(aes(x = Type, y = chamber, label = round(perType, 0 ))) + 
-  labs(title = paste("Average Correspondence per Year by Type"),
-       x = "",
-       y = "") 
-```
 
 ```{r means_by_type_table}
 data <- df %>% 
@@ -172,6 +149,37 @@ kable(df %>%
   select(Chamber = chamber, everything()),
   caption = "Average Correspondence per Year by Type")
 
+```
+
+
+```{r means_by_type, fig.height=2}
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+  # simple average
+df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(mean = mean(perType), sd = sd(perType) ) %>% 
+  mutate(sd.above.mean = (perType - mean)/sd ) %>% ungroup() %>%
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+  full_join(data) %>% 
+  select(-mean, -sd) %>% 
+ggplot() + 
+  geom_tile(aes(x = Type, y = chamber, fill = sd.above.mean))  + 
+  geom_text(aes(x = Type, y = chamber, label = round(perType, 0 ))) + 
+  labs(title = paste("Average Correspondence per Year by Type"),
+       x = "",
+       y = "",
+       fill = "SD Above Chamber Mean") + 
+  theme(axis.ticks = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "bottom")
 ```
 
 
@@ -590,24 +598,46 @@ Party control does appear to increase legislator advocacy behavior, possibly due
   df %>% 
     filter(complete == T, party_name != "Independent") %>%
     ggplot() +
-    geom_density(aes(x = DATE, fill = party_name, color = party_name), alpha = .1) + facet_grid(chamber ~.) + 
+    geom_density(aes(x = DATE, fill = party_name, color = party_name), alpha = .3) + facet_grid(chamber ~.) + 
     theme(axis.title.x = element_blank(),
           axis.ticks = element_blank(),
           axis.text.y = element_blank(),
           legend.title = element_blank())
 ```
 
-```{r party_mean_over_time}
-df$month <- as.Date(paste0(df$month, "-01"), "%Y-%m-%d")
-  df %>% 
-    filter(complete == T, party_name != "Independent") %>%
-  group_by(party_name, month, chamber) %>% summarise(n = n()) %>% 
-    ggplot() +
-    geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
-  scale_x_date(date_labels  = "%b %y") + 
+```{r party_mean_by_month}
+df %>% 
+  mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
+  filter(complete == T, party_name != "Independent") %>%
+  group_by(party_name, month, chamber, party_size) %>% summarise(n = n()) %>% ungroup() %>%
+  mutate(n = n/party_size) %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
+  geom_point(aes(x = month, y = n, color = party_name), alpha = 1) + 
+  scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
   facet_grid(chamber ~., scales = "free_y") +
-    theme(axis.title.x = element_blank(),
-          legend.title = element_blank())
+  labs(title = "Letters per Capita by Party", 
+      y = "Correspondence per Month per Party Member") + 
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank())
+```
+
+```{r party_mean_by_month_agency}
+df %>% 
+  mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
+  filter(complete == T, party_name != "Independent", agency != "NASA") %>%
+  group_by(party_name, month, department, party_size) %>% summarise(n = n()) %>% ungroup() %>%
+  mutate(n = n/party_size) %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = party_name), alpha = .2, position = "dodge") + 
+  geom_point(aes(x = month, y = n, color = party_name), alpha = .2) + 
+  scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
+  facet_grid(department ~ ., scales = "free_y") +
+  labs(title = "Letters per Capita by Party and Agency", 
+      y = "Correspondence per Month per Party Member") + 
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text.y = element_text(angle = 0, size = 5))
 ```
 
 In the House, both parties average just slightly more letters per year while in the majority, but in the Senate, Republicans average more per year while in the minority.

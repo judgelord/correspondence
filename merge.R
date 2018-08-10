@@ -269,7 +269,7 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2016", timeframe) # & grepl("2017", timeframe)
     , T, F)) %>% ungroup()
 
-unique(d$timeframe)
+unique(cbind(d$complete ,d$timeframe))
 
 
 
@@ -438,7 +438,7 @@ df %<>% mutate(popX1000000 = pop2010/1000000)
 
 
 
-
+df$party_name <- gsub(" Party", "", df$party_name)
 
 
 df %<>% dplyr::select(-n)
