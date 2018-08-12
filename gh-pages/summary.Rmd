@@ -1019,25 +1019,29 @@ df %>%
 ```
 Subsetting to members appointed to serve as a committee chair, we see that subsequent chairs of the same committee often target a very different set of agencies, suggesting that there is a lot to be said for style over institutional position or events of the day
 
-```{r committeechiars_barcode, fig.height=10}
+```{r committeechiars_barcode, fig.height=10, include=F}
 Chamber = "Senate"
 dcommittees %>% 
   filter(chamber == Chamber, 
          chair_since_2007 == T,  
          complete == T, 
-         agency != "PRC", 
-         DATE < as.Date("2017-01-01")) %>%
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, bioname, chair, department, assigneddate, terminationdate, chamber, committee) %>% 
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = chair, 
+        y = bioname, 
         color = department),
     shape = 73,
     size=2 
   ) +
-  geom_segment(aes(y = chair, yend = chair, 
+  geom_segment(aes(y = bioname, yend = bioname, 
                    x = assigneddate, xend = terminationdate, 
-                   linetype = factor(position)),
+                   linetype = factor(chair)),
                position = position_nudge(y = -0.3)) +
   labs(title = paste(Chamber, "Committee Chairs"),
        y = "", 

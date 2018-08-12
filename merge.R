@@ -471,11 +471,10 @@ df %<>%
 df %<>% left_join(read.csv("districts/states.csv") )
 df %<>% mutate(popX1000000 = pop2010/1000000)
 
-
 # shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)
 rm(d1)
-save.image(paste("gh-pages/correspondence.RData"))
+save.image("gh-pages/correspondence.RData")
