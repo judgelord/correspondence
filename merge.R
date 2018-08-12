@@ -3,7 +3,9 @@
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
-# note for MERGING: all columns in d are class character except DATE, year, and congress (see clean.R)
+# note for MERGING: 
+# all columns in d are class character except DATE, year, and congress (see clean.R)
+# in df, TYPE is numeric, Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
 ########################
 # Master list of data: #
@@ -224,14 +226,14 @@ d$department <- gsub("_.*", "", d$agency) # name dept
 d %<>% mutate(id = paste(agency, ID))
 
 # names that match more than one member - false positives
-bad.names1 <- d %>% 
+bad.names.type1 <- d %>% 
   filter(is.na(ERROR)) %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
 # names that don't match - potentially typos / false negatives
-bad.names2 <- d %>% 
+bad.names.type2 <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
@@ -296,6 +298,7 @@ unique(cbind(d$complete ,d$timeframe))
 
 d %<>% ungroup()
 df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
+committees %<>% select(-party) # drop Stewart committee data party codes 
 
 # numeric to text 
  df$Type <- NA
@@ -328,7 +331,6 @@ df %<>%
   mutate(member_state = paste(bioname, party, state_abbrev))  %>% 
   mutate(member_state = gsub(",.*\\("," \\(", member_state))
 
-committees %<>% select(-party) # drop Canon Nelson Stewart committee data party codes 
 
 # transformation vars 
 df %<>% 
@@ -343,7 +345,7 @@ df %<>%
 
 
 # merge committee data to one obs per letter per committee
-dcommittees <- df %>% full_join(committees)
+dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
@@ -352,19 +354,10 @@ dcommittees %<>%
   group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() 
 
 
-# lump inst positions
-dcommittees %<>% 
-  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
-  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position)) 
-
 # some committe names are upper and some sentence case 
 dcommittees %<>% 
   mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
 
-# short committee name
-dcommittees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", committeename))
-dcommittees %<>% mutate(committee = gsub(" $", "", committee))
 dcommittees %<>% mutate(committee_dept = paste(committee, department))
 
 # year first assigned to a committee
@@ -395,35 +388,78 @@ dcommittees %<>% group_by(member_committee) %>%
 
 
 
+
+
+
+
+
+
+
+
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
-df %<>% left_join(distinct(dplyr::select(committees, icpsr, congress, partystatus)))
-df$partystatus[df$partystatus == 1] <- "Majority"
-df$partystatus[df$partystatus == 2] <- "Minority"
-df$partystatus[df$partystatus == 4] <- "All Others"
-df$partystatus[df$partystatus == 5] <- "All Others"
-df$partystatus[df$partystatus == 6] <- "All Others"
-df$partystatus[df$partystatus == 7] <- "All Others"
+# run after creating dcommittees because below df vars are across committees, e.g. chair = if chair of ANY committee
+committees %<>% filter(!is.na(icpsr))
+committees %<>%  filter(!is.na(congress)) 
 
-committees %<>% 
-  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
-  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+# leadership positions
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, chair) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = chair) %>% distinct()
+  ) %>% filter(!is.na(bioname))
 
-df %<>% left_join(distinct(dplyr::select(filter(committees, !is.na(position)), icpsr, congress, seniorstatus))) 
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, ranking_minority) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = ranking_minority) %>% distinct()
+) %>% filter(!is.na(bioname))
 
-df %<>% mutate(seniorstatus = ifelse(is.na(seniorstatus), "All Others", seniorstatus))
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, party_leader) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = party_leader) %>% distinct()
+) %>% filter(!is.na(bioname))
 
-df %<>%
-  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", "All Others")) %>% 
-  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, party_whip) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = party_whip) %>% distinct()
+) %>% filter(!is.na(bioname))
 
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, speaker) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = speaker) %>% distinct()
+) %>% filter(!is.na(bioname))
 
-# ID Comittee Chairs
+df %<>% 
+  mutate(position = ifelse(chair ==1, "Chair", NA)) %>%
+  mutate(position = ifelse(ranking_minority == 1, "Ranking Minority", position)) 
+
+# partystatus
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, majority) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = majority) %>% distinct()
+) %>% filter(!is.na(bioname))
+
+df %<>% mutate(partystatus = ifelse(majority == 1, "Majority", "All Others"))
+
+# prestige committees
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, prestige) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = prestige) %>% distinct()
+) %>% filter(!is.na(bioname))
+
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, prestige_chair) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = prestige_chair) %>% distinct()
+) %>% filter(!is.na(bioname))
+
+  
+
+# Those who served as Chairs at some point
 df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(df$position == "Chair")])), T, F) )
   # mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
   # mutate(yearsAsChair = daysAsChair/365) %>%
   # mutate(monthsAsChair = daysAsChair/30) 
 
+df %<>% 
+  group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
 
 
@@ -431,16 +467,15 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
 
 
 
-
-
+# District vars 
 df %<>% left_join(read.csv("districts/states.csv") )
 df %<>% mutate(popX1000000 = pop2010/1000000)
 
 
-
+# shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
 
-
+# remove temp data / vars
 df %<>% dplyr::select(-n)
 rm(d1)
 save.image(paste("gh-pages/correspondence.RData"))

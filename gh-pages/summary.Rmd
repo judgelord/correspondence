@@ -380,19 +380,17 @@ df %>%
 
 ### Institutional positions empower, rather than distract, advocates
 
+```{r core_model}
 
-```{r population_models}
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
 
-policy <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
-               filter(partystatus != "All Others") %>% 
-               filter(Type2 == "Policy")
-)
 
-constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
-                     filter(partystatus != "All Others") %>% 
-                     filter(Type2 == "Constituent Service")
-)
+chair <- lm(permemberyear ~ popX1000000 + chair, majority, data = df) 
+
+prestige <- lm(permemberyear ~ popX1000000 + prestige, majority, data = df)
+
+prestigechair <- lm(permemberyear ~ popX1000000 + prestige_chair, majority, data = df)
+
 
 
 ```
@@ -400,31 +398,54 @@ constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = 
 
 Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions. 
 
-[NOTE: Obviously, these first-cut models are terribly simplistic. Fixed effects etc.]
-```{r, results='asis'}
-stargazer(policy, constituents, title="Letters per Year", column.labels=c("Policy Advocacy    ","Constituent Service   "), align=TRUE, dep.var.labels = "Letters per Year", keep.stat = "n", type = "html") 
+[NOTE: Obviously, these first-cut models are terribly simplistic. No fixed effects etc.]
+
+```{r population_models}
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
+
+all <- policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df )
+
+policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+               filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+                     filter(Type2 == "Constituent Service")
+)
+
+
 ```
+
+```{r, results='asis'}
+stargazer(policy, constituents, all, title="Letters per Year", column.labels=c("Policy Advocacy    ","Constituent Service   ", "All"), align=TRUE, dep.var.labels = "Letters per Year", keep.stat = "n", type = "html")    
+```
+
+
+Within members who served as chairs, however, becoming chair has little effect on behavior.
 
 ```{r chair_models}
 
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
 
-policy <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
-               filter(partystatus != "All Others", chair_since_2007 == T) %>%
-               filter(Type2 == "Policy")
+all <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+               filter(chair_since_2007 == T))
+
+policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+               filter(Type2 == "Policy", chair_since_2007 == T)
 )
 
-constituents <- lm(permemberyear ~ popX1000000 + position + partystatus, data = df %>%
-               filter(partystatus != "All Others", chair_since_2007 == T) %>%
-               filter(Type2 == "Constituent Service")
+constituents <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+               filter(Type2 == "Constituent Service", chair_since_2007 == T)
 )
 ```
-
-Within members who served as chairs, however, becoming chair has little effect on behavior.
 
 ```{r, results='asis'}
-stargazer(policy, constituents, title="Letters per Year Within Those Appointed as Committee Chair between 2008 and 2016", dep.var.labels = "Letters per Year", column.labels=c("Policy Advocacy   ","Constituent Service   "), align=TRUE, keep.stat = "n", type = "html") 
+stargazer(policy, constituents, all, title="Letters per Year Within Those Appointed as Committee Chair between 2008 and 2016", dep.var.labels = "Letters per Year", column.labels=c("Policy Advocacy   ","Constituent Service   ", "All"), align=TRUE, keep.stat = "n", type = "html")     
 ```
+
+
+
+
 
 
 
@@ -607,13 +628,16 @@ Party control does appear to increase legislator advocacy behavior, possibly due
 
 ```{r party_mean_by_month}
 df %>% 
+  filter(DATE < as.Date("2017-01-01") ) %>% 
   mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
   filter(complete == T, party_name != "Independent") %>%
-  group_by(party_name, month, chamber, party_size) %>% summarise(n = n()) %>% ungroup() %>%
+  group_by(party_name, month, chamber, party_size, year) %>% summarise(n = n()) %>% ungroup() %>%
   mutate(n = n/party_size) %>% 
+  group_by(party_name, chamber, party_size, year) %>% mutate(perYear = mean(n)) %>% 
   ggplot() +
+  geom_smooth(aes(x = month, y = n, color = party_name), se=F, span = .2) +
   geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
-  geom_point(aes(x = month, y = n, color = party_name), alpha = 1) + 
+  geom_point(aes(x = month, y = n, color = party_name), alpha = .5) + 
   scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
   facet_grid(chamber ~., scales = "free_y") +
   labs(title = "Letters per Capita by Party", 
@@ -624,13 +648,15 @@ df %>%
 
 ```{r party_mean_by_month_agency}
 df %>% 
+  filter(DATE < as.Date("2017-01-01") ) %>% 
   mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
   filter(complete == T, party_name != "Independent", agency != "NASA") %>%
   group_by(party_name, month, department, party_size) %>% summarise(n = n()) %>% ungroup() %>%
   mutate(n = n/party_size) %>% 
   ggplot() +
   geom_col(aes(x = month, y = n, fill = party_name), alpha = .2, position = "dodge") + 
-  geom_point(aes(x = month, y = n, color = party_name), alpha = .2) + 
+  #geom_smooth(aes(x = month, y = n, color = party_name), se=F, span = .1) +
+  geom_point(aes(x = month, y = n, color = party_name), alpha = .3) + 
   scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
   facet_grid(department ~ ., scales = "free_y") +
   labs(title = "Letters per Capita by Party and Agency", 
@@ -643,7 +669,7 @@ df %>%
 In the House, both parties average just slightly more letters per year while in the majority, but in the Senate, Republicans average more per year while in the minority.
 ```{r party_distance_above_mean, fig.height=2}
   df %>% 
-    filter(party != "(I)", partystatus %in% c("Majority", "Minority")) %>% 
+    filter(party != "(I)", !is.na(partystatus)) %>% 
     group_by(party, partystatus, chamber, member_state, year) %>% summarise(n = n()) %>% 
     group_by(chamber, party, partystatus) %>% mutate(perParty = mean(n))%>% ungroup() %>% 
     group_by(chamber) %>% mutate(sd = sd(perParty), mean = mean(perParty)) %>%
@@ -666,7 +692,7 @@ In the House, both parties average just slightly more letters per year while in 
 
 ### Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
 
-No.
+Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
 
 ```{r ideology_density}
   df %>% 
@@ -791,15 +817,16 @@ dcommittees %>%
     legend.title = element_blank())
 ```
 ```{r committee_chair_density, fig.height=8}
-comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
-           "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
+
 # prestige committee members
 # density 
 dcommittees %>% 
-  filter(complete == T, committee %in% comms, chair_since_2007 == T, !is.na(member_state)) %>%
+  filter(complete == T, prestige == 1, chair_since_2007 == T, !is.na(member_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  group_by(bioname) %>% mutate(n = n()) %>% filter(n > 10) %>% 
   filter(!is.na(Type2)) %>% 
-  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  #filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY", "LANDRIEU", "KERRY", "MENENDEZ")) %>% 
+  filter(!last_name %in% c("KERRY", "COCHRAN", "MURRAY", "RYAN", "INOUYE", "CAMP")) %>%
   ggplot() + 
   geom_density(aes(
     x = monthsAsChair, 
@@ -820,14 +847,13 @@ dcommittees %>%
 
 Committee chair appointments seem to be especially important in the house and most members appear to write slightly more letters after being appointed to chair. However, the density of correspondence by member misses the most interesting dynamic: The volume of correspondence is highly unequal, even across committee chairs. Indeed just three chairs initiated the majority of correspondence. 
 ```{r committee_chair_volume, fig.height=8}
-comms <- c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", 
-           "APPROPRIATIONS", "ENERGY", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS") 
 # count
 dcommittees %>% 
-  filter(chair_since_2007 == T, complete == T, committee %in% comms, !is.na(name_state)) %>%
+  filter(chair_since_2007 == T, complete == T, prestige == 1, !is.na(name_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   filter(!is.na(Type2)) %>% 
-  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  #  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+    filter(!last_name %in% c("KERRY", "COCHRAN", "MURRAY", "RYAN", "INOUYE", "CAMP")) %>%
   ggplot() + 
   geom_density(aes(
     x = monthsAsChair, 

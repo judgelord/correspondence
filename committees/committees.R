@@ -9,7 +9,7 @@
 # Powell, Eleanor. 2017. Where Money Matters in Congress: A Window into How Parties Evolve, Cambridge University Press.
 
 options(stringsAsFactors = FALSE)
-requires <- c("dplyr", "magrittr", "readr", "readxl")
+requires <- c("dplyr", "magrittr", "readxl")
 to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
 install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
 
@@ -535,7 +535,8 @@ committees$terminationdate %<>% as.Date()
 
 
 #########################################################
-# THE BELOW IS ONLY FOR FIXING ERRORS IN COMMITTEE DATA # (errors/mismatches in correspondence data should be fixed in merge.R or the [agency].R script if agency-specific)
+# THE BELOW IS ONLY FOR FIXING ERRORS IN COMMITTEE DATA # 
+# Errors/mismatches in correspondence data should be fixed in merge.R (or the [agency].R script if agency-specific).
 #########################################################
 committees %<>%
   mutate(party = ifelse(name == "Byrne, Bradley", 200, party)) %>% 
@@ -579,15 +580,8 @@ committees %<>%
   # Harkin moved to health sept 2009
   mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Health, Education, Labor, and Pensions",
                                 as.Date('09-09-2009'), assigneddate)) 
-
-committees %<>% 
-  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
-  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
-committees %<>% select(chamber, committeename, position, seniorstatus, congress, assigneddate, terminationdate, everything()) %>% 
-  arrange(position)
-
-# DATES TO FIX / FIXED 
+# FIXME
+# DATES TO FIX / CONFIRM FIXED 
 # ag - lincoln and harkin 2011
 # ethics - johnson and boxer 
 # finance wyden (bacus looks correct)
@@ -597,8 +591,66 @@ committees %<>% select(chamber, committeename, position, seniorstatus, congress,
 
 
 
-# FIXME 
-committee.membership <- left_join(member_search(congress = c(110:120)), committees) # NOTE: only merging with 110th-present
 
-bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
+
+
+########################################################################################################################################
+# Transformations, must run after error correction #
+####################################################
+
+committees %<>% 
+  mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
+  mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+committees %<>% 
+  mutate(leadership_position = ifelse(10 <= seniorstatus & seniorstatus <= 17, "Chair", "All Others")) %>% 
+  mutate(leadership_position = ifelse(20 <= seniorstatus & seniorstatus <= 24, "Ranking Minority", leadership_position))  %>% 
+  mutate(leadership_position = ifelse(31 <= seniorstatus & seniorstatus <= 33, "Speaker", leadership_position))  %>% 
+  mutate(leadership_position = ifelse(41 <= seniorstatus & seniorstatus <= 44, "Majority Leader", leadership_position))  %>% 
+  mutate(leadership_position = ifelse(51 <= seniorstatus & seniorstatus <= 53, "Majority Whip", leadership_position))  %>% 
+  mutate(leadership_position = ifelse(61 <= seniorstatus & seniorstatus <= 63, "Minority Leader", leadership_position))  %>% 
+  mutate(leadership_position = ifelse(61 <= seniorstatus & seniorstatus <= 63, "Minority Whip", leadership_position))  
+
+committees %<>% 
+  mutate(chair = ifelse(leadership_position == "Chair", 1, 0) ) %>%
+  mutate(ranking_minority = ifelse(leadership_position == "Ranking Minority", 1, 0) ) %>%
+  mutate(majority_leader = ifelse(leadership_position == "Majority Leader", 1, 0) ) %>%
+  mutate(speaker = ifelse(leadership_position == "Speaker", 1, 0) ) %>%
+  mutate(minority_leader = ifelse(leadership_position == "Minority Leader", 1, 0) ) %>%
+  mutate(majority_whip = ifelse(leadership_position == "Majority Whip", 1, 0) ) %>%
+  mutate(minority_leader = ifelse(leadership_position == "Minority Leader", 1, 0) ) %>%
+  mutate(minority_whip = ifelse(leadership_position == "Minority Whip", 1, 0) ) %>%
+  mutate(party_leader = ifelse(leadership_position %in% c("Majority Leader", "Minority Leader"), 1, 0) ) %>% 
+  mutate(party_whip = ifelse(leadership_position %in% c("Majority Whip", "Minority Whip"), 1, 0) ) 
+
+committees %<>% 
+  mutate(majority = ifelse(partystatus == 1, 1, 0))  
+  
+# short committee name
+committees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", toupper(committeename)))
+committees %<>% mutate(committee = gsub(" $", "", committee))
+committees %<>% mutate(committee = gsub("EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON |INVESTIGATE THE ", "", committee))
+
+
+committees %<>% 
+  mutate(prestige = ifelse(committee %in% c( "RULES", "BUDGET", "WAYS", "COMMERCE", "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), 
+                           1, 0) ) %>% 
+  mutate(prestige_chair = ifelse(prestige == 1 & chair == 1, 1,0) )
+
+
+
+
+committees %<>% select(chamber, committee, prestige, prestige_chair, leadership_position, position, seniorstatus, congress, assigneddate, terminationdate, everything()) %>% 
+  arrange(position)
+
+
+
+
+################################
+# FOR WRANGLING VOTEVIEW MERGE #
+################################
+
+# committee.membership <- left_join(member_search(congress = c(110:120)), committees) # NOTE: only merging with 110th-present
+
+# bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
 
