@@ -114,6 +114,43 @@ stargazer(chair, prestige, prestigechair, partyleader,
 ```
 
 
+```{r core_model_policy_constituents, results='asis'}
+
+chair.policy <- plm(permemberyear ~ chair , 
+             data = df %>% 
+               filter(complete == T, Type2=="Policy") %>% 
+               select(permemberyear, chair,  majority, bioname, year) %>%
+               distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+
+partyleader.policy <- plm(permemberyear ~ party_leader ,
+                     data = df %>% 
+               filter(complete == T, Type2=="Policy") %>% 
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+chair.const <- plm(permemberyear ~ chair , 
+             data = df %>% 
+               filter(complete == T, Type2=="Constituent Service") %>% 
+               select(permemberyear, chair,  majority, bioname, year) %>%
+               distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+
+partyleader.const <- plm(permemberyear ~ party_leader ,
+                     data = df %>% 
+               filter(complete == T, Type2=="Constituent Service") %>% 
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair.policy, partyleader.policy, chair.const, partyleader.const,
+          title="Core Model 2007-2017 by Type: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
+          column.labels=c("- Policy - ","- Policy - ", "- Constituent Service - ", "- Constituent Service - "),
+          align=TRUE, keep.stat = "n", type = "html") 
+
+```
+
 
 
 ```{r core_model_majority_2007_2017, results='asis', include=FALSE}
