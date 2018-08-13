@@ -263,7 +263,7 @@ bad.party <- d %>%
 # identify timeframe and completeness for each agency
 d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collapse = ":")) %>%
   mutate(timeframe = paste(agency, timeframe)) %>%
-  mutate(complete = ifelse(
+  mutate(complete = ifelse(grepl("2007", timeframe) &
     grepl("2008", timeframe) & 
       grepl("2009", timeframe) &
       grepl("2010", timeframe) &
@@ -272,7 +272,7 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe) # & grepl("2017", timeframe)
+      grepl("2016", timeframe)  & grepl("2017", timeframe)
     , T, F)) %>% ungroup()
 
 unique(cbind(d$complete ,d$timeframe))
@@ -482,6 +482,13 @@ df %<>% mutate(pop2010_millions = pop2010/1000000)
 
 # shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
+
+# president's party
+df %<>% 
+  mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, 0)) 
+  
 
 # yearly totals for core APSA model 
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
