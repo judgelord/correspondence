@@ -700,7 +700,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Cheie", "Chellie", FROM)
   FROM <- gsub("(^| )Uda($| )", "\\1Udall\\2", FROM)
   FROM <- gsub("(^| )Wooda($| )", "\\1Woodall\\2", FROM)
-  FROM <- gsub("Marsha$", "Marshall", FROM)
+ # FROM <- gsub("Marsha$", "Marshall", FROM)
   FROM <- gsub("Wiiam", "William", FROM)
   FROM <- gsub("(^| )Cantwe($| )", "\\1Cantwell\\2", FROM)
   FROM <- gsub("Mier$", "Miller", FROM)
