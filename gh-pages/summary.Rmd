@@ -7,11 +7,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("plm", "tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
   library(tidyverse)
+    library(plm)
 library(magrittr)
   library(ineq)
   library(ggplot2)
@@ -382,17 +383,20 @@ df %>%
 
 ```{r core_model}
 
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
 
 
-chair <- lm(permemberyear ~ popX1000000 + chair, majority, data = df) 
+chair <- plm(permemberyear ~ pop2010_millions + chair, majority, data = df) 
 
-prestige <- lm(permemberyear ~ popX1000000 + prestige, majority, data = df)
+prestige <- plm(permemberyear ~ prestige, data = df %>% select(permemberyear, prestige, bioname, year) %>% distinct(), index = c("bioname", "year"), model = "within")
 
-prestigechair <- lm(permemberyear ~ popX1000000 + prestige_chair, majority, data = df)
+prestigechair <- plm(permemberyear ~ pop2010_millions + party_leader, majority, data = df)
 
 
 
+```
+
+```{r, results='asis'}
+stargazer(chair, prestige, prestigechair, partyleader, title="Core Model: Contacts per Year per Legislator", dep.var.labels = "Contacts per Year", column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"), align=TRUE, keep.stat = "n", type = "html")     
 ```
 
 
@@ -403,13 +407,13 @@ Controlling for state population and party status, committee chairs and ranking 
 ```{r population_models}
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
 
-all <- policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df )
+all <- policy <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df )
 
-policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+policy <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
                filter(Type2 == "Policy")
 )
 
-constituents <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+constituents <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
                      filter(Type2 == "Constituent Service")
 )
 
@@ -427,14 +431,14 @@ Within members who served as chairs, however, becoming chair has little effect o
 
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
 
-all <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+all <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
                filter(chair_since_2007 == T))
 
-policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+policy <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
                filter(Type2 == "Policy", chair_since_2007 == T)
 )
 
-constituents <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
+constituents <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
                filter(Type2 == "Constituent Service", chair_since_2007 == T)
 )
 ```

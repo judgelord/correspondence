@@ -170,7 +170,8 @@ send_message(mime(
 
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
-d %<>% 
+fix.member.date.coding <- function(data){
+data %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
   mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
@@ -193,7 +194,8 @@ d %<>%
 
 # LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
 # 
-
+}
+d %<>% fix.member.date.coding
 
 
 
@@ -469,10 +471,15 @@ df %<>%
 
 # District vars 
 df %<>% left_join(read.csv("districts/states.csv") )
-df %<>% mutate(popX1000000 = pop2010/1000000)
+df %<>% mutate(pop2010_millions = pop2010/1000000)
 
 # shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
+
+# totals for core model 
+df %<>% fix.member.date.coding()
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
+
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)
