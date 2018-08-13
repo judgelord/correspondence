@@ -465,6 +465,10 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
 df %<>% 
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
+# clean up problems with party switchers etc. that may have come in with merge 
+df %<>% fix.member.date.coding()
+df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
+df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 
 
@@ -475,16 +479,17 @@ df %<>%
 df %<>% left_join(read.csv("districts/states.csv") )
 df %<>% mutate(pop2010_millions = pop2010/1000000)
 
+
+
+
+
+
+
 # shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
 
-# totals for core model 
-df %<>% fix.member.date.coding()
-
+# yearly totals for core APSA model 
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
-df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
-df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
-
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)

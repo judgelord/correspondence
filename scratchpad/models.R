@@ -1,0 +1,36 @@
+
+
+requires <- c("plm", "tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+
+library(tidyverse)
+library(plm)
+library(magrittr)
+library(ineq)
+library(ggplot2)
+library(dplyr)
+library(stargazer)
+
+
+chair <- plm(permemberyear ~ chair + pop2010_millions + majority, 
+             data = df %>% 
+               select(permemberyear, chair, pop2010_millions, majority, bioname, year) %>% distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+prestige <- plm(permemberyear ~ prestige + pop2010_millions + majority, 
+                data = df %>% 
+                  select(permemberyear, prestige, pop2010_millions, majority, bioname, year) %>% distinct(), 
+                index = c("bioname", "year"), model = "within")
+
+prestigechair <- plm(permemberyear ~ prestige_chair + pop2010_millions + majority,
+                     data = df %>% 
+                       select(permemberyear, prestige_chair, pop2010_millions, majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+partyleader <- plm(permemberyear ~ party_leader + pop2010_millions + majority,
+                     data = df %>% 
+                       select(permemberyear, party_leader, pop2010_millions, majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair, prestige, prestigechair, partyleader, title="Core Model: Contacts per Year per Legislator", dep.var.labels = "Contacts per Year", column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"), align=TRUE, keep.stat = "n") 

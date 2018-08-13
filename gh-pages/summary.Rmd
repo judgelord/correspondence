@@ -381,79 +381,6 @@ df %>%
 
 ### Institutional positions empower, rather than distract, advocates
 
-```{r core_model}
-
-
-
-chair <- plm(permemberyear ~ pop2010_millions + chair, majority, data = df) 
-
-prestige <- plm(permemberyear ~ prestige, data = df %>% select(permemberyear, prestige, bioname, year) %>% distinct(), index = c("bioname", "year"), model = "within")
-
-prestigechair <- plm(permemberyear ~ pop2010_millions + party_leader, majority, data = df)
-
-
-
-```
-
-```{r, results='asis'}
-stargazer(chair, prestige, prestigechair, partyleader, title="Core Model: Contacts per Year per Legislator", dep.var.labels = "Contacts per Year", column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"), align=TRUE, keep.stat = "n", type = "html")     
-```
-
-
-Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions. 
-
-[NOTE: Obviously, these first-cut models are terribly simplistic. No fixed effects etc.]
-
-```{r population_models}
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
-
-all <- policy <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df )
-
-policy <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
-               filter(Type2 == "Policy")
-)
-
-constituents <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
-                     filter(Type2 == "Constituent Service")
-)
-
-
-```
-
-```{r, results='asis'}
-stargazer(policy, constituents, all, title="Letters per Year", column.labels=c("Policy Advocacy    ","Constituent Service   ", "All"), align=TRUE, dep.var.labels = "Letters per Year", keep.stat = "n", type = "html")    
-```
-
-
-Within members who served as chairs, however, becoming chair has little effect on behavior.
-
-```{r chair_models}
-
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
-
-all <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
-               filter(chair_since_2007 == T))
-
-policy <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
-               filter(Type2 == "Policy", chair_since_2007 == T)
-)
-
-constituents <- lm(permemberyear ~ pop2010_millions + chair + majority, data = df %>%
-               filter(Type2 == "Constituent Service", chair_since_2007 == T)
-)
-```
-
-```{r, results='asis'}
-stargazer(policy, constituents, all, title="Letters per Year Within Those Appointed as Committee Chair between 2008 and 2016", dep.var.labels = "Letters per Year", column.labels=c("Policy Advocacy   ","Constituent Service   ", "All"), align=TRUE, keep.stat = "n", type = "html")     
-```
-
-
-
-
-
-
-
-
 *TO DO:* advocacy ~ advocacy(t-1) * chair effect
 
 # Additional Questions
@@ -820,11 +747,11 @@ dcommittees %>%
     theme(
     legend.title = element_blank())
 ```
-```{r committee_chair_density, fig.height=8}
+```{r committee_chair_density, fig.height=6}
 
 # prestige committee members
 # density 
-dcommittees %>% 
+dcommittees %>%  
   filter(complete == T, prestige == 1, chair_since_2007 == T, !is.na(member_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   group_by(bioname) %>% mutate(n = n()) %>% filter(n > 10) %>% 
@@ -845,14 +772,15 @@ dcommittees %>%
        x = "Months Before and After Appointment to Prestige Committee Chair",
        y = "Correspondence Density") + 
     theme(
-    legend.title = element_blank())
+    legend.title = element_blank(), 
+    legend.text = element_text(size = 7))
 ```
 
 
 Committee chair appointments seem to be especially important in the house and most members appear to write slightly more letters after being appointed to chair. However, the density of correspondence by member misses the most interesting dynamic: The volume of correspondence is highly unequal, even across committee chairs. Indeed just three chairs initiated the majority of correspondence. 
-```{r committee_chair_volume, fig.height=8}
+```{r committee_chair_volume, fig.height=6}
 # count
-dcommittees %>% 
+dcommittees %>%  
   filter(chair_since_2007 == T, complete == T, prestige == 1, !is.na(name_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   filter(!is.na(Type2)) %>% 
@@ -872,7 +800,8 @@ dcommittees %>%
        x = "Months Before and After Appointment to Prestige Committee Chair",
        y = "Correspondence per Month") + 
     theme(
-    legend.title = element_blank())
+    legend.title = element_blank(), 
+    legend.text = element_text(size = 7))
 
 ```
 
@@ -908,7 +837,8 @@ dcommittees %>%
     strip.text.y = element_text(angle = 180),
     legend.title = element_blank(),
     axis.text.y = element_text(),
-    axis.text.x = element_text(angle = 0)
+    axis.text.x = element_text(angle = 0),
+    legend.position = "bottom"
   ) + 
   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```
