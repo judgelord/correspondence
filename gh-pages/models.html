@@ -142,10 +142,11 @@ $(document).ready(function () {
 </div>
 
 
-<div id="for-2007-2017-we-are-only-able-to-use-23-agencies" class="section level3">
-<h3>For 2007-2017, we are only able to use 23 agencies:</h3>
+<div id="for-2007-2017-we-have-complete-data-for-only-14-agencies" class="section level3">
+<h3>For 2007-2017, we have complete data for only 14 agencies:</h3>
 <pre class="r"><code>chair &lt;- plm(permemberyear ~ chair , 
-             data = df %&gt;% filter(complete == T) %&gt;% 
+             data = df %&gt;% 
+               filter(complete == T) %&gt;% 
                select(permemberyear, chair,  majority, bioname, year) %&gt;%
                distinct(), 
              index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
@@ -168,7 +169,8 @@ partyleader &lt;- plm(permemberyear ~ party_leader ,
                        select(permemberyear, party_leader,  majority, bioname, year) %&gt;% distinct(), 
                      index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
 
-stargazer(chair, prestige, prestigechair, partyleader, title=&quot;Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects&quot;, dep.var.labels = &quot;Contacts per Year&quot;, 
+stargazer(chair, prestige, prestigechair, partyleader, 
+          title=&quot;Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects&quot;, dep.var.labels = &quot;Contacts per Year&quot;, 
           #column.labels=c(&quot;Committee Chair&quot;,&quot;Prestige Commitee&quot;, &quot;Prestige Chair&quot;, &quot;Party Leader&quot;),
           align=TRUE, keep.stat = &quot;n&quot;, type = &quot;html&quot;) </code></pre>
 <table style="text-align:center">
@@ -224,7 +226,7 @@ Contacts per Year
 chair
 </td>
 <td>
-5.312<sup>***</sup>
+5.381<sup>***</sup>
 </td>
 <td>
 </td>
@@ -237,7 +239,7 @@ chair
 <td style="text-align:left">
 </td>
 <td>
-(1.039)
+(1.049)
 </td>
 <td>
 </td>
@@ -265,7 +267,7 @@ prestige
 <td>
 </td>
 <td>
-1.056
+1.184
 </td>
 <td>
 </td>
@@ -278,7 +280,7 @@ prestige
 <td>
 </td>
 <td>
-(0.958)
+(0.971)
 </td>
 <td>
 </td>
@@ -306,7 +308,7 @@ prestige_chair
 <td>
 </td>
 <td>
-2.678
+2.865
 </td>
 <td>
 </td>
@@ -319,7 +321,7 @@ prestige_chair
 <td>
 </td>
 <td>
-(1.959)
+(1.976)
 </td>
 <td>
 </td>
@@ -384,328 +386,16 @@ party_leader
 Observations
 </td>
 <td>
-5,781
+5,661
 </td>
 <td>
-5,781
+5,661
 </td>
 <td>
-5,781
+5,661
 </td>
 <td>
-5,781
-</td>
-</tr>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-<em>Note:</em>
-</td>
-<td colspan="4" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
-</td>
-</tr>
-</table>
-</div>
-<div id="majority-status-is-important-but-correlated-with-chairships" class="section level3">
-<h3>Majority status is important but correlated with chairships:</h3>
-<pre class="r"><code>chair &lt;- plm(permemberyear ~ chair + majority, 
-             data = df %&gt;% 
-               filter(complete == T) %&gt;%
-               select(permemberyear, chair,  majority, bioname, year) %&gt;% distinct(), 
-             index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-prestige &lt;- plm(permemberyear ~ prestige + majority, 
-                data = df %&gt;% 
-                  filter(complete == T) %&gt;%
-                  select(permemberyear, prestige,  majority, bioname, year) %&gt;% distinct(), 
-                index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-prestigechair &lt;- plm(permemberyear ~ prestige_chair + majority,
-                     data = df %&gt;% 
-                       select(permemberyear, prestige_chair,  majority, bioname, year) %&gt;% distinct(), 
-                     index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-partyleader &lt;- plm(permemberyear ~ party_leader + majority,
-                     data = df %&gt;% 
-                     filter(complete == T) %&gt;%
-                       select(permemberyear, party_leader,  majority, bioname, year) %&gt;% distinct(), 
-                     index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-stargazer(chair, prestige, prestigechair, partyleader, title=&quot;Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects&quot;, dep.var.labels = &quot;Contacts per Year&quot;, 
-          #column.labels=c(&quot;Committee Chair&quot;,&quot;Prestige Commitee&quot;, &quot;Prestige Chair&quot;, &quot;Party Leader&quot;),
-          align=TRUE, keep.stat = &quot;n&quot;, type = &quot;html&quot;) </code></pre>
-<table style="text-align:center">
-<caption>
-<strong>Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects</strong>
-</caption>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td colspan="4">
-<em>Dependent variable:</em>
-</td>
-</tr>
-<tr>
-<td>
-</td>
-<td colspan="4" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td colspan="4">
-Contacts per Year
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1)
-</td>
-<td>
-(2)
-</td>
-<td>
-(3)
-</td>
-<td>
-(4)
-</td>
-</tr>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-chair
-</td>
-<td>
-5.359<sup>***</sup>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.114)
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-prestige
-</td>
-<td>
-</td>
-<td>
-0.957
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-(0.960)
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-prestige_chair
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-2.245
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-(1.978)
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-party_leader
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-5.081
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-(4.027)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-majority
-</td>
-<td>
--0.063
-</td>
-<td>
-0.840<sup>*</sup>
-</td>
-<td>
-0.767
-</td>
-<td>
-0.806
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.538)
-</td>
-<td>
-(0.504)
-</td>
-<td>
-(0.507)
-</td>
-<td>
-(0.506)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Observations
-</td>
-<td>
-5,781
-</td>
-<td>
-5,781
-</td>
-<td>
-5,841
-</td>
-<td>
-5,781
+5,661
 </td>
 </tr>
 <tr>
@@ -971,316 +661,6 @@ Observations
 </td>
 <td>
 3,713
-</td>
-<td>
-3,713
-</td>
-</tr>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-<em>Note:</em>
-</td>
-<td colspan="4" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
-</td>
-</tr>
-</table>
-<p>Majority status is important but correlated with chairships:</p>
-<pre class="r"><code>chair &lt;- plm(permemberyear ~ chair + majority, 
-             data = df %&gt;% 
-               select(permemberyear, chair,  majority, bioname, year) %&gt;%   
-                  filter(year &gt; 2009, year &lt; 2017) %&gt;% distinct(), 
-             index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-prestige &lt;- plm(permemberyear ~ prestige + majority, 
-                data = df %&gt;% 
-                  select(permemberyear, prestige,  majority, bioname, year) %&gt;%   
-                  filter(year &gt; 2009, year &lt; 2017) %&gt;% distinct(), 
-                index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-prestigechair &lt;- plm(permemberyear ~ prestige_chair + majority,
-                     data = df %&gt;% 
-                       select(permemberyear, prestige_chair,  majority, bioname, year) %&gt;% distinct(), 
-                     index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-partyleader &lt;- plm(permemberyear ~ party_leader + majority,
-                     data = df %&gt;% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %&gt;% 
-                  filter(year &gt; 2009, year &lt; 2017) %&gt;% distinct(), 
-                     index = c(&quot;bioname&quot;, &quot;year&quot;), model = &quot;within&quot;)
-
-stargazer(chair, prestige, prestigechair, partyleader, title=&quot;Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects&quot;, dep.var.labels = &quot;Contacts per Year&quot;, 
-          #column.labels=c(&quot;Committee Chair&quot;,&quot;Prestige Commitee&quot;, &quot;Prestige Chair&quot;, &quot;Party Leader&quot;),
-          align=TRUE, keep.stat = &quot;n&quot;, type = &quot;html&quot;) </code></pre>
-<table style="text-align:center">
-<caption>
-<strong>Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects</strong>
-</caption>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td colspan="4">
-<em>Dependent variable:</em>
-</td>
-</tr>
-<tr>
-<td>
-</td>
-<td colspan="4" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td colspan="4">
-Contacts per Year
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1)
-</td>
-<td>
-(2)
-</td>
-<td>
-(3)
-</td>
-<td>
-(4)
-</td>
-</tr>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-chair
-</td>
-<td>
-1.716
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.396)
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-prestige
-</td>
-<td>
-</td>
-<td>
--0.206
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-(1.268)
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-prestige_chair
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-2.245
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-(1.978)
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-party_leader
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-11.037<sup>**</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-(4.764)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-majority
-</td>
-<td>
-0.998
-</td>
-<td>
-1.339<sup>*</sup>
-</td>
-<td>
-0.767
-</td>
-<td>
-1.177<sup>*</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.755)
-</td>
-<td>
-(0.706)
-</td>
-<td>
-(0.507)
-</td>
-<td>
-(0.707)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan="5" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Observations
-</td>
-<td>
-3,713
-</td>
-<td>
-3,713
-</td>
-<td>
-5,841
 </td>
 <td>
 3,713

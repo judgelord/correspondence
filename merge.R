@@ -491,7 +491,8 @@ df %<>%
   
 
 # yearly totals for core APSA model 
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>% 
+  mutate(bioname_congress = paste(bioname, congress))
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)
