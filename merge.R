@@ -272,7 +272,7 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe)  & grepl("2017", timeframe)
+      grepl("2016", timeframe)   & grepl("2017", timeframe)
     , T, F)) %>% ungroup()
 
 unique(cbind(d$complete ,d$timeframe))
