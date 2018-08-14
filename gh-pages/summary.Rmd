@@ -10,20 +10,18 @@ output:
 requires <- c("plm", "tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-  
-  library(tidyverse)
-    library(plm)
+library(tidyverse)
+library(plm)
 library(magrittr)
-  library(ineq)
-  library(ggplot2)
-  library(dplyr)
-  library(stargazer)
-  library(maps)
+library(ineq)
+library(ggplot2)
+library(dplyr)
+library(stargazer)
+library(maps)
 library(fiftystater)
 library(mapproj)
-  library(knitr)
+library(knitr)
 
-  
 load("correspondence.RData")
 ```
 
@@ -220,7 +218,7 @@ stargazer(chair, prestige, prestigechair, partyleader,
 
 chair.policy <- plm(permemberyear ~ chair , 
              data = df %>% 
-               filter(complete == T, Type2=="Policy") %>% 
+               filter(complete == T, Type2=="Policy" & !is.na(Type2)) %>% 
                select(permemberyear, chair,  majority, bioname, year) %>%
                distinct(), 
              index = c("bioname", "year"), model = "within")
@@ -228,13 +226,13 @@ chair.policy <- plm(permemberyear ~ chair ,
 
 partyleader.policy <- plm(permemberyear ~ party_leader ,
                      data = df %>% 
-               filter(complete == T, Type2=="Policy") %>% 
+               filter(complete == T, Type2=="Policy" & !is.na(Type2)) %>% 
                        select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
                      index = c("bioname", "year"), model = "within")
 
 chair.const <- plm(permemberyear ~ chair , 
              data = df %>% 
-               filter(complete == T, Type2=="Constituent Service") %>% 
+               filter(complete == T, Type2=="Constituent Service" & !is.na(Type2)) %>% 
                select(permemberyear, chair,  majority, bioname, year) %>%
                distinct(), 
              index = c("bioname", "year"), model = "within")
@@ -242,7 +240,7 @@ chair.const <- plm(permemberyear ~ chair ,
 
 partyleader.const <- plm(permemberyear ~ party_leader ,
                      data = df %>% 
-               filter(complete == T, Type2=="Constituent Service") %>% 
+               filter(complete == T, Type2=="Constituent Service" & !is.na(Type2)) %>% 
                        select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
                      index = c("bioname", "year"), model = "within")
 
