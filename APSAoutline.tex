@@ -1,27 +1,34 @@
----
-title: "How Legislators Actually Invest Their Time"
-output: pdf_document
----
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={How Legislators Actually Invest Their Time},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+  \title{How Legislators Actually Invest Their Time}
+%    \pretitle{\vspace{\droptitle}\centering\huge}
+    \author{}
+    \date{}
+\graphicspath{{gh-pages/Figs/}}
 
----
-title: "APSA2018"
-header-includes: \usepackage{graphicx}
-output: pdf_document
----
-```{r global.options, include=FALSE}
-knitr::opts_chunk$set(fig.width=8.5, fig.path='Figs/', fig.align = 'center')
-```
+\begin{document}
+\maketitle
+\tableofcontents
 
-Outline for APSA paper
+
+\bigskip
 
 Representation in Congress is based, in part, on legislators' ability to assist their constituents with the federal bureaucracy.  Constituency service is central to several definitions of representation or a key input to explain the incumbency advantage and yet, too little is known about when and how elected officials contact the bureaucracy on behalf of their constituents. We use a massive new database of Congressional contact with bureaucracies obtained through over 200 FOIA requests to examine when legislators contact agencies, who contact those agencies, and the purpose of the contact. Using this new data set, we show that legislators who are more powerful in Washington advocate more for their constituents, rather than less.  This suggests that perceived choices constituents may face between influential representatives and attentive representatives is a false choice.  
 
 
-Introduction
+\section{Introduction - Ellie}
+
 Since the start of the Republic, members of Congress have provided constituency service to their constituents, helping channel and articulate their requests to the government. Representation through constituency service constitutes an important facet of legislators' jobs.  And its growth has been used to explain the presence of the incumbency advantage, or used as a metric to assess how legislators preferentially allocate their time to constituents.  
 
 Within many theories of representation, there has been a perceived tradeoff between representation from powerful elected officials and elected officials who are attentive to the district.  As legislators acquire power in the institution, it is often asserted that they obtain "Potomac fever" and dedicate less attention to constituents back in the district.  This similar argument is made in the popular press and XX.
@@ -37,33 +44,41 @@ Furthermore, those who use this tactic use it broadly across issue areas and par
 Our results provide important new insights into how political representation occurs in American politics.  All things equal, we show that constituents have a good reason to prefer more powerful representatives. This clarifies why increased power is useful to elected officials and helps establish how legislators are able to build their capacity to both influence policy while ensuring that they maintain support in their constituency. 
 
 
-\section{The False Power, District Attentiveness Tradeoff}
+\section{The False Power, District Attentiveness Tradeoff - Ellie}
 
 1) Who argues that there is this tradeoff?
+
 a) Fenno,Mayhew
+
 b) More recent articles (perhaps)
 
 2) Why might we expect this not to be true?
+
 a) Level differences, based on ability
+
 b) How individuals distribute power
 
+\subsection{Why individual-level advocacy? (Theories of Legislator Behavior) - Ellie}
 
-\section{Data: FOIA Requests}
+\subsection{Why lobby the bureaucracy? - Devin}
 
-Details on the FOIA requests
+1) Recent lit on lettermarking
+
+2) Broader literature on responsiveness
+
+
+\section{Data - Devin }
+
+\subsection{FOIA requests}
+
 1) Agencies we've contacted:
 We requested records from all cabinet departments, their subagencies, and 33 independent agencies. 
+
 2) Agencies we've heard from:
 As of August 2018, all departments except for the State Department and Veterans' Affairs have provided records, though the majority of Department of Defense records are still being processed and the majority of Department of Justice subagencies have either denied maintaining records or not yet granted our request. 
 As for independent agencies, we waiting on records from the SEC, OPM, NRC, NSF, MSPB, FTC, and Export-Import Bank, CPSC, CFTC, CIA, Appalachian Regional Commission. The remaining 22 independent agencies have provided records, though some are still in the process of reviewing and releasing additional records. Of these, 10 have been cleaned and linked with other data source. 
 
-| Department            | Number of Agencies/Components  | Number for which we have data | Number in Dataset |
-| --------------------- |:------------------------------:|:-----------------------------:| :-----------------|
-| Agriculture           | 25                             | 18                            | 18                |
-| ...                   |                                |                               |                   |
-| Independent Agencies  | 33                             | 22                            | 10                |
-| --------------------- |:------------------------------:|:-----------------------------:| :-----------------|
-| TOTAL                 |                                |                               |                   |
+*DEVIN WILL ADD TABE OF OF RESPONSE RATES*
 
 What does a typical response look like? 
 
@@ -73,33 +88,54 @@ What do we do with it then?
 
 How many contacts do representatives make? 
 
-Who tends to make those contacts?  
+\subsubsection{Who tends to make those contacts?}
+
 a) Early career?
-b) Ideological orientation? - No. See ideology section in Summary
+
+b) Ideological orientation? - Seemingly not, though moderates may do more policy advocacy, especially on behalf of corporations, than those with more extreme voting records. See ideology section in Summary.
+
+\includegraphics[width = \textwidth]{ideology_density-2}
+
 c) Women more than men? Black vs Latinx vs other demographic minorities?
 
 
-What is the overall distribution look like (inequality)
-- Gini coefficients are high. The Senate and House Gini coefficients are comparable to income inequality in the US and Mexico 
-- mean (per member per year). With our current data, the mean correspondence per year is 18 for the house and 52 for the Senate.
+\subsubsection{Unequally distributed advocacy}
+
+- Gini coefficients are high. Senate and House Gini coefficients are comparable to income inequality in the US and Mexico 
+
+\includegraphics[width = \textwidth]{percentiles-1}
+
+- mean (per member per year). With our current data, the mean correspondence per year is ~20 for the house and ~50 for the Senate.
+
 - means by type
-\includegraphics{means_by_type_table}
+
+\includegraphics[width = \textwidth]{means_by_type-1}
+
 - density 
+
 - density by type
+
+\subsubsection{How contacts vary with elections and party power}
 
 Are there more contacts right before an election, right after or somewhere in between?
 
 In the House, both parties average just slightly more letters per year while in the majority, but in the Senate, Republicans average more per year while in the minority.
-\includegraphics{party_mean_by_month}
+
+\includegraphics[width = \textwidth]{party_distance_above_mean-1}
+
+\includegraphics[width = \textwidth]{party_mean_by_month-1}
 
 
-\subsection{More Power and More Contact}
+\section{Results: More Power and More Contact - Justin}
 
 We want to show this a few ways
 
 a) Show that there are level differences. Individuals with more power contact more.  We can run this regression in several ways, including:
+
 a) Committee chairs
+
 b) Prestige Committees
+
 c) Leadership positions within the party.
 
 Using those same variables (and other combinations) we can then run some diff-in-diff specifications
@@ -112,9 +148,10 @@ Contacts in Year t  ~ Legislator Fixed Effect + Congress Fixed Effect + Legislat
 Using this model we have a diff-in-diff where the relevant coefficient is the legislator's power in year t.  I"m happy to run these models.  
 
 
+\section{Discussion}
 
 
-
+\end{document}
 
 
 
