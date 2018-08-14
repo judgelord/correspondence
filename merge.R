@@ -1,9 +1,10 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
 # load required functions
+
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
-# note for MERGING: 
+ # note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
 # in df, TYPE is numeric, Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
