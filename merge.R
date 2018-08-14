@@ -230,14 +230,14 @@ d$department <- gsub("_.*", "", d$agency) # name dept
 d %<>% mutate(id = paste(agency, ID))
 
 # names that match more than one member - false positives
-bad.names.type1 <- d %>% 
+bad.names.1 <- d %>% 
   filter(is.na(ERROR)) %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
 # names that don't match - potentially typos / false negatives
-bad.names.type2 <- d %>% 
+bad.names.2 <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
@@ -496,5 +496,5 @@ df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)
-rm(d1)
+rm(d1, file.name, names, requires, to_install, i)
 save.image("gh-pages/correspondence.RData")
