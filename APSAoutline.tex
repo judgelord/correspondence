@@ -1,28 +1,32 @@
 \documentclass[]{article}
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
+\usepackage{amssymb,amsmath, graphicx, hyperref}
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
-\hypersetup{unicode=true,
-            pdftitle={How Legislators Actually Invest Their Time},
-            pdfborder={0 0 0},
-            breaklinks=true}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
 \urlstyle{same}  % don't use monospace font for urls
-\usepackage{longtable,booktabs}
-\usepackage{graphicx,grffile}
 
   \title{How Legislators Actually Invest Their Time}
-%    \pretitle{\vspace{\droptitle}\centering\huge}
     \author{}
     \date{}
+    
 \graphicspath{{gh-pages/Figs/}}
 
 \begin{document}
 \maketitle
 \tableofcontents
 
-
 \bigskip
+\href{https://judgelord.github.io/correspondence/gh-pages/summary.html}{Project Summary} | 
+\href{https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit}{Codebook} |
+\href{https://drive.google.com/drive/u/0/folders/1DSGGZP_v2zwdfxg9Do3Ii4Y8UdXultVg}{.Rdata}
+\bigskip
+
 
 Representation in Congress is based, in part, on legislators' ability to assist their constituents with the federal bureaucracy.  Constituency service is central to several definitions of representation or a key input to explain the incumbency advantage and yet, too little is known about when and how elected officials contact the bureaucracy on behalf of their constituents. We use a massive new database of Congressional contact with bureaucracies obtained through over 200 FOIA requests to examine when legislators contact agencies, who contact those agencies, and the purpose of the contact. Using this new data set, we show that legislators who are more powerful in Washington advocate more for their constituents, rather than less.  This suggests that perceived choices constituents may face between influential representatives and attentive representatives is a false choice.  
 
@@ -71,6 +75,7 @@ b) How individuals distribute power
 
 \subsection{FOIA requests}
 
+
 1) Agencies we've contacted:
 We requested records from all cabinet departments, their subagencies, and 33 independent agencies. 
 
@@ -92,7 +97,7 @@ How many contacts do representatives make?
 
 a) Early career?
 
-b) Ideological orientation? - Seemingly not, though moderates may do more policy advocacy, especially on behalf of corporations, than those with more extreme voting records. See ideology section in Summary.
+b) Ideological orientation? - Seemingly not, though moderates may do more policy advocacy, especially on behalf of corporations, than those with more extreme voting records. See ideology section in \href{https://judgelord.github.io/correspondence/gh-pages/summary.html}{Summary}.
 
 \includegraphics[width = \textwidth]{ideology_density-2}
 
