@@ -160,6 +160,7 @@ while(length(unique(d$agency) == i)) {
     
     i <- i+1
 }
+paste("Missing:" , data_list %>% filter(!(agency %in% d$agency)) )
 library(gmailr)
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
@@ -273,11 +274,12 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe)  & grepl("2017", timeframe)
+      grepl("2016", timeframe)  #& grepl("2017", timeframe)
     , T, F)) %>% ungroup()
-
+# Timeframe:
 unique(cbind(d$complete ,d$timeframe))
-
+# Problems: 
+data_list %>% filter(!(agency %in% d$agency)) 
 
 
 
