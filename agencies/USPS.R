@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-file.name <- "USPS" # for testing
+#file.name <- "USPS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -19,6 +19,10 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
   data <- getFirstLast.Comma(data, 'FROM')
+  
+  data %<>%
+  mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
+  mutate(ERROR = ifelse(grepl("^(Miscellaneous|MICELLANIOUS)$", FROM, ignore.case=T), "Miscellaneous", ERROR))
 
 
   # arrange columns for hand coding

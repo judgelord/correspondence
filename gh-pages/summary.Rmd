@@ -7,11 +7,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("plm", "tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
   library(tidyverse)
+    library(plm)
 library(magrittr)
   library(ineq)
   library(ggplot2)
@@ -27,7 +28,7 @@ load("correspondence.RData")
 ```
 
 ```{r global.options, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = T, fig.width=8.5, fig.path='Figs/',
+knitr::opts_chunk$set(echo = TRUE, cache = F, fig.width=8.5, fig.path='Figs/',
                       warning=FALSE, message=FALSE, fig.align = 'center')
 ```
 
@@ -40,9 +41,9 @@ We use these data to examine relationships between committee membership, seniori
 Do legislators shift attention to policy work as they gain seniority or electoral security? Do members in key fundraising positions or vulnerable districts disproportionately advocate on behalf of potential corporate supporters? Does a legislator's party or ideology influence the constituents on whose behalf legislators advocate? We address these questions with respect to which agencies legislators choose to contact, on whose behalf, and the distribution of attention to policy issues within and across federal agencies over time.
 
 
-# Data 
+# Data  
 
-Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?
+Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?  
 
 ```{r missing_data, fig.height=8}
 df %>% 
@@ -103,8 +104,9 @@ df %>%
 # DOC_OS
 # DOC_OCPA
 # DOC_MBDA
-```
-All time-series analysis below subsets to agencies with ten years of data. 
+```  
+
+All time-series analysis below subsets to agencies with ten years of data.   
 
 ```{r data_coded, fig.height=7}
 df %>% 
@@ -123,7 +125,220 @@ df %>%
         axis.ticks = element_blank(),
         axis.text.x.top = element_text())
 
+```  
+
+
+
+# Core Model
+
+
+```{r, include=FALSE}
+df %>% select(year, bioname, permemberyear, chair, prestige, prestige_chair, party_leader,  majority, year) %>% distinct() %>% select(-bioname) %>% filter(!is.na(chair), !is.na(prestige), !is.na(prestige_chair), !is.na(party_leader), !is.na(majority)) %>% group_by(year) %>% summarise_all(mean)
+
+data <- df %>% filter(complete == T) %>%
+  dplyr::select(permemberyear, chair,  majority, bioname, year, agency) %>%
+               distinct() 
 ```
+
+
+
+
+```{r core_model, results='asis', include=FALSE}
+
+### Core model with all data:
+
+chair <- plm(permemberyear ~ chair,  
+             data = df %>% 
+               #filter(complete == T) %>% 
+               select(permemberyear, chair,  majority, bioname, year) %>% distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+prestige <- plm(permemberyear ~ prestige , 
+                data = df %>% 
+                  #filter(complete == T) %>%
+                  select(permemberyear, prestige,  majority, bioname, year) %>% distinct(), 
+                index = c("bioname", "year"), model = "within")
+
+prestigechair <- plm(permemberyear ~ prestige_chair ,
+                     data = df %>% 
+                       #filter(complete == T) %>%
+                       select(permemberyear, prestige_chair,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+partyleader <- plm(permemberyear ~ party_leader ,
+                     data = df %>% 
+                        #filter(complete == T) %>%
+                        select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair, prestige, prestigechair, partyleader, 
+          title="Core Model (All Data): Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
+          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
+          align=TRUE, keep.stat = "n", type = "html") 
+
+```  
+
+
+### For 2007-2017, we have complete data for only `r length(unique(data$agency))` agencies:
+
+```{r core_model_2007_2017, results='asis'}
+
+chair <- plm(permemberyear ~ chair , 
+             data = df %>% 
+               filter(complete == T) %>% 
+               select(permemberyear, chair,  majority, bioname, year) %>%
+               distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+prestige <- plm(permemberyear ~ prestige , 
+                data = df %>% 
+                  filter(complete == T) %>%
+                  select(permemberyear, prestige,  majority, bioname, year) %>% distinct(), 
+                index = c("bioname", "year"), model = "within")
+
+prestigechair <- plm(permemberyear ~ prestige_chair ,
+                     data = df %>% 
+                       filter(complete == T) %>%
+                       select(permemberyear, prestige_chair,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+partyleader <- plm(permemberyear ~ party_leader ,
+                     data = df %>% 
+                     filter(complete == T) %>%
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair, prestige, prestigechair, partyleader, 
+          title="Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
+          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
+          align=TRUE, keep.stat = "n", type = "html") 
+
+```
+
+
+```{r core_model_policy_constituents, results='asis'}
+
+chair.policy <- plm(permemberyear ~ chair , 
+             data = df %>% 
+               filter(complete == T, Type2=="Policy") %>% 
+               select(permemberyear, chair,  majority, bioname, year) %>%
+               distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+
+partyleader.policy <- plm(permemberyear ~ party_leader ,
+                     data = df %>% 
+               filter(complete == T, Type2=="Policy") %>% 
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+chair.const <- plm(permemberyear ~ chair , 
+             data = df %>% 
+               filter(complete == T, Type2=="Constituent Service") %>% 
+               select(permemberyear, chair,  majority, bioname, year) %>%
+               distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+
+partyleader.const <- plm(permemberyear ~ party_leader ,
+                     data = df %>% 
+               filter(complete == T, Type2=="Constituent Service") %>% 
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair.policy, partyleader.policy, chair.const, partyleader.const,
+          title="Core Model 2007-2017 by Type: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
+          column.labels=c("- Policy - ","- Policy - ", "- Constituent Service - ", "- Constituent Service - "),
+          align=TRUE, keep.stat = "n", type = "html") 
+
+```  
+
+
+
+
+
+```{r core_model_majority_2007_2017, results='asis', include=FALSE}
+### Majority status is important but correlated with chairships:
+
+chair <- plm(permemberyear ~ chair + majority, 
+             data = df %>% 
+               filter(complete == T) %>%
+               select(permemberyear, chair,  majority, bioname, year) %>% distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+prestige <- plm(permemberyear ~ prestige + majority, 
+                data = df %>% 
+                  filter(complete == T) %>%
+                  select(permemberyear, prestige,  majority, bioname, year) %>% distinct(), 
+                index = c("bioname", "year"), model = "within")
+
+prestigechair <- plm(permemberyear ~ prestige_chair + majority,
+                     data = df %>% 
+                       select(permemberyear, prestige_chair,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+partyleader <- plm(permemberyear ~ party_leader + majority,
+                     data = df %>% 
+                     filter(complete == T) %>%
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair, prestige, prestigechair, partyleader, 
+          title="Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
+          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
+          align=TRUE, keep.stat = "n", type = "html") 
+
+```    
+
+
+
+
+```{r, include=FALSE}
+
+data <- df %>% select(permemberyear, chair,  majority, bioname, year, agency) %>%
+               filter(year > 2009, year < 2017) %>% 
+               distinct() 
+```  
+
+
+
+### With a shorter time series, we are able to include `r length(unique(data$agency))` agencies, but fewer observations:
+
+```{r core_model_2010_2016, results='asis'}
+chair <- plm(permemberyear ~ chair , 
+             data = df %>% select(permemberyear, chair,  majority, bioname, year) %>%
+               filter(year > 2009, year < 2017) %>% 
+               distinct(), 
+             index = c("bioname", "year"), model = "within")
+
+prestige <- plm(permemberyear ~ prestige , 
+                data = df %>% select(permemberyear, prestige,  majority, bioname, year) %>%  
+                  filter(year > 2009, year < 2017) %>% 
+                  distinct(), 
+                index = c("bioname", "year"), model = "within")
+
+prestigechair <- plm(permemberyear ~ prestige_chair ,
+                     data = df %>% 
+                       select(permemberyear, prestige_chair,  majority, bioname, year)  %>% 
+                  filter(year > 2009, year < 2017) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+partyleader <- plm(permemberyear ~ party_leader ,
+                     data = df %>%  
+                       select(permemberyear, party_leader,  majority, bioname, year) %>% 
+                  filter(year > 2009, year < 2017) %>% distinct(), 
+                     index = c("bioname", "year"), model = "within")
+
+stargazer(chair, prestige, prestigechair, partyleader, title="Core Model 2010-2016: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
+          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
+          align=TRUE, keep.stat = "n", type = "html") 
+
+```  
+
+
+
+
+
 
 # Basic Facts
 
@@ -379,76 +594,6 @@ df %>%
 
 
 ### Institutional positions empower, rather than distract, advocates
-
-```{r core_model}
-
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
-
-
-chair <- lm(permemberyear ~ popX1000000 + chair, majority, data = df) 
-
-prestige <- lm(permemberyear ~ popX1000000 + prestige, majority, data = df)
-
-prestigechair <- lm(permemberyear ~ popX1000000 + prestige_chair, majority, data = df)
-
-
-
-```
-
-
-Controlling for state population and party status, committee chairs and ranking minority members engage in both more policy advocacy and constituent service than those not in institutional leadership positions. 
-
-[NOTE: Obviously, these first-cut models are terribly simplistic. No fixed effects etc.]
-
-```{r population_models}
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
-
-all <- policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df )
-
-policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
-               filter(Type2 == "Policy")
-)
-
-constituents <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
-                     filter(Type2 == "Constituent Service")
-)
-
-
-```
-
-```{r, results='asis'}
-stargazer(policy, constituents, all, title="Letters per Year", column.labels=c("Policy Advocacy    ","Constituent Service   ", "All"), align=TRUE, dep.var.labels = "Letters per Year", keep.stat = "n", type = "html")    
-```
-
-
-Within members who served as chairs, however, becoming chair has little effect on behavior.
-
-```{r chair_models}
-
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup()
-
-all <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
-               filter(chair_since_2007 == T))
-
-policy <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
-               filter(Type2 == "Policy", chair_since_2007 == T)
-)
-
-constituents <- lm(permemberyear ~ popX1000000 + chair + majority, data = df %>%
-               filter(Type2 == "Constituent Service", chair_since_2007 == T)
-)
-```
-
-```{r, results='asis'}
-stargazer(policy, constituents, all, title="Letters per Year Within Those Appointed as Committee Chair between 2008 and 2016", dep.var.labels = "Letters per Year", column.labels=c("Policy Advocacy   ","Constituent Service   ", "All"), align=TRUE, keep.stat = "n", type = "html")     
-```
-
-
-
-
-
-
-
 
 *TO DO:* advocacy ~ advocacy(t-1) * chair effect
 
@@ -816,11 +961,11 @@ dcommittees %>%
     theme(
     legend.title = element_blank())
 ```
-```{r committee_chair_density, fig.height=8}
+```{r committee_chair_density, fig.height=6}
 
 # prestige committee members
 # density 
-dcommittees %>% 
+dcommittees %>%  
   filter(complete == T, prestige == 1, chair_since_2007 == T, !is.na(member_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   group_by(bioname) %>% mutate(n = n()) %>% filter(n > 10) %>% 
@@ -841,14 +986,15 @@ dcommittees %>%
        x = "Months Before and After Appointment to Prestige Committee Chair",
        y = "Correspondence Density") + 
     theme(
-    legend.title = element_blank())
+    legend.title = element_blank(), 
+    legend.text = element_text(size = 7))
 ```
 
 
 Committee chair appointments seem to be especially important in the house and most members appear to write slightly more letters after being appointed to chair. However, the density of correspondence by member misses the most interesting dynamic: The volume of correspondence is highly unequal, even across committee chairs. Indeed just three chairs initiated the majority of correspondence. 
-```{r committee_chair_volume, fig.height=8}
+```{r committee_chair_volume, fig.height=6}
 # count
-dcommittees %>% 
+dcommittees %>%  
   filter(chair_since_2007 == T, complete == T, prestige == 1, !is.na(name_state)) %>%
   filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
   filter(!is.na(Type2)) %>% 
@@ -868,7 +1014,8 @@ dcommittees %>%
        x = "Months Before and After Appointment to Prestige Committee Chair",
        y = "Correspondence per Month") + 
     theme(
-    legend.title = element_blank())
+    legend.title = element_blank(), 
+    legend.text = element_text(size = 7))
 
 ```
 
@@ -904,7 +1051,8 @@ dcommittees %>%
     strip.text.y = element_text(angle = 180),
     legend.title = element_blank(),
     axis.text.y = element_text(),
-    axis.text.x = element_text(angle = 0)
+    axis.text.x = element_text(angle = 0),
+    legend.position = "bottom"
   ) + 
   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```

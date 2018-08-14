@@ -170,7 +170,8 @@ send_message(mime(
 
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
-d %<>% 
+fix.member.date.coding <- function(data){
+data %<>% 
   mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
   mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
   mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
@@ -193,7 +194,8 @@ d %<>%
 
 # LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
 # 
-
+}
+d %<>% fix.member.date.coding
 
 
 
@@ -215,7 +217,9 @@ d %<>%
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
   mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
-  mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR))
+  mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
+  mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
+  mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR))
 
 
 
@@ -259,7 +263,7 @@ bad.party <- d %>%
 # identify timeframe and completeness for each agency
 d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collapse = ":")) %>%
   mutate(timeframe = paste(agency, timeframe)) %>%
-  mutate(complete = ifelse(
+  mutate(complete = ifelse(grepl("2007", timeframe) &
     grepl("2008", timeframe) & 
       grepl("2009", timeframe) &
       grepl("2010", timeframe) &
@@ -268,15 +272,10 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe) # & grepl("2017", timeframe)
+      grepl("2016", timeframe)  & grepl("2017", timeframe)
     , T, F)) %>% ungroup()
 
 unique(cbind(d$complete ,d$timeframe))
-
-
-
-
-
 
 
 
@@ -461,6 +460,10 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
 df %<>% 
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
+# clean up problems with party switchers etc. that may have come in with merge 
+df %<>% fix.member.date.coding()
+df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
+df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 
 
@@ -469,11 +472,27 @@ df %<>%
 
 # District vars 
 df %<>% left_join(read.csv("districts/states.csv") )
-df %<>% mutate(popX1000000 = pop2010/1000000)
+df %<>% mutate(pop2010_millions = pop2010/1000000)
+
+
+
+
+
 
 
 # shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
+
+# president's party
+df %<>% 
+  mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, 0)) 
+  
+
+# yearly totals for core APSA model 
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>% 
+  mutate(bioname_congress = paste(bioname, congress))
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)

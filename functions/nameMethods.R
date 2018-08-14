@@ -40,7 +40,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub(".*SCHULTZ.*", replacement = "WASSERMAN SCHULTZ", last_name)) %>% 
     mutate(last_name = ifelse( grepl("Jackson",FROM,ignore.case=TRUE)&grepl("She",FROM)&grepl("Lee",FROM), "JACKSON LEE", last_name)) %>% 
     mutate(last_name = ifelse( (grepl("McMorris|Rodgers",FROM,ignore.case=TRUE))&grepl("Cathy|McMorris",FROM), "McMORRIS RODGERS", last_name)) %>% 
-    mutate(last_name = ifelse( grepl("Michael",FROM,ignore.case=TRUE)&grepl("Conaway",FROM,ignore.case=TRUE), "CONAWAY", last_name)) %>%
+    mutate(last_name = ifelse( grepl("Michael|(^| )K",FROM,ignore.case=TRUE)&grepl("Conaway",FROM,ignore.case=TRUE), "CONAWAY", last_name)) %>%
     mutate(last_name = ifelse( grepl("Ben",FROM)&grepl("Nelson",FROM), "NELSON", last_name)) %>% 
     mutate(last_name = ifelse( grepl("Beutler",FROM,ignore.case=TRUE)&grepl("Herrera",FROM,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>%
     mutate(last_name = ifelse( grepl("Gillbrand",FROM,ignore.case=TRUE), "GILLIBRAND", last_name)) %>%
@@ -459,7 +459,7 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
   data$FROM2 <- gsub("Courntey", "Courtney", data$FROM2, ignore.case = TRUE)
-  data$FROM2 <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$FROM2)
+  data$FROM2 <- gsub("(^| )Lary( |,|$)", "\\1Larry\\3", data$FROM2)
   data$FROM2 <- gsub("Christophers", "Christopher", data$FROM2)
   
   data$FROM2 <- ocr.errors(data$FROM2)
@@ -657,18 +657,18 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse( grepl("Issa",FROM2,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",FROM2,ignore.case=TRUE), "Darrell", first_name)) %>% 
     mutate(last_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "WHITFIELD", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "Wayne", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Dana( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",FROM2,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Dana( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",FROM2,ignore.case=TRUE), "Dana", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Womack( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "WOMACK", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Womack( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "Steve", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Mary( |$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "BONO", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Mary( |$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("(^| )Dana( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |,|$)",FROM2,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Dana( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |,|$)",FROM2,ignore.case=TRUE), "Dana", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "WOMACK", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "Steve", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "BONO", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% 
     
     
     
     
-    mutate(last_name = ifelse( grepl("(^| )Conaway( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Conaway( |$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "Michael", first_name))
+    mutate(last_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "Michael", first_name))
   
 
     
@@ -700,7 +700,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Cheie", "Chellie", FROM)
   FROM <- gsub("(^| )Uda($| )", "\\1Udall\\2", FROM)
   FROM <- gsub("(^| )Wooda($| )", "\\1Woodall\\2", FROM)
-  FROM <- gsub("Marsha$", "Marshall", FROM)
+ # FROM <- gsub("Marsha$", "Marshall", FROM)
   FROM <- gsub("Wiiam", "William", FROM)
   FROM <- gsub("(^| )Cantwe($| )", "\\1Cantwell\\2", FROM)
   FROM <- gsub("Mier$", "Miller", FROM)
