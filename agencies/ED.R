@@ -4,7 +4,7 @@
 # Lots of errors, needs fixing
 # down to 264 errors, lots of spelling
 
- file.name <- "ED" # for testing
+#  file.name <- "ED" # for testing
 
 
 clean <- function(file.name) {
@@ -17,7 +17,8 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$originalDATE <- data$DATE
+  data$DATE %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
