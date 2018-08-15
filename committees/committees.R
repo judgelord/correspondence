@@ -549,6 +549,7 @@ committees %<>%
   mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
   mutate(party = ifelse(name == "Newhouse, Dan", 200, party)) %>% 
   mutate(party = ifelse(name == "Bost, Mike", 200, party)) %>% 
+  mutate(party = ifelse(name == "Hensarling, Jeb", 200, party)) %>% 
   mutate(party = ifelse(name == "Hoeven, John", 200, party)) 
   
 committees %<>%
