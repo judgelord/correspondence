@@ -172,39 +172,15 @@ send_message(mime(
 
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
-fix.member.date.coding <- function(data){
-data %<>% 
-  mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
-  mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
-  mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
-  filter(bioname != "PAYNE, Donald Milford" | DATE < as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
-  filter(bioname != "PAYNE, Donald, Jr." | DATE > as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
-  filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Republican Party")) %>% # SPECTER, Arlen changed to DEM
-  filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Democratic Party")) %>% 
-  filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
-  filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) %>% 
-  filter(!(bioname == "KIRK, Mark Steven" & DATE > as.Date("2010-11-29") & chamber == "House")) %>% # Went from House to Senate, filled in Obama's vacancy in Senate when he was president elect
-  filter(!(bioname == "KIRK, Mark Steven" & DATE < as.Date("2010-11-29") & chamber == "Senate")) %>% 
-  filter(!(bioname == "HELLER, Dean" & DATE > as.Date("2011-05-09") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
-  filter(!(bioname == "HELLER, Dean" & DATE < as.Date("2011-05-09") & chamber == "Senate")) %>% 
-  filter(!(bioname == "WICKER, Roger F." & DATE > as.Date("2007-12-31") & chamber == "House")) %>% # Went from House to Senate, filled a Senate vacancy 
-  filter(!(bioname == "WICKER, Roger F." & DATE < as.Date("2007-12-31") & chamber == "Senate")) %>% 
-  filter(!(bioname == "GRIFFITH, Parker" & DATE > as.Date("2009-12-22") & party_name == "Democratic Party")) %>% # GRIFFITH, Parker changed to GOP
-  filter(!(bioname == "GRIFFITH, Parker" & DATE < as.Date("2009-12-22") & party_name == "Republican Party")) %>% 
-  filter(!(bioname == "GILLIBRAND, Kirsten" & DATE > as.Date("2009-01-26") & chamber == "House")) %>% # GILLIBRAND APPOINTED TO SENATE FROM HOUSE January 26, 2009
-  filter(!(bioname == "GILLIBRAND, Kirsten"& DATE < as.Date("2009-01-26") & chamber == "Senate"))
-
-# LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
-# 
-}
-d %<>% fix.member.date.coding
+d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in members folder
 
 
 
+#######################
+# ERRORS we can't fix #
+#######################
 
-# ERRORS we can't fix
-
-# Common reoccuring names
+# Reoccuring problem names
 names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
               i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'))
@@ -228,8 +204,18 @@ d %<>%
 
 
 
-d$department <- gsub("_.*", "", d$agency) # name dept
-d %<>% mutate(id = paste(agency, ID))
+#########################
+# ERRORS to investigate #
+#########################
+
+# date typos 
+bad.dates <- d %>% 
+  filter(is.na(ERROR)) %>% 
+  filter(year > 2018 | year < 2000) %>% 
+  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
+
+# select  timeframe
+d %<>% filter(year < 2018 & year > 2006)
 
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
@@ -238,19 +224,12 @@ bad.names.1 <- d %>%
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
+
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
-
-# date typos 
-bad.dates <- d %>% 
-  filter(is.na(ERROR)) %>% 
-  filter(year > 2018 | year < 2000) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
-
-d %<>% filter(year < 2018 & year > 2006)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -261,6 +240,9 @@ bad.party <- d %>%
   select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
   distinct()
 
+
+d$department <- gsub("_.*", "", d$agency) # name dept
+d %<>% mutate(id = paste(agency, ID)) # unique ID
 
 # identify timeframe and completeness for each agency
 d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collapse = ":")) %>%

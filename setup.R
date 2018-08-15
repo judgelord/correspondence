@@ -23,5 +23,6 @@ source("members/nameCongress.R") # augments voteview member names
 source("members/nameMethods.R") # functions for cleaning member names to match the augmented member file
 source("committees/committees.R")
 source("functions/nameMethods.R")
+source("members/MemberNameDateCorrections.R")
 gs_ls() # log in to google
 
