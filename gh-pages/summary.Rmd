@@ -7,9 +7,10 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("tidyr", "plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+library(tidyr)
 library(plm)
 library(magrittr)
 library(ineq)
