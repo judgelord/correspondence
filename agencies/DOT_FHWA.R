@@ -6,6 +6,7 @@
 # file.name <- "DOT_FHWA" # for testing
 
 clean <- function(file.name) {
+  # DOT_FHWA 
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # create ID variable
@@ -29,10 +30,73 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) %>% 
     mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  #################################################################################
+  
+  
+  
+  
+  
+  
+  
+  
+  
+# SECOND DATA SOURCE IS FORMATTED DIFFERENTLY
+  data2 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() # get data
+  
+  # create ID variable
+  data2$ID <- c(nrow(data):nrow(data)+nrow(data2))
+  
+  #create agency column
+  data2$agency <- file.name
+  
+  # Format date, year, Congress
+  data2$DATE <- data2$DATE %>% as.Date("%Y/%m/%d")
+  data2 %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data2 %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  data2$FROM <- gsub("Writer\\(s\\): |Writer/Editor: |Writers): |\\.$", "", data2$FROM)
+  data2 %<>% getFirstLast.Comma('FROM')
+  # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
+  
+  
  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # merge 2007-2014 with 2015-2017
+  data %<>% full_join(data2)
+  
+  
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
   
+  # apply coding rules
   data%<>%
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("UNIVERSITY|COOK COUNTY|SMART CITY|CITY OF DETROIT|JANUARY 13|ST. CHARLES", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("UNIVERSITY|COOK COUNTY|SMART CITY|CITY OF DETROIT|JANUARY 13|ST. CHARLES", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
