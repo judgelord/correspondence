@@ -8,9 +8,6 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # Remove duplicated rows 
-
-  
   #create agency column
   data$agency <- file.name
   
@@ -36,12 +33,11 @@ clean <- function(file.name) {
     }
   }
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
 
 
   
   ################ 
-  
   
   #  We got better quality data, now ignoring FROM2 col
   # create variable for last name
@@ -49,18 +45,17 @@ clean <- function(file.name) {
   # data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.", replacement = ",", data$FROM2)
   # data$last_name <- formatLastName(data, 'FROM2')
   
+  ################
+  
   
   data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
-  data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM)
+  data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
   
 
   # names 
   data <- getFirstLast.Comma(data, 'FROM')
   
   # data$last_name <- ifelse(grepl("^^(\\w+)$", data$FROM), formatLastName(data, 'FROM'), data$last_name)  # THIS DOES NOT LOOK RIGHT, TAKING IT OUT
-  
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, everything())
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|ON BEHALF OF .*6|EMPLOYEE|(B) (6)|EMPLOYMENT|WRONGFUL TERMINATION|SEXUAL|INTERNSHIP|RETIREMEN|FARMHOUSE|WRONGFUL TERMINATION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%

@@ -1,9 +1,10 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
 # load required functions
+
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
-# note for MERGING: 
+ # note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
 # in df, TYPE is numeric, Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
@@ -159,6 +160,7 @@ while(length(unique(d$agency) == i)) {
     
     i <- i+1
 }
+paste("Missing:" , data_list %>% filter(!(agency %in% d$agency)) )
 library(gmailr)
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
@@ -230,14 +232,14 @@ d$department <- gsub("_.*", "", d$agency) # name dept
 d %<>% mutate(id = paste(agency, ID))
 
 # names that match more than one member - false positives
-bad.names.type1 <- d %>% 
+bad.names.1 <- d %>% 
   filter(is.na(ERROR)) %>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
 # names that don't match - potentially typos / false negatives
-bad.names.type2 <- d %>% 
+bad.names.2 <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
@@ -272,11 +274,12 @@ d %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collaps
       grepl("2013", timeframe) &
       grepl("2014", timeframe) &
       grepl("2015", timeframe) &
-      grepl("2016", timeframe)  & grepl("2017", timeframe)
+      grepl("2016", timeframe)  #& grepl("2017", timeframe)
     , T, F)) %>% ungroup()
-
+# Timeframe:
 unique(cbind(d$complete ,d$timeframe))
-
+# Problems: 
+data_list %>% filter(!(agency %in% d$agency)) 
 
 
 
@@ -496,5 +499,5 @@ df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>
 
 # remove temp data / vars
 df %<>% dplyr::select(-n)
-rm(d1)
+rm(d1, file.name, names, requires, to_install, i)
 save.image("gh-pages/correspondence.RData")

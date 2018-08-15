@@ -7,23 +7,20 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("plm", "tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-  
-  library(tidyverse)
-    library(plm)
+library(plm)
 library(magrittr)
-  library(ineq)
-  library(ggplot2)
-  library(dplyr)
-  library(stargazer)
-  library(maps)
+library(ineq)
+library(ggplot2)
+library(dplyr)
+library(stargazer)
+library(maps)
 library(fiftystater)
 library(mapproj)
-  library(knitr)
+library(knitr)
 
-  
 load("correspondence.RData")
 ```
 
@@ -220,7 +217,7 @@ stargazer(chair, prestige, prestigechair, partyleader,
 
 chair.policy <- plm(permemberyear ~ chair , 
              data = df %>% 
-               filter(complete == T, Type2=="Policy") %>% 
+               filter(Type2=="Policy" & !is.na(Type2)) %>% 
                select(permemberyear, chair,  majority, bioname, year) %>%
                distinct(), 
              index = c("bioname", "year"), model = "within")
@@ -228,13 +225,13 @@ chair.policy <- plm(permemberyear ~ chair ,
 
 partyleader.policy <- plm(permemberyear ~ party_leader ,
                      data = df %>% 
-               filter(complete == T, Type2=="Policy") %>% 
+               filter(Type2=="Policy" & !is.na(Type2)) %>% 
                        select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
                      index = c("bioname", "year"), model = "within")
 
 chair.const <- plm(permemberyear ~ chair , 
              data = df %>% 
-               filter(complete == T, Type2=="Constituent Service") %>% 
+               filter(Type2=="Constituent Service" & !is.na(Type2)) %>% 
                select(permemberyear, chair,  majority, bioname, year) %>%
                distinct(), 
              index = c("bioname", "year"), model = "within")
@@ -242,7 +239,7 @@ chair.const <- plm(permemberyear ~ chair ,
 
 partyleader.const <- plm(permemberyear ~ party_leader ,
                      data = df %>% 
-               filter(complete == T, Type2=="Constituent Service") %>% 
+               filter(complete == T, Type2=="Constituent Service" & !is.na(Type2)) %>% 
                        select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
                      index = c("bioname", "year"), model = "within")
 
@@ -402,16 +399,16 @@ ggplot() +
 
 Unfortunately, much our data are censored around the 2008-2009 and 2016-2017 party transitions, some the most informative time periods in our study period. 
 
-Most right-censored series will be completed, but some agencies have changed systems such that logs are less useful or even terminated. For example, the DOL Office of Administrative Law Judges "discontinued the use of the spreadsheet" tracking congressional inquiries in November 2016. Similarly,DHS Immigration and Customs Enforcement (ICE) stopped keeping its own log in 2014, even though this correspondence logged by ICE was distinct from correspondence addressed to ICE logged by the DHS Secretary's Office.
+Most right-censored series will be completed, but some agencies have changed systems such that logs are less useful or even terminated. For example, the DOL Office of Administrative Law Judges "discontinued the use of the spreadsheet" tracking congressional inquiries in November 2016. Similarly, DHS Immigration and Customs Enforcement (ICE) may have stopped keeping its own log in 2014, even though this correspondence logged by ICE was distinct from correspondence addressed to ICE and logged by the DHS Secretary's Office.
 
 Left censoring comes from two sources:
 (1) Formal document retention cycles (agencies good at destroying documents such as the DOD and the FCC), and
 (2) Document loss and changing systems (agencies bad at keeping documents). 
-Either one of these may correlate with changes in an agency's salience due to changes in party control. It does seem that the most contacted/controversial agencies (EPA, DHS) keep very good records. This might lead us to a slight bias toward older records being about policy, but should not be a problem if controlling for the target agency.
+Either one of these may correlate with changes in an agency's salience due to changes in party control. It does seem that the most contacted/controversial agencies (EPA, DHS) keep very good records. This might lead us to a slight bias toward older records being about policy, but we do not see evidence of such bias in our data. Nevertheless, our timeseries analysis either subsets to agencies where we have full data or includes agency and/or Congress fixed effects.
 
 #### Timing
 
-Dates are generally the addressed date of the letter, but may alternatively be the date the letter was received by that agency--almost always, very small differences. 
+Dates are generally the addressed date of the letter, but may alternatively be the date the letter was received by that agency---almost always within a few days. 
 
 There might be some interesting signal in the formality of letterhead that changes things even when the agency knows what is coming. For example, the USGS recorded this note on a letter from McCain: "See all attachments including email string - Dave Applegate and John Godt are aware this is coming."
 
@@ -420,7 +417,7 @@ There might be some interesting signal in the formality of letterhead that chang
 
 This paper presents a new data set of letters, phone calls, and emails received by all federal agencies and subagencies. 
 
-We developed a [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit). Our coding process began with the authors coding a representative sample of records. We then trained undergraduate and graduate RAs. The first several thousand log entries were double coded. For example, of over 10,000 log entries for the Environmental Protection Agency, the first 2,500 were double-coded with inter-coder agreement of .9 where coders did not flag their coding as uncertain and  .78 overall.
+We developed a [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit) to classify correspondence by type and to identify referents such as agency rules, hearings, or legislation. Our coding process began with the authors coding a representative sample of records. We then trained undergraduate and graduate RAs. The first several thousand log entries were double coded. For example, of over 10,000 log entries for the Environmental Protection Agency, the first 2,500 were double-coded with inter-coder agreement of .9 where coders did not flag their coding as uncertain and  .78 overall. Throughout the hand-coding process, we also developed subagency-specific coding rules where agency staff consistently described certain types of correspondence with certain words. For example, where "rulemaking" consistently indicated that a legislator's request involved an agency rule, all cases yet uncoded by hand are assigned to be type "Policy-Rulemaking" for the present analysis. 
 
 
 
