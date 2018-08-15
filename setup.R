@@ -16,12 +16,15 @@
   library(Rvoteview)
   library(stringi)
 
-source("functions/stateFromLower.R") # format state names
+  source("functions/clean.R") # data cleaning and intercoder agreement functions 
+  source("functions/stateFromLower.R") # format state names
   source("functions/dateMethods.R")
-source("functions/clean.R") # data cleaning and intercoder agreement functions 
-source("members/nameCongress.R") # augments voteview member names
-source("members/nameMethods.R") # functions for cleaning member names to match the augmented member file
-source("committees/committees.R")
-source("functions/nameMethods.R")
+  source("functions/nameMethods.R") # functions for cleaning member names to match the augmented member file
+  
+  source("members/nameCongress.R") # augments voteview member names
+  source("members/MemberNameDateCorrections.R")
+  
+  source("committees/committees.R")
+  
 gs_ls() # log in to google
 
