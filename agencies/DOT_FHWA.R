@@ -64,10 +64,11 @@ clean <- function(file.name) {
   data2 %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data2 %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data2$FROM <- gsub("Writer\\(s\\): |Writer/Editor: |Writers): |\\.$", "", data2$FROM)
+  data2$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data2$FROM)
+  data2 <- data2[-which(data2$FROM==""),]
+  
   data2 %<>% getFirstLast.Comma('FROM')
   # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
-  
   
  
   
