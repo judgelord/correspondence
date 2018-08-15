@@ -530,12 +530,12 @@ getFirstLast.Comma <- function(data, col_name){
   
   # Fix specific common errors
   data %<>%
-    mutate(last_name = ifelse(grepl("HERSETH", last, ignore.case = TRUE )|grepl('SANDLIN', last, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("HERSETH", last,ignore.case = TRUE)|grepl('SANDLIN', last,ignore.case = TRUE), "Stephanie", first_name)) %>%
-    mutate(last_name = ifelse(grepl("PAULSEN", last, ignore.case = TRUE )&grepl('Erik', last, ignore.case = TRUE), "PAULSEN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("PAULSEN", last,ignore.case = TRUE)&grepl('Erik', last,ignore.case = TRUE), "Erik", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("CONYERS", last, ignore.case = TRUE )&grepl('John', last, ignore.case = TRUE), "CONYERS", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("CONYERS", last,ignore.case = TRUE)&grepl('John', last,ignore.case = TRUE), "John", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("HERSETH", FROM2, ignore.case = TRUE )|grepl('SANDLIN', FROM2, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("HERSETH", FROM2,ignore.case = TRUE)|grepl('SANDLIN', FROM2,ignore.case = TRUE), "Stephanie", first_name)) %>%
+    mutate(last_name = ifelse(grepl("PAULSEN", FROM2, ignore.case = TRUE )&grepl('Erik', FROM2, ignore.case = TRUE), "PAULSEN", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("PAULSEN", FROM2,ignore.case = TRUE)&grepl('Erik', FROM2,ignore.case = TRUE), "Erik", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("CONYERS", FROM2, ignore.case = TRUE )&grepl('John', FROM2, ignore.case = TRUE), "CONYERS", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("CONYERS", FROM2,ignore.case = TRUE)&grepl('John', FROM2,ignore.case = TRUE), "John", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Ben|E.B|E B", FROM2,ignore.case = TRUE)& grepl('NELSON', FROM2,ignore.case = TRUE), "NELSON", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Ben|E.B|E B", first_last,ignore.case = TRUE)& grepl('NELSON', first_last,ignore.case = TRUE), "Ben", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Casey", FROM2,ignore.case = TRUE)& grepl('Rob|Bob|Jr', FROM2,ignore.case = TRUE), "CASEY", last_name)) %>% 
