@@ -5,6 +5,9 @@
 
 # file.name <- "DOT_FHWA" # for testing
 
+
+# Duplicates need to be addressed
+
 clean <- function(file.name) {
   # DOT_FHWA 
   data <- gs_title(file.name) %>% gs_read() # get data
