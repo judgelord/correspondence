@@ -445,6 +445,8 @@ A large number of letters are co-signed, which may yield interesting tests of th
 
 Use coding rules, SVMs, or topic models to auto-code entries where human coders have given us a good deal of data (e.g. USDA with coding rules, EPA with a topic model or SVM), or develop coding rules based on unsupervised clustering where we have a lot of text (e.g. FERC, CDC). 
 
+Use sentiment analysis to create a measure of valence--the rhetorical strength with which requests are made. 
+
 For many agencies, we have a sample of letters. These can be pasted into their respective Google sheets. This could be a productive way to skim a broad sample of letters and will provide more text for analysis. 
 
 Use agencies where we have data on (some) calls and emails to estimate the bias in the letterhead correspondence that constitutes most logs. For example, DOD Defense Logistics received 8 calls but only 2 letters from members regarding the termination of a contract for parachutes, suggesting that letters may be a small portion of contacts for certain issues like corporate service. Between May 2015 and December 2017, the DOJ Office of Administrative Law Judges received 132 emails, 109 telephone calls, and only 54 letters. Between 2007 and 2017, the Postal Regulatory Commission received 100 emails, 30 faxes, 173 letters, 118 calls. 
