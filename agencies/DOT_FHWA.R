@@ -90,6 +90,7 @@ clean <- function(file.name) {
   data2 <- data2[!data2$FROM == "",] # removes blank observations
   
   ################
+  data$FROM <- gsub("([a-z]{3})[A-Z]", '\\1', data$FROM)
   
   data2 %<>% getFirstLast.Comma('FROM')
   # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
