@@ -250,7 +250,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   
   mutate(middle_initial = ifelse(bioname == "CRAWFORD, Rick", "A", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "AYOTTE, Kelly", "A", middle_initial)) %>% 
-  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "BOXER, Barbara", "A", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
