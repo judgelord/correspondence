@@ -77,8 +77,9 @@ clean <- function(file.name) {
   for(i in 1:nrow(data2)){
     if(grepl("\\w{3,}\\.", data2$FROM[i])) {
       
-      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$FROM[i], pattern = "\\w{3,}\\.") + 1))
-      new$FROM <- unlist(str_split(data2$FROM[i], "\\w{3,}\\."))
+      data2$FROM <- gsub("( )(\\w)\\.", "\\1\\2", data2$FROM)
+      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$FROM[i], pattern = "\\.") + 1))
+      new$FROM <- unlist(str_split(data2$FROM[i], "\\."))
       
       data2 <- rbind(data2, new)
       
@@ -89,8 +90,6 @@ clean <- function(file.name) {
   data2 <- data2[!data2$FROM == "",] # removes blank observations
   
   ################
-
-  
   
   data2 %<>% getFirstLast.Comma('FROM')
   # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
