@@ -574,13 +574,13 @@ committees %<>%
   mutate(terminationdate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
                                 as.Date('2009-09-09'), terminationdate)) %>% 
   mutate(assigneddate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
-                                as.Date('03-01-2009'), assigneddate)) %>% 
+                                as.Date('2009-03-01'), assigneddate)) %>% 
   # Wyden Chair of the Senate Finance Committee February 12, 2014 – January 3, 2015
   mutate(assigneddate = if_else(name =="Wyden, Ron" & congress == 113 & committeename == "Finance",
-                                as.Date('12-02-2014'), assigneddate)) %>% 
+                                as.Date('2014-12-02'), assigneddate)) %>% 
   # Harkin moved to health sept 2009
   mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Health, Education, Labor, and Pensions",
-                                as.Date('09-09-2009'), assigneddate)) 
+                                as.Date('2009-09-09'), assigneddate)) 
 # FIXME
 # DATES TO FIX / CONFIRM FIXED 
 # ag - lincoln and harkin 2011

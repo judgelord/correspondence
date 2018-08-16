@@ -867,3 +867,29 @@ df %>%
   theme(axis.title.x = element_blank(),
         legend.title = element_blank(),
         strip.text.y = element_text(angle = 0, size = 5))
+
+
+df %>% 
+  filter(!is.na(chair)) %>% 
+  group_by(member_state, chamber) %>% mutate(mean = mean(permemberyear)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(quartile = ntile(mean, 4)) %>% ungroup() %>% 
+  group_by(chamber, chair, member_state, quartile) %>% mutate(mean = mean(permemberyear)) %>% ungroup() %>% 
+  group_by(chamber, chair, quartile) %>% mutate(mean = mean(mean)) %>% ungroup() %>% 
+  select(chamber, chair, mean, quartile) %>% distinct() %>% ungroup() %>% 
+  ggplot() +
+  geom_line(aes(x = factor(chair), y = mean, group = quartile, color = factor(quartile))) + facet_grid(chamber ~ .)
+
+
+
+df %>% 
+  filter(!is.na(chair)) %>% 
+  mutate(Position = factor(ifelse(chair == 1, "Committee Chair", "Not Chair"))) %>% 
+  filter(Type != "To be coded") %>% 
+  group_by(member_state) %>% mutate(mean = mean(permemberyear)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(Quartile = factor(ntile(mean, 4))) %>% ungroup() %>% 
+  group_by(Type, member_state, year) %>% mutate(n = n())  %>% ungroup() %>% 
+  group_by(Type, member_state) %>% mutate(mean = mean(n))  %>% ungroup() %>% 
+  group_by(Type, Position, Quartile, chamber) %>% mutate(mean = mean(mean)) %>% ungroup() %>% 
+  select(Type, chamber, Position, mean, Quartile) %>% distinct() %>% ungroup() %>% 
+  ggplot() +
+  geom_line(aes(x = Position, y = mean, group = Quartile, color = Quartile)) + facet_grid(Type ~ chamber, scales = "free_y")
