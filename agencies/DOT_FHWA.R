@@ -70,6 +70,25 @@ clean <- function(file.name) {
   data2$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data2$FROM)
   data2 <- data2[-which(data2$FROM==""),]
   
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data2)){
+    if(grepl("\\w{3,}\\.", data2$FROM[i])) {
+      
+      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$FROM[i], pattern = "\\w{3,}\\.") + 1))
+      new$FROM <- unlist(str_split(data2$FROM[i], "\\w{3,}\\."))
+      
+      data2 <- rbind(data2, new)
+      
+    }
+  }
+  data2 <- data2[-grep("\\w{3,}\\.", data2$FROM),] # removes orginal row with all data
+  data2$FROM <- gsub("^ |^  | $|  $", "", data2$FROM)
+  data2 <- data2[!data2$FROM == "",] # removes blank observations
+  data2 <- data2[-grep(" other", data2$FROM, ignore.case = TRUE),] 
+  ################
+  
   data2 %<>% getFirstLast.Comma('FROM')
   # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
   
