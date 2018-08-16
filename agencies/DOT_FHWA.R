@@ -86,7 +86,6 @@ clean <- function(file.name) {
   data2 <- data2[-grep("\\w{3,}\\.", data2$FROM),] # removes orginal row with all data
   data2$FROM <- gsub("^ |^  | $|  $", "", data2$FROM)
   data2 <- data2[!data2$FROM == "",] # removes blank observations
-  data2 <- data2[-grep(" other", data2$FROM, ignore.case = TRUE),] 
   ################
   
   data2 %<>% getFirstLast.Comma('FROM')
