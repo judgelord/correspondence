@@ -426,7 +426,14 @@ extractMemberName <- function(data, members, col_name){
    
    mutate(last_name = ifelse( grepl("(^| )Conaway( |$)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
    mutate(first_name = ifelse( grepl("(^| )Conaway( |$)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "Michael", first_name))
-  return(data)
+  
+  for (i in 1:length(members$id)) {
+   data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
+                                         members$first_name[i], data$first_name))
+   
+    }
+ 
+ return(data)
  
  
 }
@@ -677,8 +684,12 @@ getFirstLast.Comma <- function(data, col_name){
   
     
     
-  
-  
+  for (i in 1:length(members$id)) {
+    data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
+                                          members$first_name[i], data$first_name))
+
+  }
+
   
    #Remove colums. Comment out for debugging
  # data <- subset(data, select = -c(first, last, first_last, FROM2))
