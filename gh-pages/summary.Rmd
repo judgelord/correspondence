@@ -7,9 +7,10 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("tidyr", "plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+library(tidyr)
 library(plm)
 library(magrittr)
 library(ineq)
@@ -440,7 +441,11 @@ Correct committee data (there are some errors and missingness in appointment and
 
 ### Longer term
 
+A large number of letters are co-signed, which may yield interesting tests of theories of legislator networks/ties/coalitions (e.g. compare to bill co-sponsorship a la Kirkland and Bratton, Haynie, and Rouse on ideology, race, and gender etc.). To this end, co-signed letters are given the same unique ID as we break them out by member.
+
 Use coding rules, SVMs, or topic models to auto-code entries where human coders have given us a good deal of data (e.g. USDA with coding rules, EPA with a topic model or SVM), or develop coding rules based on unsupervised clustering where we have a lot of text (e.g. FERC, CDC). 
+
+Use sentiment analysis to create a measure of valence--the rhetorical strength with which requests are made. 
 
 For many agencies, we have a sample of letters. These can be pasted into their respective Google sheets. This could be a productive way to skim a broad sample of letters and will provide more text for analysis. 
 

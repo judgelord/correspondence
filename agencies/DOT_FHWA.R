@@ -24,6 +24,7 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   data$FROM <- paste(data$FName, " ", data$LName )
+  data$FROM <- gsub("e'", "e" ,data$FROM)
   
   data <- extractMemberName(data, members, 'FROM')
   
@@ -57,7 +58,7 @@ clean <- function(file.name) {
   data2 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() # get data
   
   # create ID variable
-  data2$ID <- c(nrow(data):nrow(data)+nrow(data2))
+  data2$ID <- c((nrow(data)+1):(nrow(data)+nrow(data2)))
   
   #create agency column
   data2$agency <- file.name
@@ -69,6 +70,27 @@ clean <- function(file.name) {
   
   data2$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data2$FROM)
   data2 <- data2[-which(data2$FROM==""),]
+  
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data2)){
+    if(grepl("\\w{3,}\\.", data2$FROM[i])) {
+      
+      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$FROM[i], pattern = "\\w{3,}\\.") + 1))
+      new$FROM <- unlist(str_split(data2$FROM[i], "\\w{3,}\\."))
+      
+      data2 <- rbind(data2, new)
+      
+    }
+  }
+  data2 <- data2[-grep("\\w{3,}\\.", data2$FROM),] # removes orginal row with all data
+  data2$FROM <- gsub("^ |^  | $|  $", "", data2$FROM)
+  data2 <- data2[!data2$FROM == "",] # removes blank observations
+  
+  ################
+
+  
   
   data2 %<>% getFirstLast.Comma('FROM')
   # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
@@ -99,6 +121,11 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
+  
+  # add errors
+  data %<>%
+    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR))
+  
   
   # apply coding rules
   data%<>%

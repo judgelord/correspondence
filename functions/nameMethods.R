@@ -162,7 +162,8 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
-  data$Summary <- gsub('\\"Bobby\\"|\\"Buddy\\"|\\"GT\\"|\\"Buck\\"|\\"Chuck\\"', "", data$Summary, ignore.case = TRUE)
+ # data$Summary <- gsub('\\"Bobby\\"|\\"Buddy\\"|\\"GT\\"|\\"Buck\\"|\\"Chuck\\"', "", data$Summary, ignore.case = TRUE)
+  data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
@@ -564,7 +565,7 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse(grepl("King", FROM2,ignore.case = TRUE)&grepl("jr", FROM2,ignore.case = TRUE), "Angus", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Andr", FROM2,ignore.case = TRUE)&grepl("Carson", FROM2,ignore.case = TRUE), "CARSON", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Andr", FROM2,ignore.case = TRUE)&grepl("Carson", FROM2,ignore.case = TRUE), "Andre", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE), "SERRANO", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE),"SERRANO", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE), "Jose", first_name)) %>% 
     # mutate(last_name = ifelse(grepl("GRIJALVA", FROM2,ignore.case = TRUE), "GRIJALVA", last_name)) %>% 
     # mutate(first_name = ifelse(grepl("GRIJALVA", FROM2,ignore.case = TRUE), "Raúl", first_name)) %>% 
