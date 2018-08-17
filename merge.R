@@ -122,11 +122,10 @@ data_list
 # clean one file #
 ##################
 
-i = 1 # initialize for full merge (default)
-
+# initialize for full merge (default)
+i <- 1 
 # or choose one agency
-# i <- which(data_list$agency == "USPS") 
-
+# i <- which(data_list$agency == "FCC") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -136,6 +135,7 @@ d1 %<>% # and merge with voteview data
   left_join(members) %>% 
   distinct()
 
+d <- d1
 ####################
 
 
@@ -146,7 +146,7 @@ d1 %<>% # and merge with voteview data
 ##################################
 # Repeat merge while successful: #
 ##################################
-d <- d1
+
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {

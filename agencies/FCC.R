@@ -23,7 +23,8 @@ clean <- function(file.name) {
   data <- getFirstLast.Comma(data, 'FROM')
   
   # format state variable
-  data$state <- stateFromLower(data$state)
+  data$state <- stateFromLower(gsub(".*\\(.-|\\)","", data$FROM))
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
