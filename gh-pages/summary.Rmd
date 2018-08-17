@@ -10,24 +10,26 @@ output:
 requires <- c("tidyr", "plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-library(tidyr)
-library(plm)
-library(magrittr)
-library(ineq)
-library(ggplot2)
-library(dplyr)
-library(stargazer)
-library(maps)
-library(fiftystater)
-library(mapproj)
-library(knitr)
+  library(tidyr)
+  library(plm)
+  library(ineq)
+  library(dplyr)
+  library(ggplot2)
+  library(magrittr)
+  library(stargazer)
+  library(maps)
+  library(fiftystater)
+  library(mapproj)
+  library(knitr)
 
 load("correspondence.RData")
 ```
 
 ```{r global.options, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = F, fig.width=8.5, fig.path='Figs/',
-                      warning=FALSE, message=FALSE, fig.align = 'center')
+knitr::opts_chunk$set(echo = TRUE, 
+                      cache = F, 
+                      fig.width=8.5, fig.align = 'center', fig.path='Figs/',
+                      warning=FALSE, message=FALSE)
 ```
 
 # Abstract
@@ -45,6 +47,7 @@ Are the 110-114th Congresses reasonably covered (with the potential to cover the
 
 ```{r missing_data, fig.height=8}
 df %>% 
+  filter(!is.na(agency)) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(Coded = ifelse(Type == "To be coded", "To be coded", "Coded")) %>% 
   ggplot() + 
@@ -386,6 +389,7 @@ stargazer(chair.const, chair.ngo, chair.corp, chair.industry, chair.policy,
 # Basic Facts
 
 ```{r means_by_type_table, include = FALSE}
+# mean by mamber 
 data <- df %>% 
   group_by(member_state, year, chamber) %>% 
   summarise(perYear = n()) %>% ungroup() %>%
@@ -406,6 +410,29 @@ kable(df %>%
     #rename(chamber = Chamber) %>% 
   select(Chamber = chamber, everything()),
   caption = "Average Correspondence per Year by Type")
+
+# overall mean by type
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+kable(df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  mutate(perType = round(perType, 0)) %>% 
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+    full_join(data) %>% 
+  spread(Type, perType, fill = 0) %>% 
+  group_by(chamber) %>% 
+  summarise_all(max) %>% 
+    #rename(chamber = Chamber) %>% 
+  select(Chamber = chamber, everything()),
+  caption = "Total Correspondence by Type")
+
 
 ```
 
@@ -507,18 +534,18 @@ For USDA and a few others, we have logs of non-congressional letters; it may be 
 
 ```{r gini}
 library(ineq)
-gini <- df %>% group_by(agency) %>% mutate(perAgency = n()) %>% ungroup() %>% 
-  filter(perAgency >100) %>% 
+gini_by_member <- df %>% 
+  group_by(agency) %>% mutate(perAgency = n()) %>% ungroup() %>% 
+  filter(perAgency >100) %>% # select agencies with sufficient data 
   group_by(member_state, agency, chamber, year) %>% summarise(n = n()) %>% ungroup() %>% 
   group_by(member_state, agency, chamber) %>% mutate(n = mean(n)) %>% ungroup() %>% 
-  group_by(agency, chamber) %>% 
-  mutate(byAgency = round(Gini(n),2)) %>% ungroup() %>% 
-  group_by(chamber) %>%
-  mutate(byChamber = round(Gini(n),2)) %>% 
+  group_by(agency, chamber) %>% mutate(byAgency = round(Gini(n),2)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(byChamber = round(Gini(n),2)) %>% 
   dplyr::select(chamber, agency, byChamber, byAgency) %>% distinct() %>% arrange(byAgency)
+
 ```
 
-  The volume of correspondence per legislator is highly unequal. Within the `r length(unique(gini$agency))` agencies receiving more than 100 letters, the Gini coefficient of letters per member per year is `r unique(gini$byChamber[which(gini$chamber=="Senate")])` for Senators and `r unique(gini$byChamber[which(gini$chamber=="House")])` for Representatives, similar to income inequality estimates for Mexico and the United States respectively and higher than inequality in campaign spending (The Gini coefficient for House campaign spending in 2016 was .29).  
+  The volume of correspondence per legislator is highly unequal. Within the `r length(unique(gini_by_member$agency))` agencies receiving more than 100 letters, the Gini coefficient of letters per member per year is `r unique(gini_by_member$byChamber[which(gini_by_member$chamber=="Senate")])` for Senators and `r unique(gini_by_member$byChamber[which(gini_by_member$chamber=="House")])` for Representatives, similar to income inequality estimates for Mexico and the United States respectively and higher than inequality in campaign spending (The Gini coefficient for House campaign spending in 2016 was .29).  
   
   
   
@@ -1131,18 +1158,24 @@ dcommittees %>%
     legend.position = "bottom"
   ) + 
   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```  
 
+
+There are also differences in how members contact an agency such as whether they contact the DC headquarters or a subagency office. These distributions are fairly consistent over time. To stay with the same example none of the `{r} nrow{df %>% filter(agency == "DHS_ICE"}` contacts sent directly to ICE (circumventing DHS headquarters) came from these three committee chairs.
+
+
+```{r committeechairs_barcode_DHS_ICE, fig.height=3}
 Chamber = "House" 
 dcommittees %>% 
   filter(chamber == Chamber, 
          committee == "HOMELAND SECURITY",
-         chair_since_2007 == T,  
+         # chair_since_2007 == T,  
          agency %in% c("DHS_HQ", "DHS_ICE"), 
          DATE < as.Date("2017-01-01")) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
-        y = chair, 
+        y = ifelse(chair_since_2007 == T, chair, "Other committee members"), 
         color = agency),
     shape = 73
   ) +
@@ -1164,7 +1197,7 @@ dcommittees %>%
   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```
 
-Some members, even committee chairs, and especially senators, distribute their attention across a wide variety of agencies. There are also differences in how members contact an agency. For example whether they contact the DC headquarters or a subagency office. These distributions are fairly consistent over time. 
+Some members, even committee chairs, and especially senators, distribute their attention across a wide variety of agencies. 
 
 *to do:* committee members over time. 
 

@@ -261,41 +261,43 @@ bad.party <- d %>%
 ####################################################################################
 
 ####################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#########################################################################
+#
+#               DATA TRANSFORMATIONS 
+#               df = one obs per letter matching ICPSR
+#               dcommittees = one obs per letter per committee position
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 ###############################################
 # Create df with transformations for analysis #
 ###############################################
@@ -480,6 +482,7 @@ df %<>% full_join(
     group_by(icpsr, congress) %>% top_n(1, wt = speaker) %>% distinct()
 ) %>% filter(!is.na(bioname))
 
+# chair variable to text
 df %<>% 
   mutate(position = ifelse(chair ==1, "Chair", NA)) %>%
   mutate(position = ifelse(ranking_minority == 1, "Ranking Minority", position)) 
@@ -546,8 +549,8 @@ df$party_name <- gsub(" Party", "", df$party_name)
 # president's party
 df %<>% 
   mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
-  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, 0)) %>% 
-  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, 0)) 
+  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, presidents_party)) %>% 
+  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, presidents_party)) 
 
 # election cycle 
 df %<>% 
