@@ -299,9 +299,12 @@ bad.party <- d %>%
 ###############################################
 # Create df with transformations for analysis #
 ###############################################
+
 d %<>% ungroup()
-df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
+df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
 committees %<>% select(-party) # drop Stewart committee data party codes 
+
+
 
 # TIMESERIES COMPLETENESS 
 # identify timeframe and completeness for each agency
@@ -324,13 +327,27 @@ unique(cbind(df$complete ,df$timeframe))
 data_list %>% filter(!(agency %in% df$agency)) 
 
 ####################################################################################
+# yearly totals for core APSA2018 model 
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>%
+  mutate(bioname_year = paste(bioname, year))
+df$year %<>% as.numeric()
+# members with zero letters in a year
+zeros <- data_frame(
+  year = as.numeric(rep(unique(df$year), n_distinct(members$bioname))), 
+  bioname =  rep(unique(members$bioname), n_distinct(df$year)),
+  permemberyear = 0) %>%
+  mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) %>% 
+  left_join(members) %>% 
+  filter(!is.na(icpsr), chamber %in% c("House", "Senate")) %>% 
+  mutate(bioname_year = paste(bioname, year)) %>% 
+  filter(!bioname_year %in% df$bioname_year)
 
-
+df %<>% full_join(zeros)
 
 ############
 # New vars #
 ############
-df$department <- gsub("_.*", "", d$agency) # name dept
+df$department <- gsub("_.*", "", df$agency) # name dept
 df %<>% mutate(id = paste(agency, ID)) # unique ID
 
 # numeric to text 
@@ -543,11 +560,6 @@ df %<>%
                                   year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
                                 1, 0)) 
   
-
-
-# yearly totals for core APSA2018 model 
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>% 
-  mutate(bioname_congress = paste(bioname, congress))
 
 ######################
 ###################################################################################
