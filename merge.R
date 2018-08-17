@@ -486,6 +486,11 @@ df %<>% full_join(
     group_by(icpsr, congress) %>% top_n(1, wt = prestige_chair) %>% distinct()
 ) %>% filter(!is.na(bioname))
 
+# year elected 
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, yearelected) %>% distinct() 
+) %>% filter(!is.na(bioname))
+
 # Those who served as Chairs at some point
 df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(df$position == "Chair")])), T, F) )
   # mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
@@ -526,7 +531,19 @@ df %<>%
   mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
   mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, 0)) %>% 
   mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, 0)) 
+
+# election cycle 
+df %<>% 
+  mutate(election_year = ifelse(chamber == "Senate" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) %>%
+  mutate(election_year = ifelse(chamber == "House" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) 
   
+
 
 # yearly totals for core APSA2018 model 
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>% 
