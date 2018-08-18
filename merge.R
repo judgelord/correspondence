@@ -193,7 +193,8 @@ send_message(mime(
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
 d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in members folder
-
+df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
+df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 ##############
 
 
@@ -452,9 +453,16 @@ dcommittees %<>% group_by(member_committee) %>%
 # df Committee Vars #
 #####################
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
-# run after creating dcommittees because below df vars are across committees, e.g. chair = if chair of ANY committee
+# run after creating dcommittees because below df vars are across committees, e.g. chair = if chair of ANY committee in that congress
 committees %<>% filter(!is.na(icpsr))
 committees %<>%  filter(!is.na(congress)) 
+
+# FIXME
+# JUST UNTIL WE FIX THESE IN COMMITTEE DATA via committees.R
+# df$chair[df$icpsr==94910] # fixed in committees.R
+# missing Critz in the 111th
+# 
+###########################################
 
 # leadership positions
 df %<>% full_join(
@@ -482,10 +490,21 @@ df %<>% full_join(
     group_by(icpsr, congress) %>% top_n(1, wt = speaker) %>% distinct()
 ) %>% filter(!is.na(bioname))
 
+
+# FIXME 
+# ADD BELOW TO MemberNameDateCorrections.R fix.member.dates function:
+#  mutate(party = ifelse(name == "Specter, Arlen" & assigneddate < as.Date("2009-04-28"), 200, party)) %>% # THIS IS INSUFICIENT
+#  mutate(icpsr = ifelse(name == "Specter, Arlen" & assigneddate > as.Date("2009-04-28"), 94110, icpsr)) %>%  # NEED TO CORRECT MEMBERSHIP ETC
+# need to add Kennedy Joe, Jr and III to MemberNameDateCorrections.R
+# /FIXME
+
+
 # chair variable to text
 df %<>% 
   mutate(position = ifelse(chair ==1, "Chair", NA)) %>%
   mutate(position = ifelse(ranking_minority == 1, "Ranking Minority", position)) 
+
+bad.committees.2 <- filter(df, is.na(chair)) %>% group_by(icpsr, bioname, congress) %>% summarise(n = n()) %>% arrange(-n)
 
 # partystatus
 df %<>% full_join(
@@ -566,8 +585,15 @@ df %<>%
 
 ######################
 ###################################################################################
+# gender for those where we have the data from LEP
+df$icpsr %<>% as.character()
 
+d1 <- df
+df <- d1
 
+df %<>% left_join(
+  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr)
+)
 
 
 
@@ -577,5 +603,5 @@ df %<>%
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, file.name, names, requires, to_install, i)
+rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i)
 save.image("gh-pages/correspondence.RData")
