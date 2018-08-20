@@ -16,6 +16,7 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 # 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
+
 data_list <- as.data.frame(matrix(c(
 # Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA, # complete but no subjects to code
@@ -30,8 +31,8 @@ data_list <- as.data.frame(matrix(c(
 "DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
-"DOC_NIST", "not coded", NA,
-"DOC_NOAA", "not coded", NA,
+"DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA
+"DOC_NOAA", "not coded", NA, 
 "DOC_OCPA", "not coded", NA,
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
@@ -39,8 +40,8 @@ data_list <- as.data.frame(matrix(c(
 "DOD_DeCA", "coded", "Devin", # only some are on drive 
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
-"DOD_Navy", "coded", "Delaney", # records post 2013
-# "DOD_OIG", "not coded", NA, # waiting for records back from Upwork Joe
+"DOD_Navy", "coded", "Delaney", # no records before 2013
+# "DOD_OIG", "not coded", NA, # waiting for records back from Joe
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
@@ -112,7 +113,7 @@ data_list <- as.data.frame(matrix(c(
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
-names(data_list) <- c("agency", "status", "coders")
+danames(data_list) <- c("agency", "status", "coders")
 data_list
 
 
@@ -122,11 +123,10 @@ data_list
 # clean one file #
 ##################
 
-i = 1 # initialize for full merge (default)
-
+# initialize for full merge (default)
+i <- 1 
 # or choose one agency
-# i <- which(data_list$agency == "USPS") 
-
+# i <- which(data_list$agency == "DOC_EDA") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -136,6 +136,7 @@ d1 %<>% # and merge with voteview data
   left_join(members) %>% 
   distinct()
 
+d <- d1
 ####################
 
 
@@ -146,8 +147,8 @@ d1 %<>% # and merge with voteview data
 ##################################
 # Repeat merge while successful: #
 ##################################
-d <- d1
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+
+# data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {
   
@@ -192,8 +193,10 @@ send_message(mime(
 ##############
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
+d$icpsr %<>% as.numeric()
 d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in members folder
-
+d %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP - this is now done better in fix.member.data.coding function, hopefully
+d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  - this is now done better in fix.member.data.coding function, hopefully
 ##############
 
 
@@ -204,7 +207,7 @@ d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in membe
 # Reoccuring problem names
 names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
-              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'))
+              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'))
 
 for(i in 1:length(names)){
   d %<>%
@@ -247,6 +250,7 @@ bad.names.2 <- d %>%
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
+bad.names.2 %>% group_by(agency) %>% summarise(n = n()) %>% arrange(-n)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -261,47 +265,52 @@ bad.party <- d %>%
 ####################################################################################
 
 ####################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#########################################################################
+#
+#               DATA TRANSFORMATIONS 
+#               df = one obs per letter matching ICPSR
+#               dcommittees = one obs per letter per committee position
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 ###############################################
 # Create df with transformations for analysis #
 ###############################################
+
 d %<>% ungroup()
-df <- filter(d, !is.na(icpsr)) # select only voteview-matched observations
+df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
 committees %<>% select(-party) # drop Stewart committee data party codes 
+
+
 
 # TIMESERIES COMPLETENESS 
 # identify timeframe and completeness for each agency
@@ -324,13 +333,27 @@ unique(cbind(df$complete ,df$timeframe))
 data_list %>% filter(!(agency %in% df$agency)) 
 
 ####################################################################################
+# yearly totals for core APSA2018 model 
+df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>%
+  mutate(bioname_year = paste(bioname, year))
+df$year %<>% as.numeric()
+# members with zero letters in a year
+zeros <- data_frame(
+  year = as.numeric(rep(unique(df$year), n_distinct(members$bioname))), 
+  bioname =  rep(unique(members$bioname), n_distinct(df$year)),
+  permemberyear = 0) %>%
+  mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) %>% 
+  left_join(members) %>% 
+  filter(!is.na(icpsr), chamber %in% c("House", "Senate")) %>% 
+  mutate(bioname_year = paste(bioname, year)) %>% 
+  filter(!bioname_year %in% df$bioname_year)
 
-
+df %<>% full_join(zeros)
 
 ############
 # New vars #
 ############
-df$department <- gsub("_.*", "", d$agency) # name dept
+df$department <- gsub("_.*", "", df$agency) # name dept
 df %<>% mutate(id = paste(agency, ID)) # unique ID
 
 # numeric to text 
@@ -375,7 +398,59 @@ df %<>%
   mutate(name_agency = paste(name_state, agency)) %>%
   mutate(name_dept = paste(name_state, department))
 
+#################
+# District vars #
+#################
+df %<>% left_join(read.csv("districts/states.csv") )
+df %<>% mutate(pop2010_millions = pop2010/1000000)
 
+
+
+
+
+
+
+# shorten party name
+df$party_name <- gsub(" Party", "", df$party_name)
+
+# president's party
+df %<>% 
+  mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, presidents_party)) %>% 
+  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, presidents_party)) 
+
+# election cycle 
+df %<>% 
+  mutate(election_year = ifelse(chamber == "Senate" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) %>%
+  mutate(election_year = ifelse(chamber == "House" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) 
+
+
+######################
+###################################################################################
+# gender for those where we have the data from LEP
+df$icpsr %<>% as.numeric()
+
+df %<>% left_join(
+  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr) %>% mutate(icpsr = as.numeric(icpsr))
+)
+
+df %<>% 
+  group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
+
+# clean up problems with party switchers etc. that may have come in with merge 
+df %<>% fix.member.date.coding()
+df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
+df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
+
+
+
+########################################################################################################
 
 
 
@@ -384,6 +459,7 @@ df %<>%
 # create dcommittees #
 ######################
 # merge committee data to one obs per letter per committee
+
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
@@ -422,6 +498,9 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) %>% 
   mutate(committee_chair = ifelse(chair_since_2007 == T, paste(committee, "-", last_name, firstassignedchair), NA))
 
+# oversight committees
+dcommittees %<>%
+  mutate(oversight_committee = ifelse(committee == "HOMELAND SECURITY" & department == "DHS", 1, 0) )
 #####################
 ###########################################################################
 
@@ -433,9 +512,16 @@ dcommittees %<>% group_by(member_committee) %>%
 # df Committee Vars #
 #####################
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
-# run after creating dcommittees because below df vars are across committees, e.g. chair = if chair of ANY committee
+# run after creating dcommittees because below df vars are across committees, e.g. chair = if chair of ANY committee in that congress
 committees %<>% filter(!is.na(icpsr))
 committees %<>%  filter(!is.na(congress)) 
+
+# FIXME
+# JUST UNTIL WE FIX THESE IN COMMITTEE DATA via committees.R
+# df$chair[df$icpsr==94910] # fixed in committees.R
+# missing Critz in the 111th
+# 
+###########################################
 
 # leadership positions
 df %<>% full_join(
@@ -463,9 +549,21 @@ df %<>% full_join(
     group_by(icpsr, congress) %>% top_n(1, wt = speaker) %>% distinct()
 ) %>% filter(!is.na(bioname))
 
+
+# FIXME 
+# ADD BELOW TO MemberNameDateCorrections.R fix.member.dates function:
+#  mutate(party = ifelse(name == "Specter, Arlen" & assigneddate < as.Date("2009-04-28"), 200, party)) %>% # THIS IS INSUFICIENT
+#  mutate(icpsr = ifelse(name == "Specter, Arlen" & assigneddate > as.Date("2009-04-28"), 94110, icpsr)) %>%  # NEED TO CORRECT MEMBERSHIP ETC
+# need to add Kennedy Joe, Jr and III to MemberNameDateCorrections.R
+# /FIXME
+
+
+# chair variable to text
 df %<>% 
   mutate(position = ifelse(chair ==1, "Chair", NA)) %>%
   mutate(position = ifelse(ranking_minority == 1, "Ranking Minority", position)) 
+
+bad.committees.2 <- filter(df, is.na(chair)) %>% group_by(icpsr, bioname, congress) %>% summarise(n = n()) %>% arrange(-n)
 
 # partystatus
 df %<>% full_join(
@@ -501,56 +599,11 @@ df %<>%
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
 # clean up problems with party switchers etc. that may have come in with merge 
-df %<>% fix.member.date.coding()
-df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
-df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
+df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
+
 
 #####################
 ########################################################################
-
-
-
-
-#################
-# District vars #
-#################
-df %<>% left_join(read.csv("districts/states.csv") )
-df %<>% mutate(pop2010_millions = pop2010/1000000)
-
-
-
-
-
-
-
-# shorten party name
-df$party_name <- gsub(" Party", "", df$party_name)
-
-# president's party
-df %<>% 
-  mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
-  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, 0)) %>% 
-  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, 0)) 
-
-# election cycle 
-df %<>% 
-  mutate(election_year = ifelse(chamber == "Senate" & 
-                                  !is.na(yearelected) &
-                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
-                                1, 0)) %>%
-  mutate(election_year = ifelse(chamber == "House" & 
-                                  !is.na(yearelected) &
-                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
-                                1, 0)) 
-  
-
-
-# yearly totals for core APSA2018 model 
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>% 
-  mutate(bioname_congress = paste(bioname, congress))
-
-######################
-###################################################################################
 
 
 
@@ -562,5 +615,11 @@ df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, file.name, names, requires, to_install, i)
+rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i)
+length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
+length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
+# save if all data merged 
+if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("gh-pages/correspondence.RData")
+}
+
