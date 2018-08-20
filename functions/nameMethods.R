@@ -808,6 +808,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Coryn( |$)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Connelly( |$)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Heitkmap( |$)", "\\1Heitkamp\\2", FROM, ignore.case = TRUE)
   
   return(FROM)
 }

@@ -453,10 +453,83 @@ stew$icpsr[stew$stewarticpsr==90327& stew$name=="Alexander, Rodney" & stew$Congr
 
 stew$icpsr[stew$stewarticpsr==15406& stew$name=="Campbell, Ben Nighthorse"]<-15407 ## Campbell, Ben Nighthorse midcoded.  Recoded to match voteview.
 
+# AUG 2018 Recoding:
 
+# Specter fixed below, with his second icpsr being assigned to the date of his switch  
+
+stew$icpsr[stew$stewarticpsr==21169 & stew$name=="Fitzpatrick, Michael G."]<-20524 # Recoded to match voteview.
+
+stew$icpsr[stew$stewarticpsr==21144 & stew$name=="Walberg, Tim"]<-20725 # Recoded to match voteview.
+
+stew$icpsr[stew$stewarticpsr==21161 & stew$name=="Chabot, Steve"]<-29550 # Recoded to match voteview.
+
+# not clear why stewart switches icpsrs for Rigell, Scott - it was correct until the 114th
+stew$icpsr[stew$stewarticpsr==39037 & stew$name=="Rigell, Scott"]<-21185 # Recoded to match voteview.
+
+# stewart gives Boozman a new icpsr and codes his new district as 0
+stew$icpsr[stew$stewarticpsr==41100 & stew$name=="Boozman, John"]<-20101 # Recoded to match voteview.
+
+# Stewart gives Blunt a new icpsr and codes his new district as 0
+stew$icpsr[stew$stewarticpsr==41105 & stew$name=="Blunt, Roy"]<-29735 # Recoded to match voteview.
+
+# Stewart gives Moran a new icpsr and codes his new district as 0
+stew$icpsr[stew$stewarticpsr==41103 & stew$name=="Moran, Jerry"]<-29722 # Recoded to match voteview.
+
+# Stewart gives Deutch a new icpsr when his district changes back to the 21st
+stew$icpsr[stew$stewarticpsr==29335 & stew$name=="Deutch, Theodore E."]<-20959 # Recoded to match voteview.
+
+# After party switch Stewart and voteview have different icpsr for Specter
+stew$icpsr[stew$stewarticpsr==14910 & stew$name=="Specter, Arlen" & stew$partystatus == 4 & stew$cong == 111]<-94910 # Recoded to match voteview.
+stew$party[stew$stewarticpsr==14910 & stew$name=="Specter, Arlen" & stew$partystatus == 2 & stew$cong == 111]<-200 # correect miscoded party for one committee obs (the other committees were correct)
+
+# Stewart has Joe Kennedy I in the 113th, but he retired in 1999, correcting to Joe Kennedy III 
+stew$icpsr[stew$stewarticpsr==15427 & stew$name=="Kennedy, Joseph" & stew$cong == 113]<- 21335 
+stew$name[stew$stewarticpsr==15427 & stew$name=="Kennedy, Joseph" & stew$cong == 113]<- "Kennedy, Joseph P. III"
+
+
+### MISMATCHES WITH VOTEVIEW TO INVESTIGATE:
+
+# No KENNEDY, Joseph P. III in the 113th, this is correct. Joe Kennedy Jr held office then, need to correct in nameCongress.R - a real trick to match, right now both are matching in voteview 
+
+# no biden in the 111th
+
+# solis missing in the 111th
+
+# DJOU, Charles missing in the 111th (i.e. missing completely at least in the late data )
+
+# Tom Graves missing from the 111th
+
+# Mark Pocan is missing from the 115th
+
+# Scott Brown missing from the 111th
+
+# MANCHIN missing from the 111th
+
+# JONES, Gordon Douglas missing from the 115th
+
+# SMITH, Tina missing from the 115th
+
+# FUDGE is missing from the 110th
+
+# NORCROSS is missing from the 113th 
+
+# Zinke, Ryan is missing from the 115th (though he left in March, he is still in the correspondence data - needs to be corrected in MemberNameDateCorrections.R function)
+
+# CLINTON, HR not in from the 111th (but she is in voteview, maybe the above missing are the same)
+
+# COONS missing from the 111th 
+
+# GOODWIN missing from the 111th 
+
+# REED, Thomas missing from the 111th
+
+# Payne, Donald, Jr. not in the 112th, need to fix this in the MemberDateCorrections.R function because matching on Jr. not Jr. is impracttable and they did not overlap
+
+
+
+####################################################
 
 ### Note: Tried using Adler and Wilkerson's ICPSR Crosswalk (Congressional Bills Project) to convert alternate icpsr scores to NOMINATE scores.  But their alternate scores didn't match stewart's icpsr scores. 
-
 
 ### Adding missing committee leadership positions
 
@@ -465,14 +538,6 @@ stew$icpsr[stew$stewarticpsr==15406& stew$name=="Campbell, Ben Nighthorse"]<-154
 stew$seniorstatus[stew$icpsr==14873 & stew$cong==106 & stew$commcode==142] <-21 ## Adding Steny Hoyer Ranking Member House Admin
 
 stew$seniorstatus[stew$icpsr==14039 & stew$cong==106 & stew$commcode==176] <-21 ## Adding John Moakley Ranking Member Rules
-
-###################################################
-# FIXME 
-###################################################
-# need to add dates to this and should not be indexed 
-# stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
-
-# \FIXME ##########################################
 
 
 stew$seniorstatus[stew$icpsr==15448 & stew$cong==106 & stew$commcode==242] <-0 ## Removing Pelosi who wasn't ranking member of House Select Intelligence
@@ -515,8 +580,6 @@ for (i in 1:length(electionlist)){
   
 }
 
-
-
 stew$ICPSRYear<-paste(stew$icpsr, stew$yearelected, sep="")
 
 
@@ -532,6 +595,22 @@ committees$congress %<>% as.numeric()
 committees$assigneddate %<>% as.Date()
 committees$terminationdate %<>% as.Date()
 
+###################################################
+# FIXME 
+###################################################
+# need to add dates to this and should not be indexed 
+# stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
+
+# MISSING CRITZ IN THE 111TH
+
+# missing clyburn in the 114th
+
+# solis missing in the 111th
+
+# israel missing in the 112th
+
+
+# \FIXME ##########################################
 
 
 #########################################################
@@ -543,7 +622,6 @@ committees %<>%
   mutate(party = ifelse(name == "Johnson, Tim", 100, party)) %>% 
   mutate(party = ifelse(name == "Johnson, Bill", 200, party)) %>% 
   mutate(party = ifelse(name == "Davis, Rodney", 200, party)) %>% 
-  mutate(party = ifelse(name == "Specter, Arlen" & assigneddate < as.Date("2009-04-28"), 200, party)) %>% 
   mutate(party = ifelse(name == "Turner, Bob L.", 200, party)) %>% 
   mutate(party = ifelse(name == "Schiff, Adam", 100, party)) %>% 
   mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
@@ -588,7 +666,7 @@ committees %<>%
 # finance wyden (bacus looks correct)
 # Health, Education, Labor, and Pensions - harkin 2009, kennedy looks correct 
 # small business - cantwell and landtreu 2013
-# 
+# /FIXME
 
 
 
@@ -632,17 +710,120 @@ committees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", toupper(commit
 committees %<>% mutate(committee = gsub(" $", "", committee))
 committees %<>% mutate(committee = gsub("EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON |INVESTIGATE THE ", "", committee))
 
-
+# prestige committees
 committees %<>% 
   mutate(prestige = ifelse(committee %in% c( "RULES", "BUDGET", "WAYS", "COMMERCE", "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), 
                            1, 0) ) %>% 
   mutate(prestige_chair = ifelse(prestige == 1 & chair == 1, 1,0) )
 
+# oversight
+oversight.committees <- as.data.frame(matrix(c(
+  # Agencies, primary oversight committee, notes
+  "Amtrak", "", NA, # complete but no subjects to code
+  "DHHS_ACF", "", NA, # complete and rich, needs more coding
+  "DHHS_ACL", "", NA,
+  "DHHS_CDC", "", NA, # rolling release, rich subjects, will eventually be complete
+  "DHHS_HRSA", "", NA,
+  # DHS
+  "DHS_HQ", "HOMELAND SECURITY", NA, 
+  "DHS_ICE", "HOMELAND SECURITY", NA, 
+  # DOC
+  "DOC_EDA", "", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
+  "DOC_IOS", "", "Aaron",
+  "DOC_MBDA", "", NA, # very few dates can be extracted from the text
+  "DOC_NIST", "", NA,
+  "DOC_NOAA", "", NA,
+  "DOC_OCPA", "", NA,
+  "DOC_OS", "", NA, # DOC-OS-2017-000958
+  "DOC_SBA", "", NA, # no records before 2010
+  # DOD
+  "DOD_DeCA", "", "Devin", # only some are on drive 
+  "DOD_DFAS", "", NA,
+  "DOD_DLA_Aviation", "", NA,
+  "DOD_Navy", "", "Delaney", # records post 2013
+  # "DOD_OIG", "", NA, # waiting for records back from Upwork Joe
+  "DOD_OSDJS", "", NA, # waiting on remaining records
+  "DOD_USACE", "", NA, # no records before fall 2013
+  # "DOD_USMC", "", NA, # waiting on foia DON-USMC-2018-004141
+  # DOE
+  "DOE_FERC", "", NA,
+  # DOI 
+  "DOI_BOEM", "", "Aaron",
+  "DOI_BSEE", "", NA,
+  "DOI_NPS", "", NA,
+  "DOI_USGS", "", NA,
+  # DOJ 
+  "DOJ_CIV", "", NA,
+  # DOL 
+  "DOL_EBSA", "", NA,
+  "DOL_MSHA", "", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
+  "DOL_OCFO", "", "Devin",
+  "DOL_OFCCP", "", NA,
+  "DOL_OSHA", "", NA,
+  "DOL_VETS", "", NA,
+  "DOL_OWCP", "", NA,
+  # DOS 
+  # "DOS", "", NA, # waiting on dept of state foia 
+  # DOT 
+  "DOT_FAA", "", "Sam",
+  "DOT_FHWA", "", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
+  "DOT_FTA", "", NA, 
+  "DOT_SLSDC", "", "Aaron",
+  # Education
+  "ED", "", NA,
+  # EPA
+  "EPA", "", "Aaron", # c("Adam", "Avery"),
+  # FCA
+  "FCA", "", NA, # not many member names to extract, only 100 obs, but full time period
+  # FCC
+  "FCC", "", "Devin",
+  # FDA
+  "FDA", "", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
+  # FHFA
+  # "FHFA", "", NA,
+  # FMC
+  # "FMC", "", NA,   # no members contacts, just OMB and reports to congress
+  # GSA
+  # "GSA", "", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
+  # NASA
+  "NASA", "", NA, # needs cleanup, esp of dates 
+  # NCPC
+  # "NCPC", "", NA,
+  "NLRB" , "", NA,
+  # PRC
+  "PRC", "", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
+  # RRB
+  "RRB", "", NA, # not much subject content
+  # SSA
+  "SSA", "", NA, # revisit merge and remove NAs?
+  # STB
+  # "STB", "", NA, # need to finish merge script; only 2015-2017?
+  # Treasury
+  "Treasury_Fiscal", "", NA,
+  # "Treasury_Mint", "", NA, # rich and complete, but not on drive needs to be assembled
+  "Treasury_OCC", "", "Aaron",
+  # USDA 
+  "USDA", "", NA,
+  "USDA_ERS", "", NA,
+  "USDA_FS", "", NA,
+  "USDA_NASS", "", "Robert", # c("Robert", "Henry"),
+  "USDA_NRCS", "", NA,
+  "USDA_RD", "", NA,
+  "USDA_RMA", "", NA, # no records before 2010 - 7 year retention 
+  # USPS
+  "USPS", "", NA
+), ncol = 3, byrow = T))
+names(data_list) <- c("agency", "committee", "committee_notes")
 
 
 
-committees %<>% select(chamber, committee, prestige, prestige_chair, leadership_position, position, seniorstatus, congress, assigneddate, terminationdate, everything()) %>% 
-  arrange(position)
+oversight.committees %<>% 
+  group_by(icpsr) %>% mutate(committee_oversight_all = paste(agency))
+
+
+
+
+committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, seniorstatus, assigneddate, terminationdate, everything()) 
 
 
 
