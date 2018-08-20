@@ -52,11 +52,11 @@ clean <- function(file.name) {
   data$FROM <- (gsub("& 12 Senators","",data$FROM)) # remove +
   data <- data[-grep("Senators", data$FROM),]
   
-  # Give first names to A. Green and G. Green
-  data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)
-  data$FROM <- gsub("G. Green", "Green", data$FROM)
-  data$first_name <- ifelse(grepl("A.\nGreen", data$FROM), "Alan", data$first_name)
-  data$FROM <- gsub("A.\nGreen", "Green", data$FROM)
+  # # Give first names to A. Green and G. Green
+  # data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)
+  # data$FROM <- gsub("G. Green", "Green", data$FROM)
+  # data$first_name <- ifelse(grepl("A.\nGreen", data$FROM), "Alan", data$first_name)
+  # data$FROM <- gsub("A.\nGreen", "Green", data$FROM)
   
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
