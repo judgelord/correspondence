@@ -6,7 +6,7 @@
 # there is probably spelling errors and missed matches 
 
 
- file.name <- "USDA_RMA" # for testing
+# file.name <- "USDA_RMA" # for testing
 
 
 clean <- function(file.name) {
@@ -53,13 +53,18 @@ clean <- function(file.name) {
   data <- data[-grep("/", data$FROM),] # removes orginal row with all data
   ###     ###     ###
   
- 
+  data$FROM <- (gsub("& 12 Senators","",data$FROM)) # remove +
+  
   
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
+  
+  # add ERROR notes
+  data %<>%
+    mutate(ERROR = ifelse(grepl("Congress", data$FROM), "Not valid name info", ERROR))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CLAIM|LATE PAYMENT|PREMIUM|PREVENTED PLANTING|FRAUD|ITS|ROTAT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
