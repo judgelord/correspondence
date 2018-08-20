@@ -192,9 +192,10 @@ send_message(mime(
 ##############
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
+d$icpsr %<>% as.numeric()
 d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in members folder
-df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
-df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
+d %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP - this is now done better in fix.member.data.coding function, hopefully
+d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  - this is now done better in fix.member.data.coding function, hopefully
 ##############
 
 
@@ -432,15 +433,11 @@ df %<>%
 ######################
 ###################################################################################
 # gender for those where we have the data from LEP
-df$icpsr %<>% as.character()
-
-d1 <- df
-df <- d1
+df$icpsr %<>% as.numeric()
 
 df %<>% left_join(
-  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr)
+  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr) %>% mutate(icpsr = as.numeric(icpsr))
 )
-
 
 df %<>% 
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
@@ -461,6 +458,7 @@ df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 # create dcommittees #
 ######################
 # merge committee data to one obs per letter per committee
+
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
@@ -600,11 +598,8 @@ df %<>%
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
 # clean up problems with party switchers etc. that may have come in with merge 
-df %<>% fix.member.date.coding()
+df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
 
-# above should have dealt with party switchers, but if not: 
-# df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
-# df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 #####################
 ########################################################################
@@ -626,3 +621,4 @@ length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it thr
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("gh-pages/correspondence.RData")
 }
+
