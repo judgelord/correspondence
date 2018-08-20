@@ -651,14 +651,27 @@ committees %<>%
   # Harkin to Blanch September 9, 2009
   mutate(terminationdate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
                                 as.Date('2009-09-09'), terminationdate)) %>% 
-  mutate(assigneddate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
-                                as.Date('2009-03-01'), assigneddate)) %>% 
+  mutate(assigneddate = if_else(name =="Lincoln, Blanche Lambert" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('2009-09-09'), assigneddate)) %>% 
   # Wyden Chair of the Senate Finance Committee February 12, 2014 – January 3, 2015
   mutate(assigneddate = if_else(name =="Wyden, Ron" & congress == 113 & committeename == "Finance",
-                                as.Date('2014-12-02'), assigneddate)) %>% 
+                                as.Date('2014-02-12'), assigneddate)) %>% 
   # Harkin moved to health sept 2009
-  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Health, Education, Labor, and Pensions",
-                                as.Date('2009-09-09'), assigneddate)) 
+  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "HEALTH",
+                                as.Date('2009-09-09'), assigneddate)) %>% 
+  # Wyden ENERGY January 3, 2013 – February 12, 2014, Landrieu took over chair
+  mutate(terminationdate = if_else(name =="Wyden, Ron" & congress == 113 & committee == "ENERGY",
+                                as.Date('2014-02-12'), terminationdate)) %>% 
+  mutate(assigneddate = if_else(name =="Landrieu, Mary L." & congress == 113 & committee == "ENERGY",
+                                   as.Date('2014-02-12'), assigneddate)) %>% 
+  # Landrieu Chair of the Senate Small Business Committee January 3, 2009 – February 12, 2014
+  mutate(terminationdate = if_else(name =="Landrieu, Mary L." & congress == 113 & committee == "SMALL BUSINESS",
+                                   as.Date('2014-02-12'), terminationdate)) %>% 
+  mutate(assigneddate = if_else(name =="Cantwell, Maria" & congress == 113 & committee == "SMALL BUSINESS",
+                                as.Date('2014-02-12'), assigneddate)) 
+
+
+
 # FIXME
 # DATES TO FIX / CONFIRM FIXED 
 # ag - lincoln and harkin 2011
@@ -667,6 +680,15 @@ committees %<>%
 # Health, Education, Labor, and Pensions - harkin 2009, kennedy looks correct 
 # small business - cantwell and landtreu 2013
 # /FIXME
+
+
+
+
+
+
+
+
+
 
 
 
