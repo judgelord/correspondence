@@ -716,111 +716,6 @@ committees %<>%
                            1, 0) ) %>% 
   mutate(prestige_chair = ifelse(prestige == 1 & chair == 1, 1,0) )
 
-# oversight
-oversight.committees <- as.data.frame(matrix(c(
-  # Agencies, primary oversight committee, notes
-  "Amtrak", "", NA, # complete but no subjects to code
-  "DHHS_ACF", "", NA, # complete and rich, needs more coding
-  "DHHS_ACL", "", NA,
-  "DHHS_CDC", "", NA, # rolling release, rich subjects, will eventually be complete
-  "DHHS_HRSA", "", NA,
-  # DHS
-  "DHS_HQ", "HOMELAND SECURITY", NA, 
-  "DHS_ICE", "HOMELAND SECURITY", NA, 
-  # DOC
-  "DOC_EDA", "", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
-  "DOC_IOS", "", "Aaron",
-  "DOC_MBDA", "", NA, # very few dates can be extracted from the text
-  "DOC_NIST", "", NA,
-  "DOC_NOAA", "", NA,
-  "DOC_OCPA", "", NA,
-  "DOC_OS", "", NA, # DOC-OS-2017-000958
-  "DOC_SBA", "", NA, # no records before 2010
-  # DOD
-  "DOD_DeCA", "", "Devin", # only some are on drive 
-  "DOD_DFAS", "", NA,
-  "DOD_DLA_Aviation", "", NA,
-  "DOD_Navy", "", "Delaney", # records post 2013
-  # "DOD_OIG", "", NA, # waiting for records back from Upwork Joe
-  "DOD_OSDJS", "", NA, # waiting on remaining records
-  "DOD_USACE", "", NA, # no records before fall 2013
-  # "DOD_USMC", "", NA, # waiting on foia DON-USMC-2018-004141
-  # DOE
-  "DOE_FERC", "", NA,
-  # DOI 
-  "DOI_BOEM", "", "Aaron",
-  "DOI_BSEE", "", NA,
-  "DOI_NPS", "", NA,
-  "DOI_USGS", "", NA,
-  # DOJ 
-  "DOJ_CIV", "", NA,
-  # DOL 
-  "DOL_EBSA", "", NA,
-  "DOL_MSHA", "", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
-  "DOL_OCFO", "", "Devin",
-  "DOL_OFCCP", "", NA,
-  "DOL_OSHA", "", NA,
-  "DOL_VETS", "", NA,
-  "DOL_OWCP", "", NA,
-  # DOS 
-  # "DOS", "", NA, # waiting on dept of state foia 
-  # DOT 
-  "DOT_FAA", "", "Sam",
-  "DOT_FHWA", "", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
-  "DOT_FTA", "", NA, 
-  "DOT_SLSDC", "", "Aaron",
-  # Education
-  "ED", "", NA,
-  # EPA
-  "EPA", "", "Aaron", # c("Adam", "Avery"),
-  # FCA
-  "FCA", "", NA, # not many member names to extract, only 100 obs, but full time period
-  # FCC
-  "FCC", "", "Devin",
-  # FDA
-  "FDA", "", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
-  # FHFA
-  # "FHFA", "", NA,
-  # FMC
-  # "FMC", "", NA,   # no members contacts, just OMB and reports to congress
-  # GSA
-  # "GSA", "", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
-  # NASA
-  "NASA", "", NA, # needs cleanup, esp of dates 
-  # NCPC
-  # "NCPC", "", NA,
-  "NLRB" , "", NA,
-  # PRC
-  "PRC", "", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
-  # RRB
-  "RRB", "", NA, # not much subject content
-  # SSA
-  "SSA", "", NA, # revisit merge and remove NAs?
-  # STB
-  # "STB", "", NA, # need to finish merge script; only 2015-2017?
-  # Treasury
-  "Treasury_Fiscal", "", NA,
-  # "Treasury_Mint", "", NA, # rich and complete, but not on drive needs to be assembled
-  "Treasury_OCC", "", "Aaron",
-  # USDA 
-  "USDA", "", NA,
-  "USDA_ERS", "", NA,
-  "USDA_FS", "", NA,
-  "USDA_NASS", "", "Robert", # c("Robert", "Henry"),
-  "USDA_NRCS", "", NA,
-  "USDA_RD", "", NA,
-  "USDA_RMA", "", NA, # no records before 2010 - 7 year retention 
-  # USPS
-  "USPS", "", NA
-), ncol = 3, byrow = T))
-names(data_list) <- c("agency", "committee", "committee_notes")
-
-
-
-oversight.committees %<>% 
-  group_by(icpsr) %>% mutate(committee_oversight_all = paste(agency))
-
-
 
 
 committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, seniorstatus, assigneddate, terminationdate, everything()) 
@@ -836,3 +731,77 @@ committees %<>% select(icpsr, name, congress, chamber, committee, prestige, pres
 
 # bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
 
+# 1    House                           AGRICULTURE
+# 2    House                        APPROPRIATIONS
+# 3    House                     NATIONAL SECURITY
+# 4    House                               BANKING
+# 5    House                                BUDGET
+# 6    House                             EDUCATION
+# 7    House                              COMMERCE
+# 8    House               INTERNATIONAL RELATIONS
+# 9    House                     GOVERNMENT REFORM
+# 10   House                       HOUSE OVERSIGHT
+# 11   House                             JUDICIARY
+# 12   House                             RESOURCES
+# 13   House                        TRANSPORTATION
+# 14   House                                 RULES
+# 15   House                               SCIENCE
+# 16   House                        SMALL BUSINESS
+# 17   House         STANDARDS OF OFFICIAL CONDUCT
+# 18   House                      VETERANS AFFAIRS
+# 19   House                                  WAYS
+# 20   House                          INTELLIGENCE
+# 21   House                               LIBRARY
+# 22   House                              PRINTING
+# 23   House                              TAXATION
+# 24   House                              ECONOMIC
+# 25   House                         MAJORITY WHIP
+# 26   House                       MAJORITY LEADER
+# 27   House                               SPEAKER
+# 28   House                         MINORITY WHIP
+# 29   House                       MINORITY LEADER
+# 30   House                    FINANCIAL SERVICES
+# 31   House                                ENERGY
+# 32   House SELECT COMMITTEE ON HOMELAND SECURITY
+# 33   House                        ARMED SERVICES
+# 34   House                  HOUSE ADMINISTRATION
+# 35   House                     HOMELAND SECURITY
+# 36   House                       FOREIGN AFFAIRS
+# 37   House                             OVERSIGHT
+# 38   House                     NATURAL RESOURCES
+# 39   House                   ENERGY INDEPENDENCE
+# 40   House     VOTING IRREGULARITIES OF AUGUST 2
+# 41   House                                ETHICS
+# 42   House                     DEFICIT REDUCTION
+# 43   House             ASSISTANT MINORITY LEADER
+# 44   House                              BENGHAZI
+# 45  Senate                           AGRICULTURE
+# 46  Senate                        APPROPRIATIONS
+# 47  Senate                        ARMED SERVICES
+# 48  Senate                               BANKING
+# 49  Senate                                BUDGET
+# 50  Senate                              COMMERCE
+# 51  Senate                                ENERGY
+# 52  Senate                           ENVIRONMENT
+# 53  Senate                               FINANCE
+# 54  Senate                     FOREIGN RELATIONS
+# 55  Senate                  GOVERNMENTAL AFFAIRS
+# 56  Senate                             JUDICIARY
+# 57  Senate                                 LABOR
+# 58  Senate                                 RULES
+# 59  Senate                        SMALL BUSINESS
+# 60  Senate                     VETERANS' AFFAIRS
+# 61  Senate                                 AGING
+# 62  Senate                          INTELLIGENCE
+# 63  Senate                                ETHICS
+# 64  Senate                        INDIAN AFFAIRS
+# 65  Senate                               LIBRARY
+# 66  Senate                              PRINTING
+# 67  Senate                              ECONOMIC
+# 68  Senate                       MAJORITY LEADER
+# 69  Senate                         MAJORITY WHIP
+# 70  Senate                       MINORITY LEADER
+# 71  Senate                         MINORITY WHIP
+# 72  Senate                                HEALTH
+# 73  Senate                     HOMELAND SECURITY
+# 74  Senate                              TAXATION
