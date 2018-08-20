@@ -1,11 +1,14 @@
-\documentclass[]{article}
+\documentclass[bibtex]{article}
 \usepackage{lmodern, amssymb,amsmath, graphicx, hyperref}
+% === bibliography package ===
+\usepackage{natbib}
 \usepackage[margin=1in]{geometry}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
     filecolor=magenta,      
     urlcolor=cyan,
+    citecolor = black
 }
 \urlstyle{same}  % don't use monospace font for urls
 
@@ -15,7 +18,9 @@
     
 \graphicspath{{gh-pages/Figs/}}
 
+
 \begin{document}
+
 \maketitle
 \tableofcontents
 
@@ -94,7 +99,7 @@ We submitted FOIA request for all records of congressional correspondence from a
 As of August 2018, all departments except for the State Department and Veterans' Affairs have provided records, though the majority of records from the Departments of Defense and Energy are still being processed, and the majority of Department of Justice subagencies have either not yet granted our request or claimed that they do not track congressional correspondence.
 As for independent agencies, we waiting on records from the SEC, OPM, MSPB, FTC, Export-Import Bank, CPSC, CFTC, CIA, and Appalachian Regional Commission. The remaining 24 independent agencies have provided records, though some are still in the process of reviewing and releasing additional records. Of these, 10 have been cleaned and linked with other data source. 
 
-*DEVIN WILL ADD TABE OF OF RESPONSE RATES*
+*DEVIN WILL ADD TABLE OF OF RESPONSE RATES*
 
 Responses to our FOIA requests varied significantly. Most agencies offered logs of congressional correspondence, which record a date, sender, and summary of each contact. Logs contain formal requests made on letterhead, but also phone and email records as well. Small agencies or regional offices had their staff search their email history or provided hand-written records that we transcribed. Most Department Secretary's offices queried a correspondence tracking database designed to track all hill correspondence, but our requests to subagencies almost always uncovered additional records. As one central office FOIA officer put it "[This office] is supposed to be the front door for the department, but, well, somebody knows somebody and ..." Even 
 
@@ -175,6 +180,10 @@ Our larger dataset helps clarify a puzzle in Lowande (n.d.) excellent work on po
 The institutional power of committee chairs offers an explanation: chairs are more able to help their constituents than other committee members. 
 
 More importantly, looking across many agencies reveals that powerful legislators like committee chairs use their power to advocate for their constituents across the vast federal bureaucracy. This aligns with Ritchie and You's (n.d.) finding that the Department of Labor was contacted and influenced by a wide array of members, with no special treatment for those with formal oversight powers. But institutional power matters beyond formal oversight. While de jure, agency-specific oversight may be weaker than commonly assumed, institutional positions appear to increase de facto oversight over much broader swaths of government. 
+
+\citet{Carney1994}
+
+\bibliographystyle{chicago-apsr}
 
 \bibliography{congress2018}
 
