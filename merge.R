@@ -113,7 +113,7 @@ data_list <- as.data.frame(matrix(c(
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
-names(data_list) <- c("agency", "status", "coders")
+danames(data_list) <- c("agency", "status", "coders")
 data_list
 
 
@@ -207,7 +207,7 @@ d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  
 # Reoccuring problem names
 names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
-              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'))
+              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'))
 
 for(i in 1:length(names)){
   d %<>%
