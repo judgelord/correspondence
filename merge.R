@@ -30,8 +30,8 @@ data_list <- as.data.frame(matrix(c(
 "DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
-"DOC_NIST", "not coded", NA,
-"DOC_NOAA", "not coded", NA,
+"DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA
+"DOC_NOAA", "not coded", NA, 
 "DOC_OCPA", "not coded", NA,
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
@@ -39,8 +39,8 @@ data_list <- as.data.frame(matrix(c(
 "DOD_DeCA", "coded", "Devin", # only some are on drive 
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
-"DOD_Navy", "coded", "Delaney", # records post 2013
-# "DOD_OIG", "not coded", NA, # waiting for records back from Upwork Joe
+"DOD_Navy", "coded", "Delaney", # no records before 2013
+# "DOD_OIG", "not coded", NA, # waiting for records back from Joe
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
@@ -125,7 +125,7 @@ data_list
 # initialize for full merge (default)
 i <- 1 
 # or choose one agency
-# i <- which(data_list$agency == "FCC") 
+# i <- which(data_list$agency == "DOC_EDA") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -147,7 +147,7 @@ d <- d1
 # Repeat merge while successful: #
 ##################################
 
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(length(unique(d$agency) == i)) {
   
@@ -248,6 +248,7 @@ bad.names.2 <- d %>%
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
+bad.names.2 %>% group_by(agency) %>% summarise(n = n()) %>% arrange(-n)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -395,7 +396,63 @@ df %<>%
   mutate(name_agency = paste(name_state, agency)) %>%
   mutate(name_dept = paste(name_state, department))
 
+#################
+# District vars #
+#################
+df %<>% left_join(read.csv("districts/states.csv") )
+df %<>% mutate(pop2010_millions = pop2010/1000000)
 
+
+
+
+
+
+
+# shorten party name
+df$party_name <- gsub(" Party", "", df$party_name)
+
+# president's party
+df %<>% 
+  mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, presidents_party)) %>% 
+  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, presidents_party)) 
+
+# election cycle 
+df %<>% 
+  mutate(election_year = ifelse(chamber == "Senate" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) %>%
+  mutate(election_year = ifelse(chamber == "House" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) 
+
+
+######################
+###################################################################################
+# gender for those where we have the data from LEP
+df$icpsr %<>% as.character()
+
+d1 <- df
+df <- d1
+
+df %<>% left_join(
+  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr)
+)
+
+
+df %<>% 
+  group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
+
+# clean up problems with party switchers etc. that may have come in with merge 
+df %<>% fix.member.date.coding()
+df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
+df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
+
+
+
+########################################################################################################
 
 
 
@@ -442,6 +499,9 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) %>% 
   mutate(committee_chair = ifelse(chair_since_2007 == T, paste(committee, "-", last_name, firstassignedchair), NA))
 
+# oversight committees
+dcommittees %<>%
+  mutate(oversight_committee = ifelse(committee == "HOMELAND SECURITY" & department == "DHS", 1, 0) )
 #####################
 ###########################################################################
 
@@ -541,59 +601,15 @@ df %<>%
 
 # clean up problems with party switchers etc. that may have come in with merge 
 df %<>% fix.member.date.coding()
-df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
-df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
+
+# above should have dealt with party switchers, but if not: 
+# df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
+# df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 #####################
 ########################################################################
 
 
-
-
-#################
-# District vars #
-#################
-df %<>% left_join(read.csv("districts/states.csv") )
-df %<>% mutate(pop2010_millions = pop2010/1000000)
-
-
-
-
-
-
-
-# shorten party name
-df$party_name <- gsub(" Party", "", df$party_name)
-
-# president's party
-df %<>% 
-  mutate(presidents_party = ifelse(year > 2000 & year < 2009 & party == "(R)", 1, 0)) %>% 
-  mutate(presidents_party = ifelse(year > 2008 & year < 2017 & party == "(D)", 1, presidents_party)) %>% 
-  mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, presidents_party)) 
-
-# election cycle 
-df %<>% 
-  mutate(election_year = ifelse(chamber == "Senate" & 
-                                  !is.na(yearelected) &
-                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
-                                1, 0)) %>%
-  mutate(election_year = ifelse(chamber == "House" & 
-                                  !is.na(yearelected) &
-                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
-                                1, 0)) 
-  
-
-######################
-###################################################################################
-# gender for those where we have the data from LEP
-df$icpsr %<>% as.character()
-
-d1 <- df
-df <- d1
-
-df %<>% left_join(
-  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr)
-)
 
 
 
@@ -604,4 +620,9 @@ df %<>% left_join(
 ###########################
 df %<>% dplyr::select(-n)
 rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i)
+length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
+length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
+# save if all data merged 
+if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("gh-pages/correspondence.RData")
+}
