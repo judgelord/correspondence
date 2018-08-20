@@ -113,7 +113,7 @@ data_list <- as.data.frame(matrix(c(
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
-danames(data_list) <- c("agency", "status", "coders")
+names(data_list) <- c("agency", "status", "coders")
 data_list
 
 
