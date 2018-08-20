@@ -802,6 +802,7 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM)
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
   FROM <- ifelse(grepl("Comyn|Com yn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn","Cornyn", FROM), FROM)
+  FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
   FROM <- gsub("Cwnmings", 'Cummings', FROM)
   FROM <- gsub("Tnhofe", "Inhofe", FROM)
   FROM <- gsub("Ellrners","Ellmers", FROM)
