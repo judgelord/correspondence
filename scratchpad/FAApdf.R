@@ -24,6 +24,7 @@ data %<>%
   separate(`Related Control`, into= c("Related Control", "Subject"), sep= "Subject::")
   
 
+data <- data[ , !names(data) %in% c("Other")] 
 
 
 
