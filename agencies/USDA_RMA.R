@@ -2,10 +2,6 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# last name only matched on 659 of 709 observations. Some aren't last names (e.g. CONGRESS) and 
-# there is probably spelling errors and missed matches 
-
-
 # file.name <- "USDA_RMA" # for testing
 
 
@@ -54,7 +50,13 @@ clean <- function(file.name) {
   ###     ###     ###
   
   data$FROM <- (gsub("& 12 Senators","",data$FROM)) # remove +
+  data <- data[-grep("Senators", data$FROM),]
   
+  # Give first names to A. Green and G. Green
+  data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)
+  data$FROM <- gsub("G. Green", "Green", data$FROM)
+  data$first_name <- ifelse(grepl("A.\nGreen", data$FROM), "Alan", data$first_name)
+  data$FROM <- gsub("A.\nGreen", "Green", data$FROM)
   
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
