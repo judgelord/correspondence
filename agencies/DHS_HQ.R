@@ -98,9 +98,6 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) 
     
   
