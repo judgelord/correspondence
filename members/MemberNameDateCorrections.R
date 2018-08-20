@@ -3,14 +3,14 @@ fix.member.date.coding <- function(data){
     mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
     mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
     mutate(chamber = ifelse(is.na(chamber), "", chamber)) %>% 
-    # filter(bioname != "PAYNE, Donald Milford" | DATE < as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
-    # filter(bioname != "PAYNE, Donald, Jr." | DATE > as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
-    mutate(icpsr = ifelse(last_name == "PAYNE" & DATE < as.Date("2012-06-03"), 15619, icpsr) ) %>% 
-    mutate(icpsr = ifelse(last_name == "PAYNE" & DATE > as.Date("2012-06-03"), 31103, icpsr) ) %>% 
-    # filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Republican Party")) %>% # SPECTER, Arlen changed to DEM
-    # filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Democratic Party")) %>% # however, voteview has two icpsr #s, so may not need to delete obs if successful merge
-    mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28"), 94910, icpsr)) %>% 
-    mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28"), 14910, icpsr)) %>% 
+    filter(bioname != "PAYNE, Donald Milford" | DATE < as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
+    filter(bioname != "PAYNE, Donald, Jr." | DATE > as.Date("2012-06-03")) %>% # PAYNE Sr. died, replaced by PAYNE Jr.
+    # mutate(icpsr = ifelse(last_name == "PAYNE" & DATE < as.Date("2012-06-03"), 15619, icpsr) ) %>% 
+    # mutate(icpsr = ifelse(last_name == "PAYNE" & DATE > as.Date("2012-06-03"), 31103, icpsr) ) %>% 
+    filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Republican Party")) %>% # SPECTER, Arlen changed to DEM
+    filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Democratic Party")) %>% # however, voteview has two icpsr #s, so may not need to delete obs if successful merge
+    #mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28"), 94910, icpsr)) %>% 
+    #mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28"), 14910, icpsr)) %>% 
     filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
     filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) %>% 
     filter(!(bioname == "KIRK, Mark Steven" & DATE > as.Date("2010-11-29") & chamber == "House")) %>% # Went from House to Senate, filled in Obama's vacancy in Senate when he was president elect
