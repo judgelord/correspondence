@@ -150,7 +150,7 @@ d <- d1
 
 # data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
-while(length(unique(d$agency) == i)) {
+while(!is.na(data_list[i,1])) {
   
   print(data_list[i,1])
   
@@ -499,9 +499,7 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) %>% 
   mutate(committee_chair = ifelse(chair_since_2007 == T, paste(committee, "-", last_name, firstassignedchair), NA))
 
-# oversight committees
-dcommittees %<>%
-  mutate(oversight_committee = ifelse(committee == "HOMELAND SECURITY" & department == "DHS", 1, 0) )
+
 #####################
 ###########################################################################
 
@@ -605,6 +603,12 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 
 #####################
 ########################################################################
+df %<>% filter(!is.na(agency))
+
+df %<>% left_join(
+  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
+  )
+
 
 
 
