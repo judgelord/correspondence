@@ -75,9 +75,22 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Dianne Feinstein", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Jim Webb", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ron Johnson", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ron Johnson", FROM), "Senate", chamber))
+    mutate(chamber = ifelse(grepl("Voinovich", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Richard G Lugar", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Robert C. Byrd", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Charles Schumer", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Scott P. Brown", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Feingold", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Bingamen", FROM), "Senate", chamber))
   
   
+  
+  
+  
+  
+  # Non members
+  data %<>%
+    mutate(ERROR = ifelse(grepl("Daniel Coats",FROM),"Not in Congress", ERROR))
     
   
   
