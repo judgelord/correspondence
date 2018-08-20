@@ -9,7 +9,7 @@ fix.member.date.coding <- function(data){
     mutate(icpsr = ifelse(last_name == "PAYNE" & DATE > as.Date("2012-06-03"), 31103, icpsr) ) %>% 
     # filter(!(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28") & party_name == "Republican Party")) %>% # SPECTER, Arlen changed to DEM
     # filter(!(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28") & party_name == "Democratic Party")) %>% # however, voteview has two icpsr #s, so may not need to delete obs if successful merge
-    mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28"), 94110, icpsr)) %>% 
+    mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE > as.Date("2009-04-28"), 94910, icpsr)) %>% 
     mutate(icpsr = ifelse(bioname == "SPECTER, Arlen" & DATE < as.Date("2009-04-28"), 14910, icpsr)) %>% 
     filter(bioname != "MARKEY, Edward John" | chamber != "House" | DATE < as.Date("2013-06-25")) %>% # # Rep Ed Markey elected to Senate in special election June 25, 2013
     filter(bioname != "MARKEY, Edward John" | chamber != "Senate" | DATE > as.Date("2013-06-25")) %>% 
