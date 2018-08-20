@@ -15,7 +15,9 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("/201", "/1", data$DATE)
+  data$DATE %<>% as.Date("%m/%d/%y")
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001

@@ -790,7 +790,8 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Say( |$)", "\\1Sally\\2", FROM)
   FROM <- gsub("(^| )Wi( |$)", "\\1Will\\2", FROM)
   FROM <- gsub("(^| )Way( |$)", "\\1Wally\\2", FROM)
-
+  FROM <- gsub("(^| )Key( |$)", "\\1Kelly\\2", FROM)
+  
   
   
   # other errors
