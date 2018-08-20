@@ -207,7 +207,8 @@ d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  
 # Reoccuring problem names
 names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
-              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'))
+              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'),l=c('Brian','De Va(|ll)ance'),
+              m=c('Peggy','Sherry'),n=c('Donald', 'Kent'))
 
 for(i in 1:length(names)){
   d %<>%
