@@ -583,6 +583,18 @@ df %<>% full_join(
     group_by(icpsr, congress) %>% top_n(1, wt = prestige_chair) %>% distinct()
 ) %>% filter(!is.na(bioname))
 
+# all committee names, sep = "|"
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, committees) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = committees) %>% distinct()
+) %>% filter(!is.na(bioname))
+
+# chairs committee names
+df %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, chair_of) %>% 
+    group_by(icpsr, congress) %>% top_n(1, wt = chair_of) %>% distinct() %>% filter(!is.na(chair_of))
+) %>% filter(!is.na(bioname))
+
 # year elected 
 df %<>% full_join(
   committees %>% dplyr::select(icpsr,congress, yearelected) %>% distinct() 
@@ -605,14 +617,40 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 ########################################################################
 df %<>% filter(!is.na(agency))
 
+# Add agency names by acronym from the FOIA List google sheet
 df %<>% left_join(
   gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
   )
 
+df %<>% left_join(
+# From Lewis and Seldin AJPS
+data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
+)
 
+# match to committee list 
 
+df %<>% mutate(oversight_committee = ifelse(
+  {grepl(.$committees, .$Reporting.Committees, ignore.case = T)}, 
+  1, 0))
+sum(df$oversight_committee)
 
+# match to committee chair (excludes library and printing)
+# FIXME
+# WTF, why does grepl work above and not here? - for loop below finds 732 matches 
+df %<>% mutate(oversight_committee_chair  = ifelse(
+  !is.na(chair_of) & 
+  !is.na(Reporting.Committees) & 
+  {grepl(.$chair_of, .$Reporting.Committees, ignore.case = T)}, 
+  1, 0))
+sum(df$oversight_committee_chair)
 
+for(i in 1:nrow(df)){
+  if(!is.na(df$chair_of[i]) & 
+     !is.na(df$Reporting.Committees[i]) & 
+     grepl(df$chair_of[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    df$oversight_committee_chair[i] <- 1
+  } } 
+sum(df$oversight_committee_chair)
 
 
 
@@ -620,7 +658,7 @@ df %<>% left_join(
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i)
+rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber, oversight.committees)
 length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
 length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
 # save if all data merged 

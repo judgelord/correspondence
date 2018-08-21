@@ -613,6 +613,12 @@ committees$terminationdate %<>% as.Date()
 # \FIXME ##########################################
 
 
+
+
+
+
+
+
 #########################################################
 # THE BELOW IS ONLY FOR FIXING ERRORS IN COMMITTEE DATA # 
 # Errors/mismatches in correspondence data should be fixed in merge.R (or the [agency].R script if agency-specific).
@@ -630,6 +636,12 @@ committees %<>%
   mutate(party = ifelse(name == "Hensarling, Jeb", 200, party)) %>% 
   mutate(party = ifelse(name == "Hoeven, John", 200, party)) 
   
+# short committee name
+committees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", toupper(committeename)))
+committees %<>% mutate(committee = gsub(" $", "", committee))
+committees %<>% mutate(committee = gsub("EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON |INVESTIGATE THE ", "", committee))
+committees %<>% mutate(committee = gsub("\\'| AFFAIRS", "", committee))
+
 committees %<>%
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
   mutate(seniorstatus = ifelse(name == "Brown, Corrine" & assigneddate == as.Date("2015-01-06"), 22, seniorstatus)) %>% 
@@ -674,11 +686,15 @@ committees %<>%
 
 # FIXME
 # DATES TO FIX / CONFIRM FIXED 
+# Senate:
 # ag - lincoln and harkin 2011
 # ethics - johnson and boxer 
 # finance wyden (bacus looks correct)
 # Health, Education, Labor, and Pensions - harkin 2009, kennedy looks correct 
 # small business - cantwell and landtreu 2013
+# 
+# House:
+# 
 # /FIXME
 
 
@@ -727,10 +743,6 @@ committees %<>%
 committees %<>% 
   mutate(majority = ifelse(partystatus == 1, 1, 0))  
   
-# short committee name
-committees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", toupper(committeename)))
-committees %<>% mutate(committee = gsub(" $", "", committee))
-committees %<>% mutate(committee = gsub("EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON |INVESTIGATE THE ", "", committee))
 
 # prestige committees
 committees %<>% 
@@ -740,10 +752,20 @@ committees %<>%
 
 
 
-committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, seniorstatus, assigneddate, terminationdate, everything()) 
 
 
+committees %<>% group_by(icpsr, ICPSRYear) %>% mutate(committees = paste(committee, collapse = "|")) %>% ungroup()
 
+committees %<>% separate(col = committees, 
+                                   into =  c("committee1", "committee2", "committee3", "committee4", "committee5", "committee6", "committee7", "committee8", "committee9"), 
+                                   sep = "\\|", 
+                                   fill = "right", remove = F)
+
+committees %<>% mutate(chair_of = ifelse(chair==1 & committee != "LIBRARY" & committee != "PRINTING", committee, "None")) # schumer is chair of both one of these are rules
+
+committees %>% select(icpsr, congress, chair_of) %>% ungroup() %>% distinct() %>% group_by(icpsr, congress, chair_of) %>% tally() %>% arrange(-n)
+
+committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, chair_of, seniorstatus, assigneddate, terminationdate, everything()) %>% ungroup()
 
 ################################
 # FOR WRANGLING VOTEVIEW MERGE #
