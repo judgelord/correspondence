@@ -131,9 +131,9 @@ d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
 d1 %<>% # and merge with voteview data
-  left_join(members) %>%
+  left_join(members) %>% # merge on common variables (may differ)
   select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
-  left_join(members) %>% 
+  left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   distinct()
 
 d <- d1
@@ -634,6 +634,16 @@ df %<>% mutate(oversight_committee = ifelse(
   1, 0))
 sum(df$oversight_committee)
 
+df$oversight_committee <- 0
+
+for(i in 1:nrow(df)){
+  if(!is.na(df$chair_of[i]) & 
+     !is.na(df$Reporting.Committees[i]) & 
+     grepl(df$committees[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    df$oversight_committee[i] <- 1
+  } } 
+sum(df$oversight_committee)
+
 # match to committee chair (excludes library and printing)
 # FIXME
 # WTF, why does grepl work above and not here? - for loop below finds 732 matches 
@@ -643,6 +653,7 @@ df %<>% mutate(oversight_committee_chair  = ifelse(
   {grepl(.$chair_of, .$Reporting.Committees, ignore.case = T)}, 
   1, 0))
 sum(df$oversight_committee_chair)
+
 
 for(i in 1:nrow(df)){
   if(!is.na(df$chair_of[i]) & 
@@ -659,6 +670,7 @@ sum(df$oversight_committee_chair)
 ###########################
 df %<>% dplyr::select(-n)
 rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber, oversight.committees)
+rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
 length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
 length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
 # save if all data merged 
