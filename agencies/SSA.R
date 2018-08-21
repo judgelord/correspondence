@@ -82,14 +82,14 @@ clean <- function(file.name) {
     mutate(first_name = ifelse(grepl("Brat \\(VA-7\\)",data$FROM), "David", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )McCaskill", data$FROM), "McCASKILL", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )McCaskill",data$FROM), "CLAIRE", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Benishek($| )", data$FROM), "BENISHEK", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Benishek($| )",data$FROM), "Dan", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Cotton($| )", data$FROM), "COTTON", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Cotton($| )",data$FROM), "Tom", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Nugent($| )", data$FROM), "NUGENT", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Nugent($| )",data$FROM), "Richard", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Hudson($| )", data$FROM), "HUDSON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("(^| )Hudson($| )",data$FROM), "Richard", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("(^| )Hudson($| )", data$FROM), "HUDSON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("(^| )Hudson($| )",data$FROM), "Richard", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("(^| )Hudson($| )", data$FROM), "HUDSON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("(^| )Hudson($| )",data$FROM), "Richard", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("(^| )Hudson($| )", data$FROM), "HUDSON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("(^| )Hudson($| )",data$FROM), "Richard", first_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Hudson($| )",data$FROM), "Richard", first_name)) 
     
     
   data %<>%
