@@ -88,7 +88,7 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Daniel K. Akaka", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Edward M. Kennedy", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Kay Bailey Hutchison", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Barack H. Obama", FROM)& (Congress < 111), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Barack H. Obama", FROM)& (congress < 111), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Herb Kohl", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Evan Bayh", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Dan Burton", FROM), "House", chamber)) %>% 

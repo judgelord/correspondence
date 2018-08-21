@@ -144,7 +144,7 @@ clean.agency <- function(agency, status, coders) {
               first_name == members$first_name[i] &
               congress == members$congress[i],
             members$chamber[i],
-            NA
+            "MISSING"
           )
         )
     }

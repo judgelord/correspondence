@@ -403,7 +403,7 @@ df %<>%
 # District vars #
 #################
 df %<>% left_join(read.csv("districts/states.csv") )
-df %<>% mutate(pop2010_millions = pop2010/1000000)
+df %<>% mutate(state_pop2010_millions = pop2010/1000000)
 
 
 
