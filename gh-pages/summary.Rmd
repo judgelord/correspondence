@@ -128,7 +128,25 @@ df %>%
 
 ```   
 
+```{r data_coded_event, fig.height=7}
+df %>% 
+  filter(!is.na(POLICY_EVENT)) %>% 
+  mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  ggplot() + 
+  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = POLICY_EVENT), #gsub(";.*|/.*|\\(.*", POLICY_EVENT))), 
+             #alpha = .4,
+             shape = 73,
+             size=2) + 
+  labs(x = "Date of Correspondence",
+       y = "Agency, N",
+       title = paste("Coded Observations, N =", sum(!is.na(df$POLICY_EVENT) ) ) ) +
+  facet_grid(complete ~ ., scales = "free_y", space = "free_y") + 
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
 
+```  
 #### Censoring 
 
 Unfortunately, much our data are censored around the 2008-2009 and 2016-2017 party transitions, some the most informative time periods in our study period. 
