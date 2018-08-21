@@ -34,9 +34,9 @@ clean <- function(file.name) {
   data$FROM <- gsub("^ ","", data$FROM)
   
   # state
-  data$state <- gsub(".*\\(|.*\\[","", data$FROM)
-  data$state <- gsub("\\).*|\\}.*|\\].*|-.*","", data$state)
-  data$state <- gsub(" ","", data$state)
+  # data$state <- gsub(".*\\(|.*\\[","", data$FROM)
+  # data$state <- gsub("\\).*|\\}.*|\\].*|-.*","", data$state)
+  # data$state <- gsub(" ","", data$state)
   
   
   # extract member names

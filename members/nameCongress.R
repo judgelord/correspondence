@@ -7,8 +7,8 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
     # mutate(state = as.character(state)) %>%
     # extract first, middle, last, and common names
     mutate(last_name = gsub(", .*", "", bioname)) %>%
-    mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| IV", "", bioname)) %>%
-    mutate(first_name = gsub(", II| II", "", first_name)) %>%
+    mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| IV", "", bioname)) %>% # this messes up Joe Kennedy Jr, Joe Kennedy III, but need to correct in MemberNameDateCorrections.R function because matching this with nameMethods is unrealistic and they do not overlap
+    mutate(first_name = gsub(", II| II", "", first_name)) %>% 
     mutate(common_name = stringr::str_extract(bioname, "\\(.*\\)")) %>%
     mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
     mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
@@ -251,7 +251,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   mutate(middle_initial = ifelse(bioname == "CRAWFORD, Rick", "A", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "AYOTTE, Kelly", "A", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "BOXER, Barbara", "A", middle_initial)) %>% 
-  mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "MATSUI, Doris", "O", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
@@ -293,9 +293,6 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
   # Northern Mariana Islands at-large	Delegate	Gregorio Sablan	Independent	2008
   # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
-  
 
   
   members$congresses <- NA # this list format throughs errors in merge
-
-  

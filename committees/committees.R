@@ -453,10 +453,83 @@ stew$icpsr[stew$stewarticpsr==90327& stew$name=="Alexander, Rodney" & stew$Congr
 
 stew$icpsr[stew$stewarticpsr==15406& stew$name=="Campbell, Ben Nighthorse"]<-15407 ## Campbell, Ben Nighthorse midcoded.  Recoded to match voteview.
 
+# AUG 2018 Recoding:
 
+# Specter fixed below, with his second icpsr being assigned to the date of his switch  
+
+stew$icpsr[stew$stewarticpsr==21169 & stew$name=="Fitzpatrick, Michael G."]<-20524 # Recoded to match voteview.
+
+stew$icpsr[stew$stewarticpsr==21144 & stew$name=="Walberg, Tim"]<-20725 # Recoded to match voteview.
+
+stew$icpsr[stew$stewarticpsr==21161 & stew$name=="Chabot, Steve"]<-29550 # Recoded to match voteview.
+
+# not clear why stewart switches icpsrs for Rigell, Scott - it was correct until the 114th
+stew$icpsr[stew$stewarticpsr==39037 & stew$name=="Rigell, Scott"]<-21185 # Recoded to match voteview.
+
+# stewart gives Boozman a new icpsr and codes his new district as 0
+stew$icpsr[stew$stewarticpsr==41100 & stew$name=="Boozman, John"]<-20101 # Recoded to match voteview.
+
+# Stewart gives Blunt a new icpsr and codes his new district as 0
+stew$icpsr[stew$stewarticpsr==41105 & stew$name=="Blunt, Roy"]<-29735 # Recoded to match voteview.
+
+# Stewart gives Moran a new icpsr and codes his new district as 0
+stew$icpsr[stew$stewarticpsr==41103 & stew$name=="Moran, Jerry"]<-29722 # Recoded to match voteview.
+
+# Stewart gives Deutch a new icpsr when his district changes back to the 21st
+stew$icpsr[stew$stewarticpsr==29335 & stew$name=="Deutch, Theodore E."]<-20959 # Recoded to match voteview.
+
+# After party switch Stewart and voteview have different icpsr for Specter
+stew$icpsr[stew$stewarticpsr==14910 & stew$name=="Specter, Arlen" & stew$partystatus == 4 & stew$cong == 111]<-94910 # Recoded to match voteview.
+stew$party[stew$stewarticpsr==14910 & stew$name=="Specter, Arlen" & stew$partystatus == 2 & stew$cong == 111]<-200 # correect miscoded party for one committee obs (the other committees were correct)
+
+# Stewart has Joe Kennedy I in the 113th, but he retired in 1999, correcting to Joe Kennedy III 
+stew$icpsr[stew$stewarticpsr==15427 & stew$name=="Kennedy, Joseph" & stew$cong == 113]<- 21335 
+stew$name[stew$stewarticpsr==15427 & stew$name=="Kennedy, Joseph" & stew$cong == 113]<- "Kennedy, Joseph P. III"
+
+
+### MISMATCHES WITH VOTEVIEW TO INVESTIGATE:
+
+# No KENNEDY, Joseph P. III in the 113th, this is correct. Joe Kennedy Jr held office then, need to correct in nameCongress.R - a real trick to match, right now both are matching in voteview 
+
+# no biden in the 111th
+
+# solis missing in the 111th
+
+# DJOU, Charles missing in the 111th (i.e. missing completely at least in the late data )
+
+# Tom Graves missing from the 111th
+
+# Mark Pocan is missing from the 115th
+
+# Scott Brown missing from the 111th
+
+# MANCHIN missing from the 111th
+
+# JONES, Gordon Douglas missing from the 115th
+
+# SMITH, Tina missing from the 115th
+
+# FUDGE is missing from the 110th
+
+# NORCROSS is missing from the 113th 
+
+# Zinke, Ryan is missing from the 115th (though he left in March, he is still in the correspondence data - needs to be corrected in MemberNameDateCorrections.R function)
+
+# CLINTON, HR not in from the 111th (but she is in voteview, maybe the above missing are the same)
+
+# COONS missing from the 111th 
+
+# GOODWIN missing from the 111th 
+
+# REED, Thomas missing from the 111th
+
+# Payne, Donald, Jr. not in the 112th, need to fix this in the MemberDateCorrections.R function because matching on Jr. not Jr. is impracttable and they did not overlap
+
+
+
+####################################################
 
 ### Note: Tried using Adler and Wilkerson's ICPSR Crosswalk (Congressional Bills Project) to convert alternate icpsr scores to NOMINATE scores.  But their alternate scores didn't match stewart's icpsr scores. 
-
 
 ### Adding missing committee leadership positions
 
@@ -465,14 +538,6 @@ stew$icpsr[stew$stewarticpsr==15406& stew$name=="Campbell, Ben Nighthorse"]<-154
 stew$seniorstatus[stew$icpsr==14873 & stew$cong==106 & stew$commcode==142] <-21 ## Adding Steny Hoyer Ranking Member House Admin
 
 stew$seniorstatus[stew$icpsr==14039 & stew$cong==106 & stew$commcode==176] <-21 ## Adding John Moakley Ranking Member Rules
-
-###################################################
-# FIXME 
-###################################################
-# need to add dates to this and should not be indexed 
-# stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
-
-# \FIXME ##########################################
 
 
 stew$seniorstatus[stew$icpsr==15448 & stew$cong==106 & stew$commcode==242] <-0 ## Removing Pelosi who wasn't ranking member of House Select Intelligence
@@ -515,8 +580,6 @@ for (i in 1:length(electionlist)){
   
 }
 
-
-
 stew$ICPSRYear<-paste(stew$icpsr, stew$yearelected, sep="")
 
 
@@ -532,6 +595,28 @@ committees$congress %<>% as.numeric()
 committees$assigneddate %<>% as.Date()
 committees$terminationdate %<>% as.Date()
 
+###################################################
+# FIXME 
+###################################################
+# need to add dates to this and should not be indexed 
+# stew[nrow(stew)+1,]<-c(106,14620, "Dixon, Julian C.",71,32,100,21,1,242,14620) ## Adding Julian Dixon as Ranking Member House Select Intelligence
+
+# MISSING CRITZ IN THE 111TH
+
+# missing clyburn in the 114th
+
+# solis missing in the 111th
+
+# israel missing in the 112th
+
+
+# \FIXME ##########################################
+
+
+
+
+
+
 
 
 #########################################################
@@ -543,7 +628,6 @@ committees %<>%
   mutate(party = ifelse(name == "Johnson, Tim", 100, party)) %>% 
   mutate(party = ifelse(name == "Johnson, Bill", 200, party)) %>% 
   mutate(party = ifelse(name == "Davis, Rodney", 200, party)) %>% 
-  mutate(party = ifelse(name == "Specter, Arlen" & assigneddate < as.Date("2009-04-28"), 200, party)) %>% 
   mutate(party = ifelse(name == "Turner, Bob L.", 200, party)) %>% 
   mutate(party = ifelse(name == "Schiff, Adam", 100, party)) %>% 
   mutate(party = ifelse(name == "Guinta, Frank", 200, party)) %>% 
@@ -552,6 +636,12 @@ committees %<>%
   mutate(party = ifelse(name == "Hensarling, Jeb", 200, party)) %>% 
   mutate(party = ifelse(name == "Hoeven, John", 200, party)) 
   
+# short committee name
+committees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", toupper(committeename)))
+committees %<>% mutate(committee = gsub(" $", "", committee))
+committees %<>% mutate(committee = gsub("EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON |INVESTIGATE THE ", "", committee))
+committees %<>% mutate(committee = gsub("\\'| AFFAIRS", "", committee))
+
 committees %<>%
   mutate(seniorstatus = ifelse(name == "Waters, Maxine" & assigneddate >= as.Date("2015-01-06"), 21, seniorstatus)) %>% 
   mutate(seniorstatus = ifelse(name == "Brown, Corrine" & assigneddate == as.Date("2015-01-06"), 22, seniorstatus)) %>% 
@@ -573,22 +663,48 @@ committees %<>%
   # Harkin to Blanch September 9, 2009
   mutate(terminationdate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
                                 as.Date('2009-09-09'), terminationdate)) %>% 
-  mutate(assigneddate = if_else(name =="Blanche, Lincoln" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
-                                as.Date('2009-03-01'), assigneddate)) %>% 
+  mutate(assigneddate = if_else(name =="Lincoln, Blanche Lambert" & congress == 111 & committeename == "Agriculture, Nutrition, and Forestry",
+                                as.Date('2009-09-09'), assigneddate)) %>% 
   # Wyden Chair of the Senate Finance Committee February 12, 2014 – January 3, 2015
   mutate(assigneddate = if_else(name =="Wyden, Ron" & congress == 113 & committeename == "Finance",
-                                as.Date('2014-12-02'), assigneddate)) %>% 
+                                as.Date('2014-02-12'), assigneddate)) %>% 
   # Harkin moved to health sept 2009
-  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "Health, Education, Labor, and Pensions",
-                                as.Date('2009-09-09'), assigneddate)) 
+  mutate(assigneddate = if_else(name =="Harkin, Tom" & congress == 111 & committeename == "HEALTH",
+                                as.Date('2009-09-09'), assigneddate)) %>% 
+  # Wyden ENERGY January 3, 2013 – February 12, 2014, Landrieu took over chair
+  mutate(terminationdate = if_else(name =="Wyden, Ron" & congress == 113 & committee == "ENERGY",
+                                as.Date('2014-02-12'), terminationdate)) %>% 
+  mutate(assigneddate = if_else(name =="Landrieu, Mary L." & congress == 113 & committee == "ENERGY",
+                                   as.Date('2014-02-12'), assigneddate)) %>% 
+  # Landrieu Chair of the Senate Small Business Committee January 3, 2009 – February 12, 2014
+  mutate(terminationdate = if_else(name =="Landrieu, Mary L." & congress == 113 & committee == "SMALL BUSINESS",
+                                   as.Date('2014-02-12'), terminationdate)) %>% 
+  mutate(assigneddate = if_else(name =="Cantwell, Maria" & congress == 113 & committee == "SMALL BUSINESS",
+                                as.Date('2014-02-12'), assigneddate)) 
+
+
+
 # FIXME
 # DATES TO FIX / CONFIRM FIXED 
+# Senate:
 # ag - lincoln and harkin 2011
 # ethics - johnson and boxer 
 # finance wyden (bacus looks correct)
 # Health, Education, Labor, and Pensions - harkin 2009, kennedy looks correct 
 # small business - cantwell and landtreu 2013
 # 
+# House:
+# 
+# /FIXME
+
+
+
+
+
+
+
+
+
 
 
 
@@ -627,12 +743,8 @@ committees %<>%
 committees %<>% 
   mutate(majority = ifelse(partystatus == 1, 1, 0))  
   
-# short committee name
-committees %<>% mutate(committee = gsub(" AND .*|, .*|\\(.*", "", toupper(committeename)))
-committees %<>% mutate(committee = gsub(" $", "", committee))
-committees %<>% mutate(committee = gsub("EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON |INVESTIGATE THE ", "", committee))
 
-
+# prestige committees
 committees %<>% 
   mutate(prestige = ifelse(committee %in% c( "RULES", "BUDGET", "WAYS", "COMMERCE", "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), 
                            1, 0) ) %>% 
@@ -641,11 +753,19 @@ committees %<>%
 
 
 
-committees %<>% select(chamber, committee, prestige, prestige_chair, leadership_position, position, seniorstatus, congress, assigneddate, terminationdate, everything()) %>% 
-  arrange(position)
 
+committees %<>% group_by(icpsr, ICPSRYear) %>% mutate(committees = paste(committee, collapse = "|")) %>% ungroup()
 
+committees %<>% separate(col = committees, 
+                                   into =  c("committee1", "committee2", "committee3", "committee4", "committee5", "committee6", "committee7", "committee8", "committee9"), 
+                                   sep = "\\|", 
+                                   fill = "right", remove = F)
 
+committees %<>% mutate(chair_of = ifelse(chair==1 & committee != "LIBRARY" & committee != "PRINTING", committee, "None")) # schumer is chair of both one of these are rules
+
+committees %>% select(icpsr, congress, chair_of) %>% ungroup() %>% distinct() %>% group_by(icpsr, congress, chair_of) %>% tally() %>% arrange(-n)
+
+committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, chair_of, seniorstatus, assigneddate, terminationdate, everything()) %>% ungroup()
 
 ################################
 # FOR WRANGLING VOTEVIEW MERGE #
@@ -655,3 +775,77 @@ committees %<>% select(chamber, committee, prestige, prestige_chair, leadership_
 
 # bad.committee.match <- committee.membership[is.na(committee.membership$stewarticpsr),]
 
+# 1    House                           AGRICULTURE
+# 2    House                        APPROPRIATIONS
+# 3    House                     NATIONAL SECURITY
+# 4    House                               BANKING
+# 5    House                                BUDGET
+# 6    House                             EDUCATION
+# 7    House                              COMMERCE
+# 8    House               INTERNATIONAL RELATIONS
+# 9    House                     GOVERNMENT REFORM
+# 10   House                       HOUSE OVERSIGHT
+# 11   House                             JUDICIARY
+# 12   House                             RESOURCES
+# 13   House                        TRANSPORTATION
+# 14   House                                 RULES
+# 15   House                               SCIENCE
+# 16   House                        SMALL BUSINESS
+# 17   House         STANDARDS OF OFFICIAL CONDUCT
+# 18   House                      VETERANS AFFAIRS
+# 19   House                                  WAYS
+# 20   House                          INTELLIGENCE
+# 21   House                               LIBRARY
+# 22   House                              PRINTING
+# 23   House                              TAXATION
+# 24   House                              ECONOMIC
+# 25   House                         MAJORITY WHIP
+# 26   House                       MAJORITY LEADER
+# 27   House                               SPEAKER
+# 28   House                         MINORITY WHIP
+# 29   House                       MINORITY LEADER
+# 30   House                    FINANCIAL SERVICES
+# 31   House                                ENERGY
+# 32   House SELECT COMMITTEE ON HOMELAND SECURITY
+# 33   House                        ARMED SERVICES
+# 34   House                  HOUSE ADMINISTRATION
+# 35   House                     HOMELAND SECURITY
+# 36   House                       FOREIGN AFFAIRS
+# 37   House                             OVERSIGHT
+# 38   House                     NATURAL RESOURCES
+# 39   House                   ENERGY INDEPENDENCE
+# 40   House     VOTING IRREGULARITIES OF AUGUST 2
+# 41   House                                ETHICS
+# 42   House                     DEFICIT REDUCTION
+# 43   House             ASSISTANT MINORITY LEADER
+# 44   House                              BENGHAZI
+# 45  Senate                           AGRICULTURE
+# 46  Senate                        APPROPRIATIONS
+# 47  Senate                        ARMED SERVICES
+# 48  Senate                               BANKING
+# 49  Senate                                BUDGET
+# 50  Senate                              COMMERCE
+# 51  Senate                                ENERGY
+# 52  Senate                           ENVIRONMENT
+# 53  Senate                               FINANCE
+# 54  Senate                     FOREIGN RELATIONS
+# 55  Senate                  GOVERNMENTAL AFFAIRS
+# 56  Senate                             JUDICIARY
+# 57  Senate                                 LABOR
+# 58  Senate                                 RULES
+# 59  Senate                        SMALL BUSINESS
+# 60  Senate                     VETERANS' AFFAIRS
+# 61  Senate                                 AGING
+# 62  Senate                          INTELLIGENCE
+# 63  Senate                                ETHICS
+# 64  Senate                        INDIAN AFFAIRS
+# 65  Senate                               LIBRARY
+# 66  Senate                              PRINTING
+# 67  Senate                              ECONOMIC
+# 68  Senate                       MAJORITY LEADER
+# 69  Senate                         MAJORITY WHIP
+# 70  Senate                       MINORITY LEADER
+# 71  Senate                         MINORITY WHIP
+# 72  Senate                                HEALTH
+# 73  Senate                     HOMELAND SECURITY
+# 74  Senate                              TAXATION

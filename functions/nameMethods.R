@@ -790,7 +790,8 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Say( |$)", "\\1Sally\\2", FROM)
   FROM <- gsub("(^| )Wi( |$)", "\\1Will\\2", FROM)
   FROM <- gsub("(^| )Way( |$)", "\\1Wally\\2", FROM)
-
+  FROM <- gsub("(^| )Key( |$)", "\\1Kelly\\2", FROM)
+  
   
   
   # other errors
@@ -801,6 +802,7 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM)
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
   FROM <- ifelse(grepl("Comyn|Com yn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn","Cornyn", FROM), FROM)
+  FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
   FROM <- gsub("Cwnmings", 'Cummings', FROM)
   FROM <- gsub("Tnhofe", "Inhofe", FROM)
   FROM <- gsub("Ellrners","Ellmers", FROM)
@@ -808,6 +810,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Coryn( |$)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Connelly( |$)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Heitkmap( |$)", "\\1Heitkamp\\2", FROM, ignore.case = TRUE)
   
   return(FROM)
 }
