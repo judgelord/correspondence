@@ -118,7 +118,13 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
-
+# loop not working
+  # i <- 1
+  # for(i in 1:length(members$id)){
+  #   data %<>%
+  #     mutate(test = ifelse(data$last_name == members$last_name[i], TRUE, F))
+  #   
+  # }
   
   
   
@@ -143,9 +149,6 @@ clean <- function(file.name) {
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("REQUEST FOR INFORMATION", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  
-  
-
   
   
 }
