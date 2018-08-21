@@ -29,10 +29,8 @@ clean <- function(file.name) {
   data$DATE <- gsub("/200","/0",data$DATE)
   data$DATE <- gsub("/201","/1",data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
+
   
-  # data %<>%
-  #   mutate(DATE = ifelse(is.na(DATE)&))
-  # 
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -58,7 +56,18 @@ clean <- function(file.name) {
   
   
   # member name
-  data %<>% extractMemberName(members,"FROM")
+  data %<>% extractMemberName(members,"FROM") 
+  data %<>%
+    mutate(last_name = ifelse(grepl("(^| )Burr( |$)",data$FROM), "BURR", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Burr( |$)",data$FROM), "Richard", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Manchin( |$)",data$FROM), "MANCHIN", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Manchin( |$)",data$FROM), "Joe", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Isakson( |$)",data$FROM), "Johnny", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Isakson( |$)",data$FROM), "ISAKSON", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Cartwright( |$)",data$FROM), "Matt", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Cartwright( |$)",data$FROM), "CARTWRIGHT", first_name)) 
+    
+  
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,ACTION)) %>% 
