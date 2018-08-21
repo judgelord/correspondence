@@ -36,23 +36,23 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # Duplicates need fixing, commas appear on non-duplicates (go back and fix after manual cleaning)
-  # ###############    
-  # # Creates duplicate rows for lines with multiple representatives
-  # for(i in 1:nrow(data)){
-  #   if(grepl(",", data$FROM[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-  #     new$FROM <- unlist(str_split(data$FROM[i], ","))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  # data <- data[!data$FROM == "",] # removes blank observations
-  # ################
+  #Duplicates need fixing, commas appear on non-duplicates (go back and fix after manual cleaning)
+  ###############
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+
+      data <- rbind(data, new)
+
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
   
   
   
@@ -145,21 +145,7 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   
   
 }
