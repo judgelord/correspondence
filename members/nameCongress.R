@@ -8,7 +8,7 @@ members <- member_search(congress = c(110:120)) %>% # get voteview data for sele
     # extract first, middle, last, and common names
     mutate(last_name = gsub(", .*", "", bioname)) %>%
     mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| IV", "", bioname)) %>% # this messes up Joe Kennedy Jr, Joe Kennedy III, but need to correct in MemberNameDateCorrections.R function because matching this with nameMethods is unrealistic and they do not overlap
-    mutate(first_name = gsub(", II| II", "", first_name)) %>%
+    mutate(first_name = gsub(", II| II", "", first_name)) %>% 
     mutate(common_name = stringr::str_extract(bioname, "\\(.*\\)")) %>%
     mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
     mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
