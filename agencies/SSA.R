@@ -63,6 +63,9 @@ clean <- function(file.name) {
     "VA","VT","WA","WI","WV","WY"
   )
   
+  data$state <- gsub(".*\\(([A-Z]{2}).*\\).*|.*\\(.*([A-Z]{2})\\).*", '\\1', data$FROM)
+  data$state <- gsub(".*\\(.*([A-Z]{2})     .*\\).*|.*\\(.*([A-Z]{2})\\).*", '\\1', data$FROM)
+  
   
   # member name
   data %<>% extractMemberName(members,"FROM") 
