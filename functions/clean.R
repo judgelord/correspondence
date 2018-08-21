@@ -128,7 +128,7 @@ clean.agency <- function(agency, status, coders) {
               last_name == members$last_name[i] &
               congress == members$congress[i] &
               first_name == members$first_name[i],
-            members$first_name[i],
+            members$chamber[i],
             chamber
           )
         )
