@@ -61,6 +61,9 @@ clean <- function(file.name) {
     mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
                           gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
                           NA))
+  data$state <- stateFromLower(data$state)
+  
+  # create name variable for names with only last name info
   data %<>%
     mutate(name =  ifelse(grepl("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", data$FROM),
                           gsub("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", '\\2', data$FROM),
@@ -115,7 +118,10 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
-    
+
+  
+  
+  
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,ACTION)) %>% 
   mutate(SUBJECT = paste(SUBJECT, CCRS.Specialist)) %>%
