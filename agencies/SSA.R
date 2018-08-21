@@ -57,16 +57,22 @@ clean <- function(file.name) {
   
   
   # state
-  states <- c(
-    "AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN",
-    "MO","MS","MT","NC","ND","NE","NH", "NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC", "SD","TN","TX","UT",
-    "VA","VT","WA","WI","WV","WY"
-  )
+  data %<>%
+    mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
+                          gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
+                          NA))
+  data %<>%
+    mutate(name =  ifelse(grepl("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", data$FROM),
+                          gsub("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", '\\2', data$FROM),
+                          NA)) %>% 
+    mutate(name = ifelse(grepl("^(\\w{2,})($| \\(.*)", data$FROM),
+                         gsub("^(\\w{2,})($| \\(.*)", '\\1', data$FROM),
+                         name)) %>% 
+    select(FROM, name, state ,everything())
   
-  data$state <- gsub(".*\\(([A-Z]{2}).*\\).*|.*\\(.*([A-Z]{2})\\).*", '\\1', data$FROM)
-  data$state <- gsub(".*\\(.*([A-Z]{2})     .*\\).*|.*\\(.*([A-Z]{2})\\).*", '\\1', data$FROM)
   
-  
+  data$name <- formatLastName(data, 'name')
+
   # member name
   data %<>% extractMemberName(members,"FROM") 
   data %<>%
@@ -103,7 +109,11 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(grepl("(^| )Crawford($| )", data$FROM), "CRAWFORD", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )Rick($| )",data$FROM), "Rick", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Rogers \\(KY-5\\)", data$FROM), "ROGERS", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) 
+    mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) %>% 
+   
+     # only last name info, no first name
+    mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
+    mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
     
   data %<>%
