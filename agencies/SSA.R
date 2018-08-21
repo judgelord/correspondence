@@ -70,8 +70,8 @@ clean <- function(file.name) {
     mutate(first_name = ifelse(grepl("(^| )Shelby( |$)",data$FROM), "Richard", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Boozman( |$)",data$FROM), "BOOZMAN", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )Boozman( |$)",data$FROM), "John", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Collins \\(GA-9\\)",data$FROM), "COLLINS", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Collins \\(GA-9\\)",data$FROM), "Doug", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Collins \\(GA-(9|09)\\)",data$FROM), "COLLINS", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Collins \\(GA-(9|09)\\)",data$FROM), "Doug", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Heck \\(NV-3\\)",data$FROM), "HECK", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Heck \\(NV-3\\)",data$FROM), "Joe", first_name)) 
     
