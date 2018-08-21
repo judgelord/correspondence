@@ -122,6 +122,7 @@ clean.agency <- function(agency, status, coders) {
       )
       }
 
+
         if (sum(c("last_name", "first_name", "congress") %in% names(data)) == 3 &
             !"chamber" %in% names(data) ) {
           data %<>%
