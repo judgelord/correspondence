@@ -55,6 +55,24 @@ clean <- function(file.name) {
   # ################
   
   
+  
+  # state
+  data %<>%
+    mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
+                          gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
+                          NA))
+  data %<>%
+    mutate(name =  ifelse(grepl("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", data$FROM),
+                          gsub("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", '\\2', data$FROM),
+                          NA)) %>% 
+    mutate(name = ifelse(grepl("^(\\w{2,})($| \\(.*)", data$FROM),
+                         gsub("^(\\w{2,})($| \\(.*)", '\\1', data$FROM),
+                         name)) %>% 
+    select(FROM, name, state ,everything())
+  
+  
+  data$name <- formatLastName(data, 'name')
+
   # member name
   data %<>% extractMemberName(members,"FROM") 
   data %<>%
@@ -73,10 +91,31 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(grepl("Collins \\(GA-(9|09)\\)",data$FROM), "COLLINS", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Collins \\(GA-(9|09)\\)",data$FROM), "Doug", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Heck \\(NV-3\\)",data$FROM), "HECK", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Heck \\(NV-3\\)",data$FROM), "Joe", first_name)) 
+    mutate(first_name = ifelse(grepl("Heck \\(NV-3\\)",data$FROM), "Joe", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Hudson($| )", data$FROM), "HUDSON", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Hudson($| )",data$FROM), "Richard", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("S Brown \\(OH\\)", data$FROM), "BROWN", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("S Brown \\(OH\\)",data$FROM), "Sherrod", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Brat \\(VA-7\\)", data$FROM), "BRAT", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Brat \\(VA-7\\)",data$FROM), "David", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )McCaskill", data$FROM), "McCASKILL", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )McCaskill",data$FROM), "CLAIRE", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Benishek($| )", data$FROM), "BENISHEK", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Benishek($| )",data$FROM), "Dan", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Cotton($| )", data$FROM), "COTTON", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Cotton($| )",data$FROM), "Tom", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Nugent($| )", data$FROM), "NUGENT", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Nugent($| )",data$FROM), "Richard", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("(^| )Crawford($| )", data$FROM), "CRAWFORD", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )Rick($| )",data$FROM), "Rick", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("Rogers \\(KY-5\\)", data$FROM), "ROGERS", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) %>% 
+   
+     # only last name info, no first name
+    mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
+    mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
-  
-  
+    
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,ACTION)) %>% 
   mutate(SUBJECT = paste(SUBJECT, CCRS.Specialist)) %>%
