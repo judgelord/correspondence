@@ -30,6 +30,7 @@ clean <- function(file.name) {
   data$last_name <- formatLastName(data, 'last_name')
   
   data$first_initial <- gsub("(.*)(,|\\.)(.*)", "\\3", data$FROM)
+  data$first_initial <- gsub("(^ |^  |^   |\n)", "", data$first_initial)
   
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, 
