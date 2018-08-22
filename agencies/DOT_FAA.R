@@ -2,8 +2,6 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# 194 mismatches on last_name
-
 #file.name <- "DOT_FAA Sam" # for testing
 
 
@@ -35,6 +33,26 @@ clean <- function(file.name) {
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
   
   
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
+  
+  # chamber
+  data %<>%
+    mutate(chamber = ifelse(grepl("^Mica, John L",data$FROM), "House","Senate"))
   
   data <- getFirstLast.Comma(data, "FROM")
   
