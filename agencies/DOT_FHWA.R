@@ -124,7 +124,13 @@ clean <- function(file.name) {
   
   # add errors
   data %<>%
-    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR))
+    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Schneider, Ann L", data$FROM), "Ann Schneider not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Archuleta, Katherine", data$FROM), "Katherine Archuleta not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Dayton, Mark", data$FROM), "Governor", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Horsley, John", data$FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Schoch, PE., Barry J", data$FROM), "Not in Congress", ERROR))
+  
   
   
   # apply coding rules
