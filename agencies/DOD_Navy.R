@@ -1,7 +1,7 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
-#file.name <- "DOD_Navy" # for testing
+file.name <- "DOD_Navy" # for testing
 
 
 clean <- function(file.name) {
@@ -22,9 +22,6 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
-  
-  # Remove NA observations after adding names from SUBJECT
-  
   
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
