@@ -45,7 +45,8 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data,'FROM')
 
-    
+  data <- data[-which(data$FROM == "White House Referral"),]  
+  data <- data[-which(data$FROM == "National Office Referral"),]  
   
   # Next, create variables custome to the agency
   # For example, in the USDA logs, they record the state of the property the letter is about:
