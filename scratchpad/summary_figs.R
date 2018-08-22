@@ -893,3 +893,78 @@ df %>%
   select(Type, chamber, Position, mean, Quartile) %>% distinct() %>% ungroup() %>% 
   ggplot() +
   geom_line(aes(x = Position, y = mean, group = Quartile, color = Quartile)) + facet_grid(Type ~ chamber, scales = "free_y")
+
+
+
+df %>% 
+  filter(congress %in% c(111,112)) %>% 
+  group_by(congress, bioname, agency, oversight_committee_chair) %>% 
+  summarise(n = n()) %>% ungroup() %>% 
+  group_by(bioname, congress) %>%
+  mutate(n = sum(n)) %>% 
+  mutate(oversight_status = paste(oversight_committee_chair, collapse = " ")) %>%
+  # mutate(Oversight_status = ifeles(oversite_status))
+  ungroup() %>% 
+  group_by(congress, oversight_status, bioname)
+
+
+
+
+df %>% 
+  filter(complete, year > 2007, year < 2017) %>% 
+  ggplot() + 
+  geom_line(aes(x = year, y = permemberyear, group = bioname, color = chair_since_2007)) + 
+  geom_point(aes(x = year, y = permemberyear, color = chair_since_2007, shape = factor(chair)))
+
+df$congress %<>% as.factor()
+
+df %>% 
+  filter(grepl("2009:2010:2011:2012", timeframe)) %>%
+  filter(congress %in% c(111,112)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 3) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid(. ~ chamber)
+
+df %>% 
+  filter(grepl("2011:2012:2013:2014", timeframe)) %>%
+  filter(congress %in% c(112,113)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 3) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid(. ~ chamber)
+
+
+df %>% 
+  filter(grepl("2013:2014:2015:2016", timeframe)) %>%
+  filter(congress %in% c(113,114)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 3) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid(. ~ chamber)
+
+
+df %>% 
+  #filter(chamber == "Senate") %>% 
+  filter(grepl("2009:2010:2011:2012:2013:2014:2015:2016", timeframe)) %>%
+  filter(congress %in% c(111,112,113,114)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 7) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid( chamber ~ ., scales = "free_y")
+
+
+
+
