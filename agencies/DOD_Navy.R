@@ -23,6 +23,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
   
+  # Remove NA observations after adding names from SUBJECT
+  
+  
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
