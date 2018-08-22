@@ -299,32 +299,32 @@ stargazer(chair, prestige, prestigechair, partyleader, title="Core Model 2010-20
 #### We can break out contact type into two broad catigores or keep it broken out into five.
 ```{r core_model_policy_constituents, results='asis'}
 
-chair.policy <- plm(permemberyear ~ chair , 
+chair.policy <- plm(permemberyear ~ chair + female, 
              data = df %>% 
-               filter(Type2=="Policy" & !is.na(Type2)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
+               filter(Type2=="Policy" & !is.na(Type2) & is.na(female)) %>% 
+               select(permemberyear, chair,  majority, bioname, year, female) %>%
                distinct(), 
              index = c("bioname", "year"), model = "within")
 
 
-partyleader.policy <- plm(permemberyear ~ party_leader ,
+partyleader.policy <- plm(permemberyear ~ party_leader + female,
                      data = df %>% 
-               filter(Type2=="Policy" & !is.na(Type2)) %>% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+               filter(Type2=="Policy" & !is.na(Type2) & !is.na(female)) %>% 
+                       select(permemberyear, party_leader,  majority, bioname, year, distinct()) %>% distinct(), 
                      index = c("bioname", "year"), model = "within")
 
-chair.const <- plm(permemberyear ~ chair , 
+chair.const <- plm(permemberyear ~ chair + female, 
              data = df %>% 
-               filter(Type2=="Constituent Service" & !is.na(Type2)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
+               filter(Type2=="Constituent Service" & !is.na(Type2) & is.na(female)) %>% 
+               select(permemberyear, chair,  majority, bioname, year, female) %>%
                distinct(), 
              index = c("bioname", "year"), model = "within")
 
 
-partyleader.const <- plm(permemberyear ~ party_leader ,
+partyleader.const <- plm(permemberyear ~ party_leader + female,
                      data = df %>% 
-               filter(complete == T, Type2=="Constituent Service" & !is.na(Type2)) %>% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
+               filter(complete == T, Type2=="Constituent Service" & !is.na(Type2) & is.na(female)) %>% 
+                       select(permemberyear, party_leader,  majority, bioname, year, female) %>% distinct(), 
                      index = c("bioname", "year"), model = "within")
 
 stargazer(chair.policy, partyleader.policy, chair.const, partyleader.const,
@@ -501,6 +501,41 @@ df %>%
   ggplot() +
   geom_line(aes(x = Position, y = mean, group = Quartile, color = Quartile)) + facet_grid(Type ~ chamber, scales = "free_y") + 
   theme(strip.text = element_text(angle = 0))
+
+df %>% 
+  filter(grepl("2009:2010:2011:2012", timeframe)) %>%
+  filter(congress %in% c(111,112)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 3) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid(. ~ chamber)
+
+df %>% 
+  filter(grepl("2011:2012:2013:2014", timeframe)) %>%
+  filter(congress %in% c(112,113)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 3) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid(. ~ chamber)
+
+
+df %>% 
+  filter(grepl("2013:2014:2015:2016", timeframe)) %>%
+  filter(congress %in% c(113,114)) %>% 
+  group_by(chamber, bioname, congress, chair) %>% summarise(permembercongress = n() ) %>%  ungroup() %>%
+  group_by(bioname) %>% mutate(chair_status = paste(chair, collapse = " ")) %>% ungroup() %>% 
+  filter(nchar(chair_status) == 3) %>%
+  group_by(chamber, congress, chair_status) %>% summarise(mean = mean(permembercongress)) %>%  ungroup() %>%
+  ggplot() + 
+  geom_line(aes(x = congress, y = mean, group = chair_status,  color = chair_status)) + 
+  facet_grid(. ~ chamber)
+
 
 ```
 
