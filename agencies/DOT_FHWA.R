@@ -42,8 +42,7 @@ clean <- function(file.name) {
   
   
   
-  
-  
+
   #################################################################################
   
   
@@ -105,19 +104,8 @@ clean <- function(file.name) {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
   # merge 2007-2014 with 2015-2017
   data %<>% full_join(data2)
-  
-  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
@@ -164,17 +152,6 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SPECTRUM", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SPECTRUM", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
     mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("SPECTRUM", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
 }
