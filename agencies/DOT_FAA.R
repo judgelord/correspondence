@@ -2,8 +2,6 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# 194 mismatches on last_name
-
 #file.name <- "DOT_FAA Sam" # for testing
 
 
@@ -35,24 +33,48 @@ clean <- function(file.name) {
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
   
   
-  #create variable for last name of the Sen/Rep
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
+  
+  # chamber
   data %<>%
-    mutate(last_name = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
-                            replacement = "\\1", x=FROM2)) %>% 
-    mutate(last_name = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last_name)) %>% 
-    mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
-    mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
-  data$last_name <- formatLastName(data, 'last_name')
+    mutate(chamber = ifelse(grepl("^Mica, John L",data$FROM), "House","Senate"))
   
+  data <- getFirstLast.Comma(data, "FROM")
   
-  #create variable for first name of the Sen/Rep
-  data %<>%
-    mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
-                             replacement = "\\2", x=FROM2)) 
-  data$first_name <- formatFirstName(data, 'first_name')
-  
-  
+  # 
+  # #create variable for last name of the Sen/Rep
+  # data %<>%
+  #   mutate(last_name = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
+  #                           replacement = "\\1", x=FROM2)) %>% 
+  #   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last_name)) %>% 
+  #   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
+  #   mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
+  #   mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
+  # data$last_name <- formatLastName(data, 'last_name')
+  # 
+  # 
+  # #create variable for first name of the Sen/Rep
+  # data %<>%
+  #   mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
+  #                            replacement = "\\2", x=FROM2)) 
+  # data$first_name <- formatFirstName(data, 'first_name')
+  # 
+  # 
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%

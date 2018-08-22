@@ -462,34 +462,36 @@ df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 # merge committee data to one obs per letter per committee
 
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
+
+
+# NOTE:  this can be moved to committees.R ################################################
 dcommittees$assigneddate %<>% as.Date()
 dcommittees$terminationdate %<>% as.Date()
 
-# totals
-dcommittees %<>%   
-  group_by(month, bioname) %>% mutate(permonth_permember = n()) %>% ungroup() 
-
-# some committe names are upper and some sentence case 
+# some committe names are upper and some sentence case # move to committees.R
 dcommittees %<>% 
   mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
 
 dcommittees %<>% mutate(committee_dept = paste(committee, department))
 
-# year first assigned to a committee
+# year first assigned to a committee # move to committees.R
 dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
 dcommittees %<>% group_by(member_committee) %<>% 
   mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
 dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4))) %>%
   mutate(committee_member = paste(committee, "-", last_name, firstassigned))
 
-# assigned chair
+# assigned chair # move to committees.R
 dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
 dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
 dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
 
-# ID Comittee Chairs
+# ID Comittee Chairs # move to committees.R
 dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) )
+######################################################################################################
 
+
+# Link DATE to assigned chair date (keep in merge.R)
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))  %>%
@@ -654,7 +656,7 @@ df %<>% mutate(oversight_committee_chair  = ifelse(
   1, 0))
 sum(df$oversight_committee_chair)
 
-
+df$oversight_committee_chair <- 0
 for(i in 1:nrow(df)){
   if(!is.na(df$chair_of[i]) & 
      !is.na(df$Reporting.Committees[i]) & 
@@ -669,8 +671,9 @@ sum(df$oversight_committee_chair)
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber, oversight.committees)
-rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
+rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber)
+# rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party, data_list, clean, clean.agency, extractMemberName, fix.member.date.coding, formatFirstName, formatLastName, getFirstLast.Comma, multidate, ocr.errors, stateFromLower)
+
 length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
 length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
 # save if all data merged 
