@@ -24,6 +24,11 @@ clean <- function(file.name) {
   
   #create agency column
   data$agency <- file.name
+  
+  # chamber
+  data %<>%
+    mutate(chamber = ifelse(chamber == "HOUSE", "House", chamber)) %>% 
+    mutate(chamber = ifelse(chamber =="SENATE", "Senate", chamber))
 
  
   ###############    
