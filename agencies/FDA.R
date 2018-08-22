@@ -41,6 +41,14 @@ clean <- function(file.name) {
   data$FROM <- gsub("^ ","", data$FROM)
   
 
+  
+  data <- data[-grep("^\\[norg\\]$", data$FROM),]
+  data <- data[-grep("^\\[norg\\] \\[norg\\]$$", data$FROM),]
+  
+  
+  
+  
+  
   # extract member names
   data %<>%
     getFirstLast.Comma("FROM")
