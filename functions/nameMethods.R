@@ -720,7 +720,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Aen$", "Allen", FROM)
   FROM <- gsub("(^| )Bi($| )", "\\1Bill\\2", FROM)
   FROM <- gsub("Coins", "Collins", FROM)
-  FROM <- gsub("Paone", "Pallone", FROM)
+  FROM <- gsub("Paone|Pal lone", "Pallone", FROM)
   FROM <- gsub("(^| )Campbe($| )", "\\1Campell\\2", FROM)
   FROM <- gsub("Hoen", "Hollen", FROM)
   FROM <- gsub("(^| )Darre($| )", "\\1Darrell\\2", FROM)

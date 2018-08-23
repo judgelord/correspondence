@@ -119,8 +119,9 @@ clean <- function(file.name) {
   # fix FROM 
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
   data$FROM <- gsub(",", ".", data$FROM)
-  data$FROM <- gsub("Ti m |Tim ", "", data$FROM)
-  data$FROM <- gsub("l l|ll", "", data$FROM)
+  #data$FROM <- gsub("Ti m |Tim ", "", data$FROM)
+  data$FROM <- gsub("Ti m ", "Tim ", data$FROM)
+  #data$FROM <- gsub("l l|ll", "", data$FROM)
   data$FROM <- gsub("Bun-", "Bun", data$FROM)
   data$FROM <- gsub("Ban-", "Ban", data$FROM)
   data$FROM <- gsub("C.Johnson", "C. Johnson", data$FROM)
@@ -131,7 +132,7 @@ clean <- function(file.name) {
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
 
   # adds "ll" to names that were misread and other ocr errors
-  data$FROM <- ocr.errors(data$FROM)
+  #data$FROM <- ocr.errors(data$FROM)
   
   # names 
   data <- extractMemberName(data, members, 'FROM')
