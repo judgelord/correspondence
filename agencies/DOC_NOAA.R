@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOC_NOAA" # for testing
+#  file.name <- "DOC_NOAA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -25,6 +25,17 @@ clean <- function(file.name) {
   # member name
   data %<>% 
     mutate(SUBJECT = paste(FROM, SUBJECT)) 
+  
+  
+  # errors for non members of Congress
+  data %<>%
+    mutate(ERROR = ifelse(grepl("^Suzanne George$", data$FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^AA for Fisheries$", data$FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^NWS - National Weather Service$", data$FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^OS-ITA POC Renee Chase$", data$FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^OCIO NESDIS$", data$FROM), "Not in Congress", ERROR))
+    
+  
   
   data %<>%
       extractMemberName(members, "FROM")
