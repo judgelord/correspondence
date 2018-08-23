@@ -1,9 +1,12 @@
-##this code assumes summary_fig has been run to create d
 ##located in scratchpad
 
-ifelse( F ,  source("merge.R"), load("correspondence.RData") )
+load("gh-pages/correspondence.RData") # load df (df is d + covariates + dropping obs not matching an ICPSR)
+source("setup.R") # load packages and functions
+
 
 ##alright, putting together some simple summaries
+
+df %<>% mutate(bioname_congress = paste(bioname, congress))
 
 df %<>% mutate(bioname_congress_type = paste(bioname_congress, Type))
 
@@ -31,7 +34,7 @@ reg1<- lm(counts3[,3]~as.factor(counts3[,2]) + as.factor(counts3[,1]))
 ###we can also look at the per-individual effects
 
 
-reg1$coef[7:len(reg1$coef)]
+reg1$coef[7:length(reg1$coef)]
 ##can just calcuate that in each Congress.
 ##so quickly, looking at the per Congress average
 

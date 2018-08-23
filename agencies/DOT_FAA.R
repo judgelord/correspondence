@@ -35,28 +35,24 @@ clean <- function(file.name) {
   data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
   
   
+  #create variable for last name of the Sen/Rep
+  data %<>%
+    mutate(last_name = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
+                            replacement = "\\1", x=FROM2)) %>% 
+    mutate(last_name = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last_name)) %>% 
+    mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
+    mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
+  data$last_name <- formatLastName(data, 'last_name')
   
-  data <- getFirstLast.Comma(data, "FROM")
   
-  # 
-  # #create variable for last name of the Sen/Rep
-  # data %<>%
-  #   mutate(last_name = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
-  #                           replacement = "\\1", x=FROM2)) %>% 
-  #   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last_name)) %>% 
-  #   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
-  #   mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
-  #   mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
-  # data$last_name <- formatLastName(data, 'last_name')
-  # 
-  # 
-  # #create variable for first name of the Sen/Rep
-  # data %<>%
-  #   mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
-  #                            replacement = "\\2", x=FROM2)) 
-  # data$first_name <- formatFirstName(data, 'first_name')
-  # 
-  # 
+  #create variable for first name of the Sen/Rep
+  data %<>%
+    mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
+                             replacement = "\\2", x=FROM2)) 
+  data$first_name <- formatFirstName(data, 'first_name')
+  
+  
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%

@@ -718,7 +718,7 @@ committees %<>%
 committees %<>% 
   mutate(position = ifelse(10 < seniorstatus & seniorstatus < 17, "Chair", NA)) %>% 
   mutate(position = ifelse(20 < seniorstatus & seniorstatus < 24, "Ranking Minority", position))  %>% 
-  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, NA, position))
+  mutate(position = ifelse(seniorstatus == 0 | seniorstatus > 24, "Other", position))
 committees %<>% 
   mutate(leadership_position = ifelse(10 <= seniorstatus & seniorstatus <= 17, "Chair", "All Others")) %>% 
   mutate(leadership_position = ifelse(20 <= seniorstatus & seniorstatus <= 24, "Ranking Minority", leadership_position))  %>% 
@@ -765,7 +765,61 @@ committees %<>% mutate(chair_of = ifelse(chair==1 & committee != "LIBRARY" & com
 
 committees %>% select(icpsr, congress, chair_of) %>% ungroup() %>% distinct() %>% group_by(icpsr, congress, chair_of) %>% tally() %>% arrange(-n)
 
+
+
+
+
+
+
+
+# format data 
+committees$assigneddate %<>% as.Date()
+committees$terminationdate %<>% as.Date()
+
+# some committe names are upper and some sentence case 
+committees %<>% 
+  mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
+
+# year first assigned to a committee
+committees %<>% mutate(member_committee = paste(icpsr, committee)) 
+committees %<>% group_by(member_committee) %<>% 
+  mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
+committees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4))) 
+
+# assigned chair
+committees %<>% mutate(assignedchairdate = as.Date(assigneddate))
+committees$assignedchairdate[committees$position != "Chair"] <- NA
+committees$assignedchairdate[is.na(committees$position)] <- NA
+
+# ID Comittee Chairs
+chairs <-  c(unique(committees$member_committee[which(committees$position == "Chair")]))
+committees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% chairs, T, F) )
+
+
+# arrange for easy viewing
 committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, chair_of, seniorstatus, assigneddate, terminationdate, everything()) %>% ungroup()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ################################
 # FOR WRANGLING VOTEVIEW MERGE #

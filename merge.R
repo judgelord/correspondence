@@ -411,6 +411,17 @@ df %<>% mutate(state_pop2010_millions = pop2010/1000000)
 
 
 
+
+###############
+######################################################
+
+
+
+
+
+######################################################
+# member vars #
+###############
 # shorten party name
 df$party_name <- gsub(" Party", "", df$party_name)
 
@@ -431,16 +442,14 @@ df %<>%
                                   year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
                                 1, 0)) 
 
-
-######################
-###################################################################################
-# gender for those where we have the data from LEP
+# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN
 df$icpsr %<>% as.numeric()
 
 df %<>% left_join(
   read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr) %>% mutate(icpsr = as.numeric(icpsr))
 )
 
+# TOTALS
 df %<>% 
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
@@ -450,60 +459,77 @@ df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 
+########################################################################
+df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before merging oversight data 
 
+# Add agency names by acronym from the FOIA List google sheet
+df %<>% left_join(
+  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
+)
+
+df %<>% left_join(
+  # From Lewis and Seldin AJPS
+  data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
+)
+
+# match to committee list 
+df$oversight_committee <- 0
+
+for(i in 1:nrow(df)){
+  if(!is.na(df$chair_of[i]) & 
+     !is.na(df$Reporting.Committees[i]) & 
+     grepl(df$committees[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    df$oversight_committee[i] <- 1
+  } } 
+sum(df$oversight_committee)
+
+# match to committee chair (excludes library and printing)
+df$oversight_committee_chair <- 0
+
+for(i in 1:nrow(df)){
+  if(!is.na(df$chair_of[i]) & 
+     !is.na(df$Reporting.Committees[i]) & 
+     grepl(df$chair_of[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    df$oversight_committee_chair[i] <- 1
+  } } 
+sum(df$oversight_committee_chair)
 ########################################################################################################
 
 
 
 
-######################
+
+
+#############################################################################
 # create dcommittees #
 ######################
 # merge committee data to one obs per letter per committee
-
+committees %<>% select(-partystatus)
+committees %<>% filter(!is.na(icpsr))
+committees %<>%  filter(!is.na(congress)) 
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 
+# \FIXME
+# MOVE ABOVE TO committees.R
+# ##########################################################################
 
-# NOTE:  this can be moved to committees.R ################################################
-dcommittees$assigneddate %<>% as.Date()
-dcommittees$terminationdate %<>% as.Date()
-
-# some committe names are upper and some sentence case # move to committees.R
-dcommittees %<>% 
-  mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
-
-dcommittees %<>% mutate(committee_dept = paste(committee, department))
-
-# year first assigned to a committee # move to committees.R
-dcommittees %<>% mutate(member_committee = paste(bioname, committee)) 
-dcommittees %<>% group_by(member_committee) %<>% 
-  mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
-dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4))) %>%
-  mutate(committee_member = paste(committee, "-", last_name, firstassigned))
-
-# assigned chair # move to committees.R
-dcommittees %<>% mutate(assignedchairdate = as.Date(assigneddate))
-dcommittees$assignedchairdate[dcommittees$position != "Chair"] <- NA
-dcommittees$assignedchairdate[is.na(dcommittees$position)] <- NA
-
-# ID Comittee Chairs # move to committees.R
-dcommittees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% c(unique(dcommittees$member_committee[which(dcommittees$position == "Chair")])), T, F) )
-######################################################################################################
-
-
-# Link DATE to assigned chair date (keep in merge.R)
+# Compare DATE and assigned date
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
   mutate(firstassignedchair = as.numeric(substring(firstassignedchairdate, 1, 4)))  %>%
   mutate(daysAsChair = ifelse(chair_since_2007 == T, subtract(DATE, firstassignedchairdate), NA) ) %>%
   mutate(yearsAsChair = daysAsChair/365) %>%
   mutate(monthsAsChair = daysAsChair/30) %>%
-  mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) %>% 
-  mutate(committee_chair = ifelse(chair_since_2007 == T, paste(committee, "-", last_name, firstassignedchair), NA))
+  mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) # note this overwrites 0/1 chair variable
 
 
 #####################
 ###########################################################################
+
+
+
+
+
 
 
 
@@ -514,8 +540,7 @@ dcommittees %<>% group_by(member_committee) %>%
 #####################
 # add committee chair data to df (still one observation per letter, unlike dcommittees)
 # run after creating dcommittees because below df vars are across committees, e.g. chair = if chair of ANY committee in that congress
-committees %<>% filter(!is.na(icpsr))
-committees %<>%  filter(!is.na(congress)) 
+
 
 # FIXME
 # JUST UNTIL WE FIX THESE IN COMMITTEE DATA via committees.R
@@ -616,54 +641,7 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 
 
 #####################
-########################################################################
-df %<>% filter(!is.na(agency))
 
-# Add agency names by acronym from the FOIA List google sheet
-df %<>% left_join(
-  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
-  )
-
-df %<>% left_join(
-# From Lewis and Seldin AJPS
-data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
-)
-
-# match to committee list 
-
-df %<>% mutate(oversight_committee = ifelse(
-  {grepl(.$committees, .$Reporting.Committees, ignore.case = T)}, 
-  1, 0))
-sum(df$oversight_committee)
-
-df$oversight_committee <- 0
-
-for(i in 1:nrow(df)){
-  if(!is.na(df$chair_of[i]) & 
-     !is.na(df$Reporting.Committees[i]) & 
-     grepl(df$committees[i], df$Reporting.Committees[i], ignore.case = T) ) {
-    df$oversight_committee[i] <- 1
-  } } 
-sum(df$oversight_committee)
-
-# match to committee chair (excludes library and printing)
-# FIXME
-# WTF, why does grepl work above and not here? - for loop below finds 732 matches 
-df %<>% mutate(oversight_committee_chair  = ifelse(
-  !is.na(chair_of) & 
-  !is.na(Reporting.Committees) & 
-  {grepl(.$chair_of, .$Reporting.Committees, ignore.case = T)}, 
-  1, 0))
-sum(df$oversight_committee_chair)
-
-df$oversight_committee_chair <- 0
-for(i in 1:nrow(df)){
-  if(!is.na(df$chair_of[i]) & 
-     !is.na(df$Reporting.Committees[i]) & 
-     grepl(df$chair_of[i], df$Reporting.Committees[i], ignore.case = T) ) {
-    df$oversight_committee_chair[i] <- 1
-  } } 
-sum(df$oversight_committee_chair)
 
 
 
@@ -671,11 +649,15 @@ sum(df$oversight_committee_chair)
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber)
-# rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party, data_list, clean, clean.agency, extractMemberName, fix.member.date.coding, formatFirstName, formatLastName, getFirstLast.Comma, multidate, ocr.errors, stateFromLower)
+rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber, oversight.committees)
+# rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
 
-length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
-length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
+#  # all agencies made it into d?
+length(unique(d$agency)) == length(unique(data_list$agency))
+
+# all agencies made it through merge into df?
+length(unique(df$agency)) == length(unique(d$agency)) 
+
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("gh-pages/correspondence.RData")
