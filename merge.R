@@ -495,35 +495,11 @@ for(i in 1:nrow(df)){
 sum(df$oversight_committee_chair)
 ########################################################################################################
 
-<<<<<<< HEAD
 
 
 
 
-=======
-dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 
-
-############################################################
-# FIXME
-# move below to committees.R ###########
-
-dcommittees$assigneddate %<>% as.Date()
-dcommittees$terminationdate %<>% as.Date()
-# some committe names are upper and some sentence case 
-dcommittees %<>% 
-  mutate(committeename = toupper(committeename)) # combine upper and lower case stewart committee names
-
-# year first assigned to a committee
-dcommittees %<>% mutate(member_committee = paste(icpsr, committee)) 
-dcommittees %<>% group_by(member_committee) %<>% 
-  mutate(firstassigneddate = min(assigneddate, na.rm = TRUE)) %>% ungroup()
-dcommittees %<>% mutate(firstassigned = as.numeric(substring(firstassigneddate, 1, 4))) 
->>>>>>> f1ccfce8073450c7de8165b8bddad4b544a4b69c
-
-
-
-<<<<<<< HEAD
 #############################################################################
 # create dcommittees #
 ######################
@@ -532,11 +508,10 @@ committees %<>% select(-partystatus)
 committees %<>% filter(!is.na(icpsr))
 committees %<>%  filter(!is.na(congress)) 
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
-=======
+
 # \FIXME
 # MOVE ABOVE TO committees.R
 # ##########################################################################
->>>>>>> f1ccfce8073450c7de8165b8bddad4b544a4b69c
 
 # Compare DATE and assigned date
 dcommittees %<>% group_by(member_committee) %>% 
@@ -546,10 +521,7 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(yearsAsChair = daysAsChair/365) %>%
   mutate(monthsAsChair = daysAsChair/30) %>%
   mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) # note this overwrites 0/1 chair variable
-<<<<<<< HEAD
-=======
 
->>>>>>> f1ccfce8073450c7de8165b8bddad4b544a4b69c
 
 #####################
 ###########################################################################
