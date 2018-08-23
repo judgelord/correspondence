@@ -33,7 +33,8 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^AA for Fisheries$", data$FROM), "Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^NWS - National Weather Service$", data$FROM), "Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^OS-ITA POC Renee Chase$", data$FROM), "Not in Congress", ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("^OCIO NESDIS$", data$FROM), "Not in Congress", ERROR))
+    mutate(ERROR = ifelse(grepl("^OCIO NESDIS$", data$FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(is.na(data$FROM), "NA FROM information", ERROR)) # No name info in SUBJECT for missing FROMs
     
   
   
