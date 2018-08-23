@@ -131,10 +131,15 @@ df %>%
 ```{r data_coded_event, fig.height=7}
 df %>% 
   filter(!is.na(POLICY_EVENT)) %>% 
-  mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>% 
+  mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>%
+  mutate(total = n()) %>% 
+  group_by(POLICY_EVENT) %>% mutate(nPE = n()) %>% ungroup() %>%
+  filter(nPE > 10) %>% 
+  # mutate(total = sum(nPE)) %>% 
+  mutate(percent = paste(POLICY_EVENT, 100*round(nPE/total, 3), "%")) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = POLICY_EVENT), #gsub(";.*|/.*|\\(.*", POLICY_EVENT))), 
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = percent), #gsub(";.*|/.*|\\(.*", POLICY_EVENT))), 
              #alpha = .4,
              shape = 73,
              size=2) + 
