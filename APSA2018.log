@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  21 AUG 2018 13:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  21 AUG 2018 14:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -779,19 +779,16 @@ Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
 ine 42.
 
 [2]
-LaTeX Font Info:    Try loading font information for OMS+lmr on input line 74.
+LaTeX Font Info:    Try loading font information for OMS+lmr on input line 73.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/lm/omslmr.fd
 File: omslmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 74.
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 73.
  [3]
 
 Package natbib Warning: Citation `LowandeRitchieLauterbach2008' on page 4 undef
 ined on input line 130.
-
-
-LaTeX Warning: Marginpar on page 4 moved.
 
 [4]
 
@@ -800,7 +797,7 @@ LaTeX Warning: Marginpar on page 5 moved.
 
 LaTeX Warning: Marginpar on page 5 moved.
 
-[5] <gh-pages/Figs/ideology_density-2.png, id=204, 1638.12pt x 963.6pt>
+[5] <gh-pages/Figs/ideology_density-2.png, id=210, 1638.12pt x 963.6pt>
 File: gh-pages/Figs/ideology_density-2.png Graphic file (type png)
 
 <use gh-pages/Figs/ideology_density-2.png>
@@ -812,7 +809,7 @@ Overfull \hbox (15.0pt too wide) in paragraph at lines 179--180
 [][] 
  []
 
-<gh-pages/Figs/percentiles-1.png, id=206, 1638.12pt x 963.6pt>
+<gh-pages/Figs/percentiles-1.png, id=212, 1638.12pt x 963.6pt>
 File: gh-pages/Figs/percentiles-1.png Graphic file (type png)
 
 <use gh-pages/Figs/percentiles-1.png>
@@ -824,7 +821,7 @@ Overfull \hbox (15.0pt too wide) in paragraph at lines 189--190
 [][] 
  []
 
-<gh-pages/Figs/means_by_type-1.png, id=207, 1638.12pt x 385.44pt> [6 <./gh-page
+<gh-pages/Figs/means_by_type-1.png, id=213, 1638.12pt x 385.44pt> [6 <./gh-page
 s/Figs/ideology_density-2.png>]
 File: gh-pages/Figs/means_by_type-1.png Graphic file (type png)
  <use gh-pages/Figs/means_by_type-1.png>
@@ -836,7 +833,7 @@ Overfull \hbox (15.0pt too wide) in paragraph at lines 192--193
 [][] 
  []
 
-<gh-pages/Figs/party_distance_above_mean-1.png, id=218, 1638.12pt x 385.44pt>
+<gh-pages/Figs/party_distance_above_mean-1.png, id=224, 1638.12pt x 385.44pt>
 File: gh-pages/Figs/party_distance_above_mean-1.png Graphic file (type png)
 
 <use gh-pages/Figs/party_distance_above_mean-1.png>
@@ -848,7 +845,7 @@ Overfull \hbox (15.0pt too wide) in paragraph at lines 202--203
 [][] 
  []
 
-<gh-pages/Figs/party_mean_by_month-1.png, id=219, 1638.12pt x 963.6pt>
+<gh-pages/Figs/party_mean_by_month-1.png, id=225, 1638.12pt x 963.6pt>
 File: gh-pages/Figs/party_mean_by_month-1.png Graphic file (type png)
 
 <use gh-pages/Figs/party_mean_by_month-1.png>
@@ -886,10 +883,10 @@ Package rerunfilecheck Info: File `APSA2018.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 251.
  ) 
 Here is how much of TeX's memory you used:
- 17517 strings out of 493014
- 327123 string characters out of 6133351
- 431005 words of memory out of 5000000
- 20661 multiletter control sequences out of 15000+600000
+ 17525 strings out of 493014
+ 327265 string characters out of 6133351
+ 434042 words of memory out of 5000000
+ 20667 multiletter control sequences out of 15000+600000
  52789 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,9n,76p,1472b,712s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -906,10 +903,10 @@ dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/t
 ype1/public/lm/lmr9.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/
 lm/lmri10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/lm/lmsy10.
 pfb>
-Output written on APSA2018.pdf (11 pages, 1049227 bytes).
+Output written on APSA2018.pdf (11 pages, 1049869 bytes).
 PDF statistics:
- 340 PDF objects out of 1000 (max. 8388607)
- 301 compressed objects within 4 object streams
- 63 named destinations out of 1000 (max. 500000)
+ 346 PDF objects out of 1000 (max. 8388607)
+ 307 compressed objects within 4 object streams
+ 65 named destinations out of 1000 (max. 500000)
  150 words of extra memory for PDF output out of 10000 (max. 10000000)
 
