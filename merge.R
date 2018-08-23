@@ -646,7 +646,6 @@ sum(df$oversight_committee)
 
 # match to committee chair (excludes library and printing)
 # FIXME
-# WTF, why does grepl work above and not here? - for loop below finds 732 matches 
 df %<>% mutate(oversight_committee_chair  = ifelse(
   !is.na(chair_of) & 
   !is.na(Reporting.Committees) & 
@@ -654,6 +653,7 @@ df %<>% mutate(oversight_committee_chair  = ifelse(
   1, 0))
 sum(df$oversight_committee_chair)
 
+df$oversight_committee_chair <- 0
 
 for(i in 1:nrow(df)){
   if(!is.na(df$chair_of[i]) & 
@@ -670,7 +670,7 @@ sum(df$oversight_committee_chair)
 ###########################
 df %<>% dplyr::select(-n)
 rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber, oversight.committees)
-rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
+# rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
 length(unique(d$agency)) == length(unique(data_list$agency)) # all agencies made it into d?
 length(unique(df$agency)) == length(unique(d$agency)) # all agencies made it through merge?
 # save if all data merged 
