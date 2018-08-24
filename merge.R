@@ -278,7 +278,7 @@ bad.party <- d %>%
 #
 #
 #
-# 
+#
 #
 #
 #
@@ -459,41 +459,6 @@ df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 
-########################################################################
-df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before merging oversight data 
-
-# Add agency names by acronym from the FOIA List google sheet
-df %<>% left_join(
-  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
-)
-
-df %<>% left_join(
-  # From Lewis and Seldin AJPS
-  data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
-)
-
-# match to committee list 
-df$oversight_committee <- 0
-
-for(i in 1:nrow(df)){
-  if(!is.na(df$chair_of[i]) & 
-     !is.na(df$Reporting.Committees[i]) & 
-     grepl(df$committees[i], df$Reporting.Committees[i], ignore.case = T) ) {
-    df$oversight_committee[i] <- 1
-  } } 
-sum(df$oversight_committee)
-
-# match to committee chair (excludes library and printing)
-df$oversight_committee_chair <- 0
-
-for(i in 1:nrow(df)){
-  if(!is.na(df$chair_of[i]) & 
-     !is.na(df$Reporting.Committees[i]) & 
-     grepl(df$chair_of[i], df$Reporting.Committees[i], ignore.case = T) ) {
-    df$oversight_committee_chair[i] <- 1
-  } } 
-sum(df$oversight_committee_chair)
-########################################################################################################
 
 
 
@@ -641,6 +606,42 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 
 
 #####################
+
+########################################################################
+df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before merging oversight data 
+
+# Add agency names by acronym from the FOIA List google sheet
+df %<>% left_join(
+  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
+)
+
+df %<>% left_join(
+  # From Lewis and Seldin AJPS
+  data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
+)
+
+# match to committee list 
+df$oversight_committee <- 0
+
+for(i in 1:nrow(df)){
+  if(!is.na(df$chair_of[i]) & 
+     !is.na(df$Reporting.Committees[i]) & 
+     grepl(df$committees[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    df$oversight_committee[i] <- 1
+  } } 
+sum(df$oversight_committee)
+
+# match to committee chair (excludes library and printing)
+df$oversight_committee_chair <- 0
+
+for(i in 1:nrow(df)){
+  if(!is.na(df$chair_of[i]) & 
+     !is.na(df$Reporting.Committees[i]) & 
+     grepl(df$chair_of[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    df$oversight_committee_chair[i] <- 1
+  } } 
+sum(df$oversight_committee_chair)
+########################################################################################################
 
 
 
