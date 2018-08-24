@@ -119,12 +119,23 @@ clean.agency <- function(agency, status, coders) {
           members$first_name[i],
           first_name
         )
-      )
+      ) %>% 
+        # if first and last are correct and chamber is present but partially missing
+        mutate(
+          chamber = ifelse(
+            is.na(chamber) &
+              !is.na(last_name) & !is.na(congress) & !is.na(first_name) &
+              last_name == members$last_name[i] &
+              congress == members$congress[i] &
+              first_name == members$first_name[i],
+            members$chamber[i],
+            chamber
+          )
+        )
       }
 
 
-        if (sum(c("last_name", "first_name", "congress") %in% names(data)) == 3 &
-            !"chamber" %in% names(data) ) {
+        if (sum(c("last_name", "first_name", "congress") %in% names(data)) == 3  ) {
           data %<>%
             # if first name is common name and missing chamber
             mutate(
@@ -145,7 +156,7 @@ clean.agency <- function(agency, status, coders) {
       #         first_name == members$first_name[i] &
       #         congress == members$congress[i],
       #       members$chamber[i],
-      #       "MISSING--will fail to merge"
+      #       "MISSING and names incorrect"
       #     )
       #   )
     }

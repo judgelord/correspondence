@@ -94,7 +94,7 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Dan Burton", FROM), "House", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Daniel E. Lungren", FROM), "House", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Jim DeMint", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
+    mutate(chamber = ifelse(grepl("Claire McCaskill", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
@@ -119,8 +119,9 @@ clean <- function(file.name) {
   # fix FROM 
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
   data$FROM <- gsub(",", ".", data$FROM)
-  data$FROM <- gsub("Ti m |Tim ", "", data$FROM)
-  data$FROM <- gsub("l l|ll", "", data$FROM)
+  #data$FROM <- gsub("Ti m |Tim ", "", data$FROM)
+  data$FROM <- gsub("Ti m ", "Tim ", data$FROM)
+  #data$FROM <- gsub("l l|ll", "", data$FROM)
   data$FROM <- gsub("Bun-", "Bun", data$FROM)
   data$FROM <- gsub("Ban-", "Ban", data$FROM)
   data$FROM <- gsub("C.Johnson", "C. Johnson", data$FROM)
@@ -140,7 +141,7 @@ clean <- function(file.name) {
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
     mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
   
-  
+   
   # #create variable for first name of the Sen/Rep
   # data %<>%
   #   mutate(first_name = gsub(pattern = "(Congressman|Senator) (\\w+).*", replacement = "\\2", x=FROM)) %>% 

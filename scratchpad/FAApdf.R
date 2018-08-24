@@ -25,8 +25,9 @@ data %<>%
   
 
 data <- data[ , !names(data) %in% c("Other")] 
+data$`Control Number` <- gsub("^: ","",data$`Control Number`)
 
-
+write.csv(x=data,file="DOT_FAA 2017.csv")
 
 
 

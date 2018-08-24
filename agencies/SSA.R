@@ -36,34 +36,46 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # Duplicates need fixing, commas appear on non-duplicates (go back and fix after manual cleaning)
-  # ###############    
-  # # Creates duplicate rows for lines with multiple representatives
-  # for(i in 1:nrow(data)){
-  #   if(grepl(",", data$FROM[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-  #     new$FROM <- unlist(str_split(data$FROM[i], ","))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  # data <- data[!data$FROM == "",] # removes blank observations
-  # ################
+  #Duplicates need fixing, commas appear on non-duplicates (go back and fix after manual cleaning)
+  ###############
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+
+      data <- rbind(data, new)
+
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
   
   
   
   # state
-  states <- c(
-    "AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN",
-    "MO","MS","MT","NC","ND","NE","NH", "NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC", "SD","TN","TX","UT",
-    "VA","VT","WA","WI","WV","WY"
-  )
+  data %<>%
+    mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
+                          gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
+                          NA))
+  data$state <- stateFromLower(data$state)
+  
+  # create name variable for names with only last name info
+  data %<>%
+    mutate(name =  ifelse(grepl("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", data$FROM),
+                          gsub("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", '\\2', data$FROM),
+                          NA)) %>% 
+    mutate(name = ifelse(grepl("^(\\w{2,})($| \\(.*)", data$FROM),
+                         gsub("^(\\w{2,})($| \\(.*)", '\\1', data$FROM),
+                         name)) %>% 
+    select(FROM, name, state ,everything())
   
   
+  data$name <- formatLastName(data, 'name')
+
   # member name
   data %<>% extractMemberName(members,"FROM") 
   data %<>%
@@ -100,9 +112,22 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(grepl("(^| )Crawford($| )", data$FROM), "CRAWFORD", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )Rick($| )",data$FROM), "Rick", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Rogers \\(KY-5\\)", data$FROM), "ROGERS", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) 
+    mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) %>% 
+   
+     # only last name info, no first name
+    mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
+    mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
-    
+# loop not working
+  # i <- 1
+  # for(i in 1:length(members$id)){
+  #   data %<>%
+  #     mutate(test = ifelse(data$last_name == members$last_name[i], TRUE, F))
+  #   
+  # }
+  
+  
+  
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,ACTION)) %>% 
   mutate(SUBJECT = paste(SUBJECT, CCRS.Specialist)) %>%
@@ -124,23 +149,6 @@ clean <- function(file.name) {
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("REQUEST FOR INFORMATION", SUBJECT, ignore.case = TRUE), "INFORMATION", POLICY_EVENT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
 }
