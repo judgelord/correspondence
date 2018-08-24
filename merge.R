@@ -85,6 +85,8 @@ data_list <- as.data.frame(matrix(c(
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
+# IRS 
+# "IRS", "not coded", NA, # rolling release
 # NASA
  "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
@@ -126,7 +128,7 @@ data_list
 # initialize for full merge (default)
 i <- 1 
 # or choose one agency
-# i <- which(data_list$agency == "DOC_EDA") 
+# i <- which(data_list$agency == "IRS") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -474,10 +476,7 @@ committees %<>% filter(!is.na(icpsr))
 committees %<>%  filter(!is.na(congress)) 
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 
-# \FIXME
-# MOVE ABOVE TO committees.R
-# ##########################################################################
-
+dcommittees %<>% mutate(committee_dept = paste(committee, department)) 
 # Compare DATE and assigned date
 dcommittees %<>% group_by(member_committee) %>% 
   mutate(firstassignedchairdate = min(assignedchairdate, na.rm = TRUE)) %>% ungroup() %>% 
@@ -642,6 +641,30 @@ for(i in 1:nrow(df)){
   } } 
 sum(df$oversight_committee_chair)
 ########################################################################################################
+# add to dcommittees
+# chairs committee names
+dcommittees %<>% full_join(
+  df %>% dplyr::select(icpsr,congress, agency, oversight_committee) %>% 
+    group_by(icpsr, congress, agency) %>% top_n(1, wt = oversight_committee) %>% distinct() %>% filter(!is.na(oversight_committee))
+) %>% filter(!is.na(bioname))
+
+dcommittees %<>% full_join(
+  df %>% dplyr::select(icpsr,congress, agency, oversight_committee_chair) %>% 
+    group_by(icpsr, congress, agency) %>% top_n(1, wt = oversight_committee_chair) %>% distinct() %>% filter(!is.na(oversight_committee_chair))
+) %>% filter(!is.na(bioname))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
