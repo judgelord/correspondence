@@ -673,7 +673,7 @@ dcommittees %<>% full_join(
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, data, conglist, electionlist, file.name, names, requires, to_install, i, Chamber, oversight.committees)
+rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, i, Chamber, oversight.committees)
 # rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
 
 #  # all agencies made it into d?
