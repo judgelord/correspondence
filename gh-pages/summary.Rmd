@@ -111,10 +111,13 @@ All time-series analysis below subsets to agencies with ten years of data.
 
 ```{r data_coded, fig.height=7}
 df %>% 
-  filter(Type != "To be coded") %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type) %>% mutate(nT = n()) %>% ungroup() %>%
+  mutate(percent = paste(Type, nT, "=", 100*round(nT/total, 2), "%")) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = Type), 
+  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = percent), 
              alpha = .4,
              shape = 73,
              size=2) + 
@@ -127,6 +130,9 @@ df %>%
         axis.text.x.top = element_text())
 
 ```   
+
+
+In additition to our five broad types, we have a second, more nuanced coding scheme focused on major agency decisions or events. This was, in part, developed inductively through the coding process. 
 
 ```{r data_coded_event, fig.height=7}
 df %>% 
@@ -542,7 +548,7 @@ Code issue salience - perhaps a news story count for non-casework contacts.
 
 Code group representation following Ritchie et al. + inductivly identify additional groups? 
 
-Add measures of agency ideology. Lowand uses Chen and Johnson (2014). Also see Bolton, de Figueiredo, and Lewis (2017).
+Add measures of agency ideology. Lowande uses Chen and Johnson (2014). Also see Bolton, de Figueiredo, and Lewis (2017).
 
 A large number of letters are co-signed, which may yield interesting tests of theories of legislator networks/ties/coalitions (e.g. compare to bill co-sponsorship a la Kirkland and Bratton, Haynie, and Rouse on ideology, race, and gender etc.). To this end, co-signed letters are given the same unique ID as we break them out by member.
 
@@ -1192,7 +1198,7 @@ dcommittees %>%
 ```  
 
 
-There are also differences in how members contact an agency such as whether they contact the DC headquarters or a subagency office. These distributions are fairly consistent over time. To stay with the same example none of the `{r} nrow{df %>% filter(agency == "DHS_ICE"}` contacts sent directly to ICE (circumventing DHS headquarters) came from these three committee chairs.
+There are also differences in how members contact an agency such as whether they contact the DC headquarters or a subagency office. These distributions are fairly consistent over time. To stay with the same example, almost none of the `{r} nrow(df %>% filter(agency == "DHS_ICE")` contacts sent directly to ICE (circumventing DHS headquarters) came from these three committee chairs.
 
 
 ```{r committeechairs_barcode_DHS_ICE, fig.height=3}
@@ -1202,7 +1208,8 @@ dcommittees %>%
          committee == "HOMELAND SECURITY",
          # chair_since_2007 == T,  
          agency %in% c("DHS_HQ", "DHS_ICE"), 
-         DATE < as.Date("2017-01-01")) %>%
+         DATE < as.Date("2017-01-01"),
+         DATE > as.Date("2010-01-01")) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
@@ -1316,6 +1323,7 @@ Chamber <- "Senate" # "House" #
 # member by year by agency 
 df %>% 
   filter(chamber == Chamber, complete == T) %>% 
+    mutate(position = ifelse(position == "Other", NA, position)) %>% 
   group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
   ggplot() +
   geom_point(
@@ -1325,7 +1333,8 @@ df %>%
     # alpha = .6,
     shape = 73,
     size=2
-  ) +
+  ) +  
+  
   labs(title = paste(Chamber),
        y = paste("Members by", "Total Number of Letters"), 
        x = "Date of Correspondence" ) +
@@ -1341,6 +1350,7 @@ Subsetting to members appointed to serve as a committee chair, we see that subse
 ```{r committeechiars_barcode_senate, fig.height=10, include= TRUE}
 Chamber = "Senate"
 dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
   filter(chamber == Chamber, 
          chair_since_2007 == T,  
          complete == T, 
@@ -1378,6 +1388,7 @@ dcommittees %>%
 ```{r committeechiars_barcode_house, fig.height=10, include= TRUE}
 Chamber = "House"
 dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
   filter(chamber == Chamber, 
          chair_since_2007 == T,  
          complete == T, 
@@ -1406,6 +1417,85 @@ dcommittees %>%
   theme(
     strip.text.y = element_text(angle = 180, size = 5),
     legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```  
+
+
+
+
+```{r oversight_committeechiars_barcode_senate, fig.height=10, include= TRUE}
+Chamber = "Senate"
+dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, chair, position, oversight_committee, assigneddate, terminationdate, chamber, committee) %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = factor(oversight_committee)),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    #legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```
+
+```{r oversight_committeechiars_barcode_house, fig.height=10, include= TRUE}
+Chamber = "House"
+dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, chair, position, oversight_committee, assigneddate, terminationdate, chamber, committee) %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = factor(oversight_committee)),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    #legend.title = element_blank(),
     axis.text.y = element_text(size=5),
     axis.text.x = element_text(angle = 0)
   ) + 
