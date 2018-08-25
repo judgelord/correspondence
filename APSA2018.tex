@@ -214,7 +214,7 @@ This might introduce bias toward older records being about policy, but we do not
 
 While we may have incomplete records for some agencies, we address the issue in the specification of our models.  In the results presented below, we examine the rate at which individual legislators contact specific agencies. In all specifications we include Congress and agency fixed effects, ensuring that we account for differences in how specific agencies are included in the data set.  
 
-\paragraph{Response Rates to Our FOIA Request} Responses to our FOIA requests varied significantly. Most agencies offered logs of congressional correspondence, which record a date, sender, and summary of each contact.  Logs generally contain any written requests, as well as many phone and email records. For example, Between May 2015 and December 2017, the DOJ Office of Administrative Law Judges received 132 emails, 109 telephone calls, and only 54 letters. Between 2007 and 2017, the Postal Regulatory Commission received 100 emails, 30 faxes, 173 letters, 118 calls. Small agencies or regional offices had staff search their email history or provided hand-written records that we transcribed. 
+\paragraph{Response Rates to Our FOIA Request} Responses to our FOIA requests varied significantly. Most agencies offered logs of congressional correspondence, which record a date, sender, and summary of each contact.  Logs generally contain any written requests, as well as many phone and email records. For example, Between May 2015 and December 2017, the DOJ Office of Administrative Law Judges received 132 emails, 109 telephone calls, and only 54 letters. Between 2007 and 2017, the Postal Regulatory Commission received 100 emails, 30 faxes, 173 letters, 118 calls. In this paper we us ``contacts'' and ``letters'' interchangeably to refer to all modes of correspondence.  Small agencies or regional offices had staff search their email history or provided hand-written records that we transcribed. 
 Most Department Secretary offices queried a correspondence tracking database designed to track all correspondence, but our requests to sub-departmental components almost always recovered additional records. As one central office FOIA officer put it ``Legislative Affairs is supposed to be the front door for [this agency], but if somebody knows somebody, well...'' (personal communication, Feb. 21, 2018). Because of such relationships, capturing patterns of correspondence that ``go around'' a department secretary's office are key to avoiding erroneous inferences about legislator behavior. For example, when chairs of the Homeland Security committee wrote about immigration enforcement issues, they almost always contacted the Department of Homeland Security (DHS) central office, but, at the same time, the Immigration Customs Enforcement (ICE) component of DHS directly received thousands of contacts from a different set of legislators. 
 
 Upon receiving records, we extracted names matching variations on the names of members of Congress and matched them to other datasets such as ideology scores \citep{dwnominate2018}, committee membership \citep{StewartWoon2017}, and committee oversight \citep{LewisSelin2012}. We also made a considerable effort to verify and update committee membership data. 
@@ -289,44 +289,46 @@ The number of constituency service requests that legislators write is distribute
 
 
 
+
+
 \section{Evidence that Power Affects a Legislator's Tendency to Write Letters}
 
-%While the average contacts per member are roughly the same for both parties regardless of majority status, Senate Republicans average more contacts per year while in the minority, while Senate Democrats are the reverse. Contacts rise and fall with legislative sessions, but are not noticeably linked to the electoral calendar. Almost every month from 2007 to 2017, Senate Democrats averaged more letters than Republicans, almost twice as many on average, while they were in the majority. 
+%While the average contacts per member are roughly the same for both parties regardless of majority status in the House, Senate Republicans average more contacts per year while in the minority, while Senate Democrats are the reverse. Contacts rise and fall with legislative sessions, but are not noticeably linked to the electoral calendar. In almost every month from 2007 to 2017, Senate Democrats averaged more letters than Republicans---almost twice as many on average, while they were in the majority. 
 
 %\todo{members by when they are up for re-election}
 
 
-A legislator's characteristics and the characteristics of their district are related to the rate of letter writing.  So too is a legislator's position in the institution.  Consider the results presented in Table \ref{t:Cross}.  This shows that legislators who are in a position of power tend to write more letters.  For example, members of prestige committees wrote an additional 1.1 letters per agency---0.68 of which were for constituent service and 0.04 were for policy concerns, compared to members of Congress not on prestigious committees.  Similarly, senators and representatives who are committee chairs write more letters---an additional 1.5 per agency, while chairs of prestige committees wrote an additional 1.8 letters per agency.  (Please note, that because not all letters are coded yet the basic arithmetic that we might expect to work will fail, because the total number of letters (the left-hand column in the table) includes letters that are yet to be coded.)
+A legislator's characteristics and the characteristics of their district are related to the rate of contacting federal agencies.  So too is a legislator's position in the institution.  Consider the results presented in Table \ref{t:Cross}.  This shows that legislators who are in a position of power tend to initiate more contacts with the bureaucracy.  For example, members of prestige committees wrote an additional 1.1 letters per agency---0.68 of which were for constituent service and 0.04 were on policy concerns, compared to members of Congress not on prestigious committees.  Similarly, senators and representatives who are committee chairs write more letters---an additional 1.5 per agency, while chairs of prestige committees wrote an additional 1.8 letters per agency.  (Please note, that because not all letters have been coded, the basic arithmetic that we might expect to work will fail, as the total number of letters (the left-hand column in the table) includes letters that are yet to be coded.)
 
 Of course, we should exercise caution when interpreting these results, because legislators who are more productive letter writers are also more likely to be selected for prestigious committees or to be committee chairs.  For example, in the period before they become chairs legislators who will eventually become committee chairs write an additional 1.1 letters per agency, a statistically significant increase over their colleagues who will not become chairs.  
 
-The cross-sectional comparisons, then, conflates the power a legislator is able to utilize after becoming a chair with the selection of individual legislators.  We see a similar, though smaller increase across legislators who are both in the majority and in the president's party.  Members of the president's party, when they are in the majority, write about an additional 0.6 letters per agency, a statistically significant difference.  But when elected officials are only in the majority or when they only are in the same party as the president but in the minority, they write fewer letters.  
+The cross-sectional comparisons, then, conflates the power a legislator is able to utilize after becoming a chair with the selection of individual legislators.  We see a similar, though smaller increase across legislators who are both in the majority and in the president's party.  Members of the president's party, when they are in the majority, write about an additional 0.6 letters per agency, a statistically significant difference.  But when only in the majority or when they only are in the same party as the president but in the minority, they write fewer letters.  This can be attributed, in part, to the fact that Senate Democrats lobby the bureaucracy more than Republicans regardless of majority status and happened to be in the majority for most of 2009-2016 when their partisan was president and lost the majority at the same time Democrats lost the presidency. 
 
 \begin{table}[hbt!]
 \centering
 \caption{Cross Sectional Differences in Letter Writing}\label{t:Cross}
 \begin{tabular}  {l|ccc}
- 	           &  Overall & Constituent & Policy    \\
+                &  Overall & Constituent & Policy    \\
 Prestige Comm. &  1.10    &  0.68            &  0.04         \\
-				& (0.06)  &   (0.05)          &  (0.01)         \\
-\hline \hline 			
-       Chair	& 1.51        & 0.59             &  0.23         \\
-				&  (0.09)     & (0.08)            &  (0.02)         \\
-\hline \hline				
-Prestige Chair	&  1.80        &  1.05           &   0.12        \\
-				&   (0.16)       &  (0.14)           &  (0.03)         \\
-\hline \hline 				
-	Majority	&    -2.15      &  -1.36           & -0.14          \\
-				&     (0.12)     &  (0.10)           & (0.02)          \\				
-President's Party&   -2.10       &   -1.33          & -0.12          \\	
-				&     (0.12)     &    (0.10)         &  (0.02)         \\
-Majority x President's Party & 4.80         & 2.91             &  0.29         \\	
-							  & (0.19)      & (0.16)             &  (0.4)         \\
+                & (0.06)  &   (0.05)          &  (0.01)         \\
+\hline \hline             
+       Chair    & 1.51        & 0.59             &  0.23         \\
+                &  (0.09)     & (0.08)            &  (0.02)         \\
+\hline \hline                
+Prestige Chair    &  1.80        &  1.05           &   0.12        \\
+                &   (0.16)       &  (0.14)           &  (0.03)         \\
+\hline \hline                 
+    Majority    &    -2.15      &  -1.36           & -0.14          \\
+                &     (0.12)     &  (0.10)           & (0.02)          \\                
+President's Party&   -2.10       &   -1.33          & -0.12          \\    
+                &     (0.12)     &    (0.10)         &  (0.02)         \\
+Majority x President's Party & 4.80         & 2.91             &  0.29         \\    
+                              & (0.19)      & (0.16)             &  (0.4)         \\
 \hline 
-Congress Fixed Effects		   &  \checkmark   &     \checkmark        &    \checkmark     \\
-Agency Fixed Effects	       &  \checkmark   &      \checkmark    & \checkmark    \\	
+Congress Fixed Effects           &  \checkmark   &     \checkmark        &    \checkmark     \\
+Agency Fixed Effects           &  \checkmark   &      \checkmark    & \checkmark    \\    
 \hline 
-\hline		
+\hline        
 \end{tabular}
 \end{table}
 
@@ -339,7 +341,7 @@ Agency Fixed Effects	       &  \checkmark   &      \checkmark    & \checkmark   
 
 While we are unable to use overtime variation to assess the effect of district characteristics or the immutable legislator traits, we can use the changing composition of committees and committee chairpersons to better isolate the effect of additional power.  To do this, we investigate similar differences as Table \ref{t:Cross}, but now use a difference-in-differences design \citep{BerryFowler2016}.  The difference-in-differences design compares changes in legislators who either acquire or lose some power---like the chair of a committee--with those legislators whose position remains unchanged.  This trend enables us to isolate any time-invariant characteristics of legislators, such as their ability to more efficiently use their office resources to perform constituency service. 
 
-Table \ref{t:did} shows the results of four distinct DiD designs: the effect of being on a prestige committee, holding a chair, the chair of a prestige committee, and a design to assess the effect of institutional power that comes from being in the majority or from the same party as the president.  This design reveals that as legislators acquire power, they write more letters to agencies.  For example, becoming a chair of a committee causes an increase of 0.59 letters per agency from the legislator.  We see a similar increase from becoming a chair of a prestige committee.  Our tentative coding of the letters shows that there are increases in both requests for individual constituent service and for policy.  Further, we see a similar slight increase that comes when legislators are both in the majority and from the same party as the president. 
+Table \ref{t:did} shows the results of four distinct DiD designs: the effect of being on a prestige committee, holding a chair, the chair of a prestige committee, and a design to assess the effect of institutional power that comes from being in the majority or from the same party as the president.  This design reveals that as legislators acquire power, they write more letters to agencies.  For example, becoming a chair of a committee causes a very large substantive increase of 0.59 letters per agency from the legislator.  We see a similar increase from becoming a chair of a prestige committee.  Our tentative coding of the letters shows that there are increases in both requests for individual constituent service and for policy.  Further, we see a similar slight increase that comes when legislators are both in the majority and from the same party as the president, indicating that the positive effect of majority control with a copartisan president is not merely driven by the position of Senate Democrats in our time period. 
 
 
 
@@ -347,60 +349,60 @@ Table \ref{t:did} shows the results of four distinct DiD designs: the effect of 
 \centering
 \caption{Difference-in-Differences in Letter Writing}\label{t:did}
 \begin{tabular} {l|ccc} 
- 	           &  Overall & Constituent & Policy    \\
+                &  Overall & Constituent & Policy    \\
 Prestige Comm. &  0.16    &  0.05            &  -0.04         \\
-				& (0.15)  &   (0.14)          &  (0.03)         \\
-\hline \hline 			
-       Chair	& 0.59        & 0.07            &  0.16         \\
-				&  (0.14)     & (0.12)            &  (0.03)         \\
-\hline \hline				
-Prestige Chair	&  0.58        &  0.31           &    0.07      \\
-				&   (0.25)       &  (0.23)           &  (0.05)         \\
-\hline \hline 				
-	Majority	&    -0.45      &  -0.38           & -0.14          \\
-				&     (0.16)     &  (0.14)           & (0.02)          \\				
-President's Party&   -0.30       &   -0.35          & -0.12          \\	
-				&     (0.15)     &    (0.13)         &  (0.02)         \\
-Majority x President's Party & 1.02         & 0.88            &  0.02        \\	
-							  & (0.25)      & (0.22)             &  (0.05)         \\
+                & (0.15)  &   (0.14)          &  (0.03)         \\
+\hline \hline             
+       Chair    & 0.59        & 0.07            &  0.16         \\
+                &  (0.14)     & (0.12)            &  (0.03)         \\
+\hline \hline                
+Prestige Chair    &  0.58        &  0.31           &    0.07      \\
+                &   (0.25)       &  (0.23)           &  (0.05)         \\
+\hline \hline                 
+    Majority    &    -0.45      &  -0.38           & -0.14          \\
+                &     (0.16)     &  (0.14)           & (0.02)          \\                
+President's Party&   -0.30       &   -0.35          & -0.12          \\    
+                &     (0.15)     &    (0.13)         &  (0.02)         \\
+Majority x President's Party & 1.02         & 0.88            &  0.02        \\    
+                              & (0.25)      & (0.22)             &  (0.05)         \\
 \hline 
-Congress Fixed Effects		   &  \checkmark        &     \checkmark       &     \checkmark     \\
-Agency Fixed Effects	       &  \checkmark           &       \checkmark    & \checkmark    \\	
-Legislator Fixed Effects 		& \checkmark 			&   \checkmark 		& \checkmark \\
-\hline \hline 		
+Congress Fixed Effects           &  \checkmark        &     \checkmark       &     \checkmark     \\
+Agency Fixed Effects           &  \checkmark           &       \checkmark    & \checkmark    \\    
+Legislator Fixed Effects         & \checkmark             &   \checkmark         & \checkmark \\
+\hline \hline         
 \end{tabular}
 \end{table}
 
-There are, of course, a number of mechanisms that could explain these results. First, constituents might rationally reach out to elected officials more often when those elected officials hold additional power. Second, it could be that as elected officials acquire more power they siphon off some resources to shore up their electoral base.  Third, it could be a combination of the two, where additional power raises a legislator's prestige and makes it more likely that constituents are aware of who their elected official is and that their representative can help them resolve some dispute with an agency.  
+There are, of course, a number of mechanisms that could explain these results. First, constituents might rationally reach out to elected officials more often when those officials hold additional power. Second, it could be that as elected officials acquire more power they draw on the resources of their office to shore up their electoral base.  Third, it could be a combination of the two, where additional power raises a legislator's prestige and makes it more likely that constituents are aware of who their elected official is and that their representative can be an effective advocate on their behalf when dealing with an agency. 
 
-As a preliminary test of these different explanations Table \ref{t:over} compares the rate chairs of committee with oversight power over an agency write to that agency to the rate other members of the committee write to the same agency. In the cross-sectional comparison, it is clear that chairs, compared to the other members of their committee, write more often to the agencies over which they have statutory oversight.  Further, a DiD design shows that this effect is large--an additional 5 letters per agency the chair has discretion over, relative to the other committee members.  And, our preliminary coding of the letters shows that this increase is largely to perform constituent service.  
+As a preliminary test of these different explanations Table \ref{t:over} compares the rate that chairs of committee with oversight power over an agency write to that agency to the rate other members of the same committee write to the same agency. In the cross-sectional comparison, it is clear that chairs, compared to the other members of their committee, write more often to the agencies over which they have statutory oversight.  Further, a DiD design shows that this effect is very large--an additional 5 letters per agency the chair has discretion over, relative to the other committee members.  And, our preliminary coding of the letters shows that this increase is largely related to constituent service, suggesting that committee chairs use their formal power for more than policy oversight. 
 
 
 \begin{table}[hbt!]
 \centering
 \caption{Chairs of Committees with Oversight Power Allocate More Attention to Individual Requests Than Other Committee Members }\label{t:over}
 \begin{tabular}{l|ccc||ccc}
-	   		   &Overall & Constituent 			& Policy & Overall & Constituent & Policy \\
-Oversight Chair & 2.62		  &		1.70	    & 0.40	 & 	5.05   & 3.78	     & 0.21		\\
-	 		   & (0.56)		  &		(0.54)	    & (0.10) & 	(1.04) & (0.95)		 & (0.17)		\\
+                  &Overall & Constituent             & Policy & Overall & Constituent & Policy \\
+Oversight Chair & 2.62          &        1.70        & 0.40     &     5.05   & 3.78         & 0.21        \\
+                & (0.56)          &        (0.54)        & (0.10) &     (1.04) & (0.95)         & (0.17)        \\
 \hline
-Congress FE	    & 	\checkmark	  &	\checkmark		    & \checkmark	     & 	\checkmark	    & 		\checkmark	  & 	\checkmark	\\
-Agency FE   	  & 	\checkmark	  &\checkmark			    & \checkmark	     & 	\checkmark	    & \checkmark	      & \checkmark		\\
-Legislator FE   & 		            &		                & 	                & \checkmark		  & 	\checkmark		  & 	\checkmark	\\
+Congress FE        &     \checkmark      &    \checkmark            & \checkmark         &     \checkmark        &         \checkmark      &     \checkmark    \\
+Agency FE         &     \checkmark      &\checkmark                & \checkmark         &     \checkmark        & \checkmark          & \checkmark        \\
+Legislator FE   &                     &                        &                     & \checkmark          &     \checkmark          &     \checkmark    \\
 \hline \hline 
 \end{tabular}
 \end{table}
 
-That is, when legislators gain power over a regulatory body they increase their interaction with the agency by advocating for their constituents.  This evidence suggests this is not just elected officials imposing additional policy regulations. Rather, it shows that chairs use their office to bolster the support of their constituents.  
+That is, when legislators gain power over a part of the federal bureaucracy, they increase their interaction with those agencies by advocating for their constituents.  This evidence suggests that elected officials use powerful offices to do more than impose their policy preferences. It shows that chairs use their office to more often advocate for their constituents in exactly the venues where they have the greatest leverage to do so. 
 
 \section{Discussion}
 
 Our finding that institutional power enhances constituent service compliments recent scholarship on representation.
-The same legislators who \citet{Grose2011} and \citet{LowandeRitchieLauterbach2018} find doing more casework for protected groups also likely engage in higher rates of policy work on behalf of those groups as well as higher rates of advocacy for nonprofits that serve those groups. While legislators must prioritize limited time, institutional power adds to the arsenal they use to pursue their priorities. 
+The same legislators who \citet{Grose2011} and \citet{LowandeRitchieLauterbach2018} find doing more casework for protected groups also likely engage in higher rates of policy work on behalf of those groups as well as higher rates of advocacy for nonprofits that serve those groups. Representation matters not just in Congress but also in powerful positions like committee chairs.  While legislators must prioritize limited time, institutional power adds to the arsenal they use to pursue their priorities. 
 
 Our larger dataset helps clarify a puzzle in excellent work by \citet{Lowande2018JOP} on policy oversight who finds that ``legislators assigned to relevant committees are not more likely to contact agencies for narrow casework concerns...Legislators' constituencies remain constant in almost all instances so the `demand' for casework should be relatively invariant''\citep[pg 17-18]{Lowande2018JOP}. Yet his model hints at the fact that committee chairs \textit{do} do more casework. 
 
-The institutional power of committee chairs offers an explanation: chairs are more able to help their constituents than other committee members. This also aligns with other recent work suggesting that serving constituents is the main driver of legislators lobbying the bureaucracy on policy issues \citep{Ritchie2017}.
+The institutional power of committee chairs offers an explanation consistent with both Lowande's theory and findings: chairs are more able to help their constituents than other committee members. This also aligns with other recent work suggesting that serving constituents is the main driver of legislators lobbying the bureaucracy on policy issues \citep{Ritchie2017}.
 
 More importantly, looking across many agencies reveals that powerful legislators like committee chairs use their power to advocate for their constituents across the vast federal bureaucracy. This aligns with the findings of \citet{RitchieYou2018} that the Department of Labor was contacted and influenced by a wide array of members, with no special treatment for those with formal oversight powers. But institutional power matters beyond formal oversight. While de jure, agency-specific oversight may be weaker than commonly assumed, institutional positions appear to increase de facto oversight over much broader swaths of government. 
 
