@@ -27,7 +27,7 @@ load("correspondence.RData")
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = F, 
+                      cache = T, 
                       fig.width=8.5, fig.align = 'center', fig.path='Figs/',
                       warning=FALSE, message=FALSE)
 ```
@@ -108,6 +108,24 @@ df %>%
 ```  
 
 All time-series analysis below subsets to agencies with ten years of data.   
+
+```{r data_by_type}
+df %>% 
+  #filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = paste(nT, "=", 100*round(nT/total, 2), "%")) %>% 
+  ggplot() + 
+  geom_col(aes(x = Type, y = nT)) + 
+  geom_text(aes(x = Type, y = nT, label = percent), vjust = -2) +
+  labs(x = "Type of Correspondence",
+       y = "Number of Contacts",
+       title = paste("Congressional Correspondence by Type, N =", sum(df$Type != "To be coded") ) ) +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
+
+```   
 
 ```{r data_coded, fig.height=7}
 df %>% 

@@ -893,3 +893,21 @@ df %>%
   select(Type, chamber, Position, mean, Quartile) %>% distinct() %>% ungroup() %>% 
   ggplot() +
   geom_line(aes(x = Position, y = mean, group = Quartile, color = Quartile)) + facet_grid(Type ~ chamber, scales = "free_y")
+
+
+
+
+df %>% 
+  #filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
+  ggplot() + 
+  geom_col(aes(x = Type, y = nT)) + 
+  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
+  labs(x = "",
+       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       title = "") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
