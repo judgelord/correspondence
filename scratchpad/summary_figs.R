@@ -898,7 +898,7 @@ df %>%
 
 
 df %>% 
-  #filter(Type != "To be coded") %>%  
+  filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
   group_by(Type, total) %>% summarise(nT = n()) %>% 
   mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
@@ -906,7 +906,7 @@ df %>%
   geom_col(aes(x = Type, y = nT)) + 
   geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
   labs(x = "",
-       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       y = paste0("Contacts: N = ", sum(nrow(df)), " Total, ", sum(df$Type != "To be coded"), " Coded"),
        title = "") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
