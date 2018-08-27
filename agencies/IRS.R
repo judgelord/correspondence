@@ -4,23 +4,21 @@ clean <- function(file.name) {
 data <- gs_title(file.name) %>% gs_read() # get data
 
 # create ID variable
-colnames(data)[colnames(data) == 'X1'] <- 'ID'
+data$ID <- c(1:nrow(data))
 
 # create agency column
 data$agency <- file.name
 
 # Format date, year, Congress, member name etc. 
-data$DATE %<>% as.Date("%Y-%m-%d")
+data$DATE <- data$`Received Date`
+data$DATE %<>% as.Date("%m/%d/%y")
 
 #create year and congress columns
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-data <- getFirstLast.Comma(data, 'FROM')
+data <- extractMemberName(data, members, 'SUBJECT')
 
-
-# format state variable
-data$state <- stateFromLower(data$state)
 # arrange columns for hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())
 
