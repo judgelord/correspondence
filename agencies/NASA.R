@@ -3,7 +3,7 @@
 
 # 122 non matches on last_name
 
-# file.name <- "NASA" # for testing
+  # file.name <- "NASA" # for testing
 
 
 clean <- function(file.name) {
@@ -14,7 +14,7 @@ clean <- function(file.name) {
   
   # format DATE to multiple formats
   data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
-  
+   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
