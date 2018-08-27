@@ -51,11 +51,13 @@ clean.agency <- function(agency, status, coders) {
   
   
   # Correct chamber for Senators miscorectly assigned to the House
+  
+  if ("chamber" %in% names(data)){
   data %<>%
     mutate(chamber = ifelse(last_name %in% members$last_name[members$chamber == "Senate"]
                             & !(last_name %in% members$last_name[members$chamber == "House"]),
                             "Senate", chamber))
-  
+  }
   
   
   
