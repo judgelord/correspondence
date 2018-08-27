@@ -86,7 +86,7 @@ data_list <- as.data.frame(matrix(c(
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
 # IRS 
-# "IRS", "not coded", NA, # rolling release
+ "IRS", "not coded", NA, # rolling release
 # NASA
  "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
@@ -197,6 +197,7 @@ send_message(mime(
 # See bad.party object for party switchers to check 
 d$icpsr %<>% as.numeric()
 d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in members folder
+d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 d %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP - this is now done better in fix.member.data.coding function, hopefully
 d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  - this is now done better in fix.member.data.coding function, hopefully
 ##############
@@ -377,7 +378,7 @@ df %<>% mutate(id = paste(agency, ID)) # unique ID
  
  
  df %<>% 
-   mutate(Type2 = ifelse(Type %in% c("policy", "Corp. Policy"), "Policy", NA)) %>%
+   mutate(Type2 = ifelse(Type %in% c("Policy", "Corp. Policy"), "Policy", NA)) %>%
    mutate(Type2 = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type2)) 
 
 df$party <- NA 
