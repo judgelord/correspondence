@@ -454,17 +454,17 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 
 
 
-### Committee Chairs with Oversight Power. 
+### Committee chairs contact agencies that their committee oversees more than other members of the same committee. 
 
 
 
 
 
 
-```{r oversight_committee_chair_models}
+```{r oversight_committee_chair_models, fig.height=3}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
-                   data = all %>% filter(oversight_committee == 1)%>%
+                   data = all %>% filter(oversight_committee == 1) %>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "Overall")
@@ -722,7 +722,7 @@ df %>%
   arrange(-Percentile) %>% 
   dplyr::select(member_state, Percentile, mean, chamber) %>% distinct() %>% 
     ggplot() + 
-    geom_line(aes(x = Percentile, y = mean), color = "grey") + 
+    geom_col(aes(x = Percentile, y = mean), color = "grey", position = "dodge") + 
   geom_point(aes(x = Percentile, y = mean), color = "grey") + 
   geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
     facet_grid(. ~ chamber , scales = "free_y") + 
@@ -741,7 +741,7 @@ df %>%
     group_by(Type, Percentile, chamber, mean) %>% mutate(n = sum(n)) %>% ungroup() %>% 
   select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
     ggplot() + 
-    geom_line(aes(x = Percentile, y = mean, color = Type)) + 
+    geom_col(aes(x = Percentile, y = mean, color = Type), position = "dodge") + 
   geom_point(aes(x = Percentile, y = mean, color = Type)) + 
   geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
     facet_grid(Type ~ chamber , scales = "free_y") + 
@@ -760,7 +760,7 @@ df %>%
   arrange(-Percentile) %>% 
   select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
   ggplot() + 
-  #geom_line(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_col(aes(x = Percentile, y = mean, color = Type), position = "dodge") + 
   geom_point(aes(x = Percentile, y = mean, color = Type)) + 
   geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
   facet_grid(Type ~ chamber , scales = "free_y") + 
