@@ -37,7 +37,7 @@ data_list <- as.data.frame(matrix(c(
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
 # DOD
-"DOD_DeCA", "coded", "Devin", # only some are on drive 
+"DOD_DeCA", "coded", "Devin", # only some are on drive  # FIX MISSING DATES
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # no records before 2013
@@ -201,6 +201,7 @@ d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 d %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP - this is now done better in fix.member.data.coding function, hopefully
 d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  - this is now done better in fix.member.data.coding function, hopefully
 ##############
+
 
 
 #######################
