@@ -2,9 +2,8 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# 194 mismatches on last_name
 
-#file.name <- "DOT_FAA Sam" # for testing
+  #file.name <- "DOT_FAA Sam" # for testing
 
 
 clean <- function(file.name) {
