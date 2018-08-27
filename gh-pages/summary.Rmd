@@ -7,11 +7,10 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("tidyr", "plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("dotwhisker", "tidyr",  "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   library(tidyr)
-  library(plm)
   library(ineq)
   library(dplyr)
   library(ggplot2)
@@ -21,13 +20,15 @@ requires <- c("tidyr", "plm", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "s
   library(fiftystater)
   library(mapproj)
   library(knitr)
+    library(broom)
+  library(dotwhisker)
 
 load("correspondence.RData")
 ```
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = T, 
+                      cache = F, 
                       fig.width=8.5, fig.align = 'center', fig.path='Figs/',
                       warning=FALSE, message=FALSE)
 ```
@@ -111,16 +112,16 @@ All time-series analysis below subsets to agencies with ten years of data.
 
 ```{r data_by_type}
 df %>% 
-  #filter(Type != "To be coded") %>%  
+  filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
   group_by(Type, total) %>% summarise(nT = n()) %>% 
-  mutate(percent = paste(nT, "=", 100*round(nT/total, 2), "%")) %>% 
+  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
   ggplot() + 
   geom_col(aes(x = Type, y = nT)) + 
-  geom_text(aes(x = Type, y = nT, label = percent), vjust = -2) +
-  labs(x = "Type of Correspondence",
-       y = "Number of Contacts",
-       title = paste("Congressional Correspondence by Type, N =", sum(df$Type != "To be coded") ) ) +
+  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
+  labs(x = "",
+       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       title = "") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text())
@@ -197,237 +198,315 @@ There might be some interesting signal in the formality of letterhead that chang
 
 # Core Model
 
+```{r cross_sectional_models}
 
-```{r, include=FALSE}
-df %>% select(year, bioname, permemberyear, chair, prestige, prestige_chair, party_leader,  majority, year) %>% distinct() %>% select(-bioname) %>% filter(!is.na(chair), !is.na(prestige), !is.na(prestige_chair), !is.na(party_leader), !is.na(majority)) %>% group_by(year) %>% summarise_all(mean)
+all <- df
+p2 <- filter(df, Type2 == "Policy")
+c2 <- filter(df, Type2 == "Constituent Service")
 
-data <- df %>% filter(complete == T) %>%
-  dplyr::select(permemberyear, chair,  majority, bioname, year, agency) %>%
-               distinct() 
+
+# prestige committee
+Overall <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige")  %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "Constituent")
+
+prestige <- rbind(Overall, Policy, Constituent)
+
+
+
+# chair 
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency), data = all %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "chair")  %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ chair + factor(congress) + factor(agency), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "Constituent")
+
+chair <- rbind(Overall, Policy, Constituent)
+
+
+# prestige_chair
+Overall <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige_chair")  %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "Constituent")
+
+prestige_chair <- rbind(Overall, Policy, Constituent)
+
+
+# majority*presidents_party
+Overall <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency), 
+                   data = all %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") ) %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency),
+                  data = p2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency),
+                       data = c2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "Constituent")
+
+majority <- rbind(Overall, Policy, Constituent)
+majority$term <- gsub(":", "", majority$term)
+
+
+
+
+
+# combine 
+m <- rbind(prestige, chair, prestige_chair, majority)
+b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
+                       c("Model 2", "Chair", "Chair","Chair"),
+                       c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
+                       c("Model 4", "Majority", "Presidents Party", "Majority*Presidents Party"))
+
+
+
+
+{dwplot(m) %>% 
+    relabel_predictors(c(prestige = "Prestige Committee",
+                         chair = "Chair",
+                         prestige_chair = "Prestige Chair",
+                         majority = "Majority",
+                         presidents_party = "Presidents Party",
+                         majoritypresidents_party = "Majority*Presidents Party")) +
+     theme_bw() + xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Cross Sectional Differences in Letter Writing") +  
+     theme(legend.title = element_blank())} %>%
+  add_brackets(b)
+
+
+```  
+
+
+```{r DiD}
+
+all <- df
+p2 <- filter(df, Type2 == "Policy")
+c2 <- filter(df, Type2 == "Constituent Service")
+
+
+# prestige committee
+Overall <- tidy(lm(n ~ prestige + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige")  %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ prestige + factor(congress) + factor(agency) + factor(icpsr), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ prestige + factor(congress) + factor(agency) + factor(icpsr), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "DiD Constituent")
+
+prestige <- rbind(Overall, Policy, Constituent)
+
+
+
+# chair 
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "chair")  %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "DiD Constituent")
+
+chair <- rbind(Overall, Policy, Constituent)
+
+
+# prestige_chair
+Overall <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige_chair")  %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency) + factor(icpsr), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency) + factor(icpsr), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "DiD Constituent")
+
+prestige_chair <- rbind(Overall, Policy, Constituent)
+
+
+# majority*presidents_party
+Overall <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency) + factor(icpsr), 
+                   data = all %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") ) %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency) + factor(icpsr),
+                  data = p2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency) + factor(icpsr),
+                       data = c2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "DiD Constituent")
+
+majority <- rbind(Overall, Policy, Constituent)
+majority$term <- gsub(":", "", majority$term)
+
+
+
+
+
+# combine 
+m <- rbind(prestige, chair, prestige_chair, majority)
+b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
+                       c("Model 2", "Chair", "Chair","Chair"),
+                       c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
+                       c("Model 4", "Majority", "Presidents Party", "Majority*Presidents Party"))
+
+
+
+
+{dwplot(m) %>% 
+    relabel_predictors(c(prestige = "Prestige Committee",
+                         chair = "Chair",
+                         prestige_chair = "Prestige Chair",
+                         majority = "Majority",
+                         presidents_party = "Presidents Party",
+                         majoritypresidents_party = "Majority*Presidents Party")) +
+     theme_bw() + xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Difference-in-Differences in Letter Writing") +  
+     theme(legend.title = element_blank())} %>%
+  add_brackets(b)
+```  
+
+
+
+
+
+
+
+
+
+
+
+### Committee Chairs with Oversight Power. 
+
+
+
+
+
+
+```{r oversight_committee_chair_models}
+# oversight chair without member FE
+Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
+                   data = all %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency),
+                  data = p2 %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency),
+                       data = c2 %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair", "majority:presidents_party") )  %>% mutate(model = "Constituent")
+
+oversight_committee_chair  <- rbind(Overall, Policy, Constituent)
+
+
+# oversight chair with member FE
+Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
+                   data = all %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "DiD - Overall")
+
+Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency),
+                  data = p2 %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "DiD - Policy")
+
+Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency),
+                       data = c2 %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% filter(congress != 115) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "DiD - Constituent")
+
+oversight_committee_chairFE  <- rbind(Overall, Policy, Constituent)
+
+
+# combine 
+m <- rbind(oversight_committee_chair, oversight_committee_chairFE)
+
+
+{dwplot(m) %>% 
+    relabel_predictors(c(oversight_committee_chair = "Chairs Relative to Other Oversight Committee Members")) +
+     theme_bw() + xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Oversight Committee Chairs") +  
+     theme(legend.title = element_blank(),
+           panel.grid.major.y = element_blank())} 
+
+
 ```
-
-
-
-
-```{r core_model, results='asis', include=FALSE}
-
-### Core model with all data:
-
-chair <- plm(permemberyear ~ chair,  
-             data = df %>% 
-               #filter(complete == T) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>% distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-prestige <- plm(permemberyear ~ prestige , 
-                data = df %>% 
-                  #filter(complete == T) %>%
-                  select(permemberyear, prestige,  majority, bioname, year) %>% distinct(), 
-                index = c("bioname", "year"), model = "within")
-
-prestigechair <- plm(permemberyear ~ prestige_chair ,
-                     data = df %>% 
-                       #filter(complete == T) %>%
-                       select(permemberyear, prestige_chair,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-partyleader <- plm(permemberyear ~ party_leader ,
-                     data = df %>% 
-                        #filter(complete == T) %>%
-                        select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-stargazer(chair, prestige, prestigechair, partyleader, 
-          title="Core Model (All Data): Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
-          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
-          align=TRUE, keep.stat = "n", type = "html") 
-
-```  
-
-
-
-### For 2007-2017, we have complete data for only `r length(unique(data$agency))` agencies:
-
-```{r core_model_2007_2017, results='asis'}
-
-chair <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(complete == T) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-prestige <- plm(permemberyear ~ prestige , 
-                data = df %>% 
-                  filter(complete == T) %>%
-                  select(permemberyear, prestige,  majority, bioname, year) %>% distinct(), 
-                index = c("bioname", "year"), model = "within")
-
-prestigechair <- plm(permemberyear ~ prestige_chair ,
-                     data = df %>% 
-                       filter(complete == T) %>%
-                       select(permemberyear, prestige_chair,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-partyleader <- plm(permemberyear ~ party_leader ,
-                     data = df %>% 
-                     filter(complete == T) %>%
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-stargazer(chair, prestige, prestigechair, partyleader, 
-          title="Core Model 2007-2017: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
-          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
-          align=TRUE, keep.stat = "n", type = "html") 
-
-```  
-
-
-```{r, include=FALSE}
-
-data <- df %>% select(permemberyear, chair,  majority, bioname, year, agency) %>%
-               filter(year > 2009, year < 2017) %>% 
-               distinct() 
-```  
-
-### With a shorter time series, we are able to include `r length(unique(data$agency))` agencies, but fewer observations:
-
-
-
-```{r core_model_2010_2016, results='asis'}
-chair <- plm(permemberyear ~ chair , 
-             data = df %>% select(permemberyear, chair,  majority, bioname, year) %>%
-               filter(year > 2009, year < 2017) %>% 
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-prestige <- plm(permemberyear ~ prestige , 
-                data = df %>% select(permemberyear, prestige,  majority, bioname, year) %>%  
-                  filter(year > 2009, year < 2017) %>% 
-                  distinct(), 
-                index = c("bioname", "year"), model = "within")
-
-prestigechair <- plm(permemberyear ~ prestige_chair ,
-                     data = df %>% 
-                       select(permemberyear, prestige_chair,  majority, bioname, year)  %>% 
-                  filter(year > 2009, year < 2017) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-partyleader <- plm(permemberyear ~ party_leader ,
-                     data = df %>%  
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% 
-                  filter(year > 2009, year < 2017) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-stargazer(chair, prestige, prestigechair, partyleader, title="Core Model 2010-2016: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
-          #column.labels=c("Committee Chair","Prestige Commitee", "Prestige Chair", "Party Leader"),
-          align=TRUE, keep.stat = "n", type = "html") 
-
-```  
-
-#### We can break out contact type into two broad catigores or keep it broken out into five.
-```{r core_model_policy_constituents, results='asis'}
-
-chair.policy <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type2=="Policy" & !is.na(Type2)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-
-partyleader.policy <- plm(permemberyear ~ party_leader ,
-                     data = df %>% 
-               filter(Type2=="Policy" & !is.na(Type2)) %>% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-chair.const <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type2=="Constituent Service" & !is.na(Type2)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-
-partyleader.const <- plm(permemberyear ~ party_leader ,
-                     data = df %>% 
-               filter(complete == T, Type2=="Constituent Service" & !is.na(Type2)) %>% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-stargazer(chair.policy, partyleader.policy, chair.const, partyleader.const,
-          title="Core Model 2007-2017 by Type: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
-          column.labels=c(" Policy "," Policy ", " Constituent Service ", " Constituent Service "),
-          align=TRUE, keep.stat = "n", type = "html") 
-
-```  
-
-```{r core_model_by_type, results='asis'}
-
-chair.policy <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type=="Policy" & !is.na(Type)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-
-partyleader.policy <- plm(permemberyear ~ party_leader ,
-                     data = df %>% 
-               filter(Type=="Policy" & !is.na(Type)) %>% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-chair.const <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type=="Indiv. Constituent" & !is.na(Type)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-
-partyleader.const <- plm(permemberyear ~ party_leader ,
-                     data = df %>% 
-               filter(Type=="Indiv. Constituent" & !is.na(Type)) %>% 
-                       select(permemberyear, party_leader,  majority, bioname, year) %>% distinct(), 
-                     index = c("bioname", "year"), model = "within")
-
-chair.ngo <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type=="501c3 or Local Gov." & !is.na(Type)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-chair.corp <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type=="Corp. Constituent" & !is.na(Type)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-chair.industry <- plm(permemberyear ~ chair , 
-             data = df %>% 
-               filter(Type=="Corp. Policy" & !is.na(Type)) %>% 
-               select(permemberyear, chair,  majority, bioname, year) %>%
-               distinct(), 
-             index = c("bioname", "year"), model = "within")
-
-stargazer(chair.const, chair.ngo, chair.corp, chair.industry, chair.policy,
-          title="Core Model 2007-2017 by Type: Contacts per Year per Legislator with Member Fixed Effects", dep.var.labels = "Contacts per Year", 
-          column.labels=c("--Indiv. Constituent Service--", "--501c3 or Local Gov.--", "--Corp. Constituent--", "--Corp. Policy--", "--Policy--"),
-          align=TRUE, keep.stat = "n", type = "html") 
-
-```  
-
-
-
-
-
-
-
-
 
 
 

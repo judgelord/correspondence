@@ -377,7 +377,7 @@ df %<>% mutate(id = paste(agency, ID)) # unique ID
  
  
  df %<>% 
-   mutate(Type2 = ifelse(Type %in% c("policy", "Corp. Policy"), "Policy", NA)) %>%
+   mutate(Type2 = ifelse(Type %in% c("Policy", "Corp. Policy"), "Policy", NA)) %>%
    mutate(Type2 = ifelse(Type %in% c("501c3 or Local Gov.", "Corp. Constituent", "Indiv. Constituent"), "Constituent Service", Type2)) 
 
 df$party <- NA 
