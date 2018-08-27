@@ -62,7 +62,7 @@ clean <- function(file.name) {
   
   #create variable for state
   data %<>% 
-    mutate(state = ifelse(grepl("\\w/\\w{2}$", FROM), gsub(".*\\w/(\\w{2})$", replacement="\\1", FROM), NA))
+    mutate(state = ifelse(grepl(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United)", FROM), gsub(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United).*", replacement="\\2", FROM), NA))
   data$state = stateFromLower(data$state)
   
   
