@@ -1106,18 +1106,42 @@ Not much. There are possible indications that more mainstream Republicans are mo
           #axis.ticks = element_blank(),
           #axis.text.y = element_blank(),
           legend.title = element_blank())
-  df %>% 
+  
+
+
+df %>% 
     filter(!is.na(Type2)) %>% 
     group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type2) %>% 
   summarise(perYear = n()) %>% ungroup() %>%
       group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
   summarise(mean = mean(perYear)) %>% ungroup() %>%
     ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE Scores and Type",
+    geom_point(aes(x = nominate.dim1, y = mean), color = "blue") +#,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean), color = "blue") +#, color = "D1") ) + 
+      #geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE D1 Scores and Type",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+      strip.text.y = element_text(size = 5),
+          legend.title = element_blank())
+
+df %>% 
+    filter(!is.na(Type2)) %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type2) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+   # geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  #geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE D2 Scores and Type",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 

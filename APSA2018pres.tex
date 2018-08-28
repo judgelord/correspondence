@@ -44,6 +44,7 @@
 
 % Surely, so of this rhetoric is accusing legislators of not voting how their constituents would want. But voting is not the only way legislators represent. 
 % Indeed there are far more intimate forms of representation that are less constrained by parties and chamber proceedure.
+
 % Possibly the most common act of representation is helping constituents deal with the bureaucracy. This has been true since legislators helped constituents get pensions after the revolutionary war and especially with the rise of the administrative state. Federal agency shape nearly every aspect of our lives: 
 
 % Thus, we focues on the requests legislators and their staff send to federal agencies.
@@ -61,7 +62,7 @@ Exciting new research:
 % Ritchie, focusing on policy issues, finds that legislators directly engage the bureaucracy on policy issues where they face cross pressures in order to represent constituts when the party prohibits them from doing so legislativly. 
 \item Constituents and institutional position, not ideology, drives policy oversight (Lowande, 2018) \pause
 % Lowande, also focusing on policy finds that partisan disagreement the executive branch does not drive oversight. 
-\item Discriptive = substantive (Lowande, Ritchie, Lauterbach, 2018)
+\item Descriptive = substantive (Lowande, Ritchie, Lauterbach, 2018)
 % Lowande, Ritchie, and Lauterbach show that legislators make more requests on behalf of constituents whith whom they share marked identities
 
 \item Bureaucrats have reasons to comply. 
@@ -99,11 +100,31 @@ Exciting new research:
 
 
 \section{Data} 
+
 \begin{frame}
 \frametitle{Correspondence Data}
+\includegraphics[width = \textwidth]{FERC}
+% Most of what gets recoreded systematically in these databases are letters on letterhead
+% For example, here Rep. Thornberry, chair of armed services committee is writing on behalf of sevral two companies in his district, asking for extra scruteny on a proposal another company had made to the Federal Energy Regulatyory Commission
 
 
 
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Correspondence Data}
+% To give you a sense of the range of responses. Some agencies provided letters themselves, others provided logs, which range widely in the amount of information they record. 
+Department of Homeland Security Immigration and Customs Enforcement (ICE)
+\includegraphics[width = \textwidth]{ICE}
+% Responses ranged from, at the worst, hand written logs with nothing but obscure acronyms to indicate the topic, as in this log from ICE
+\end{frame}
+% Or in the best case... [SLIDE]
+\begin{frame}
+\frametitle{Correspondence Data}
+Environmental Protection Agency
+\includegraphics[width = \textwidth]{EPA}
+% To rich and informative records like those kept by the EPA. Here Rep Donna writes about regultory exemption for a power plant, to alert EPA to a hearing, and in support for a nonprofit grant application.
 \end{frame}
 
 
@@ -114,11 +135,16 @@ Exciting new research:
 \frametitle{Correspondence Data}
 
 \begin{itemize}
-\item >250 requests to 234 federal agencies (a census)
-\item >150,000 legislator requests (and counting)
+\item $>$ 250 FOIA requests to 234 federal agencies (a census)
+\item $>$ 150,000 legislator requests (and counting) for 2007-2018
 \end{itemize}
+% to collect these data we have filed over 250 freedom of information act requests, and I continue to follow up on new leads. Some agencies said it would take two years, and they were not exadgerating. I ongoing email threads and notes from phone calls with hundreds of different foia officers. 
+ 
+% our data are incomplete but nevertheless cover a large swath of the federal government, to the point where we can start to infer the total levels amount. Our aim a census of all correspondence 
 
-\tiny
+% In our analysis below our DV is the number of letters each legislator writes PER AGENCY, and because view the federal government as many component agneices, these estimates can probably be multiplied by 100-200 agencies to get the government-wide effect. Also, we drop 2018 because we don't have full counts. 
+
+\scriptsize
 
 \begin{table}[!htbp] \centering 
   \caption{Responses to FOIA Requests for a Census of Congressional Contacts Thus Far} 
@@ -151,20 +177,79 @@ Independent Agencies & 34 & 21 & 18 \\
 \end{frame}
 
 
+% We trained undergraduate and graduate RAs to code these letters according to a codebook. This analysis relies on our most high-level coding: the type of letter:
+
+% [SLIDE] So far we have over 90,000 coded. 
+
+% And here is the distribution across types. 
+% By far individual consituent service is the most common reason for a legislator to contacgt an agency.
+\section{Data: Descriptives}
+\begin{frame}
+\frametitle{Distribution} 
+\begin{figure}[hbt!]
+\centering
+\caption{Distribution Across Types of Congressional Requests 2007-2017}
+\includegraphics[width = \linewidth]{data_by_type.pdf}
+\end{figure}
+\end{frame}
+
+
+% But there is large variance across members. Gini coefienciets in letter writing are much higher than, campaign spending for example, aproximatly comparable to income inequalty in the US and Mexico. 
+\section{Descriptive}
+\begin{frame}
+\frametitle{Highly Unequal Rates} 
+\begin{figure}
+\centering
+\caption{Considerable Across Legislator Variation in Who Contacts Agencies}
+\includegraphics[width = \textwidth]{percentiles-1}
+\end{figure}
+\end{frame}
+% [NOTE: Ellie and Justin, I considered changeing this to a histogram, but upon reflection it seems that mean per member per year is a more interesting axis than number per percentile (as a histogram with bin = 100 would show). As a pattern they look the same. However, I would be interested to hear any counterarguments.]
+
+%[SLIDE]
+
+% A basic correlation is perfectly in line with Lewande's much more regiourus findings that ideology is not driving this behavior [NOTE: click through this fast]
+\begin{frame}
+\frametitle{NOMINATE Scores} 
+
+\begin{figure}
+\centering
+\caption{Legislators' Ideology Seems Not to Predict How Often They Contact Agencies}
+\includegraphics[width = 2in]{ideology_density-2}
+\includegraphics[width = 2in]{ideology_density-3}
+\end{figure}
+\end{frame}
+
+
+%[SLIDE]
+\section{}
+\begin{frame}
+\centering
+\huge
+So why do some legislators do more constituency service than others?
+\end{frame}
+
+% So what is it about some legislators and not others that we see such dramatic variance in lobbying the bureaucracy? 
+% Our original intuition was that some members had reason to prioritize consgtigtute service and others had reasons to prioritize policy work. 
+
+% [SLIDE]
+
+
 \section{Results: Institutional power and constituency service}
 \begin{frame}
 \frametitle{Institutional Power and Constituency Service}
 % So this is the part where we discover that we were wrong. 
 % We found we found the same powerful members of Congress who are most acively involved in policy oversight are also those most engaged in helping constituents. 
-% First, lets look at a simple cross sectional comparisons of members who do and do 
+% First, lets look at a simple cross sectional comparisons of different kinds of members
 Legislators who have power advocate more on behalf of constituents.
 
 \includegraphics[width = \textwidth]{cross_sectional_models-1}
 \end{frame}
 
+% However, we need to be careful with cross sectional analysis, because it could be that members who do a lot of constituent advocacy are more likely to become committee chairs. Indeed this is this case. 
+% Nevertheless, when we look within memembers. The same members before and after joining or leaving a committee,
 
-
-
+% A Dif-in-Dif design suports the conclusion that legislators use insitutgtional power to do more constituent service
 \begin{frame}
 \frametitle{Difference-in-Difference in Constituency Service}
 
@@ -186,5 +271,18 @@ Legislators who \textcolor{blue}{gain} power advocate more on behalf of constitu
 
 \end{frame}
 
+
+\begin{frame}
+\frametitle{Questions going forward:}
+\begin{itemize}
+\item Do constituents demand more of powerful legislators?
+\item Why is there so much variation, even within strata of institutional power?
+\item What else?
+\end{itemize}
+\bigskip
+
+\huge
+Thank you! 
+\end{frame}
 
 \end{document}
