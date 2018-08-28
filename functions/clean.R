@@ -49,6 +49,18 @@ clean.agency <- function(agency, status, coders) {
   data$department <- gsub("_.*", "", data$agency) # name dept
   
   
+  
+  # Correct chamber for Senators miscorectly assigned to the House
+  
+  if ("chamber" %in% names(data)){
+  data %<>%
+    mutate(chamber = ifelse(last_name %in% members$last_name[members$chamber == "Senate"]
+                            & !(last_name %in% members$last_name[members$chamber == "House"]),
+                            "Senate", chamber))
+  }
+  
+  
+  
   # completing incomplete vars which will be used in merge
   for (i in 1:length(members$id)) {
     if (sum(c("first_name", "last_name", "state", "chamber", "congress") %in% names(data)) == 5) {
