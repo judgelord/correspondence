@@ -25,33 +25,36 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
-  # create duplicate FROM column and preprocess
-  #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
-  data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV| ll| Jr,", "", data$FROM)
-  data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,",
-                     replacement = ",", data$FROM2)
-  data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
-  data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
+  # # create duplicate FROM column and preprocess
+  # #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
+  # data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV| ll| Jr,", "", data$FROM)
+  # data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,",
+  #                    replacement = ",", data$FROM2)
+  # data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
+  # data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
+  # 
+  # 
+  # #create variable for last name of the Sen/Rep
+  # data %<>%
+  #   mutate(last_name = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
+  #                           replacement = "\\1", x=FROM2)) %>% 
+  #   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last_name)) %>% 
+  #   mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
+  #   mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
+  #   mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
+  # data$last_name <- formatLastName(data, 'last_name')
+  # 
+  
+  # #create variable for first name of the Sen/Rep
+  # data %<>%
+  #   mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
+  #                            replacement = "\\2", x=FROM2)) 
+  # data$first_name <- formatFirstName(data, 'first_name')
+  # 
+  # 
   
   
-  #create variable for last name of the Sen/Rep
-  data %<>%
-    mutate(last_name = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
-                            replacement = "\\1", x=FROM2)) %>% 
-    mutate(last_name = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last_name)) %>% 
-    mutate(last_name = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last_name)) %>%
-    mutate(last_name = ifelse(grepl("Diaz-Balart", FROM2), "Diaz-Balart", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("Shea-Porter", FROM2), "Shea-Porter", last_name))
-  data$last_name <- formatLastName(data, 'last_name')
-  
-  
-  #create variable for first name of the Sen/Rep
-  data %<>%
-    mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
-                             replacement = "\\2", x=FROM2)) 
-  data$first_name <- formatFirstName(data, 'first_name')
-  
-  
+  data <- getFirstLast.Comma(data, 'FROM')
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
