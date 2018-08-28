@@ -70,7 +70,6 @@ formatLastName <- function(data, col_name){
   
   #data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
   
-  
 
   
   return(data$last_name)

@@ -64,10 +64,6 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse(powellType == "Contracting", 2, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Congressional Travel/ Movement", 6, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Not Enough Info", 0, TYPE)) 
-    
-  
-  
-  
-  
+ 
   
 }

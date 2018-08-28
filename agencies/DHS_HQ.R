@@ -106,11 +106,6 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("Donald H. Kent", FROM), "Judge, not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Nelson Peacock", FROM), "President of Northwest Arkansas Council. Not in Congress", ERROR))
   
-  
-    
-  
-  
-  
 
   # fix FROM 
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
