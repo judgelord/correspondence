@@ -17,7 +17,8 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 # 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 
-data_list <- as.data.frame(matrix(c(
+data_list <- as.data.frame(matrix(c(        #create script for DOI
+  
 # Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
