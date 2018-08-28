@@ -105,7 +105,9 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("Norman J. Rabkin",FROM),"Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Donald H. Kent", FROM), "Judge, not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Nelson Peacock", FROM), "President of Northwest Arkansas Council. Not in Congress", ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("Lee Morris", FROM), "Not in Congress", ERROR))
+    mutate(ERROR = ifelse(grepl("Lee Morris", FROM), "Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Michael Chertoff", FROM), "Former United States Secretary of Homeland Security", ERROR))
+  
   
   
   
