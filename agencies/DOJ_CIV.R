@@ -4,8 +4,7 @@
 
 
 # file.name <- "DOJ_CIV" # for testing
-
-
+ 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -38,8 +37,7 @@ clean <- function(file.name) {
   data %<>% 
     mutate(first_name = ifelse(data$last_name == "AKIN", "Todd", data$first_name))
   
-  
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
