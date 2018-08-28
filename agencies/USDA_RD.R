@@ -121,6 +121,12 @@ clean <- function(file.name) {
   cbind(data$SUBJECT, data$TYPE) # see resulting auto-coded TYPE:
   
   
+  
+  # Errors for letters from non members of congress
+  data %<>%
+    mutate(ERROR = ifelse(grepl("^White House Referral$",data$FROM), "White House Referral", ERROR))
+  
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
 }

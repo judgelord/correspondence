@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DHS_HQ Anna" # for testing
+#file.name <- "DHS_HQ Anna" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -102,7 +102,8 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl("Daniel Coats",FROM),"Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Chani Wiggins",FROM),"Not in Congress", ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("Norman J. Rabkin",FROM),"Not in Congress", ERROR))
+    mutate(ERROR = ifelse(grepl("Norman J. Rabkin",FROM),"Not in Congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Donald H. Kent", FROM), "Judge, not in Congress", ERROR))
     
   
   
@@ -128,11 +129,11 @@ clean <- function(file.name) {
   
   # names 
   data <- extractMemberName(data, members, 'FROM')
-  
+   
   data %<>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
     mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
-  
+   
    
   # #create variable for first name of the Sen/Rep
   # data %<>%
