@@ -1,14 +1,18 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
-file.name <- "DOD_Navy" # for testing
+#file.name <- "DOD_Navy Delaney" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # Remove NA Observations
+  data <- data[!is.na(data$FROM),]
+  
   # create agency column
   data$agency <- file.name
+  
   
   # Format date, year, Congress, member name etc.
   data$DATE %<>% as.Date("%m/%d/%y")
