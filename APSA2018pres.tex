@@ -7,7 +7,7 @@
 
  \title{How Legislators Actually Invest Their Time:} 
  \subtitle{Constituents \texorpdfstring{\sout{or}}{or}\textcolor{black}{and} Policy?}
-    \author{Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Associate Professor, Stanford University}, \and Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison}}
+    \author{Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Associate Professor, Stanford University} \and Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison}}
     \date{\today}
     
 \graphicspath{{gh-pages/Figs/}}
@@ -33,7 +33,7 @@
 \frametitle{A constituent-policy trade-off?}
 \begin{itemize}
 \item ``Potomac fever'' (Fenno, 1978) \pause
-% this intuition emerges from scholarship. Fenno it Potomac Feaver--the idea that the deeper a legislator gets into Washington policymaking, the less time they had for their district constituents. 
+% this intuition emerges from scholarship. Fenno called it Potomac Feaver--the idea that the deeper a legislator gets into Washington policymaking, the less time they had for their district constituents--thus competing goals of good policy and influence in washington and reelectoin.
 \item ``Insiders'' who have lost touch \pause
 % we also see it in the popular press and campaign rhetoric contrasting Washington insiders and policy wonks with outsiders who are more in touch with their constituents. 
 \item \#DrainTheSwamp
@@ -42,10 +42,19 @@
 \end{frame}
 
 
-% Surely, so of this rhetoric is accusing legislators of not voting how their constituents would want. But voting is not the only way legislators represent. 
-% Indeed there are far more intimate forms of representation that are less constrained by parties and chamber procedure.
+% Surely, some of this rhetoric is accusing legislators of not VOTING how their constituents would want. But of course, representation goes beyoned floor votes.
+% Indeed there are far more intimate forms of representation that are less constrained by parties and by chamber procedure.
 
-% Possibly the most common act of representation is helping constituents deal with the bureaucracy. This has been true since legislators helped constituents get pensions after the revolutionary war and especially with the rise of the administrative state. Federal agency shape nearly every aspect of our lives: 
+% Possibly the most common act of representation is helping constituents deal with the bureaucracy. 
+
+%[slide]
+\begin{frame}
+\frametitle{}
+\includegraphics[width = \textwidth]{help}
+\end{frame}
+
+
+%This has been true since legislators helped constituents get pensions after the revolutionary war and especially with the rise of the administrative state. Federal agencies shape nearly every aspect of our lives: 
 
 % Thus, we focus on the requests legislators and their staff send to federal agencies.
 % This aspect of representation has only begun to be studied but has already yielded 
@@ -105,26 +114,30 @@ Exciting new research:
 \frametitle{Correspondence Data}
 \includegraphics[width = \textwidth]{FERC}
 % Most of what gets recorded systematically in these databases are letters on letterhead
-% For example, here Rep. Thornberry, chair of armed services committee is writing on behalf of several two companies in his district, asking for extra scrutiny on a proposal another company had made to the Federal Energy Regulatory Commission
+% For example, here Rep. Thornberry, chair of armed services committee is writing on behalf of several two companies in his district, asking for extra scrutiny on a proposal another company had made to the Federal Energy Regulatory Commission.
 
-
-
+% We have several thousand such letters written to this agency, which we use optical content recognition to extract the text. If they do not have metadata like the sender's name and date, we extract it from the text of the letter or discription of the letter.
 \end{frame}
 
+% To give you a sense of the range of responses. Some agencies provided letters themselves,
 
+%{SLIDE}
+
+% others provided logs, which range widely in the amount of information they record. 
+% from, at the worst, handwritten logs with nothing but obscure acronyms to indicate the topic, as in this log from ICE
 \begin{frame}
 \frametitle{Correspondence Data}
-% To give you a sense of the range of responses. Some agencies provided letters themselves, others provided logs, which range widely in the amount of information they record. 
 Department of Homeland Security Immigration and Customs Enforcement (ICE)
 \includegraphics[width = \textwidth]{ICE}
-% Responses ranged from, at the worst, handwritten logs with nothing but obscure acronyms to indicate the topic, as in this log from ICE
 \end{frame}
+
 % Or in the best case... [SLIDE]
+
 \begin{frame}
 \frametitle{Correspondence Data}
 Environmental Protection Agency
 \includegraphics[width = \textwidth]{EPA}
-% To rich and informative records like those kept by the EPA. Here Rep Donna writes about a regulatory exemption for a power plant, to alert EPA to a hearing, and in support of a nonprofit grant application.
+% rich and informative summaries like those kept by the EPA. Here, Rep Donna writes about a regulatory exemption for a power plant, to alert EPA to a hearing, and in support of a nonprofit grant application.
 \end{frame}
 
 
@@ -134,49 +147,43 @@ Environmental Protection Agency
 \begin{frame}
 \frametitle{Correspondence Data}
 
-\begin{itemize}
-\item $>$ 250 FOIA requests to 233 federal agencies (a census)
-\item $>$ 150,000 legislator requests (and counting) for 2007-2018
-\end{itemize}
-% to collect these data we have filed over 250 freedom of information act requests, and I continue to follow up on new leads. Some agencies said it would take two years, and they were not exaggerating. I ongoing email threads and notes from phone calls with hundreds of different FOIA officers. 
+250+ FOIA requests to 233 federal agencies (a census)
+
+150,000+ legislator requests (and counting) for 2007-2018
+% to collect these data we have filed over 250 freedom of information act requests, and I continue to follow up on new leads. Some agencies said it would take two years, and they were not exaggerating. I have ongoing email threads and notes from phone calls with hundreds of different FOIA officers. 
  
-% our data are incomplete but nevertheless cover a large swath of the federal government, to the point where we can start to infer the total levels amount. Our aim a census of all correspondence 
+% Our aim a census of all correspondence 
+% our data are incomplete but nevertheless cover a wide swath of the federal government, to the point where we can start to infer a total volume. 
 
 % In our analysis below our DV is the number of letters each legislator writes PER AGENCY, and because view the federal government as many component agencies, these estimates can probably be multiplied by 100-200 agencies to get the government-wide effect. Also, we drop 2018 because we don't have full counts. 
 
 \scriptsize
-
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Aug 28, 2018 - 15:21:39
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Aug 28, 2018 - 15:42:36
+% response table
 \begin{table}[!htbp] \centering 
-  \caption{} 
+  % \caption{} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}} lccc} 
-\\[-1.8ex]\hline 
+\begin{tabular}{@{\extracolsep{5pt}} lcccc} 
+ & Components & Records & Coded & N \\ 
 \hline \\[-1.8ex] 
-Department & Components & Records & Coded \\ 
+Department of Agriculture & 29 & 29 & 11 & 1957 \\ 
+Department of Commerce & 18 & 18 & 10 & 6875 \\ 
+Department of Defense & 49 & 10 & 7 & 5479 \\ 
+Department of Education & 1 & 1 & 1 & 3868 \\ 
+Department of Energy & 8 & 2 & 1 & 1269 \\ 
+Department of Health and Human Services & 15 & 7 & 5 & 6199 \\ 
+Department of Homeland Security & 6 & 5 & 5 & 26435 \\ 
+Department of Housing and Urban Development & 2 & 0 & 0 & 0 \\ 
+Department of Justice & 11 & 1 & 1 & 903 \\ 
+Department of Labor & 24 & 9 & 6 & 22936 \\ 
+Department of State & 1 & 0 & 0 & 0 \\ 
+Department of the Interior & 10 & 6 & 5 & 5171 \\ 
+Department of the Treasury & 8 & 5 & 4 & 11143 \\ 
+Department of Transportation & 10 & 6 & 6 & 18482 \\ 
+Department of Veterans Affairs & 3 & 0 & 0 & 0 \\ 
 \hline \\[-1.8ex] 
-Department of Agriculture & 29 & 29 & 11 \\ 
-Department of Commerce & 18 & 18 & 10 \\ 
-Department of Defense & 49 & 10 & 7 \\ 
-Department of Education & 1 & 1 & 1 \\ 
-Department of Energy & 8 & 2 & 1 \\ 
-Department of Health and Human Services & 15 & 7 & 5 \\ 
-Department of Homeland Security & 6 & 5 & 4 \\ 
-Department of Housing and Urban Development & 2 & 0 & 0 \\ 
-Department of Justice & 11 & 1 & 1 \\ 
-Department of Labor & 24 & 9 & 6 \\ 
-Department of State & 1 & 0 & 0 \\ 
-Department of the Interior & 10 & 6 & 5 \\ 
-Department of the Treasury & 8 & 5 & 4 \\ 
-Department of Transportation & 10 & 6 & 6 \\ 
-Department of Veterans Affairs & 3 & 0 & 0 \\ 
+Independent Agencies & 38 & 21 & 18 & 46182 \\ 
 \hline \\[-1.8ex] 
-Independent Agencies & 38 & 21 & 18 \\ 
-\hline \\[-1.8ex] 
-Total & 233 & 120 & 79 \\ 
+Total & 233 & 120 & 80 & 156899 \\ 
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table} 
