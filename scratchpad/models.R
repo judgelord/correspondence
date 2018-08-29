@@ -25,8 +25,7 @@ c2 <- filter(all, Type2 == "Constituent Service")
 # prestige committee
 Overall <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = all %>%
                      group_by(agency, year, congress, icpsr, prestige) %>%
-                     summarise(n = n())   %>% distinct() ) ) %>%
-                    full_join()
+                     summarise(n = n())   %>% distinct() ) ) 
   filter(term == "prestige")  %>% mutate(model = "Overall")
 
 Policy <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = p2 %>%
@@ -114,7 +113,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
           c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
           c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
 
-
+m
 
 
 {dwplot(m) %>% 
