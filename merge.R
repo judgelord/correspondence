@@ -616,7 +616,7 @@ df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before
 df %<>% left_join(
   gs_title("agencies/FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
 )
-write.csv(gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct(), "FOIA List.csv") #%>% group_by(agency) %>% tally()
+write.csv(gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct(), file = "agencies/FOIA List.csv") #%>% group_by(agency) %>% tally()
 
 
 df %<>% left_join(
