@@ -331,7 +331,7 @@ extractMemberName <- function(data, members, col_name){
   # mutate(last_name = ifelse(grepl("LABRADOR", Summary,ignore.case = TRUE), "Raúl", last_name)) %>% 
   # mutate(first_name = ifelse(grepl("LABRADOR", Summary,ignore.case = TRUE), "Raúl", first_name)) %>% 
    mutate(last_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "HINOJOSA", last_name)) %>% 
-   #mutate(first_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "Rubén", first_name)) %>% 
+   mutate(first_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "Ruben", first_name)) %>% 
    mutate(last_name = ifelse(grepl("Payne", Summary,ignore.case = TRUE)&grepl("Don", Summary,ignore.case = TRUE), "PAYNE", last_name)) %>% 
    mutate(first_name = ifelse(grepl("Payne", Summary,ignore.case = TRUE)&grepl("Don", Summary,ignore.case = TRUE), "Donald", first_name)) %>% 
    mutate(last_name = ifelse(grepl("Pascrell", Summary,ignore.case = TRUE)&grepl("Bill", Summary,ignore.case = TRUE), "PASCRELL", last_name)) %>% 
@@ -582,7 +582,7 @@ getFirstLast.Comma <- function(data, col_name){
   #  mutate(last_name = ifelse(grepl("LABRADOR", FROM2,ignore.case = TRUE), "Raúl", last_name)) %>% 
   #  mutate(first_name = ifelse(grepl("LABRADOR", FROM2,ignore.case = TRUE), "Raúl", first_name)) %>% 
     mutate(last_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "HINOJOSA", last_name)) %>% 
-   # mutate(first_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "Rubén", first_name)) %>% 
+    mutate(first_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "Ruben", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Payne", FROM2,ignore.case = TRUE)&grepl("Don", FROM2,ignore.case = TRUE), "PAYNE", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Payne", FROM2,ignore.case = TRUE)&grepl("Don", FROM2,ignore.case = TRUE), "Donald", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Pascrell", FROM2,ignore.case = TRUE)&grepl("Bill", FROM2,ignore.case = TRUE), "PASCRELL", last_name)) %>% 
