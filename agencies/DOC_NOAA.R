@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#  file.name <- "DOC_NOAA" # for testing
+# file.name <- "DOC_NOAA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -36,7 +36,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^OCIO NESDIS$", data$FROM), "Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(is.na(data$FROM), "NA FROM information", ERROR)) # No name info in SUBJECT for missing FROMs
     
-  
+  #data <- data[data =!]
   
   data %<>%
       extractMemberName(members, "FROM")
