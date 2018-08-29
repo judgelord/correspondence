@@ -16,15 +16,18 @@ library(dplyr)
 zeros <- rbind(
   members %>% mutate(year = ((congress - 115)*2 + 2017)), # year 1 of term
   members %>% mutate(year = ((congress - 115)*2 + 2018)) ) # year 2
-
 zeros %<>% mutate(icpsr_year = paste(icpsr, year))
+
+nrow(zeros)
 
 # member year 
 zeros %<>% full_join(
   data_frame(
-    icpsr_year = rep(unique(zeros$icpsr_year), n_distinct(df$Type)),
-    Type =  rep(unique(df$Type), n_distinct(zeros$icpsr_year)) ) ) %>%
-  mutate(icpsr_year_type = paste(icpsr_year, Type))
+    icpsr_year = rep(unique(zeros$icpsr_year), n_distinct(df$TYPE)),
+    TYPE =  rep(unique(df$TYPE), n_distinct(zeros$icpsr_year)) ) ) %>%
+  mutate(icpsr_year_type = paste(icpsr_year, TYPE))
+
+nrow(zeros)
 
 # member year agency
 zeros %<>% full_join(
@@ -34,6 +37,7 @@ zeros %<>% full_join(
 ) %>%
   mutate(icpsr_year_type_agency = paste(icpsr_year_type, agency)) 
 
+nrow(zeros)
 
 ###########################################################
 
@@ -78,17 +82,6 @@ df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>
   mutate(bioname_year = paste(bioname, year))
 df$year %<>% as.numeric()
 # members with zero letters in a year
-zeros <- data_frame(
-  year = as.numeric(rep(unique(df$year), n_distinct(members$bioname))), 
-  bioname =  rep(unique(members$bioname), n_distinct(df$year)),
-  permemberyear = 0) %>%
-  mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) %>% 
-  left_join(members) %>% 
-  filter(!is.na(icpsr), chamber %in% c("House", "Senate")) %>% 
-  mutate(bioname_year = paste(bioname, year)) %>% 
-  filter(!bioname_year %in% df$bioname_year)
-
-df %<>% full_join(zeros)
 
 ############
 # New vars #
@@ -381,6 +374,6 @@ zeros$n <- 0
 
 
 
-write.csv(df, "gh-pages/zeros.csv")
+write.csv(df, "zeros.csv", row.names = F)
 
 df <- d1
