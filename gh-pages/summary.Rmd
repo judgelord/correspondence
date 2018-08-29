@@ -213,7 +213,7 @@ There might be some interesting signal in the formality of letterhead that chang
 
 # Core Model
 
-```{r cross_sectional_models, include = FALSE}
+```{r cross_sectional_models, eval = FALSE}
 
 all <- df %>% filter(year < 2018) # %>% filter(congress != 115)
 p2 <- filter(all, Type2 == "Policy") 
@@ -331,7 +331,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 ```  
 
 
-```{r DiD, include = FALSE}
+```{r DiD, eval = FALSE}
 
 
 
@@ -461,7 +461,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 
 
 
-```{r oversight_committee_chair_models, fig.height=3, include = FALSE}
+```{r oversight_committee_chair_models, fig.height=3, eval = FALSE}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
                    data = all %>% filter(oversight_committee == 1) %>%
