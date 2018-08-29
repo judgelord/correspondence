@@ -39,7 +39,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE,  FROM,  everything())
   
   data%<>%
-  mutate(SUBJECT=paste(`Subject Code`,"-",SUBJECT)) %>%
+ # mutate(SUBJECT=paste(`Subject Code`,"-",SUBJECT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT SERVICE", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT SERVICE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POLICY", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
