@@ -277,19 +277,19 @@ oversight_committee_chair  <- rbind(Overall, Policy, Constituent)
 
 
 # oversight chair with member FE
-Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
+Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr), 
                    data = all %>% filter(oversight_committee == 1)%>%
                      group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                      summarise(n = n()) %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "DiD - Overall")
 
-Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency),
+Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency) + factor(icpsr),
                   data = p2 %>% filter(oversight_committee == 1) %>%
                     group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                     summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "DiD - Policy")
 
-Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency),
+Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr),
                        data = c2 %>% filter(oversight_committee == 1) %>%
                          group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                          summarise(n = n())  %>% distinct() ) ) %>%

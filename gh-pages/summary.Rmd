@@ -28,7 +28,7 @@ load("correspondence.RData")
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = T, 
+                      cache = F, 
                       fig.width=8.5, fig.align = 'center', fig.path='Figs/',
                       warning=FALSE, message=FALSE)
 ```
@@ -213,7 +213,7 @@ There might be some interesting signal in the formality of letterhead that chang
 
 # Core Model
 
-```{r cross_sectional_models, eval = FALSE}
+```{r cross_sectional_models_table}
 
 all <- df %>% filter(year < 2018) # %>% filter(congress != 115)
 p2 <- filter(all, Type2 == "Policy") 
@@ -312,7 +312,10 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
                        c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
 
 
+kable(m)
+```
 
+```{r cross_sectional_models, eval = FALSE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -331,7 +334,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 ```  
 
 
-```{r DiD, eval = FALSE}
+```{r DiD_table}
 
 
 
@@ -428,7 +431,10 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
                        c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
 
 
+kable(m)
+```
 
+```{r DiD, eval = FALSE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -461,7 +467,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 
 
 
-```{r oversight_committee_chair_models, fig.height=3, eval = FALSE}
+```{r oversight_committee_chair_models_table}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
                    data = all %>% filter(oversight_committee == 1) %>%
@@ -485,19 +491,19 @@ oversight_committee_chair  <- rbind(Overall, Policy, Constituent)
 
 
 # oversight chair with member FE
-Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
+Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr), 
                    data = all %>% filter(oversight_committee == 1)%>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n()) %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "DiD - Overall")
 
-Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency),
+Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency) + factor(icpsr),
                   data = p2 %>% filter(oversight_committee == 1) %>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "DiD - Policy")
 
-Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency),
+Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr),
                        data = c2 %>% filter(oversight_committee == 1) %>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
@@ -508,7 +514,10 @@ oversight_committee_chairFE  <- rbind(Overall, Policy, Constituent)
 
 # combine 
 m <- rbind(oversight_committee_chair, oversight_committee_chairFE)
+kable(m)
+```
 
+```{r oversight_committee_chair_models, fig.height=3, eval = FALSE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(oversight_committee_chair = "Chairs Relative to Other Oversight Committee Members")) +
