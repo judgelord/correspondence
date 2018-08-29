@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "FDA" # for testing
+ #file.name <- "FDA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -37,9 +37,9 @@ clean <- function(file.name) {
   # data$state <- gsub(" ","", data$state)
   
  
-  # Need REGEX code for duplicates
-  # data$test <- gsub("^(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE) (\\w+.*)",'\\1\\2; \\3',data$FROM)
-  
+  # #Need REGEX code for duplicates
+  # data$test <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE) (\\w+.*)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  # data %<>% select(FROM, test, everything())
   # clean from
   data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] ","", data$FROM)
   data$FROM <- gsub("^ ","", data$FROM)
