@@ -3,7 +3,7 @@
 
 
 
-# file.name <- "DOJ_CIV" # for testing
+ #file.name <- "DOJ_CIV" # for testing
  
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -41,6 +41,9 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
+  # Errors for missing data
+  data %<>%
+    mutate(ERROR = ifelse(data$FROM == "NA NA", "NA FROM information", ERROR))
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RADIATION COMPENSATION|911 VICTIM|REFUND|RETURN|(6)|REQUEST|CLAIM|BREAST", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RADIATION COMPENSATION|911 VICTIM|REFUND|RETURN|(6)|REQUEST|CLAIM|BREAST", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%

@@ -27,6 +27,11 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Rep. |Rep |Cong", FROM), "House", NA)) %>%
     mutate(chamber = ifelse(grepl("^Sen. |^Sen ", FROM), "Senate", chamber))
   
+  
+  data %<>%
+    mutate(ERROR = ifelse(is.na(data$FROM), "NA FROM information", ERROR))
+  
+  
   # member name
   data %<>% extractMemberName(members,"FROM")
   
