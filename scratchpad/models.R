@@ -1,5 +1,5 @@
 load("gh-pages/correspondence.RData") # load data (df is d + covariates + dropping obs not matching an ICPSR)
-
+d1 <- df # back up df because we are using it
 
 requires <- c("tidyverse", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
 to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
@@ -11,27 +11,46 @@ library(ggplot2)
 library(dplyr)
 library(stargazer)
 
+
 zeros <- rbind(
   members %>% mutate(year = ((congress - 115)*2 + 2017)), # year 1 of term
   members %>% mutate(year = ((congress - 115)*2 + 2018)) ) # year 2
-                     
-zeros <- rbind(
-  zeros %>% mutate(Type = "Indiv. Constituent"),
-  zeros %>% mutate(Type = "Corp. Constituent"),
-  zeros %>% mutate(Type = "501c3 or Local Gov."),
-  zeros %>% mutate(Type = "Corp. Policy"),
-  zeros %>% mutate(Type = "Policy")
-)
+  
+zeros %<>% mutate(icpsr_year = paste(icpsr, year))
 
 # member year 
-zeros %<>% mutate(icpsr_year_type = paste(icpsr, year, Type))
+zeros %<>% full_join(
+  data_frame(
+    icpsr_year = rep(unique(zeros$icpsr_year), n_distinct(df$Type)),
+    Type =  rep(unique(df$Type), n_distinct(zeros$icpsr_year)) ) ) %>%
+  mutate(icpsr_year_type = paste(icpsr_year, Type))
 
-
-# zero per member year
-zeros2 <- data_frame(
+# member year agency
+zeros %<>% full_join(
+  data_frame(
   icpsr_year_type = rep(unique(zeros$icpsr_year_type), n_distinct(df$agency)),
-  agency =  rep(unique(df$agency), n_distinct(zeros$icpsr_year_type))) %>%
-  mutate(icpsr_year_type_agency = paste(icpsr, congress)) 
+  agency =  rep(unique(df$agency), n_distinct(zeros$icpsr_year_type)) ) 
+  ) %>%
+  mutate(icpsr_year_type_agency = paste(icpsr_year_type, agency)) 
+
+
+
+
+zeros$n <- 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -64,8 +83,7 @@ prestige_chair_all <- lm(Overall ~ chair + factor(congress) + factor(agency), da
 summary(chairall)$coefficients[2,]
 chair_all[[1]]
 
-matrix(
-  names(coef(chair_all)[2]), coef(chair_all)[2]
+
 
 stargazer(prestige_all, chair_all, prestige_chair_all, 
           coef = c(2),
