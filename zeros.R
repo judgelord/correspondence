@@ -339,11 +339,13 @@ df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before
 df %<>% left_join(
   read.csv("agencies/FOIA List.csv")
   )
+df %<>% filter(!is.na(icpsr))
 
 df %<>% left_join(
   # From Lewis and Seldin AJPS
   data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
 )
+df %<>% filter(!is.na(agency))
 
 # match to committee list 
 df$oversight_committee <- 0
@@ -376,7 +378,10 @@ sum(df$oversight_committee_chair)
 
 
 ########################################################################################################
-# these should be the same
+
+
+
+# these should be the same ish?
 nrow(zeros)
 nrow(df)
 
@@ -384,7 +389,6 @@ zeros <- df
 zeros$n <- 0
 
 write.csv(zeros, "zeros.csv", row.names = F)
-
-# restore df
-df <- d1
+rm(list = ls()[ls() != "zeros"])
+save.image("gh-pages/zeros.RData")
 
