@@ -1122,7 +1122,7 @@ In the House, both parties average just slightly more letters per year while in 
 
 Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
 
-```{r ideology_density}
+```{r ideology_density, fig.height=2in, fig.width=2in}
   df %>% 
     group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
   summarise(perYear = n()) %>% ungroup() %>%
@@ -1155,7 +1155,7 @@ df %>%
   geom_smooth(aes(x = nominate.dim1, y = mean), color = "blue") +#, color = "D1") ) + 
       #geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
   # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE D1 Scores and Type",
+  labs(title = "1st Dimension NOMINATE Scores by Type",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 
@@ -1176,7 +1176,7 @@ df %>%
   #geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
       geom_point(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2"), alpha = .1) + 
   geom_smooth(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE D2 Scores and Type",
+  labs(title = "2nd Dimension NOMINATE Scores by Type",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 
