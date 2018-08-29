@@ -37,7 +37,7 @@ clean <- function(file.name) {
   # data$state <- gsub(" ","", data$state)
   
  
-  # #Need REGEX code for duplicates
+  # Add semi colons in rows with multiple congressman
   data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
   # clean from

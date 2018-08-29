@@ -2,14 +2,14 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-
-  #file.name <- "DOT_FAA Sam" # for testing
-
+ 
+#  file.name <- "DOT_FAA Sam" # for testing
+ 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  #create ID variable 
+  #create ID variable
   data$ID <- c(1:nrow(data))
   
   # create agency column
@@ -52,6 +52,26 @@ clean <- function(file.name) {
   # data$first_name <- formatFirstName(data, 'first_name')
   # 
   # 
+  # Add semi colons in rows with multiple congressman
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|Caucus)  (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  data <- data[-grep("^(United States Senate)$",data$FROM),] # removes observations
+  ################
   
   
   data <- getFirstLast.Comma(data, 'FROM')
