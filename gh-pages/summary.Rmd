@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   library(tidyr)
@@ -21,7 +21,7 @@ requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", 
   library(mapproj)
   library(knitr)
   library(broom)
-  # library(dotwhisker)
+  library(dotwhisker)
 
 load("correspondence.RData")
 ```
@@ -315,7 +315,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r cross_sectional_models, eval = FALSE}
+```{r cross_sectional_models, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -434,7 +434,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r DiD, eval = FALSE}
+```{r DiD, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -517,7 +517,7 @@ m <- rbind(oversight_committee_chair, oversight_committee_chairFE)
 kable(m)
 ```
 
-```{r oversight_committee_chair_models, fig.height=3, eval = FALSE}
+```{r oversight_committee_chair_models, fig.height=3, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(oversight_committee_chair = "Chairs Relative to Other Oversight Committee Members")) +
@@ -1122,7 +1122,7 @@ In the House, both parties average just slightly more letters per year while in 
 
 Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
 
-```{r ideology_density}
+```{r ideology_density, fig.height=2, fig.width=2}
   df %>% 
     group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
   summarise(perYear = n()) %>% ungroup() %>%
@@ -1155,7 +1155,7 @@ df %>%
   geom_smooth(aes(x = nominate.dim1, y = mean), color = "blue") +#, color = "D1") ) + 
       #geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
   # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE D1 Scores and Type",
+  labs(title = "1st Dimension NOMINATE Scores by Type",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 
@@ -1176,7 +1176,7 @@ df %>%
   #geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
       geom_point(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2"), alpha = .1) + 
   geom_smooth(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE D2 Scores and Type",
+  labs(title = "2nd Dimension NOMINATE Scores by Type",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 
