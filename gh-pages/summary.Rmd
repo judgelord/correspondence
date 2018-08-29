@@ -315,7 +315,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r cross_sectional_models, eval = TRUE}
+```{r cross_sectional_models, fig.height= 3, fig.width= 6, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -327,6 +327,7 @@ kable(m)
      theme_bw() + xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
      ggtitle("Cross Sectional Differences in Letter Writing") +  
+    guides(colour = guide_legend(reverse=T))  + 
      theme(legend.title = element_blank())} %>%
   add_brackets(b)
 
@@ -434,7 +435,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r DiD, eval = TRUE}
+```{r DiD, fig.height= 3, fig.width= 6,eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -446,6 +447,7 @@ kable(m)
      theme_bw() + xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
      ggtitle("Difference-in-Differences in Letter Writing") +  
+    guides(colour = guide_legend(reverse=T))  + 
      theme(legend.title = element_blank())} %>%
   add_brackets(b)
 ```  
@@ -517,13 +519,14 @@ m <- rbind(oversight_committee_chair, oversight_committee_chairFE)
 kable(m)
 ```
 
-```{r oversight_committee_chair_models, fig.height=3, eval = TRUE}
+```{r oversight_committee_chair_models, fig.height= 3, fig.width= 6,, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(oversight_committee_chair = "Chairs Relative to Other Oversight Committee Members")) +
      theme_bw() + xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
-     ggtitle("Oversight Committee Chairs") +  
+     ggtitle("Oversight Committee Chairs") + 
+    guides(colour = guide_legend(reverse=T))  + 
      theme(legend.title = element_blank(),
            panel.grid.major.y = element_blank())} 
 
@@ -722,7 +725,7 @@ In terms of letters per year, the top 25% of Senators and Representatives write 
 This skewed distribution holds across types of advocacy. As illustrated below, whether it is policy advocacy, lobbying on behalf of corporations, or individual-level constituent service, a small number of legislators are doing a disproportionate share of advocacy. Moreover, it is often the same legislators engaging in constituent service and policy advocacy. When ranked by overall volume of correspondence, regardless of type, the top quartile of members are responsible for a disproportionate amount of advocacy for individuals, nonprofits, local governments, and policy. Advocacy on behalf of business interests is notably more diffuse, but still concentrated in the most active half of members. 
 
 
-```{r percentiles}
+```{r percentiles, fig.height=3, fig.width=6}
 # all 
 df %>% 
     group_by(member_state, chamber, year) %>% summarise(n = n()) %>%
@@ -735,8 +738,7 @@ df %>%
   geom_point(aes(x = Percentile, y = mean), color = "grey") + 
   geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
     facet_grid(. ~ chamber , scales = "free_y") + 
-  labs(title = "Average Correspondence per Year by Percentile
-(labels = top 5 percent of members)",
+  labs(title = "Average Legislator Requests per Year by Percentile",
        x = "Percentile")
 
 
@@ -783,7 +785,7 @@ df %>%
 ###  Constituent demand for advocacy
 
 The number of constituents asking for assistance is a major driver of member advocacy. 
-```{r population}
+```{r population, fig.height= 3, fig.width=6}
 df %>% 
   filter(chamber == "Senate") %>% 
     group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
@@ -791,7 +793,7 @@ df %>%
     ggplot() + 
     geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
     geom_smooth(aes(x = log(pop2010), y = mean)) + 
-  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > 137, member_state, "")), check_overlap = F, size = 2.5) + 
+  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > 137, member_state, "")), check_overlap = F, size = 2.5) + theme_bw() +
   labs(title = "Average Correspondence per Year by Population",
        x = "Log State Population")
 
@@ -1122,7 +1124,7 @@ In the House, both parties average just slightly more letters per year while in 
 
 Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
 
-```{r ideology_density, fig.height=2, fig.width=2}
+```{r ideology_density, fig.height=3, fig.width=3}
   df %>% 
     group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
   summarise(perYear = n()) %>% ungroup() %>%
@@ -1151,15 +1153,15 @@ df %>%
       group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
   summarise(mean = mean(perYear)) %>% ungroup() %>%
     ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean), color = "blue") +#,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean), color = "blue") +#, color = "D1") ) + 
+    geom_point(aes(x = nominate.dim1, y = mean), color = "light purple") +#,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean), color = "dark purple") +#, color = "D1") ) + 
       #geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
   # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "1st Dimension NOMINATE Scores by Type",
+  labs(title = "1st Dim. NOMINATE",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
+    theme_bw(#axis.title.x = element_blank(),
           #axis.ticks = element_blank(),
           #axis.text.y = element_blank(),
       strip.text.y = element_text(size = 5),
@@ -1174,13 +1176,13 @@ df %>%
     ggplot() +
    # geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
   #geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean), color = "red") +#, color = "D2") ) + 
-  labs(title = "2nd Dimension NOMINATE Scores by Type",
+      geom_point(aes(x = nominate.dim2, y = mean), color = "light green") +#, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean), color = "dark green") +#, color = "D2") ) + 
+  labs(title = "2nd Dim. NOMINATE",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type2 ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
+    theme_bw(#axis.title.x = element_blank(),
           #axis.ticks = element_blank(),
           #axis.text.y = element_blank(),
       strip.text.y = element_text(size = 5),
@@ -1201,7 +1203,7 @@ df %>%
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
   facet_grid(Type ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
+    theme_bw(#axis.title.x = element_blank(),
           #axis.ticks = element_blank(),
           #axis.text.y = element_blank(),
       strip.text.y = element_text(size = 5),
