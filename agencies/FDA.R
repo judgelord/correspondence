@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "FDA" # for testing
+ #file.name <- "FDA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -37,12 +37,31 @@ clean <- function(file.name) {
   # data$state <- gsub(" ","", data$state)
   
  
-  # Need REGEX code for duplicates
-  # data$test <- gsub("^(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE) (\\w+.*)",'\\1\\2; \\3',data$FROM)
-  
+  # #Need REGEX code for duplicates
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+
   # clean from
-  data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] ","", data$FROM)
+  data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|(b) (6)","", data$FROM)
   data$FROM <- gsub("^ ","", data$FROM)
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  data <- data[-grep("^(Originator/ Org|Constituent|[norg]|[norg] [norg]|Corr. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
+  ################
+  
   
 
   # extract member names
