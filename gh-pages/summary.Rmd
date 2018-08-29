@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("dotwhisker", "tidyr",  "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
+requires <- c("tidyr",  "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   library(tidyr)
@@ -20,15 +20,15 @@ requires <- c("dotwhisker", "tidyr",  "knitr","ineq", "dplyr", "ggplot2", "magri
   library(fiftystater)
   library(mapproj)
   library(knitr)
-    library(broom)
-  library(dotwhisker)
+  library(broom)
+  # library(dotwhisker)
 
 load("correspondence.RData")
 ```
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = F, 
+                      cache = T, 
                       fig.width=8.5, fig.align = 'center', fig.path='Figs/',
                       warning=FALSE, message=FALSE)
 ```
@@ -213,7 +213,7 @@ There might be some interesting signal in the formality of letterhead that chang
 
 # Core Model
 
-```{r cross_sectional_models}
+```{r cross_sectional_models, include = FALSE}
 
 all <- df %>% filter(year < 2018) # %>% filter(congress != 115)
 p2 <- filter(all, Type2 == "Policy") 
@@ -331,7 +331,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 ```  
 
 
-```{r DiD}
+```{r DiD, include = FALSE}
 
 
 
@@ -461,7 +461,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 
 
 
-```{r oversight_committee_chair_models, fig.height=3}
+```{r oversight_committee_chair_models, fig.height=3, include = FALSE}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
                    data = all %>% filter(oversight_committee == 1) %>%
