@@ -774,6 +774,32 @@ df %>%
 ###  Constituent demand for advocacy
 
 The number of constituents asking for assistance is a major driver of member advocacy. 
+```{r population}
+df %>% 
+  filter(chamber == "Senate") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+    geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > 137, member_state, "")), check_overlap = F, size = 2.5) + 
+  labs(title = "Average Correspondence per Year by Population",
+       x = "Log State Population")
+
+# by type
+df %>% 
+  filter(chamber == "Senate" & !is.na(Type2)) %>% 
+    group_by(member_state, year, pop2010, Type2) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010, Type2) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+    geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), y = mean, label = ifelse((Type2=="Policy" & mean > 10)|(Type2=="Constituent Service" & mean >75), member_state, "")), check_overlap = F, size = 2.5) + 
+  facet_grid(Type2 ~ ., scales = "free_y") +
+  labs(title = "Average Correspondence per Year by Population",
+       x = "Log State Population")
+
+```
 
 ```{r sentate_percapita_map}
 Chamber = "Senate"
