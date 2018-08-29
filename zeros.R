@@ -1,6 +1,6 @@
 # this sheets makes a data frame of all possible combinations of member-year-type-agency and adds n = 0
 # for adding 0s
-
+options(stringsAsFactors = F)
 
 load("gh-pages/correspondence.RData") # load data (df is d + covariates + dropping obs not matching an ICPSR)
 d1 <- df # back up df because we are using it
