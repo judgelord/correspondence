@@ -1122,7 +1122,7 @@ In the House, both parties average just slightly more letters per year while in 
 
 Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
 
-```{r ideology_density, fig.height=2in, fig.width=2in}
+```{r ideology_density, fig.height=2, fig.width=2}
   df %>% 
     group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
   summarise(perYear = n()) %>% ungroup() %>%
