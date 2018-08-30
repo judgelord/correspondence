@@ -116,7 +116,7 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
-names(data_list) <- c("agency", "status", "coders")
+datnames(data_list) <- c("agency", "status", "coders")
 data_list
 
 
