@@ -146,7 +146,16 @@ clean.agency <- function(agency, status, coders) {
         )
       }
 
-
+    
+   ############ POTENTIAL ISSUE ################# 
+####
+####    
+####    
+####
+# Are there members with same first, last, and congress but with different states?
+    
+  #
+    # 
     if (sum(c("last_name", "first_name", "state", "congress") %in% names(data)) == 4) {
       data %<>%
         # first, last, and congress are correct but state is present and partially missing
