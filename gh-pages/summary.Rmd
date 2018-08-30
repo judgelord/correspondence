@@ -315,7 +315,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r cross_sectional_models, fig.height = 3.5, fig.width= 6, eval = FALSE}
+```{r cross_sectional_models, fig.height = 3.5, fig.width= 6, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -435,7 +435,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r DiD, fig.height = 3.5, fig.width= 6,eval = FALSE}
+```{r DiD, fig.height = 3.5, fig.width= 6,eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -469,7 +469,7 @@ kable(m)
 
 
 
-```{r oversight_committee_chair_models_table, eval = FALSE}
+```{r oversight_committee_chair_models_table, eval = TRUE}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
                    data = all %>% filter(oversight_committee == 1) %>%
@@ -519,7 +519,7 @@ m <- rbind(oversight_committee_chair, oversight_committee_chairFE)
 kable(m)
 ```
 
-```{r oversight_committee_chair_models, fig.height = 2.5, fig.width= 6, eval = FALSE}
+```{r oversight_committee_chair_models, fig.height = 2.5, fig.width= 6, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(oversight_committee_chair = "")) +
@@ -536,7 +536,7 @@ kable(m)
 
 
 
-```{r non_oversight_committee_chair_models_table, eval = FALSE}
+```{r non_oversight_committee_chair_models_table, eval = TRUE}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency), 
                    data = all %>% filter(oversight_committee == 0) %>%
@@ -586,7 +586,7 @@ m <- rbind(chair, chairFE)
 kable(m)
 ```
 
-```{r non_oversight_committee_chair_models, fig.height = 2.5, fig.width= 6, eval = FALSE}
+```{r non_oversight_committee_chair_models, fig.height = 2.5, fig.width= 6, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(chair = "")) +
