@@ -1,8 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
-#  file.name <- "DOC_NOAA" # for testing
+ 
+# file.name <- "DOC_NOAA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -35,7 +35,12 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^OS-ITA POC Renee Chase$", data$FROM), "Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^OCIO NESDIS$", data$FROM), "Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(is.na(data$FROM), "NA FROM information", ERROR)) # No name info in SUBJECT for missing FROMs
-    
+  
+  # Remove observations that aren't from congressman  
+  data <- data[-grep("^(NMFS/F-Assistant Administrator for Fisheries|NOAA/OCAO|OS-Dep/Sec POC|
+                       |OS-ESA-POC L Bonney|OS-NIST POC Michelle Harman|OS-Office of The Secretary|
+                       |OS-EDA POC Eartha Ball|OS-Executive Secretariat|OS-MBDA POC Pam Cox|
+                       |OS-OBL POC Richelle Saunders|OS-OLIA POC M Freeman)$", data$FROM),]
   
   
   data %<>%

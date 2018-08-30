@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-  #file.name <- "FCC Devin" # for testing
+ # file.name <- "FCC Devin" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -19,6 +19,10 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  data %<>%
+    mutate(party = ifelse(party == "GOP", "Republican",party)) %>% 
+    mutate(party = ifelse(party == "DEM", "Democrat", party))
   
   data <- getFirstLast.Comma(data, 'FROM')
   

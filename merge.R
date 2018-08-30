@@ -224,7 +224,7 @@ d %<>%
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
-  mutate(ERROR =  ifelse(grepl("(^| )Biden( |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
+  mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
   mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR))
@@ -343,18 +343,9 @@ data_list %>% filter(!(agency %in% df$agency))
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>%
   mutate(bioname_year = paste(bioname, year))
 df$year %<>% as.numeric()
-# members with zero letters in a year
-zeros <- data_frame(
-  year = as.numeric(rep(unique(df$year), n_distinct(members$bioname))), 
-  bioname =  rep(unique(members$bioname), n_distinct(df$year)),
-  permemberyear = 0) %>%
-  mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) %>% 
-  left_join(members) %>% 
-  filter(!is.na(icpsr), chamber %in% c("House", "Senate")) %>% 
-  mutate(bioname_year = paste(bioname, year)) %>% 
-  filter(!bioname_year %in% df$bioname_year)
 
-df %<>% full_join(zeros)
+
+
 
 ############
 # New vars #
@@ -614,16 +605,22 @@ df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before
 
 # Add agency names by acronym from the FOIA List google sheet
 df %<>% left_join(
-  gs_title("agencies/FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
+  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
 )
 write.csv(gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct(), 
           file = "agencies/FOIA List.csv",
           row.names = F) #%>% group_by(agency) %>% tally()
 
+# corrections
+df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
+df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
+df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
+df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
+
 
 df %<>% left_join(
   # From Lewis and Seldin AJPS
-  data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
+  read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
 )
 
 # match to committee list 
