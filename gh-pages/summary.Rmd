@@ -1221,8 +1221,8 @@ df %>%
       group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
   summarise(mean = mean(perYear)) %>% ungroup() %>%
     ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean), color = "light purple") +#,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean), color = "dark purple") +#, color = "D1") ) + 
+    geom_point(aes(x = nominate.dim1, y = mean), color = "#9999CC", alpha = .3) +#,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean), color = "#663399") +#, color = "D1") ) + 
       #geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
   # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
   labs(title = "1st Dim. NOMINATE",
@@ -1244,8 +1244,8 @@ df %>%
     ggplot() +
    # geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
   #geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean), color = "light green") +#, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean), color = "dark green") +#, color = "D2") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean), color = "#FF9966", alpha = .3) +#, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean), color = "orange") +#, color = "D2") ) + 
   labs(title = "2nd Dim. NOMINATE",
        x = "Ideology Score",
        y = "Mean Number of Letters Per Year") + 
