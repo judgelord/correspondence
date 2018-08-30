@@ -343,18 +343,9 @@ data_list %>% filter(!(agency %in% df$agency))
 df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>%
   mutate(bioname_year = paste(bioname, year))
 df$year %<>% as.numeric()
-# members with zero letters in a year
-zeros <- data_frame(
-  year = as.numeric(rep(unique(df$year), n_distinct(members$bioname))), 
-  bioname =  rep(unique(members$bioname), n_distinct(df$year)),
-  permemberyear = 0) %>%
-  mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) %>% 
-  left_join(members) %>% 
-  filter(!is.na(icpsr), chamber %in% c("House", "Senate")) %>% 
-  mutate(bioname_year = paste(bioname, year)) %>% 
-  filter(!bioname_year %in% df$bioname_year)
 
-df %<>% full_join(zeros)
+
+
 
 ############
 # New vars #
@@ -614,16 +605,22 @@ df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before
 
 # Add agency names by acronym from the FOIA List google sheet
 df %<>% left_join(
-  gs_title("agencies/FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
+  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
 )
 write.csv(gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct(), 
           file = "agencies/FOIA List.csv",
           row.names = F) #%>% group_by(agency) %>% tally()
 
+# corrections
+df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
+df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
+df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
+df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
+
 
 df %<>% left_join(
   # From Lewis and Seldin AJPS
-  data <- read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
+  read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
 )
 
 # match to committee list 
