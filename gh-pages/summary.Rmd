@@ -328,7 +328,7 @@ kable(m)
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
      ggtitle("Cross Sectional Differences in Letter Writing") +  
     guides(colour = guide_legend(reverse=T))  + 
-     theme_bw(legend.title = element_blank())} %>%
+     theme(legend.title = element_blank())} %>%
   add_brackets(b)
 
 
