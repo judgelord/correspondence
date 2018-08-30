@@ -25,6 +25,13 @@ clean <- function(file.name){
   data <- extractMemberName(data, members, 'FROM')
   
   
+  ### Nearly 1500 names where extractMemberName() didn't match anything. These names were scanned through
+  # and none of the names were recognizable as congressman. Possible there were a handful of lesser known
+  # representatives excluded, but I think it's unlikely. 
+  data %<>%
+    mutate(ERROR = ifelse(is.na(data$last_name), "Probably not in congress. Worth checking again.", ERROR))
+  
+  
   # #preprocess FROM column for creating names variables
   # data %<>%
   #   mutate(FROM = gsub("\\+", replacement= "", FROM))
