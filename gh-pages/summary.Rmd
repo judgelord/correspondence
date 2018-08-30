@@ -315,7 +315,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r cross_sectional_models, fig.height = 3.7, fig.width= 6, eval = TRUE}
+```{r cross_sectional_models, fig.height = 3.9, fig.width= 6, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -435,7 +435,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r DiD, fig.height = 3.7, fig.width= 6,eval = TRUE}
+```{r DiD, fig.height = 3.9, fig.width= 6,eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
