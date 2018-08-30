@@ -1,7 +1,7 @@
 load("gh-pages/correspondence.RData") # load data (df is d + covariates + dropping obs not matching an ICPSR)
 load("gh-pages/zeros.RData") # load zero count [icpsr year TYPE agency] observations
 
-
+df$oversight_committee_chairs
 
 requires <- c( "dplyr", "stargazer", "magrittr", "dotwhisker")
 to_install <- c(requires %in% rownames(installed.packages()) == FALSE)

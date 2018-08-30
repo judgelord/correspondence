@@ -469,7 +469,7 @@ kable(m)
 
 
 
-```{r oversight_committee_chair_models_table}
+```{r oversight_committee_chair_models_table, eval = FALSE}
 # oversight chair without member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
                    data = all %>% filter(oversight_committee == 1) %>%
