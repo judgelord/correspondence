@@ -315,7 +315,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r cross_sectional_models, fig.height = 3.5, fig.width= 6, eval = TRUE}
+```{r cross_sectional_models, fig.height = 3.7, fig.width= 6, eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -435,7 +435,7 @@ b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Com
 kable(m)
 ```
 
-```{r DiD, fig.height = 3.5, fig.width= 6,eval = TRUE}
+```{r DiD, fig.height = 3.7, fig.width= 6,eval = TRUE}
 
 {dwplot(m) %>% 
     relabel_predictors(c(prestige = "Prestige Committee",
@@ -792,7 +792,7 @@ In terms of letters per year, the top 25% of Senators and Representatives write 
 This skewed distribution holds across types of advocacy. As illustrated below, whether it is policy advocacy, lobbying on behalf of corporations, or individual-level constituent service, a small number of legislators are doing a disproportionate share of advocacy. Moreover, it is often the same legislators engaging in constituent service and policy advocacy. When ranked by overall volume of correspondence, regardless of type, the top quartile of members are responsible for a disproportionate amount of advocacy for individuals, nonprofits, local governments, and policy. Advocacy on behalf of business interests is notably more diffuse, but still concentrated in the most active half of members. 
 
 
-```{r percentiles, fig.height=3.5, fig.width=6}
+```{r percentiles, fig.height=3.4, fig.width=6}
 # all 
 df %>% 
     group_by(member_state, chamber, year) %>% summarise(n = n()) %>%
@@ -852,7 +852,7 @@ df %>%
 ###  Constituent demand for advocacy
 
 The number of constituents asking for assistance is a major driver of member advocacy. 
-```{r population, fig.height= 3.5, fig.width=6}
+```{r population, fig.height= 3.7, fig.width=6}
 df %>% 
   filter(chamber == "Senate") %>% 
     group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
