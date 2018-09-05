@@ -4,20 +4,28 @@
 
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
- # note for MERGING: 
+# set up 
+library(gmailr)
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
+  From = "correspondenceresearch@gmail.com",
+  Subject =  "Begin merge",
+  body = ""))
+
+# note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
-# in df, TYPE is numeric, Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
+# in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
 ########################
 # Master list of data: #
 ########################
 # Departments and agencies are listed A-Z
-# 1 agency = the title of the R script for cleaning these data
-# 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
-# 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
+# agency = the title of the R script for cleaning these data
+# status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
+# coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 
-data_list <- as.data.frame(matrix(c(        #create script for DOI
+data_list <- as.data.frame(matrix(c(        
   
 # Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA, # complete but no subjects to code
@@ -48,7 +56,7 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
 # DOE
 "DOE_FERC", "not coded", NA,
-# DOI 
+# DOI # we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
@@ -116,7 +124,7 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
-datnames(data_list) <- c("agency", "status", "coders")
+names(data_list) <- c("agency", "status", "coders")
 data_list
 
 
