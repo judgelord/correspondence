@@ -33,6 +33,9 @@ data_list <- as.data.frame(matrix(c(
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
+"DHHS_IHS", "not coded", NA, #
+# "DHHS_SAMHSA", "not coded", NA, # No dates, need better data
+# "DHS_ECT", "not coded", NA, # No script, data is missing from google sheet
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
