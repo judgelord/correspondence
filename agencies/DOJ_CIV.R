@@ -3,13 +3,15 @@
 
 
 
-   file.name <- "DOJ_CIV" # for testing
+ #  file.name <- "DOJ_CIV" # for testing
  
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   
   data$ID <- c(1:nrow(data)) 
+  
+  data <- data[ !(is.na(data$Last.Name)&is.na(data$First.Name)),]
   
   #create agency column
   data$agency <- file.name
@@ -22,32 +24,34 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-
-  # ###############    
-  # # Creates duplicate rows for lines with multiple representatives
-  # for(i in 1:nrow(data)){
-  #   if(grepl("/", data$FROM[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-  #     new$FROM <- unlist(str_split(data$FROM[i], "/"))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  # data <- data[!data$FROM == "",] # removes blank observations
-  # ################
+  data$FROM <- paste(data$First.Name, data$Last.Name)
+  
+  ###############
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl("/", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], "/"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
+  
+  # data$last_name <-  formatLastName(data, "Last.Name")
+  # data$last_name <- gsub("\\*", "", data$last_name)
   # 
+  # data$first_name <- formatFirstName(data, 'First.Name')
+  # data$first_name <- gsub("^(\\w+).*", "\\1", data$first_name)
   
-  data$last_name <-  formatLastName(data, "Last.Name")
-  data$last_name <- gsub("\\*", "", data$last_name)
   
-  data$first_name <- formatFirstName(data, 'First.Name')
-  data$first_name <- gsub("^(\\w+).*", "\\1", data$first_name)
   
-  data$FROM <- paste(data$first_name, data$last_name)
+
   
   data %<>%
     mutate(first_name = ifelse(data$last_name == "YOUNG", "Bill", data$first_name))  

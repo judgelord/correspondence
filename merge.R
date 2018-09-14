@@ -67,7 +67,7 @@ data_list <- as.data.frame(matrix(c(
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
-"DOJ_CIV", "not coded", NA,
+# "DOJ_CIV", "not coded", NA, # duplicate work needed
 # DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
@@ -94,7 +94,7 @@ data_list <- as.data.frame(matrix(c(
 # FDA
 "FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
 # FHFA
- "FHFA", "not coded", NA, # Script not working, mixed up name info. Go back and fix. 
+ "FHFA", "not coded", NA, #
 # FMC
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress 
 # GSA
