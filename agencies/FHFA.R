@@ -1,8 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
-# file.name <- "FHFA" # for testing
+#file.name <- "FHFA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -23,11 +22,22 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
-  # create variable for full name
-  data$FROM <- gsub("Tanko", "Tonko", data$FROM)
-  data <- extractMemberName(data, members,"FROM")
+  # # create variable for full name
+  # data$FROM <- gsub("Tanko", "Tonko", data$FROM)
+  # data <- extractMemberName(data, members,"FROM")
+  # 
+  data$last_name <- NA
+  data <- getFirstLast.Comma(data, 'Status')
+  i <- 1
+  for (i in 1:length(members$id)) {
+    data %<>% 
+      mutate(last_name = ifelse(is.na(last_name) & grepl(members$last_name[i], data$SUBJECT, ignore.case = T), members$last_name[i], last_name))
+  }
   
-  
+  # data %<>% 
+  #   mutate(last_name = ifelse(grepl(paste(members$last_name[1:1500], collapse = '|'), data$SUBJECT, ignore.case = TRUE), 
+  #                             members$last_name, NA))
+  # 
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
