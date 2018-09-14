@@ -14,7 +14,8 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%d-%b-%y")
+  data$DATE <- data$`Modified O`
+  data$DATE %<>% as.Date("%m/%d/%Y")
   
   
   #create year and congress columns
@@ -25,9 +26,30 @@ clean <- function(file.name) {
   # # create variable for full name
   # data$FROM <- gsub("Tanko", "Tonko", data$FROM)
   # data <- extractMemberName(data, members,"FROM")
-  # 
+  data$FROM <- data$Status
   data$last_name <- NA
-  data <- getFirstLast.Comma(data, 'Status')
+  
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
+  
+  
+  
+  data <- getFirstLast.Comma(data, 'FROM')
   i <- 1
   for (i in 1:length(members$id)) {
     data %<>% 
