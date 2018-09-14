@@ -40,12 +40,14 @@ data_list <- as.data.frame(matrix(c(
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
-"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
+"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT  
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
-"DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA
+"DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
+#"DOC_NTIA", "not coded", NA, # No script yet
 "DOC_OCPA", "not coded", NA,
+#"DOC_OC", "not coded", NA, # No dates
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
 # DOD
@@ -53,7 +55,7 @@ data_list <- as.data.frame(matrix(c(
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # no records before 2013
-# "DOD_OIG", "not coded", NA, # waiting for records back from Joe
+# "DOD_OIG", "not coded", NA, # waiting for records back from Joe 
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
@@ -92,17 +94,18 @@ data_list <- as.data.frame(matrix(c(
 # FDA
 "FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
 # FHFA
-# "FHFA", "not coded", NA,
+# "FHFA", "not coded", NA, # Script not working, only last name info provided. Go back and fix. 
 # FMC
-# "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress
+# "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress 
 # GSA
-# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
+# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
 # IRS 
  "IRS", "not coded", NA, # rolling release
 # NASA
  "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
-# "NCPC", "not coded", NA,
+ "NCPC", "not coded", NA,
+"NCUA", "not coded", NA, 
 "NLRB" , "not coded", NA,
 # PRC
 "PRC", "not coded", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
@@ -118,9 +121,11 @@ data_list <- as.data.frame(matrix(c(
 "Treasury_OCC", "coded", "Aaron",
 # USDA 
 "USDA", "not coded", NA,
+# "USDA_ARS", "not coded", NA, # No script, data looks fine. Add script
 "USDA_ERS", "not coded", NA,
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
+# "USDA_NIFA", "not coded", NA, ## No script, data looks fine. Add script
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 

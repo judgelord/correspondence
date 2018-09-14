@@ -2,8 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-
- #file.name <- "FHFA" # for testing
+# file.name <- "FHFA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
