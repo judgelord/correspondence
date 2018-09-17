@@ -266,7 +266,7 @@ bad.names.1 <- d %>%
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
-
+ 
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
   filter(is.na(ERROR)) %>% 

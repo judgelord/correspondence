@@ -2,8 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-
- #  file.name <- "DOJ_CIV" # for testing
+#  file.name <- "DOJ_CIV" # for testing
  
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -24,24 +23,23 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data$FROM <- paste(data$First.Name, data$Last.Name)
+ data$FROM <- paste(data$First.Name, data$Last.Name)
   
-  ###############
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
-  ################
+  # ###############
+  # # Creates duplicate rows for lines with multiple representatives
+  # for(i in 1:nrow(data)){
+  #   if(grepl("/", data$Last.Name[i])) {
+  #     
+  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$Last.Name[i], pattern = "/") + 1))
+  #     new$FROM <- unlist(str_split(data$Last.Name[i], "/"))
+  #     
+  #     data <- rbind(data, new)
+  #     
+  #   }
+  # }
+  # data <- data[-grep("/", data$Last.Name),] # removes orginal row with all data
+  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  # ################
   
   # data$last_name <-  formatLastName(data, "Last.Name")
   # data$last_name <- gsub("\\*", "", data$last_name)
