@@ -62,16 +62,16 @@ dev.off()
 
 ##grouping together the information of interest
 
-ert<- group_by(df, congress, icpsr, party_name,  chair, prestige, prestige_chair, chamber, majority)
+ert<- group_by(df, congress, icpsr, party_name,  chair, prestige, prestige_chair, chamber, majority, agency, presidents_party, oversight_committee)
 
 total= summarise(ert, n = n())
 
 
 ##just a simple cross sectional
 
-cross_pres<- lm(total$n~total$prestige + as.factor(total$congress), subset=which(total$congress!= 115))
-cross_chair<- lm(total$n~total$chair + as.factor(total$congress), subset=which(total$congress!= 115))
-cross_pres_chair<- lm(total$n~total$prestige_chair + as.factor(total$congress), subset=which(total$congress!= 115))
+cross_pres<- lm(total$n~total$prestige + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+cross_chair<- lm(total$n~total$chair + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+cross_pres_chair<- lm(total$n~total$prestige_chair + as.factor(total$congress)  + as.factor(total$agency), subset=which(total$congress!= 115))
 
 ##obvious cross sectional difference.  The more powerful people are the ones sending more of these letters
 ##let's adjust for
@@ -82,11 +82,11 @@ cross_chair_senate<- lm(total$n~total$chair + as.factor(total$congress), subset=
 
 
 
-reg1<- lm(total$n~total$prestige + as.factor(total$congress)+   as.factor(total$icpsr) , subset=which(total$congress!= 115))
-reg2<- lm(total$n~total$prestige_chair + as.factor(total$congress)+   as.factor(total$icpsr) , subset=which(total$congress!= 115))
+reg1<- lm(total$n~total$prestige + as.factor(total$congress)+   as.factor(total$icpsr)  + as.factor(total$agency), subset=which(total$congress!= 115))
+reg2<- lm(total$n~total$prestige_chair + as.factor(total$congress)+   as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!= 115))
 
 ##checking chairs in general
-reg3<- lm(total$n~total$chair + as.factor(total$congress)+   as.factor(total$icpsr) , subset=which(total$congress!= 115))
+reg3<- lm(total$n~total$chair + as.factor(total$congress)+   as.factor(total$icpsr) + as.factor(total$congress) , subset=which(total$congress!= 115))
 ##chairs send a shit ton more.  that is *within* legislator
 ##they
 
@@ -127,33 +127,244 @@ party_year<- lm(total$n ~total$chair +   as.factor(total$congress)*total$party_n
 ##[1] To be coded         Indiv. Constituent  501c3 or Local Gov.
 ##[4] Policy              Corp. Constituent   Corp. Policy
 
-to_be_code<- ind_type<- policy<- char_loc<- corp<-corp_con<-  rep(0, nrow(total))
+to_be_code<- ind_type<- policy<- char_loc<- corp<-corp_con<-  rep(NA, nrow(total))
 for(z in 1:nrow(total)){
-	rows<- df[which(df$icpsr == total$icpsr[z] & df$congress==total$congress[z]),]$Type
+	rows<- df[which(df$agency ==total$agency[z] & df$icpsr == total$icpsr[z] & df$congress==total$congress[z]),]$Type
 
-	ind_type[z]<- len(which(rows=='Indiv. Constituent'))
-	policy[z]<- len(which(rows=='Policy'))
-	char_loc[z]<- len(which(rows=='501c3 or Local Gov.'))
-	corp[z]<- len(which(rows=='Corp. Policy'))
-	corp_con[z]<- len(which(rows=='Corp. Constituent'))
-	to_be_code[z]<- len(which(rows=='To be coded'))
+	ind_type[z]<- len(which(rows=='Indiv. Constituent' | rows =='Corp. Constituent' | rows=='501c3 or Local Gov.'))
+	policy[z]<- len(which(rows=='Policy' | rows=='Corp. Policy'))
+	#char_loc[z]<- len(which(rows=='501c3 or Local Gov.'))
+	#corp[z]<- len(which(rows=='Corp. Policy'))
+	#corp_con[z]<- len(which(rows=='Corp. Constituent'))
+	#to_be_code[z]<- len(which(rows=='To be coded'))
 }
 
-pol_letter<- lm(policy~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115))
+pol_letter<- lm(policy~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency) , subset=which(total$congress!=115))
+##do they send more before
+pol_letter_dem<- lm(policy~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency) , subset=which(total$congress!=115 & total$party_name=='Democratic'))
+pol_letter_rep<- lm(policy~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency) , subset=which(total$congress!=115 & total$party_name=='Republican'))
+
+pol_future<- lm(policy~future_chair + as.factor(total$congress)  + as.factor(total$agency), subset=which(total$congress!=115 & total$chair==0))
+
+
+ind_letter<- lm(ind_type~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
 ##do they send more before
 
-pol_future<- lm(policy~future_chair + as.factor(total$congress), subset=which(total$congress!=115 & total$chair==0))
-
-
-ind_letter<- lm(ind_type~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115))
-##do they send more before
+ind_letter_rep<- lm(ind_type~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115 & total$party_name=='Republican'))
+ind_letter_dem<- lm(ind_type~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115 & total$party_name=='Democratic'))
 
 ind_future<- lm(ind_type~future_chair + as.factor(total$congress), subset=which(total$congress!=115 & total$chair==0))
+
+
+ind_chair<- lm(total$ind~total$chair + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+ind_prestige_comm<- lm(total$ind~total$prestige + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+ind_prestige_chair<- lm(total$ind~total$prestige_chair + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+
+pol_chair<- lm(total$pol~total$chair + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+pol_prestige_comm<- lm(total$pol~total$prestige + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+pol_prestige_chair<- lm(total$pol~total$prestige_chair + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+
+
+
+
+
+
+##so this shows that Democrats expand on both, while Republicans
+##expand solely on polcy, but decrease otherwise.  
+
+total_out<- lm(total$n~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_ind<- lm(total$ind~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+total_pol<- lm(total$pol~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+tt<- summary(total_ind)
+gg<- summary(total_pol)
+
+
+total_out_pres<- lm(total$n~total$prestige + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_ind_pres<- lm(total$ind~total$prestige + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+total_pol_pres<- lm(total$pol~total$prestige + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_did<- summary(total_out_pres)$coef
+ind_did<- summary(total_ind_pres)$coef
+pol_did<- summary(total_pol_pres)$coef
+
+total_out_pres_chair<- lm(total$n~total$prestige_chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_ind_pres_chair<- lm(total$ind~total$prestige_chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+total_pol_pres_chair<- lm(total$pol~total$prestige_chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_did_chair<- summary(total_out_pres_chair)$coef
+ind_did_chair<- summary(total_ind_pres_chair)$coef
+pol_did_chair<- summary(total_pol_pres_chair)$coef
+
+
+total_out_pres_chair<- lm(total$n~total$prestige_chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_ind_pres_chair<- lm(total$ind~total$prestige_chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+total_pol_pres_chair<- lm(total$pol~total$prestige_chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115))
+
+total_did_chair<- summary(total_out_pres_chair)$coef
+ind_did_chair<- summary(total_ind_pres_chair)$coef
+pol_did_chair<- summary(total_pol_pres_chair)$coef
+
+
+total_out_dem<-  lm(total$n~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115 & total$party_name== 'Democratic'))
+total_out_rep<-  lm(total$n~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115 & total$party_name=='Republican'))
+##most of the increase comes from Democrats, Republicans have no overall change in their output.
+
+##largely becuase they tend to substitue
+
+##then we can do shares, but then switch to majority
+
+##so doing the share thing
+
+outs<- cbind(ind_type, policy)
+row_sum<- apply(outs, 1, sum)
+
+for(z in 1:nrow(outs)){
+	outs[z,]<- outs[z,]/row_sum[z]
+
+}
+
+start<- lm(outs[,1]~total$chair + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!= 115))
+start_rep<- lm(outs[,1]~total$chair + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Republican'))
+start_dem<- lm(outs[,1]~total$chair + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Democratic'))
+
+ps_rep<- lm(outs[,2]~total$chair + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Republican'))
+ps_dem<- lm(outs[,2]~total$chair + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Democratic'))
+
+
+##ok, now putting together some information about majority
+
+maj_cross<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+maj_did<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115))
+
+m_did_r<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Republican'))
+m_did_d<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Democratic'))
+
+
+##same thing with the president's party maj_cross<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+
+press_cross<- lm(total$n~total$presidents_party + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+
+press_did<- lm(total$n~total$presidents_party + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115))
+
+p_did_r<- lm(total$n~total$presidents_party + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Republican'))
+p_did_d<- lm(total$n~total$presidents_party + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Democratic'))
+
+##now with the interaction of the two
+
+p_m_cross<- lm(total$n~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+
+p_m_did<- lm(total$n~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115))
+
+p_m_did_r<- lm(total$n~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Republican'))
+p_m_did_d<- lm(total$n~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115 & total$party_name=='Democratic'))
+
+
+p_m_ind<- lm(total$ind~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+
+p_m_pol<- lm(total$pol~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!= 115))
+
+
+p_m_did_ind<- lm(total$ind~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115))
+
+p_m_did_pol<- lm(total$pol~total$presidents_party*total$majority + as.factor(total$congress) + as.factor(total$agency)  + as.factor(total$icpsr), subset=which(total$congress!= 115))
+
+
+ert<- summary(p_m_did)
+ert2<- summary(p_m_did_ind)$coef
+ert3<- summary(p_m_did_pol)$coef
+
+
+##we can do the oversight thing next.  
+
+
+
+
+##so what do we learn from this ?
+
+years<- lm(total$n~as.factor(total$congress), subset=which(total$congress!=115))
+year_agency<- lm(total$n~as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115))
+year_agency_ind<- lm(total$n~as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115))
+##now let's look at superivising count, for this we need to aggregate up again
+##but we can include yearx individual fixed effects. 
+
+ind_type_over<- ifelse(df$Type %in% c('Indiv. Constituent', 'Corp. Constituent' , '501c3 or Local Gov.'), 1, 0)
+pol_type_over<- ifelse(df$Type %in% c('Policy', 'Corp. Policy'), 1, 0)
+
+df<- cbind(df, ind_type_over, pol_type_over)
+
+
+##let's now aggregate this by oversight committee or not.  
+
+tenure<- df$year - df$yearelected
+ert<- group_by(df, congress, icpsr, party_name,  chair, prestige, prestige_chair, chamber, majority, agency, presidents_party, oversight_committee, oversight_committee_chair, ind_type_over, pol_type_over, female, pop2010_millions)
+
+##so, looking at oversight by time
+
+
+
+
+
+total= summarise(ert, n = n(), overs = sum(oversight_committee), ind = sum(ind_type_over), pol = sum(pol_type_over), over_ind = sum(oversight_committee*ind_type_over), over_pol = sum(oversight_committee*pol_type_over))
+
+##now looking at the total sent to
+##seniority correlation
+
+
+
+
+
+
+
+overs<- lm(total$overs~total$oversight_committee_chair + as.factor(total$congress) + as.factor(total$agency), subset=which(total$congress!=115 & total$oversight_committee==1))
+overs_did<- lm(total$n~total$oversight_committee_chair + as.factor(total$congress) + as.factor(total$icpsr), subset=which(total$congress!=115& total$oversight_committee==1))
+
+ind_overs<- lm(total$ind~total$oversight_committee_chair + as.factor(total$congress) +as.factor(total$agency), subset=which(total$congress!=115 & total$oversight_committee==1))
+pol_overs<- lm(total$pol~total$oversight_committee_chair + as.factor(total$congress) +as.factor(total$agency), subset=which(total$congress!=115 & total$oversight_committee==1))
+
+ind_did<- lm(total$ind~total$oversight_committee_chair + as.factor(total$congress) +as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$oversight_committee==1))
+pol_did<- lm(total$pol~total$oversight_committee_chair + as.factor(total$congress) +as.factor(total$agency)+ as.factor(total$icpsr), subset=which(total$congress!=115 & total$oversight_committee==1))
+
+##but they leverage that to increase the number of individual requrests
+##which is interesting.  in the next round we'd like to know how many more requests
+##you make once being placed on on an oversight committee.  
+
+ind_over_did<- lm(total$over_ind~total$oversight_committee_chair + as.factor(total$congress)*total$party_name + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$oversight_committee==1))
+pol_over_did<- lm(total$over_pol~total$oversight_committee_chair + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$oversight_committee==1))
+
+##so that is interesting. let's now check for chamber specific effects
+##and then make the relevant tables
+
+sen_maj<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$chamber =='Senate'))
+house_maj<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$chamber =='House'))
+
+##alright, now doing this by party
+
+sen_maj_rep<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$chamber =='Senate' & total$party_name =='Republican'))
+house_maj_rep<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$chamber =='House'& total$party_name =='Republican'))
+
+sen_maj_dem<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$chamber =='Senate'& total$party_name =='Democratic'))
+house_maj_dem<- lm(total$n~total$majority + as.factor(total$congress) + as.factor(total$agency) + as.factor(total$icpsr), subset=which(total$congress!=115 & total$chamber =='House'& total$party_name =='Democratic'))
+
+##ok, so no difference there.  let's make these tables
+##first, 
+
+
+
+
 
 
 ##next working on a corporate interest
 corp_letter<- lm(corp~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115))
 ##do they send more before
+corp_letter_rep<- lm(corp~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115 & total$party_name=='Republican'))
+corp_letter_dem<- lm(corp~total$chair + as.factor(total$congress) + as.factor(total$icpsr) + as.factor(total$agency), subset=which(total$congress!=115 & total$party_name=='Democratic'))
+
+
 
 corp_future<- lm(corp~future_chair + as.factor(total$congress), subset=which(total$congress!=115 & total$chair==0))
 
@@ -162,9 +373,12 @@ pol_letter_dem<- lm(policy~total$chair + as.factor(total$congress) + as.factor(t
 ind_letter_dem<- lm(ind_type~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115 & total$party_name=='Democratic'))
 
 ind_letter_rep<- lm(ind_type~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115 & total$party_name=='Republican'))
+pol_letter_rep<- lm(policy~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115 & total$party_name=='Republican'))
 
 
 ##now looking at the shares
+corp_letter_rep<- lm(corp~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115 & total$party_name=='Republican'))
+corp_letter_rep<- lm(corp~total$chair + as.factor(total$congress) + as.factor(total$icpsr) , subset=which(total$congress!=115 & total$party_name=='Democratic'))
 
 
 types<- cbind(ind_type, policy, char_loc, corp, corp_con)
@@ -264,24 +478,26 @@ total_d<- lm(total$n~ total$majority+ as.factor(total$icpsr), subset=which(total
 
 
 
-group_year<- group_by(df, year, majority, presidents_party, icpsr, party_name, chair, prestige, prestige_chair)
+temp<- df[which(df$complete==T), ]
+
+group_year<- group_by(df, year, majority, presidents_party, icpsr, party_name, chair, prestige, prestige_chair, agency)
 
 sy<- summarise(group_year, n = n())
 
 
-rep1<- lm(sy$n~as.factor(sy$year)-1, subset=which(sy$party_name=='Republican'))
-dem1<- lm(sy$n~as.factor(sy$year)-1, subset=which(sy$party_name=='Democratic'))
+rep1<- lm(sy$n~as.factor(sy$year)-1 + as.factor(sy$agency), subset=which(sy$party_name=='Republican' & sy$year<2017))
+dem1<- lm(sy$n~as.factor(sy$year)-1 + as.factor(sy$agency), subset=which(sy$party_name=='Democratic'& sy$year<2017))
 
 tbc<- it<- py<- cloc<- corp<-corp_con<-  rep(0, nrow(sy))
 for(z in 1:nrow(sy)){
-	rows<- df[which(df$icpsr == sy$icpsr[z] & df$year==sy$year[z]),]$Type
+	rows<- df[which(df$icpsr == sy$icpsr[z] & df$year==sy$year[z] & df$agency == sy$agency[z]),]$Type
 
-	it[z]<- len(which(rows=='Indiv. Constituent'))
-	py[z]<- len(which(rows=='Policy'))
-	cloc[z]<- len(which(rows=='501c3 or Local Gov.'))
-	corp[z]<- len(which(rows=='Corp. Policy'))
-	corp_con[z]<- len(which(rows=='Corp. Constituent'))
-	tbc[z]<- len(which(rows=='To be coded'))
+	it[z]<- len(which(rows=='Indiv. Constituent' | rows=='Corp. Constituent' | rows=='501c3 or Local Gov.'))
+	py[z]<- len(which(rows=='Policy'| rows=='Corp. Policy'))
+	#cloc[z]<- len(which(rows=='501c3 or Local Gov.'))
+	#corp[z]<- len(which(rows=='Corp. Policy'))
+	#corp_con[z]<- len(which(rows=='Corp. Constituent'))
+	#tbc[z]<- len(which(rows=='To be coded'))
 }
 
 checks<- cbind(it,py, cloc, corp, corp_con, tbc )
@@ -290,7 +506,27 @@ checks<- cbind(it,py, cloc, corp, corp_con, tbc )
 ##and then deliver this 
 
 
-it_cross<- lm(it~sy$majority + as.factor(sy$year) , subset=which(sy!= 2018))
+out<- lm(it~sy$majority*sy$presidents_party+ as.factor(sy$year) + as.factor(sy$agency) , subset=which(sy$year<2017))
+out_pol<- lm(py~sy$majority*sy$presidents_party+ as.factor(sy$year) + as.factor(sy$agency) , subset=which(sy$year<2017))
+
+
+##you write a lot more per-party and per year 
+##can create the appropriate standard errors
+
+
+
+it_cross
+total_year<- lm(sy$n~sy$majority + as.factor(sy$year)  + as.factor(sy$agency), subset=which(sy$year< 2017))
+total_did_year<- lm(sy$n~sy$majority + as.factor(sy$year)  + as.factor(sy$agency) + as.factor(sy$icpsr), subset=which(sy$year< 2017))
+
+total_party_year<- lm(sy$n~sy$presidents_party + as.factor(sy$year)  + as.factor(sy$agency), subset=which(sy$year< 2017))
+total_did_party_year<- lm(sy$n~sy$presidents_party + as.factor(sy$year)  + as.factor(sy$agency) + as.factor(sy$icpsr), subset=which(sy$year< 2017))
+
+total_did_party_maj_year<- lm(sy$n~sy$presidents_party*sy$majority + as.factor(sy$year)  + as.factor(sy$agency) + as.factor(sy$icpsr), subset=which(sy$year< 2017))
+
+
+
+
 it_did<- lm(it~sy$majority + as.factor(sy$year) + as.factor(sy$icpsr) , subset=which(sy!= 2018))
 
 it_cross<- lm(it~sy$majority*sy$presidents_party + as.factor(sy$year), subset=which(sy!=2018))

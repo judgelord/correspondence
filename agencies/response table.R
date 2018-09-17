@@ -1,4 +1,8 @@
-
+# corrections
+df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
+df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
+df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
+df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
 
 
 # get FOIAed agency totals from FOIA List on drive 
@@ -23,16 +27,19 @@ data %<>% group_by(Department) %>% mutate(Components = n(), Records = sum(data1)
 
 data %<>% group_by(Department, Components, Records, Coded) %>% tally() %>% select(-n)
 
-# 
-# # get letter totals from df 
-# dfdata <- df %<>% mutate(Department = ifelse(!grepl("Department of", Department), "Independent Agencies", Department))
-# 
-# dfdata %<>% group_by(Department) %>% summarise(n = n() ) %>% distinct()
-# 
-# # join foia sheet data with r data 
-# data %<>% full_join(dfdata) 
-# 
-# data %<>% mutate(n = ifelse(is.na(n), 0, n))
+
+
+# # get letter totals from df
+dfdata <- df %>% mutate(Department = ifelse(!grepl("Department of", Department), "Independent Agencies", Department))
+
+# count
+# dfdata %<>% group_by(Department) %>% summarise(n = paste(unique(agency), collapse = ":")) %>% distinct()
+dfdata %<>% group_by(Department) %>% summarise(N =n()) %>% distinct()
+#
+# join foia sheet data with r data
+data %<>% full_join(dfdata)
+#
+data %<>% mutate(n = ifelse(is.na(n), 0, n))
 
 # totals 
 data %<>% ungroup() %>%

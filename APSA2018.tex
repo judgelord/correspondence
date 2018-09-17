@@ -16,7 +16,7 @@
 \urlstyle{same}  % don't use monospace font for urls
 
   \title{How Legislators Actually Invest Their Time}
-    \author{Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Associate Professor, Stanford University}, \and Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison}}
+    \author{Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Associate Professor, Stanford University} \and Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison}}
     \date{\today}
     
 \graphicspath{{gh-pages/Figs/}}
@@ -180,33 +180,34 @@ To examine the relationship between institutional power and constituent service,
 \paragraph{Response Rates to Our FOIA Requests} As of August 2018, all departments except for the State Department and Department of Veterans' Affairs have provided records, though the majority of records from the Departments of Defense and Energy are still being processed, and the majority of Department of Justice components have either not yet granted our request or claimed that they do not track congressional correspondence (see Table \ref{responserates}). Some components provided records that duplicated records from the Secretary's office, for example in the Department of Agriculture where several such component records were dropped. As for independent agencies, we are waiting on records from the SEC, OPM, MSPB, FTC, FLRA, NSF, NRC, U.S. Export-Import Bank, CPSC, CFPB, CFTC, CIA, and Appalachian Regional Commission. The remaining 21 independent agencies have provided records, though some are still in the process of reviewing and releasing additional records. Of these, 18 have been sufficiently cleaned, coded, and linked with other data source for inclusion in this analysis. The large amount of data yet to be received will allow out-of-sample tests of the present analysis. 
 
 
+% response table
 \begin{table}[!htbp] \centering 
   \caption{} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}} lccc} 
+\begin{tabular}{@{\extracolsep{5pt}} lcccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
-Department & Components & Records & Coded \\ 
+Department & Components & Records & Coded & N \\ 
 \hline \\[-1.8ex] 
-Department of Agriculture & 29 & 29 & 11 \\ 
-Department of Commerce & 18 & 18 & 10 \\ 
-Department of Defense & 49 & 10 & 7 \\ 
-Department of Education & 1 & 1 & 1 \\ 
-Department of Energy & 8 & 2 & 1 \\ 
-Department of Health and Human Services & 15 & 7 & 5 \\ 
-Department of Homeland Security & 6 & 5 & 4 \\ 
-Department of Housing and Urban Development & 2 & 0 & 0 \\ 
-Department of Justice & 11 & 1 & 1 \\ 
-Department of Labor & 24 & 9 & 6 \\ 
-Department of State & 1 & 0 & 0 \\ 
-Department of the Interior & 10 & 6 & 5 \\ 
-Department of the Treasury & 8 & 5 & 4 \\ 
-Department of Transportation & 10 & 6 & 6 \\ 
-Department of Veterans Affairs & 3 & 0 & 0 \\ 
+Department of Agriculture & 29 & 29 & 11 & 1957 \\ 
+Department of Commerce & 18 & 18 & 10 & 6875 \\ 
+Department of Defense & 49 & 10 & 7 & 5479 \\ 
+Department of Education & 1 & 1 & 1 & 3868 \\ 
+Department of Energy & 8 & 2 & 1 & 1269 \\ 
+Department of Health and Human Services & 15 & 7 & 5 & 6199 \\ 
+Department of Homeland Security & 6 & 5 & 5 & 26435 \\ 
+Department of Housing and Urban Development & 2 & 0 & 0 & 0 \\ 
+Department of Justice & 11 & 1 & 1 & 903 \\ 
+Department of Labor & 24 & 9 & 6 & 22936 \\ 
+Department of State & 1 & 0 & 0 & 0 \\ 
+Department of the Interior & 10 & 6 & 5 & 5171 \\ 
+Department of the Treasury & 8 & 5 & 4 & 11143 \\ 
+Department of Transportation & 10 & 6 & 6 & 18482 \\ 
+Department of Veterans Affairs & 3 & 0 & 0 & 0 \\ 
 \hline \\[-1.8ex] 
-Independent Agencies & 38 & 21 & 18 \\ 
+Independent Agencies & 38 & 21 & 18 & 46182 \\ 
 \hline \\[-1.8ex] 
-Total & 233 & 120 & 79 \\ 
+Total & 233 & 120 & 80 & 156899 \\ 
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table} 
@@ -254,7 +255,11 @@ The number of constituency service requests that legislators write is distribute
 \includegraphics[width = \textwidth]{percentiles-1}
 \end{figure}
 
-% means by type
+\begin{figure}
+\centering
+\caption{Senators from larger states do more constituent service.}
+\includegraphics[width = \textwidth]{population-1}
+\end{figure}
 
 \paragraph{Population} An obvious initial explanation for the differences in the rates legislators contact on behalf of their constituents is the population of a district.  After all, legislators are most likely to contact agencies on behalf of their constituents if they receive some request to make that contact.  Of course, House districts have little variation in population, so differences in the number of constituents cannot explain the variation in their proclivity to contact the bureaucracy.  The Senate, however, shows strong evidence that the number of constituents influences their level of contact.  In fact, in the Senate, an additional million constituents is associated with an additional 0.15 contacts per agency per year.\footnote{While such numbers may seem small, they are substantive large when considering our units of analysis are mostly sub-departmental agencies or components, of which we identified 234. Even by a conservative estimate, one additional contact per agency may translate to an additional 100 contacts per year government-wide. Thus, we estimate that 0.15 additional contacts per agency indicate roughly 15-30 additional contacts per year.} There are two complementary explanations for this difference. First, it could be that senators from more populous states simply receive more requests for constituency service.  Second, it could be that legislators from larger states are able to make use of their larger staff.  Preliminary, our evidence suggests that demand is a significant driver of unequally distributed advocacy. For every additional million constituents, senators initiate an additional 0.09 contacts per year on behalf of constituents, while only policy contacts only increase by 0.005 per year.  
 

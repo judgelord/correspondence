@@ -3,7 +3,7 @@
 
 # matched on last_name perfectly, only last_name and chamber info
 
-#file.name <- "DOI_USGS" # for testing
+ #file.name <- "DOI_USGS" # for testing
 
 
 clean <- function(file.name) {
@@ -24,9 +24,11 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  
+  data$FROM <- data$'Last Name'
 
   # create variable for last name
-  data$last_name <- formatLastName(data, 'Last Name')
+  data$last_name <- formatLastName(data, 'FROM')
   
   #create variable for chamber
   data %<>%
