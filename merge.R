@@ -4,20 +4,28 @@
 
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
- # note for MERGING: 
+# set up 
+library(gmailr)
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
+  From = "correspondenceresearch@gmail.com",
+  Subject =  "Begin merge",
+  body = ""))
+
+# note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
-# in df, TYPE is numeric, Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
+# in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
 ########################
 # Master list of data: #
 ########################
 # Departments and agencies are listed A-Z
-# 1 agency = the title of the R script for cleaning these data
-# 2 status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
-# 3 coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
+# agency = the title of the R script for cleaning these data
+# status = c("coded", "recoded", "not coded"), NA if not yet hand-coded
+# coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 
-data_list <- as.data.frame(matrix(c(        #create script for DOI
+data_list <- as.data.frame(matrix(c(        
   
 # Agency, c(coded, not coded, recoded), coders,
 "Amtrak", "not coded", NA, # complete but no subjects to code
@@ -25,16 +33,21 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
+"DHHS_IHS", "not coded", NA, #
+# "DHHS_SAMHSA", "not coded", NA, # No dates, need better data
+# "DHS_ECT", "not coded", NA, # No script, data is missing from google sheet
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
-"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
+"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT  
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
-"DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA
+"DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
+#"DOC_NTIA", "not coded", NA, # No script yet
 "DOC_OCPA", "not coded", NA,
+#"DOC_OC", "not coded", NA, # No dates
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
 "DOC_SBA", "not coded", NA, # no records before 2010
 # DOD
@@ -42,19 +55,19 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # no records before 2013
-# "DOD_OIG", "not coded", NA, # waiting for records back from Joe
+# "DOD_OIG", "not coded", NA, # waiting for records back from Joe 
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
 # DOE
 "DOE_FERC", "not coded", NA,
-# DOI 
+# DOI # we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
-"DOJ_CIV", "not coded", NA,
+# "DOJ_CIV", "not coded", NA, # duplicate work needed
 # DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
@@ -81,17 +94,18 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 # FDA
 "FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
 # FHFA
-# "FHFA", "not coded", NA,
+ "FHFA", "not coded", NA, #
 # FMC
-# "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress
+# "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress 
 # GSA
-# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018
+# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
 # IRS 
  "IRS", "not coded", NA, # rolling release
 # NASA
  "NASA", "not coded", NA, # needs cleanup, esp of dates 
 # NCPC
-# "NCPC", "not coded", NA,
+ "NCPC", "not coded", NA,
+"NCUA", "not coded", NA, 
 "NLRB" , "not coded", NA,
 # PRC
 "PRC", "not coded", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
@@ -107,16 +121,18 @@ data_list <- as.data.frame(matrix(c(        #create script for DOI
 "Treasury_OCC", "coded", "Aaron",
 # USDA 
 "USDA", "not coded", NA,
+# "USDA_ARS", "not coded", NA, # No script, data looks fine. Add script
 "USDA_ERS", "not coded", NA,
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
+# "USDA_NIFA", "not coded", NA, ## No script, data looks fine. Add script
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA
 ), ncol = 3, byrow = T))
-datnames(data_list) <- c("agency", "status", "coders")
+names(data_list) <- c("agency", "status", "coders")
 data_list
 
 
@@ -250,7 +266,7 @@ bad.names.1 <- d %>%
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
-
+ 
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
   filter(is.na(ERROR)) %>% 

@@ -1,8 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 63 mismatches
-
+ 
 
 # file.name <- "SSA" # for testing
 
@@ -56,12 +55,22 @@ clean <- function(file.name) {
   
   
   
+  
   # state
   data %<>%
     mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
                           gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
-                          NA))
+                          NA))# %>% 
+    # mutate(state= ifelse(grepl("(^| )Rep\\. Cartwright( |$)",data$FROM), "PA", state)) %>% 
+    # mutate(state= ifelse(grepl("(^| )Sen\\. Shelby( |$)",data$FROM), "AL", state)) %>% 
+    # mutate(state= ifelse(grepl("(^| )Sen\\. Boozman( |$)",data$FROM), "AR", state)) %>% 
+    # mutate(state= ifelse(grepl("(^| )Rep. Hudson( |$)",data$FROM), "NC", state))
+  
+  
   data$state <- stateFromLower(data$state)
+  
+  
+  data$FROM <- gsub("(^| )(Burr|Richard Burr)( |$)", " Richard Burr ",data$FROM)
   
   # create name variable for names with only last name info
   data %<>%
