@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
+ 
 #  file.name <- "DOJ_CIV" # for testing
  
 clean <- function(file.name) {
@@ -49,7 +49,7 @@ clean <- function(file.name) {
   
   
   
-
+  data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
     mutate(first_name = ifelse(data$last_name == "YOUNG", "Bill", data$first_name))  

@@ -24,7 +24,7 @@ clean <- function(file.name) {
   data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| l | ll ", "", data$FROM)
  
   # # Creates name variables
-  # data %<>%
+  # data %<>% 
   #   mutate(last_name = gsub(", .*", "", FROM2)) %>%
   #   mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| II|, II", "", FROM2)) %>%
   #   mutate(common_name = stringr::str_extract(FROM2, "\\(.*\\)")) %>%
