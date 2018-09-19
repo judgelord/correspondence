@@ -112,7 +112,7 @@ data_list <- as.data.frame(matrix(c(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-"SSA", "not coded", NA, # revisit merge and remove NAs?
+"SSA", "not coded", NA, # revisit merge and remove NAs? # merge needs work
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
@@ -162,7 +162,7 @@ d <- d1
 
 
 
-
+v  
 ##################################
 # Repeat merge while successful: #
 ##################################
