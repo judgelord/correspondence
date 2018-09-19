@@ -121,7 +121,7 @@ data_list <- as.data.frame(matrix(c(
 "Treasury_OCC", "coded", "Aaron",
 # USDA 
 "USDA", "not coded", NA,
-# "USDA_ARS", "not coded", NA, # No script, data looks fine. Add script
+# "USDA_ARS", "not coded", NA, # No script, data doesn't have dates
 "USDA_ERS", "not coded", NA,
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
