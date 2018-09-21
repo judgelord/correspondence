@@ -1,6 +1,7 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
+
 #file.name <- "DOD_Navy Delaney" # for testing
 
 
@@ -30,7 +31,13 @@ clean <- function(file.name) {
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
+  data2 <- data[is.na(data$last_name),]
   
+  # for (i in 1:length(members$id)) {
+  #   data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
+  #                                         members$first_name[i], data$first_name))
+  #   
+  # }
   
   # #create variable for last name of the Sen/Rep
   # data %<>%
