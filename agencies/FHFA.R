@@ -1,11 +1,13 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
+
 #file.name <- "FHFA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+
   # create ID variable
   data$ID <- c(1:nrow(data))
   
@@ -29,6 +31,10 @@ clean <- function(file.name) {
   data$FROM <- data$Status
   data$last_name <- NA
   
+  data <- data[!is.na(data$FROM),]
+  
+  data2 <- data[data$FROM == "Closed",]
+  data2 <- extractMemberName(data, members, 'SUBJECT')
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
@@ -50,10 +56,13 @@ clean <- function(file.name) {
   
   
   data <- getFirstLast.Comma(data, 'FROM')
+  data2 <- data[data$FROM == "Closed",]
+  
+  
   i <- 1
   for (i in 1:length(members$id)) {
     data %<>% 
-      mutate(last_name = ifelse(is.na(last_name) & grepl(members$last_name[i], data$SUBJECT, ignore.case = T), members$last_name[i], last_name))
+      mutate(last_name = ifelse(is.na(last_name) & grepl(paste("( |^)", members$last_name[i], "( |$|,)", sep = ""), data$SUBJECT, ignore.case = T), members$last_name[i], last_name))
   }
   
   # data %<>% 

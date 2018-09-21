@@ -31,7 +31,7 @@ clean <- function(file.name) {
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
-  data2 <- data[is.na(data$last_name),]
+  #data2 <- data[is.na(data$last_name),]
   
   # for (i in 1:length(members$id)) {
   #   data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],

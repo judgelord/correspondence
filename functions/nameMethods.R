@@ -820,6 +820,15 @@ ocr.errors <- function(FROM){
   return(FROM)
 }
 
+# addFirst <- function(last){
+#   
+#   for (i in 1:length(members$id)) {
+#     data %<>% mutate(first_name = ifelse( is.na(first_name)& (length(unique(members$bioname[members$last_name == data$last_name]))< 2) ,
+#                                           members$first_name[i], data$first_name))
+#     
+#   }
+# }
+
 
 
 
