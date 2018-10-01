@@ -1,7 +1,9 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- # file.name <- "SSA" # for testing
+
+
+# file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -125,14 +127,18 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
-# loop not working
-  # i <- 1
-  # for(i in 1:length(members$id)){
-  #   data %<>%
-  #     mutate(test = ifelse(data$last_name == members$last_name[i], TRUE, F))
-  #   
-  # }
   
+  
+#   twolastnames  <- members %>% group_by(last_name, congress) %>% tally() %>% filter(n>1) %>% select(-congress, -n) %>% distinct()
+#   membersOneLastName <- members[!(members$last_name %in% twolastnames$last_name),]
+# # loop not working
+#   i <- 1
+#   for(i in 1:length(membersOneLastName$id)){
+#     data %<>%
+#       mutate(first_name = ifelse(last_name == membersOneLastName$last_name[i] & is.na(first_name), membersOneLastName$first_name[i],first_name))
+# 
+#   }
+#   
   
   
   data %<>%
