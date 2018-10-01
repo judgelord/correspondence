@@ -1,9 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 122 non matches on last_name
-
-# file.name <- "NASA" # for testing
+ 
+#file.name <- "NASA" # for testing
 
 
 clean <- function(file.name) {
@@ -25,6 +24,9 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
 
+  # chamber
+  data$chamber <- ifelse(data$chamber == "HOUSE", 'House', data$chamber)
+  data$chamber <- ifelse(data$chamber == "SENATE", "Senate", data$chamber)
  
   ###############    
   # Creates duplicate rows for lines with multiple representatives
