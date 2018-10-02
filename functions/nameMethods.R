@@ -820,14 +820,19 @@ ocr.errors <- function(FROM){
   return(FROM)
 }
 
-# addFirst <- function(last){
-#   
-#   for (i in 1:length(members$id)) {
-#     data %<>% mutate(first_name = ifelse( is.na(first_name)& (length(unique(members$bioname[members$last_name == data$last_name]))< 2) ,
-#                                           members$first_name[i], data$first_name))
-#     
-#   }
-# }
+
+addFirst <- function(first_name, last_name){
+  
+  twolastnames  <- members %>% group_by(last_name, congress) %>% tally() %>% filter(n>1) %>% select(-congress, -n) %>% distinct()
+  membersOneLastName <- members[!(members$last_name %in% twolastnames$last_name),]
+
+  i <- 1
+  for(i in 1:length(membersOneLastName$id)){
+    first_name = ifelse(last_name == membersOneLastName$last_name[i] & is.na(first_name), membersOneLastName$first_name[i],first_name)
+    
+  }
+  return(first_name)
+}
 
 
 
