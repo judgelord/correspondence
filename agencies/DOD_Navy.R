@@ -1,7 +1,6 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
-
 #file.name <- "DOD_Navy Delaney" # for testing
 
 
