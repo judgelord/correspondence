@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOD_USACE" # for testing
+#file.name <- "DOD_USACE" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -27,11 +27,15 @@ clean <- function(file.name) {
   # member name
   data %<>% 
     mutate(SUBJECT = paste(Priority, SUBJECT, Owner)) 
-  
+  # data$SUBJECT <- gsub("(^| )NA( |$)", "",data$SUBJECT)
+
   data$last_name <- gsub(".* REP |.* REPS|.* SEN |.* SENS |.* CONGRESSIONAL -|.* CONRESSIONAL - |^Routine ","", data$SUBJECT)
   data$last_name <-  toupper(data$last_name)  %>%
-  {gsub("^ |^MR. ", "", .)}  %>%
+  {gsub("^ |^MR. |^MS. ", "", .)}  %>%
   {gsub("-.*| .*|,.*|:.*", "", .)}
+  
+  data$first_name <- NA
+  data$first_name <- addFirst(data$first_name,data$last_name)
   
 
 data %<>% select(DATE, originalDATE, SUBJECT, last_name, chamber, everything())  
