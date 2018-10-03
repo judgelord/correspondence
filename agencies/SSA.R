@@ -1,8 +1,6 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
-
 # file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
@@ -16,10 +14,6 @@ clean <- function(file.name) {
   
   # create agency column
   data$agency <- file.name
-  
-  # Some names contained in the DATE column
-  # data %<>% extractMemberName(members,"DATE")
-  
   
   # Format date, year, Congress, member name etc. 
   data$originalDATE <- data$DATE
@@ -111,7 +105,7 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(grepl("Brat \\(VA-7\\)", data$FROM), "BRAT", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Brat \\(VA-7\\)",data$FROM), "David", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )McCaskill", data$FROM), "McCASKILL", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("(^| )McCaskill",data$FROM), "CLAIRE", first_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )McCaskill",data$FROM), "Claire", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Benishek($| )", data$FROM), "BENISHEK", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )Benishek($| )",data$FROM), "Dan", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Cotton($| )", data$FROM), "COTTON", last_name)) %>% 
