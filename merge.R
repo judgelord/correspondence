@@ -109,6 +109,8 @@ data_list <- as.data.frame(matrix(c(
  "NCPC", "not coded", NA,
 "NCUA", "not coded", NA, 
 "NLRB" , "not coded", NA,
+# OSMRE
+"OSMRE","not coded", NA, # no observatoins are people from congress, adds no new data
 # PRC
 "PRC", "not coded", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
 # RRB
