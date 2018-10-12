@@ -816,11 +816,16 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Connelly( |$)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Heitkmap( |$)", "\\1Heitkamp\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Micahel( |$)", "\\1Michael\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Farenhold( |$)", "\\1Farenthold\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Eschoo( |$)", "\\1Eshoo\\2", FROM, ignore.case = TRUE)
+  
   
   return(FROM)
 }
 
 
+#  Typical use of function looks as follows:
+# data$first_name <- addFirst(data$first_name,data$last_name)
 addFirst <- function(first_name, last_name){
   
   twolastnames  <- members %>% group_by(last_name, congress) %>% tally() %>% filter(n>1) %>% select(-congress, -n) %>% distinct()
