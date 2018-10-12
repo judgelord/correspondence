@@ -47,19 +47,19 @@ clean <- function(file.name) {
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
+    if(grepl(";|\\[norg\\]|norgl", data$FROM[i])) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|\\[norg\\]|norgl") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";|\\[norg\\]|norgl"))
       
       data <- rbind(data, new)
       
     }
   }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data <- data[-grep(";|\\[norg\\]|norgl", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[-grep("^(Originator/ Org|Constituent|[norg]|[norg] [norg]|Corr. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
+  data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
   ################
   
   
