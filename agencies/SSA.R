@@ -1,7 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "SSA" # for testing
+
+#file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -125,6 +126,13 @@ clean <- function(file.name) {
   
   data$first_name <- addFirst(data$first_name, data$last_name)
 
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl("^(.*White House.*|Congressional Office \\(State/District\\))$",FROM), FROM, ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^(Referral to C|Ways and Means)$",FROM), FROM, ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^(Committee on Oversight and Government Reform)$",FROM), FROM, ERROR))
+  
+  
   
   
   data %<>%
