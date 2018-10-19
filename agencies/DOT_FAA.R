@@ -76,18 +76,22 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
-  #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", assigned), "House", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Senate", assigned), "Senate", chamber)) 
-  
+  # #Create variable for chamber position  (Senator or Representative)
+  # data %<>%
+  #   mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
+  #   mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
+  #   mutate(chamber = ifelse(grepl("Representative", assigned), "House", chamber)) %>% 
+  #   mutate(chamber = ifelse(grepl("Senate", assigned), "Senate", chamber)) 
+  # 
   #create variable for state
   data %<>% 
     mutate(state = ifelse(grepl(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United)", FROM), gsub(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United).*", replacement="\\2", FROM), NA))
   data$state = stateFromLower(data$state)
   
+  
+  # ERROR
+  data %<>%
+    mutate(ERROR = ifelse(grepl("FAA Employee",FROM, ignore.case = T), "FAA Employee", ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
