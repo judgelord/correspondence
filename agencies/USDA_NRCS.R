@@ -40,8 +40,20 @@ clean <- function(file.name){
   
   
   # create variable for last name
+  data$last_name <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+  data$last_name <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                     replacement = ",", data$last_name)
+  data$last_name <- gsub(pattern = "Member, U.S", "U.S", data$last_name)
+  data$last_name <- gsub(pattern= "\\.\\.", replacement = ".", data$last_name)
+  data$last_name <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$last_name)
+  data$last_name <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$last_name)
+  data$last_name <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$last_name)
+  data$last_name <- gsub("  |   |    ", " ", data$last_name)
+  data$last_name <- gsub("  |   |    ", " ", data$last_name)
+  data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
+  
   data %<>%
-    mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
+    mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
