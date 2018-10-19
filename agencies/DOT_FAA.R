@@ -48,10 +48,13 @@ clean <- function(file.name) {
   #   mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
   #                            replacement = "\\2", x=FROM2)) 
   # data$first_name <- formatFirstName(data, 'first_name')
-  # 
-  # 
+  
+  
+  
   # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|Caucus)  (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(Senate|Representatives)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
+  data$FROM <- gsub("(Infrastructure|Aviation|Transportation|Technology|Reform)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
+  
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
@@ -68,7 +71,6 @@ clean <- function(file.name) {
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[-grep("^(United States Senate)$",data$FROM),] # removes observations
   ################
   
   
