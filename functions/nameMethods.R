@@ -154,21 +154,15 @@ extractMemberName <- function(data, members, col_name){
   
   members$common_name <- ifelse(members$common_name == "zq", NA, members$common_name)
   
-  # code commented out was preprocessing from getFirstLast.Comma() method. Might be useful later. 
-  # data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$Summary)
-  # data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
-  #                    replacement = "", data$Summary)
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
- # data$Summary <- gsub('\\"Bobby\\"|\\"Buddy\\"|\\"GT\\"|\\"Buck\\"|\\"Chuck\\"', "", data$Summary, ignore.case = TRUE)
   data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   data$Summary <- gsub("Courntey", "Courtney", data$Summary)
-  data$Summary <- gsub("(^| )Lary( |$)", "\\1Larry\\3", data$Summary)
-  data$Summary <- gsub("Christophers", "Christopher", data$Summary)
+ 
   
   data$Summary <- ocr.errors(data$Summary)
   
@@ -467,9 +461,7 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
-  data$FROM2 <- gsub("Courntey", "Courtney", data$FROM2, ignore.case = TRUE)
-  data$FROM2 <- gsub("(^| )Lary( |,|$)", "\\1Larry\\3", data$FROM2)
-  data$FROM2 <- gsub("Christophers", "Christopher", data$FROM2)
+  
   
   data$FROM2 <- ocr.errors(data$FROM2)
   
@@ -818,7 +810,13 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Micahel( |$)", "\\1Michael\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Farenhold( |$)", "\\1Farenthold\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Eschoo( |$)", "\\1Eshoo\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Lary( |$)", "\\1Larry\\3", FROM, ignore.case = TRUE)
+  FROM <- gsub("Christophers", "Christopher", FROM, ignore.case = TRUE)
+  FROM <- gsub("Courntey", "Courtney", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Martrin( |$)", "\\1Martin\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Machin( |$)", "\\1Manchin\\2", FROM, ignore.case = TRUE)
   
+  Machin
   
   return(FROM)
 }
@@ -826,6 +824,10 @@ ocr.errors <- function(FROM){
 
 #  Typical use of function looks as follows:
 # data$first_name <- addFirst(data$first_name,data$last_name)
+
+# Useful code for creating last_name when only last name provided:
+#data %<>%
+#  mutate(last_name = ifelse(grepl("^(\\w+)$",FROM), gsub("^(\\w+)$", '\\1',FROM),last_name))
 addFirst <- function(first_name, last_name){
   
   twolastnames  <- members %>% group_by(last_name, congress) %>% tally() %>% filter(n>1) %>% select(-congress, -n) %>% distinct()

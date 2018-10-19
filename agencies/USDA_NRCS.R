@@ -5,8 +5,6 @@
 
 # FIX multiple congressman in some rows
 
-
-
 #file.name <- "USDA_NRCS" # for testing
 
 clean <- function(file.name){
@@ -52,7 +50,9 @@ clean <- function(file.name){
     mutate(last_name = str_to_upper(last_name))
   
     
-  
+  # add ERROR for invalid congress names
+  data %<>%
+    mutate(ERROR= ifelse(grepl("^#ERROR!$",FROM), "#ERROR! in FROM column", ERROR))
   
   # Consolidate and rename like subjects
   data %<>%
