@@ -172,25 +172,7 @@ v
 ##################################
 
 # data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
-i = 1
-while(!is.na(data_list[i,1])) {
-  
-  print(data_list[i,1])
-  
-    d1 <- clean.agency(
-      agency = data_list[i, 1],
-      status = data_list[i, 2],
-      coders = data_list[i, 3]) 
-    d1 %<>% 
-      left_join(members) %>% 
-      select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
-      left_join(members)%>% 
-      distinct()
-    
-    d %<>% full_join(d1)
-    
-    i <- i+1
-}
+ 
 paste("Missing:" , data_list %>% filter(!(agency %in% d$agency)) )
 library(gmailr)
 send_message(mime(
