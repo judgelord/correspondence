@@ -3,7 +3,7 @@
 
 # 76 out of 757 non matches on last_name. GO back to fix spelling and other errors.
 
-file.name <- "DOD_DFAS" # for testing
+# file.name <- "DOD_DFAS" # for testing
 
 
 clean <- function(file.name) {
@@ -26,6 +26,9 @@ clean <- function(file.name) {
   
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^None$',FROM, ignore.case = T), 'None provided in FROM column', ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber,  everything())

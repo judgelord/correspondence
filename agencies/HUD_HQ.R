@@ -1,8 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
- #file.name <- "HUD_HQ" # for testing
+#file.name <- "HUD_HQ" # for testing
 
 
 clean <- function(file.name) {
@@ -25,6 +24,9 @@ clean <- function(file.name) {
   
   data$FROM <- data$Correspondent
   data <- extractMemberName(data, members, 'FROM')
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^Richard Hillman$',FROM), 'Richard Hillman is not a member of Congress', ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, everything())
