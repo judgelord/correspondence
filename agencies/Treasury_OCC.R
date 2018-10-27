@@ -17,11 +17,11 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # create chamber variable
-  data %<>%
-    mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
-  
+  # # create chamber variable
+  # data %<>%
+  #   mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
+  #   mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
+  # 
   data %<>% 
     mutate(FROM = Senator) %>% 
     mutate(FROM = ifelse(is.na(Senator), `House Member`, FROM))
@@ -49,7 +49,7 @@ clean <- function(file.name) {
  data$first_name <- formatFirstName(data, "first_name")
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, chamber, everything())
+  data %<>% select(ID, DATE,  FROM, everything())
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT, `Specific Subject`)) %>%
