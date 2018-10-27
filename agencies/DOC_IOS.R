@@ -3,7 +3,7 @@
 
 # 342 out of 441 matches on last_name. Go back and fix spelling
 
-# file.name <- "DOC_IOS" # for testing
+#file.name <- "DOC_IOS" # for testing
 
 
 clean <- function(file.name) {
@@ -52,7 +52,8 @@ clean <- function(file.name) {
   
   
   
-  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('Alexia Galbraith', data$FROM), 'Alexia Galbraith is not a congress member', ERROR))
   
   
 }

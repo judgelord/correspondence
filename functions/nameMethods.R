@@ -416,7 +416,8 @@ extractMemberName <- function(data, members, col_name){
    mutate(first_name = ifelse( grepl("(^| )Womack( |$)",Summary,ignore.case=TRUE)&grepl("(^| )St",Summary,ignore.case=TRUE), "Steve", first_name)) %>% 
    mutate(last_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "BONO", last_name)) %>% 
    mutate(first_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "Mary", first_name)) %>% 
-   
+   mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$)",Summary,ignore.case=TRUE)&grepl("Morgan| H | H\\.",Summary,ignore.case=TRUE), "GRIFFITH", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$)",Summary,ignore.case=TRUE)&grepl("Morgan| H | H\\.",Summary,ignore.case=TRUE), "Morgan", first_name))
    
    
    mutate(last_name = ifelse( grepl("(^| )Conaway( |$)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
@@ -666,7 +667,9 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "Steve", first_name)) %>% 
     mutate(last_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "BONO", last_name)) %>% 
     mutate(first_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% 
-    
+    mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "GRIFFITH", last_name)) %>% 
+    mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "Morgan", first_name)) %>% 
+  
     
     
     
@@ -798,6 +801,7 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
   FROM <- ifelse(grepl("Comyn|Com yn|Cobum", FROM)&grepl("John", FROM), gsub("Comyn|Com yn","Cornyn", FROM), FROM)
   FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
+  FROM <- ifelse(grepl("Diane", FROM)&grepl("(^| )Feinstein( |$|,)", FROM), gsub("Diane","Dianne", FROM), FROM)
  # FROM <- ifelse(grepl("Cliff", FROM)&grepl("Steams", FROM), gsub("Steams","Stearns", FROM), FROM)
   FROM <- gsub("Cwnmings", 'Cummings', FROM)
   FROM <- gsub("Tnhofe", "Inhofe", FROM)
