@@ -191,6 +191,7 @@ while(!is.na(data_list[i,1])) {
   
   i <- i+1
 }
+
 paste("Missing:" , data_list %>% filter(!(agency %in% d$agency)) )
 library(gmailr)
 send_message(mime(
