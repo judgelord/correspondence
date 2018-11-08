@@ -428,7 +428,7 @@ extractMemberName <- function(data, members, col_name){
                                          members$first_name[i], data$first_name))
    
     }
- 
+  
  return(data)
  
  
