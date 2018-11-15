@@ -8,7 +8,7 @@ library(ggplot2)
 library(magrittr)
 library(stargazer)
 library(maps)
-library(fiftystater)
+#library(fiftystater)
 library(mapproj)
 library(knitr)
 library(broom)
@@ -38,13 +38,17 @@ df %>%
         axis.text.x.top = element_text())
 
 
-### Core Model
+
+
 
 all <- df %>% filter(year < 2018) %>% 
   mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} )# %>% filter(congress != 115)
+
 leg <- filter(all, POLICY_EVENT == "LEGISLATION" | POLICY_EVENT == "APPROPRIATION"| POLICY_EVENT=='EARMARK') 
 exe <- filter(all, POLICY_EVENT == "RULE")
 
+
+### Core Model
 
 # prestige committee
 Overall <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = all %>%
