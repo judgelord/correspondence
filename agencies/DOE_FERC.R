@@ -25,7 +25,8 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data$FROM <- data$SUBJECT
+  # create FROM column from SUBJECT column
+  data$FROM <- data$SUBJECT 
   
   
   ###############    
@@ -46,7 +47,6 @@ clean <- function(file.name) {
   
   
   data <- extractMemberName(data, members, "FROM")
-  
 
   
   data %<>%
