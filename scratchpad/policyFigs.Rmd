@@ -35,23 +35,68 @@ exe <- filter(all, Policy_Type == "EXECUTIVE")
 ```{r }
 all %>% 
   filter(!is.na(Policy_Type)) %>% 
-  group_by(icpsr, Policy_Type, party) %>%
+  group_by(icpsr, Policy_Type, chamber) %>%
   summarise(n = n()) %>% 
   ungroup() %>% 
   ggplot(aes(x= factor(Policy_Type),y= n
-           #  ,fill = party # or other variable
+             ,fill = chamber # or other variable
              )) +
   geom_boxplot() 
 
 
 
+```
 
+# Basic Facts
 
+```{r means_by_type_table, include = FALSE}
+# mean by mamber 
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
 
+kable(df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  mutate(perType = round(perType, 0)) %>% 
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+    full_join(data) %>% 
+  spread(Type, perType, fill = 0) %>% 
+  group_by(chamber) %>% 
+  summarise_all(max) %>% 
+    #rename(chamber = Chamber) %>% 
+  select(Chamber = chamber, everything()),
+  caption = "Average Correspondence per Year by Type")
 
+# overall mean by type
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+kable(df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  mutate(perType = round(perType, 0)) %>% 
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+    full_join(data) %>% 
+  spread(Type, perType, fill = 0) %>% 
+  group_by(chamber) %>% 
+  summarise_all(max) %>% 
+    #rename(chamber = Chamber) %>% 
+  select(Chamber = chamber, everything()),
+  caption = "Total Correspondence by Type")
 
 
 ```
+
 
 # Completeness by Policy Event
 ```{r cars}
