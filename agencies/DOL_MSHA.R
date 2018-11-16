@@ -73,8 +73,7 @@ clean <- function(file.name) {
   data$FROM <- ocr.errors(data$FROM)
   
   # get names 
-  data <- getFirstLast.Comma(data, 'FROM') ### Griffith Morgan name is incorrect when this line is run,
-  # but looks correct when debugging and going through getFirstLast.Comma line by line ??? Fix
+  data <- getFirstLast.Comma(data, 'FROM')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
@@ -88,7 +87,8 @@ clean <- function(file.name) {
   #   mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "98% SURE THESE SUBJECTS REPRESENT CERTAIN PEOPLE WORKING FOR THE COMPANIES AND NOT THE COMPANIES THEMSELVES, BUT CAN'T SAY WITH ABSOLUTE CERTAINTY", NOTES)) %>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONCERNING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONCERNING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  
+  # 
+  # 
   
   
   
