@@ -31,11 +31,8 @@ clean <- function(file.name) {
   data <- extractMemberName(data, members, 'FROM')
   
   # arrange columns for hand coding
-  data %<>% select( DATE, FROM, SUBJECT, everything())
+  data %<>% select(DATE, FROM, SUBJECT, everything())
 
-
-
-  
 }
 
 
