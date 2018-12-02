@@ -43,6 +43,13 @@ all %>%
              )) +
   geom_boxplot() 
 
+all %>%
+  filter(!is.na(Policy_Type)) %>% 
+  group_by(Policy_Type, party) %>% ungroup %>% 
+  ggplot(aes(x=factor(Policy_Type), fill = party))+
+  geom_bar() + scale_fill_manual(values=c("#56B4E9", "#CC99FF", "#FF6666"))
+
+
 
 
 ```
@@ -163,11 +170,12 @@ Overall <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(age
                      summarise(n = n())   %>% distinct() ) ) %>%
   filter(term %in% c("majority","presidents_party", "majority:presidents_party") ) %>% mutate(model = "Overall")
 
-Legislative <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency),
-                  data = leg %>%
-                    group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
-                    summarise(n = n())   %>% distinct() ) ) %>%
-  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "Legislative")
+Legislative <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency), 
+                   data = leg %>%
+                     group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                     summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") ) %>% mutate(model = "Legislative")
+
 
 Executive <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency),
                        data = exe %>%
@@ -179,15 +187,82 @@ majority <- rbind(Overall, Legislative, Executive)
 majority$term <- gsub(":", "", majority$term)
 
 
+# party  #  1=Democrat, 0=Republican
+all %<>%
+  mutate(party = ifelse(party=="(I)", NA, party)) %>% 
+  mutate(party = ifelse(party=="(D)",1,party)) %>% 
+  mutate(party = ifelse(party=="(R)",0,party)) %>% 
+  mutate(party=as.numeric(party))
+leg %<>%
+  mutate(party = ifelse(party=="(I)", NA, party)) %>% 
+  mutate(party = ifelse(party=="(D)",1,party)) %>% 
+  mutate(party = ifelse(party=="(R)",0,party)) %>% 
+  mutate(party=as.numeric(party))
+exe %<>%
+  mutate(party = ifelse(party=="(I)", NA, party)) %>% 
+  mutate(party = ifelse(party=="(D)",1,party)) %>% 
+  mutate(party = ifelse(party=="(R)",0,party)) %>% 
+  mutate(party=as.numeric(party))
 
+Overall <- tidy(lm(n ~ party + factor(congress) + factor(agency), data = all %>%
+                     group_by(agency, year, congress, icpsr, party) %>%
+                     summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "party")  %>% mutate(model = "Overall")
 
+Legislative <- tidy(lm(n ~ party + factor(congress) + factor(agency), data = leg %>%
+                    group_by(agency, year, congress, icpsr, party) %>%
+                    summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "party") %>% mutate(model = "Legislative")
+
+Executive <- tidy(lm(n ~ party + factor(congress) + factor(agency), data = exe %>%
+                         group_by(agency, year, congress, icpsr, party) %>%
+                         summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "party") %>% mutate(model = "Executive")
+
+party <- rbind(Overall, Legislative, Executive)
+
+# chamber Senate=1, House=0
+all %<>%
+  mutate(chamber = ifelse(chamber=="President", NA, chamber)) %>% 
+  mutate(chamber = ifelse(chamber=="Senate",1,chamber)) %>% 
+  mutate(chamber = ifelse(chamber=="House",0,chamber)) %>% 
+  mutate(chamber=as.numeric(chamber))
+leg %<>%
+  mutate(chamber = ifelse(chamber=="President", NA, chamber)) %>% 
+  mutate(chamber = ifelse(chamber=="Senate",1,chamber)) %>% 
+  mutate(chamber = ifelse(chamber=="House",0,chamber)) %>% 
+  mutate(chamber=as.numeric(chamber))
+exe %<>%
+  mutate(chamber = ifelse(chamber=="President", NA, chamber)) %>% 
+  mutate(chamber = ifelse(chamber=="Senate",1,chamber)) %>% 
+  mutate(chamber = ifelse(chamber=="House",0,chamber)) %>% 
+  mutate(chamber=as.numeric(chamber))
+
+Overall <- tidy(lm(n ~ chamber + factor(congress) + factor(agency), data = all %>%
+                     group_by(agency, year, congress, icpsr, chamber) %>%
+                     summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chamber")  %>% mutate(model = "Overall")
+
+Legislative <- tidy(lm(n ~ chamber + factor(congress) + factor(agency), data = leg %>%
+                    group_by(agency, year, congress, icpsr, chamber) %>%
+                    summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chamber") %>% mutate(model = "Legislative")
+
+Executive <- tidy(lm(n ~ chamber + factor(congress) + factor(agency), data = exe %>%
+                         group_by(agency, year, congress, icpsr, chamber) %>%
+                         summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chamber") %>% mutate(model = "Executive")
+
+chamber <- rbind(Overall, Legislative, Executive)
 
 # combine 
-m <- rbind(prestige, chair, prestige_chair, majority)
-b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
-          c("Model 2", "Chair", "Chair","Chair"),
-          c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
-          c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
+m <- rbind(prestige, chair, prestige_chair, majority, party, chamber)
+b <- list(c("1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
+          c("2", "Chair", "Chair","Chair"),
+          c("3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
+          c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"),
+          c("5", "Party", "Party", "Party"),
+          c("6", "Chamber","Chamber","Chamber"))
 
 kable(m)
 ```
@@ -201,7 +276,9 @@ kable(m)
                          prestige_chair = "Prestige Chair",
                          majority = "Majority",
                          presidents_party = "Presidents Party",
-                         majoritypresidents_party = "Majority x Presidents Party")) +
+                         majoritypresidents_party = "Majority x Presidents Party",
+                         party = "Party",
+                         chamber = "Chamber")) +
     xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
      ggtitle("Cross Sectional Differences in Letter Writing") +  
@@ -296,15 +373,66 @@ majority <- rbind(Overall, Legislative, Executive)
 majority$term <- gsub(":", "", majority$term)
 
 
+# party  #  1=Democrat, 0=Republican
+# all %<>%
+#   mutate(party = ifelse(party=="(I)", NA, party)) %>% 
+#   mutate(party = ifelse(party=="(D)",1,party)) %>% 
+#   mutate(party = ifelse(party=="(R)",0,party)) %>% 
+#   mutate(party=as.numeric(party))
+# leg %<>%
+#   mutate(party = ifelse(party=="(I)", NA, party)) %>% 
+#   mutate(party = ifelse(party=="(D)",1,party)) %>% 
+#   mutate(party = ifelse(party=="(R)",0,party)) %>% 
+#   mutate(party=as.numeric(party))
+# exe %<>%
+#   mutate(party = ifelse(party=="(I)", NA, party)) %>% 
+#   mutate(party = ifelse(party=="(D)",1,party)) %>% 
+#   mutate(party = ifelse(party=="(R)",0,party)) %>% 
+#   mutate(party=as.numeric(party))
+# 
+# Overall <- tidy(lm(n ~ party + factor(congress) + factor(agency)+factor(icpsr), data = all %>%
+#                      group_by(agency, year, congress, icpsr, party) %>%
+#                      summarise(n = n())   %>% distinct() ) ) %>%
+#   filter(term == "party")  %>% mutate(model = "DiD Overall")
+# 
+# Legislative <- tidy(lm(n ~ party + factor(congress) + factor(agency)+factor(icpsr), data = leg %>%
+#                     group_by(agency, year, congress, icpsr, party) %>%
+#                     summarise(n = n())   %>% distinct() ) ) %>%
+#   filter(term == "party") %>% mutate(model = "DiD Legislative")
+# 
+# Executive <- tidy(lm(n ~ party + factor(congress) + factor(agency)+factor(icpsr), data = exe %>%
+#                          group_by(agency, year, congress, icpsr, party) %>%
+#                          summarise(n = n())   %>% distinct() ) ) %>%
+#   filter(term == "party") %>% mutate(model = "DiD Executive")
+# 
+# party <- rbind(Overall, Legislative, Executive)
 
+Overall <- tidy(lm(n ~ chamber + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                     group_by(agency, year, congress, icpsr, chamber) %>%
+                     summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chamber")  %>% mutate(model = "DiD Overall")
+
+Legislative <- tidy(lm(n ~ chamber + factor(congress) + factor(agency) + factor(icpsr), data = leg %>%
+                    group_by(agency, year, congress, icpsr, chamber) %>%
+                    summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chamber") %>% mutate(model = "DiD Legislative")
+
+Executive <- tidy(lm(n ~ chamber + factor(congress) + factor(agency) + factor(icpsr), data = exe %>%
+                         group_by(agency, year, congress, icpsr, chamber) %>%
+                         summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chamber") %>% mutate(model = "DiD Executive")
+
+chamber <- rbind(Overall, Legislative, Executive)
 
 
 # combine 
-m <- rbind(prestige, chair, prestige_chair, majority)
+m <- rbind(prestige, chair, prestige_chair, majority,chamber)
 b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
                        c("Model 2", "Chair", "Chair","Chair"),
                        c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
-                       c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
+                       c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"),
+                       c("Model 5", "Chamber","Chamber","Chamber"))
+                       
 
 
 kable(m)
@@ -318,7 +446,8 @@ kable(m)
                          prestige_chair = "Prestige Chair",
                          majority = "Majority",
                          presidents_party = "Presidents Party",
-                         majoritypresidents_party = "Majority x Presidents Party")) +
+                         majoritypresidents_party = "Majority x Presidents Party",
+                         chamber = "Chamber")) +
     xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
      ggtitle("Difference-in-Differences in Letter Writing") +  
