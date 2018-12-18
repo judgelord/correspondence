@@ -2,8 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-
-# file.name <- "DOT_FHWA" # for testing
+file.name <- "DOT_FHWA" # for testing
 
 
 # Duplicates need to be addressed

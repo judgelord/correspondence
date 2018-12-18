@@ -1,10 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 342 out of 441 matches on last_name. Go back and fix spelling
-
-# file.name <- "DOC_IOS" # for testing
-
+#file.name <- "DOC_IOS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -20,7 +17,6 @@ clean <- function(file.name) {
   
   # creat variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
-  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
@@ -51,8 +47,8 @@ clean <- function(file.name) {
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("DRAFT TEXT|COMMENTS ON DRAFT|PASSED|GAO REPORT", SUBJECT, ignore.case = TRUE), "LEGISLATION", POLICY_EVENT))
   
   
-  
-  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('Alexia Galbraith', data$FROM), 'Alexia Galbraith is not a congress member', ERROR))
   
   
 }

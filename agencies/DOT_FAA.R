@@ -1,9 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
- 
-#  file.name <- "DOT_FAA Sam" # for testing
+ #file.name <- "DOT_FAA Sam" # for testing
  
 
 clean <- function(file.name) {
@@ -50,10 +48,13 @@ clean <- function(file.name) {
   #   mutate(first_name = gsub(pattern = ".*?(,|, |,\\w |,\\w. |, \\w |, \\w. )(\\w+)( |.).*",
   #                            replacement = "\\2", x=FROM2)) 
   # data$first_name <- formatFirstName(data, 'first_name')
-  # 
-  # 
+  
+  
+  
   # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|Caucus)  (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(Senate|Representatives)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
+  data$FROM <- gsub("(Infrastructure|Aviation|Transportation|Technology|Reform)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
+  
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
@@ -70,24 +71,27 @@ clean <- function(file.name) {
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[-grep("^(United States Senate)$",data$FROM),] # removes observations
   ################
   
   
   data <- getFirstLast.Comma(data, 'FROM')
   
-  #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", assigned), "House", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Senate", assigned), "Senate", chamber)) 
-  
+  # #Create variable for chamber position  (Senator or Representative)
+  # data %<>%
+  #   mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
+  #   mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
+  #   mutate(chamber = ifelse(grepl("Representative", assigned), "House", chamber)) %>% 
+  #   mutate(chamber = ifelse(grepl("Senate", assigned), "Senate", chamber)) 
+  # 
   #create variable for state
   data %<>% 
     mutate(state = ifelse(grepl(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United)", FROM), gsub(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United).*", replacement="\\2", FROM), NA))
   data$state = stateFromLower(data$state)
   
+  
+  # ERROR
+  data %<>%
+    mutate(ERROR = ifelse(grepl("FAA Employee",FROM, ignore.case = T), "FAA Employee", ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())

@@ -38,6 +38,27 @@ clean <- function(file.name) {
   # data$state <- gsub("\\).*|\\}.*|\\].*|-.*","", data$state)
   # data$state <- gsub(" ","", data$state)
   
+  data$FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,|, PhD", "", data$FROM, ignore.case = T)
+  data$FROM <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                     replacement = ",", data$FROM, ignore.case = T)
+  
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(";| and |,", data$FROM[i], ignore.case = T)) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";| and |,|AND") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";| and |,|AND"))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(";| and |,", data$FROM, ignore.case = T),] # removes orginal row with all data
+  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ########
   
   # extract member names
   data %<>% extractMemberName(members, "FROM")

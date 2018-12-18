@@ -27,36 +27,17 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
   
+  data$FROM <- gsub("--", " ", data$FROM)
+  
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
   
+  data %<>%
+    mutate(last_name = ifelse(grepl('^(\\w+)$',FROM2), FROM, last_name))
   
-  # #create variable for last name of the Sen/Rep
-  # data %<>%
-  #   mutate(
-  #     last_name = gsub(
-  #       pattern = "(REP|SEN)(.|- | - |. )(\\w+)(,| ,).*",
-  #       replacement = "\\3",
-  #       x = FROM
-  #     )
-  #   ) %>%
-  #   mutate(last_name = ifelse(is.na(chamber), NA, last_name)) %>%
-  #   mutate(last_name = ifelse(grepl("\\W", last_name), NA, last_name)) %>% 
-  #   mutate(last_name = toupper(last_name)) 
-  # 
-  # 
-  # 
-  # #create variable for first name of the Sen/Rep
-  # data %<>%
-  #   mutate(first_name = gsub(
-  #     pattern = ".*, (\\w+).*",
-  #     replacement = "\\1",
-  #     x = FROM
-  #   )) %>%
-  #   mutate(first_name = ifelse(is.na(chamber), NA, first_name)) %>%
-  #   mutate(first_name = ifelse(grepl("\\W", first_name), NA, first_name)) %>% 
-  #   mutate(first_name = stri_trans_totitle(first_name))
+  data$first_name <- addFirst(data$first_name,data$last_name)
+  
   
   
   # arrange columns for hand coding

@@ -1,9 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
 #file.name <- "DOL_MSHA" # for testing
-
+ 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -69,7 +68,7 @@ clean <- function(file.name) {
   data <- data[-grep("/", data$FROM),] # removes orginal row with all data
   # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
-  
+  ########
   
   data$FROM <- ocr.errors(data$FROM)
   

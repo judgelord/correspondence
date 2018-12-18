@@ -5,7 +5,7 @@
 # 1204 out of 1316 matches. I think all non-matches are non-members after checking, should be good. 
 # Complete
 
-# file.name <- "DHHS_CDC" # for testing
+#file.name <- "DHHS_CDC" # for testing
 
 
 clean <- function(file.name) {
@@ -41,7 +41,8 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
   
   
-  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())

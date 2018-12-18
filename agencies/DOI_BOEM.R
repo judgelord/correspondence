@@ -2,8 +2,6 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# Complete. Matched perfectly on last_name
-
 # file.name <- "DOI_BOEM" # for testing
 
 

@@ -1,12 +1,6 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
-
-# FIX multiple congressman in some rows
-
-
-
 #file.name <- "USDA_NRCS" # for testing
 
 clean <- function(file.name){
@@ -34,17 +28,50 @@ clean <- function(file.name){
     mutate(chamber = ifelse(`VIP Type` == "U.S. Senator", "Senate", NA)) %>%
     mutate(chamber = ifelse(`VIP Type` == "Member of Congress", "House", chamber)) 
   
+ 
+  
+  
+  # create variable for last name
+  data$FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,|, Sr.", "", data$FROM)
+  data$FROM <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                     replacement = ",", data$FROM)
+  data$FROM <- gsub(pattern = "Member, U.S", "U.S", data$FROM)
+  data$FROM <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM)
+  data$FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$FROM)
+  data$FROM <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$FROM)
+  data$FROM <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$FROM)
+  data$FROM <- gsub("  |   |    ", " ", data$FROM)
+  data$FROM <- gsub("  |   |    ", " ", data$FROM)
+  data$FROM <- gsub("(^ |^  |^   |\n)", "", data$FROM)
+  
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data)){
+    if(grepl(",", data$FROM[i])) {
+      
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ","))
+      
+      data <- rbind(data, new)
+      
+    }
+  }
+  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+  data <- data[!data$FROM == "",] # removes blank observations
+  ################
+  
   # create variable for first name
   data %<>%
     mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
     mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
     mutate(first_name = stri_trans_totitle(first_name)) 
   
-  
-  # create variable for last name
+  data$last_name <- data$FROM
   data %<>%
-    mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
-    mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
+    mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", last_name)) %>% 
+    mutate(last_name = gsub(pattern= ".* (\\w+)\\-(\\w+)", replacement = "\\1-\\2", last_name))  %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
     mutate(last_name = gsub(pattern = ".* (\\w+, Jr.)", replacement = "\\1", last_name)) %>% 
@@ -52,7 +79,9 @@ clean <- function(file.name){
     mutate(last_name = str_to_upper(last_name))
   
     
-  
+  # add ERROR for invalid congress names
+  # data %<>%
+  #   mutate(ERROR= ifelse(grepl("^#ERROR!$",FROM), "#ERROR! in FROM column", ERROR))
   
   # Consolidate and rename like subjects
   data %<>%

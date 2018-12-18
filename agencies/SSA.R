@@ -1,10 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# 63 mismatches
 
-
-# file.name <- "SSA" # for testing
+#file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -17,10 +15,6 @@ clean <- function(file.name) {
   
   # create agency column
   data$agency <- file.name
-  
-  # Some names contained in the DATE column
-  # data %<>% extractMemberName(members,"DATE")
-  
   
   # Format date, year, Congress, member name etc. 
   data$originalDATE <- data$DATE
@@ -56,12 +50,22 @@ clean <- function(file.name) {
   
   
   
+  
   # state
   data %<>%
     mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
                           gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
-                          NA))
+                          NA))# %>% 
+    # mutate(state= ifelse(grepl("(^| )Rep\\. Cartwright( |$)",data$FROM), "PA", state)) %>% 
+    # mutate(state= ifelse(grepl("(^| )Sen\\. Shelby( |$)",data$FROM), "AL", state)) %>% 
+    # mutate(state= ifelse(grepl("(^| )Sen\\. Boozman( |$)",data$FROM), "AR", state)) %>% 
+    # mutate(state= ifelse(grepl("(^| )Rep. Hudson( |$)",data$FROM), "NC", state))
+  
+  
   data$state <- stateFromLower(data$state)
+  
+  
+  data$FROM <- gsub("(^| )(Burr|Richard Burr)( |$)", " Richard Burr ",data$FROM)
   
   # create name variable for names with only last name info
   data %<>%
@@ -102,7 +106,7 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(grepl("Brat \\(VA-7\\)", data$FROM), "BRAT", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Brat \\(VA-7\\)",data$FROM), "David", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )McCaskill", data$FROM), "McCASKILL", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("(^| )McCaskill",data$FROM), "CLAIRE", first_name)) %>% 
+    mutate(first_name = ifelse(grepl("(^| )McCaskill",data$FROM), "Claire", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Benishek($| )", data$FROM), "BENISHEK", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )Benishek($| )",data$FROM), "Dan", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Cotton($| )", data$FROM), "COTTON", last_name)) %>% 
@@ -118,13 +122,16 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
     
-# loop not working
-  # i <- 1
-  # for(i in 1:length(members$id)){
-  #   data %<>%
-  #     mutate(test = ifelse(data$last_name == members$last_name[i], TRUE, F))
-  #   
-  # }
+  
+  
+  data$first_name <- addFirst(data$first_name, data$last_name)
+
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl("^(.*White House.*|Congressional Office \\(State/District\\))$",FROM), FROM, ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^(Referral to C|Ways and Means)$",FROM), FROM, ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^(Committee on Oversight and Government Reform)$",FROM), FROM, ERROR))
+  
   
   
   
