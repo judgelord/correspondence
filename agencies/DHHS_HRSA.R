@@ -4,7 +4,7 @@
 
 # 170 (out of 4363) not matching, go back and fix
 
-# file.name <- "DHHS_HRSA" # for testing
+#file.name <- "DHHS_HRSA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -16,7 +16,8 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%B %d, %Y")
+  #data$DATE %<>% as.Date("%B %d, %Y")
+  data$DATE <- multidate(data$DATE, c("%B %d, %Y", "%m/%d/%y"))
 
   
   #create year and congress columns
@@ -27,23 +28,28 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
+  i <- 1
   for(i in 1:nrow(data)){
-    if(grepl(" and | Sen | Rep | Sen.| Rep.", data$FROM[i])) {
+    if(grepl(" and Rep| and Sen\\.|, Sen\\.|;|, Rep", data$FROM[i])) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " and | Sen | Rep | Sen.| Rep.") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], " and | Sen | Rep | Sen.| Rep."))
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " and Rep| and Sen\\.|, Sen\\.|;|, Rep") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], " and Rep| and Sen\\.|, Sen\\.|;|, Rep"))
       
       data <- rbind(data, new)
       
     }
   }
-  data %<>% filter(!grepl(" and | Sen | Rep | Sen.| Rep.", FROM))
+  data <- data[!data$FROM == "",] # removes blank observations
   ################
   
   
   
   # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  data1 <- data[c(1:4363),]
+  data2 <- data[c(4364:nrow(data)),]
+  
+  data1 <- getFirstLast.Comma(data1, "FROM")
+  data2 <- extractMemberName(data2,members, "FROM")
   #data$FROM2 <- gsub("^Sen\\.|^Rep\\.|^Reps\\.|Senator", "", data$FROM2)
   
   # # create data set of non matching data so extractMemberName() can be called on differently formatted observations
