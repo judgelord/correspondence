@@ -73,7 +73,7 @@ df %>%
 # DOI_NPS no records before mid 2008
 # DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
 # DOL_OSHA filed for 2009-2017
-# DOT_FHWA - COMPLETE, but waiting on pdf conversion  # reading in data incorrectly, needs to be fixed
+# DOT_FHWA - COMPLETE, but waiting on pdf conversion  
 # EPA filed for 2017
 # FDA waiting on 2007-2011 from Sarah B. Kotler  
 # PRC - Tracking did not start until FY 2009
