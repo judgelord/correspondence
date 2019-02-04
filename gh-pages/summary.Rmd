@@ -90,11 +90,9 @@ df %>%
 # DOL_OFCO is COMPLETE, just sparse?
 # DOT_FAA has an odd gap in 2010 + File for 2017
 # DOT_SLDC is COMPLETE, just sparse
-# SSA - FIX DATES 
 # USDA_NASS file for 2017
 # USDA_ERS file for 2017
 
-# Treasurry_OCC?
 # NLRB?
 # FCA
 # DOI_USGS
