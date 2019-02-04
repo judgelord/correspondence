@@ -290,6 +290,11 @@ kable(m)
 ```   
 
 
+
+Statistically significant and noticeable differences for the effects of Prestige Commitee, Chair, and Presige chair on writing legislative policy. There weren't any effects found on executive policy.
+
+
+
 ```{r DiD_table}
 
 # prestige committee
