@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-file.name <- "DOT_FHWA" # for testing
+# file.name <- "DOT_FHWA" # for testing
 
 
 # Duplicates need to be addressed
@@ -25,7 +25,15 @@ clean <- function(file.name) {
   data$FROM <- paste(data$FName, " ", data$LName )
   data$FROM <- gsub("e'", "e" ,data$FROM)
   
+  data2 <- data[grepl("Writer",data$FROM),]
+  data <- data[!grepl("Writer",data$FROM),]
+  
   data <- extractMemberName(data, members, 'FROM')
+  
+  data2$FName <- gsub("Writer\\(s\\): |Writers\\):","",data2$FName)
+  data2 <- getFirstLast.Comma(data2, "FName")
+  
+  data %<>% full_join(data2)
   
   
   #create variable for chamber
@@ -54,45 +62,45 @@ clean <- function(file.name) {
   
   
 # SECOND DATA SOURCE IS FORMATTED DIFFERENTLY
-  data2 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() # get data
+  data3 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() # get data
   
   # create ID variable
-  data2$ID <- c((nrow(data)+1):(nrow(data)+nrow(data2)))
+  data3$ID <- c((nrow(data)+1):(nrow(data)+nrow(data3)))
   
   #create agency column
-  data2$agency <- file.name
+  data3$agency <- file.name
   
   # Format date, year, Congress
-  data2$DATE <- data2$DATE %>% as.Date("%Y/%m/%d")
-  data2 %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-  data2 %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  data3$DATE <- data3$DATE %>% as.Date("%Y/%m/%d")
+  data3 %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data3 %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data2$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data2$FROM)
-  data2 <- data2[-which(data2$FROM==""),]
+  data3$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data3$FROM)
+  data3 <- data3[-which(data3$FROM==""),]
   
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data2)){
-    if(grepl("\\w{3,}\\.", data2$FROM[i])) {
+  for(i in 1:nrow(data3)){
+    if(grepl("\\w{3,}\\.", data3$FROM[i])) {
       
-      data2$FROM <- gsub("( )(\\w)\\.", "\\1\\2", data2$FROM)
-      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$FROM[i], pattern = "\\.") + 1))
-      new$FROM <- unlist(str_split(data2$FROM[i], "\\."))
+      data3$FROM <- gsub("( )(\\w)\\.", "\\1\\2", data3$FROM)
+      new <- data3 %>% dplyr::slice(rep(i, each = str_count(data3$FROM[i], pattern = "\\.") + 1))
+      new$FROM <- unlist(str_split(data3$FROM[i], "\\."))
       
-      data2 <- rbind(data2, new)
+      data3 <- rbind(data3, new)
       
     }
   }
-  data2 <- data2[-grep("\\w{3,}\\.", data2$FROM),] # removes orginal row with all data
-  data2$FROM <- gsub("^ |^  | $|  $", "", data2$FROM)
-  data2 <- data2[!data2$FROM == "",] # removes blank observations
+  data3 <- data3[-grep("\\w{3,}\\.", data3$FROM),] # removes orginal row with all data
+  data3$FROM <- gsub("^ |^  | $|  $", "", data3$FROM)
+  data3 <- data3[!data3$FROM == "",] # removes blank observations
   
   ################
   data$FROM <- gsub("([a-z]{3})[A-Z]", '\\1', data$FROM)
   
-  data2 %<>% getFirstLast.Comma('FROM')
-  # data2 <- extractMemberName(data2, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
+  data3 %<>% getFirstLast.Comma('FROM')
+  # data3 <- extractMemberName(data3, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
   
  
   
@@ -114,7 +122,7 @@ clean <- function(file.name) {
   
   
   # merge 2007-2014 with 2015-2017
-  data %<>% full_join(data2)
+  data %<>% full_join(data3)
   
   
   

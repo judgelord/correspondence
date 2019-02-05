@@ -19,6 +19,7 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$originalDATE <- data$DATE
   data %<>% select(originalDATE, DATE, everything())
+  data$DATE <- gsub("/20 10","10",data$DATE)
   data$DATE <- gsub(" .*","",data$DATE)
   data$DATE <- gsub("/200","/0",data$DATE)
   data$DATE <- gsub("/201","/1",data$DATE)

@@ -173,7 +173,9 @@ extractMemberName <- function(data, members, col_name){
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_last[2550:nrow(members)], collapse = '|'), ').*'), collapse = ""),
+    gsub(pattern = paste(c('.*(', paste(members$common_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
+         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+    gsub(pattern = paste(c('.*(', paste(members$common_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     
     # extracts  first_last name formats
@@ -183,7 +185,9 @@ extractMemberName <- function(data, members, col_name){
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_last[2550:nrow(members)], collapse = '|'), ').*'), collapse = ""),
+    gsub(pattern = paste(c('.*(', paste(members$first_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
+         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+    gsub(pattern = paste(c('.*(', paste(members$first_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     
     # first_middle_last name formats
@@ -193,7 +197,9 @@ extractMemberName <- function(data, members, col_name){
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_middle_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[2550:nrow(members)], collapse = '|'), ').*'), collapse = ""),
+    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
+         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     
     # first_initial_last name formats
@@ -203,7 +209,9 @@ extractMemberName <- function(data, members, col_name){
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_initial_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[2550:nrow(members)], collapse = '|'), ').*'), collapse = ""),
+    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
+         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     
     # common_middle_last name formats
@@ -213,7 +221,9 @@ extractMemberName <- function(data, members, col_name){
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_middle_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[2550:nrow(members)], collapse = '|'), ').*'), collapse = ""),
+    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
+         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     
     # common_initial_last name formats
@@ -223,8 +233,10 @@ extractMemberName <- function(data, members, col_name){
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_initial_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
          replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_initial_last[2550:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) 
+    gsub(pattern = paste(c('.*(', paste(members$common_initial_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
+         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+  gsub(pattern = paste(c('.*(', paste(members$common_initial_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
+       replacement = "\\1", data$Summary, ignore.case = TRUE) 
   
   
   data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
@@ -773,7 +785,7 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("Tom", FROM)&grepl("Cobum|Co bum", FROM), gsub("Cobum|Co bum", "Coburn", FROM), FROM)
   FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM)
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
-  FROM <- ifelse(grepl("Comyn|Com yn|Cobum", FROM)&grepl("John", FROM), gsub("Comyn|Com yn","Cornyn", FROM), FROM)
+  FROM <- ifelse(grepl("Comyn|Com yn|Cobum|Corvyn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn|Corvyn","Cornyn", FROM), FROM)
   FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
   FROM <- ifelse(grepl("Diane", FROM)&grepl("(^| )Feinstein( |$|,)", FROM), gsub("Diane","Dianne", FROM), FROM)
  # FROM <- ifelse(grepl("Cliff", FROM)&grepl("Steams", FROM), gsub("Steams","Stearns", FROM), FROM)

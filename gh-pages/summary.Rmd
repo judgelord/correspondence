@@ -69,11 +69,11 @@ df %>%
 # DHS_ICE - no records before 2010, stopped using system 2014ish
 # DOD_NAVY - No records before 2013
 # DOD_OSDJS waiting on remaining records
-# DOD_USACE no records before fall 2013
+# DOD_USACE no records before fall 2013 
 # DOI_NPS no records before mid 2008
 # DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
 # DOL_OSHA filed for 2009-2017
-# DOT_FHWA - COMPLETE, but waiting on pdf conversion 
+# DOT_FHWA - COMPLETE, but waiting on pdf conversion  
 # EPA filed for 2017
 # FDA waiting on 2007-2011 from Sarah B. Kotler  
 # PRC - Tracking did not start until FY 2009
@@ -90,12 +90,9 @@ df %>%
 # DOL_OFCO is COMPLETE, just sparse?
 # DOT_FAA has an odd gap in 2010 + File for 2017
 # DOT_SLDC is COMPLETE, just sparse
-# NASA - very few matches, FIX
-# SSA - FIX DATES 
 # USDA_NASS file for 2017
 # USDA_ERS file for 2017
 
-# Treasurry_OCC?
 # NLRB?
 # FCA
 # DOI_USGS
