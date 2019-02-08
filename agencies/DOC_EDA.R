@@ -3,7 +3,7 @@
 
 # FIXME - NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
 
-# file.name <- "DOC_EDA" # for testing
+#file.name <- "DOC_EDA" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -42,6 +42,11 @@ clean <- function(file.name) {
   data$FROM <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
                      replacement = ",", data$FROM, ignore.case = T)
   
+  
+  
+  
+  # FIX DUPLICATES
+  ###### q <- data[grepl("\\w{2}) ",data$FROM),]
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
