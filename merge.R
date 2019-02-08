@@ -133,7 +133,7 @@ data_list <- as.data.frame(matrix(c(
 "USDA_ERS", "not coded", NA,
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
-# "USDA_NIFA", "not coded", NA, ## No script, data looks fine. Add script
+ "USDA_NIFA", "not coded", NA, 
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
@@ -233,7 +233,7 @@ d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  
 #######################
 
 # Reoccuring problem names
-names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
+names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey|Stacy','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
               i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'),l=c('Brian','De Va(|ll)ance'),
               m=c('Peggy','Sherry'),n=c('Donald', 'Kent'), o=c('Ann','Schneider'), p=c('Katherine', 'Archuleta'), q=c('Tom|Thomas','Vilsack'))

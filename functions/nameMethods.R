@@ -136,6 +136,7 @@ formatFirstName <- function(data, col_name){
 }
 
 # function will extract names found in members dataset from data$Summary column 
+# typical call:   data <- extractMemberName(data, members, 'FROM')
 
 extractMemberName <- function(data, members, col_name){
   
@@ -808,6 +809,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Marry( |$|,)", "\\1Mary\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )T MOTHY( |$|,)", "\\1Timothy\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )L NCOLN( |$|,)", "\\1Lincoln\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Wydon( |$|,)", "\\1Wyden\\2", FROM, ignore.case = TRUE)
   
   
   
