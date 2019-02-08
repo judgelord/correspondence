@@ -60,10 +60,14 @@ clean <- function(file.name) {
   data2 <- data2[-grep("/", data2$First.Name),] # removes orginal row with all data
   ################
   
+  #combine first and last names and call name method
   data2$FROM <- paste(data2$First.Name, data2$Last.Name)
   data2 <- extractMemberName(data2, members, 'FROM')
-  data2 <- data2[ !(is.na(data$last_name)&is.na(data$first_name)),]
+  # Remove observations that were not correct first & last matches
+  data2 <- data2[ !(is.na(data2$last_name)&is.na(data2$first_name)),]
   
+  # merge datasets
+  data <- full_join(data,data2)
   
   
   data %<>%

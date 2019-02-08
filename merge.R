@@ -69,7 +69,7 @@ data_list <- as.data.frame(matrix(c(
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
-# "DOJ_CIV", "not coded", NA, # duplicate work needed
+ "DOJ_CIV", "not coded", NA, 
 # DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
