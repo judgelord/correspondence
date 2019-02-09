@@ -56,24 +56,29 @@ clean <- function(file.name) {
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
+    if(grepl("/|;|&", data$FROM[i])) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/|;|&") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], "/|;|&"))
       
       data <- rbind(data, new)
       
     }
   }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
+  data <- data[-grep("/|;|&", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   ########
   
   data$FROM <- ocr.errors(data$FROM)
   
   # get names 
   data <- getFirstLast.Comma(data, 'FROM')
+  
+  ################## FIXME ###########################
+  # data2 <- data[grep("^\\w+$", data$FROM),]
+  # data <- data[!grep("^\\w+$", data$FROM),]
+  
+  data$first_name <- addFirst(data$first_name,data$FROM)
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
