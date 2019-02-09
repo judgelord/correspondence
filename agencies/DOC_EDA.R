@@ -44,25 +44,43 @@ clean <- function(file.name) {
   
   
   
-  
   # FIX DUPLICATES
-  ###### q <- data[grepl("\\w{2}) ",data$FROM),]
+  
+  # create separate dataset for observations with multiple members but not easily formatted with puncuation
+  data2 <- data[grepl("\\w{2}) ",data$FROM),]
+  # remove these from original dataset
+  data <- data[!grepl("\\w{2}) ",data$FROM),]
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data2)){
+    if(grepl("\\w{2}) ", data2$FROM[i], ignore.case = T)) {
+      
+      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$FROM[i], pattern = "\\w{2}\\) ") + 1))
+      new$FROM <- unlist(str_split(data2$FROM[i], "\\w{2}\\) "))
+      
+      data2 <- rbind(data2, new)
+      
+    }
+  }
+  data2 <- data2[-grep("\\w{2}) ", data2$FROM, ignore.case = T),] # removes orginal row with all data
+  ########
+  
+  data2 <- extractMemberName(data2,members, "FROM")
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   for(i in 1:nrow(data)){
-    if(grepl(";| and |,", data$FROM[i], ignore.case = T)) {
+    if(grepl(";| and |,|/", data$FROM[i], ignore.case = T)) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";| and |,|AND") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";| and |,|AND"))
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";| and |,| AND |/") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], ";| and |,| AND |/"))
       
       data <- rbind(data, new)
       
     }
   }
-  data <- data[-grep(";| and |,", data$FROM, ignore.case = T),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
+  data <- data[-grep(";| and |,|/", data$FROM, ignore.case = T),] # removes orginal row with all data
   ########
   
   # extract member names
