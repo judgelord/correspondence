@@ -47,7 +47,7 @@ data_list <- as.data.frame(matrix(c(
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
-#"DOC_NTIA", "not coded", NA, # No script yet
+"DOC_NTIA", "not coded", NA, 
 "DOC_OCPA", "not coded", NA,
 #"DOC_OC", "not coded", NA, # No dates
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
