@@ -1,8 +1,6 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# FIXME - NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT 
-
 #file.name <- "DOC_EDA" # for testing
 
 clean <- function(file.name) {
@@ -84,14 +82,13 @@ clean <- function(file.name) {
   ########
   
   # extract member names
-  data %<>% extractMemberName(members, "FROM")
+  data %<>% extractMemberName(members, "FROM") 
   
+  
+  data <- full_join(data,data2)
   
   
 
-  
-  
-  
   
   
 }

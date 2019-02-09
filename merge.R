@@ -42,7 +42,7 @@ data_list <- as.data.frame(matrix(c(
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
-"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT  
+"DOC_EDA", "not coded", NA,  
 "DOC_IOS", "coded", "Aaron",
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
