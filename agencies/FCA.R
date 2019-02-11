@@ -36,6 +36,7 @@ clean <- function(file.name) {
   data <- extractMemberName(data, members, 'SUBJECT')
   
   data$last_name <- ifelse(grepl("^[A-Za-z]+$", data$FROM), formatLastName(data, 'FROM'), data$last_name)
+  data$first_name <- data$first_name <- addFirst(data$first_name,data$last_name)
   
   
   #Create variable for chamber position  (Senator or Representative)
