@@ -72,7 +72,7 @@ data_list <- as.data.frame(matrix(c(
  "DOJ_CIV", "not coded", NA, 
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
+"DOL_MSHA", "not coded", NA, 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,

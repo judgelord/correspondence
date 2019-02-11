@@ -75,14 +75,20 @@ clean <- function(file.name) {
   # get names 
   data <- getFirstLast.Comma(data, 'FROM')
   
+  # create separate dataset with for names with only last name
+  data2 <- data[grepl("^\\w+$", data$FROM),]
+  # remove these observations from the original
+  data <- data[!grepl("^\\w+$", data$FROM),]
+
+  # Format last_name column in dataset 2 
+  data2$last_name <- data2$FROM
+  data2$last_name <- formatLastName(data2, 'last_name')
+  # add first names where applicable
+  data2$first_name <- addFirst(data2$first_name,data2$last_name)
   
-  # ################## FIXME ###########################
-  # data2 <- data[grepl("^\\w+$", data$FROM),]
-  # data <- data[!grepl("^\\w+$", data$FROM),]
-  # 
-  # data2$last_name <- data2$FROM
-  # 
-  # data2$first_name <- addFirst(data2$first_name,data2$last_name)
+  
+  # merge the two separated datasets
+  data <- full_join(data,data2)
   
   
   

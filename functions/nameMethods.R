@@ -816,9 +816,16 @@ ocr.errors <- function(FROM){
   return(FROM)
 }
 
-
+# *** Use this function with caution. Will add first name information based on ONLY last names that are unique, has 
+#     potential to add a members first name to a non member creating false positives (e.g. If only last name 
+#     Grassley is provided, it will assume it's Chuck Grassley, even if it was actually Jim Joe Grassley)
+#
+#
 #  Typical use of function looks as follows:
 # data$first_name <- addFirst(data$first_name,data$last_name)
+
+#     *** last_name paramter must be in same all caps format of the members file
+#     This funtion call may be necessary:   data$last_name <- formatLastName(data, 'last_name')
 
 # Useful code for creating last_name when only last name provided:
 #data %<>%
@@ -831,7 +838,7 @@ addFirst <- function(first_name, last_name){
   i <- 1
   for(i in 1:length(membersOneLastName$id)){
     first_name = ifelse(last_name == membersOneLastName$last_name[i] & is.na(first_name), membersOneLastName$first_name[i],first_name)
-    print(first_name)
+    
   }
   return(first_name)
 }
