@@ -1,6 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
+
 #file.name <- "DOL_MSHA" # for testing
  
 clean <- function(file.name) {
@@ -74,11 +75,17 @@ clean <- function(file.name) {
   # get names 
   data <- getFirstLast.Comma(data, 'FROM')
   
-  ################## FIXME ###########################
-  # data2 <- data[grep("^\\w+$", data$FROM),]
-  # data <- data[!grep("^\\w+$", data$FROM),]
   
-  data$first_name <- addFirst(data$first_name,data$FROM)
+  # ################## FIXME ###########################
+  # data2 <- data[grepl("^\\w+$", data$FROM),]
+  # data <- data[!grepl("^\\w+$", data$FROM),]
+  # 
+  # data2$last_name <- data2$FROM
+  # 
+  # data2$first_name <- addFirst(data2$first_name,data2$last_name)
+  
+  
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())

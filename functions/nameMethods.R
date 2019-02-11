@@ -831,7 +831,7 @@ addFirst <- function(first_name, last_name){
   i <- 1
   for(i in 1:length(membersOneLastName$id)){
     first_name = ifelse(last_name == membersOneLastName$last_name[i] & is.na(first_name), membersOneLastName$first_name[i],first_name)
-    
+    print(first_name)
   }
   return(first_name)
 }
