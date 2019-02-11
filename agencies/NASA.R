@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- #file.name <- "NASA" # for testing
+# file.name <- "NASA" # for testing
 
 
 clean <- function(file.name) {
@@ -50,6 +50,8 @@ clean <- function(file.name) {
   data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
+  
+  data$first_name <- addFirst(data$first_name,data$last_name)
 
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
