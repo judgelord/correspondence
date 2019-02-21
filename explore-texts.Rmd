@@ -1,0 +1,397 @@
+---
+title: "Untitled"
+author: "Devin Judge-Lord"
+date: "2/20/2019"
+output: html_document
+---
+
+
+Here is an [ok post on visualizing qualitative data](https://depictdatastudio.com/how-to-visualize-qualitative-data/)--lmk if you find a better resource. 
+Cool applications:
+- Kavenauv hearing
+- gender tropes in film https://pudding.cool/2017/08/screen-direction/
+
+Very good resources:
+[Text mining in R](https://www.tidytextmining.com/)
+[Text data viz](https://datavizf18.classes.andrewheiss.com/slides/MPA-635_2018-11-13.pdf)
+
+--- 
+
+Word clouds only word frequency, and font size is hard for people to compare. Nevertheless, [they may be useful](https://www.vis4.net/blog/2015/01/when-its-ok-to-use-word-clouds/) if all you care about is frequency.
+
+---
+
+# Tidy text analysis
+Counting words in fancy ways.
+
+In addition to tidyverse, we will use the `tidytext`, `topicmodels`, `textfeatures`, and `cleanNLP` packages.
+
+```{r libraries, warning=FALSE, message=FALSE, echo= TRUE}
+library(tidyverse)
+library(tidytext)
+library(topicmodels)
+library(textfeatures)
+library(cleanNLP) ## https://statsmaths.github.io/cleanNLP/ 
+```
+
+```{r load-data, eval=FALSE}
+load(here("data/correspondenceTexts.Rdata"))
+d <- correspondenceTexts 
+
+# naming things! 
+d %<>% rename(Party = party_name)
+
+d$Department %<>% str_replace("Department of ", "")
+d$SUBJECT %<>% tolower()
+```
+
+
+## Tokens and word counts
+
+### Single words
+
+Now that we have tidy text, we can start counting words. Here's what's happening below:
+
+- We use `unnest_tokens()` to split each verse (in this case each row is a verse; that's not always the case, though—sometimes it'll be chapters or lines or entire books) into separate words.
+- We use `anti_join()` to remove all the common stop words like "a" and "the". You can do the same thing with `filter()` like so: `filter(!(word %in% stop_words$word))` (I prefer this way, actually)
+- We count how many times each word appears and sort the list
+- We keep just the top 15 words
+- We plot it with `geom_col()`
+
+```{r bom-single-words, message=FALSE}
+words <- d %>% 
+ unnest_tokens(word, SUBJECT) %>% 
+ anti_join(stop_words) %>% 
+ group_by(Party, Department) %>%
+ count(word, sort = TRUE) %>% 
+ top_n(15) %>% 
+ mutate(word = fct_inorder(word))
+
+ggplot(words, aes(x = fct_rev(word), y = n)) + 
+ geom_col() + 
+ coord_flip() +
+ scale_y_continuous(labels = scales::comma) +
+ labs(y = "Count", x = NULL, title = "10 most frequent words to each Agency") +
+ facet_grid(Party ~ Department)
+```
+
+### Bigrams
+
+We can also look at the frequency of pairs of words. First we'll look at common bigrams, filtering out stop words again (since we don't want things like "of the" and "in the"):
+
+```{r bigrams-all, message=FALSE}
+bigrams <- d %>% 
+  group_by(Party, Department) %>% 
+ unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>% 
+ # Split the bigram column into two columns
+ separate(bigram, c("word1", "word2"), sep = " ") %>% 
+ filter(!word1 %in% stop_words$word,
+ !word2 %in% stop_words$word) %>% 
+ # Put the two word columns back together
+ unite(bigram, word1, word2, sep = " ") %>% 
+ count(bigram, sort = TRUE) %>% 
+ top_n(10)
+
+ggplot(bigrams, aes(x = fct_rev(bigram), y = n)) + 
+ geom_col() + 
+ coord_flip() +
+ scale_y_continuous(labels = scales::comma) +
+ labs(y = "Count", x = NULL, title = "10 most frequent words to each Agency") +
+ facet_grid(Party ~ Department)
+```
+
+### Bigrams and probability
+
+We can replicate the ["She Giggles, He Gallops"](https://pudding.cool/2017/08/screen-direction/) idea by counting the bigrams that match "he X" and "she X".
+
+The log ratio idea shows how much more likely a word is compared to its counterpart (so "she fled" is more than 4x more likely to appear than "he fled". In this graph, I replaced the x-axis labels with "2x" and "4x", but without those, you get numbers like 1, 2, and 3 (or -1, -2, -3)). To convert those logged ratio numbers into the multiplicative version (i.e. 2x instead of 1), raise 2 to the power of the log ratio. If the log ratio is 3, the human-readable version is $2^3$, or 8 times.
+
+```{r example-logs}
+# Take the log of 8:
+log2(8)
+# Reverse log of 3:
+2^3
+```
+
+The only text wizardry here is tokenizing the words. Pretty much the rest of all this code is just `dplyr` mutating, filtering, and counting:
+
+```{r bigrams-he-she}
+pronouns <- c("he", "she")
+
+bigram_he_she_counts <- d %>%
+  group_by(Party) %>% 
+ unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>%
+ count(bigram, sort = TRUE) %>%
+ # Split the bigram column into two columns
+ separate(bigram, c("word1", "word2"), sep = " ") %>%
+ # Only choose rows where the first word is he or she
+ filter(word1 %in% pronouns) %>%
+ count(word1, word2, wt = n, sort = TRUE) %>%
+ rename(total = nn)
+
+word_ratios <- bigram_he_she_counts %>%
+ # Look at each of the second words
+ group_by(word2, Party) %>%
+ # Only choose rows where the second word appears more than 10 times
+ filter(sum(total) > 10) %>%
+ ungroup() %>%
+  group_by(Party) %>%
+ # Spread out the word1 column so that there's a column named "he" and one named "she"
+ spread(word1, total, fill = 0) %>%
+ # Add 1 to each number so that logs work (just in case any are zero)
+ mutate_if(is.numeric, funs((. + 1) / sum(. + 1))) %>%
+ # Create a new column that is the logged ratio of the she counts to he counts
+ mutate(logratio = log2(she / he)) %>%
+ # Sort by that ratio
+ arrange(desc(logratio))
+
+# Rearrange this data so it's plottable
+plot_word_ratios <- word_ratios %>%
+ # This gets the words in the right order---we take the absolute value, select
+ # only rows where the log ratio is bigger than 0, and then take the top 15 words
+ mutate(abslogratio = abs(logratio)) %>%
+ group_by(logratio < 0, Party) %>%
+ top_n(15, abslogratio) %>%
+ ungroup() %>%
+group_by(Party) %>% 
+ mutate(word = reorder(word2, logratio)) 
+
+# Finally we plot this
+ggplot(plot_word_ratios, aes(word, logratio, color = logratio < 0)) +
+ geom_segment(aes(x = word, xend = word,
+ y = 0, yend = logratio), 
+ size = 1.1, alpha = 0.6) +
+ geom_point(size = 3.5) +
+ coord_flip() +
+ labs(y = "How much more/less likely", x = NULL) +
+ scale_color_discrete(name = "", labels = c("More 'she'", "More 'he'")) +
+ scale_y_continuous(breaks = seq(-3, 3),
+ labels = c("8x", "4x", "2x",
+ "Same", "2x", "4x", "8x")) +
+ theme_minimal() +
+ theme(legend.position = "bottom") + 
+  facet_grid(. ~ Party)
+```
+
+
+```{r bigrams-he-she}
+# Regular expression (regex) to match any suffix
+by <- c("support", "oppose")
+
+# make a single string of stopwards with the regex OR ("|") between each
+stopwords <- str_c(stop_words$word, collapse = " | ")
+# add a space at each end
+stopwords <- paste0(" ", stopwords, " ")
+
+bigram_support_oppose_counts <- d %>% 
+  mutate(SUBJECT = str_replace(SUBJECT, "support[a-z]*", "support") ) %>%
+  mutate(SUBJECT = str_replace(SUBJECT, "oppos[a-z]*", "oppose") ) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, stopwords, " ") ) %>%# select(SUBJECT)
+  group_by(Party) %>% 
+ unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>%
+ count(bigram, sort = TRUE) %>%
+ # Split the bigram column into two columns
+ separate(bigram, c("word1", "word2"), sep = " ") %>%
+ # Only choose rows where the first word is support or oppose
+ filter(str_detect(word1, by)) %>%
+ count(word1, word2, wt = n, sort = TRUE) %>%
+ rename(total = nn)
+
+word_ratios <- bigram_support_oppose_counts %>%
+ # Look at each of the second words
+ group_by(word2, Party) %>%
+ # Only choose rows where the second word appears more than 10 times
+ filter(sum(total) > 10) %>%
+ ungroup() %>%
+  group_by(Party) %>%
+ # Spread out the word1 column so that there's a column named "support" and one named "oppose"
+ spread(word1, total, fill = 0) %>%
+ # Add 1 to each number so that logs work (just in case any are zero)
+ mutate_if(is.numeric, funs((. + 1) / sum(. + 1))) %>%
+ # Create a new column that is the logged ratio of the she counts to he counts
+ mutate(logratio = log2(support / oppose)) %>%
+ # Sort by that ratio
+ arrange(desc(logratio))
+
+# Rearrange this data so it's plottable
+plot_word_ratios <- word_ratios %>%
+ # This gets the words in the right order---we take the absolute value, select
+ # only rows where the log ratio is bigger than 0, and then take the top 15 words
+ mutate(abslogratio = abs(logratio)) %>%
+ group_by(logratio < 0, Party) %>%
+ top_n(10, abslogratio) %>%
+ ungroup() %>%
+group_by(Party) %>% 
+ mutate(word = reorder(word2, logratio)) 
+
+# Finally we plot this
+ggplot(plot_word_ratios, aes(word, logratio, color = logratio < 0)) +
+ geom_segment(aes(x = word, xend = word,
+ y = 0, yend = logratio), 
+ size = 1.1, alpha = 0.6) +
+ geom_point(size = 3.5) +
+ coord_flip() +
+ labs(y = "How much more/less likely", x = NULL) +
+ scale_color_discrete(name = "", labels = c("More 'support'", "More 'oppose'")) +
+ scale_y_continuous(breaks = seq(-3, 3),
+ labels = c("8x", "4x", "2x",
+ "Same", "2x", "4x", "8x")) +
+ theme_minimal() +
+ theme(legend.position = "bottom") + 
+  facet_grid(. ~ Party)
+```
+
+## Sentiment analysis
+
+At its core, sentiment analysis involves looking at a big list of words for how negative or positive they are. Some sentiment dictionaries mark if a word is "negative" or "positive"; some give words a score from -3 to 3; some give different emotions like "sadness" or "anger". You can see what the different dictionaries look like with `get_sentiments()`
+
+```{r show-dictionary}
+get_sentiments("afinn") # Scoring system
+# get_sentiments("bing") # Negative/positive
+# get_sentiments("nrc") # Specific emotions
+# get_sentiments("loughran") # Designed for financial statements; positive/negative
+```
+
+Here we split the book of Alma into words, join a sentiment dictionary to it, and use dplyr data wrangling to calculate the net number positive words in each chapter. Had we used the AFINN library, we could calculate the average sentiment per chapter, since AFINN uses a scoring system instead of negative/positive labels.
+
+```{r alma-sentiment, message=FALSE}
+sentiment <- d %>% 
+ # Split into individual words
+ unnest_tokens(word, SUBJECT) %>% 
+ # Join bing sentiment dicionary
+ inner_join(get_sentiments("bing")) %>% 
+ # Count how many postive/negative words are in each chapter
+ count(bioname, sentiment) %>% 
+ # Spread the count into two columns named positive and negative
+ spread(sentiment, n, fill = 0) %>% 
+ # Subtract the positive words from the negative words
+ mutate(net_sentiment = positive - negative)
+
+sentiment %>% 
+  top_n(10, abs(net_sentiment)) %>%
+ggplot() +
+ aes(x = reorder(bioname, abs(net_sentiment)), y = net_sentiment, fill = net_sentiment > 0) +
+ geom_col() +
+ guides(fill = FALSE) +
+  coord_flip() +
+ labs(x = "Member of Congress", y = "Net sentiment")
+```
+
+## tf-idf
+
+We can determine which words are the most unique for each book/document in our corpus using by calculating the tf-idf (term frequency-inverse document frequency) score for each term. The tf-idf is the product of the term frequency and the inverse document frequency:
+
+$$
+\begin{aligned}
+tf(\text{term}) &= \frac{n_{\text{term}}}{n_{\text{terms in document}}} \\
+idf(\text{term}) &= \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)} \\
+tf\text{-}idf(\text{term}) &= tf(\text{term}) \times idf(\text{term})
+\end{aligned}
+$$
+
+Fortunately you don't need to remember that formula. The `bind_tf_idf()` function will calculate this for you. Remember, the higher the tf-idf number, the more unique the term is in the document, but these numbers are meaningless and unitless—you can't convert them to a percentage or anything.
+
+Here are the most unique words:
+
+```{r tf-idf, message=FALSE}
+# Get a list of words in all the books
+words <- d %>% 
+ unnest_tokens(word, SUBJECT) %>% 
+  group_by(agency) %>% 
+ count(word, sort = TRUE) %>% 
+ ungroup()
+
+# Add the tf-idf for these words
+tf_idf <- words %>% 
+ bind_tf_idf(word, agency, n) %>% 
+ arrange(desc(tf_idf))
+
+# Get the top 10 uniquest words
+tf_idf %>% 
+ group_by(agency) %>% 
+ top_n(10) %>% 
+ ungroup() %>% 
+ mutate(word = fct_inorder(word)) %>%
+ggplot(aes(x = fct_rev(word), y = tf_idf, fill = agency)) +
+ geom_col() +
+ guides(fill = FALSE) +
+ labs(y = "tf-idf", x = NULL) +
+ facet_wrap(~ agency, scales = "free") +
+ coord_flip()
+```
+
+## Topic modeling
+
+With topic modeling, we go beyond just counting words and we do some cool unsupervised Bayesian machine learning to find a number of clusters of words that tend to hang together.
+
+```{r dickens-lda, cache=TRUE, warning=FALSE, message=FALSE}
+dtm <- d %>%
+ unnest_tokens(word, SUBJECT) %>%
+ # Get rid of stop words
+ anti_join(stop_words) %>%
+ count(title, word, sort = TRUE) %>%
+ # Convert this to a document-term matrix (a strange data format that LDA nees to work)
+ cast_dtm(title, word, n)
+# Find 10 topics (or clusters of words)
+dickens_lda <- LDA(dickens_dtm, k = 10, control = list(seed = 1234))
+# Convert the LDA object into a data frame that we can work with
+# The beta column is essentially a measure of word importance within the
+# topic---the higher the number, the more important the word is in the topic
+dickens_topics <- tidy(dickens_lda, matrix = "beta")
+```
+
+The algorithm finds 10 clusters of words that should be statistically meaningful. In real life, you'd need to determine how these words are related and give them a human-readable name.
+
+```{r top-lda-terms, results="asis"}
+# Here are the most important words in each of the 10 clusters
+dickens_top_terms <- dickens_topics %>%
+ filter(!is.na(term)) %>% 
+ group_by(topic) %>%
+ top_n(10, beta) %>%
+ ungroup() %>%
+ arrange(topic, -beta)
+# Make a comma separated list of the top 10 terms in each topic
+dickens_top_terms %>% 
+ group_by(topic) %>% 
+ nest(term) %>% 
+ mutate(words = data %>% map_chr(~ paste(.$term, collapse = ", "))) %>% 
+ select(-data) %>% 
+ pander::pandoc.table()
+```
+
+And here are those 10 topics graphed:
+
+```{r plot-top-lda-terms}
+dickens_top_terms %>%
+ mutate(term = reorder(term, beta)) %>%
+ ggplot(aes(term, beta, fill = factor(topic))) +
+ geom_col(show.legend = FALSE) +
+ labs(x = NULL, y = "LDA beta (word importance in topic)") +
+ theme_minimal() +
+ facet_wrap(~ topic, scales = "free") +
+ coord_flip()
+```
+
+
+---
+
+### Text features
+
+Words are only one of many features of text. 
+- Bi-grams, tri-grams...n-grams can help preserve context. While often impractical to model, matching n-grams are a key method for identifying text reuse.
+- We can capture the number of punctuation marks, hashtags, mentions, etc. using the `textfeatures()` function:
+
+```{r textfeatures, cache=TRUE, include=FALSE}
+# For textfeatures() to work, the column with the text in it has to be named text
+features <- d %>% 
+ rename(text = SUBJECT) %>% 
+ # Don't calculate sentiment because it takes a little longer. Also don't
+ # calculate word2vec dimensions, since these take longer to do and they're
+ # kinda weird and uninterpretable. Also don't normalize the final
+ # numbers---keep them as raw numbers
+ textfeatures(sentiment = FALSE, word_dims = 0, normalize = FALSE) %>% 
+ # Add the text back to the data frame, since textfeatures wiped it out
+ bind_cols(d)
+# Look at all these columns you can work with now!
+glimpse(features)
+```

@@ -6,7 +6,7 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 
 
 
-# set up 
+# make sure gmailr is set up 
 library(gmailr)
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
@@ -711,6 +711,6 @@ length(unique(df$agency)) == length(unique(d$agency))
 
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
-save.image("gh-pages/correspondence.RData")
+save.image("data/correspondence.RData")
 }
 
