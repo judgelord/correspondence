@@ -7,10 +7,10 @@ library(stmCorrViz) # Package for hierarchical correlation view of STMs
 
 
 file.name <- 'EPA'
-data <- gs_title(file.name) %>% gs_read()
+d <- gs_title(file.name) %>% gs_read()
 
 
-processed <- textProcessor(data$SUBJECT, metadata=data)
+processed <- textProcessor(d$SUBJECT, metadata=d)
 out <- prepDocuments(processed$documents, processed$vocab, processed$meta)
 
 # save the output object meta, documents, and vocab into variables

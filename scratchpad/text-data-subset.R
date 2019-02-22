@@ -3,7 +3,7 @@ source(here::here("setup.R"))
 
 load(here("data/correspondence.Rdata"))
 
-d <- df %>% select(ID, DATE, year, congress, bioname, state, party_name, department, Department, agency, SUBJECT, TYPE, POLICY_EVENT, complete)
+d <- df %>% select(ID, DATE, year, congress, bioname, state, party_name, department, Department, agency, SUBJECT, Type, POLICY_EVENT, complete)
 
 d %<>% filter(complete == T) %>% 
   filter(!is.na(SUBJECT)) %>%
