@@ -3,13 +3,16 @@ title: "Untitled"
 author: "Devin Judge-Lord"
 date: "2/20/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
-Here is an [ok post on visualizing qualitative data](https://depictdatastudio.com/how-to-visualize-qualitative-data/)--lmk if you find a better resource. 
+Here is an [ok blog post on visualizing qualitative data](https://depictdatastudio.com/how-to-visualize-qualitative-data/)--lmk if you find a better resource. 
 Cool applications:
 - Kavenauv hearing
-- gender tropes in film https://pudding.cool/2017/08/screen-direction/
+- Gender tropes in film https://pudding.cool/2017/08/screen-direction/
+- Analysis of Trump's tweets confirms he writes only the (angrier) Android half(http://varianceexplained.org/r/trump-tweets/)
 
 Very good resources:
 [Text mining in R](https://www.tidytextmining.com/)
@@ -32,17 +35,32 @@ library(tidytext)
 library(topicmodels)
 library(textfeatures)
 library(cleanNLP) ## https://statsmaths.github.io/cleanNLP/ 
+library(here)
+library(magrittr)
 ```
 
-```{r load-data, eval=FALSE}
+
+```{r load-data}
 load(here("data/correspondenceTexts.Rdata"))
 d <- correspondenceTexts 
 
 # naming things! 
 d %<>% rename(Party = party_name)
+```
 
-d$Department %<>% str_replace("Department of ", "")
+```{r clean-text}
+# to lower case
 d$SUBJECT %<>% tolower()
+
+# make a single string of stopwards with the regex OR ("|") between each
+stopwords <- str_c(stop_words$word, collapse = " | ")
+# add to the list
+stopwords <- paste("[0-9]|", stopwords, "| senator", "| representative ", "| write", "| writes", "| writing", "| letter ")
+
+# remove stopwords
+d$SUBJECT %<>% str_replace_all(stopwords, " ")
+# remove numbers 
+d$SUBJECT %<>% str_replace_all("[0-9]", "")
 ```
 
 
@@ -52,36 +70,36 @@ d$SUBJECT %<>% tolower()
 
 Now that we have tidy text, we can start counting words. Here's what's happening below:
 
-- We use `unnest_tokens()` to split each verse (in this case each row is a verse; that's not always the case, though—sometimes it'll be chapters or lines or entire books) into separate words.
-- We use `anti_join()` to remove all the common stop words like "a" and "the". You can do the same thing with `filter()` like so: `filter(!(word %in% stop_words$word))` (I prefer this way, actually)
+- `unnest_tokens() splits each response into separate words.
+- `anti_join()` removes all the common stop words like "a" and "the". You can do the same thing with `filter()` like so: `filter(!(word %in% stop_words$word))` (I prefer this way, actually)
 - We count how many times each word appears and sort the list
 - We keep just the top 15 words
 - We plot it with `geom_col()`
 
-```{r bom-single-words, message=FALSE}
+```{r single-words, message=FALSE}
 words <- d %>% 
  unnest_tokens(word, SUBJECT) %>% 
- anti_join(stop_words) %>% 
- group_by(Party, Department) %>%
+ filter(!(word %in% stop_words$word)) %>% 
+ group_by(Department) %>%
  count(word, sort = TRUE) %>% 
- top_n(15) %>% 
+ top_n(10) %>% 
  mutate(word = fct_inorder(word))
 
 ggplot(words, aes(x = fct_rev(word), y = n)) + 
  geom_col() + 
  coord_flip() +
  scale_y_continuous(labels = scales::comma) +
- labs(y = "Count", x = NULL, title = "10 most frequent words to each Agency") +
- facet_grid(Party ~ Department)
+ labs(y = "Count", x = NULL, title = "10 most frequent words") +
+ facet_wrap("Department", scales = "free")
 ```
 
 ### Bigrams
 
 We can also look at the frequency of pairs of words. First we'll look at common bigrams, filtering out stop words again (since we don't want things like "of the" and "in the"):
 
-```{r bigrams-all, message=FALSE}
+```{r bigrams-all, fig.width=10}
 bigrams <- d %>% 
-  group_by(Party, Department) %>% 
+  group_by(Department) %>% 
  unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>% 
  # Split the bigram column into two columns
  separate(bigram, c("word1", "word2"), sep = " ") %>% 
@@ -92,44 +110,35 @@ bigrams <- d %>%
  count(bigram, sort = TRUE) %>% 
  top_n(10)
 
-ggplot(bigrams, aes(x = fct_rev(bigram), y = n)) + 
+ggplot(bigrams, aes(x = reorder(bigram, n), y = n)) + 
  geom_col() + 
  coord_flip() +
  scale_y_continuous(labels = scales::comma) +
- labs(y = "Count", x = NULL, title = "10 most frequent words to each Agency") +
- facet_grid(Party ~ Department)
+ labs(y = "Count", x = NULL, title = "10 most frequent word pairs") +
+ facet_wrap("Department", scales = "free")
 ```
 
 ### Bigrams and probability
 
 We can replicate the ["She Giggles, He Gallops"](https://pudding.cool/2017/08/screen-direction/) idea by counting the bigrams that match "he X" and "she X".
 
-The log ratio idea shows how much more likely a word is compared to its counterpart (so "she fled" is more than 4x more likely to appear than "he fled". In this graph, I replaced the x-axis labels with "2x" and "4x", but without those, you get numbers like 1, 2, and 3 (or -1, -2, -3)). To convert those logged ratio numbers into the multiplicative version (i.e. 2x instead of 1), raise 2 to the power of the log ratio. If the log ratio is 3, the human-readable version is $2^3$, or 8 times.
+The log ratio is the factor by which the word is more likely to follow "he" than "she" in the text.
 
-```{r example-logs}
-# Take the log of 8:
-log2(8)
-# Reverse log of 3:
-2^3
-```
-
-The only text wizardry here is tokenizing the words. Pretty much the rest of all this code is just `dplyr` mutating, filtering, and counting:
-
-```{r bigrams-he-she}
+```{r bigrams-binary}
 pronouns <- c("he", "she")
 
-bigram_he_she_counts <- d %>%
+bigram_binary_counts <- d %>%
   group_by(Party) %>% 
  unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>%
- count(bigram, sort = TRUE) %>%
+ # count(bigram, sort = TRUE) %>%
  # Split the bigram column into two columns
  separate(bigram, c("word1", "word2"), sep = " ") %>%
  # Only choose rows where the first word is he or she
  filter(word1 %in% pronouns) %>%
- count(word1, word2, wt = n, sort = TRUE) %>%
- rename(total = nn)
+ count(word1, word2, sort = TRUE) %>%
+ rename(total = n)
 
-word_ratios <- bigram_he_she_counts %>%
+word_ratios <- bigram_binary_counts %>%
  # Look at each of the second words
  group_by(word2, Party) %>%
  # Only choose rows where the second word appears more than 10 times
@@ -174,28 +183,21 @@ ggplot(plot_word_ratios, aes(word, logratio, color = logratio < 0)) +
 ```
 
 
-```{r bigrams-he-she}
-# Regular expression (regex) to match any suffix
+```{r bigrams-support-oppose}
 by <- c("support", "oppose")
 
-# make a single string of stopwards with the regex OR ("|") between each
-stopwords <- str_c(stop_words$word, collapse = " | ")
-# add a space at each end
-stopwords <- paste0(" ", stopwords, " ")
-
 bigram_support_oppose_counts <- d %>% 
-  mutate(SUBJECT = str_replace(SUBJECT, "support[a-z]*", "support") ) %>%
-  mutate(SUBJECT = str_replace(SUBJECT, "oppos[a-z]*", "oppose") ) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, stopwords, " ") ) %>%# select(SUBJECT)
+  # Regular expression (regex) to match any suffix
+  mutate(SUBJECT = str_replace_all(SUBJECT, "support[a-z]*", "support") ) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "oppos[a-z]*", "oppose") ) %>%
   group_by(Party) %>% 
  unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>%
- count(bigram, sort = TRUE) %>%
  # Split the bigram column into two columns
  separate(bigram, c("word1", "word2"), sep = " ") %>%
  # Only choose rows where the first word is support or oppose
  filter(str_detect(word1, by)) %>%
- count(word1, word2, wt = n, sort = TRUE) %>%
- rename(total = nn)
+ count(word1, word2, sort = TRUE) %>%
+ rename(total = n)
 
 word_ratios <- bigram_support_oppose_counts %>%
  # Look at each of the second words
@@ -222,7 +224,8 @@ plot_word_ratios <- word_ratios %>%
  top_n(10, abslogratio) %>%
  ungroup() %>%
 group_by(Party) %>% 
- mutate(word = reorder(word2, logratio)) 
+ mutate(word = reorder(word2, logratio))  %>% 
+  ungroup()
 
 # Finally we plot this
 ggplot(plot_word_ratios, aes(word, logratio, color = logratio < 0)) +
@@ -243,7 +246,7 @@ ggplot(plot_word_ratios, aes(word, logratio, color = logratio < 0)) +
 
 ## Sentiment analysis
 
-At its core, sentiment analysis involves looking at a big list of words for how negative or positive they are. Some sentiment dictionaries mark if a word is "negative" or "positive"; some give words a score from -3 to 3; some give different emotions like "sadness" or "anger". You can see what the different dictionaries look like with `get_sentiments()`
+Sentiment analysis generally involves *dictionaries* (a list of words) scored as negative or positive. Some sentiment dictionaries mark if a word is "negative" or "positive"; some give words a score from -3 to 3; some give emotions like "sadness" or "anger". You can see what the different dictionaries look like with `get_sentiments()`
 
 ```{r show-dictionary}
 get_sentiments("afinn") # Scoring system
@@ -254,27 +257,27 @@ get_sentiments("afinn") # Scoring system
 
 Here we split the book of Alma into words, join a sentiment dictionary to it, and use dplyr data wrangling to calculate the net number positive words in each chapter. Had we used the AFINN library, we could calculate the average sentiment per chapter, since AFINN uses a scoring system instead of negative/positive labels.
 
-```{r alma-sentiment, message=FALSE}
+```{r sentiment, message=FALSE}
 sentiment <- d %>% 
  # Split into individual words
  unnest_tokens(word, SUBJECT) %>% 
  # Join bing sentiment dicionary
  inner_join(get_sentiments("bing")) %>% 
  # Count how many postive/negative words are in each chapter
- count(bioname, sentiment) %>% 
+ count(Party, Department, sentiment) %>% 
  # Spread the count into two columns named positive and negative
  spread(sentiment, n, fill = 0) %>% 
  # Subtract the positive words from the negative words
  mutate(net_sentiment = positive - negative)
 
 sentiment %>% 
-  top_n(10, abs(net_sentiment)) %>%
 ggplot() +
- aes(x = reorder(bioname, abs(net_sentiment)), y = net_sentiment, fill = net_sentiment > 0) +
+ aes(x = reorder(Department, abs(net_sentiment)), y = net_sentiment, fill = net_sentiment > 0) +
  geom_col() +
  guides(fill = FALSE) +
   coord_flip() +
- labs(x = "Member of Congress", y = "Net sentiment")
+ labs(x = "Department", y = "Net sentiment") + 
+  facet_wrap("Party")
 ```
 
 ## tf-idf
@@ -320,59 +323,6 @@ ggplot(aes(x = fct_rev(word), y = tf_idf, fill = agency)) +
  coord_flip()
 ```
 
-## Topic modeling
-
-With topic modeling, we go beyond just counting words and we do some cool unsupervised Bayesian machine learning to find a number of clusters of words that tend to hang together.
-
-```{r dickens-lda, cache=TRUE, warning=FALSE, message=FALSE}
-dtm <- d %>%
- unnest_tokens(word, SUBJECT) %>%
- # Get rid of stop words
- anti_join(stop_words) %>%
- count(title, word, sort = TRUE) %>%
- # Convert this to a document-term matrix (a strange data format that LDA nees to work)
- cast_dtm(title, word, n)
-# Find 10 topics (or clusters of words)
-dickens_lda <- LDA(dickens_dtm, k = 10, control = list(seed = 1234))
-# Convert the LDA object into a data frame that we can work with
-# The beta column is essentially a measure of word importance within the
-# topic---the higher the number, the more important the word is in the topic
-dickens_topics <- tidy(dickens_lda, matrix = "beta")
-```
-
-The algorithm finds 10 clusters of words that should be statistically meaningful. In real life, you'd need to determine how these words are related and give them a human-readable name.
-
-```{r top-lda-terms, results="asis"}
-# Here are the most important words in each of the 10 clusters
-dickens_top_terms <- dickens_topics %>%
- filter(!is.na(term)) %>% 
- group_by(topic) %>%
- top_n(10, beta) %>%
- ungroup() %>%
- arrange(topic, -beta)
-# Make a comma separated list of the top 10 terms in each topic
-dickens_top_terms %>% 
- group_by(topic) %>% 
- nest(term) %>% 
- mutate(words = data %>% map_chr(~ paste(.$term, collapse = ", "))) %>% 
- select(-data) %>% 
- pander::pandoc.table()
-```
-
-And here are those 10 topics graphed:
-
-```{r plot-top-lda-terms}
-dickens_top_terms %>%
- mutate(term = reorder(term, beta)) %>%
- ggplot(aes(term, beta, fill = factor(topic))) +
- geom_col(show.legend = FALSE) +
- labs(x = NULL, y = "LDA beta (word importance in topic)") +
- theme_minimal() +
- facet_wrap(~ topic, scales = "free") +
- coord_flip()
-```
-
-
 ---
 
 ### Text features
@@ -395,3 +345,242 @@ features <- d %>%
 # Look at all these columns you can work with now!
 glimpse(features)
 ```
+
+---
+
+## Topic modeling
+### (Counting words, classifying tokens)
+
+With topic modeling, we first count the words in each document and then use unsupervised Bayesian machine learning to find clusters of words that tend to hang together.
+
+```{r lda}
+agency <- "EPA"
+
+dtm <- d %>%
+  filter(agency == agency) %>% 
+ unnest_tokens(word, SUBJECT) %>%
+  # Count words per document ID number
+ count(ID, word, sort = TRUE) %>%
+ # Convert this to a document-term matrix (each row is a document, each column is a term, and the value is the count of words in that document)
+ cast_dtm(term = word, document = ID, value = n)
+
+# Find 3 topics (or clusters of words)
+lda <- LDA(dtm, k = 3, control = list(seed = 1234))
+
+# Convert the LDA object into a tidy data frame 
+# The beta column is essentially a measure of word importance within the
+# topic---the higher the number, the more important the word is in the topic
+topics <- tidy(lda, matrix = "beta")
+```
+
+The algorithm finds `k` clusters of words. Meaning is in the eye of the beholder. We can only look at the most common words in each topic (i.e. the estimated probability that a token draw from that topic is that word).
+
+```{r top-lda-terms}
+# Here are the most important words in each of the clusters
+top_terms <- topics %>%
+ filter(!is.na(term)) %>% 
+ group_by(topic) %>%
+ top_n(10, beta) %>%
+ ungroup() %>%
+ arrange(topic, -beta)
+
+# Make a comma separated list of the top terms in each topic
+top_terms %>% 
+ group_by(topic) %>% 
+ nest(term) %>% 
+ mutate(words = data %>% map_chr(~ paste(.$term, collapse = ", "))) %>% 
+ select(-data) 
+```
+
+
+```{r plot-top-lda-terms}
+top_terms %>%
+ mutate(term = reorder(term, beta)) %>%
+ ggplot(aes(term, beta, fill = factor(topic))) +
+ geom_col(show.legend = FALSE) +
+ labs(x = NULL, y = "LDA beta (word importance in topic)") +
+ theme_minimal() +
+ facet_wrap(~ topic, scales = "free") +
+ coord_flip()
+```
+
+We observe the total number of unique words ($w_1,...,w_W$) in the vocabulary of all documents and $w_{d,n}$ is the word observed at the $n$th token in document $d$. All texts are ``tokenized'' by giving each word a unique index $n$. If token $n$ belongs to topic $z$, then the probability that the token is word $w$ is the topic-specific probability $\pi_{\tau, w}$. At the document level, $\pi_{z, d}$ is our beliefs about the proportion of topic $z$ for document $d$. 
+
+
+
+
+
+
+
+
+
+
+
+
+Topic models generally require one to set the number of topics. There are a number of approaches to topic selection, including algorithms\footnote{Models can also be estimated using the methods described in \citet{Lee2014}, which selects the number of topics based on t-distributed stochastic neighbor embedding.}, but none are objective \citep{Roberts2014}. \citet{Chuang2014} argue that topic modeling is done best with a "human-in-the-loop" approach where researchers review multiple candidate models. 
+
+%The general task is to identify similarities and differences between groups of texts. 
+
+The two core types of topic models, single-member models and mixed-member models, emerge from distinct assumptions about the texts. Single-member models are a classical mixture model where each document is assumed to belong a single topic. Single member models are best suited to classifying texts as belonging to one camp or another. Mixed-member models assume that documents are drawn from a latent distribution of topics\citep{Blei2009}. I focus on the most prominent approach to estimating topic distributions, the \textit{Latent Dirichlet Allocation} (LDA) model \citep{Blei2003}.
+
+
+
+\subsection{Mechanics of LDA}
+In LDA,  texts are assumed to be random mixtures of latent topics and topics are distributions of words  \citep{Blei2003}. Both the distribution of topics over documents and distribution of words over topics are estimated. Each word in the vocabulary may be associated with multiple topics, but each token in a document is assigned to exactly one topic. Thus, the output includes both the estimated distributions of words in each topic (the content of that topic) and a representation of each document or collection of documents as a vector of topic proportions (the topics content of the documents), which is simply the fraction of the words in each document belong to each topic. %The percent of each topic z within each document $d$, is estimated as $\pi_{d}$.% where:
+%\begin{align}
+%z_i &\sim Multinomial(\theta_{D_{i, j} })\\
+%\theta_k &\sim Dirichlet(\alpha)\\
+%w_i &\sim Multinomial(\phi_i)\\
+%\phi &\sim Dirichlet(\beta) \\
+%=\\
+%\tau_{n, d} | W_{n, d} &\sim Multinomial(\pi_{w_{n, d} })\\
+%\pi_{d} &\sim Dirichlet(\alpha) \\ % should tau be there
+%W_{n, d} &\sim Multinomial(\rho_{\tau,w})\\ % should be W_{tao}, probability of drawing a word in W at token i is drawn from a multi distribution of the probabilities that each word is in each topic
+% should be rho_{w, tau}
+%\rho_{\tau,w} &\sim Dirichlet(\beta) 
+%\end{align}
+
+The main difference between LDA and a classic two-level model common in hierarchical Bayes is that LDA has a latent variable of topics (distributions of words) $z$ between the beliefs about topic proportions $\pi$ and observed words. 
+
+The document generating process is assumed to have two steps. First the topic proportions for each document are drawn from a Dirichlet distribution. Second, the topic for each word is drawn from from a multinomial distribution reflecting its document's topic proportions. The specific word is drawn from the distribution of words in that topic:
+\begin{enumerate}
+\item Draw topic proportions $\pi_d | \alpha \sim Dir(\alpha).$
+\item For each token $w_{d,n}$:\begin{enumerate}
+\item Draw topic assignment $z_{d, n} | \pi_d \sim Mult(\pi_d)$
+\item Draw word $w_{d,n} | z_{d,n,\beta_{1:T}} \sim Mult(\beta_{z_{d,n}}).$\end{enumerate}
+\end{enumerate}
+
+
+We observe the total number of unique words ($w_1,...,w_W$) in the vocabulary of all documents and $w_{d,n}$ is the word observed at the $n$th token in document $d$. All texts are ``tokenized'' by giving each word\footnote{For topic estimation, tokenizing is usually done by word, but may also be done by sentence or by any n-gram string of characters or words.} a unique index $n$. If token $n$ belongs to topic $z$, then the probability that the token is word $w$ is the topic-specific probability $\pi_{\tau, w}$. At the document level, $\pi_{z, d}$ %/$\theta_{i, k}$ 
+is our beliefs about the proportion of topic $z$ for document $d$. %, a $i$ x $\tau$ matrix of the proportion of words from each topic in each document. 
+
+$T$, $\alpha$, and $\beta$ are defined. 
+$T$ is the number of topics $(z_1,...z_T)$ where $z_{n, d}$ is the topic assignment of the $n$th token in document $d$. Each token comes from exactly one topic.
+$\alpha$ is the parameter of the prior on the per-document topic distributions, and
+$\beta$ is the parameter of the prior on the per-topic word distributions. 
+%$z$ % / $\phi_{w, k}] / $ 
+%is the latent topic distribution, the distribution over $w$ words in each topic $z$, i.e. the probability of drawing the $w$th word of the vocabulary for topic $\tau$.
+
+One major problem is that topic estimation in LDA and its extensions can be arbitrary and unstable \citep{Jagarlamudi2012}. Computer scientists have extended the core LDA model, incorporating available information to improve the estimation of meaningful topics. This includes document attributes such as the author, year, or treatment condition \citep{Roberts2014}, document network structure such as citations \citep{Chang2009}, word correlations \citep{Blei2005}, sentiment of words% \citet{Lin2009JointAnalysis}
+, constraints based on intuitions (``lexical priors'') on the distribution of words over topic \citep{Jagarlamudi2012}, or combinations of these kinds of information \citep{Kang2014}. 
+
+In one of the most promising steps to help topic models measure influence, \citet{Chang2009} develop a version of LDA they call a Relational Topic Model. This model includes a binary random variable for each document pair that is conditioned by the latent space that also determines topic proportions. Thus, the document generating process has an extra step:
+\begin{enumerate}
+\item Draw topic proportions $\pi_d | \alpha \sim Dir(\alpha).$
+\item For each word $w_{d,n}$:\begin{enumerate}
+\item Draw assignment $z_{d, n} | \pi_d \sim Mult(\pi_d)$
+\item Draw word $w_{d,n} | z_{d,n,\beta_{1:K}} \sim Mult(\beta_{z_{d,n}}).$\end{enumerate}
+\item  For each pair of documents $d,d'$:\\ $y|z_d, z_{d'} \sim \psi (\cdot |x_d, z_{d'})$.
+\end{enumerate}
+	
+\citet{Chang2009} demonstrate this model with respect to academic documents and citations, but political influence may be modeled similarly. For example, documents may be linked by one citing the other or plagiarizing the other. While \citet{Bode2014CandidateMidterms} use multidimensional scaling to explore topics of tweets that use common hashtags, a Relational Topic Model may be an ideal way to model tweet content linked by common hashtags.
+
+Another variation on LDA that may help measure influence is Structural Topic Modeling (STM). Instead of covariates only being used post-hoc (estimating effects \textit{after} naively estimating topics), STM brings information contained in covariates into the topic model by (1) assigning unique priors by covariate value, (2) allowing topics to be correlated, (3) allowing word use within a topic to vary by covariate values. Instead of $\pi \sim Dirichlet(\alpha)$, topic proportions can be influenced by covariates $X$ through a regression model, $\pi \sim LogisticNormal(X\gamma, \Sigma)$. This helps the model avoid having to develop a categorization scheme from scratch \citep{Grimmer2011} and improves the consistency of estimated covariate effects \citep{Roberts2014}.
+
+Whereas lexical priors include word-level information and STM includes document-level information, \citet{Kang2014} propose what they call a Hereto-Labeled LDA, which is able to incorporate both document and feature labels, even when only some document and feature types are known. 
+
+
+Finally, a variety of approaches have built of the Dynamic Topic Model proposed by \citet{Blei2006}. This version allows topic content to change over time. \citet{Brookhart2015}  use a version of this model in their analysis of the emergence of political issues. In their model, an autoregressive latent variable allows the words used to discuss the same issue to change over time. 
+
+
+\subsubsection{Computation of LDA}
+The basic inferential task for for LDA is computing the posterior distribution of latent variables for topics over documents, $\pi$, and words over topic, $z$. 
+
+
+Because the likelihood function contains latent variables, $p(w|\alpha, \beta)$ cannot be estimated exactly for LDA (unlike many hierarchical models where there are direct links between estimated and observed parameters). A lower bound on the log likelihood function can be estimated deterministically with variational inference \citep{Blei2003}, but many prefer to estimate LDA stochastically with Gibbs sampling and many extensions require Gibbs sampling. Additionally, Gibbs sampling allows the algorithm to jump out of local optima and does not require the assumption that all documents are independent as variational Bayes does (because the likelihood of seeing the corpus is the product of the likelihood for each document). 
+
+
+\subsection{Applications of Topic Models in Political Science}
+Most studies in the social sciences and humanities using topic models, especially LDA, rely on observational data and focus on descriptive findings, often called text mining \citep{Srivastava2009}.
+
+Single-member models are often used to classify texts in order to create a variable. In one of the most well-know examples,\citet{Grimmer2010} analyzed over 100,000 press releases to identify policy agendas, characterize representational style, and predict voting behavior. Similarly, \citet{Quinn2010} use a single-member model to identify the topics of floor speeches and \citet{Wilkerson2016} use a range of LDA models to identify metatopics in one-minute floor speeches, finding support for the theory of issue ownership. 
+\citet{Boussalis2016} describe discourse around climate change denial, focusing on the relationship between topics that focus on politics and science and how discourse has changed over time. They find increased proportion of text focusing on scientific integrity. While not explicitly an independent-dependent variable setup, they conclude that the observed discourse is often a reaction to scientific claims. 
+
+While Structural Topic Models (STMs) have great potential to estimate differences in policy content across types of texts, they have not been widely applied in this area. Notable recent contributions on this front include \citet{Bagozzi2016} who use an STM to examine attention to different issues vary over time in State Department Reports and \citet{Genovese2017SectorsFrom} who uses an STM to study country positions on international climate change negotiations. %While their data allow them use the whole text, the versioning nature of budget justifications require the additional preprocessing discussed above. 
+
+The concept of influence implies a change from a baseline condition or counter factual. In the case of topic models this means a significantly different distribution of words than was observed previously or than would be expected given some external information. If the hypothesized cause of change is also observed as a text (e.g. a survey experiment vignette or an interest group letter), influence will often mean that the outcome text changed significantly toward using a distribution of words more similar to the origin text. 
+
+Model setup and interpretation depends on whether the texts are theorized to each contain a single topic or a mixture of several topics. If texts represent actor positions, a single-member models may be used to capture the coalition to which a text belongs and the distribution of topics from a mixed-member model may represent the distribution of priorities. The difference between influencing which cluster an actor is in and influencing the distribution of topic an actor emphasizes could be seen as a form of the distinction \citet{Carsey2006} make between changing sides and changing minds.
+
+\subsubsection{Text as the DV: Survey Experiments}
+A few studies using structural topic models have aimed at measuring influence by measuring treatment effects on survey experiment responses \citep{Roberts2014,Mildenberger2015,Fong2016}. The text of an open response question is the dependent variable. \citet{Mildenberger2015} find that framing climate change in different ways affects the topics discussed by survey respondents.
+
+In an experimental context, inference is based on finding a credible difference in word distributions between treatment conditions. A naive mixed-member model can estimate the content of a given number of topics and the differences between treatment conditions on each topic. Treatments are almost often text, but these texts are not generally used in modeling. 
+
+In survey experiments, treatment texts (e.g. the text of vignettes) could be used to improve topic estimation and inference in several ways.  First, the topic model could include priors over the words in the treatments such that each word is expected to be assigned to the same topic as other words unique to the same condition and not the same topic as words from different conditions. This would improve model estimation and make it more likely that topics reflect treatments. This may be helpful, for instance, when when studying framing effects and the same words used in the treatment appear in responses it may indicate successful manipulation or cuing. In other contexts, words repeated may represent uninformative parroting of the vignette.
+
+\subsubsection{Text as the DV: Observational Data}
+
+Recent scholarship has begun to use mixed-member models to describe political relationships using the relative emphasis of different topics in text as the dependent variable. 
+\citet{Genovese2017SectorsFrom} uses a Structural Topic Model to investigate the relationship between statements made by businesses and governments regarding climate change and sectoral levels of pollution and trade. She finds that high-polluting sectors with more exposure to trade are less likely to support international cooperation on climate change, and low-polluting sectors with high exposure to trade are more supportive. Importantly, government statements mirror domestic industry positions suggesting that industry preferences influence government's approach to climate change.
+
+Instead of a topic model,
+\citet{Kluver2015} use a two-step process that first classifies interest groups with k-means clustering and then uses multidimensional scaling to identify the latent dimensions that best distinguish them, thus identifying multiple dimensions of disagreement. An alternative approach would be to use a single-member model to identify interest group coalitions and then use a version of LDA incorporating elements of the Structural Topic Model and Relational Topic Model to identify the dimensions of policy disagreement given this coalition structure. Though they do not use topic models, \citet{Kluver2015} make an important contribution by including the text of the outcome policy in the analysis. As discussed in the final section, placing policy outputs in the space of policy debate (whether measured through multidimensional scaling or latent topics) should be a priority for researchers aiming to estimate influence over policy. 
+
+Political scientists may especially benefit from computer science work developing models that use both the content of texts and networked structure between them. Much of this work thus far has been demonstrated with respect to webpage structure or academic citation networks. \citet{Neiswanger2014} model \textit{Wikipedia} content in a latent variable setup (a topic model) with corrections, or weights, based on the content of linked articles to get a better picture of what each article is really about.  As noted, \citet{Chang2009} accomplish a similar task, explicitly building academic citation information into an LDA model, allowing them to predict the distribution of words for a new article based on its citations or its citations based only on its content. This could be especially useful in modeling influence in political networks when we observe some causal processes linking some pairs of documents and aim to estimate other linkages based on observed content. For example, politicians may not always cite news sources by name when policy action is motivated by media attention, but the occasions when a particular source is cited can be seen as a partially observed network of influence. By modeling the content of news stories that are cited and corresponding policy statements, we may be able to infer additional media-politician relationships from the words they use.
+
+%While citations are common
+
+
+
+
+
+\subsubsection{Validation}
+Given the arbitrariness of the number of topics selected and the potential instability in estimation, one key validation step is to demonstrate that topics make sense \citep{Grimmer2013}. There is no guarantee that an unsupervised model will identify meaningful topics. As noted modeling strategies can help but are still no guarantee that meaningful latent topics will be recovered. 
+
+When topic models are used to generate independent variables, interpretation of topic content naturally receives attention. However, if scholarship moves more in the direction of hypothesis testing where theories focus on the similarity, difference, or change in topic distribution between documents, there is a risk that topic content could become hidden behind correlations of topic proportion means. To avoid this, two validations strategies have been suggested: (1) demonstrate that different algorithms produce similar topics and (2) establish that variations in topic emphasis across time or venues correlate with real-world events \citep{Grimmer2011,Roberts2014,Blei2009,Quinn2010,Wilkerson2016}.  \citet{Beauchamp2017PredictingData} validates his topic model of political opinions on Twitter against opinion polls. 
+\citet{Quinn2010} validate their classification of Senate speeches against previous findings from hand-coding approaches. \citet{Wilkerson2016} call attention that, because topic selection is arbitrary, reporting and validating a single model is insufficient. They argue that topic selection and validation should explicitly address the robustness of topics across specifications. Beyond validation, they illustrate that focusing on topic robustness can help interpret results by grouping potential topics into robust metatopics. Thus, in addition to interpretability and face validity, reliability across model specifications is an important standard for unsupervised approaches.
+
+\section{Text Reuse}
+In contrast to classification methods like topic models, recent advances in text reuse and semantic analysis has received less attention in political science. 
+For text reuse, the unit of analysis is a pair of texts. Text reuse methods produce at least one of two statistics, a global alignment score and local alignment scores. Global alignment is a measure of how well documents align overall. Some methods are based on word frequencies and others are based on sequence. Local alignment methods identify and often score matching portions of two documents and are necessarily based on sequence.% Global alignment is measured in a wide variety of ways but generally aims to reflect the amount of content they share. Local alignment identifies specific matching sequences of words. 
+
+
+If affecting which words people use is a measure of influence, then affecting the distribution \textit{and} sequence of words may be even stronger evidence. Thus I focus on local alignment and only briefly discuss global alignment and semantic methods. %\citep{Wilkerson2016}.
+Additionally, for measuring influence, global alignment has a major disadvantage compared to both topic modeling and local alignment: results are much less informative about the content that is similar. Whereas topic models share the bag-of-words assumption with methods like cosine similarity, they can identify specific distributions of words on which documents are similar or dissimilar. Local alignment methods identify specific sequences of words on which documents are similar or dissimilar. Whereas \citet{Acree2016} suggest that if cosine similarity is to be used to estimate document similarity, it should be weighted with local alignment, incorporating local alignment into topic modeling strategies could accomplish the same aim with more interpretable results. 
+
+Text reuse and semantic attributes are usually discovered using deterministic matching. Text reuse methods identify matching strings and often score these matches based on defined criteria, for example, the relative priority a researcher places on the exactness and the length of the matching sequence. Semantic attributes, such as tone or verb tense, are usually captured using dictionary-based methods. Words (or occasionally phrases) are compared against a dictionary of terms determined to have that attribute. One may use an existing dictionary or create a custom one for the research purpose, either by hand or with a learning algorithm. For example, \citet{Acree2014} hand-codes texts into ideological categories and then uses an algorithm to create a dictionary of phrases reflective of each group of texts, allowing him to measure the proportion different ideological phrases used by candidates. 
+
+Matching algorithms loop over strings of words to identify words or sequences of words (or characters) that match align with a reference pattern. For dictionary-based methods, this is a simple set operation; a word or phrase is in the dictionary or it is not. For text reuse methods this is often much more difficult. There are often multiple ways that two texts with shared sequences can be aligned. Algorithms generate alignment scores based on user-defined points and penalties for the length and exactness of a match. 
+
+
+\subsection{Mechanics of Smith-Waterman Local Alignment Algorithm}
+
+Early work on alignment algorithms was advanced in the field of genetic sequencing. One common algorithm was developed by \citet{Smith1981} for matching gene sequence. 
+
+The Smith-Waterman (SW) algorithm goes up when the next character is a match and down when it is not. One must set the size of the increase when the next character in a string is a match, the decrease when it is not, the size of the penalty for inserting a gap, and a condition for when the algorithm will terminate. Penalties for mismatches or gaps allow one to be more or less tolerant of differences in local alignments. Finally, if the goal is to identify a subset of the text pairs that match, one must set a minimum threshold score for inclusion of each local alignment in the output dataset. 
+
+Given these values, the SW algorithm identifies optimal local alignment by selecting the highest score from the various ``paths'' through a matrix of possible word pairs in the two documents, generally maximizing the inclusion of matching tokens and minimizing the inclusion of mismatches. It does this in a three-step process. First, given two documents of length $a$ and $b$, a $a+1$ by $b+1$ matrix is initialized with its first row and column equal to 0. Second, the matrix is scored based on matches, nonmatches, and gaps. If matches and mismatches are assigned scores of 1 and -1, respectively, the substitution matrix can be described as
+
+$s(a_i, b_j) = \begin{Bmatrix} +1, a_i = b_j\\ -1, a_i \neq b_j \end{Bmatrix}$ 
+
+
+If the penalty for a gap is $W$, the matrix $H$ is filled in such that
+
+$H_{ij} = max \begin{Bmatrix}H_{i-1,j-1} + s(a_i, b_j),\\ max_{k\geq 1} \{H_{i-k,j} - W_k\},\\ max_{l\geq 1} \{H_{i-l,j} - W_l\},\\0 \end{Bmatrix}$. 
+
+Finally,  a traceback algorithm starts at the highest value in the matrix and follows the path that maximizes the cumulative score until reaching the termination threshold, usually 0. This is illustrated in Figure 1 where orange arrows indicate the path taken by the traceback algorithm from each cell with a positive score to the next cell that maximizes the cumulative score. The first match has a cumulative score of 4 and the second match has a cumulative score of 6.
+
+\begin{figure}[!ht]
+\centering
+\caption{Illustration of Smith Waterman Scored $H$ Matrix and Traceback} %\citep{LinderVisualizingAlgorithm}}
+\includegraphics[width=10cm]{s.png}
+\end{figure}
+
+\subsubsection{Computation}
+Compared to topic modeling approaches, text reuse algorithms tend to involve more straightforward computations but in greater numbers. Because text alignment algorithms involve multiple operations on all possible word pairs in all possible document pairs these methods can quickly become computationally expensive larger numbers of longer documents. Thus, one of the key ways to reduce computational cost is to cut down the number of document pairs considered. 
+
+If many documents in a corpus do not share any content, these pairs can be excluded. One way to do this is to filter out pairs that do not meet a matching criteria that is easier to compute. For example, \citet{Wilkerson2015} exclude pairs that do not share at least five 10-grams, greatly reducing the number of pairs considered. As noted, comparing n-grams is a simple set operation and is cheap to compute. Similarly, pairs that do not share a baseline level of similarity can be eliminated by converting text strings to hash codes, whereby duplicate strings are given a common index and are thus easy to detect \citep{Huston2011}. \citet{Collins2015} and \citet{Eshbaugh-Soha2013} use popular plagiarism detection program \textit{WCopyfind}, which uses hashing to detect exact matches between texts, but, unlike\textit{ Smith-Waterman}, the algorithm it uses is only able to skip over non-matching segments of near-identical length and does not attempt to optimize alignment \citep{Bloomfield2011}. 
+
+Local alignment calculations can also be sped up by requiring that alignments include certain exact n-gram matches. If these anchoring n-gram matches are long enough, it is unlikely to lead to suboptimal matches. \citet{Wilkerson2015} find that 10 word matches worked well for identifying matching strings in sections of bills
+
+
+\subsection{Applications of Text Reuse in Political Science}
+Few studies focus directly on the concept of influence. 
+\citet{Collins2015} uses \textit{WCopyfind} to assess the influence of \textit{amicus curiae} briefs on Supreme Court opinions and \citet{Eshbaugh-Soha2013} uses it to measure the influence of White House press conferences on news coverage. These inferences depend on the assumption that text matching that in \textit{amicus} briefs or press secretaries means it originated there, which requires information about how those documents are created. 
+
+\citet{Hertel-Fernandez} use text reuse to detect the proposal and adoption of legislative language proposed by the American Legislative Exchange Council (ALEC), a group that drafts model state legislation and advocates for it. They find that states with less legislative professionalism are more likely to introduce and pass bills that contain ALEC language. Because they have external information about the document generating process---they know that ALEC plays a major role in writing and disseminating model legislation to state legislators---\citet{Hertel-Fernandez} can infer that the similarities they find are evidence of ALEC influence. Even if some state legislators are copying other states, ALEC is influential if it is the originator \textit{or} dissemination of the policy text, a plausible assumption for many of these texts.
+
+Recent research has begun to incorporate information about the network of relationships among actors, greatly improving the plausibility that text similarity reflects influence .
+\citet{Linder2017} find that state legislators with similar voting behavior introduce bills with matching text and that text reuse reflects policy diffusion networks found by other scholars. 
+\citet{Garrett2015} assess the relative influence of interest groups and early adopting states on policy diffusion using text similarity as an attribute of a network model. They note that ``Knowing which states adopted similar policies does not inform our understanding of interest groups' impact on policy adoption and emulation...studies cannot distinguish the influence of interest group model legislation from the impact of other state and national actors'' (pg. 7). Using a network model allows them to measure the centrality of different texts.  However, because they use global alignment scores rather than local alignment or topics, their model cannot describe the nature of copied content. 

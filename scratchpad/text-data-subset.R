@@ -17,11 +17,13 @@ d %<>% filter(complete == T) %>%
 
 d %<>% select(-complete, -nchar, -n, -mean)
 
-# inspectg 
+# inspect
 unique(d$agency)
 unique(d$Department)
 head(d$SUBJECT[which(d$agency == "DOT_FTA")])
 
+d$Department %<>% str_replace("Department of ", "")
+d %<>% mutate(Department = ifelse(department=="DHS","Homeland Security", Department))
 
 correspondenceTexts <- d
 
