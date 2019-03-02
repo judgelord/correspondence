@@ -120,7 +120,7 @@ data_list <- as.data.frame(matrix(c(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-"SSA", "not coded", NA, # revisit merge and remove NAs? # merge needs work
+"SSA", "not coded", NA, # fair amount of bad names that coding won't help much
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
