@@ -44,7 +44,7 @@ data_list <- as.data.frame(matrix(c(
 # DOC
 "DOC_EDA", "not coded", NA,  
 "DOC_IOS", "coded", "Aaron",
-"DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
+"DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text # Missing most dates
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
 "DOC_NTIA", "not coded", NA, 
@@ -108,7 +108,7 @@ data_list <- as.data.frame(matrix(c(
 # NARA
   "NARA", "not coded", NA,
 # NASA
- "NASA", "not coded", NA, # needs cleanup, esp of dates 
+ "NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
 # NCPC
  "NCPC", "not coded", NA,
 "NCUA", "not coded", NA, 

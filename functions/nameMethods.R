@@ -12,7 +12,7 @@ formatLastName <- function(data, col_name){
     # correct capitalization
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
-    mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name)) %>% 
+    mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DELAURO", replacement = "DeLAURO", last_name)) %>% 
     mutate(last_name = gsub("DEMINT", replacement = "DeMINT", last_name)) %>% 
     mutate(last_name = gsub("LOBIONDO", replacement = "LoBIONDO", last_name)) %>% 

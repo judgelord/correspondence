@@ -1,12 +1,11 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "NASA" # for testing
+ #file.name <- "NASA" # for testing
 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
-  
   
   data <- data[-which(is.na(data$FROM)),]
   
@@ -69,12 +68,6 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("UNIVERSITY", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("UNIVERSITY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  
-  
-  
-  
-  
-  
   
   
 }
