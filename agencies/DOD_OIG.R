@@ -13,13 +13,13 @@ clean <- function(file.name) {
   data$ID <- seq(1:nrow(data))
   
   
-  data$originalDATE <- data$DATE 
-  
-  data$DATE <- as.Date(data$DATE, "%m/%d/%y")
+  data$DATE <- as.Date(data$'Final Date', "%m/%d/%y")
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  data$FROM <- gsub("\\d+-\\d+ (\\w.*)","\\1",data$Control)
   
   
   ###############    
@@ -28,21 +28,27 @@ clean <- function(file.name) {
     if(grepl("/", data$FROM[i])) {
       
       new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      new$FROM <- unlist(str_split(data$FROM[i], "/"))
       
       data <- rbind(data, new)
       
     }
   }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
   ################ 
   
   
+
+
+  data$last_name <- formatLastName(data, 'FROM')
+  data$first_name <- NA
+
+  data$first_name <- addFirst(data$first_name,data$last_name)
   
-  data$FROM <- gsub("\\d+-\\d+ (\\w.*)","\\1",data$Control)
-  data <- extractMemberName(data, members, 'FROM')
   
+  
+  data$SUBJECT <- data$SUBJECT
   
   
   # arrange columns for hand coding

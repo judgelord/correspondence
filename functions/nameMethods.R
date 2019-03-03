@@ -818,7 +818,8 @@ ocr.errors <- function(FROM){
 
 # *** Use this function with caution. Will add first name information based on ONLY last names that are unique, has 
 #     potential to add a members first name to a non member creating false positives (e.g. If only last name 
-#     Grassley is provided, it will assume it's Chuck Grassley, even if it was actually Jim Joe Grassley)
+#     Grassley is provided, it will assume it's Chuck Grassley, even if it was actually a 
+#     random person named Jim Joe Grassley)
 #
 #
 #  Typical use of function looks as follows:
