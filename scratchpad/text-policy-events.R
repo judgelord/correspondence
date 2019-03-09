@@ -16,7 +16,7 @@ d %<>% rename(Party = party_name)
 
 
 ###############    
-# Creates duplicate rows for lines with multiple representatives
+# Creates duplicate rows for lines with multiple policy event classifications
 for(i in 1:nrow(d)){
   if(grepl(";|/", d$POLICY_EVENT[i])) {
     
@@ -32,6 +32,18 @@ d$POLICY_EVENT <- gsub("^ |^  | $|  $", "", d$POLICY_EVENT)
 ################
 
 
+
+d %<>%
+  mutate(POLICY_EVENT = str_to_upper(POLICY_EVENT)) %>% 
+  mutate(POLICY_EVENT = ifelse(grepl("ALLOCATION",POLICY_EVENT), "BUDGET ALLOCATION", POLICY_EVENT)) 
+
+z <- d %>%
+  group_by(POLICY_EVENT) %>% 
+  summarise(n = n()) %>% filter(n > 10) 
+
+d %<>%
+  filter(POLICY_EVENT %in% z$POLICY_EVENT)
+
 words <- d %>% 
   unnest_tokens(word, SUBJECT) %>% 
   filter(!(word %in% stop_words$word)) %>% 
@@ -40,12 +52,48 @@ words <- d %>%
   top_n(10) %>% 
   mutate(word = fct_inorder(word))
 
+
 ggplot(words, aes(x = fct_rev(word), y = n)) + 
   geom_col() + 
   coord_flip() +
   scale_y_continuous(labels = scales::comma) +
   labs(y = "Count", x = NULL, title = "10 most frequent words") +
   facet_wrap("POLICY_EVENT", scales = "free")
+
+
+
+
+bigrams <- d %>% 
+  group_by(POLICY_EVENT) %>% 
+  unnest_tokens(bigram, SUBJECT, token = "ngrams", n = 2) %>% 
+  # Split the bigram column into two columns
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  # Put the two word columns back together
+  unite(bigram, word1, word2, sep = " ") %>% 
+  count(bigram, sort = TRUE) %>% 
+  top_n(5)
+
+ggplot(bigrams, aes(x = reorder(bigram, n), y = n)) + 
+  geom_col() + 
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma) +
+  labs(y = "Count", x = NULL, title = "10 most frequent word pairs") +
+  facet_wrap("POLICY_EVENT", scales = "free")
+
+
+# "hearing entitled" --> hearing
+# grep("\\(grant support\\)|\\[grant support\\]",d$SUBJECT,ignore.case = T) --> grant
+# grep("meeting request",d$SUBJECT,ignore.case = T) --> meeting 
+# grep("requests information",d$SUBJECT,ignore.case = T) --> information
+
+
+
+
+
+
+
 
 
 
