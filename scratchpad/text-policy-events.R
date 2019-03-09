@@ -84,12 +84,62 @@ ggplot(bigrams, aes(x = reorder(bigram, n), y = n)) +
 
 
 # "hearing entitled" --> hearing
-# grep("\\(grant support\\)|\\[grant support\\]",d$SUBJECT,ignore.case = T) --> grant
+# grep("\\(grant support\\)|\\[grant support\\]",d$SUBJECT,ignore.case = T) --> grant (earmark?)
 # grep("meeting request",d$SUBJECT,ignore.case = T) --> meeting 
 # grep("requests information",d$SUBJECT,ignore.case = T) --> information
+# grep("hearing entitled",d$SUBJECT,ignore.case = T) --> hearing
 
 
 
+trigrams <- d %>% 
+  group_by(POLICY_EVENT) %>% 
+  unnest_tokens(trigram, SUBJECT, token = "ngrams", n = 3) %>% 
+  # Split the trigram column into three columns
+  separate(trigram, c("word1", "word2","word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  # Put the three word columns back together
+  unite(trigram, word1, word2, word3, sep = " ") %>% 
+  count(trigram, sort = TRUE) %>% 
+  top_n(5)
+
+ggplot(trigrams, aes(x = reorder(trigram, n), y = n)) + 
+  geom_col() + 
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma) +
+  labs(y = "Count", x = NULL, title = "10 most frequent word pairs") +
+  facet_wrap("POLICY_EVENT", scales = "free")
+
+
+# Term Frequency - Inverse Document Frequency
+
+# Get a list of words
+words <- d %>% 
+  unnest_tokens(word, SUBJECT) %>% 
+  group_by(POLICY_EVENT) %>% 
+  count(word, sort = TRUE) %>% 
+  ungroup()
+
+# Add the tf-idf for these words
+tf_idf <- words %>% 
+  bind_tf_idf(word, POLICY_EVENT, n) %>% 
+  arrange(desc(tf_idf))
+
+# Get the top 10 most unique words
+tf_idf %>% 
+  group_by(POLICY_EVENT) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  # order by word
+  mutate(word = fct_inorder(word)) %>%
+  # Plot by tf_idf
+  ggplot(aes(x = fct_rev(word), y = tf_idf, fill = POLICY_EVENT)) +
+  geom_col() +
+  guides(fill = FALSE) +
+  labs(y = "tf-idf", x = NULL) +
+  facet_wrap(~ POLICY_EVENT, scales = "free") +
+  coord_flip()
 
 
 
