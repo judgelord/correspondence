@@ -1,34 +1,66 @@
-here::here(source("setup.R"))
-
-# install.packages('downloader','stringr', 'pdftools', 'tesseract')
-library(tesseract)
-library(downloader)
-library(pdftools)
+source("setup.R")
 library(rvest)
-
-lego_movie <- read_html("http://www.imdb.com/title/tt1490017/")
-
-rating <- lego_movie %>% 
-  html_nodes("strong span") %>%
-  html_text() %>%
-  as.numeric()
-rating
-
-cast <- lego_movie %>%
-  html_nodes("#titleCast .itemprop span") %>%
-  html_text()
-cast
-
-poster <- lego_movie %>%
-  html_nodes(".poster img") %>%
-  html_attr("src")
-poster
-
 
 # https://elibrary.ferc.gov/idmws/search/fercgensearch.asp
 
 # Get html
-FERChtml <- read_html(here("FERC","1.html"))
+html <- read_html(here("FERC","1.html"))
+
+# html %>% html_attrs()
+
+html %>%
+  html_nodes("table") %>%
+  html_text() %>% 
+  filter(str_detect(url, "opennat"))
+  #.[8] %>%
+  html_table(fill = TRUE)
+
+html_nodes(html, "tr") %>% html_text() 
+
+d <- tibble(table_rows = html_nodes(html,"tr"))
+
+d %<>% 
+  mutate(links = html_node(table_rows,"a")) %>% 
+  mutate(linktext = html_text(links)) %>% 
+  mutate(url = html_attr(links, "href")) %>% 
+  #filter(str_detect(url, "opennat")) %>% 
+  mutate(summary = html_text(table_rows)) %>% 
+  mutate(file_extention = str_replace(linktext, ".*PDF", ".pdf")) %>% 
+  mutate(file_extention = ifelse(linktext == "Image", ".tif", file_extention) )
+
+d$url
+
+d$links
+d$linktext
+d$file_extention
+d$url
+d$summary
+
+html_node(d$table_rows[100], "td")
+
+links <- html%>% 
+  html_nodes("a")%>%
+  html_attr("href") %>% 
+  str_extract(".*opennat.*")
+
+
+files <- tibble(link = links, 
+                fileID = str_extract(links, "[0-9].*") )
+
+files %<>% drop_na(link)
+
+
+files <- files[1:3,]
+
+# The function download.file(url, destfile)
+# walk2() takes two vectors, .x and .y, and applies them to a function .f)
+# Here, .x is url, .y is destfile, and .f is download.file():
+walk2(files$link, paste0(files$fileID, ".pdf"), download.file)
+
+
+
+
+
 
 
 
