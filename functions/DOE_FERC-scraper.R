@@ -6,23 +6,73 @@ library(rvest)
 
 # extract table 
 web_pages <- list.files(here("FERC"), pattern = ".html")
-web_page <- web_pages[3]
-html <- read_html(here("FERC", web_page))
+web_page <- web_pages[5]
 
-table <- html %>% html_nodes("table") %>%
-  .[[3]] %>% 
-  html_table(fill = T, header = T) %>% 
-  drop_na()
+scraper <- function(web_page){
+  
+  # Get raw html
+  html <- read_html(here("FERC", web_page))
 
-html %>% 
+table <- html %>% 
   html_nodes("table") %>%
-  .[[3]] %>% 
-  html_node("a") %>% 
-  html_attr("href") %>% 
-  drop_na()
+  .[[3]] %>% # I happen to be interested in the third table on this page
+  html_table(fill = T) %>% # turn html in to a data frame
+  drop_na() %>% # clean it up a bit
+  select(X1,X2,X3,X4) %>%
+  rename(id = X1,
+         date = X2,
+         docket = X3,
+         summary = X4) %>% 
+  mutate(id = str_remove(id, "Submittal")) %>% #FIXME 
+  mutate(id = str_replace(id, "Document Components", "(partial)")) %>% #FIXME 
+  mutate(index = row_number()) # add an index
 
 
-# download files 
+urls <- html %>% 
+  html_nodes("table") %>%
+  html_nodes("a") # "a" nodes contain url linked text
+
+d <- tibble(
+  link_text = html_text(urls), # the linked text 
+  url = html_attr(urls, "href") ) %>% # the url (an html attribute)
+  mutate(fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
+         file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
+         file_extention = str_replace(file_extention, "Image", ".tif") ) %>%
+  filter(str_detect(url, "opennat")) %>%  # filter to get rows that have the files we want
+  filter(link_text == "FERC Generated PDF") %>% # filter to pdf files
+  mutate(index = row_number()) # add index 
+
+  # merge with table by index
+  d %<>% full_join(table)  %>%
+    mutate(file_name = paste0(id, "-", fileID, file_extention) )# add the file name and file extension
+
+  # filter out files we already have
+  download <- d %>% filter(!file_name %in% list.files(here("FERC")) ) 
+    
+  # Now we can use the function download.file(url, destfile)
+  # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
+  # Here, .x is url, .y is destfile, and .f is download.file():
+  walk2(download$url, here("FERC", download$file_name), download.file)
+
+
+  return( select(d, date, docket, file_name, summary, url) )
+}
+
+## map_dfr() takes a vector, .x and applies the function .f(.x), 
+## binding the results as rows in a data frame
+tables <- map_dfr(web_pages, scraper)
+
+###################################################################
+
+
+
+
+
+
+
+
+ ##########################################
+# download all files 
 scraper <- function(web_page){
 
   # Get raw html
@@ -40,9 +90,11 @@ scraper <- function(web_page){
            file_extention = str_replace(file_extention, "Image", ".tif"), 
            file_name = paste0(fileID, file_extention), # add the file name and file extension
            summary = html_text(table_rows)) %>% # grab all the table text just because
+    select(-links, -table_rows) %>%
     filter(str_detect(url, "opennat")) %>%  # filter out rows that don't have the files we want
     filter(file_extention == ".pdf")
-    filter(file_name %in% list.files(here("FERC"))) # filter out files we already have
+
+  d %<>% filter(!file_name %in% list.files(here("FERC")) ) # filter out files we already have
   
   # Now we can use the function download.file(url, destfile)
   # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
