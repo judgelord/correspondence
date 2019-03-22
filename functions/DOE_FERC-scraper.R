@@ -3,63 +3,70 @@ library(rvest)
 
 # https://elibrary.ferc.gov/idmws/search/fercgensearch.asp
 
-# Get html
-html <- read_html(here("FERC","1.html"))
 
-# html %>% html_attrs()
+  tab <- html_nodes(html, "table") 
+  
+  tab %>% html_nodes(xpath=".//td[2]/a") %>% html_attr("href")
+  
+  html_table(tab, fill = T)[[3]] %>%
+    #set_names(rm_extra(colnames(.) %>% mk_gd_col_names)) %>%
+    #mutate_all(funs(rm_extra)) %>%
+    mutate(link = html_nodes(tab, xpath=".//td[2]/a") %>% html_attr("href")) %>%
+    as_tibble()
+  
+}
 
-html %>%
-  html_nodes("table") %>%
-  html_text() %>% 
-  filter(str_detect(url, "opennat"))
-  #.[8] %>%
-  html_table(fill = TRUE)
-
-html_nodes(html, "tr") %>% html_text() 
-
-d <- tibble(table_rows = html_nodes(html,"tr"))
-
-d %<>% 
-  mutate(links = html_node(table_rows,"a")) %>% 
-  mutate(linktext = html_text(links)) %>% 
-  mutate(url = html_attr(links, "href")) %>% 
-  #filter(str_detect(url, "opennat")) %>% 
-  mutate(summary = html_text(table_rows)) %>% 
-  mutate(file_extention = str_replace(linktext, ".*PDF", ".pdf")) %>% 
-  mutate(file_extention = ifelse(linktext == "Image", ".tif", file_extention) )
-
-d$url
-
-d$links
-d$linktext
-d$file_extention
-d$url
-d$summary
-
-html_node(d$table_rows[100], "td")
-
-links <- html%>% 
-  html_nodes("a")%>%
-  html_attr("href") %>% 
-  str_extract(".*opennat.*")
+pb <- progress_estimated(10)
+map_df(1:10, function(i) {
+  pb$tick()$print()
+  get_table(page_num = i)
+}) -> full_df
 
 
-files <- tibble(link = links, 
-                fileID = str_extract(links, "[0-9].*") )
+html <- read_html(web_page)
 
-files %<>% drop_na(link)
-
-
-files <- files[1:3,]
-
-# The function download.file(url, destfile)
-# walk2() takes two vectors, .x and .y, and applies them to a function .f)
-# Here, .x is url, .y is destfile, and .f is download.file():
-walk2(files$link, paste0(files$fileID, ".pdf"), download.file)
+d <- html %>% html_nodes("table") %>%
+  .[[3]] %>% 
+  html_table(fill = T, header = T)
 
 
 
 
+
+
+
+web_pages <- list.files(here("FERC"), pattern = ".html")
+web_page <- web_pages[3]
+
+
+scraper <- function(web_page){
+
+  # Get raw html
+  html <- read_html(here("FERC"), web_page)
+  
+  # A data frame with rows breaks at the node "<tr>" 
+  d <- tibble(table_rows = html_nodes(html,"tr"))
+  
+  d %<>% 
+    mutate(links = html_node(table_rows,"a"), # "a" nodes contain urls and linked text
+           link_text = html_text(links), # the text 
+           url = html_attr(links, "href"), # the url
+           fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
+           file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
+           file_extention = str_replace(file_extention, "Image", ".tif"), 
+           file_name = paste0(fileID, file_extention), # add the file name and file extension
+           summary = html_text(table_rows)) %>% # grab all the table text just because
+    filter(str_detect(url, "opennat")) %>%  # filter out rows that don't have the files we want
+    filter(file_name %in% list.files(here("FERC"))) # filter out files we already have
+  
+  # Now we can use the function download.file(url, destfile)
+  # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
+  # Here, .x is url, .y is destfile, and .f is download.file():
+  walk2(d$url, here("FERC", d$file_name), download.file)
+}
+
+# walk() takes one vector, .x and applies the function .f(.x)
+walk(web_pages, scraper)
 
 
 
