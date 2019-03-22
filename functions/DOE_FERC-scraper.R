@@ -6,7 +6,10 @@ library(rvest)
 
 # extract table 
 web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
-web_pages <- web_pages[1]
+
+# for testing 
+web_page <- web_pages[1]
+
 
 scraper <- function(web_page){
   
@@ -22,10 +25,8 @@ table <- html %>%
          docket = X3,
          summary = X4) %>% 
   filter(str_detect(id, "Submittal")) %>% # clean it up a bit
-  gather(key = key, value = link_text, -id, -date, -docket, -summary) %>% 
-  #drop_na(link_text) %>% 
-  filter(link_text %in% c("Image", "FERC Generated PDF") ) %>% #FIXME
-  # group_by(link_text, id) %>% top_n(1) %>% ungroup() %>%
+  gather(key = key, value = link_text, -id, -date, -docket, -summary) %>%
+  filter(link_text %in% c("Image", "PDF", "FERC Generated PDF", "MicroFilm") ) %>% #FIXME
   separate(date, c("doc_date", "filed_date"), sep = "\n\t") %>%
   mutate(doc_date = as.Date(doc_date, "%m/%d/%Y"),
          filed_date = as.Date(filed_date, "%m/%d/%Y") ) %>%
@@ -34,8 +35,11 @@ table <- html %>%
   arrange(desc(filed_date)) %>% # dates count down 
   mutate(id = str_remove(id, "Submittal")) %>% 
   mutate(id = str_replace(id, "Document Components", "(partial)")) %>% 
-  mutate(index = row_number()) # add an index
+  select(-key)
 
+table_files <- table %>%
+  filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% #FIXME
+  mutate(index = row_number()) # add an index
 
 urls <- html %>% 
   html_nodes("table") %>%
@@ -48,11 +52,11 @@ urls <- tibble(
          file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
          file_extention = str_replace(file_extention, "Image", ".tif") ) %>%
   filter(str_detect(url, "opennat")) %>%  # filter to get rows that have the files we want
-  filter(link_text %in% c("Image","FERC Generated PDF") ) %>% # filter to pdf files
+  filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% # filter to pdf files
   mutate(index = row_number()) # add index 
 
   # merge with table by index
-  d <- full_join(table, urls)  %>%
+  d <- full_join(table_files, urls)  %>%
     # add the file name and file extension
     mutate(file_name = paste0(id, "-", fileID, file_extention) ) 
 
@@ -65,19 +69,24 @@ urls <- tibble(
   # Here, .x is url, .y is destfile, and .f is download.file():
   walk2(download$url, here("FERC", download$file_name), download.file)
 
+  d %<>% 
+    select(id, doc_date, filed_date, docket, summary, file_name, url, link_text) %>% 
+    filter(!is.na(id)) %>%
+    left_join(table) %>% 
+    distinct()
 
-  return(d %>% 
-           select(id, doc_date, filed_date, docket, summary, file_name, url) %>% 
-           filter(!is.na(id)) # drop errors #FIXME
-         )
+  return(d)
 }
 ## map_dfr() takes a vector, .x and applies the function .f(.x), 
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
 
-log <- d %>% 
-  select(-url) %>% 
-  spread(d, link_text, file_name)
+log <- d %>%  #FIXME
+  group_by(id) %>% 
+  mutate(file_name = paste(file_name, collapse = "; "),
+         url = paste(url, collapse = "; ") ) %>% 
+  ungroup() %>% 
+  distinct()
 ###################################################################
 
 
@@ -86,6 +95,17 @@ log <- d %>%
 
 
 
+
+
+
+
+
+
+
+
+
+#####################################
+# OLD CODE
 
  ##########################################
 # download all files 
