@@ -8,7 +8,7 @@ library(rvest)
 web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
 
 # for testing 
-web_page <- web_pages[1]
+web_page <- web_pages[2]
 
 
 scraper <- function(web_page){
@@ -61,18 +61,18 @@ urls <- tibble(
     mutate(file_name = paste0(id, "-", fileID, file_extention) ) 
 
   # filter out files we already have
-  download <- d %>% 
+  to_download <- d %>% 
     filter(!file_name %in% list.files(here("FERC")) ) 
     
   # Now we can use the function download.file(url, destfile)
   # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
   # Here, .x is url, .y is destfile, and .f is download.file():
-  walk2(download$url, here("FERC", download$file_name), download.file)
+  walk2(to_download$url, here("FERC", to_download$file_name), download.file)
 
   d %<>% 
     select(id, doc_date, filed_date, docket, summary, file_name, url, link_text) %>% 
     filter(!is.na(id)) %>%
-    left_join(table) %>% 
+    full_join(table) %>% 
     distinct()
 
   return(d)
@@ -81,9 +81,10 @@ urls <- tibble(
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
 
-log <- d %>%  #FIXME
+log <- tables %>%
   group_by(id) %>% 
-  mutate(file_name = paste(file_name, collapse = "; "),
+  mutate(link_text = paste(link_text, collapse = "; "),
+         file_name = paste(file_name, collapse = "; "),
          url = paste(url, collapse = "; ") ) %>% 
   ungroup() %>% 
   distinct()
