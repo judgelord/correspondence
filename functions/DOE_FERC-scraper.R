@@ -4,11 +4,11 @@ library(rvest)
 # https://elibrary.ferc.gov/idmws/search/fercgensearch.asp
 
 
-# extract table 
+## extract table 
 web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
 
-# for testing 
-web_page <- web_pages[2]
+## for testing 
+# web_page <- web_pages[2]
 
 
 scraper <- function(web_page){
@@ -64,10 +64,10 @@ urls <- tibble(
   to_download <- d %>% 
     filter(!file_name %in% list.files(here("FERC")) ) 
     
-  # Now we can use the function download.file(url, destfile)
-  # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
-  # Here, .x is url, .y is destfile, and .f is download.file():
-  walk2(to_download$url, here("FERC", to_download$file_name), download.file)
+  ## Now we can use the function download.file(url, destfile)
+  ## walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
+  ## Here, .x is url, .y is destfile, and .f is download.file():
+  # walk2(to_download$url, here("FERC", to_download$file_name), download.file)
 
   d %<>% 
     select(id, doc_date, filed_date, docket, summary, file_name, url, link_text) %>% 
@@ -90,6 +90,11 @@ log <- tables %>%
   distinct()
 ###################################################################
 
+log %>%
+  rename(SUBJECT = summary,
+         DATE = doc_date,
+         ID = id) %>% 
+  write.csv(file = "DOE_FERC Extended.csv")
 
 
 
