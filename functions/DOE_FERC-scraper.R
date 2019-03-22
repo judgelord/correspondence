@@ -4,45 +4,29 @@ library(rvest)
 # https://elibrary.ferc.gov/idmws/search/fercgensearch.asp
 
 
-  tab <- html_nodes(html, "table") 
-  
-  tab %>% html_nodes(xpath=".//td[2]/a") %>% html_attr("href")
-  
-  html_table(tab, fill = T)[[3]] %>%
-    #set_names(rm_extra(colnames(.) %>% mk_gd_col_names)) %>%
-    #mutate_all(funs(rm_extra)) %>%
-    mutate(link = html_nodes(tab, xpath=".//td[2]/a") %>% html_attr("href")) %>%
-    as_tibble()
-  
-}
-
-pb <- progress_estimated(10)
-map_df(1:10, function(i) {
-  pb$tick()$print()
-  get_table(page_num = i)
-}) -> full_df
-
-
-html <- read_html(web_page)
-
-d <- html %>% html_nodes("table") %>%
-  .[[3]] %>% 
-  html_table(fill = T, header = T)
-
-
-
-
-
-
-
+# extract table 
 web_pages <- list.files(here("FERC"), pattern = ".html")
 web_page <- web_pages[3]
+html <- read_html(here("FERC", web_page))
+
+table <- html %>% html_nodes("table") %>%
+  .[[3]] %>% 
+  html_table(fill = T, header = T) %>% 
+  drop_na()
+
+html %>% 
+  html_nodes("table") %>%
+  .[[3]] %>% 
+  html_node("a") %>% 
+  html_attr("href") %>% 
+  drop_na()
 
 
+# download files 
 scraper <- function(web_page){
 
   # Get raw html
-  html <- read_html(here("FERC"), web_page)
+  html <- read_html(here("FERC", web_page))
   
   # A data frame with rows breaks at the node "<tr>" 
   d <- tibble(table_rows = html_nodes(html,"tr"))
@@ -57,6 +41,7 @@ scraper <- function(web_page){
            file_name = paste0(fileID, file_extention), # add the file name and file extension
            summary = html_text(table_rows)) %>% # grab all the table text just because
     filter(str_detect(url, "opennat")) %>%  # filter out rows that don't have the files we want
+    filter(file_extention == ".pdf")
     filter(file_name %in% list.files(here("FERC"))) # filter out files we already have
   
   # Now we can use the function download.file(url, destfile)
