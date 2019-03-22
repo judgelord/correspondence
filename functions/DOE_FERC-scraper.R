@@ -5,26 +5,35 @@ library(rvest)
 
 
 # extract table 
-web_pages <- list.files(here("FERC"), pattern = ".html")
-web_page <- web_pages[5]
+web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
+web_pages <- web_pages[1]
 
 scraper <- function(web_page){
   
   # Get raw html
-  html <- read_html(here("FERC", web_page))
+  html <- read_html(here("FERC", "html", web_page))
 
 table <- html %>% 
   html_nodes("table") %>%
   .[[3]] %>% # I happen to be interested in the third table on this page
   html_table(fill = T) %>% # turn html in to a data frame
-  drop_na() %>% # clean it up a bit
-  select(X1,X2,X3,X4) %>%
   rename(id = X1,
          date = X2,
          docket = X3,
          summary = X4) %>% 
-  mutate(id = str_remove(id, "Submittal")) %>% #FIXME 
-  mutate(id = str_replace(id, "Document Components", "(partial)")) %>% #FIXME 
+  filter(str_detect(id, "Submittal")) %>% # clean it up a bit
+  gather(key = key, value = link_text, -id, -date, -docket, -summary) %>% 
+  #drop_na(link_text) %>% 
+  filter(link_text %in% c("Image", "FERC Generated PDF") ) %>% #FIXME
+  # group_by(link_text, id) %>% top_n(1) %>% ungroup() %>%
+  separate(date, c("doc_date", "filed_date"), sep = "\n\t") %>%
+  mutate(doc_date = as.Date(doc_date, "%m/%d/%Y"),
+         filed_date = as.Date(filed_date, "%m/%d/%Y") ) %>%
+  # arrange(desc(link_text)) %>% # image before pdf
+  arrange(id) %>% # id numbers count up
+  arrange(desc(filed_date)) %>% # dates count down 
+  mutate(id = str_remove(id, "Submittal")) %>% 
+  mutate(id = str_replace(id, "Document Components", "(partial)")) %>% 
   mutate(index = row_number()) # add an index
 
 
@@ -32,22 +41,24 @@ urls <- html %>%
   html_nodes("table") %>%
   html_nodes("a") # "a" nodes contain url linked text
 
-d <- tibble(
+urls <- tibble(
   link_text = html_text(urls), # the linked text 
   url = html_attr(urls, "href") ) %>% # the url (an html attribute)
   mutate(fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
          file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
          file_extention = str_replace(file_extention, "Image", ".tif") ) %>%
   filter(str_detect(url, "opennat")) %>%  # filter to get rows that have the files we want
-  filter(link_text == "FERC Generated PDF") %>% # filter to pdf files
+  filter(link_text %in% c("Image","FERC Generated PDF") ) %>% # filter to pdf files
   mutate(index = row_number()) # add index 
 
   # merge with table by index
-  d %<>% full_join(table)  %>%
-    mutate(file_name = paste0(id, "-", fileID, file_extention) )# add the file name and file extension
+  d <- full_join(table, urls)  %>%
+    # add the file name and file extension
+    mutate(file_name = paste0(id, "-", fileID, file_extention) ) 
 
   # filter out files we already have
-  download <- d %>% filter(!file_name %in% list.files(here("FERC")) ) 
+  download <- d %>% 
+    filter(!file_name %in% list.files(here("FERC")) ) 
     
   # Now we can use the function download.file(url, destfile)
   # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
@@ -55,13 +66,18 @@ d <- tibble(
   walk2(download$url, here("FERC", download$file_name), download.file)
 
 
-  return( select(d, date, docket, file_name, summary, url) )
+  return(d %>% 
+           select(id, doc_date, filed_date, docket, summary, file_name, url) %>% 
+           filter(!is.na(id)) # drop errors #FIXME
+         )
 }
-
 ## map_dfr() takes a vector, .x and applies the function .f(.x), 
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
 
+log <- d %>% 
+  select(-url) %>% 
+  spread(d, link_text, file_name)
 ###################################################################
 
 
