@@ -8,7 +8,7 @@ library(rvest)
 web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
 
 ## for testing 
-# web_page <- web_pages[2]
+# web_pages <- web_pages[2]
 
 
 scraper <- function(web_page){
@@ -16,44 +16,44 @@ scraper <- function(web_page){
   # Get raw html
   html <- read_html(here("FERC", "html", web_page))
 
-table <- html %>% 
-  html_nodes("table") %>%
-  .[[3]] %>% # I happen to be interested in the third table on this page
-  html_table(fill = T) %>% # turn html in to a data frame
-  rename(id = X1,
-         date = X2,
-         docket = X3,
-         summary = X4) %>% 
-  filter(str_detect(id, "Submittal")) %>% # clean it up a bit
-  gather(key = key, value = link_text, -id, -date, -docket, -summary) %>%
-  filter(link_text %in% c("Image", "PDF", "FERC Generated PDF", "MicroFilm") ) %>% #FIXME
-  separate(date, c("doc_date", "filed_date"), sep = "\n\t") %>%
-  mutate(doc_date = as.Date(doc_date, "%m/%d/%Y"),
-         filed_date = as.Date(filed_date, "%m/%d/%Y") ) %>%
-  # arrange(desc(link_text)) %>% # image before pdf
-  arrange(id) %>% # id numbers count up
-  arrange(desc(filed_date)) %>% # dates count down 
-  mutate(id = str_remove(id, "Submittal")) %>% 
-  mutate(id = str_replace(id, "Document Components", "(partial)")) %>% 
-  select(-key)
-
-table_files <- table %>%
-  filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% #FIXME
-  mutate(index = row_number()) # add an index
-
-urls <- html %>% 
-  html_nodes("table") %>%
-  html_nodes("a") # "a" nodes contain url linked text
-
-urls <- tibble(
-  link_text = html_text(urls), # the linked text 
-  url = html_attr(urls, "href") ) %>% # the url (an html attribute)
-  mutate(fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
-         file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
-         file_extention = str_replace(file_extention, "Image", ".tif") ) %>%
-  filter(str_detect(url, "opennat")) %>%  # filter to get rows that have the files we want
-  filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% # filter to pdf files
-  mutate(index = row_number()) # add index 
+  table <- html %>% 
+    html_nodes("table") %>%
+    .[[3]] %>% # I happen to be interested in the third table on this page
+    html_table(fill = T) %>% # turn html in to a data frame
+    rename(id = X1,
+           date = X2,
+           docket = X3,
+           summary = X4) %>% 
+    filter(str_detect(id, "Submittal")) %>% # clean it up a bit
+    gather(key = key, value = link_text, -id, -date, -docket, -summary) %>% #FIXME get private/public
+    filter(link_text %in% c("Image", "PDF", "FERC Generated PDF", "MicroFilm") ) %>% #FIXME add doc types
+    separate(date, c("doc_date", "filed_date"), sep = "\n\t") %>%
+    mutate(doc_date = as.Date(doc_date, "%m/%d/%Y"),
+           filed_date = as.Date(filed_date, "%m/%d/%Y") ) %>%
+    # arrange(desc(link_text)) %>% # image before pdf
+    arrange(id) %>% # id numbers count up
+    arrange(desc(filed_date)) %>% # dates count down 
+    mutate(id = str_remove(id, "Submittal")) %>% 
+    mutate(id = str_replace(id, "Document Components", "(partial)")) %>% 
+    select(-key)
+  
+  table_files <- table %>%
+    filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% #FIXME
+    mutate(index = row_number()) # add an index
+  
+  urls <- html %>% 
+    html_nodes("table") %>%
+    html_nodes("a") # "a" nodes contain url linked text
+  
+  urls <- tibble(
+    link_text = html_text(urls), # the linked text 
+    url = html_attr(urls, "href") ) %>% # the url (an html attribute)
+    mutate(fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
+           file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
+           file_extention = str_replace(file_extention, "Image", ".tif") ) %>%
+    filter(str_detect(url, "opennat")) %>%  # filter to get rows that have the files we want
+    filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% # filter to pdf files
+    mutate(index = row_number()) # add index 
 
   # merge with table by index
   d <- full_join(table_files, urls)  %>%
@@ -69,6 +69,7 @@ urls <- tibble(
   ## Here, .x is url, .y is destfile, and .f is download.file():
   # walk2(to_download$url, here("FERC", to_download$file_name), download.file)
 
+  # Finally, select the columns we want and merge with the full table
   d %<>% 
     select(id, doc_date, filed_date, docket, summary, file_name, url, link_text) %>% 
     filter(!is.na(id)) %>%
@@ -81,20 +82,98 @@ urls <- tibble(
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
 
-log <- tables %>%
+
+
+# pdf letters to text (note: could also OCR images, see html for image doc ids)
+d <- tables
+
+
+
+totext <- function(file_name){
+  # paste pages
+  text <- pdf_text(here("FERC", file_name))  %>% 
+    paste(collapse = "<pagebreak>")
+  return(text)
+}
+
+# If possible, read text
+d %<>% mutate(text = map_chr(file_name, possibly(totext, NA_real_)))
+
+FERC_files <- d
+save(FERC_files, file = here("data", "FERC_files.Rdata"))
+
+##################################################################################
+# FOR GOOGLE SHEET 
+###################
+
+# helper function
+Clean_String <- function(string){
+  string %<>% 
+    stringr::str_replace_all("[^a-zA-Z\\s]", " ") %>% 
+    stringr::str_replace_all("[\\s]+", " ")
+  return(string)
+}
+
+# collapse to one obs per ID
+log <- d %>%
   group_by(id) %>% 
   mutate(link_text = paste(link_text, collapse = "; "),
          file_name = paste(file_name, collapse = "; "),
-         url = paste(url, collapse = "; ") ) %>% 
-  ungroup() %>% 
-  distinct()
+         url = paste(url, collapse = "; "),
+         text = paste(text, collapse = "<pagebreak>")) %>% 
+  distinct() %>% 
+  mutate(text_clean = Clean_String(text)) %>% 
+  mutate(text_clean = str_remove_all(text_clean, "NA pagebreak|pagebreak NA|FERC PDF Unofficial |Document Conten| s tif ")) %>%
+  arrange(desc(id)) %>%
+  ungroup() 
+
+head(log$text_clean)
 ###################################################################
 
-log %>%
+log %<>%
   rename(SUBJECT = summary,
          DATE = doc_date,
-         ID = id) %>% 
-  write.csv(file = "DOE_FERC Extended.csv")
+         ID = id) 
+# log %>% write.csv(file = "DOE_FERC Extended.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

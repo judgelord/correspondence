@@ -11,7 +11,7 @@ file.name <- "DOE_FERC Extended" # for testing
 clean <- function(file.name) {
  
   data <- gs_title(file.name) %>% gs_read() # get data
-  data <- read.csv("DOE_FERC.csv")
+  data <- read.csv("DOE_FERC Extended.csv")
   
   # create ID column
   #data$ID <- c(1:nrow(data))
@@ -48,7 +48,12 @@ clean <- function(file.name) {
   
   
   data <- extractMemberName(data, members, "FROM")
+  data$FROM <- data$FROM2
+  data %<>% select(-FROM2, -X, -Summary)
+  ## extract from text 
+  # data %<>% map_if(is.na(FROM2), extractMemberNames) #FIXME need to write function for vector, not df
 
+  # write.csv(data, file = "DOE_FERC Extended.csv")
   
   data %<>%
     mutate(chamber = ifelse(grepl("(Senate|Senator)",Summary), 'Senate', NA)) %>% 
@@ -78,5 +83,13 @@ clean <- function(file.name) {
 }
 
 
+nchar("NA<pagebreak>NA<pagebreak>NA<pagebreak>NA")
 
-
+data %>% 
+  mutate(maybe_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, maybe_cosigned) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = maybe_cosigned) +
+  geom_col() + theme_minimal()
