@@ -87,9 +87,11 @@ tables %<>% mutate(file_nameNA = is.na(file_name))
 
 dim(tables)
 list.files(here("FERC"))
+length(list.files(here("FERC")))
 tables %>% group_by(link_text, file_nameNA) %>% tally()
 tables %>% group_by(link_text, file_downloaded) %>% tally() %>% ungroup()
 
+tables %>% select(file_name) %>% distinct() %>% dim()
 
 # pdf letters to text (note: could also OCR images, see html for image doc ids)
 d <- tables
@@ -110,10 +112,26 @@ d$text <- map(d$file_name, possibly(totext, NA_real_, quiet = T))
  
 dim(d)
 FERC_files <- d
+
+
+d$DATE <- d$doc_date
+d %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+d %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
+# create FROM column from SUBJECT column
+d$FROM <- d$summary
+d %<>% extractMemberName(members, "FROM")
+d$FROM <- data$FROM2
+d %<>% select(-FROM2, 
+              - doc_date, 
+              -file_nameNA, 
+              -file_downloaded,
+              -Summary)
+
 save(FERC_files, file = here("data", "FERC_files.Rdata"))
 
 ##################################################################################
-# FOR GOOGLE SHEET 
+# FOR GOOGLE SHEET
 ###################
 
 # helper function
@@ -142,11 +160,29 @@ head(log$text_clean)
 
 log %<>%
   rename(SUBJECT = summary,
-         DATE = doc_date,
          ID = id) 
 # log %>% write.csv(file = "DOE_FERC Extended.csv")
 
 
+nchar("NA<pagebreak>NA<pagebreak>NA<pagebreak>NA")
+
+log %>% 
+  mutate(OCR_success = nchar(text_clean) > 45) %>%
+  mutate(pdf = ifelse(str_detect(link_text, "PDF"), "PDF", "Non-PDF")) %>%
+  group_by(year, OCR_success, pdf) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = OCR_success) +
+  geom_col() + theme_minimal() + facet_grid(pdf ~ .)
+
+log %>% 
+  mutate(maybe_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, maybe_cosigned) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = maybe_cosigned) +
+  geom_col() + theme_minimal()
 
 
 
