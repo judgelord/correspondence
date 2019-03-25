@@ -67,7 +67,7 @@ scraper <- function(web_page){
   ## Now we can use the function download.file(url, destfile)
   ## walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
   ## Here, .x is url, .y is destfile, and .f is download.file():
-  # walk2(to_download$url, here("FERC", to_download$file_name), download.file)
+  walk2(to_download$url, here("FERC", to_download$file_name), download.file)
 
   # Finally, select the columns we want and merge with the full table
   d %<>% 
@@ -82,6 +82,13 @@ scraper <- function(web_page){
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
 
+tables %<>% mutate(file_downloaded = file_name %in% list.files(here("FERC")))
+tables %<>% mutate(file_nameNA = is.na(file_name))
+
+dim(tables)
+list.files(here("FERC"))
+tables %>% group_by(link_text, file_nameNA) %>% tally()
+tables %>% group_by(link_text, file_downloaded) %>% tally() %>% ungroup()
 
 
 # pdf letters to text (note: could also OCR images, see html for image doc ids)
@@ -91,14 +98,17 @@ d <- tables
 
 totext <- function(file_name){
   # paste pages
+  text <- NA
+  if(str_detect(file_name, "pdf")){
   text <- pdf_text(here("FERC", file_name))  %>% 
     paste(collapse = "<pagebreak>")
+  }
   return(text)
 }
-
 # If possible, read text
-d %<>% mutate(text = map_chr(file_name, possibly(totext, NA_real_)))
-
+d$text <- map(d$file_name, possibly(totext, NA_real_, quiet = T))
+ 
+dim(d)
 FERC_files <- d
 save(FERC_files, file = here("data", "FERC_files.Rdata"))
 
