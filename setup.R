@@ -5,7 +5,8 @@
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
-  if(require("Rvoteview")==F) {
+  library(devtools)
+  if(!"Rvoteview" %in% rownames(installed.packages())) {
     devtools::install_github("voteview/Rvoteview")
   }
   library(tidyverse)
@@ -18,6 +19,7 @@
   library(stringi)
   library(pdftools)
   library(here)
+  library(rvest)
   source("functions/clean.R") # data cleaning and intercoder agreement functions 
   source("functions/stateFromLower.R") # format state names
   source("functions/dateMethods.R")
