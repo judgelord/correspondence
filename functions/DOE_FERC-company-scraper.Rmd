@@ -6,7 +6,7 @@ output:
     html_document:
       toc: true
       toc_float: true
-      code_folding: hide
+      # code_folding: hide
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -16,7 +16,8 @@ output:
 ## Modify some defaults for this example
 knitr::opts_chunk$set(fig.height = 4,
                       fig.width = 8,
-                      warning = FALSE)
+                      warning = FALSE,
+                      message = FALSE)
 ```
 
 
@@ -28,18 +29,19 @@ library(rvest)
 library(magrittr)
 ```
 
-The aim is get the names of oil, gas, electric, and hydropower companies that lobby FERC from the FERC website.
+The aim is to get the names of oil, gas, electric, and hydropower companies that lobby FERC from the FERC website.
 
-## 1: Instpect the URLs and source html (in Chrome: view->developer->view source)
+## 1: Instpect the URLs and source html 
+(in Chrome: view->developer->view source)
 
-Here is the first page under the "Oil Matters" tab; oil companies with "A" names:
+Here is the first page under the "Oil Matters" tab; [oil companies with "A" names](https://www.ferc.gov/docs-filing/corp-off/oil.asp):
 ```{r}
 html <- read_html("https://www.ferc.gov/docs-filing/corp-off/oil.asp") 
 
 html %>% 
   html_nodes("strong") %>% # company names are in bold (HTML tag "<strong>")
   html_text() %>% # to plain text
-  .[1:6] # the first 3 rows are web page headers
+  .[1:6] # the first 3 rows seem to be web page headers
 ```
 
 Gas companies with "A" names. Notice how the URL changed:
@@ -63,7 +65,7 @@ html %>%
   .[4:6]
 ```
 
-In addition to "oil" and "gas," we have "electric" and "hydro" with pages A-Z (4 x 26 = 104 pages!), so lets make a function to grab the names from each page. 
+In addition to "oil" and "gas," we have "electric" and "hydro" with pages A-Z (4 x 26 = 104 pages!), so let's make a function to grab the names from each page. 
 
 ## 2. Make a function, turning things that vary into variables.
 
@@ -116,9 +118,9 @@ scraper <- function(url){
 }
 ```
 
-## 3. Apply the function to each url
+## 3. Apply the function to each URL
 
-`map()` each url into the function, i.e. *apply* the function to each. I wrap the `scraper` function in `possibly()` so that if a URL does not work, it keeps going, just returning `NA` rather than stopping at an error. Specifically I use `map_dfr` which returns a *data frame*, combining results with `rbind()`. See `?map()` and the `purrr` [cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr).
+`map()` each URL into the function, i.e. *apply* the function to each. I wrap the `scraper` function in `possibly()` so that if a URL does not work, it keeps going, just returning `NA` rather than stopping at an error. Specifically, I use `map_dfr` which returns a *data frame*, combining results with `rbind()`. See `?map()` and the `purrr` [cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr).
 
 
 ```{r}

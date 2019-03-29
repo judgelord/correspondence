@@ -1,7 +1,7 @@
   options(stringsAsFactors = FALSE)
   
   requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse",
-                "pdftools", "here", "Rvoteview")
+                "pdftools", "here", "Rvoteview", "rvest")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
@@ -30,5 +30,13 @@
   
   source("committees/committees.R")
   
-gs_ls() # log in to google
+  knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
+                        warning = FALSE,
+                        message = FALSE,
+                        fig.align = "center", 
+                        fig.path= 'Figs/', ## where to save figures
+                        fig.height = 3,
+                        fig.width = 3)
+  
+# gs_ls() # log in to google
 
