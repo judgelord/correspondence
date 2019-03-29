@@ -1,22 +1,22 @@
 ---
 title: "Tidy text analysis example: web scraping with `rvest`"
-subtitle: "Companies that lobby the Federal Energy Regulatory Commission"
-author: 
+subtitle: "Companies that lobby the U.S. Federal Energy Regulatory Commission (FERC)"
+author:
 output:
     html_document:
-    toc: true
-    code_folding: hide
-editor_options: 
-  chunk_output_type: console
+      toc: true
+      toc_float: true
+      code_folding: hide
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 ## Run a setup.R script to load R packages and set defaults
 #source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
 
 ## Modify some defaults for this example
 knitr::opts_chunk$set(fig.height = 4,
-                      fig.width = 8)
+                      fig.width = 8,
+                      warning = FALSE)
 ```
 
 
@@ -30,9 +30,9 @@ library(magrittr)
 
 The aim is get the names of oil, gas, electric, and hydropower companies that lobby FERC from the FERC website.
 
-Step 1: Instpect the URLs and source html (in Chrome: view->developer->view source)
+## 1: Instpect the URLs and source html (in Chrome: view->developer->view source)
 
-Here is the first page under the "Oil Matters" tab; oil companies with "A" names
+Here is the first page under the "Oil Matters" tab; oil companies with "A" names:
 ```{r}
 html <- read_html("https://www.ferc.gov/docs-filing/corp-off/oil.asp") 
 
@@ -53,7 +53,7 @@ html %>%
 ```
 
 
-Gas companies with "B" names. Notice how the URL changed:
+Gas companies with "B" names. *Notice how the URL changed:*
 ```{r}
 html <- read_html("https://www.ferc.gov/docs-filing/corp-off/gas/gas-B.asp") 
 
@@ -63,9 +63,9 @@ html %>%
   .[4:6]
 ```
 
-In addition to "oil" and "gas," we have "electric" and "hydro" with pages A-Z (4 x 26 = 104 pages!), so lets make a function to grab the names from each page: 
+In addition to "oil" and "gas," we have "electric" and "hydro" with pages A-Z (4 x 26 = 104 pages!), so lets make a function to grab the names from each page. 
 
-2. Make a function, turning things that vary into variables.
+## 2. Make a function, turning things that vary into variables.
 
 A test run using `str_c` to combine strings:
 ```{r}
@@ -94,16 +94,18 @@ url <- url_parts %>%
 head(url)
 ```
 
-Now we define a function to apply to each URL.
-```{r}
+Define a function to apply to each URL.
+```{r, include = TRUE}
 scraper <- function(url){
   html <-  read_html(url) 
 
+  # Extract company names
   corps <- html %>% 
     html_nodes("strong") %>% 
     html_text() %>%
     .[-c(1:3)]
   
+  # Extract the industry back out of the URL
   industry <- str_extract(url, "off/[a-z]*") %>% 
     str_remove("off/")
 
@@ -113,6 +115,8 @@ scraper <- function(url){
   return(d)
 }
 ```
+
+## 3. Apply the function to each url
 
 `map()` each url into the function, i.e. *apply* the function to each. I wrap the `scraper` function in `possibly()` so that if a URL does not work, it keeps going, just returning `NA` rather than stopping at an error. Specifically I use `map_dfr` which returns a *data frame*, combining results with `rbind()`. See `?map()` and the `purrr` [cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr).
 

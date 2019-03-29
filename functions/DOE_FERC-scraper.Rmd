@@ -4,8 +4,9 @@ subtitle: "U.S. Legislators' correspondence with the Federal Energy Regulatory C
 author: 
 output:
     html_document:
-    toc: true
-    code_folding: hide
+      toc: true
+      toc_float: true
+      code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -29,7 +30,7 @@ library(here)
 
 The aim is make a table with both the text of letters and information from the FERC website, such as the date the letter was recieved. 
 
-Here are the steps
+Here are the major steps
 1. Scrape the table of letters recieved
 2. I extract the links to download the files
 3. Convert the pdfs to text and add it to the table
@@ -50,9 +51,9 @@ web_pages
 
 ---
 
-# Scrape the table
+# Build a function to scrape the table and download the files
 
-1. Get the raw html
+## 1. Get the raw html
 ```{r}
   html <- read_html(here("FERC", "html", web_page))
 ```
@@ -96,12 +97,17 @@ Now I subset that table to exclude "MicroFilm" files because there is nothing to
 
 ---
 
+## 3. Get the file URLs
 
+"a" nodes contain linked text. 
 ```{r}
   urls <- html %>% 
     html_nodes("table") %>%
-    html_nodes("a") # "a" nodes contain url linked text
-  
+    html_nodes("a") 
+```
+
+The URLs themselves are in the "href" attribute, which we can extract with `html_attr()`. However, there is a problem; they have no file extentions. Luckily, the linked text says what kind of file it is, so we can add a ".pdf" or ".tif" extension, depending on whether the linked text contains "PDF" or "Image" using `mutate()` and `str_replace`.
+```{r}
   urls <- tibble(
     link_text = html_text(urls), # the linked text 
     url = html_attr(urls, "href") ) %>% # the url (an html attribute)
@@ -112,6 +118,11 @@ Now I subset that table to exclude "MicroFilm" files because there is nothing to
     filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% # filter to pdf files
     mutate(index = row_number()) # add index 
 
+head(urls)
+```
+
+## 4. Merge the table of URLs and the file URLs.
+```{r}
   # merge with table by index
   d <- full_join(table_files, urls)  %>%
     # add the file name and file extension
@@ -120,24 +131,30 @@ Now I subset that table to exclude "MicroFilm" files because there is nothing to
   # filter out files we already have
   to_download <- d %>% 
     filter(!file_name %in% list.files(here("FERC")) ) 
-    
+  
+head(to_download)
+```
+
+## 5. Download each file with `walk()` from `purrr`.
+```{r} 
   ## Now we can use the function download.file(url, destfile)
   ## walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
   ## Here, .x is url, .y is destfile, and .f is download.file():
   walk2(to_download$url, here("FERC", to_download$file_name), download.file)
+```
 
-  # Finally, select the columns we want and merge with the full table
+## 6. Merge the URL data with the full table
+(i.e. add back in those MicroFilm observations we filtered out before)
+```{r}
+  # Finally, select the columns we want and merge with the full table (i.e add back those )
   d %<>% 
     select(id, doc_date, filed_date, docket, summary, file_name, url, link_text) %>% 
     filter(!is.na(id)) %>%
     full_join(table) %>% 
     distinct()
-
-  return(d)
-}
 ```
 
-Put all of the above together into a new function `scraper()`: 
+# 7 Once working, put #1-6 together into a new function `scraper()`: 
 ```{r}
 scraper <- function(web_page){
   
@@ -209,12 +226,13 @@ scraper <- function(web_page){
 ```
 
 
-
+# Apply this function extract the table and download all files linked on each page
 ```{r}
 ## map_dfr() takes a vector, .x and applies the function .f(.x), 
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
 
+# Logical texts: did the file download? 
 tables %<>% mutate(file_downloaded = file_name %in% list.files(here("FERC")))
 tables %<>% mutate(file_nameNA = is.na(file_name))
 
