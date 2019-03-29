@@ -1,0 +1,120 @@
+---
+title: "Tidy text analysis example: web scraping with `rvest`"
+subtitle: "Companies that lobby the Federal Energy Regulatory Commission"
+author: 
+output:
+    html_document:
+    toc: true
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+## Run a setup.R script to load R packages and set defaults
+source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
+
+## Modify some defaults for this example
+knitr::opts_chunk$set(fig.height = 4,
+                      fig.width = 8)
+```
+
+
+This example uses the `stringr`, `rvest` (both in `tidyverse`), and `magrittr` packages.
+
+```{r libraries}
+library(tidyverse)
+library(magrittr)
+```
+
+The aim is make a table with information about corporations listed on the FERC website and their campaign contributions. FERC is lobbied by oil, gas, electric, and hydropower companies.
+
+Step 1: Instpect the URLs and source html (in Chrome: view->developer->view source)
+
+Here is the first page under the "Oil Matters" tab; oil companies with "A" names
+```{r}
+html <- read_html("https://www.ferc.gov/docs-filing/corp-off/oil.asp") 
+
+html %>% 
+  html_nodes("strong") %>% # company names are in bold (HTML tag "<strong>")
+  html_text() %>% # to plain text
+  .[1:6] # the first 3 rows are web page headers
+```
+
+Gas companies with "A" names. Notice how the URL changed:
+```{r}
+html <- read_html("https://www.ferc.gov/docs-filing/corp-off/gas.asp") 
+
+html %>% 
+  html_nodes("strong") %>%
+  html_text() %>% 
+  .[4:6]
+```
+
+
+Gas companies with "B" names. Notice how the URL changed:
+```{r}
+html <- read_html("https://www.ferc.gov/docs-filing/corp-off/gas/gas-B.asp") 
+
+html %>% 
+  html_nodes("strong") %>% 
+  html_text() %>%
+  .[4:6]
+```
+
+In addition to "oil" and "gas," we have "electric" and "hydro" with pages A-Z (4 x 26 = 104 pages), so lets make a function to grab the names from each page: 
+
+2. Make a function, turning things that vary into variables
+
+A test run:
+```{r}
+industry <- "gas"
+letter <- "B"
+str_c("https://www.ferc.gov/docs-filing/corp-off/", industry, "/", industry, "-", letter, ".asp")
+```
+
+Looks good! Forward!
+
+`cross()` lists each possible combination of URL parts. Because it returns a list, we use `lift()` to allow `str_c()` to take a list and paste it together. `map()` then does this for each. 
+
+```{r}
+url_parts <- list(
+  base_url <- "https://www.ferc.gov/docs-filing/corp-off/",
+  industry = c("oil/oil-", "gas/gas-", "electric/electric-", "hydro/hydro-"),
+  letter = LETTERS,
+  end = ".asp"
+)
+
+url <- url_parts %>%
+  cross() %>%
+  map(lift(str_c)) %>%
+  str_remove("/[a-z]*-A") # remove "/industry-A"
+```
+
+```{r}
+scraper <- function(url){
+  html <-  read_html(url) 
+
+  corps <- html %>% 
+    html_nodes("strong") %>% 
+    html_text() %>%
+    .[-c(1:3)]
+
+  ## Return a data frame with two variables, company and industry
+  d <- tibble(company = corps,
+              industry = industry)
+  return(d)
+}
+```
+
+Use `map()` from `purrr` to "map" each url into the function, i.e. *apply* the function to each. I wrap the `scraper` function in `possibly()` so that if a URL does not work, it keeps going, just returning `NA` rather than stopping at an error. Specifically I use `map_dfr` which creates a *data frame*, combining results with `rbind()`. See `?map()` and the `purrr` [cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr).
+
+
+```{r}
+# map(.x = vector, .f = function)
+corps_all <- map_dfr(url, possibly(scraper, NA_real_) )
+
+corps_all %<>% distinct()
+```
+
+

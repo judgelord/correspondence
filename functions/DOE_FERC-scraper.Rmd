@@ -18,11 +18,13 @@ knitr::opts_chunk$set(fig.height = 4,
 ```
 
 
-This example uses the `magrittr`, `stringr`, `rvest`.
+In addition to `tidyverse` packages, this example uses the `magrittr`, `pdftools`, and `here` packages.
 
 ```{r libraries}
 library(tidyverse)
 library(magrittr)
+library(pdftools)
+library(here)
 ```
 
 The aim is make a table with both the text of letters and information from the FERC website, such as the date the letter was recieved. 
@@ -91,6 +93,8 @@ Now I subset that table to exclude "MicroFilm" files because there is nothing to
     mutate(index = row_number()) # add an index
   
 ```
+
+---
 
 
 ```{r}
