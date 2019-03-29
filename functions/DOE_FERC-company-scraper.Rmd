@@ -27,6 +27,7 @@ In addition to `rvest`, this example uses the `stringr`, `purrr`, and `magrittr`
 library(tidyverse)
 library(rvest)
 library(magrittr)
+library(here)
 ```
 
 The aim is to get the names of oil, gas, electric, and hydropower companies that lobby FERC from the FERC website.
@@ -127,12 +128,14 @@ scraper <- function(url){
 # map(.x = vector, .f = function)
 corps_all <- map_dfr(url, possibly(scraper, NA_real_) ) 
 
+## Clean up a bit
 corps_all %<>% 
   mutate(company = trimws(company) ) %>% # trim white space before and after company names
   filter(nchar(company)>1) %>% # filter out names less than 2 characters
   distinct() # drop duplicates
 
-# save(corps_all, here("data", "DOE_FERC-corps.Rdata"))
+# Save 
+save(corps_all, file =  here("data", "DOE_FERC-corps.Rdata"))
 
 corps_all
 ```

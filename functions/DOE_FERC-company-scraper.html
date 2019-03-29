@@ -291,7 +291,8 @@ div.tocify {
 <p>In addition to <code>rvest</code>, this example uses the <code>stringr</code>, <code>purrr</code>, and <code>magrittr</code> packages.</p>
 <pre class="r"><code>library(tidyverse)
 library(rvest)
-library(magrittr)</code></pre>
+library(magrittr)
+library(here)</code></pre>
 <p>The aim is to get the names of oil, gas, electric, and hydropower companies that lobby FERC from the FERC website.</p>
 <div id="instpect-the-urls-and-source-html" class="section level2">
 <h2>1: Instpect the URLs and source html</h2>
@@ -384,12 +385,14 @@ head(url)</code></pre>
 <pre class="r"><code># map(.x = vector, .f = function)
 corps_all &lt;- map_dfr(url, possibly(scraper, NA_real_) ) 
 
+## Clean up a bit
 corps_all %&lt;&gt;% 
   mutate(company = trimws(company) ) %&gt;% # trim white space before and after company names
   filter(nchar(company)&gt;1) %&gt;% # filter out names less than 2 characters
   distinct() # drop duplicates
 
-# save(corps_all, here(&quot;data&quot;, &quot;DOE_FERC-corps.Rdata&quot;))
+# Save 
+save(corps_all, file =  here(&quot;data&quot;, &quot;DOE_FERC-corps.Rdata&quot;))
 
 corps_all</code></pre>
 <pre><code>## # A tibble: 2,117 x 2
