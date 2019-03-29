@@ -11,7 +11,7 @@ output:
 
 ```{r setup, include=FALSE}
 ## Run a setup.R script to load R packages and set defaults
-source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
+# source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
 
 ## Modify some defaults for this example
 knitr::opts_chunk$set(fig.height = 4,
@@ -19,10 +19,11 @@ knitr::opts_chunk$set(fig.height = 4,
 ```
 
 
-In addition to `tidyverse` packages, this example uses the `magrittr`, `pdftools`, and `here` packages.
+In addition to `tidyverse` packages, this example uses the `rvest`, `magrittr`, `pdftools`, and `here` packages.
 
 ```{r libraries}
 library(tidyverse)
+library(rvest)
 library(magrittr)
 library(pdftools)
 library(here)
@@ -44,11 +45,14 @@ Load saved html files from a [search](https://elibrary.ferc.gov/idmws/search/fer
 ```{r}
 web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
 
-# web_pages <- web_pages[2] ## for testing the whole function
-# web_page <- web_pages[2] ## for testing parts of the function
+# web_pages <- web_pages[1] ## for testing the whole function
+# web_page <- web_pages[1] ## for testing parts of the function
 web_pages
 ```
 
+```{r, include=FALSE}
+web_page <- web_pages[1] ## for testing parts of the function
+```
 ---
 
 # Build a function to scrape the table and download the files
@@ -136,7 +140,7 @@ head(to_download)
 ```
 
 ## 5. Download each file with `walk()` from `purrr`.
-```{r} 
+```{r, eval = FALSE} 
   ## Now we can use the function download.file(url, destfile)
   ## walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
   ## Here, .x is url, .y is destfile, and .f is download.file():
@@ -227,26 +231,28 @@ scraper <- function(web_page){
 
 
 # Apply this function extract the table and download all files linked on each page
-```{r}
+```{r, eval=FALSE}
 ## map_dfr() takes a vector, .x and applies the function .f(.x), 
 ## binding the results as rows in a data frame
 tables <- map_dfr(web_pages, scraper)
+```
 
+### Test to see which files downloaded. 
+```{r, eval=FALSE}
 # Logical texts: did the file download? 
-tables %<>% mutate(file_downloaded = file_name %in% list.files(here("FERC")))
+tables %<>% mutate(file_downloaded = file_name %in% 
 tables %<>% mutate(file_nameNA = is.na(file_name))
 
 dim(tables)
 list.files(here("FERC"))
 tables %>% group_by(link_text, file_nameNA) %>% tally()
-tables %>% group_by(link_text, file_downloaded) %>% tally() %>% ungroup()
+tables %>% group_by(link_text, file_downloaded) %>% tally()
 
+```
 
-# pdf letters to text (note: could also OCR images, see html for image doc ids)
-d <- tables
-
-
-
+# Convert pdf letters to text 
+This function uses `pdf_text` (we can also OCR images).
+```{r, eval=FALSE}
 totext <- function(file_name){
   # paste pages
   text <- NA
@@ -256,15 +262,21 @@ totext <- function(file_name){
   }
   return(text)
 }
-# If possible, read text
+
+## The tables data
+d <- tables
+
+## If possible, read text
 d$text <- map(d$file_name, possibly(totext, NA_real_, quiet = T))
  
-dim(d)
+## name 
 FERC_files <- d
-save(FERC_files, file = here("data", "FERC_files.Rdata"))
+
+## save
+# save(FERC_files, file = here("data", "FERC_files.Rdata"))
 
 ##################################################################################
-# FOR GOOGLE SHEET 
+# FOR ONE OBS PER LETTER SPREADSHEET 
 ###################
 
 # helper function
@@ -290,3 +302,4 @@ log <- d %>%
 
 head(log$text_clean)
 ```
+
