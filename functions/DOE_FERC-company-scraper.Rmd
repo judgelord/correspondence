@@ -128,16 +128,168 @@ scraper <- function(url){
 # map(.x = vector, .f = function)
 corps_all <- map_dfr(url, possibly(scraper, NA_real_) ) 
 
-## Clean up a bit
+## Clean up a bit [[:cntrl:]]
+corps_all$company %<>% str_replace_all("\r\n", ", ") %>% 
+  trimws() # trim white space before and after company names
+
 corps_all %<>% 
-  mutate(company = trimws(company) ) %>% # trim white space before and after company names
-  filter(nchar(company)>1) %>% # filter out names less than 2 characters
+  filter(nchar(company)>1) %>% # filter out names less than 2 characters 
+  filter(!company %in% c("FERC Online Support", "Note:","LLC")) %>% # not companies
   distinct() # drop duplicates
 
-# Save 
+# For matching, remove endings like ", Inc." etc. 
+trim <- function(d){
+d%>%
+  str_remove_all(",.*| Pipe.*| Company.*| Corp.*|  Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| \\(.*") %>% 
+    str_remove(" Energy.*| Holdings.*| Gas$| Project.*| -.*|Village of |\\(.*")
+}
+
+corps_all$company_short <- trim(corps_all$company)
+
+# Inspect over-trimmed company names
+corps_all %>% filter(company_short %in% c("LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande"))
+
+# Correct over-trimmed names
+corps_all %<>% mutate(company_short = ifelse(company == "Natural Gas Pipeline Company of America", "Natural Gas Pipeline Company of America", company_short))%>%
+  mutate(company_short = ifelse(company == "Natural Gas Trading Corporation", "Natural Gas Trading Corporation", company_short))%>%
+    mutate(company_short = ifelse(company == "Energy, USA-TPC Corp.", "TPC", company_short))%>%
+  mutate(company_short = ifelse(company == "New Energy Partners, L.L.C.", "New Energy Partners", company_short))%>%
+  mutate(company_short = ifelse(company == "New Energy Service, LLC", "New Energy Service", company_short))%>%
+  mutate(company_short = ifelse(company == "North Energy Associates, A Limited Partnership", "North Energy Associates", company_short))%>%
+  mutate(company_short = ifelse(company == "Pipeline Company LLC", "Pipeline Company LLC", company_short))%>%
+  mutate(company_short = ifelse(company == "Express Pipeline LLC", "Express Pipeline LLC", company_short))%>%
+  mutate(company_short = ifelse(company == "American Energy Savings, Inc.", "American Energy Savings", company_short))%>%
+  mutate(company_short = ifelse(company == "Electric Energy, Inc.", "Electric Energy, Inc.", company_short))%>%
+  mutate(company_short = ifelse(company == "System Energy Resources, Inc., Llano Estacado Wind, LLC, System Energy Resources, Inc., Northern Iowa Windpower, LLC, and RS Cogen, L.L.C.", "System Energy Resources", company_short))%>%
+  mutate(company_short = ifelse(company == "Public Service Company of Colorado", "Public Service Company of Colorado", company_short))%>%
+    mutate(company_short = ifelse(company == "Southern Company Services, Inc.", "Southern Company", company_short))%>%
+      mutate(company_short = ifelse(company == "International Energy Consultants", "International Energy Consultants", company_short))%>%
+        mutate(company_short = ifelse(company == "Jackson Pipeline Company", "Jackson Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company == "Southern Energy California", "Southern Energy California", company_short))%>%
+  mutate(company_short = ifelse(company == "Tennessee Gas Pipeline Company, L.L.C.", "Tennessee Gas Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company == "Select Energy New York, Inc.", "Select Energy New York", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Direct", "Direct Energy", company_short))%>%
+  mutate(company_short = ifelse(company_short == "DC", "DC Energy", company_short))%>%
+  mutate(company_short = ifelse(company_short == "PS", "PS Energy Group", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Coastal", "Coastal Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "CT", "CT Corporation", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Forest", "Forest Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Minnesota", "Minnesota Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "NW", "NW Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Rio Grande", "Rio Grande Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Plains", "Plains Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Portland", "Portland Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "AP", "AP Holdings", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Boundary", "Boundary Gas", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Columbia Energy", "Columbia", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Independence", "Independence Energy Group", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Lakeside", "Lakeside Energy", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Mitchell", "Mitchell Energy", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Stream", "Stream Energy", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short))
+
+
+# Save
 save(corps_all, file =  here("data", "DOE_FERC-corps.Rdata"))
+
+# To load these data: 
+# load(here("data", "DOE_FERC-corps.Rdata"))
 
 corps_all
 ```
+
+
+# Find company names in letters texts
+```{r}
+load(url("https://github.com/judgelord/correspondence/raw/master/data/FERC_files.Rdata")) # potentially change to google sheet
+
+# Make a single string of short corp names
+FERC_corps <- str_c(corps_all$company_short, collapse = "|")
+
+FERC_files %<>% mutate(corp = str_c(str_extract_all(summary, FERC_corps),sep = "; ")) 
+
+unique(FERC_files$corp)
+```
+
+
+# Match company names with campaign donations.
+Using DIME: 
+```{r}
+# Fortune 500 companies
+download.file("https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/6R1HAS/DP6TOL", destfile = here("data", "DIME500.csv") )
+
+dime <- DIME500 <- read_csv(here("data", "DIME500.csv"))
+
+# dime %<>% extractMemberName(members, recipient.name)
+  
+fortune500 <- unique(dime$corpname) %>% 
+  str_c(sep = "|", collapse = "|")
+ferc <- corps_all
+ferc_short <- unique(ferc$company_short) %>% 
+  str_c(sep = "|", collapse = "|")
+
+ferc %<>% mutate(f500 = str_extract(company_short, fortune500) )
+
+ferc %<>% mutate(f500_short = str_extract(fortune500, company_short) )
+
+unique(ferc$f500_short)
+unique(ferc$f500)
+
+# DIME records that exactly match a FERC company name
+dime_1 <- dime %>% filter(corpname %in% unique(ferc$f500) )
+
+# DIME records that match a shortened version
+dime_2 <- dime %>% filter(str_detect(corpname, ferc_short))
+
+# Join the two DIME subsets
+dime_ferc <- full_join(dime_1, dime_2)
+
+# ID member names among donation recipients 
+dime %<>% extractMemberName(members = members, col_name =  recipient.name)
+```
+
+
+## Match indivdual campaign donations from Fortune 500
+```{r}
+# GET DIME DATA (careful, this is >3GB)
+# download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true", 
+#              destfile = here("data/dime_contributors.gz") ) 
+# 
+# DIME DATA
+# dime <- read.csv(here("data/dime_contributors.csv"))
+
+# TRIM DOWN
+# dime %<>% filter(contributor.type == "I")
+# dime %<>% mutate(last_name = str_extract(dime$most.recent.contributor.name, "[a-z]*") )
+
+# SUBSET TO PEOPLE IN FERC DATA 
+# dime %<>% filter(last_name %in% d$last_name)
+
+# Clean up DIME names 
+# dime %<>% mutate(name = str_replace(most.recent.contributor.name, " dr | jr |[0-9]", " ") )
+# dime %<>% mutate(name = str_replace(most.recent.contributor.name, "  ", " ") )
+# dime %<>% mutate(first_name = str_extract(name, ", [a-z][a-z]*") )
+# dime %<>% mutate(first_name = str_replace(first_name, ", ", ""))
+# dime %<>% mutate(first_name2 = str_extract(dime$most.recent.contributor.name, ", [a-z]{2}*") )
+# dime %<>% mutate(middle_initial = str_extract(name, " [a-z]$") )
+# dime %<>% mutate(middle_initial = str_replace(middle_initial, " ", "") )
+# dime$first_initial <- str_sub(dime$first_name, 1,1)
+
+# SAVE
+# save(dime, file = here("data/dime_CGS_matches.Rdata"))
+
+# LOAD
+
+```
+
+
 
 
