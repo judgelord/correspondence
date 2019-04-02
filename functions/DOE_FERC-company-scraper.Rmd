@@ -1,5 +1,5 @@
 ---
-#title: "Tidy text analysis example: web scraping and RegEx with `rvest`, `stringr`, and `purrr`"
+title: "Tidy text example: web scraping and RegEx"
 subtitle: "Companies that lobby the U.S. Federal Energy Regulatory Commission (FERC)"
 author:
 output:
@@ -22,22 +22,27 @@ knitr::opts_chunk$set(fig.height = 4,
 
 
 This example uses the `rvest`, `stringr`, `purrr`, `here` and `magrittr` packages. 
-- [`stringr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#stringr) 
-- [RegEx cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf) 
+
+- [`stringr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#stringr)
+
+- [RegEx cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)  
+
 - [`rvest` tutorial](https://www.datacamp.com/community/tutorials/r-web-scraping-rvest) 
-- [`purrr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr) (applying functions)
+
+- [`purrr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr)
 
 ```{r libraries}
 library(tidyverse)
-library(purrr)
 library(rvest)
 library(magrittr)
 library(here)
 ```
 
-The aim is to get the names of oil, gas, electric, and hydropower companies that lobby FERC from the FERC website and match them to (1) [letters Members of Congress wrote to FERC](https://judgelord.github.io/correspondence/functions/DOE_FERC-scraper.html) and (2) [corporate and executive campaign contributions from DIME](https://data.stanford.edu/dime#download-data).
+The aim is to get the names of oil, gas, electric, and hydropower companies that lobby FERC from the [FERC website](https://www.ferc.gov/docs-filing/corp-off.asp?csrt=16593465655017166281) and match them to (1) [letters Members of Congress wrote to FERC](https://judgelord.github.io/correspondence/functions/DOE_FERC-scraper.html) and (2) [corporate and executive campaign contributions from DIME](https://data.stanford.edu/dime#download-data).
 
-## 1: Instpect the URLs and source html 
+# Get corportations and corporate officials from the FERC website
+
+### 1: Instpect the URLs and source html 
 (in Chrome: view -> developer -> view source)
 
 Here is the first page under the "Oil Matters" tab, [oil companies with "A" names](https://www.ferc.gov/docs-filing/corp-off/oil.asp):
@@ -45,7 +50,7 @@ Here is the first page under the "Oil Matters" tab, [oil companies with "A" name
 html <- read_html("https://www.ferc.gov/docs-filing/corp-off/oil.asp") 
 
 html %>% 
-  html_nodes("strong") %>% # company names appear in the HTML tag "<strong>")
+  html_nodes("strong") %>% # company names appear with the HTML tag "<strong>"
   html_text() %>% # to plain text
   .[1:6] # the first 3 rows seem to be web page headers
 ```
@@ -73,7 +78,7 @@ html %>%
 
 In addition to "oil" and "gas," we have "electric" and "hydro" with pages A-Z (4 x 26 = 104 pages!), so let's make a function to grab the names from each page. 
 
-## 2. Make a function, turning things that vary into variables.
+### 2. Make a function, turning things that vary into variables.
 
 A test run using `str_c` to combine strings:
 ```{r}
@@ -90,7 +95,7 @@ Looks good! Forward!
 url_parts <- list(
   base_url <- "https://www.ferc.gov/docs-filing/corp-off/",
   industry = c("oil/oil-", "gas/gas-", "electric/electric-", "hydro/hydro-"),
-  letter = LETTERS,
+  letter = LETTERS, # LETTERS (A-Z) is built in to R
   end = ".asp"
 )
 
@@ -99,10 +104,10 @@ url <- url_parts %>%
   map(lift(str_c)) %>%
   str_remove("/[a-z]*-A") # remove "/industry-A"
 
-# Add odd ULS
+## Add odd ULS
 url <- c(url,
          "https://www.ferc.gov/docs-filing/corp-off/gas/gas-U-V.asp",
-         "https://www.ferc.gov/docs-filing/corp-off/gas/gas-X-Y-Z.asp?csrt=16593465655017166281")
+         "https://www.ferc.gov/docs-filing/corp-off/gas/gas-X-Y-Z.asp")
 
 head(url)
 ```
@@ -112,13 +117,13 @@ Define a function to apply to each URL.
 scraper <- function(url){
   html <-  read_html(url) 
 
-  # Extract company names
+  ## Extract company names
   corps <- html %>% 
     html_nodes("strong") %>% 
     html_text() %>%
     .[-c(1:3)]
   
-  # Extract the industry back out of the URL
+  ## Extract the industry back out of the URL
   industry <- str_extract(url, "off/[a-z]*") %>% 
     str_remove("off/")
 
@@ -129,7 +134,7 @@ scraper <- function(url){
 }
 ```
 
-## 3. Apply the function to each URL
+### 3. Apply the function to each URL
 
 `map()` each URL into the function, i.e. *apply* the function to each. I wrap the `scraper` function in `possibly()` so that if a URL does not work, it keeps going, just returning `NA` rather than stopping at an error. Specifically, I use `map_dfr` which returns a *data frame*, combining results with `rbind()`. See `?map()` and the `purrr` [cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr).
 
@@ -143,42 +148,40 @@ Clean up a bit, using `stringr` functions to make this list of companies more li
 ```{r}
 FERC_corps$company %<>% 
   str_replace_all("\r\n", ", ") %>% 
-  str_remove("^, ") %>%
-  str_remove("^, ") %>%
+  str_remove_all("^, ") %>%
   trimws() # trim white space before and after company names
 
 FERC_corps %<>% 
   filter(nchar(company)>1) %>% # filter out names less than 2 characters 
   filter(!company %in% c("FERC Online Support", "Note:","LLC", "Transportation, LLC")) %>% # not companies
-  filter(!str_detect(company, "[0-9]{2}/[0-9]{2}/[0-9]{4}")) %>% 
+  filter(!str_detect(company, "[0-9]{2}/[0-9]{2}/[0-9]{4}")) %>% # dates not companies
   distinct() # drop duplicates
 
-# For matching, remove endings like ", Inc." etc. 
+## For matching, remove endings like ", Inc." etc. 
 trim <- function(d){
-d%>%
-  str_remove_all(",.*| Pipe.*| Company.*| Corp.*|  Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| \\(.*") %>% 
-  str_remove_all(",.*| Pipe.*| Company.*| Corp.*|  Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| \\(.*") %>% 
-  str_remove_all(" Energy.*| Holdings.*| Gas$| Project.*| -.*|Village of |\\(.*")
+d %>%
+  str_remove_all("Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.")
 }
 
-FERC_corps$company_short <- trim(FERC_corps$company)
+FERC_corps$company_short <- trim(FERC_corps$company) %>% trim()
+
 head(FERC_corps)
 ```
 
 
 ```{r, include = FALSE}
-# Correct over-trimmed names
+## Correct over-trimmed names
 FERC_corps %<>% 
-   mutate(company_short = ifelse(company == "Columbia Energy Power Marketing Corporation", "Columbia Energy", company_short))%>%
-     mutate(company_short = ifelse(company == "Michigan Energy Exchange, LLC", "Michigan Energy", company_short))%>%
-       mutate(company_short = ifelse(company == "Midwest Energy, Inc.", "Midwest Energy", company_short))%>%
-         mutate(company_short = ifelse(company == "Northwest Pipeline LLC", "Northwest Pipeline", company_short))%>%
-         mutate(company_short = ifelse(company == "Peak Energy, Inc.", "Peak Energy", company_short))%>%
-         mutate(company_short = ifelse(company == "Public Service Company of New Mexico", "Public Service Company of New Mexico", company_short))%>%
-        mutate(company_short = ifelse(company == "Salt Lake Energy Systems, LLC", "Salt Lake Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Columbia Energy Power Marketing Corporation", "Columbia Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Michigan Energy Exchange, LLC", "Michigan Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Midwest Energy, Inc.", "Midwest Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Northwest Pipeline LLC", "Northwest Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company == "Peak Energy, Inc.", "Peak Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Public Service Company of New Mexico", "Public Service Company of New Mexico", company_short))%>%
+  mutate(company_short = ifelse(company == "Salt Lake Energy Systems, LLC", "Salt Lake Energy", company_short))%>%
   mutate(company_short = ifelse(company == "Natural Gas Pipeline Company of America", "Natural Gas Pipeline Company of America", company_short))%>%
   mutate(company_short = ifelse(company == "Natural Gas Trading Corporation", "Natural Gas Trading Corporation", company_short))%>%
-    mutate(company_short = ifelse(company == "Energy, USA-TPC Corp.", "TPC", company_short))%>%
+  mutate(company_short = ifelse(company == "Energy, USA-TPC Corp.", "TPC", company_short))%>%
   mutate(company_short = ifelse(company == "New Energy Partners, L.L.C.", "New Energy Partners", company_short))%>%
   mutate(company_short = ifelse(company == "New Energy Service, LLC", "New Energy Service", company_short))%>%
   mutate(company_short = ifelse(company == "North Energy Associates, A Limited Partnership", "North Energy Associates", company_short))%>%
@@ -188,21 +191,21 @@ FERC_corps %<>%
   mutate(company_short = ifelse(company == "Electric Energy, Inc.", "Electric Energy, Inc.", company_short))%>%
   mutate(company_short = ifelse(company == "System Energy Resources, Inc., Llano Estacado Wind, LLC, System Energy Resources, Inc., Northern Iowa Windpower, LLC, and RS Cogen, L.L.C.", "System Energy Resources", company_short))%>%
   mutate(company_short = ifelse(company == "Public Service Company of Colorado", "Public Service Company of Colorado", company_short))%>%
-    mutate(company_short = ifelse(company == "Southern Company Services, Inc.", "Southern Company", company_short))%>%
-      mutate(company_short = ifelse(company == "International Energy Consultants", "International Energy Consultants", company_short))%>%
-        mutate(company_short = ifelse(company == "Jackson Pipeline Company", "Jackson Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company == "Southern Company Services, Inc.", "Southern Company", company_short))%>%
+  mutate(company_short = ifelse(company == "International Energy Consultants", "International Energy Consultants", company_short))%>%
+  mutate(company_short = ifelse(company == "Jackson Pipeline Company", "Jackson Pipeline", company_short))%>%
   mutate(company_short = ifelse(company == "Southern Energy California", "Southern Energy California", company_short))%>%
   mutate(company_short = ifelse(company == "Tennessee Gas Pipeline Company, L.L.C.", "Tennessee Gas Pipeline", company_short))%>%
   mutate(company_short = ifelse(company == "Select Energy New York, Inc.", "Select Energy New York", company_short))%>%
-    mutate(company_short = ifelse(company == "Inland Corporation", "Inland Corporation", company_short))%>%
-      mutate(company_short = ifelse(company == "Advanced Energy Systems, Inc.", "Advanced Energy Systems", company_short))%>%
-    mutate(company_short = ifelse(company == "Consumers Energy Company", "Consumers Energy Company", company_short))%>%
-      mutate(company_short = ifelse(company == "Boston Energy Trading and Marketing LLC", "Boston Energy", company_short))%>%
-        mutate(company_short = ifelse(company == "Complete Energy Services, Inc.", "Complete Energy Services", company_short))%>%
-          mutate(company_short = ifelse(company == "El Paso Energy Intrastate, L.P.", "El Paso Energy", company_short))%>%
-            mutate(company_short = ifelse(company == "Houston Pipe Line Company LP", "Houston Pipe Line", company_short))%>%
-              mutate(company_short = ifelse(company == "North American Energy, Inc.", "North American Energy", company_short))%>%
-                mutate(company_short = ifelse(company == "Spokane Energy, LLC", "Spokane Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Inland Corporation", "Inland Corporation", company_short))%>%
+  mutate(company_short = ifelse(company == "Advanced Energy Systems, Inc.", "Advanced Energy Systems", company_short))%>%
+  mutate(company_short = ifelse(company == "Consumers Energy Company", "Consumers Energy Company", company_short))%>%
+  mutate(company_short = ifelse(company == "Boston Energy Trading and Marketing LLC", "Boston Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Complete Energy Services, Inc.", "Complete Energy Services", company_short))%>%
+  mutate(company_short = ifelse(company == "El Paso Energy Intrastate, L.P.", "El Paso Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Houston Pipe Line Company LP", "Houston Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company == "North American Energy, Inc.", "North American Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Spokane Energy, LLC", "Spokane Energy", company_short))%>%
   mutate(company_short = ifelse(company == "Salem Energy Systems, LLC", "Salem Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "Direct", "Direct Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "DC", "DC Energy", company_short))%>%
@@ -226,51 +229,52 @@ FERC_corps %<>%
   mutate(company_short = ifelse(company_short == "Stream", "Stream Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short))
 
-# Inspect over-trimmed company names
-FERC_corps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Public Power", "Consumers", "Advanced", "Complete", "Inland"))
+## Inspect over-trimmed company names
+FERC_corps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland"))
 
-FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(-n)
+FERC_corps %>% filter(str_detect(company_short, ","))
+
+FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(-n) 
 ```
 
 ```{r}
-## Short names to long names refrence variable
-FERC_corps %<>% group_by(company_short) %>% mutate(company_short_refs = paste(company)) %>% ungroup()
+## Short to long names refrence variable
+FERC_corps %<>% group_by(company_short) %>% mutate(company_short_refs = str_c(company, collapse = "; ")) %>% ungroup()
+
+FERC_corps %>% group_by(company_short) %>% mutate(n=n()) %>% arrange(-n)
 ```
 
 
-# Find company names from FERC website in congressional letter texts
+# Find company names in congressional letter texts
 ```{r}
-load(url("https://github.com/judgelord/correspondence/raw/master/data/FERC_files.Rdata")) # potentially change to google sheet
-
-## Rename
-FERC_letters <- FERC_files
-
 ## Make a single string of short corp names
 ferc_short <- unique(FERC_corps$company_short) %>% 
   str_c(collapse = "|") %>% 
   str_remove_all("||")
 
-## A helper function to select and combine a set of unique strings
-str_unique <- function(x){
-  str_c(unique(x), collapse="; ")
-}
+## Load congressional letters data "FERC_files"
+load(url("https://github.com/judgelord/correspondence/raw/master/data/FERC_files.Rdata")) # potentially change to google sheet
 
-## Find corporation names in letter summary
-FERC_letters$company_short <- str_extract_all(FERC_letters$summary, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
+## Rename it
+FERC_letters <- FERC_files
 
-# Number of summaries where a company from the FERC website was found:
-sum(FERC_letters$company_short!="")
-unique(FERC_letters$company_short)
+## Split availability status from summary
+FERC_letters %<>% separate(summary, into = c("summary", "availability"), sep = "Availability: ")
 
 ## Combine letter summary and letter text
 FERC_letters %<>% 
   mutate(text = str_c(text, sep = "; ")) %>%
   mutate(text = str_c(summary, text, sep = ". Letter Text: ")) 
 
+## A helper function to select and combine a set of unique strings
+str_unique <- function(x){
+  str_c(unique(x), collapse="; ")
+}
+
 ## Find corporation names in combined summary and text
 FERC_letters$company_short <- str_extract_all(FERC_letters$text, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
- 
-# Number of letters where a company from the FERC website was found:
+
+## Number of letters where a company from the FERC website was found:
 sum(FERC_letters$company_short!="")
 
 ## Companies found
@@ -278,35 +282,52 @@ unique(FERC_letters$company_short)
 ```
 
 
-# Match company names with campaign donations.
+# Match corporations and officials to their campaign donations.
 
-## Individual contributors at Fortune 500 companies.
+## Campaign contributions of companies listed on the FERC website
+```{r}
+## GET DIME DATA (caution, this is >3GB)
+# download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true", 
+#              destfile = here("data/dime_contributors.gz") ) 
+# 
+## DIME DATA
+# dime <- read.csv(here("data/dime_contributors.csv"))
+
+## TRIM DOWN TO POSSIBLE MATCHES
+# dime %<>% filter(contributor.type == "C") # type C = corporation
+# dime %<>% filter(str_detect(corpname, ferc_short))
+
+## SAVE
+# save(dime, file = here("data/dime_ferc_corporation_matches.Rdata"))
+```
+
+## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website
 
 #### Step 1. Match companies from the FERC webiste to DIME Fortune 500 dataset
 ```{r}
-# Fortune 500 companies
+## Fortune 500 companies
 download.file("https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/6R1HAS/DP6TOL", destfile = here("data", "DIME500.csv") )
 
 dime500 <- read_csv(here("data", "DIME500.csv"))
 
 # dime %<>% extractMemberName(members, recipient.name)
-  
+
 fortune500 <- unique(dime500$corpname) %>% 
   str_c(sep = "|", collapse = "|")
 
 
-# DIME records that match a shortened version of a FERC company name
+## DIME records that match a shortened version of a FERC company name
 dime500_ferc <- dime500 %>% filter(str_detect(corpname, ferc_short))
 save(dime500_ferc, file = here("data", "FERC_DIME-corps.Rdata"))
 
 dime500_ferc_corps <- str_c(unique(dime500_ferc$corpname), collapse = "|")
 
-# Fortune 500 indicator in corps data 
+## Fortune 500 indicator in corps data 
 FERC_corps %<>% mutate(Fortune500 = str_detect(company, dime500_ferc_corps))
 sum(FERC_corps$Fortune500)
 save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
 
-# Fortune 500 indicator in letters data 
+## Fortune 500 indicator in letters data 
 FERC_letters %<>% mutate(Fortune500 = str_detect(company_short, dime500_ferc_corps))
 sum(FERC_letters$Fortune500)
 save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
@@ -319,25 +340,7 @@ save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
 # dime500_ferc %<>% extractMemberName(members = members, col_name =  recipient.name)
 ```
 
-
-## Match all companies from the FERC website and congressional letters to DIME
-```{r}
-# GET DIME DATA (caution, this is >3GB)
-# download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true", 
-#              destfile = here("data/dime_contributors.gz") ) 
-# 
-# DIME DATA
-# dime <- read.csv(here("data/dime_contributors.csv"))
-
-# TRIM DOWN TO POSSIBLE MATCHES
-# dime %<>% filter(contributor.type == "C") # type C = corporation
-# dime %<>% filter(str_detect(corpname, ferc_short))
-
-# SAVE
-# save(dime, file = here("data/dime_ferc_corporation_matches.Rdata"))
-```
-
-## Match individual campaign donations
+## Campaign contributions of individuals listed on the FERC website
 
 ### Step 1: Get corporate contacts from FERC website
 
