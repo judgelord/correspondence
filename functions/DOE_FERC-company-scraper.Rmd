@@ -29,6 +29,7 @@ This example uses the `rvest`, `stringr`, `purrr`, `here` and `magrittr` package
 
 ```{r libraries}
 library(tidyverse)
+library(purrr)
 library(rvest)
 library(magrittr)
 library(here)
@@ -98,6 +99,11 @@ url <- url_parts %>%
   map(lift(str_c)) %>%
   str_remove("/[a-z]*-A") # remove "/industry-A"
 
+# Add odd ULS
+url <- c(url,
+         "https://www.ferc.gov/docs-filing/corp-off/gas/gas-U-V.asp",
+         "https://www.ferc.gov/docs-filing/corp-off/gas/gas-X-Y-Z.asp?csrt=16593465655017166281")
+
 head(url)
 ```
 
@@ -129,7 +135,6 @@ scraper <- function(url){
 
 
 ```{r}
-# map(.x = vector, .f = function)
 FERC_corps <- map_dfr(url, possibly(scraper, NA_real_) ) 
 head(FERC_corps)
 ```
@@ -198,6 +203,7 @@ FERC_corps %<>%
             mutate(company_short = ifelse(company == "Houston Pipe Line Company LP", "Houston Pipe Line", company_short))%>%
               mutate(company_short = ifelse(company == "North American Energy, Inc.", "North American Energy", company_short))%>%
                 mutate(company_short = ifelse(company == "Spokane Energy, LLC", "Spokane Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Salem Energy Systems, LLC", "Salem Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "Direct", "Direct Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "DC", "DC Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "PS", "PS Energy Group", company_short)) %>%
@@ -241,23 +247,28 @@ FERC_letters <- FERC_files
 
 ## Make a single string of short corp names
 ferc_short <- unique(FERC_corps$company_short) %>% 
-  str_c(sep = "|", collapse = "|")
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+## A helper function to select and combine a set of unique strings
+str_unique <- function(x){
+  str_c(unique(x), collapse="; ")
+}
 
 ## Find corporation names in letter summary
-FERC_letters$corp <- str_extract_all(FERC_letters$summary, ferc_short, simplify = TRUE) %>% apply(1, str_unique) %>% str_remove_all("; ; |; $")
+FERC_letters$company_short <- str_extract_all(FERC_letters$summary, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
+
+# Number of summaries where a company from the FERC website was found:
 sum(FERC_letters$company_short!="")
+unique(FERC_letters$company_short)
 
 ## Combine letter summary and letter text
 FERC_letters %<>% 
   mutate(text = str_c(text, sep = "; ")) %>%
   mutate(text = str_c(summary, text, sep = ". Letter Text: ")) 
 
-str_unique <- function(x){
-  str_c(unique(x), collapse="; ")
-}
-
 ## Find corporation names in combined summary and text
-FERC_letters$company_short <- str_extract_all(FERC_letters$text, ferc_short, simplify = TRUE) %>% map(str_unique) %>% str_remove_all("; ; |; $")
+FERC_letters$company_short <- str_extract_all(FERC_letters$text, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
  
 # Number of letters where a company from the FERC website was found:
 sum(FERC_letters$company_short!="")
@@ -283,30 +294,20 @@ dime500 <- read_csv(here("data", "DIME500.csv"))
 fortune500 <- unique(dime500$corpname) %>% 
   str_c(sep = "|", collapse = "|")
 
-## Fortune 500 indicator to 
-FERC_corps %<>% mutate(Fortune500_short = str_extract(fortune500, company_short) )
-
-# DIME records that exactly match a FERC company name
-dime_1 <- dime500 %>% filter(corpname %in% unique(ferc$f500) )
-unique(dime_1$corpname)
 
 # DIME records that match a shortened version of a FERC company name
-dime_2 <- dime500 %>% filter(str_detect(corpname, ferc_short))
-unique(dime_2$corpname)
-
-# Join the two DIME subsets
-dime500_ferc <- full_join(dime_1, dime_2)
-save(FERC_letters, file = here("data", "FERC_letters_corps.Rdata"))
+dime500_ferc <- dime500 %>% filter(str_detect(corpname, ferc_short))
+save(dime500_ferc, file = here("data", "FERC_DIME-corps.Rdata"))
 
 dime500_ferc_corps <- str_c(unique(dime500_ferc$corpname), collapse = "|")
 
 # Fortune 500 indicator in corps data 
-FERC_corps %>% mutate(Fortune500 = str_detect(company, dime500_ferc_corps))
+FERC_corps %<>% mutate(Fortune500 = str_detect(company, dime500_ferc_corps))
 sum(FERC_corps$Fortune500)
 save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
 
 # Fortune 500 indicator in letters data 
-FERC_letters <- FERC_letters %>% mutate(Fortune500 = str_detect(corp, dime500_ferc_corps))
+FERC_letters %<>% mutate(Fortune500 = str_detect(company_short, dime500_ferc_corps))
 sum(FERC_letters$Fortune500)
 save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
 ```
