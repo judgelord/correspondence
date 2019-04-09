@@ -1,14 +1,15 @@
-# prep sheets for hand coding
+# prep sheets for hand coding by adding columns 
 source("setup.R")
 
 sheets <- gs_ls()
-unique(sheets$author)
+unique(sheets$author) ## Remind Justin to transfer ownership of U Chi coders' sheets
 sheets %<>% filter(author %in% c("correspondenceresearch", "justin.grimmer")) 
 sheets <- sheets$sheet_key
 
 for (i in sheets) {
   data <- gs_key(i) %>% gs_read()
   
+  ## List columns we want in each sheet
   variables <-
     c(
       "FROM",

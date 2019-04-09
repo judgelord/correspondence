@@ -118,7 +118,8 @@ clean <- function(file.name) {
     mutate(first_name = ifelse(grepl("(^| )Rick($| )",data$FROM), "Rick", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Rogers \\(KY-5\\)", data$FROM), "ROGERS", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) %>% 
-   
+    mutate(last_name = ifelse(grepl("Graham", data$FROM)&grepl("^Sen|^L", data$FROM), "GRAHAM", last_name)) %>% 
+    mutate(first_name = ifelse(grepl("Graham", data$FROM)&grepl("^Sen|^L", data$FROM), "LINDSEY", first_name)) %>% 
      # only last name info, no first name
     mutate(last_name = ifelse(is.na(last_name)& !is.na(name), name, last_name)) %>% 
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, NA))
@@ -131,7 +132,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl("^(.*White House.*|Congressional Office \\(State/District\\))$",FROM), FROM, ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^(Referral to C|Ways and Means)$",FROM), FROM, ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("^(Committee on Oversight and Government Reform)$",FROM), FROM, ERROR))
+    mutate(ERROR = ifelse(grepl("^(Committee on Oversight and Government Reform)$",FROM), FROM, ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("^\\(.*\\)$|N/A",FROM), FROM, ERROR))
+  
   
   
   

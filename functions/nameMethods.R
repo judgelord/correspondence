@@ -12,7 +12,7 @@ formatLastName <- function(data, col_name){
     # correct capitalization
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
-    mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name)) %>% 
+    mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DELAURO", replacement = "DeLAURO", last_name)) %>% 
     mutate(last_name = gsub("DEMINT", replacement = "DeMINT", last_name)) %>% 
     mutate(last_name = gsub("LOBIONDO", replacement = "LoBIONDO", last_name)) %>% 
@@ -136,6 +136,7 @@ formatFirstName <- function(data, col_name){
 }
 
 # function will extract names found in members dataset from data$Summary column 
+# typical call:   data <- extractMemberName(data, members, 'FROM')
 
 extractMemberName <- function(data, members, col_name){
   
@@ -805,15 +806,27 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Courntey", "Courtney", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Martrin( |$)", "\\1Martin\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Machin( |$|,)", "\\1Manchin\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Marry( |$|,)", "\\1Mary\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )T MOTHY( |$|,)", "\\1Timothy\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )L NCOLN( |$|,)", "\\1Lincoln\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Wydon( |$|,)", "\\1Wyden\\2", FROM, ignore.case = TRUE)
   
   
   
   return(FROM)
 }
 
-
+# *** Use this function with caution. Will add first name information based on ONLY last names that are unique, has 
+#     potential to add a members first name to a non member creating false positives (e.g. If only last name 
+#     Grassley is provided, it will assume it's Chuck Grassley, even if it was actually a 
+#     random person named Jim Joe Grassley)
+#
+#
 #  Typical use of function looks as follows:
 # data$first_name <- addFirst(data$first_name,data$last_name)
+
+#     *** last_name paramter must be in same all caps format of the members file
+#     This funtion call may be necessary:   data$last_name <- formatLastName(data, 'last_name')
 
 # Useful code for creating last_name when only last name provided:
 #data %<>%

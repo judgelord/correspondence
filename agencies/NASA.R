@@ -7,7 +7,6 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  
   data <- data[-which(is.na(data$FROM)),]
   
   # format DATE to multiple formats
@@ -50,6 +49,8 @@ clean <- function(file.name) {
   data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
+  
+  data$first_name <- addFirst(data$first_name,data$last_name)
 
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
@@ -67,12 +68,6 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("UNIVERSITY", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("UNIVERSITY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  
-  
-  
-  
-  
-  
   
   
 }

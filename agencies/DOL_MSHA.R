@@ -1,6 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
+
 #file.name <- "DOL_MSHA" # for testing
  
 clean <- function(file.name) {
@@ -56,24 +57,41 @@ clean <- function(file.name) {
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
+    if(grepl("/|;|&", data$FROM[i])) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/|;|&") + 1))
+      new$FROM <- unlist(str_split(data$FROM[i], "/|;|&"))
       
       data <- rbind(data, new)
       
     }
   }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
+  data <- data[-grep("/|;|&", data$FROM),] # removes orginal row with all data
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   ########
   
   data$FROM <- ocr.errors(data$FROM)
   
   # get names 
   data <- getFirstLast.Comma(data, 'FROM')
+  
+  # create separate dataset with for names with only last name
+  data2 <- data[grepl("^\\w+$", data$FROM),]
+  # remove these observations from the original
+  data <- data[!grepl("^\\w+$", data$FROM),]
+
+  # Format last_name column in dataset 2 
+  data2$last_name <- data2$FROM
+  data2$last_name <- formatLastName(data2, 'last_name')
+  # add first names where applicable
+  data2$first_name <- addFirst(data2$first_name,data2$last_name)
+  
+  
+  # merge the two separated datasets
+  data <- full_join(data,data2)
+  
+  
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())

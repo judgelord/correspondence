@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "DOJ_CIV" # for testing
+ #file.name <- "DOJ_CIV" # for testing
  
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -22,33 +22,53 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
- data$FROM <- paste(data$First.Name, data$Last.Name)
+  #create separate data frame with duplicate memembers (/ formating) and remove those observations from the original
+  data2 <- data[grepl("/",data$Last.Name),]
+  data <- data[!grepl("/",data$Last.Name),]
   
-  # ###############
-  # # Creates duplicate rows for lines with multiple representatives
-  # for(i in 1:nrow(data)){
-  #   if(grepl("/", data$Last.Name[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$Last.Name[i], pattern = "/") + 1))
-  #     new$FROM <- unlist(str_split(data$Last.Name[i], "/"))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep("/", data$Last.Name),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  # ################
-  
-  # data$last_name <-  formatLastName(data, "Last.Name")
-  # data$last_name <- gsub("\\*", "", data$last_name)
-  # 
-  # data$first_name <- formatFirstName(data, 'First.Name')
-  # data$first_name <- gsub("^(\\w+).*", "\\1", data$first_name)
-  
-  
-  
+  # combine first and last name and call name method
+  data$FROM <- paste(data$First.Name, data$Last.Name)
   data <- extractMemberName(data, members, 'FROM')
+  
+  
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data2)){
+    if(grepl("/", data2$Last.Name[i])) {
+      
+      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$Last.Name[i], pattern = "/") + 1))
+      new$Last.Name <- unlist(str_split(data2$Last.Name[i], "/"))
+      
+      data2 <- rbind(data2, new)
+      
+    }
+  }
+  data2 <- data2[-grep("/", data2$Last.Name),] # removes orginal row with all data
+  ################
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  for(i in 1:nrow(data2)){
+    if(grepl("/", data2$First.Name[i])) {
+      
+      new <- data2 %>% dplyr::slice(rep(i, each = str_count(data2$First.Name[i], pattern = "/") + 1))
+      new$First.Name <- unlist(str_split(data2$First.Name[i], "/"))
+      
+      data2 <- rbind(data2, new)
+      
+    }
+  }
+  data2 <- data2[-grep("/", data2$First.Name),] # removes orginal row with all data
+  ################
+  
+  #combine first and last names and call name method
+  data2$FROM <- paste(data2$First.Name, data2$Last.Name)
+  data2 <- extractMemberName(data2, members, 'FROM')
+  # Remove observations that were not correct first & last matches
+  data2 <- data2[ !(is.na(data2$last_name)&is.na(data2$first_name)),]
+  
+  # merge datasets
+  data <- full_join(data,data2)
+  
   
   data %<>%
     mutate(first_name = ifelse(data$last_name == "YOUNG", "Bill", data$first_name))  

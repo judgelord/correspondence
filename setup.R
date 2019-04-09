@@ -1,10 +1,12 @@
   options(stringsAsFactors = FALSE)
   
-  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse")
+  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse",
+                "pdftools", "here", "Rvoteview", "rvest")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
-  if(require("Rvoteview")==F) {
+  library(devtools)
+  if(!"Rvoteview" %in% rownames(installed.packages())) {
     devtools::install_github("voteview/Rvoteview")
   }
   library(tidyverse)
@@ -15,7 +17,9 @@
   library(googledrive)
   library(Rvoteview)
   library(stringi)
-
+  library(pdftools)
+  library(here)
+  library(rvest)
   source("functions/clean.R") # data cleaning and intercoder agreement functions 
   source("functions/stateFromLower.R") # format state names
   source("functions/dateMethods.R")
@@ -26,5 +30,13 @@
   
   source("committees/committees.R")
   
-gs_ls() # log in to google
+  knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
+                        warning = FALSE,
+                        message = FALSE,
+                        fig.align = "center", 
+                        fig.path= 'Figs/', ## where to save figures
+                        fig.height = 3,
+                        fig.width = 3)
+  
+# gs_ls() # log in to google
 

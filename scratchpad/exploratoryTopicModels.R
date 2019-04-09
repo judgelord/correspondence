@@ -1,16 +1,19 @@
-# install.packages('stm')
-# install.packages('igraph')
-# install.packages('stmCorrViz')
+list.of.packages <- c("stm", "igraph","magrittr","stmCorrViz","Rtsne","rsvd","geometry")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
 library(stm)        # Package for sturctural topic modeling
 library(igraph)     # Package for network analysis and visualisation
 library(stmCorrViz) # Package for hierarchical correlation view of STMs
+library(Rtsne)
+library(rsvd)
+library(geometry)
 
 
 file.name <- 'EPA'
-data <- gs_title(file.name) %>% gs_read()
+d <- gs_title(file.name) %>% gs_read()
 
 
-processed <- textProcessor(data$SUBJECT, metadata=data)
+processed <- textProcessor(d$SUBJECT, metadata=d)
 out <- prepDocuments(processed$documents, processed$vocab, processed$meta)
 
 # save the output object meta, documents, and vocab into variables

@@ -5,7 +5,8 @@
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
 
-# set up 
+
+# make sure gmailr is set up 
 library(gmailr)
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
@@ -41,12 +42,12 @@ data_list <- as.data.frame(matrix(c(
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
-"DOC_EDA", "not coded", NA, # NEEDS TO HAVE MULTI-MEMBER LINES BROKEN OUT  
+"DOC_EDA", "not coded", NA,  
 "DOC_IOS", "coded", "Aaron",
-"DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text
+"DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text # Missing most dates
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
-#"DOC_NTIA", "not coded", NA, # No script yet
+"DOC_NTIA", "not coded", NA, 
 "DOC_OCPA", "not coded", NA,
 #"DOC_OC", "not coded", NA, # No dates
 "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
@@ -56,7 +57,7 @@ data_list <- as.data.frame(matrix(c(
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # no records before 2013
-# "DOD_OIG", "not coded", NA, # waiting for records back from Joe 
+ "DOD_OIG", "not coded", NA, # waiting for records back from Joe    # only last name info --> 600+ non matches
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
@@ -68,10 +69,10 @@ data_list <- as.data.frame(matrix(c(
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
-# "DOJ_CIV", "not coded", NA, # duplicate work needed
+ "DOJ_CIV", "not coded", NA, 
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA, # NEED MULTI-MEMBER LINES SPLIT, COMPLETE - HIGH PRIPRITY
+"DOL_MSHA", "not coded", NA, 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
@@ -89,7 +90,7 @@ data_list <- as.data.frame(matrix(c(
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
- "FCA", "not coded", NA, # not many member names to extract, only 100 obs, but full time period
+ "FCA", "not coded", NA, # 30 or so out of 100 bad names, but full time period
 # FCC
 "FCC", "coded", "Devin",
 # FDA
@@ -107,7 +108,7 @@ data_list <- as.data.frame(matrix(c(
 # NARA
   "NARA", "not coded", NA,
 # NASA
- "NASA", "not coded", NA, # needs cleanup, esp of dates 
+ "NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
 # NCPC
  "NCPC", "not coded", NA,
 "NCUA", "not coded", NA, 
@@ -119,7 +120,7 @@ data_list <- as.data.frame(matrix(c(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-"SSA", "not coded", NA, # revisit merge and remove NAs? # merge needs work
+"SSA", "not coded", NA, # fair amount of bad names that coding won't help much
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
@@ -132,7 +133,7 @@ data_list <- as.data.frame(matrix(c(
 "USDA_ERS", "not coded", NA,
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
-# "USDA_NIFA", "not coded", NA, ## No script, data looks fine. Add script
+ "USDA_NIFA", "not coded", NA, 
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
@@ -232,7 +233,7 @@ d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  
 #######################
 
 # Reoccuring problem names
-names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey','Plaskett'),
+names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey|Stacy','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
               i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'),l=c('Brian','De Va(|ll)ance'),
               m=c('Peggy','Sherry'),n=c('Donald', 'Kent'), o=c('Ann','Schneider'), p=c('Katherine', 'Archuleta'), q=c('Tom|Thomas','Vilsack'))
@@ -710,6 +711,6 @@ length(unique(df$agency)) == length(unique(d$agency))
 
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
-save.image("gh-pages/correspondence.RData")
+save.image("data/correspondence.RData")
 }
 
