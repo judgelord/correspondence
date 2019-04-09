@@ -333,7 +333,7 @@ sum(FERC_letters$Fortune500)
 save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
 
 ## To load these data 
-load("data", "DOE_FERC-letters-corps.Rdata")
+load(here("data", "DOE_FERC-letters-corps.Rdata"))
 
 # edit google sheet
 gs_title("DOE_FERC Extended") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
