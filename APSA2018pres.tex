@@ -1,0 +1,351 @@
+\documentclass[10pt]{beamer}
+\mode<beamer>{%
+  \usetheme[]{CambridgeUS}}
+\usepackage{lmodern, amssymb,amsmath, graphicx, hyperref}
+\usepackage[normalem]{ulem}
+\usepackage{csquotes}
+\graphicspath{{gh-pages/Figs/}}
+
+ \title{How Legislators Actually Invest Their Time:} 
+ \subtitle{Constituents \texorpdfstring{\sout{or}}{or}\textcolor{black}{and} Policy?}
+    \author{Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Professor, Stanford University} \and Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison}}
+    \date{\today}
+\begin{document}
+\begin{frame}
+\maketitle
+\end{frame}
+
+% Hi, My name is Devin Judge-Lord
+% I am presenting work with coauthors Justin Grimmer and Ellie Powell based on a very large new database of letters and emails written by members of Congress to federal agencies. We have spent the past 2 years collecting and coding these data, and I am excited to share the very first results from this project. 
+
+% We started with a common intuition that Members of Congress have limited time and attention to divide among, for example, constituency work and policy work. We have come to question the value of this intuition for explaining  at least this aspect of legislator behavior.
+% We did not find a tradeoff between being attentive to constituents and influential in washingon; instead, by our measure, some legislators are both and some are neither.
+
+% I am going to introduce our data and show that, in fact, the same members who do more policy work also do more constituency service and that both seem to be connected to institutional power. 
+
+% But first, I want to talk a little bit about our definitions and intuitions about constituency service.
+
+% From where did our, possibly incorrect intuition arise? [SLIDE]
+\section{} 
+\begin{frame} 
+\frametitle{A constituent-policy trade-off?}
+\huge 
+\begin{itemize}
+\item ``Potomac fever'' (Fenno, 1978) \pause
+% it emerges from scholarship. Fenno talks about Potomac Feaver--the idea that the deeper a legislator gets into Washington policymaking, the less time they had for their district constituents--thus COMPETING goals of good policy and influence in washington and reelectoin.
+\item ``Insiders'' who have lost touch \pause
+% we also see it in the popular press and campaign rhetoric contrasting Washington insiders and policy wonks with outsiders who are more in touch with real americans. 
+\item \#DrainTheSwamp
+% It is evoked in rallying cries to `drain the swamp' of a policy-focused elite who no longer serve their constituents.
+\end{itemize}
+\end{frame}
+
+
+% Surely, some of this rhetoric is accusing legislators of not VOTING how their constituents would want. But of course, representation goes beyoned floor votes.
+% Indeed there are far more intimate forms of representation that are less constrained by parties and by chamber procedure.
+
+% Possibly the most common act of representation is helping constituents deal with the bureaucracy. 
+
+% %[slide]
+% 
+% 
+% \begin{frame}
+% \frametitle{}
+% \only<1>{\includegraphics[width = \textwidth]{tweet}}
+% \only<2>{\includegraphics[width = \textwidth]{durbin-position}}
+% \end{frame}
+% %This has been true since legislators helped constituents get pensions after the revolutionary war and especially with the rise of the administrative state. Federal agencies now shape nearly every aspect of our lives: 
+% 
+% % Thus, we focus on the requests legislators and their staff send to federal agencies.
+% 
+% % [SLIDE} 
+% 
+% \section{Why legislators lobby the bureaucracy?}
+% \begin{frame}
+% \frametitle{ What do we know?}
+% \Large 
+% Exciting new research: \pause
+% % This aspect of representation has only begun to be studied but has already yielded some really exciting findings: 
+% % Data on legislator requests to agencies has opened a whole new way to study representation: 
+% % So what do we know about why legislators lobby the bureaucracy? 
+% 
+% % [SLIDE]
+% \begin{itemize}
+% \item Represent constituents' policy demands despite party pressure (Ritchie, 2017) 
+% % Ritchie finds that when legislators face cross-pressures on policy issues, they directly engage the bureaucracy in order to still represent constituents even though party politics keep them from doing so legislatively. 
+% \item Constituents and institutional position, not ideology, drive policy oversight (Lowande, 2018) 
+% % Lowande, also focusing on policy, finds that partisan disagreement with the executive branch does not drive oversight.
+% \item Descriptive $\rightarrow$ substantive (Lowande, Ritchie, Lauterbach, 2018)
+% % Lowande, Ritchie, and Lauterbach show that legislators make more requests on behalf of constituents with whom they share marked identities
+% \item Bureaucrats have reasons to comply
+%   \begin{itemize} 
+%     {\large \item And they do (Ritchie and You, n.d.). }
+%     {\large \item Though not always (Mills and Kalaf-Hughes, 2015))}
+%   \end{itemize}
+% \end{itemize}
+% \end{frame}
+% % Recent work by Ritchie and You and Mills and Kalaf-Hughes has begun to investigate whether legislator requests matter and find that they do.
+% 
+% 
+% % Building on this work, we focus squarely on constituency service [SLIDE]
+
+
+\begin{frame}
+\frametitle{What is Constituent Service?}
+\begin{displayquote}
+``help to individuals, groups, and localities in coping with the federal government.'' (Fenno, 1978: p. 101)
+\end{displayquote} \pause
+% We take a broad definition, less about defining who is a constituent and more on the act of service.
+% it may be helping individuals, organized groups like unions, unorganized groups like hurricane affected populations, or companies. 
+% the key is that it is particularistic: an instance of someone needing help with an immigration case, grant application, a contract, etc.
+\underline{Service} 
+\begin{Large}
+\begin{itemize}
+\item Individual casework
+\item Organized groups
+\item Unorganized groups
+\item Companies
+\end{itemize}
+\end{Large}
+\end{frame}
+
+
+% To study who does constituency service and when they do it, we assemble a new dataset of requests--letters, emails, phone calls that members of Congress made directly to parts of the federal bureaucracy.
+
+
+\section{Data} 
+
+\begin{frame}
+\frametitle{Correspondence Data}
+\includegraphics[width = \textwidth]{FERC}
+% For example, here Rep. Thornberry, chair of armed services committee is writing to Federal Energy Regulatory Commission on behalf of two companies in his district, asking for extra scrutiny on a another company's permit application. 
+
+% We have several thousand such letters written to this agency, which we use optical content recognition to extract the text. If they do not have metadata like the sender's name and date, we extract it from the text of the letter or discription of the letter.
+\end{frame}
+
+% To give you a sense of the range of responses. Some agencies provided letters themselves,
+
+%{SLIDE}
+
+% others provided logs, which range widely in the amount of information they record. 
+% from, at the worst, handwritten logs with obscure acronyms to indicate the topic, as in this log from ICE
+\begin{frame}
+\frametitle{Correspondence Data}
+Department of Homeland Security Immigration and Customs Enforcement (ICE)
+\includegraphics[width = \textwidth]{ICE}
+\end{frame}
+
+% Or, in contrast [SLIDE]
+
+\begin{frame}
+\frametitle{Correspondence Data}
+Environmental Protection Agency
+\includegraphics[width = \textwidth]{EPA}
+% rich and informative summaries like those kept by the EPA. Here, Rep Donna writes about a regulatory exemption for a power plant, to alert EPA to a hearing, and in support of a nonprofit grant application.
+\end{frame}
+
+
+% [SLIDE]
+
+
+\begin{frame}
+\frametitle{Correspondence Data}
+\Large
+250+ FOIA requests to 233 federal agencies (a census)
+
+150,000+ legislator requests (and counting), 2007-2018
+% to collect these data we have filed over 250 freedom of information act requests, and I continue to follow up on new leads. Some agencies said it would take two years, and they were not exaggerating. I have ongoing email threads and notes from phone calls with hundreds of different FOIA officers. 
+ 
+% Our aim a census of all correspondence 
+% our data are incomplete but nevertheless cover a wide swath of the federal government, to the point where we can start to infer a total volume. 
+
+% In our analysis below our DV is the number of letters each legislator writes PER AGENCY, and because we view the federal government as many component agencies, these estimates can probably be multiplied by 100-200 agencies to get the government-wide effect. 
+
+\scriptsize
+% response table
+\begin{table}[!htbp] \centering 
+  % \caption{} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} lcccc} 
+ & FOIAed Components & Records & Coded & N \\ 
+\hline \\[-1.8ex] 
+Department of Agriculture & 29 & 29 & 11 & 1957 \\ 
+Department of Commerce & 18 & 18 & 10 & 6875 \\ 
+Department of Defense & 49 & 10 & 7 & 5479 \\ 
+Department of Education & 1 & 1 & 1 & 3868 \\ 
+Department of Energy & 8 & 2 & 1 & 1269 \\ 
+Department of Health and Human Services & 15 & 7 & 5 & 6199 \\ 
+Department of Homeland Security & 6 & 5 & 5 & 26435 \\ 
+Department of Housing and Urban Development & 2 & 0 & 0 & 0 \\ 
+Department of Justice & 11 & 1 & 1 & 903 \\ 
+Department of Labor & 24 & 9 & 6 & 22936 \\ 
+Department of State & 1 & 0 & 0 & 0 \\ 
+Department of the Interior & 10 & 6 & 5 & 5171 \\ 
+Department of the Treasury & 8 & 5 & 4 & 11143 \\ 
+Department of Transportation & 10 & 6 & 6 & 18482 \\ 
+Department of Veterans Affairs & 3 & 0 & 0 & 0 \\ 
+\hline \\[-1.8ex] 
+Independent Agencies & 38 & 21 & 18 & 46182 \\ 
+\hline \\[-1.8ex] 
+Total & 233 & 120 & 80 & 156899 \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+\end{frame}
+
+
+% We trained undergraduate and graduate RAs to code these letters according to a codebook. This analysis relies on our most high-level coding: the type of letter:
+
+% [SLIDE] So far we have over 90,000 coded. 
+
+% And here is the distribution across types. 
+% THIS IS TOTAL NUMBER OF LETTERS, EMAILS, ETC, by TYPE 
+% By far individual consituent service is the most common reason for a legislator to contacgt an agency.
+\section{Descriptives}
+\begin{frame}
+\frametitle{Distribution} 
+\begin{figure}[hbt!]
+\centering
+\caption{Distribution Across Types of Congressional Requests 2007-2017}
+\includegraphics[width = \linewidth]{data_by_type.pdf}
+\end{figure}
+\end{frame}
+
+
+% But there is large variance across members. Gini coefficients in letter writing are much higher than, campaign spending, for example, approximately comparable to income inequality in the US and Mexico. 
+% THIS IS THE AVERAGE LETTERS PER YEAR BY PERCENTILE IN EACH CHAMBER
+% Schumer, Specter, Gillabrand, Warren, Grassley, average 3 to 5 times as many requests per year as the median senator
+\begin{frame}
+\frametitle{Highly Unequal Rates} 
+\begin{figure}
+\centering
+\caption{Variation in Who Contacts Agencies}
+\includegraphics[width = \textwidth]{percentiles-1}
+\end{figure}
+\end{frame}
+% [NOTE: Ellie and Justin, I considered changing this to a histogram, but upon reflection, it seems that mean per member per year is a more interesting axis than number per percentile (as a histogram with bin = 100 would show). As a pattern, they look the same. However, I would be interested to hear any counterarguments.]
+
+%[SLIDE]
+
+
+% Senators with larger state populations, and thus more demand for constituency service do write more letters, but there are significant outliers. 
+
+
+\begin{frame}
+\frametitle{Constituency Demand} 
+\begin{figure}
+\centering
+\caption{Senators from larger states do more constituency  service.}
+\includegraphics[width = 4in]{population-1}
+\end{figure}
+\end{frame}
+
+
+%[SLIDE]
+
+\section{}
+\begin{frame}
+\centering
+\huge
+So why do some legislators do more constituency service than others?
+\end{frame}
+
+% So what is it about some legislators compared to others that we see such dramatic variance in lobbying the bureaucracy? 
+% Our original intuition was that some members had reason to prioritize constitute service and others had reasons to prioritize policy work. 
+
+% [SLIDE]
+
+
+\section{Results: Institutional power and constituency service}
+\begin{frame}
+\frametitle{Institutional Power and Constituency Service}
+% So this is the part where we discover that we were wrong. 
+% We found we found the same powerful members of Congress who are most actively involved in policy oversight are also those most engaged in helping constituents. 
+% First, let us look at simple cross-sectional comparisons of different kinds of members
+Legislators who have power advocate more on behalf of constituents.
+\includegraphics[width = \textwidth]{cross_sectional_models-1}
+\end{frame}
+% THESE ARE THE REGRESSION RESULTS FROM 4 DIFFERENT DESINGS - AND THE 3 TYPES OF LETTERS
+% const service 
+% policy
+% overall 
+%
+% Members of prestige committees do not do policy work, but they do do more constitutn service 
+% Chairs do more of both
+% And it is the interactoin of majority status and same party president, the most favorable combination, that leads to more letters per member.
+
+% However, we need to be careful interpreting cross-sectional analysis, because it could be that members who do a lot of constituent advocacy are more likely to become committee chairs. Indeed this is this case. 
+% Nevertheless, when we look within members--the same members before and after joining or leaving a committee, we still an increase with power. 
+
+
+
+
+% Focusing in on the relationships between committees with statutory oversight authority, i.e. where chairs have even more formal power, we see even more dramatic effects. 
+% This is comparing oversight committee chairs to other members
+\begin{frame}
+\frametitle{Statutory Oversight Power}
+Legislators who \textcolor{blue}{gain} power advocate more on behalf of constituents.
+\bigskip
+
+
+%\begin{itemize}
+%\item Agencies receive more constituency service requests from chairs of their oversight committees
+%\item Legislators who become chairs then lobby more for constituents, targeting the agencies they oversee
+%\end{itemize}
+\includegraphics[width = \textwidth]{oversight_committee_chair_models-1}
+\end{frame}
+
+
+% [SLIDE]
+
+
+% Since this is very much an early stage work in progress, I want to end with more questions and draw on the wisdom in this room. 
+% To what extent are constituents drawn to more powerful elected officials. Is this driven by constituent demand? 
+% What else is going on here that a small number of elected officials are doing 5 times as much lobbying of federal agencies as most others. 
+
+% THANK YOU SO MUCH. 
+
+
+\section{}
+\begin{frame}
+\frametitle{Questions going forward:}
+\Large 
+\begin{itemize}
+\item Do constituents target or demand more from powerful legislators?
+\item Why is there so much variation, even within strata of institutional power?
+\item What else?
+\end{itemize}
+\bigskip
+
+\centering
+\huge
+Thank you! 
+\end{frame}
+
+
+% A Dif-in-Dif design largely supports the conclusion that legislators use institutional power to do more constituency service
+\begin{frame}
+\frametitle{Difference-in-Differences in Constituency Service}
+
+Legislators who \textcolor{blue}{gain} power advocate more on behalf of constituents.
+\bigskip
+\includegraphics[width = \textwidth]{DiD-1}
+\end{frame}
+
+% Simple correlations with NOMINATE scores are perfectly in line with Lewande's much more rigorous findings that ideology is not driving this behavior [NOTE: click through this fast]
+\begin{frame}
+\frametitle{NOMINATE Scores} 
+\begin{figure}
+\centering
+\caption{Legislators' Ideology Seems Not to Predict How Often They Contact Agencies}
+\includegraphics[width = 2in]{ideology_density-2}
+\includegraphics[width = 2in]{ideology_density-3}
+\end{figure}
+\end{frame}
+
+
+% [SLIDE] 
+
+
+\end{document}

@@ -1,0 +1,1829 @@
+---
+title: "How Legislators Actually Invest Their Time"
+output: 
+   html_document:
+    toc: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
+  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+  install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+  library(tidyr)
+  library(ineq)
+  library(dplyr)
+  library(ggplot2)
+  library(magrittr)
+  library(stargazer)
+  library(maps)
+  library(fiftystater)
+  library(mapproj)
+  library(knitr)
+  library(broom)
+  library(dotwhisker)
+  library(here)
+  
+load(here("data/correspondence.RData"))
+```
+
+```{r global.options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      cache = F, 
+                      fig.width=8.5, 
+                      fig.align = 'center', 
+                      fig.path='Figs/',
+                      warning=FALSE, 
+                      message=FALSE)
+```
+
+# Abstract
+
+Legislators and their staff have limited time to serve constituents and advance policy goals. What determines their distribution of attention among constituents, potential donors, and policy goals? While scholarship has explored representational topics such as bill sponsorship, floor speeches, press releases, committee activity, and the like, much less is known about other, less visible forms of representation. In this paper, we contrast those traditional forms of representation against a much less visible form: how member’s advocate on behalf of their constituents, donors, and policy goals to federal agencies. By analyzing thousands of letters sent to government agencies by members of Congress, we develop new measures of legislator issue attention, specialization, and representational activity over time. 
+
+We use these data to examine relationships between committee membership, seniority, electoral security, and the type of advocacy behavior in which members engage.  Existing theories focusing on institutional position suggest that committee membership and seniority should drive letter-writing behavior and that it will focus on oversight of the agency's policy work. In contrast, theories focusing on electoral incentives and the creation of the personal vote suggest that constituent and donor service should drive letter-writing behavior and that it will focus on securing agency resources for constituents. Scholars have found that both institutional position and electoral incentive shape corporate donor service. Our data allow new tests of these theories, not just on the public forms of representation traditionally studied, but on the more subterranean forms of representation that have substantive policy consequences and may only be monitored by political insiders, if at all.  
+
+Do legislators shift attention to policy work as they gain seniority or electoral security? Do members in key fundraising positions or vulnerable districts disproportionately advocate on behalf of potential corporate supporters? Does a legislator's party or ideology influence the constituents on whose behalf legislators advocate? We address these questions with respect to which agencies legislators choose to contact, on whose behalf, and the distribution of attention to policy issues within and across federal agencies over time.
+
+
+# Data  
+
+Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?  
+
+```{r missing_data, fig.height=8}
+df %>% 
+  filter(!is.na(agency)) %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  mutate(Coded = ifelse(Type == "To be coded", "To be coded", "Coded")) %>% 
+  ggplot() + 
+  geom_point(aes(x = DATE, y = paste(agency, n), color = Coded), 
+             alpha = .4,
+             shape = 73,
+             size=2) +
+  labs(x = "Date of Correspondence",
+       y = "Agency, N",
+       title = paste("Observations matched with ICPSR, N =", nrow(df) )) +
+   facet_grid(complete ~., scales = "free_y", space = "free_y") + 
+  theme(legend.title = element_blank())
+
+# MISSING DATA STATUS: 
+# DHHS_ACL - no logs before 2017
+# DHHS_CDC is rolling release, 2010-2011 expected Nov 2018
+# DHS_CBP waiting since april 2017
+# DHS_ICE - no records before 2010, stopped using system 2014ish
+# DOD_NAVY - No records before 2013
+# DOD_OSDJS waiting on remaining records
+# DOD_USACE no records before fall 2013 
+# DOI_NPS no records before mid 2008
+# DOJ_CIV is a rolling release - 2009-2011 recieved July 2018
+# DOL_OSHA filed for 2009-2017
+# DOT_FHWA - COMPLETE, but waiting on pdf conversion  
+# EPA filed for 2017
+# FDA waiting on 2007-2011 from Sarah B. Kotler  
+# PRC - Tracking did not start until FY 2009
+# SBA - no records before 2010
+# USDA_FS filed for 2017
+# USDA_HQ filed for 2017
+# USDA_NRCS filed for 2017
+# USDA RMA has no logs prior to 2010
+# USPS - filed for remaining data 
+
+# TO DO:
+# DOD_DeCA - waiting on pdf conversion? only some are on drive 
+# DOD_OIG  waiting for pdf conversion
+# DOL_OFCO is COMPLETE, just sparse?
+# DOT_FAA has an odd gap in 2010 + File for 2017
+# DOT_SLDC is COMPLETE, just sparse
+# USDA_NASS file for 2017
+# USDA_ERS file for 2017
+
+# NLRB?
+# FCA
+# DOI_USGS
+# DOI_BSEE
+# DOI_BOEM 
+# DOD_DLA Aviation
+# DOD_DFAS
+# DOC_OS
+# DOC_OCPA
+# DOC_MBDA
+```  
+
+All time-series analysis below subsets to agencies with ten years of data.   
+
+```{r data_by_type}
+df %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
+  ggplot() + 
+  geom_col(aes(x = Type, y = nT)) + 
+  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
+  labs(x = "",
+       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       title = "") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
+
+```   
+
+```{r data_coded, fig.height=7}
+df %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type) %>% mutate(nT = n()) %>% ungroup() %>%
+  mutate(percent = paste(Type, nT, "=", 100*round(nT/total, 2), "%")) %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  ggplot() + 
+  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = percent), 
+             alpha = .4,
+             shape = 73,
+             size=2) + 
+  labs(x = "Date of Correspondence",
+       y = "Agency, N",
+       title = paste("Coded Observations, N =", sum(df$Type != "To be coded") ) ) +
+  facet_grid(complete ~ ., scales = "free_y", space = "free_y") + 
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
+
+```   
+
+
+In additition to our five broad types, we have a second, more nuanced coding scheme focused on major agency decisions or events. This was, in part, developed inductively through the coding process. 
+
+```{r data_coded_event, fig.height=7}
+df %>% 
+  filter(!is.na(POLICY_EVENT)) %>% 
+  mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>%
+  mutate(total = n()) %>% 
+  group_by(POLICY_EVENT) %>% mutate(nPE = n()) %>% ungroup() %>%
+  filter(nPE > 10) %>% 
+  # mutate(total = sum(nPE)) %>% 
+  mutate(percent = paste(POLICY_EVENT, 100*round(nPE/total, 3), "%")) %>% 
+  group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+  ggplot() + 
+  geom_point(aes(x = DATE, y = reorder(agency, n), color = percent), #gsub(";.*|/.*|\\(.*", POLICY_EVENT))), 
+             #alpha = .4,
+             shape = 73,
+             size=2) + 
+  labs(x = "Date of Correspondence",
+       y = "Agency, N",
+       title = paste("Coded Observations, N =", sum(!is.na(df$POLICY_EVENT) ) ) ) +
+  facet_grid(complete ~ ., scales = "free_y", space = "free_y") + 
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
+
+```  
+#### Censoring 
+
+Unfortunately, much our data are censored around the 2008-2009 and 2016-2017 party transitions, some the most informative time periods in our study period. 
+
+Most right-censored series will be completed, but some agencies have changed systems making logs are less useful or even terminated. For example, the DOL Office of Administrative Law Judges "discontinued the use of the spreadsheet" tracking congressional inquiries in November 2016. Similarly, DHS Immigration and Customs Enforcement (ICE) may have stopped keeping its own log in 2014, even though this correspondence logged by ICE was distinct from correspondence addressed to ICE and logged by the DHS Secretary's Office.
+
+Left censoring comes from two sources:
+(1) Formal document retention cycles (agencies good at destroying documents such as the DOD and the FCC), and
+(2) Document loss and changing systems (agencies bad at keeping documents). 
+Either one of these may correlate with changes in an agency's salience due to changes in party control. It does seem that the most contacted/controversial agencies (EPA, DHS) keep very good records. This might lead us to a slight bias toward older records being about policy, but we do not see evidence of such bias in our data. Nevertheless, our timeseries analysis either subsets to agencies where we have full data or includes agency and/or Congress fixed effects.
+
+#### Timing
+
+Dates are generally the addressed date of the letter, but may alternatively be the date the letter was received by that agency---almost always within a few days. 
+
+There might be some interesting signal in the formality of letterhead that changes things even when the agency knows what is coming. For example, the USGS recorded this note on a letter from McCain: "See all attachments including email string - Dave Applegate and John Godt are aware this is coming."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Core Model
+
+```{r cross_sectional_models_table}
+
+all <- df %>% filter(year < 2018) # %>% filter(congress != 115)
+p2 <- filter(all, Type2 == "Policy") 
+c2 <- filter(all, Type2 == "Constituent Service")
+
+
+# prestige committee
+Overall <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige")  %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ prestige + factor(congress) + factor(agency), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "Constituent")
+
+prestige <- rbind(Overall, Policy, Constituent)
+
+
+
+# chair 
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency), data = all %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chair")  %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ chair + factor(congress) + factor(agency), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "Constituent")
+
+chair <- rbind(Overall, Policy, Constituent)
+
+
+# prestige_chair
+Overall <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige_chair")  %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "Constituent")
+
+prestige_chair <- rbind(Overall, Policy, Constituent)
+
+
+# majority*presidents_party
+Overall <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency), 
+                   data = all %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") ) %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency),
+                  data = p2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency),
+                       data = c2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "Constituent")
+
+majority <- rbind(Overall, Policy, Constituent)
+majority$term <- gsub(":", "", majority$term)
+
+
+
+
+
+# combine 
+m <- rbind(prestige, chair, prestige_chair, majority)
+b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
+                       c("Model 2", "Chair", "Chair","Chair"),
+                       c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
+                       c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
+
+
+kable(m)
+```
+
+```{r cross_sectional_models, fig.height = 3.9, fig.width= 6, eval = TRUE}
+
+{dwplot(m) %>% 
+    relabel_predictors(c(prestige = "Prestige Committee",
+                         chair = "Chair",
+                         prestige_chair = "Prestige Chair",
+                         majority = "Majority",
+                         presidents_party = "Presidents Party",
+                         majoritypresidents_party = "Majority x Presidents Party")) +
+    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Cross Sectional Differences in Letter Writing") +  
+    guides(colour = guide_legend(reverse=T))  + 
+     theme(legend.title = element_blank())} %>%
+  add_brackets(b)
+
+
+```  
+
+
+```{r DiD_table}
+
+
+
+
+# prestige committee
+Overall <- tidy(lm(n ~ prestige + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term == "prestige")  %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ prestige + factor(congress) + factor(agency) + factor(icpsr), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ prestige + factor(congress) + factor(agency) + factor(icpsr), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige") %>% mutate(model = "DiD Constituent")
+
+prestige <- rbind(Overall, Policy, Constituent)
+
+
+
+# chair 
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chair")  %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "chair") %>% mutate(model = "DiD Constituent")
+
+chair <- rbind(Overall, Policy, Constituent)
+
+
+# prestige_chair
+Overall <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency) + factor(icpsr), data = all %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige_chair")  %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency) + factor(icpsr), data = p2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ prestige_chair + factor(congress) + factor(agency) + factor(icpsr), data = c2 %>%
+                 group_by(agency, year, congress, icpsr, prestige_chair) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term == "prestige_chair") %>% mutate(model = "DiD Constituent")
+
+prestige_chair <- rbind(Overall, Policy, Constituent)
+
+
+# majority*presidents_party
+Overall <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency) + factor(icpsr), 
+                   data = all %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") ) %>% mutate(model = "DiD Overall")
+
+Policy <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency) + factor(icpsr),
+                  data = p2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "DiD Policy")
+
+Constituent <- tidy(lm(n ~ majority*presidents_party + factor(congress) + factor(agency) + factor(icpsr),
+                       data = c2 %>%
+                 group_by(agency, year, congress, icpsr, majority, presidents_party) %>%
+                 summarise(n = n())   %>% distinct() ) ) %>%
+  filter(term %in% c("majority","presidents_party", "majority:presidents_party") )  %>% mutate(model = "DiD Constituent")
+
+majority <- rbind(Overall, Policy, Constituent)
+majority$term <- gsub(":", "", majority$term)
+
+
+
+
+
+# combine 
+m <- rbind(prestige, chair, prestige_chair, majority)
+b <- list(c("Model 1", "Prestige Committee", "Prestige Committee", "Prestige Committee"), 
+                       c("Model 2", "Chair", "Chair","Chair"),
+                       c("Model 3", "Prestige Chair", "Prestige Chair","Prestige Chair"),
+                       c("Model 4", "Majority", "Presidents Party", "Majority x Presidents Party"))
+
+
+kable(m)
+```
+
+```{r DiD, fig.height = 3.9, fig.width= 6,eval = TRUE}
+
+{dwplot(m) %>% 
+    relabel_predictors(c(prestige = "Prestige Committee",
+                         chair = "Chair",
+                         prestige_chair = "Prestige Chair",
+                         majority = "Majority",
+                         presidents_party = "Presidents Party",
+                         majoritypresidents_party = "Majority x Presidents Party")) +
+    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Difference-in-Differences in Letter Writing") +  
+    guides(colour = guide_legend(reverse=T))  + 
+     theme(legend.title = element_blank())} %>%
+  add_brackets(b)
+```  
+
+
+
+
+
+
+
+
+
+
+
+### Committee chairs contact agencies that their committee oversees more than other members of the same committee. 
+
+
+
+
+
+
+```{r oversight_committee_chair_models_table, eval = TRUE}
+# oversight chair without member FE
+Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency), 
+                   data = all %>% filter(oversight_committee == 1) %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency),
+                  data = p2 %>% filter(oversight_committee == 1) %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency),
+                       data = c2 %>% filter(oversight_committee == 1) %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "Constituent")
+
+oversight_committee_chair  <- rbind(Overall, Policy, Constituent)
+
+
+# oversight chair with member FE
+Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr), 
+                   data = all %>% filter(oversight_committee == 1)%>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n()) %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "DiD - Overall")
+
+Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency) + factor(icpsr),
+                  data = p2 %>% filter(oversight_committee == 1) %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "DiD - Policy")
+
+Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr),
+                       data = c2 %>% filter(oversight_committee == 1) %>%
+                 group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "DiD - Constituent")
+
+oversight_committee_chairFE  <- rbind(Overall, Policy, Constituent)
+
+
+# combine 
+m <- rbind(oversight_committee_chair, oversight_committee_chairFE)
+kable(m)
+```
+
+```{r oversight_committee_chair_models, fig.height = 2.5, fig.width= 6, eval = TRUE}
+
+{dwplot(m) %>% 
+    relabel_predictors(c(oversight_committee_chair = "")) +
+    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Chairs Relative to Other Oversight Committee Members") + 
+    guides(colour = guide_legend(reverse=T))  + 
+     theme(legend.title = element_blank(),
+           axis.ticks.y = element_blank(),
+           panel.grid.major.y = element_blank())} 
+
+
+```
+
+
+
+```{r non_oversight_committee_chair_models_table, eval = TRUE}
+# oversight chair without member FE
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency), 
+                   data = all %>% filter(oversight_committee == 0) %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") ) %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ chair  + factor(congress) + factor(agency),
+                  data = p2 %>% filter(oversight_committee == 0) %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency),
+                       data = c2 %>% filter(oversight_committee == 0) %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair", "majority:presidents_party") )  %>% mutate(model = "Constituent")
+
+chair  <- rbind(Overall, Policy, Constituent)
+
+
+# oversight chair with member FE
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), 
+                   data = all %>% filter(oversight_committee == 0)%>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n()) %>% distinct() ) ) %>%
+  filter(term %in% c("chair") ) %>% mutate(model = "DiD - Overall")
+
+Policy <- tidy(lm(n ~ chair  + factor(congress) + factor(agency) + factor(icpsr),
+                  data = p2 %>% filter(oversight_committee == 0) %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "DiD - Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr),
+                       data = c2 %>% filter(oversight_committee == 0) %>%
+                 group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "DiD - Constituent")
+
+chairFE  <- rbind(Overall, Policy, Constituent)
+
+
+# combine 
+m <- rbind(chair, chairFE)
+kable(m)
+```
+
+```{r non_oversight_committee_chair_models, fig.height = 2.5, fig.width= 6, eval = TRUE}
+
+{dwplot(m) %>% 
+    relabel_predictors(c(chair = "")) +
+    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Chairs Relative to Other Oversight Committee Members") + 
+    guides(colour = guide_legend(reverse=T))  + 
+     theme(legend.title = element_blank(),
+           axis.ticks.y = element_blank(),
+           panel.grid.major.y = element_blank())} 
+
+
+```
+
+
+
+
+# Basic Facts
+
+```{r means_by_type_table, include = FALSE}
+# mean by mamber 
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+kable(df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  mutate(perType = round(perType, 0)) %>% 
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+    full_join(data) %>% 
+  spread(Type, perType, fill = 0) %>% 
+  group_by(chamber) %>% 
+  summarise_all(max) %>% 
+    #rename(chamber = Chamber) %>% 
+  select(Chamber = chamber, everything()),
+  caption = "Average Correspondence per Year by Type")
+
+# overall mean by type
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+kable(df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  mutate(perType = round(perType, 0)) %>% 
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+    full_join(data) %>% 
+  spread(Type, perType, fill = 0) %>% 
+  group_by(chamber) %>% 
+  summarise_all(max) %>% 
+    #rename(chamber = Chamber) %>% 
+  select(Chamber = chamber, everything()),
+  caption = "Total Correspondence by Type")
+
+
+```
+
+
+
+```{r means_by_type, fig.height=2}
+data <- df %>% 
+  group_by(member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+  group_by(chamber) %>% 
+  summarise(perType = round(mean(perYear))) %>% ungroup() %>% 
+  mutate(Type = factor("Total", levels = c(levels(df$Type), "Total")))
+
+  # simple average
+df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(chamber, Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, Type) %>% summarise(perType = mean(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(mean = mean(perType), sd = sd(perType) ) %>% 
+  mutate(sd.above.mean = (perType - mean)/sd ) %>% ungroup() %>%
+  mutate(Type = factor(Type, levels = c(levels(Type), "Total"))) %>%
+  full_join(data) %>% 
+  select(-mean, -sd) %>% 
+ggplot() + 
+  geom_tile(aes(x = Type, y = chamber, fill = sd.above.mean))  + 
+  geom_text(aes(x = Type, y = chamber, label = round(perType, 0 ))) + 
+  labs(title = paste("Average Correspondence per Year by Type"),
+       x = "",
+       y = "",
+       fill = "SD Above Chamber Mean") + 
+  theme(axis.ticks = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "bottom")
+```
+
+Comparing the average number of contacts per year among committee chairs and non-chairs, the largest differences are among the overall top quartile of letter-writers further increasing their advocacy, on policy issues in the House and on behalf of nonprofits and local governments in the Senate. 
+```{r means_by_type_chair}
+df %>% 
+  filter(!is.na(chair)) %>% 
+  mutate(Position = factor(ifelse(chair == 1, "Chair", " Not Chair"))) %>% 
+  filter(Type != "To be coded") %>% 
+  group_by(member_state) %>% mutate(mean = mean(permemberyear)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(Quartile = factor(ntile(mean, 4))) %>% ungroup() %>% 
+  group_by(Type, member_state, year) %>% mutate(n = n())  %>% ungroup() %>% 
+  group_by(Type, member_state) %>% mutate(mean = mean(n))  %>% ungroup() %>% 
+  group_by(Type, Position, Quartile, chamber) %>% mutate(mean = mean(mean)) %>% ungroup() %>% 
+  select(Type, chamber, Position, mean, Quartile) %>% distinct() %>% ungroup() %>% 
+  ggplot() +
+  geom_line(aes(x = Position, y = mean, group = Quartile, color = Quartile)) + facet_grid(Type ~ chamber, scales = "free_y") + 
+  theme(strip.text = element_text(angle = 0))
+
+```
+
+# Data Collection and Coding Process
+
+This paper presents a new data set of letters, phone calls, and emails received by all federal agencies and subagencies. 
+
+We developed a [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit) to classify correspondence by type and to identify referents such as agency rules, hearings, or legislation. Our coding process began with the authors coding a representative sample of records. We then trained undergraduate and graduate RAs. The first several thousand log entries were double coded. For example, of over 10,000 log entries for the Environmental Protection Agency, the first 2,500 were double-coded with inter-coder agreement of .9 where coders did not flag their coding as uncertain and  .78 overall. Throughout the hand-coding process, we also developed subagency-specific coding rules where agency staff consistently described certain types of correspondence with certain words. For example, where "rulemaking" consistently indicated that a legislator's request involved an agency rule, all cases yet uncoded by hand are assigned to be type "Policy-Rulemaking" for the present analysis. 
+
+
+
+## To do:
+
+#### Near term
+
+Get district demand characteristics from census
+
+- industry codes (e.g.. Ag state percent farm)
+
+Staffers 
+- bleed over - are you using staff to do policy work as well 
+
+Normal vote in district - previous presidential return 
+
+Get approps subcommittee membership data through the 115th
+
+Crosswalk agencies and oversight committees
+
+Correct committee data (there are errors and missingness in appointment and termination dates, as well as members missing entirely)
+
+#### Longer term
+
+Code issue salience - perhaps a news story count for non-casework contacts. 
+
+Code group representation following Ritchie et al. + inductivly identify additional groups? 
+
+Add measures of agency ideology. Lowande uses Chen and Johnson (2014). Also see Bolton, de Figueiredo, and Lewis (2017).
+
+A large number of letters are co-signed, which may yield interesting tests of theories of legislator networks/ties/coalitions (e.g. compare to bill co-sponsorship a la Kirkland and Bratton, Haynie, and Rouse on ideology, race, and gender etc.). To this end, co-signed letters are given the same unique ID as we break them out by member.
+
+Use coding rules, SVMs, or topic models to auto-code entries where human coders have given us a good deal of data (e.g. USDA with coding rules, EPA with a topic model or SVM), or develop coding rules based on unsupervised clustering where we have a lot of text (e.g. FERC, CDC). 
+
+Use sentiment analysis to create a measure of valence--the rhetorical strength with which requests are made. 
+
+For many agencies, we have a sample of letters. These can be pasted into their respective Google sheets. This could be a productive way to skim a broad sample of letters and will provide more text for analysis. 
+
+Use agencies where we have data on (some) calls and emails to estimate the bias in the letterhead correspondence that constitutes most logs. For example, DOD Defense Logistics received 8 calls but only 2 letters from members regarding the termination of a contract for parachutes, suggesting that letters may be a small portion of contacts for certain issues like corporate service. Between May 2015 and December 2017, the DOJ Office of Administrative Law Judges received 132 emails, 109 telephone calls, and only 54 letters. Between 2007 and 2017, the Postal Regulatory Commission received 100 emails, 30 faxes, 173 letters, 118 calls. 
+
+Most agencies redact constituent names, but some have not, which may allow us to do some limited demographic analysis.
+
+For USDA and a few others, we have logs of non-congressional letters; it may be interesting to compare Congressional attention to direct public/constituent attention. 
+
+
+# Advocacy: A personal choice, enhanced by institutional power
+
+## A few members advocate across agencies and topics
+
+```{r gini}
+library(ineq)
+gini_by_member <- df %>% 
+  group_by(agency) %>% mutate(perAgency = n()) %>% ungroup() %>% 
+  filter(perAgency >100) %>% # select agencies with sufficient data 
+  group_by(member_state, agency, chamber, year) %>% summarise(n = n()) %>% ungroup() %>% 
+  group_by(member_state, agency, chamber) %>% mutate(n = mean(n)) %>% ungroup() %>% 
+  group_by(agency, chamber) %>% mutate(byAgency = round(Gini(n),2)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(byChamber = round(Gini(n),2)) %>% 
+  dplyr::select(chamber, agency, byChamber, byAgency) %>% distinct() %>% arrange(byAgency)
+
+```
+
+  The volume of correspondence per legislator is highly unequal. Within the `r length(unique(gini_by_member$agency))` agencies receiving more than 100 letters, the Gini coefficient of letters per member per year is `r unique(gini_by_member$byChamber[which(gini_by_member$chamber=="Senate")])` for Senators and `r unique(gini_by_member$byChamber[which(gini_by_member$chamber=="House")])` for Representatives, similar to income inequality estimates for Mexico and the United States respectively and higher than inequality in campaign spending (The Gini coefficient for House campaign spending in 2016 was .29).  
+  
+  
+  
+```{r quartiles}
+quartiles <- df %>% 
+  group_by(member_state, chamber, year) %>% summarise(n = n()) %>%
+  group_by(member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(quartile = ntile(mean, 4)) %>% 
+  group_by(quartile, chamber) %>% summarise(n = sum(n)) %>% ungroup() %>% 
+  mutate(top = ifelse(quartile ==4, T, F)) %>% 
+  group_by(top, chamber) %>% 
+  summarise(tvb = sum(n)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(percent = round(100*tvb/sum(tvb), 0)) %>% 
+  filter(top == T)
+```
+In terms of letters per year, the top 25% of Senators and Representatives write `r quartiles$percent[2]` and `r quartiles$percent[1]` percent of all letters from each chamber. 
+
+This skewed distribution holds across types of advocacy. As illustrated below, whether it is policy advocacy, lobbying on behalf of corporations, or individual-level constituent service, a small number of legislators are doing a disproportionate share of advocacy. Moreover, it is often the same legislators engaging in constituent service and policy advocacy. When ranked by overall volume of correspondence, regardless of type, the top quartile of members are responsible for a disproportionate amount of advocacy for individuals, nonprofits, local governments, and policy. Advocacy on behalf of business interests is notably more diffuse, but still concentrated in the most active half of members. 
+
+
+```{r percentiles, fig.height=3.4, fig.width=6}
+# all 
+df %>% 
+    group_by(member_state, chamber, year) %>% summarise(n = n()) %>%
+    group_by(member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+    group_by(chamber) %>% mutate(Percentile = ntile(mean, 100)) %>% 
+  arrange(-Percentile) %>% 
+  dplyr::select(member_state, Percentile, mean, chamber) %>% distinct() %>% 
+    ggplot() + 
+    geom_col(aes(x = Percentile, y = mean), color = "grey", position = "dodge") + 
+  geom_point(aes(x = Percentile, y = mean), color = "grey") + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+    facet_grid(. ~ chamber , scales = "free_y") + theme_bw() +
+  labs(title = "Average Legislator Requests per Year by Percentile",
+       x = "Percentile")
+
+
+# grouping by type 
+df %>% 
+  filter(Type != "To be coded") %>%
+    group_by(Type, member_state, chamber, year) %>% summarise(n = n()) %>%
+    group_by(Type, member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+    group_by(Type, chamber) %>% mutate(Percentile = ntile(mean, 100)) %>% 
+  arrange(-Percentile) %>% 
+    group_by(Type, Percentile, chamber, mean) %>% mutate(n = sum(n)) %>% ungroup() %>% 
+  select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
+    ggplot() + 
+    geom_col(aes(x = Percentile, y = mean, color = Type), position = "dodge") + 
+  geom_point(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+    facet_grid(Type ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Percentile within Type
+(labels = top 5 percent of members)",
+       x = "Percentile (Calculated within types)")
+
+# not grouping 
+df %>% 
+  filter(Type != "To be coded") %>%
+  group_by(Type, member_state, chamber, year) %>% summarise(n = n()) %>% ungroup() %>% 
+  group_by(Type, member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+  group_by(member_state, chamber, year) %>% mutate(np = sum(n)) %>%
+  group_by(member_state, chamber) %>% mutate(meanp = mean(np)) %>% ungroup() %>% 
+  group_by(chamber) %>% mutate(Percentile = ntile(meanp, 100)) %>% 
+  arrange(-Percentile) %>% 
+  select(member_state, Type, Percentile, mean, chamber) %>% distinct() %>% 
+  ggplot() + 
+  geom_col(aes(x = Percentile, y = mean, color = Type), position = "dodge") + 
+  geom_point(aes(x = Percentile, y = mean, color = Type)) + 
+  geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 94, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+  facet_grid(Type ~ chamber , scales = "free_y") + 
+  labs(title = "Average Correspondence per Year by Overall Percentile
+(labels = top 5 percent of members)",
+       x = "Overall Percentile (Calculated across types)")
+```
+
+## What distinguishes letter-writers? 
+
+###  Constituent demand for advocacy
+
+The number of constituents asking for assistance is a major driver of member advocacy. 
+```{r population, fig.height= 3.7, fig.width=6}
+df %>% 
+  filter(chamber == "Senate") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+    geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > 137, member_state, "")), check_overlap = F, size = 2.5) + theme_bw() +
+  labs(title = "Senator Requests per Year by State Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+
+# by type
+df %>% 
+  filter(chamber == "Senate" & !is.na(Type2)) %>% 
+    group_by(member_state, year, pop2010, Type2) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010, Type2) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+    geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), y = mean, label = ifelse((Type2=="Policy" & mean > 10)|(Type2=="Constituent Service" & mean >75), member_state, "")), check_overlap = F, size = 2.5) + 
+  facet_grid(Type2 ~ ., scales = "free_y") +
+  labs(title = "Average Correspondence per Year by Population",
+       x = "Log State Population")
+
+```
+
+```{r sentate_percapita_map}
+Chamber = "Senate"
+
+df %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(state, Type) %>% summarise(n = n()) %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) +
+  facet_grid(. ~ Type)
+
+df %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(state, pop2010, Type) %>% summarise(n = n()) %>% ungroup() %>% 
+  mutate(Per_Capita = n/pop2010*1000000) %>% 
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Contacts Per Million Residents from Members of the", Chamber)) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) +
+  facet_grid(. ~ Type)
+```
+
+
+*TO DO:* House districts
+
+
+### Institutional positions empower, rather than distract, advocates
+
+*TO DO:* advocacy ~ advocacy(t-1) * chair effect
+
+# Additional Questions
+
+## Issue attention
+
+### Which agencies do legislators choose to contact?
+
+```{r party_distance_above_mean_by_agency}
+# member-agency distance from the mean (cross-tab/tile)
+
+df %>% 
+  filter(!is.na(department), party != "(I)") %>%
+  group_by(chamber, department, party, year, member_state) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(chamber, department, party) %>% mutate(perParty = mean(n)) %>% ungroup() %>% 
+  group_by(chamber, party) %>% mutate(mean = mean(perParty), sd = sd(perParty), sd.above.mean = (perParty - mean)/sd, perAgency = n()) %>% ungroup() %>%
+  filter(perAgency > 1000) %>% # select agencies with significant data
+  select(department, party, sd.above.mean, perParty, chamber) %>% distinct() %>%
+ggplot() + # plot
+  geom_tile(aes(x = department, y = party, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = party, label = round(perParty, 0))) + 
+  labs(title = paste("Average Contacts per Party Member per Year by Department"),
+       x = "",
+       y = "Party",
+       fill = "SD above party mean") + 
+    theme(axis.text.x = element_text(angle = 45, vjust = .8),
+          legend.position = "bottom") + 
+  facet_grid(chamber ~ .)
+
+```  
+
+```{r member_distance_above_mean_by_agency}
+# member-agency distance from the mean (cross-tab/tile)
+Chamber = "House"
+
+zeros <- data_frame(
+  name_state = rep(unique(df$name_state), n_distinct(df$department)), 
+  department =  rep(unique(df$department), n_distinct(df$name_state)),
+  perMember = 0) %>%
+  mutate(name_dept = paste(name_state, department)) %>% 
+  filter(!name_dept %in% df$name_dept, !is.na(department))
+
+data <- df %>% 
+  filter(chamber == Chamber, !is.na(department)) %>%
+  group_by(department, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(department, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
+  full_join(zeros) %>% # add zeros
+  group_by(department) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd, perAgency = n()) %>% ungroup() %>%
+  filter(perAgency > 1000) %>% # select agencies with significant data
+  group_by(name_state) %>% filter(sum(perMember) > 10000) %>% ungroup() %>% # select prolific members
+  group_by(department, name_state, sd.above.mean, perMember, sd) %>% summarise(n = n()) %>% ungroup()
+
+ggplot(data) + # plot
+  geom_tile(aes(x = department, y = name_state, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = name_state, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year by Department"),
+       x = "",
+       y = Chamber) + 
+    theme(axis.text.x = element_text(angle = 45, vjust = .8))
+
+```
+
+
+### How do legislators distribute attention among issues within federal agencies?
+*To do: *select within-agency analysis where issues are provided (USDA, FCC, CDC)
+
+### How do legislators distribute attention among issues across federal agencies?
+*To do: *across-agency analysis of POLICY EVENT coding
+
+## Specialization
+
+Theories rooted in institutional position suggest that committee members, especially committee chairs will focus on governmental activities where they have formal oversight authority and responsibilities and where constituent service this authority may advantage them in securing benefits for constituents and potential donors. 
+
+Our data show limited support for the importance of formal oversight powers in directing the attention of committee members. In some case, like the Agriculture and Judiciary, we see strong relationships between the committee on which one sits and the agencies they lobby. In many other case, however, members of committees with formal oversight powers are not the most attentive. Instead, members of certain committees tend to lobby widely across the federal bureaucracy. 
+
+In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committees. Prestige Senate committees are consistently on the high end of distribution of requests coming in to each agency.
+
+```{r committee_deptSenate}
+Chamber <- "Senate"
+# zeros
+zeros <- data_frame(
+  committee = rep(unique(dcommittees$committee[dcommittees$chamber == Chamber]), n_distinct(dcommittees$department) ), 
+  department =  rep(unique(dcommittees$department), n_distinct(dcommittees$committee[dcommittees$chamber == Chamber]) ),
+  n = 0) %>%
+  mutate(committee_dept = paste(committee, department)) %>% 
+  filter(!committee_dept %in% dcommittees$committee_dept,  !is.na(department))
+
+data <- dcommittees %>% 
+  filter(chamber == Chamber) %>% 
+  filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
+  filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER"))%>% 
+  group_by(committee, department, chamber, year) %>% summarise(n = n()) %>% ungroup() %>% 
+  group_by(committee, department, chamber) %>% summarise(n = mean(n)) %>% ungroup() %>%
+  full_join(zeros) %>% 
+  filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
+  filter( !is.na(department), !is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER", "ENERGY INDEPENDENCE", "DEFICIT REDUCTION", "STANDARDS OF OFFICIAL CONDUCT"))%>% 
+  group_by(department) %>% mutate(mean = mean(n), sd = sd(n)) %>% 
+  mutate(above = n - mean) %>% 
+  mutate(sd.above.mean = above/sd) %>% ungroup %>%
+  mutate(prestige = ifelse(committee %in% c( "RULES", "BUDGET", "WAYS", "COMMERCE", 
+                                             "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) 
+  
+  ggplot(data) + # plot
+  geom_tile(aes(x = department, y = committee, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = committee, label = round(n, 0 ))) +
+  facet_grid(prestige ~ ., scales = "free_y", space = "free_y") +
+  labs(title = paste(Chamber, "Committee Correspondence per Year per Department or Agency 2007-2017"),
+       x = "Department",
+       y = "") + 
+    theme(axis.text.x = element_text(angle = 45, vjust = .8))
+
+```
+
+In the House, the Transportation, Energy, Financial Services, Armed Services, and Appropriations Committees are the most active. Notably, members of the Budget, Rules, and Ways and Means committees, often considered prestige appointments, are not as active. 
+
+```{r committee_deptHouse}
+Chamber <- "House"
+# zeros
+zeros <- data_frame(
+  committee = rep(unique(dcommittees$committee[dcommittees$chamber == Chamber]), n_distinct(dcommittees$department) ), 
+  department =  rep(unique(dcommittees$department), n_distinct(dcommittees$committee[dcommittees$chamber == Chamber]) ),
+  n = 0) %>%
+  mutate(committee_dept = paste(committee, department)) %>% 
+  filter(!committee_dept %in% dcommittees$committee_dept,  !is.na(department))
+
+data <- dcommittees %>% 
+  filter(chamber == Chamber,  !is.na(department)) %>% 
+  filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
+  filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER"))%>% 
+  group_by(committee, department, chamber, year) %>% summarise(n = n()) %>% ungroup() %>% 
+  group_by(committee, department, chamber) %>% summarise(n = mean(n)) %>% ungroup() %>%
+  full_join(zeros) %>% 
+  filter(!department %in% c("PRC", "NASA", "FCA", "Amtrak", "RRB")) %>% 
+  filter(!is.na(committee), !committee %in% c("PRINTING", "MINORITY WHIP", "MINORITY LEADER", "MAJORITY WHIP", "MAJORITY LEADER", "LIBRARY", "ETHICS", "SPEAKER", "INVESTIGATE THE VOTING IRREGULARITIES OF AUGUST 2", "HOUSE ADMINISTRATION", "EVENTS SURROUNDING THE 2012 TERRORIST ATTACK ON BENGHAZI", "ASSISTANT MINORITY LEADER", "ENERGY INDEPENDENCE", "DEFICIT REDUCTION", "STANDARDS OF OFFICIAL CONDUCT"))%>% 
+  group_by(department) %>% mutate(mean = mean(n), sd = sd(n)) %>% 
+  mutate(above = n - mean) %>% 
+  mutate(sd.above.mean = above/sd) %>% ungroup %>%
+  mutate(prestige = ifelse(committee %in% c( "RULES", "BUDGET", "WAYS", "COMMERCE", 
+                                             "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) 
+  
+  ggplot(data) + # plot
+  geom_tile(aes(x = department, y = committee, fill = sd.above.mean))  + 
+  geom_text(aes(x = department, y = committee, label = round(n, 0 ))) +
+  facet_grid(prestige ~ ., scales = "free_y", space = "free_y") +
+  labs(title = paste(Chamber, "Committee Correspondence per Year per Department or Agency 2007-2017"),
+       x = "Department",
+       y = "") + 
+    theme(axis.text.x = element_text(angle = 45, vjust = .8))
+  
+```
+
+## Types of representation 
+
+#### On whose behalf do legislators usually write?  
+
+```{r distance_above_mean_by_type, fig.height=5}
+# member-TYPE distance from the mean (cross-tab/tile)
+Chamber = "House"
+
+data <- df %>% 
+  filter(chamber == Chamber, Type != "To be coded",  !is.na(department)) %>%
+  group_by(Type, name_state, year) %>% mutate(n = n()) %>% ungroup() %>%
+  group_by(Type, name_state) %>% mutate(perMember = mean(n)) %>% ungroup() %>% 
+  group_by(Type) %>% mutate(mean = mean(perMember), sd = sd(perMember), sd.above.mean = (perMember - mean)/sd) %>% ungroup() %>%
+  group_by(name_state) %>% filter(sum(perMember) > 5000) %>% ungroup() %>% # select prolific members
+  group_by(Type, name_state, sd.above.mean, perMember, sd) %>% summarise(n = n()) %>% ungroup()
+
+ggplot(data) +
+  geom_tile(aes(x = Type, y = name_state, fill = sd.above.mean))  + 
+  geom_text(aes(x = Type, y = name_state, label = round(perMember, 0 ))) + 
+  labs(title = paste("Average Letters per Year per Type or Agency
+(Showing members averaging more than 1000 and agencies receiving more than 1,000)
+Ovarall mean =", round(mean(data$perMember), 0), ", Mean Standard Deviation = ", round(mean(data$sd), 0)),
+       x = "",
+       y = Chamber)+ 
+    theme(axis.text.x = element_text(angle = 15, vjust = .8))
+
+```
+
+
+*To do: *TYPE/issue area x demand characteristics
+
+
+
+## Party and Majority Status: Are there more contacts before or after an election?
+
+Party control does appear to increase legislator advocacy behavior, possibly due to the additional staff resources it provides. 
+
+```{r party_density_over_time}
+  df %>% 
+    filter(complete == T, party_name != "Independent") %>%
+    ggplot() +
+    geom_density(aes(x = DATE, fill = party_name, color = party_name), alpha = .3) + facet_grid(chamber ~.) + 
+    theme(axis.title.x = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text.y = element_blank(),
+          legend.title = element_blank())
+```
+
+```{r party_mean_by_month}
+df %>% 
+  filter(DATE < as.Date("2017-01-01") ) %>% 
+  mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
+  filter(complete == T, party_name != "Independent") %>%
+  group_by(party_name, month, chamber, party_size, year) %>% summarise(n = n()) %>% ungroup() %>%
+  mutate(n = n/party_size) %>% 
+  group_by(party_name, chamber, party_size, year) %>% mutate(perYear = mean(n)) %>% 
+  ggplot() +
+  geom_smooth(aes(x = month, y = n, color = party_name), se=F, span = .2) +
+  geom_col(aes(x = month, y = n, fill = party_name), alpha = .5, position = "dodge") + 
+  geom_point(aes(x = month, y = n, color = party_name), alpha = .5) + 
+  scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
+  facet_grid(chamber ~., scales = "free_y") +
+  labs(title = "Letters per Capita by Party", 
+      y = "Correspondence per Month per Party Member") + 
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank())
+```
+
+```{r party_mean_by_month_agency}
+df %>% 
+  filter(DATE < as.Date("2017-01-01") ) %>% 
+  mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
+  filter(complete == T, party_name != "Independent", agency != "NASA") %>%
+  group_by(party_name, month, department, party_size) %>% summarise(n = n()) %>% ungroup() %>%
+  mutate(n = n/party_size) %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = party_name), alpha = .2, position = "dodge") + 
+  #geom_smooth(aes(x = month, y = n, color = party_name), se=F, span = .1) +
+  geom_point(aes(x = month, y = n, color = party_name), alpha = .3) + 
+  scale_x_date(date_labels  = "%Y", date_breaks = "year") + 
+  facet_grid(department ~ ., scales = "free_y") +
+  labs(title = "Letters per Capita by Party and Agency", 
+      y = "Correspondence per Month per Party Member") + 
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text.y = element_text(angle = 0, size = 5))
+```
+
+In the House, both parties average just slightly more letters per year while in the majority, but in the Senate, Republicans average more per year while in the minority.
+
+
+```{r party_distance_above_mean, fig.height=2}
+  df %>% 
+    filter(party != "(I)", !is.na(partystatus)) %>% 
+    group_by(party, partystatus, chamber, member_state, year) %>% summarise(n = n()) %>% 
+    group_by(chamber, party, partystatus) %>% mutate(perParty = mean(n))%>% ungroup() %>% 
+    group_by(chamber) %>% mutate(sd = sd(perParty), mean = mean(perParty)) %>%
+    mutate(sd.above.mean = (perParty - mean)/sd, 0) %>% ungroup() %>%
+    group_by(party, sd.above.mean, perParty, partystatus, chamber) %>% summarise(n = n()) %>% 
+    ggplot() + 
+    geom_tile(aes(x = party, y = partystatus, fill = sd.above.mean))  +
+    geom_text(aes(x = party, y = partystatus, label = round(perParty, 0)))  +
+    facet_grid(. ~ chamber) + 
+    labs(title = "Average Correspondence per Year by Party and Majority Status")
+  
+  
+```
+
+
+
+### Does a legislator's party influence the constituents on whose behalf legislators advocate? 
+
+*To do:* Type x party
+
+### Does a legislator's ideology influence the constituents on whose behalf legislators advocate? 
+
+Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
+
+```{r ideology_density, fig.height=3, fig.width=3}
+  df %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE Scores",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(. ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+          legend.title = element_blank())
+  
+
+
+df %>% 
+    filter(!is.na(Type2)) %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type2) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+    geom_point(aes(x = nominate.dim1, y = mean), color = "#9999CC", alpha = .3) +#,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean), color = "#663399") +#, color = "D1") ) + 
+      #geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "1st Dim. NOMINATE",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+      strip.text.y = element_text(size = 5),
+          legend.title = element_blank())
+
+df %>% 
+    filter(!is.na(Type2)) %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type2) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber, Type2) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+   # geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  #geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean), color = "#FF9966", alpha = .3) +#, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean), color = "orange") +#, color = "D2") ) + 
+  labs(title = "2nd Dim. NOMINATE",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+      strip.text.y = element_text(size = 5),
+          legend.title = element_blank())
+  
+  df %>% 
+    filter(Type != "To be coded") %>% 
+    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type) %>% 
+  summarise(perYear = n()) %>% ungroup() %>%
+      group_by(nominate.dim1, nominate.dim2, chamber, Type) %>% 
+  summarise(mean = mean(perYear)) %>% ungroup() %>%
+    ggplot() +
+    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  labs(title = "Average Number of Letters per Year by NOMINATE Scores and Type",
+       x = "Ideology Score",
+       y = "Mean Number of Letters Per Year") + 
+  facet_grid(Type ~ chamber, scales = "free_y") + 
+    theme(#axis.title.x = element_blank(),
+          #axis.ticks = element_blank(),
+          #axis.text.y = element_blank(),
+      strip.text.y = element_text(size = 5),
+          legend.title = element_blank())
+```
+
+## Institutional position: formal and informal power
+
+### Committee appointment
+
+Committee membership brings access to information, voting responsibilities, and prestige. Additionally, committee chairs have agenda control and additional staff. Some hypothesize that taking on leadership positions diverts attention from constituency service toward policy oversight. In contrast, others hypothesize that members will leverage the resources of office to better serve their constituents. How does a member's behavior change when they are appointed chair of a powerful committee? Does committee appointment lead to more policy work or constituent service?
+
+
+*To do: *Committee member effect, chair effect
+
+```{r chair_effect, include = FALSE}
+tenure <- dcommittees %>%
+  filter(chair_since_2007 == T, Type2 == "Policy") %>% 
+  mutate(tenure = as.numeric(year) - firstassignedchair) %>%
+  group_by(bioname, tenure, department) %>% 
+  summarise(n = n()) %>% ungroup() %>% 
+  filter(!is.na(tenure)) %>% 
+  mutate(n = round(n, 1))
+
+year.before.chair.DOL <- round(mean(tenure$n[tenure$tenure == -1 & tenure$department == "DOL"]), 1)
+year.after.chair.DOL <- round(mean(tenure$n[tenure$tenure == 0 & tenure$department == "DOL"]), 1)
+
+tenure %<>%
+  group_by(bioname, tenure) %>% 
+  summarise(n = n()) %>% ungroup() %>% 
+  filter(!is.na(tenure)) %>% 
+  mutate(n = round(n, 1))
+
+year.before.chair <- round(mean(tenure$n[tenure$tenure == -1]), 1)
+year.after.chair <- round(mean(tenure$n[tenure$tenure == 0]), 1)
+
+#Ritchie (2017) finds the mean number of policy-relevant letters to the Department of Labor is higher for members of their oversight committee 10.4, compared to non-members (7.7). 
+#For our study time period, 2007-2017, we find an average of `r year.before.chair.DOL` before and `r year.after.chair.DOL` after being appointed chair.
+
+# Averaging across all departments and committees, we find a increase from `r year.before.chair` to `r year.after.chair` policy-relevant letters. However, there is significant variation among committee chairs and it is not clear that formal oversight authority accounts for this increase. 
+
+# Committee chair appointment is most impactful in the House with respect to policy advocacy. 
+```
+
+Within members of 
+```{r chair_effects}
+
+dcommittees %>% 
+  filter(complete == T,chair_since_2007 == T) %>% #, committee %in% comms) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  mutate(prestige = ifelse(committee %in% c( "OVERSIGHT", "RULES", "BUDGET", "WAYS", "COMMERCE", "APPROPRIATIONS", "ARMED SERVICES", "FINANCE", "FOREIGN RELATIONS"), "Prestige", "Not prestige") ) %>% 
+  filter(!is.na(Type2)) %>% 
+  #filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+  ggplot() + 
+  geom_density(aes(x = monthsAsChair, fill = prestige, color = prestige), alpha = .2, bw = 2) + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Before and After Committee Chair Appointment"),
+       x = "Months Before and After First Appointment to Prestige Committee Chair",
+       y = "Correspondence Density") + 
+    theme(
+    legend.title = element_blank())
+```  
+
+However, the impact of becoming a committee chair varies. 
+
+```{r committee_chair_density, fig.height=6}
+
+# prestige committee members
+# density 
+dcommittees %>%  
+  filter(complete == T, prestige == 1, chair_since_2007 == T, !is.na(member_state)) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  group_by(bioname) %>% mutate(n = n()) %>% filter(n > 10) %>% 
+  filter(!is.na(Type2)) %>% 
+  #filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY", "LANDRIEU", "KERRY", "MENENDEZ")) %>% 
+  filter(!last_name %in% c("KERRY", "COCHRAN", "MURRAY", "RYAN", "INOUYE", "CAMP")) %>%
+  ggplot() + 
+  geom_density(aes(
+    x = monthsAsChair, 
+    fill = paste(chamber, committee, name_state), 
+    color = paste(chamber, committee, name_state) ), 
+    alpha = .1, bw = 2, position = "stack") + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Before and After Committee Chair Appointment"),
+       x = "Months Before and After Appointment to Prestige Committee Chair",
+       y = "Correspondence Density") + 
+    theme(
+    legend.title = element_blank(), 
+    legend.text = element_text(size = 7))
+```
+
+
+Committee chair appointments seem to be especially important in the house and most members appear to write slightly more letters after being appointed to chair. However, the density of correspondence by member misses the most interesting dynamic: The volume of correspondence is highly unequal, even across committee chairs. Indeed just three chairs initiated the majority of correspondence. 
+```{r committee_chair_volume, fig.height=6}
+# count
+dcommittees %>%  
+  filter(chair_since_2007 == T, complete == T, prestige == 1, !is.na(name_state)) %>%
+  filter(firstassignedchair < 2016, firstassignedchair > 2008) %>%
+  filter(!is.na(Type2)) %>% 
+  #  filter(!last_name %in% c("STARK", "ROGERS", "LEVIN", "CONAWAY")) %>% 
+    filter(!last_name %in% c("KERRY", "COCHRAN", "MURRAY", "RYAN", "INOUYE", "CAMP")) %>%
+  ggplot() + 
+  geom_density(aes(
+    x = monthsAsChair, 
+    y = ..count.., 
+    fill = paste(chamber, committee, name_state), 
+    color = paste(chamber, committee, name_state)), alpha = .1, bw = 2) + 
+  geom_vline(aes(xintercept = 0), color = "black") + 
+  facet_grid(Type2 ~ chamber, scales = "free_y") +
+  scale_x_continuous(limits = c(-24,24), breaks = seq(-24,24,by =6)) + 
+  guides(fill=guide_legend(ncol=1))+
+  labs(title = paste("Volume of Correspondence Before and After Committee Chiar Appointment"),
+       x = "Months Before and After Appointment to Prestige Committee Chair",
+       y = "Correspondence per Month") + 
+    theme(
+    legend.title = element_blank(), 
+    legend.text = element_text(size = 7))
+
+```
+
+When we match committees and departments, we see some larger effects, but not consistently. For example, Science and Environment committee chairs averaged more letters to EPA after becoming chair, but they also wrote more to DOT. Similarly, Transportation chairs wrote more to both DOT and EPA, so, while becoming chair generally matters, changes in correspondence behavior are broader than changes in formal oversight powers. 
+
+Focusing on committee effects, chair-committee linkages seem stronger in the House than the Senate where non-chair members are also engaged. Committee leadership appears to mean more in the House, where most members do very little. This is especially clear for DHS where House Homeland Security Committee leaders write far more to DHS than other members but a half dozen Senators write more letters to DHS than the Homeland Security Committee Chair.
+
+```{r committeechiars_barcode_DHS, fig.height=3}
+Chamber = "House" 
+dcommittees %>% 
+  filter(chamber == Chamber, 
+         committee == "HOMELAND SECURITY",
+         chair_since_2007 == T,  
+         complete == T, 
+         agency != "PRC", 
+         DATE < as.Date("2017-01-01")) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = department),
+    shape = 73
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180),
+    legend.title = element_blank(),
+    axis.text.y = element_text(),
+    axis.text.x = element_text(angle = 0),
+    legend.position = "bottom"
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```  
+
+
+There are also differences in how members contact an agency such as whether they contact the DC headquarters or a subagency office. These distributions are fairly consistent over time. To stay with the same example, almost none of the `{r} nrow(df %>% filter(agency == "DHS_ICE")` contacts sent directly to ICE (circumventing DHS headquarters) came from these three committee chairs.
+
+
+```{r committeechairs_barcode_DHS_ICE, fig.height=3}
+Chamber = "House" 
+dcommittees %>% 
+  filter(chamber == Chamber, 
+         committee == "HOMELAND SECURITY",
+         # chair_since_2007 == T,  
+         agency %in% c("DHS_HQ", "DHS_ICE"), 
+         DATE < as.Date("2017-01-01"),
+         DATE > as.Date("2010-01-01")) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = ifelse(chair_since_2007 == T, chair, "Other committee members"), 
+        color = agency),
+    shape = 73
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180),
+    legend.title = element_blank(),
+    axis.text.y = element_text(),
+    axis.text.x = element_text(angle = 0),
+    legend.position = "bottom"
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```
+
+Some members, even committee chairs, and especially senators, distribute their attention across a wide variety of agencies. 
+
+*to do:* committee members over time. 
+
+Two results are particularly interesting: (1) we find surprisingly weak committee-agency associations (this holds when we subset to policy letters) and (2) chairs and ranking minority members are often not the top letter-writers to the agencies they oversee (e.g. Ag Committee chairs are not top letter-writers to USDA, though Senate Environment Committee and House Energy, Oversight, and Science Committees are top letter-writers to EPA). Despite the advantages that chairs have in additional staff and formal authority (some agencies even have written policies about prioritizing correspondence from the chair their oversight committee), other members often exceed them in their volume of correspondence.
+
+**TO DO:**  committee chairs over time. 
+
+Comparing within-members over time, committee chair appointments occasionally reshape behavior a great deal (e.g. House Oversight) but most committee chair's distribution of attention is more a function of their previous behavior than their position. This is stark in the House Homeland Security Committee where Chair King seems to attend to the same distribution of agencies before and after being appointed chair, while Chair McCaul seems more affected by taking on the chair position. 
+
+
+### Advocates and non-advocates
+
+Some members write significantly more letters per year than others, and those who write do so across issues and agencies. For example, Senator Schumer lobbies more than anyone on behalf of local governments and nonprofits, but he is also among those Senators lobbying most on behalf of individuals and companies and on policy issues. As chair of the Rules committee, Senator Shumer has little official oversight authority but nevertheless, increased both policy and constituent service advocacy upon becoming chair. Arlen Specter is another top advocate. Indeed, a full year after being defeated in the Primary and months after leaving office, Specter was still writing letters to federal agencies. 
+
+```{r namefreq}
+df$TYPE %<>% as.numeric()
+df %>% 
+  filter(Type != "To be coded") %>% 
+  group_by(bioname, nominate.dim1, chamber, Type, TYPE, last_name) %>% summarise(n = n()) %>% ungroup()  %>%
+  group_by(chamber, Type) %>% mutate(percentile = ntile(n, 100)) %>%
+  ggplot() +
+  geom_tile(aes(x= chamber, y = Type), fill = "white", color = "grey") +
+  geom_text(
+    aes(x = chamber, y = reorder(Type, TYPE), label = last_name, size = n, alpha = percentile, color = nominate.dim1),
+    position=position_jitter()
+  ) +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(y = "Type", 
+       x= "Chamber",
+       title = paste("Types and Frequency of Correspondence")) +
+  theme(
+    axis.ticks = element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank(), 
+    axis.title = element_blank()
+  ) 
+```
+
+```{r boxplot_peryearSenate, fig.height = 14}
+Chamber = "Senate"
+# boxplots by year 
+df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% summarise(n = n()) %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == Chamber) %>% 
+  ggplot() +  
+  geom_boxplot(
+    aes(x = reorder(name_state, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+  coord_flip() +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(x = Chamber,
+       y = "Number of Letters, Emails, or Phone Calls",
+       title = paste("Correspondence per Year from Members of the U.S.", Chamber)) + 
+  facet_grid(. ~ Type, scales = "free_x") + 
+  theme(axis.text.y = element_text(size=5),
+        strip.text = element_text(size = 5) ) 
+```
+```{r boxplot_peryearHouse, fig.height = 34} 
+Chamber = "House"
+# boxplots by year  
+df %>% group_by(name_state, year, chamber, nominate.dim1, Type) %>% summarise(n = n()) %>% ungroup() %>% 
+  mutate(mean = mean(n)) %>%
+  filter(chamber == Chamber) %>% 
+  ggplot() + 
+  geom_boxplot(
+    aes(x = reorder(name_state, n), y = n, color = nominate.dim1), outlier.shape = NA) + 
+  coord_flip() +
+  scale_colour_gradient2(low = "blue", mid = "grey", high = "red") +
+  labs(x = Chamber,
+       y = "Number of Letters, Emails, or Phone Calls",title = paste("Correspondence per Year from Members of the U.S.", Chamber)) + 
+  facet_grid(. ~ Type, scales = "free_x") + 
+  theme(axis.text.y = element_text(size=5),
+        strip.text = element_text(size = 5) )
+```
+
+### Does advocacy behavior vary over time?
+
+We find that most members are not hyper-focused in their letter-writing behavior, even regarding policy issues. However, many members do have distinctive patterns of activity that seem to remain fairly consistent over time, even across changes in committee membership. The plots below represent these patterns as a "bar-code" for each member with each line marking a letter.
+
+```{r members_barcoded, fig.height=16, fig.width=11}
+# barcode plot of committee members 
+
+
+Chamber <- "Senate" # "House" #  
+ 
+# member by year by agency 
+df %>% 
+  filter(chamber == Chamber, complete == T) %>% 
+    mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(name_state, n), # sort by total number of lewters writen
+        color = department), 
+    # alpha = .6,
+    shape = 73,
+    size=2
+  ) +  
+  
+  labs(title = paste(Chamber),
+       y = paste("Members by", "Total Number of Letters"), 
+       x = "Date of Correspondence" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5)
+  ) + 
+    guides(fill=guide_legend(ncol=1)) 
+
+```
+Subsetting to members appointed to serve as a committee chair, we see that subsequent chairs of the same committee often target a very different set of agencies, suggesting that there is a lot to be said for style over institutional position or events of the day.
+
+```{r committeechiars_barcode_senate, fig.height=10, include= TRUE}
+Chamber = "Senate"
+dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, chair, position, department, assigneddate, terminationdate, chamber, committee) %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = department),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```
+
+```{r committeechiars_barcode_house, fig.height=10, include= TRUE}
+Chamber = "House"
+dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, chair, position, department, assigneddate, terminationdate, chamber, committee) %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = department),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```  
+
+
+
+
+```{r oversight_committeechiars_barcode_senate, fig.height=10, include= TRUE}
+Chamber = "Senate"
+dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, chair, position, oversight_committee, assigneddate, terminationdate, chamber, committee) %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = factor(oversight_committee)),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    #legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```
+
+```{r oversight_committeechiars_barcode_house, fig.height=10, include= TRUE}
+Chamber = "House"
+dcommittees %>%  
+  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(chamber == Chamber, 
+         chair_since_2007 == T,  
+         complete == T, 
+         # agency != "PRC", 
+         DATE < as.Date("2017-01-01"),
+        DATE > as.Date("2007-01-01"),
+        assigneddate < as.Date("2017-01-01"),
+        terminationdate > as.Date("2007-01-01")) %>%
+  select(DATE, chair, position, oversight_committee, assigneddate, terminationdate, chamber, committee) %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair, 
+        color = factor(oversight_committee)),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste(Chamber, "Committee Chairs"),
+       y = "", 
+       x = "" ) +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    #legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```
+
+## Seniority
+
+### Do legislators shift attention to policy work as they gain seniority? 
+*To do: *TYPE vs chamber seniority, committee seniority
+
+## Electoral security
+
+### Do legislators shift attention to policy work as they gain electoral security? 
+
+*To do:* Presidential vote share by TYPE (overall, and within-member over time)
+
+## Institutional vs. electorial position
+
+### Do members in key fundraising positions disproportionately advocate on behalf of potential corporate supporters? 
+
+### Do members in vulnerable districts disproportionately advocate on behalf of potential corporate supporters? 
+
+
+
+
+<!-- Are earmarks policy or constituency service?  -->
+<!-- - earmark is enacted by law - an official process  -->
+<!-- - but carving out exemptions can also be part of official process -->
+
+<!-- Who is a constituent?  -->
+
+<!-- Coding for Groups? -->
+<!-- Discriptive representation / surragate representation  -->
+<!-- - veterans -->
+<!-- - women -->
+<!-- - race  -->
+<!-- - employees whose jobs are being outsourced  -->
+
+<!-- AFFECTED GROUP variable? -->
+<!-- - geographic  -->
+<!-- affinity group -->
+<!-- - indiv -->
+<!-- - nation -->
+
+<!-- Stats to investigate:  -->
+<!-- - the variance accross agencies vs. variance in number of letters   -->
+<!-- - over time correlation in legislators and where they write.  -->
+<!-- - committee non-committee by type  -->
+<!-- - correlation of committee membership and letters to each agency  - may reveal the right oversight committees -->
+
+<!-- What does the contact flow look like? -->
+<!-- - consistent v. punctuated  -->
+<!-- - distribution of police patrol (low variance) or fire alarm (high variance) attention -->
+
+<!-- Cyclical attention  -->
+<!-- - budgets, approps, etc.  -->
+
+<!-- what kinds of activities and topics correlate with each?  -->
+
+
+<!-- To discuss: -->
+<!-- - Conceptional difference between headline-getting and policy oversight. -->
+
+<!-- To keep in mind:  -->
+<!-- - Based on my interview, there does seem to be a risk of systematically missing sensitive, especially approps, communication. However, there may be certain high-level people who do most of this (in leg affairs or comptroller), so, someday, we may want to track down these point people and FOIA their email.  -->
+
+<!-- Interview highlights:  -->
+<!-- While in DC last week, I was able to interview a legislative affairs staffer who is very happy to help.  -->
+
+<!-- They identified 4 kinds of communication, 3 of which end up in logs: "some of it is headlines; some of it is pet issues; a lot of it--I was surprised at how much-- is constituent issues." -->
+<!-- 1. Forwarding constituent issues: usually routine -->
+<!-- 2. Authorizations: Usually, most substantive hill contact is with auth committee staffers, but not much going on this term: "[The committee chair & ranking minority] are good, but even they get a roadblock when it comes to the president." Often auth committee staff calls the leg affairs person who knows the answer to their question. Advocacy groups often meet with committee staff, who then call leg affairs. What gets logged is inconsistent, only certain when they need higher-level approval or a coordinated response to multiple members.  -->
+<!-- 3. Approps: "Definitely not going to be in any correspondence logs. That is all smoke and mirrors, and mahogany."  -->
+<!-- 4. Headlines: Other than constituent mail, members (esp. minority) are mostly trying to score points in the press. "every time they ask us a question, it about something to get ahead of a story." When are members proactive? "I can't think of anything besides something that gets a headline."  -->
+
+<!-- Members do attempt to circumvent legislative affairs: "sometimes we catch them and sometimes we don't" -->
+
+<!-- Important things are addressed to the secretary (In most cases, we have received records from the secretary's office as well as leg affairs, but I will check). -->
+
+
+
+<!-- More anecdotes: Meadows complained about marijuana on the National Mall, and Harry Reid passed on a complaint about "ISIS-looking individuals while shopping at Home Depot" to Homeland Security. -->
+
+<!-- More bureaucratic absurdism: The Equal Employment Opportunity Commission "administratively canceled" our FOIA request because they could not agree among themselves on how much to charge us. I appealed, but the appeal is incomplete until I send them a copy of their letter denying our request. Ironically, not only was the appeal a reply to their email denying our request, due to their small staff, the appeals officer is also the FOIA officer who sent the letter she is now asking us to send back to her.  -->
+
+<!-- - When do we expect policy oversight?  -->
+<!-- i) The minority is often looking to get headlines that question majority leadership: -->
+<!-- - What happens in divided government?  -->
+<!-- ii) Agencies differ in from whom they inspire oversight:  -->
+<!-- - Which agencies are always under attack vs. which agencies get differential treatment vs. which are never under attack or ignored -->

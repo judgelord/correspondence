@@ -1,0 +1,366 @@
+source("setup.R")
+library(rvest)
+
+# https://elibrary.ferc.gov/idmws/search/fercgensearch.asp
+
+
+## extract table 
+web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
+
+## for testing 
+# web_pages <- web_pages[2]
+
+
+scraper <- function(web_page){
+  
+  # Get raw html
+  html <- read_html(here("FERC", "html", web_page))
+
+  table <- html %>% 
+    html_nodes("table") %>%
+    .[[3]] %>% # I happen to be interested in the third table on this page
+    html_table(fill = T) %>% # turn html in to a data frame
+    rename(id = X1,
+           date = X2,
+           docket = X3,
+           summary = X4) %>% 
+    filter(str_detect(id, "Submittal")) %>% # clean it up a bit
+    gather(key = key, value = link_text, -id, -date, -docket, -summary) %>% #FIXME get private/public
+    filter(link_text %in% c("Image", "PDF", "FERC Generated PDF", "MicroFilm") ) %>% #FIXME add doc types
+    separate(date, c("doc_date", "filed_date"), sep = "\n\t") %>%
+    mutate(doc_date = as.Date(doc_date, "%m/%d/%Y"),
+           filed_date = as.Date(filed_date, "%m/%d/%Y") ) %>%
+    # arrange(desc(link_text)) %>% # image before pdf
+    arrange(id) %>% # id numbers count up
+    arrange(desc(filed_date)) %>% # dates count down 
+    mutate(id = str_remove(id, "Submittal")) %>% 
+    mutate(id = str_replace(id, "Document Components", "(partial)")) %>% 
+    select(-key)
+  
+  table_files <- table %>%
+    filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% #FIXME
+    mutate(index = row_number()) # add an index
+  
+  urls <- html %>% 
+    html_nodes("table") %>%
+    html_nodes("a") # "a" nodes contain url linked text
+  
+  urls <- tibble(
+    link_text = html_text(urls), # the linked text 
+    url = html_attr(urls, "href") ) %>% # the url (an html attribute)
+    mutate(fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
+           file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
+           file_extention = str_replace(file_extention, "Image", ".tif") ) %>%
+    filter(str_detect(url, "opennat")) %>%  # filter to get rows that have the files we want
+    filter(link_text %in% c("Image", "PDF", "FERC Generated PDF") ) %>% # filter to pdf files
+    mutate(index = row_number()) # add index 
+
+  # merge with table by index
+  d <- full_join(table_files, urls)  %>%
+    # add the file name and file extension
+    mutate(file_name = paste0(id, "-", fileID, file_extention) ) 
+
+  # filter out files we already have
+  to_download <- d %>% 
+    filter(!file_name %in% list.files(here("FERC")) ) 
+    
+  ## Now we can use the function download.file(url, destfile)
+  ## walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
+  ## Here, .x is url, .y is destfile, and .f is download.file():
+  walk2(to_download$url, here("FERC", to_download$file_name), download.file)
+
+  # Finally, select the columns we want and merge with the full table
+  d %<>% 
+    select(id, doc_date, filed_date, docket, summary, file_name, url, link_text) %>% 
+    filter(!is.na(id)) %>%
+    full_join(table) %>% 
+    distinct()
+
+  return(d)
+}
+## map_dfr() takes a vector, .x and applies the function .f(.x), 
+## binding the results as rows in a data frame
+tables <- map_dfr(web_pages, scraper)
+
+tables %<>% mutate(file_downloaded = file_name %in% list.files(here("FERC")))
+tables %<>% mutate(file_nameNA = is.na(file_name))
+
+dim(tables)
+list.files(here("FERC"))
+length(list.files(here("FERC")))
+tables %>% group_by(link_text, file_nameNA) %>% tally()
+tables %>% group_by(link_text, file_downloaded) %>% tally() %>% ungroup()
+
+tables %>% select(file_name) %>% distinct() %>% dim()
+
+# pdf letters to text (note: could also OCR images, see html for image doc ids)
+d <- tables
+
+
+
+totext <- function(file_name){
+  # paste pages
+  text <- NA
+  if(str_detect(file_name, "pdf")){
+  text <- pdf_text(here("FERC", file_name))  %>% 
+    paste(collapse = "<pagebreak>")
+  }
+  return(text)
+}
+# If possible, read text
+d$text <- map(d$file_name, possibly(totext, NA_real_, quiet = T))
+ 
+dim(d)
+FERC_files <- d
+
+
+d$DATE <- d$doc_date
+d %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+d %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
+# create FROM column from SUBJECT column
+d$FROM <- d$summary
+d %<>% extractMemberName(members, "FROM")
+d$FROM <- data$FROM2
+d %<>% select(-FROM2, 
+              - doc_date, 
+              -file_nameNA, 
+              -file_downloaded,
+              -Summary)
+
+save(FERC_files, file = here("data", "FERC_files.Rdata"))
+
+##################################################################################
+# FOR GOOGLE SHEET
+###################
+
+# helper function
+Clean_String <- function(string){
+  string %<>% 
+    stringr::str_replace_all("[^a-zA-Z\\s]", " ") %>% 
+    stringr::str_replace_all("[\\s]+", " ")
+  return(string)
+}
+
+# collapse to one obs per ID
+log <- d %>%
+  group_by(id) %>% 
+  mutate(link_text = paste(link_text, collapse = "; "),
+         file_name = paste(file_name, collapse = "; "),
+         url = paste(url, collapse = "; "),
+         text = paste(text, collapse = "<pagebreak>")) %>% 
+  distinct() %>% 
+  mutate(text_clean = Clean_String(text)) %>% 
+  mutate(text_clean = str_remove_all(text_clean, "NA pagebreak|pagebreak NA|FERC PDF Unofficial |Document Conten| s tif ")) %>%
+  arrange(desc(id)) %>%
+  ungroup() 
+
+head(log$text_clean)
+###################################################################
+
+log %<>%
+  rename(SUBJECT = summary,
+         ID = id) 
+# log %>% write.csv(file = "DOE_FERC Extended.csv")
+
+
+nchar("NA<pagebreak>NA<pagebreak>NA<pagebreak>NA")
+
+log %>% 
+  mutate(OCR_success = nchar(text_clean) > 45) %>%
+  mutate(pdf = ifelse(str_detect(link_text, "PDF"), "PDF", "Non-PDF")) %>%
+  group_by(year, OCR_success, pdf) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = OCR_success) +
+  geom_col() + theme_minimal() + facet_grid(pdf ~ .)
+
+log %>% 
+  mutate(maybe_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, maybe_cosigned) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = maybe_cosigned) +
+  geom_col() + theme_minimal()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################################
+# OLD CODE
+
+ ##########################################
+# download all files 
+scraper <- function(web_page){
+
+  # Get raw html
+  html <- read_html(here("FERC", web_page))
+  
+  # A data frame with rows breaks at the node "<tr>" 
+  d <- tibble(table_rows = html_nodes(html,"tr"))
+  
+  d %<>% 
+    mutate(links = html_node(table_rows,"a"), # "a" nodes contain urls and linked text
+           link_text = html_text(links), # the text 
+           url = html_attr(links, "href"), # the url
+           fileID = str_extract(url, "[0-9].*"), # the url contains the file name, but in this case, not the extension
+           file_extention = str_replace(link_text, ".*PDF", ".pdf"), # but the linked text tells us the file type
+           file_extention = str_replace(file_extention, "Image", ".tif"), 
+           file_name = paste0(fileID, file_extention), # add the file name and file extension
+           summary = html_text(table_rows)) %>% # grab all the table text just because
+    select(-links, -table_rows) %>%
+    filter(str_detect(url, "opennat")) %>%  # filter out rows that don't have the files we want
+    filter(file_extention == ".pdf")
+
+  d %<>% filter(!file_name %in% list.files(here("FERC")) ) # filter out files we already have
+  
+  # Now we can use the function download.file(url, destfile)
+  # walk2() takes two vectors, .x and .y, and applies the function .f(.x, .y)
+  # Here, .x is url, .y is destfile, and .f is download.file():
+  walk2(d$url, here("FERC", d$file_name), download.file)
+}
+
+# walk() takes one vector, .x and applies the function .f(.x)
+walk(web_pages, scraper)
+
+
+
+
+
+##################################
+##### OLD CODE: 
+
+# Get html
+FERChtml <- read.csv("FERChtml.html", header = F)
+
+# Select pdf files
+FERCfiles <- str_match(FERChtml$V1, 'opennat.asp.fileID=[0-9]*. >FERC')
+FERCfiles <- FERCfiles[which(!is.na(FERCfiles))]
+FERCfiles <- gsub(". >FERC", "", FERCfiles)
+
+# Complete urls
+for(i in 1:length(FERCfiles)){
+  FERCfiles[i] <- paste0("https://elibrary.ferc.gov/idmws/common/", FERCfiles[i])
+}
+
+# Download 
+for (myurl in FERCfiles) {
+  filename <- paste(str_match(myurl, "fileID=(.+)")[2], ".pdf", sep="")
+  #download(myurl, filename) # COMMENT OUT TO AVOID ACCIDENTAL DOWNLOAD
+  Sys.sleep(2)
+}
+
+# get both pdf document and log ID numbers from html 
+FERCid <- str_match(FERChtml$V1, "opennat.asp.fileID=[0-9]*.....fldrslt .cf3 .ul .ulc3 .strokec3 FERC|[0-9]{8}-[0-9]{4}")
+FERCid <- FERCid[which(!is.na(FERCid))]
+FERCid <- gsub("opennat.asp.fileID=|....fldrslt.*", "", FERCid)
+
+# match ID numbers 
+FERCid <- as.data.frame(FERCid)
+FERCid$id <- NA # new var for doc id numbers 
+for(i in 1:dim(FERCid)[1]){
+  if(grepl("-", FERCid$FERCid[i]) && !grepl("-",FERCid$FERCid[i+1])){
+    FERCid$id[i] <- FERCid$FERCid[i+1]
+  }
+}
+head(FERCid)
+tail(FERCid)
+FERCid <- FERCid[which(grepl("-", FERCid$FERCid)),]
+FERCid <- unique(FERCid)
+
+
+# read in and format log file 
+FERClog <- read.csv("FERClog.csv")
+names(FERClog) <- c("X", "FERCid", "Date", "Docket", "Summary", "Type", "Size", "X.1")
+FERClog$FERCid <- str_match(FERClog$FERCid, "[0-9]{8}.[0-9]{4}")
+
+# merge log file with IDs from html
+FERClog <- merge(FERClog, FERCid, by = "FERCid")
+
+
+# pdf letters to text (note: could also OCR images, see html for image doc ids)
+FERClog$LetterText <-NA
+
+totext <- function(id){
+  text <- pdf_text(paste0(id,".pdf"))
+  text <- gsub("  |\n", "", paste(text[1], text[2]))
+  return(text)
+}
+
+for(i in 1:dim(FERClog)[1]){
+  if(!grepl("-", FERClog$id[i])){
+    tryCatch({
+      FERClog$LetterText[i] <- totext(FERClog$id[i])
+    },
+    error=function(cond) {
+      message(paste(i, "error:"))
+      message(cond)
+      return(NA)
+    },
+    warning=function(cond) {
+      message(paste(i, "warning:"))
+      message(cond)
+      return(NULL)
+    },
+    finally={
+      message(paste("Processed", i))
+    })
+  }}
+
+# examine
+head(FERClog$LetterText)
+tail(FERClog)
+
+class(FERClog$LetterText)
+
+# save log + letters
+write.csv(FERClog, "FERClogandLetters.csv")
