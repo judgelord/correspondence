@@ -25,15 +25,17 @@ clean <- function(file.name) {
   data$FROM <- paste(data$FName, " ", data$LName )
   data$FROM <- gsub("e'", "e" ,data$FROM)
   
-  data2 <- data[grepl("Writer",data$FROM),]
-  data <- data[!grepl("Writer",data$FROM),]
+  
+  # is this not what is done with data3?
+  #data2 <- data[grepl("Writer",data$FROM),]
+  #data <- data[!grepl("Writer",data$FROM),]
   
   data <- extractMemberName(data, members, 'FROM')
   
-  data2$FName <- gsub("Writer\\(s\\): |Writers\\):","",data2$FName)
-  data2 <- getFirstLast.Comma(data2, "FName")
+  #data2$FName <- gsub("Writer\\(s\\): |Writers\\):","",data2$FName)
+  #data2 <- getFirstLast.Comma(data2, "FName")
   
-  data %<>% full_join(data2)
+  #data %<>% full_join(data2)
   
   
   #create variable for chamber

@@ -24,61 +24,37 @@ knitr::opts_chunk$set(fig.height = 4,
 
 # Data
 ```{r}
-file.name <- "DOE_FERC Extended" # for testing
- 
-  data <- gs_title(file.name) %>% gs_read() # get data from google sheet
-  
-  # create agency column
-  data$agency <- file.name
-  
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
-  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-  
-  data %<>%
-    mutate(chamber = ifelse(grepl("(Senate|Senator)",SUBJECT), 'Senate', NA)) %>% 
-    mutate(chamber = ifelse(grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", SUBJECT), "House", chamber)) %>% 
-    # if both
-    mutate(chamber = ifelse(grepl("(Senate|Senator)",
-                                  data$SUBJECT) & grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", data$SUBJECT),
-                            'FIXME', chamber ))
+load(here("data/correspondence.Rdata"))
+
+data <- filter(d, agency == "DOE_FERC Extended")
 ```
 
 
-Rule-based coding of constituent type:
+
+Rule-based coding of constituent type (click `CODE` to see inductive coding rules):
 ```{code}
-data%<>%
+data %<>%
+  ## Individual constituent service
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  ## Policy work?
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  ## Or corporate service?
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+  ## Policy work
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  ## Local government
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  ## Corporate service
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NEW COAL", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NEW COAL", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NEW COAL", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>%
+  ## PUCs = nonprofits, right?
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
-
-data %<>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", text, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", text, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", text, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", text, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", text, ignore.case = TRUE), "2", ALT_TYPE)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", text, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", text, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", text, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", text, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NEW COAL", text, ignore.case = TRUE), "4", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NEW COAL", text, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NEW COAL", text, ignore.case = TRUE), "5", ALT_TYPE)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", text, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", text, ignore.case = TRUE), "1", CERTAINTY)) 
 ```
 
 
@@ -120,5 +96,18 @@ data %>%
   tally %>% 
   ggplot() + 
   aes(x = year, y = n, fill = maybe_cosigned) +
-  geom_col() + theme_minimal()
+  geom_col() 
 ````
+
+# About FERC 
+
+FERC regulates electrictity markets, oil and gas pipelines, and hydropower and gas export terminal projects. 
+
+FERC controls pipeline market entry. 
+
+
+
+Refrences 
+
+![Sources of Bureaucratic Delay: A Case Study of FERC Dam Relicensing](https://academic.oup.com/jleo/article/22/1/258/938707)
+

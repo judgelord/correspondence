@@ -17,7 +17,6 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  names(data)[names(data) == 'From'] <- 'FROM'
   data$SUBJECT <- data$Task_Description
   
   data %<>% mutate(FROM = ifelse(is.na(data$FROM)& !is.na(data$First_Name), paste(data$First_Name,data$Last_Name), FROM ) )

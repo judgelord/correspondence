@@ -11,7 +11,15 @@
   }
   library(tidyverse)
   library(dplyr) # in case tydyverse fails (problem on linux)
-  library(ggplot2)
+  library(ggplot2); theme_set(theme_bw())
+  options(
+    ggplot2.continuous.color = "viridis",
+    ggplot2.continuous.fill = "viridis"
+  )
+  scale_color_discrete <- function(...)
+    scale_color_viridis_d(...)
+  scale_fill_discrete <- function(...)
+    scale_fill_viridis_d(...)
   library(magrittr)
   library(googlesheets)
   library(googledrive)
@@ -20,6 +28,7 @@
   library(pdftools)
   library(here)
   library(rvest)
+  
   source("functions/clean.R") # data cleaning and intercoder agreement functions 
   source("functions/stateFromLower.R") # format state names
   source("functions/dateMethods.R")
