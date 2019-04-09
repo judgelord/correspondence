@@ -62,7 +62,7 @@ data_list <- as.data.frame(matrix(c(
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
 # DOE
-"DOE_FERC", "not coded", NA,
+"DOE_FERC Extended", "not coded", NA,
 # DOI # we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
@@ -82,7 +82,7 @@ data_list <- as.data.frame(matrix(c(
 # "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
-"DOT_FHWA", "not coded", NA, # complete, but incomplete on drive (only some were excel), upwork joe working on others
+"DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
  "DOT_FTA", "not coded", NA, 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
@@ -172,8 +172,9 @@ d <- d1
 ##################################
 # Repeat merge while successful: #
 ##################################
+# FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
-# data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(!is.na(data_list[i,1])) {
   
@@ -194,7 +195,7 @@ while(!is.na(data_list[i,1])) {
   i <- i+1
 }
 
-paste("Missing:" , data_list %>% filter(!(agency %in% d$agency)) )
+str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 library(gmailr)
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
@@ -712,5 +713,7 @@ length(unique(df$agency)) == length(unique(d$agency))
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("data/correspondence.RData")
+  logs <- df
+  save(logs, file = "data/logs.RData")
 }
 

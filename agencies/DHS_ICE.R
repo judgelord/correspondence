@@ -9,6 +9,8 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
+  
   # create two different datasets for different name formats
   data1 <-  filter(data,is.na(FROM))
   data2 <- filter(data, !is.na(FROM))
@@ -21,7 +23,7 @@ clean <- function(file.name) {
   
   data2 <- extractMemberName(data2,members,'FROM')
   
-  data <- full_join(data2, data1, by = NULL)
+  data <- full_join(data2, data1)
   
   
   # ID variable
