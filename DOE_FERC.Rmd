@@ -7,6 +7,8 @@ output:
       toc: true
       toc_float: true
       code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -21,20 +23,45 @@ knitr::opts_chunk$set(fig.height = 4,
                       message = FALSE)
 ```
 
+# TO DO 
+- add clean text from scraper to google sheet 
+- add company names from company scraper to google sheet
+- fix clean function to use new data
+- match company names to donation (lobbyview)
+- match company names to industry codes (center for responsive politics)
 
 # Data
+
+```{r cosigned}
+data %>% 
+  mutate(OCRsuccess = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, OCRsuccess) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = maybe_cosigned) +
+  geom_col() + theme_minimal()
+```
+
 ```{r}
 load(here("data/correspondence.Rdata"))
 
 data <- filter(d, agency == "DOE_FERC Extended")
 ```
 
+<<<<<<< HEAD
 
 
 Rule-based coding of constituent type (click `CODE` to see inductive coding rules):
 ```{code}
 data %<>%
   ## Individual constituent service
+=======
+## Types of requests: 
+Rule-based coding of constituent type:
+```{code, eval = FALSE}
+data%<>%
+>>>>>>> f597251b33ffaf90cacc56a0f7109dc578fc2329
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   ## Policy work?
@@ -59,7 +86,7 @@ data %<>%
 
 
 ```{r data-coverage-by-type}
-df %>% 
+d %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
   group_by(Type, total) %>% summarise(nT = n()) %>% 
@@ -77,17 +104,27 @@ df %>%
 
 
 
+
+## Energy committee members
+TODO
+```{r committees}
+# per capita per year, energy committee, non-energy committee
+
+```
+
+## Members who write FERC the most
+TODO
 ```{r top-members}
-
+# Top members + committee membership and companies 
 ```
 
-
+## Most 
 ```{r top-companies}
-
+# companies + members 
 ```
 
-
-
+## Members often co-sign letters 
+FIXME, calculate real data when we have coding. This is a rough under-estimate: 
 ```{r cosigned}
 data %>% 
   mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
@@ -96,6 +133,7 @@ data %>%
   tally %>% 
   ggplot() + 
   aes(x = year, y = n, fill = maybe_cosigned) +
+<<<<<<< HEAD
   geom_col() 
 ````
 
@@ -111,3 +149,20 @@ Refrences
 
 ![Sources of Bureaucratic Delay: A Case Study of FERC Dam Relicensing](https://academic.oup.com/jleo/article/22/1/258/938707)
 
+=======
+  geom_col() + theme_minimal()
+```
+
+
+## Many letters are on behalf of projects in their districts
+TODO
+
+## Some letters are on behalf of donors
+TODO
+
+# Comparing FERC to other agencies
+TODO 
+```{r}
+
+```
+>>>>>>> f597251b33ffaf90cacc56a0f7109dc578fc2329
