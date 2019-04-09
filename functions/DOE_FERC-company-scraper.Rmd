@@ -7,6 +7,8 @@ output:
       toc: true
       toc_float: true
       # code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -252,19 +254,17 @@ ferc_short <- unique(FERC_corps$company_short) %>%
   str_c(collapse = "|") %>% 
   str_remove_all("||")
 
-## Load congressional letters data "FERC_files"
-load(url("https://github.com/judgelord/correspondence/raw/master/data/FERC_files.Rdata")) # potentially change to google sheet
-
-## Rename it
-FERC_letters <- FERC_files
+## Load congressional letters data 
+gs_auth() # log in to google docs
+FERC_letters <- gs_title("DOE_FERC Extended") %>% gs_read()
 
 ## Split availability status from summary
-FERC_letters %<>% separate(summary, into = c("summary", "availability"), sep = "Availability: ")
+FERC_letters %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ")
 
 ## Combine letter summary and letter text
 FERC_letters %<>% 
   mutate(text = str_c(text, sep = "; ")) %>%
-  mutate(text = str_c(summary, text, sep = ". Letter Text: ")) 
+  mutate(text = str_c(SUBJECT, text, sep = ". Letter Text: ")) 
 
 ## A helper function to select and combine a set of unique strings
 str_unique <- function(x){
@@ -331,6 +331,12 @@ save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
 FERC_letters %<>% mutate(Fortune500 = str_detect(company_short, dime500_ferc_corps))
 sum(FERC_letters$Fortune500)
 save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
+
+## To load these data 
+load(here("data", "DOE_FERC-letters-corps.Rdata"))
+
+# edit google sheet
+gs_title("DOE_FERC Extended") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
 ```
 
 
