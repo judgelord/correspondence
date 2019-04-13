@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "ABMC" # for testing
+# file.name <- "VA_CEM" # for testing
 
 
 clean <- function(file.name) {
@@ -9,12 +9,9 @@ clean <- function(file.name) {
   
   
   names(data)[names(data) == 'Date Received'] <- 'DATE'
-  names(data)[names(data) == 'Source'] <- 'FROM'
-  names(data)[names(data) == 'Title'] <- 'SUBJECT'
+  names(data)[names(data) == 'Primary Person'] <- 'FROM'
+  names(data)[names(data) == 'Subject'] <- 'SUBJECT'
   
-  
-  # create ID variable
-  data$ID <- c(1:nrow(data))
   #create agency column
   data$agency <- file.name 
   
@@ -25,7 +22,7 @@ clean <- function(file.name) {
   
   
   data <- extractMemberName(data, members, 'FROM')
-
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())

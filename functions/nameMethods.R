@@ -419,7 +419,8 @@ extractMemberName <- function(data, members, col_name){
    mutate(first_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "Mary", first_name)) %>% 
    mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",Summary,ignore.case=TRUE)&grepl("Morgan| H | H\\.",Summary,ignore.case=TRUE), "GRIFFITH", last_name)) %>% 
    mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",Summary,ignore.case=TRUE)&grepl("Morgan| H | H\\.",Summary,ignore.case=TRUE), "Morgan", first_name)) %>% 
-   
+   mutate(last_name = ifelse( grepl("(^| )Lindsay( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Graham",Summary,ignore.case=TRUE), "GRAHAM", last_name)) %>% 
+   mutate(first_name = ifelse( grepl("(^| )Lindsay( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Graham",Summary,ignore.case=TRUE), "Lindsey", first_name)) %>% 
    
    mutate(last_name = ifelse( grepl("(^| )Conaway( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
    mutate(first_name = ifelse( grepl("(^| )Conaway( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "Michael", first_name)) 
@@ -810,6 +811,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )T MOTHY( |$|,)", "\\1Timothy\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )L NCOLN( |$|,)", "\\1Lincoln\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Wydon( |$|,)", "\\1Wyden\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Klobachur( |$|,)", "\\Klobuchar\\2", FROM, ignore.case = TRUE)
   
   
   

@@ -30,7 +30,7 @@ send_message(mime(
 data_list <- as.data.frame(matrix(c(        
   
 # Agency, c(coded, not coded, recoded), coders,
-#"ABMC", "not coded", NA
+"ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
@@ -139,7 +139,8 @@ data_list <- as.data.frame(matrix(c(
 "USDA_RD", "not coded", NA,
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
-"USPS", "not coded", NA
+"USPS", "not coded", NA,
+"VA_CEM", "not coded", NA
 ), ncol = 3, byrow = T))
 names(data_list) <- c("agency", "status", "coders")
 data_list
