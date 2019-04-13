@@ -88,6 +88,7 @@ data_list <- as.data.frame(matrix(c(
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+#"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
