@@ -285,20 +285,20 @@ unique(FERC_letters$company_short)
 # Match corporations and officials to their campaign donations.
 
 ## Campaign contributions of companies listed on the FERC website
-```{r}
+```{r, eval=FALSE}
 ## GET DIME DATA (caution, this is >3GB)
-# download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true", 
-#              destfile = here("data/dime_contributors.gz") ) 
-# 
+download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true",
+           destfile = here("data/dime_contributors.gz") )
+
 ## DIME DATA
-# dime <- read.csv(here("data/dime_contributors.csv"))
+dime <- read.csv(here("data/dime_contributors.csv"))
 
 ## TRIM DOWN TO POSSIBLE MATCHES
-# dime %<>% filter(contributor.type == "C") # type C = corporation
-# dime %<>% filter(str_detect(corpname, ferc_short))
+dime %<>% filter(contributor.type == "C") # type C = corporation
+dime %<>% filter(str_detect(corpname, ferc_short))
 
 ## SAVE
-# save(dime, file = here("data/dime_ferc_corporation_matches.Rdata"))
+save(dime, file = here("data/dime_ferc_corporation_matches.Rdata"))
 ```
 
 ## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website
@@ -326,6 +326,7 @@ dime500_ferc_corps <- str_c(unique(dime500_ferc$corpname), collapse = "|")
 FERC_corps %<>% mutate(Fortune500 = str_detect(company, dime500_ferc_corps))
 sum(FERC_corps$Fortune500)
 save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
+# load(here("data", "DOE_FERC-corps.Rdata"))
 
 ## Fortune 500 indicator in letters data 
 FERC_letters %<>% mutate(Fortune500 = str_detect(company_short, dime500_ferc_corps))
@@ -333,10 +334,10 @@ sum(FERC_letters$Fortune500)
 save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
 
 ## To load these data 
-load(here("data", "DOE_FERC-letters-corps.Rdata"))
+# load(here("data", "DOE_FERC-letters-corps.Rdata"))
 
-# edit google sheet
-gs_title("DOE_FERC Extended") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
+## edit google sheet
+# gs_title("DOE_FERC Extended") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
 ```
 
 
@@ -354,7 +355,7 @@ gs_title("DOE_FERC Extended") %>% gs_edit_cells(input = FERC_letters, trim = F, 
 #TO DO
 ```
 
-### Step 2: Match with DIME contributors
+### Step 2: Match with Individual DIME contributors
 ```{r}
 # DIME DATA
 # dime <- read.csv(here("data/dime_contributors.csv"))

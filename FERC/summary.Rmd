@@ -45,6 +45,7 @@ knitr::opts_chunk$set(echo = TRUE,
 ```{r data}
 load(here("data/correspondence.RData"))
 dcommittees %<>% filter(agency == "DOE_FERC")
+all <- df 
 df %<>% filter(agency=="DOE_FERC")
 
 load(here("data/logs.RData"))
@@ -63,7 +64,7 @@ So far we have matched `r nrow(logs)` of these letters to member names for years
 
 
 Rule-based coding of constituent type (click `CODE` to see inductively-developed coding rules):
-```{code, eval=FALSE}
+```{r code, eval=FALSE}
 d %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
                         "1", TYPE)) %>%
@@ -123,6 +124,7 @@ d %>%
 ---
 
 
+### Companies
 Of the companies registered to lobby FERC, several appear in the letter texts:
 ```{r}
 d %>% group_by(company_short) %>% 
@@ -130,7 +132,8 @@ d %>% group_by(company_short) %>%
   filter(company_short != "")%>%
   distinct() %>% 
   summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
-  arrange(-n)
+  arrange(-n) %>%
+  knitr::kable()
 ```
 
 ### Senators vs. state population 
@@ -194,7 +197,6 @@ d %>%
 ```{r members_barcoded, fig.height=4, fig.width=9}
 # barcode plot of committee members 
 
-
 Chamber <- "Senate" # "House" #  
  
 # member by year by agency 
@@ -245,10 +247,46 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 ```
 
+### Members who contact FERC more, relative to other agencies: 
 
-### Committee Chairs
 
-```{r committeechiars_barcode_senate, fig.height=10, include= TRUE}
+```{r ferc_vs_all_rate}
+all %>%
+  mutate(FERC = agency == "DOE_FERC") %>%
+  group_by(chamber, committees, FERC, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  spread(key = "FERC", value = "n") %>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>% 
+  arrange(-ShareToFERC) %>% 
+  mutate(total = `TRUE` + `FALSE`) %>% 
+  select(name_state, chamber, committees, total, ShareToFERC) %>% 
+  filter(ShareToFERC>.1) %>%
+  knitr::kable()
+  
+```
+
+## Interesting cases
+
+In an article titled "Republican congressmen’s funding dwarfs challengers’", the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
+In 2017, he wrote on behalf of the 
+Dominion Energy Supply Header Project,
+National Fuel Gas Distribution Corporation's Northern Access Project,
+Transcontinental Gas Pipe Line Company's Atlantic Sunrise Project, 
+Columbia Gas Transmission's proposed Eastern Panhandle Expansion project,
+Columbia's WB Xpress Project to build new compressor stations,
+In 2015 he wrote on behalf of the
+Columbia s Mountaineer XPress Project,
+Atlantic Coast Pipeline ACP project. 
+The parent companies of these projects spend millions of dollars on lobbying (Lobbyview). The WV Gazette reports funding from Dominion that is not included in Lobbyview totals. 
+
+
+
+
+
+## Committee Chairs
+
+```{r committeechiars_barcode_senate, fig.height=10}
 Chamber = "Senate"
 dcommittees %>%  
   mutate(position = ifelse(position == "Other", NA, position)) %>% 
@@ -335,7 +373,7 @@ FERC_letters %>%
 
 # About FERC 
 
-FERC regulates electrictity markets, oil and gas pipelines, and hydropower and gas export terminal projects. 
+FERC regulates electricity markets, oil and gas pipelines, and hydropower and gas export terminal projects. 
 
 FERC controls pipeline market entry. 
 
@@ -361,6 +399,6 @@ TODO
 ## After upwork data 
 - fix clean function to pull and combine new data
 
-# Refrences 
+# References 
 
 ![Sources of Bureaucratic Delay: A Case Study of FERC Dam Relicensing](https://academic.oup.com/jleo/article/22/1/258/938707)
