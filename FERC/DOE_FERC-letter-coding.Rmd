@@ -22,7 +22,7 @@ knitr::opts_chunk$set(fig.height = 4,
                       message = FALSE)
 ```
 
-This script uses the [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) packages. . 
+Required packages: [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html).
 
 
 ```{r libraries}
@@ -74,32 +74,52 @@ FERC_coded %<>%
   top_n(1)
 ```
 
-# Inspect for coder problems:
+# Inspect for potential coding issues:
 ```{r}
+# coded
+FERC_coded %>% 
+  group_by(Freelancer) %>%
+  count() %>% 
+  filter(Freelancer != "double coded") %>% 
+  knitr::kable(caption = "Cases coded")
+
+# coded
+FERC_coded %>% 
+  group_by(Freelancer) %>%
+  mutate_all(is.na) %>%
+  summarise_all(sum) %>% 
+  arrange(Freelancer) %>% 
+  select(-CongressPerson, -ID, -SUBJECT) %>%
+  filter(Freelancer != "double coded") %>% 
+  knitr::kable(caption = "Empty cells")
+
+
 # differences in cosigned coding
 FERC_coded %>% 
   mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %>%
   group_by(Freelancer, cosigned) %>%
   count() %>% 
-  arrange(Freelancer)
+  arrange(Freelancer) %>% 
+  filter(Freelancer != "double coded") %>% 
+  knitr::kable()
 
 # differences in pro and anti coding
 FERC_coded %>% 
   mutate(company_identified = !is.na(ProBusiness) | !is.na(AntiBusiness)) %>%
   group_by(Freelancer, company_identified) %>%
   count() %>% 
-  arrange(Freelancer)
+  arrange(Freelancer)%>% 
+  filter(Freelancer != "double coded") %>% 
+  knitr::kable()
 
 # differences in cosigned coding
 FERC_coded %>% 
   mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %>%
   group_by(Freelancer, cosigned) %>%
   count() %>% 
-  arrange(Freelancer)
-
-
-
-# write.csv(inspect,file = "miscoded.csv")
+  arrange(Freelancer)%>% 
+  filter(Freelancer != "double coded") %>% 
+  knitr::kable()
 ```
 
 
@@ -115,7 +135,8 @@ FERC_letters %>%
   group_by(ID) %>%
   count() %>% 
   arrange(-n) %>% 
-  head()
+  head()%>% 
+  knitr::kable()
 
 # merge coded sheets into master data
 combined <- FERC_letters %>% full_join(FERC_coded %>% select(-SUBJECT))
@@ -125,7 +146,8 @@ combined %>%
   group_by(ID) %>%
   count() %>% 
   arrange(-n) %>% 
-  head()
+  head()%>% 
+  knitr::kable()
 ```
 
 # Save coded letters data:

@@ -211,7 +211,7 @@ $(document).ready(function () {
 </div>
 
 
-<p>This script uses the <a href="https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html"><code>gs_sheets</code></a>, <a href="https://www.rstudio.com/resources/cheatsheets/#stringr"><code>stringr</code></a> for <a href="https://github.com/rstudio/cheatsheets/raw/master/regex.pdf">regular expressions</a>, <a href="https://www.rstudio.com/resources/cheatsheets/#purrr"><code>purrr</code></a>, <a href="https://github.com/jennybc/here_here"><code>here</code></a> and <a href="https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html"><code>magrittr</code></a> packages. .</p>
+<p>Required packages: <a href="https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html"><code>gs_sheets</code></a>, <a href="https://www.rstudio.com/resources/cheatsheets/#stringr"><code>stringr</code></a> (for <a href="https://github.com/rstudio/cheatsheets/raw/master/regex.pdf">regular expressions</a>), <a href="https://www.rstudio.com/resources/cheatsheets/#purrr"><code>purrr</code></a>, <a href="https://github.com/jennybc/here_here"><code>here</code></a> and <a href="https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html"><code>magrittr</code></a>.</p>
 <pre class="r"><code>library(tidyverse)
 library(googlesheets)
 library(magrittr)
@@ -257,69 +257,349 @@ FERC_coded %&lt;&gt;%
   # Drop remaining duplicates
   top_n(1)</code></pre>
 </div>
-<div id="inspect-for-coder-problems" class="section level1">
-<h1>Inspect for coder problems:</h1>
+<div id="inspect-for-potential-coding-issues" class="section level1">
+<h1>Inspect for potential coding issues:</h1>
+<pre class="r"><code># coded
+FERC_coded %&gt;% 
+  group_by(Freelancer) %&gt;%
+  count() %&gt;% 
+  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  knitr::kable(caption = &quot;Cases coded&quot;)</code></pre>
+<table>
+<caption>Cases coded</caption>
+<thead>
+<tr class="header">
+<th align="left">Freelancer</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="right">501</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="right">637</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="right">498</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="right">501</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># coded
+FERC_coded %&gt;% 
+  group_by(Freelancer) %&gt;%
+  mutate_all(is.na) %&gt;%
+  summarise_all(sum) %&gt;% 
+  arrange(Freelancer) %&gt;% 
+  select(-CongressPerson, -ID, -SUBJECT) %&gt;%
+  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  knitr::kable(caption = &quot;Empty cells&quot;)</code></pre>
+<table>
+<caption>Empty cells</caption>
+<thead>
+<tr class="header">
+<th align="left">Freelancer</th>
+<th align="right">Cosigned_House</th>
+<th align="right">Cosigned_Senate</th>
+<th align="right">CC_House</th>
+<th align="right">CC_Senate</th>
+<th align="right">Other_CC</th>
+<th align="right">ProProject</th>
+<th align="right">AntiProject</th>
+<th align="right">ProBusiness</th>
+<th align="right">AntiBusiness</th>
+<th align="right">Constituent</th>
+<th align="right">Case_Proceeding</th>
+<th align="right">Case_Name</th>
+<th align="right">ProSide</th>
+<th align="right">AntiSide</th>
+<th align="right">Place_City</th>
+<th align="right">Place_State</th>
+<th align="right">Place_District</th>
+<th align="right">Notes</th>
+<th align="right">X23</th>
+<th align="right">X22</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="right">409</td>
+<td align="right">423</td>
+<td align="right">500</td>
+<td align="right">499</td>
+<td align="right">432</td>
+<td align="right">332</td>
+<td align="right">340</td>
+<td align="right">374</td>
+<td align="right">367</td>
+<td align="right">43</td>
+<td align="right">497</td>
+<td align="right">497</td>
+<td align="right">498</td>
+<td align="right">498</td>
+<td align="right">304</td>
+<td align="right">96</td>
+<td align="right">44</td>
+<td align="right">453</td>
+<td align="right">501</td>
+<td align="right">501</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="right">585</td>
+<td align="right">575</td>
+<td align="right">632</td>
+<td align="right">631</td>
+<td align="right">575</td>
+<td align="right">499</td>
+<td align="right">551</td>
+<td align="right">530</td>
+<td align="right">558</td>
+<td align="right">305</td>
+<td align="right">439</td>
+<td align="right">611</td>
+<td align="right">457</td>
+<td align="right">509</td>
+<td align="right">576</td>
+<td align="right">434</td>
+<td align="right">491</td>
+<td align="right">595</td>
+<td align="right">637</td>
+<td align="right">637</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="right">479</td>
+<td align="right">472</td>
+<td align="right">496</td>
+<td align="right">496</td>
+<td align="right">458</td>
+<td align="right">451</td>
+<td align="right">373</td>
+<td align="right">439</td>
+<td align="right">333</td>
+<td align="right">216</td>
+<td align="right">490</td>
+<td align="right">491</td>
+<td align="right">492</td>
+<td align="right">496</td>
+<td align="right">298</td>
+<td align="right">233</td>
+<td align="right">223</td>
+<td align="right">398</td>
+<td align="right">496</td>
+<td align="right">498</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="right">462</td>
+<td align="right">467</td>
+<td align="right">500</td>
+<td align="right">500</td>
+<td align="right">448</td>
+<td align="right">469</td>
+<td align="right">375</td>
+<td align="right">474</td>
+<td align="right">398</td>
+<td align="right">402</td>
+<td align="right">499</td>
+<td align="right">500</td>
+<td align="right">497</td>
+<td align="right">489</td>
+<td align="right">484</td>
+<td align="right">433</td>
+<td align="right">501</td>
+<td align="right">501</td>
+<td align="right">501</td>
+<td align="right">494</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code># differences in cosigned coding
 FERC_coded %&gt;% 
   mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %&gt;%
   group_by(Freelancer, cosigned) %&gt;%
   count() %&gt;% 
-  arrange(Freelancer)</code></pre>
-<pre><code>## # A tibble: 10 x 3
-## # Groups:   Freelancer, cosigned [10]
-##    Freelancer     cosigned     n
-##    &lt;chr&gt;          &lt;lgl&gt;    &lt;int&gt;
-##  1 double coded   FALSE        5
-##  2 double coded   TRUE         3
-##  3 Gabriela Iocab FALSE      372
-##  4 Gabriela Iocab TRUE       125
-##  5 Lara Basiao    FALSE      551
-##  6 Lara Basiao    TRUE        85
-##  7 Maki Ianovic   FALSE      464
-##  8 Maki Ianovic   TRUE        34
-##  9 Priyal Singh   FALSE      450
-## 10 Priyal Singh   TRUE        51</code></pre>
+  arrange(Freelancer) %&gt;% 
+  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Freelancer</th>
+<th align="left">cosigned</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">FALSE</td>
+<td align="right">376</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">TRUE</td>
+<td align="right">125</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">FALSE</td>
+<td align="right">552</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">TRUE</td>
+<td align="right">85</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="left">FALSE</td>
+<td align="right">464</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">TRUE</td>
+<td align="right">34</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">FALSE</td>
+<td align="right">450</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">TRUE</td>
+<td align="right">51</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code># differences in pro and anti coding
 FERC_coded %&gt;% 
   mutate(company_identified = !is.na(ProBusiness) | !is.na(AntiBusiness)) %&gt;%
   group_by(Freelancer, company_identified) %&gt;%
   count() %&gt;% 
-  arrange(Freelancer)</code></pre>
-<pre><code>## # A tibble: 10 x 3
-## # Groups:   Freelancer, company_identified [10]
-##    Freelancer     company_identified     n
-##    &lt;chr&gt;          &lt;lgl&gt;              &lt;int&gt;
-##  1 double coded   FALSE                  5
-##  2 double coded   TRUE                   3
-##  3 Gabriela Iocab FALSE                244
-##  4 Gabriela Iocab TRUE                 253
-##  5 Lara Basiao    FALSE                451
-##  6 Lara Basiao    TRUE                 185
-##  7 Maki Ianovic   FALSE                279
-##  8 Maki Ianovic   TRUE                 219
-##  9 Priyal Singh   FALSE                373
-## 10 Priyal Singh   TRUE                 128</code></pre>
+  arrange(Freelancer)%&gt;% 
+  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Freelancer</th>
+<th align="left">company_identified</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">FALSE</td>
+<td align="right">244</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">TRUE</td>
+<td align="right">257</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">FALSE</td>
+<td align="right">452</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">TRUE</td>
+<td align="right">185</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="left">FALSE</td>
+<td align="right">279</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">TRUE</td>
+<td align="right">219</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">FALSE</td>
+<td align="right">373</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">TRUE</td>
+<td align="right">128</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code># differences in cosigned coding
 FERC_coded %&gt;% 
   mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %&gt;%
   group_by(Freelancer, cosigned) %&gt;%
   count() %&gt;% 
-  arrange(Freelancer)</code></pre>
-<pre><code>## # A tibble: 10 x 3
-## # Groups:   Freelancer, cosigned [10]
-##    Freelancer     cosigned     n
-##    &lt;chr&gt;          &lt;lgl&gt;    &lt;int&gt;
-##  1 double coded   FALSE        5
-##  2 double coded   TRUE         3
-##  3 Gabriela Iocab FALSE      372
-##  4 Gabriela Iocab TRUE       125
-##  5 Lara Basiao    FALSE      551
-##  6 Lara Basiao    TRUE        85
-##  7 Maki Ianovic   FALSE      464
-##  8 Maki Ianovic   TRUE        34
-##  9 Priyal Singh   FALSE      450
-## 10 Priyal Singh   TRUE        51</code></pre>
-<pre class="r"><code># write.csv(inspect,file = &quot;miscoded.csv&quot;)</code></pre>
+  arrange(Freelancer)%&gt;% 
+  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Freelancer</th>
+<th align="left">cosigned</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">FALSE</td>
+<td align="right">376</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">TRUE</td>
+<td align="right">125</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">FALSE</td>
+<td align="right">552</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">TRUE</td>
+<td align="right">85</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="left">FALSE</td>
+<td align="right">464</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">TRUE</td>
+<td align="right">34</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">FALSE</td>
+<td align="right">450</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">TRUE</td>
+<td align="right">51</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="merge-coded-letters-into-master-sheet" class="section level1">
 <h1>Merge coded letters into master sheet:</h1>
@@ -332,17 +612,42 @@ FERC_letters %&gt;%
   group_by(ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
-  head()</code></pre>
-<pre><code>## # A tibble: 6 x 2
-## # Groups:   ID [6]
-##   ID                         n
-##   &lt;chr&gt;                  &lt;int&gt;
-## 1 19880109-0510              1
-## 2 19901211-0180              1
-## 3 19901212-0145(partial)     1
-## 4 19901212-0166(partial)     1
-## 5 19901214-0628(partial)     1
-## 6 19901214-0644(partial)     1</code></pre>
+  head()%&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">19880109-0510</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">19901211-0180</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">19901212-0145(partial)</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">19901212-0166(partial)</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">19901214-0628(partial)</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">19901214-0644(partial)</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code># merge coded sheets into master data
 combined &lt;- FERC_letters %&gt;% full_join(FERC_coded %&gt;% select(-SUBJECT))
 
@@ -351,17 +656,42 @@ combined %&gt;%
   group_by(ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
-  head()</code></pre>
-<pre><code>## # A tibble: 6 x 2
-## # Groups:   ID [6]
-##   ID                         n
-##   &lt;chr&gt;                  &lt;int&gt;
-## 1 19880109-0510              1
-## 2 19901211-0180              1
-## 3 19901212-0145(partial)     1
-## 4 19901212-0166(partial)     1
-## 5 19901214-0628(partial)     1
-## 6 19901214-0644(partial)     1</code></pre>
+  head()%&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">19880109-0510</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">19901211-0180</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">19901212-0145(partial)</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">19901212-0166(partial)</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">19901214-0628(partial)</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">19901214-0644(partial)</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="save-coded-letters-data" class="section level1">
 <h1>Save coded letters data:</h1>
