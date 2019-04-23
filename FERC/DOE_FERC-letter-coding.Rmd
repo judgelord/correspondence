@@ -61,9 +61,10 @@ FERC_coded %<>%
   # merge in Freelancer names, drop urls
   full_join(FERC_coders) %>% 
   select(-coder_sheet) %>%
+  # drop duplicates
+  distinct() %>% 
   # name ID the same as master sheet
   rename(ID = `Document ID`) %>% 
-  distinct() %>% 
   # Id double coded obs
   group_by(ID) %>% 
   mutate(n = n()) %>% 
@@ -72,26 +73,31 @@ FERC_coded %<>%
   distinct() %>% 
   # Drop remaining duplicates
   top_n(1)
+
 ```
 
 # Inspect for potential coding issues:
 ```{r}
 # coded
-FERC_coded %>% 
+n_coded <- FERC_coded %>% 
   group_by(Freelancer) %>%
-  count() %>% 
-  filter(Freelancer != "double coded") %>% 
+  count() 
+n_coded%>% 
   knitr::kable(caption = "Cases coded")
 
-# coded
+# percent coded
 FERC_coded %>% 
   group_by(Freelancer) %>%
   mutate_all(is.na) %>%
   summarise_all(sum) %>% 
+  full_join(n_coded) %>% 
+  mutate_at(vars(-n, -Freelancer), funs(round((1-(./n) )*100))) %>% 
   arrange(Freelancer) %>% 
-  select(-CongressPerson, -ID, -SUBJECT) %>%
-  filter(Freelancer != "double coded") %>% 
-  knitr::kable(caption = "Empty cells")
+  select(-CongressPerson, -ID, -SUBJECT, -X23, -X22, -n) %>%
+  filter(Freelancer != "double coded") %>%
+   gather(var, value, -Freelancer) %>% 
+   spread(Freelancer, value) %>%
+  knitr::kable(caption = "Percent coded")
 
 
 # differences in cosigned coding
@@ -135,7 +141,7 @@ FERC_letters %>%
   group_by(ID) %>%
   count() %>% 
   arrange(-n) %>% 
-  head()%>% 
+  filter(n>1)%>% 
   knitr::kable()
 
 # merge coded sheets into master data
@@ -146,7 +152,7 @@ combined %>%
   group_by(ID) %>%
   count() %>% 
   arrange(-n) %>% 
-  head()%>% 
+  filter(n>1)%>% 
   knitr::kable()
 ```
 

@@ -245,9 +245,10 @@ FERC_coded %&lt;&gt;%
   # merge in Freelancer names, drop urls
   full_join(FERC_coders) %&gt;% 
   select(-coder_sheet) %&gt;%
+  # drop duplicates
+  distinct() %&gt;% 
   # name ID the same as master sheet
   rename(ID = `Document ID`) %&gt;% 
-  distinct() %&gt;% 
   # Id double coded obs
   group_by(ID) %&gt;% 
   mutate(n = n()) %&gt;% 
@@ -260,10 +261,10 @@ FERC_coded %&lt;&gt;%
 <div id="inspect-for-potential-coding-issues" class="section level1">
 <h1>Inspect for potential coding issues:</h1>
 <pre class="r"><code># coded
-FERC_coded %&gt;% 
+n_coded &lt;- FERC_coded %&gt;% 
   group_by(Freelancer) %&gt;%
-  count() %&gt;% 
-  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  count() 
+n_coded%&gt;% 
   knitr::kable(caption = &quot;Cases coded&quot;)</code></pre>
 <table>
 <caption>Cases coded</caption>
@@ -275,151 +276,177 @@ FERC_coded %&gt;%
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="right">501</td>
+<td align="left">double coded</td>
+<td align="right">8</td>
 </tr>
 <tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="right">637</td>
+<td align="left">Gabriela Iocab</td>
+<td align="right">508</td>
 </tr>
 <tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="right">645</td>
+</tr>
+<tr class="even">
 <td align="left">Maki Ianovic</td>
 <td align="right">498</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Priyal Singh</td>
 <td align="right">501</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code># coded
+<pre class="r"><code># percent coded
 FERC_coded %&gt;% 
   group_by(Freelancer) %&gt;%
   mutate_all(is.na) %&gt;%
   summarise_all(sum) %&gt;% 
+  full_join(n_coded) %&gt;% 
+  mutate_at(vars(-n, -Freelancer), funs(round((1-(./n) )*100))) %&gt;% 
   arrange(Freelancer) %&gt;% 
-  select(-CongressPerson, -ID, -SUBJECT) %&gt;%
-  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
-  knitr::kable(caption = &quot;Empty cells&quot;)</code></pre>
+  select(-CongressPerson, -ID, -SUBJECT, -X23, -X22, -n) %&gt;%
+  filter(Freelancer != &quot;double coded&quot;) %&gt;%
+   gather(var, value, -Freelancer) %&gt;% 
+   spread(Freelancer, value) %&gt;%
+  knitr::kable(caption = &quot;Percent coded&quot;)</code></pre>
 <table>
-<caption>Empty cells</caption>
+<caption>Percent coded</caption>
 <thead>
 <tr class="header">
-<th align="left">Freelancer</th>
-<th align="right">Cosigned_House</th>
-<th align="right">Cosigned_Senate</th>
-<th align="right">CC_House</th>
-<th align="right">CC_Senate</th>
-<th align="right">Other_CC</th>
-<th align="right">ProProject</th>
-<th align="right">AntiProject</th>
-<th align="right">ProBusiness</th>
-<th align="right">AntiBusiness</th>
-<th align="right">Constituent</th>
-<th align="right">Case_Proceeding</th>
-<th align="right">Case_Name</th>
-<th align="right">ProSide</th>
-<th align="right">AntiSide</th>
-<th align="right">Place_City</th>
-<th align="right">Place_State</th>
-<th align="right">Place_District</th>
-<th align="right">Notes</th>
-<th align="right">X23</th>
-<th align="right">X22</th>
+<th align="left">var</th>
+<th align="right">Gabriela Iocab</th>
+<th align="right">Lara Basiao</th>
+<th align="right">Maki Ianovic</th>
+<th align="right">Priyal Singh</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="right">409</td>
-<td align="right">423</td>
-<td align="right">500</td>
-<td align="right">499</td>
-<td align="right">432</td>
-<td align="right">332</td>
-<td align="right">340</td>
-<td align="right">374</td>
-<td align="right">367</td>
-<td align="right">43</td>
-<td align="right">497</td>
-<td align="right">497</td>
-<td align="right">498</td>
-<td align="right">498</td>
-<td align="right">304</td>
-<td align="right">96</td>
-<td align="right">44</td>
-<td align="right">453</td>
-<td align="right">501</td>
-<td align="right">501</td>
+<td align="left">AntiBusiness</td>
+<td align="right">28</td>
+<td align="right">12</td>
+<td align="right">33</td>
+<td align="right">21</td>
 </tr>
 <tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="right">585</td>
-<td align="right">575</td>
-<td align="right">632</td>
-<td align="right">631</td>
-<td align="right">575</td>
-<td align="right">499</td>
-<td align="right">551</td>
-<td align="right">530</td>
-<td align="right">558</td>
-<td align="right">305</td>
-<td align="right">439</td>
-<td align="right">611</td>
-<td align="right">457</td>
-<td align="right">509</td>
-<td align="right">576</td>
-<td align="right">434</td>
-<td align="right">491</td>
-<td align="right">595</td>
-<td align="right">637</td>
-<td align="right">637</td>
+<td align="left">AntiProject</td>
+<td align="right">33</td>
+<td align="right">14</td>
+<td align="right">25</td>
+<td align="right">25</td>
 </tr>
 <tr class="odd">
-<td align="left">Maki Ianovic</td>
-<td align="right">479</td>
-<td align="right">472</td>
-<td align="right">496</td>
-<td align="right">496</td>
-<td align="right">458</td>
-<td align="right">451</td>
-<td align="right">373</td>
-<td align="right">439</td>
-<td align="right">333</td>
-<td align="right">216</td>
-<td align="right">490</td>
-<td align="right">491</td>
-<td align="right">492</td>
-<td align="right">496</td>
-<td align="right">298</td>
-<td align="right">233</td>
-<td align="right">223</td>
-<td align="right">398</td>
-<td align="right">496</td>
-<td align="right">498</td>
+<td align="left">AntiSide</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">0</td>
+<td align="right">2</td>
 </tr>
 <tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="right">462</td>
-<td align="right">467</td>
-<td align="right">500</td>
-<td align="right">500</td>
-<td align="right">448</td>
-<td align="right">469</td>
-<td align="right">375</td>
-<td align="right">474</td>
-<td align="right">398</td>
-<td align="right">402</td>
-<td align="right">499</td>
-<td align="right">500</td>
-<td align="right">497</td>
-<td align="right">489</td>
-<td align="right">484</td>
-<td align="right">433</td>
-<td align="right">501</td>
-<td align="right">501</td>
-<td align="right">501</td>
-<td align="right">494</td>
+<td align="left">Case_Name</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Case_Proceeding</td>
+<td align="right">1</td>
+<td align="right">31</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">CC_House</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">CC_Senate</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Constituent</td>
+<td align="right">92</td>
+<td align="right">53</td>
+<td align="right">57</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">Cosigned_House</td>
+<td align="right">18</td>
+<td align="right">8</td>
+<td align="right">4</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">Cosigned_Senate</td>
+<td align="right">15</td>
+<td align="right">10</td>
+<td align="right">5</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="left">Notes</td>
+<td align="right">9</td>
+<td align="right">7</td>
+<td align="right">20</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Other_CC</td>
+<td align="right">15</td>
+<td align="right">10</td>
+<td align="right">8</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="left">Place_City</td>
+<td align="right">40</td>
+<td align="right">9</td>
+<td align="right">40</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">Place_District</td>
+<td align="right">91</td>
+<td align="right">24</td>
+<td align="right">55</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Place_State</td>
+<td align="right">81</td>
+<td align="right">32</td>
+<td align="right">53</td>
+<td align="right">14</td>
+</tr>
+<tr class="even">
+<td align="left">ProBusiness</td>
+<td align="right">25</td>
+<td align="right">17</td>
+<td align="right">12</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">ProProject</td>
+<td align="right">33</td>
+<td align="right">22</td>
+<td align="right">9</td>
+<td align="right">6</td>
+</tr>
+<tr class="even">
+<td align="left">ProSide</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">1</td>
+<td align="right">1</td>
 </tr>
 </tbody>
 </table>
@@ -443,7 +470,7 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Gabriela Iocab</td>
 <td align="left">FALSE</td>
-<td align="right">376</td>
+<td align="right">383</td>
 </tr>
 <tr class="even">
 <td align="left">Gabriela Iocab</td>
@@ -453,7 +480,7 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Lara Basiao</td>
 <td align="left">FALSE</td>
-<td align="right">552</td>
+<td align="right">560</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
@@ -502,22 +529,22 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Gabriela Iocab</td>
 <td align="left">FALSE</td>
-<td align="right">244</td>
+<td align="right">245</td>
 </tr>
 <tr class="even">
 <td align="left">Gabriela Iocab</td>
 <td align="left">TRUE</td>
-<td align="right">257</td>
+<td align="right">263</td>
 </tr>
 <tr class="odd">
 <td align="left">Lara Basiao</td>
 <td align="left">FALSE</td>
-<td align="right">452</td>
+<td align="right">458</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
 <td align="left">TRUE</td>
-<td align="right">185</td>
+<td align="right">187</td>
 </tr>
 <tr class="odd">
 <td align="left">Maki Ianovic</td>
@@ -561,7 +588,7 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Gabriela Iocab</td>
 <td align="left">FALSE</td>
-<td align="right">376</td>
+<td align="right">383</td>
 </tr>
 <tr class="even">
 <td align="left">Gabriela Iocab</td>
@@ -571,7 +598,7 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Lara Basiao</td>
 <td align="left">FALSE</td>
-<td align="right">552</td>
+<td align="right">560</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
@@ -612,7 +639,7 @@ FERC_letters %&gt;%
   group_by(ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
-  head()%&gt;% 
+  filter(n&gt;1)%&gt;% 
   knitr::kable()</code></pre>
 <table>
 <thead>
@@ -622,30 +649,6 @@ FERC_letters %&gt;%
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">19880109-0510</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">19901211-0180</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">19901212-0145(partial)</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">19901212-0166(partial)</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">19901214-0628(partial)</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">19901214-0644(partial)</td>
-<td align="right">1</td>
-</tr>
 </tbody>
 </table>
 <pre class="r"><code># merge coded sheets into master data
@@ -656,7 +659,7 @@ combined %&gt;%
   group_by(ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
-  head()%&gt;% 
+  filter(n&gt;1)%&gt;% 
   knitr::kable()</code></pre>
 <table>
 <thead>
@@ -666,30 +669,6 @@ combined %&gt;%
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">19880109-0510</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">19901211-0180</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">19901212-0145(partial)</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">19901212-0166(partial)</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">19901214-0628(partial)</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">19901214-0644(partial)</td>
-<td align="right">1</td>
-</tr>
 </tbody>
 </table>
 </div>
