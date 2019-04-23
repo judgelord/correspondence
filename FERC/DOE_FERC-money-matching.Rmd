@@ -1,0 +1,200 @@
+---
+title: "Matching companies with campaign donations"
+subtitle: "Companies that lobby the U.S. Federal Energy Regulatory Commission (FERC)"
+author:
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+## Run a setup.R script to load R packages and set defaults
+#source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
+
+## Modify some defaults for this example
+knitr::opts_chunk$set(fig.height = 4,
+                      fig.width = 8,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+This example uses the `stringr`, `purrr`, `here` and `magrittr` packages. 
+
+- [`stringr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#stringr)
+
+- [RegEx cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)  
+
+- [`purrr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr)
+
+```{r libraries}
+library(tidyverse)
+library(rvest)
+library(magrittr)
+library(here)
+```
+
+
+# Match companies from FERC website and congressoinal letters
+```{r}
+load(here("data", "DOE_FERC-corps.Rdata"))
+load(here("data", "DOE_FERC-letters-corps.Rdata"))
+
+## Make a single string of short corp names
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+str_extract_all(unique(FERC_coded$ProBusiness), ferc_short) %>% str_c(sep = "; ", collapse = ":") %>% unique()
+
+## Split availability status from summary
+FERC_letters %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ") 
+
+## Combine letter summary and letter text
+FERC_letters %<>% 
+  mutate(text = str_c(text, sep = "; ")) %>%
+  mutate(text = str_c(SUBJECT, text, sep = ". Letter Text: ")) 
+
+## A helper function to select and combine a set of unique strings
+str_unique <- function(x){
+  str_c(unique(x), collapse="; ")
+}
+
+## Find corporation names in combined summary and text
+FERC_letters$company_short <- str_extract_all(FERC_letters$text, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
+
+## Number of letters where a company from the FERC website was found:
+sum(FERC_letters$company_short!="")
+
+## Companies found
+unique(FERC_letters$company_short)
+```
+
+
+# Match corporations and officials to their campaign donations.
+
+## Campaign contributions of companies listed on the FERC website
+```{r, eval=FALSE}
+## To load FERC data 
+load(here("data", "DOE_FERC-letters-corps.Rdata"))
+load(here("data", "DOE_FERC-corps.Rdata"))
+
+## Make a single string of short corp names
+# FIXME add company names extracted from letters
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+## GET DIME DATA (>3GB)
+download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true",
+           destfile = here("data/dime_contributors.gz") )
+
+list.files("data")
+filename <- 'data/dime_contributors.gz'
+R.utils::gunzip(filename, destname = str_replace(filename, "[.]gz$", ".csv"))
+
+## LOAD DIME DATA
+dime <- read.csv(here("data/dime_contributors.csv"))
+
+## CORPORATE CONTRIBUTORS
+dime %<>% filter(contributor.type == "C") # type C = corporation
+save(dime, file = here("data/dime_corps.Rdata"))
+
+load("data/dime_corps.Rdata")
+
+dim(dime)
+
+## TRIM DOWN TO POSSIBLE MATCHES
+dime_ferc <- dime %>% 
+  mutate(corpname = tolower(most.recent.contributor.name)) %>% 
+  filter(str_detect(corpname, tolower(ferc_short))) %>% 
+  mutate(company_short = str_extract_all(corpname, tolower(ferc_short)))
+
+dim(dime_ferc)
+
+head(dime_ferc)
+
+## SAVE
+save(dime_ferc, file = here("data/dime_ferc_corp_matches.Rdata"))
+```
+
+## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website
+
+#### Step 1. Match companies from the FERC webiste to DIME Fortune 500 dataset
+```{r}
+## Fortune 500 companies
+download.file("https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/6R1HAS/DP6TOL", destfile = here("data", "DIME500.csv") )
+
+dime500 <- read_csv(here("data", "DIME500.csv"))
+
+# dime %<>% extractMemberName(members, recipient.name)
+
+fortune500 <- unique(dime500$corpname) %>% 
+  str_c(sep = "|", collapse = "|")
+
+
+## DIME records that match a shortened version of a FERC company name
+dime500_ferc <- dime500 %>% filter(str_detect(corpname, ferc_short))
+save(dime500_ferc, file = here("data", "FERC_DIME-corps.Rdata"))
+
+dime500_ferc_corps <- str_c(unique(dime500_ferc$corpname), collapse = "|")
+
+## Fortune 500 indicator in corps data 
+FERC_corps %<>% mutate(Fortune500 = str_detect(company, dime500_ferc_corps))
+sum(FERC_corps$Fortune500)
+
+
+## Fortune 500 indicator in letters data 
+FERC_letters %<>% mutate(Fortune500 = str_detect(company_short, dime500_ferc_corps))
+sum(FERC_letters$Fortune500)
+
+
+## edit google sheet
+# gs_title("DOE_FERC Extended") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
+```
+
+
+#### Step 2: Identify contributions to Members of Congress in DIME Fortune 500 data:
+```{r}
+## ID member names among donation recipients 
+# dime500_ferc %<>% extractMemberName(members = members, col_name =  recipient.name)
+```
+
+## Campaign contributions of individuals listed on the FERC website
+
+### Step 1: Get corporate contacts from FERC website
+
+```{r}
+#TO DO
+```
+
+### Step 2: Match with Individual DIME contributors
+```{r}
+# DIME DATA
+# dime <- read.csv(here("data/dime_contributors.csv"))
+
+# TRIM DOWN TO INDIVIDUALS FROM FERC WEBSITE
+# dime %<>% filter(contributor.type == "I") # type I = individual
+# dime %<>% mutate(last_name = str_extract(dime$most.recent.contributor.name, "[a-z]*") )
+
+# SUBSET TO PEOPLE IN FERC DATA 
+# dime %<>% filter(last_name %in% ferc$last_name)
+
+# Clean up DIME names 
+# dime %<>% mutate(name = str_replace(most.recent.contributor.name, " dr | jr |[0-9]", " ") )
+# dime %<>% mutate(name = str_replace(most.recent.contributor.name, "  ", " ") )
+# dime %<>% mutate(first_name = str_extract(name, ", [a-z][a-z]*") )
+# dime %<>% mutate(first_name = str_replace(first_name, ", ", ""))
+# dime %<>% mutate(first_name2 = str_extract(dime$most.recent.contributor.name, ", [a-z]{2}*") )
+# dime %<>% mutate(middle_initial = str_extract(name, " [a-z]$") )
+# dime %<>% mutate(middle_initial = str_replace(middle_initial, " ", "") )
+# dime$first_initial <- str_sub(dime$first_name, 1,1)
+
+# SAVE
+# save(dime, file = here("data/dime_ferc_fortune500_people_matches.Rdata"))
+```
+

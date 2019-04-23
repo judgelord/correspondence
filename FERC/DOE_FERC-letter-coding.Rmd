@@ -1,0 +1,161 @@
+---
+title: "FERC letter coding status"
+subtitle: ""
+author:
+output:
+    html_document:
+      #toc: true
+      #toc_float: true
+      code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+## Run a setup.R script to load R packages and set defaults
+#source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
+
+## Modify some defaults for this example
+knitr::opts_chunk$set(fig.height = 4,
+                      fig.width = 8,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+This script uses the [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) packages. . 
+
+
+```{r libraries}
+library(tidyverse)
+library(googlesheets)
+library(magrittr)
+library(here)
+```
+
+# Load coded congressional letters data:
+```{r}
+# log in to google docs
+gs_auth() 
+
+## Load coded data
+FERC_coders <- gs_title("FERC Data Assignments") %>% gs_read() %>% 
+  rename(coder_sheet = `Sheets Assigned`) %>%
+  select(coder_sheet, Freelancer) %>% 
+  drop_na(coder_sheet)
+
+# a helper function to read sheets from url
+gs_read_url <- function(coder_sheet){
+  coder_sheet %>% gs_url() %>% 
+    gs_read() %>%
+    mutate(coder_sheet = coder_sheet)
+}
+
+# read and merge sheets into a data frame
+FERC_coded <- map_dfr(FERC_coders$coder_sheet, gs_read_url) 
+
+FERC_coded %<>% 
+  # drop uncoded obs
+  drop_na(CongressPerson) %>% 
+  # drop file_name, so we merge only on doc ID
+  select(-file_name) %>% 
+  # merge in Freelancer names, drop urls
+  full_join(FERC_coders) %>% 
+  select(-coder_sheet) %>%
+  # name ID the same as master sheet
+  rename(ID = `Document ID`) %>% 
+  distinct() %>% 
+  # Id double coded obs
+  group_by(ID) %>% 
+  mutate(n = n()) %>% 
+  mutate(Freelancer = ifelse(n>1, "double coded", Freelancer)) %>% 
+  select(-n) %>%
+  distinct() %>% 
+  # Drop remaining duplicates
+  top_n(1)
+```
+
+# Inspect for coder problems:
+```{r}
+# differences in cosigned coding
+FERC_coded %>% 
+  mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %>%
+  group_by(Freelancer, cosigned) %>%
+  count() %>% 
+  arrange(Freelancer)
+
+# differences in pro and anti coding
+FERC_coded %>% 
+  mutate(company_identified = !is.na(ProBusiness) | !is.na(AntiBusiness)) %>%
+  group_by(Freelancer, company_identified) %>%
+  count() %>% 
+  arrange(Freelancer)
+
+# differences in cosigned coding
+FERC_coded %>% 
+  mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %>%
+  group_by(Freelancer, cosigned) %>%
+  count() %>% 
+  arrange(Freelancer)
+
+
+
+# write.csv(inspect,file = "miscoded.csv")
+```
+
+
+# Merge coded letters into master sheet:
+
+Duplicates?
+```{r}
+# get master data
+FERC_letters <- gs_title("DOE_FERC") %>% gs_read()
+
+# duplicates?
+FERC_letters %>% 
+  group_by(ID) %>%
+  count() %>% 
+  arrange(-n) %>% 
+  head()
+
+# merge coded sheets into master data
+combined <- FERC_letters %>% full_join(FERC_coded %>% select(-SUBJECT))
+
+# duplicates?
+combined %>% 
+  group_by(ID) %>%
+  count() %>% 
+  arrange(-n) %>% 
+  head()
+```
+
+# Save coded letters data:
+```{r, eval=FALSE}
+# Save
+FERC_letters <- combined
+save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
+
+# edit master google sheet
+gs_title("DOE_FERC") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
