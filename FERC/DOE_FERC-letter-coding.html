@@ -254,9 +254,7 @@ FERC_coded %&lt;&gt;%
   mutate(n = n()) %&gt;% 
   mutate(Freelancer = ifelse(n&gt;1, &quot;double coded&quot;, Freelancer)) %&gt;% 
   select(-n) %&gt;%
-  distinct() %&gt;% 
-  # Drop remaining duplicates
-  top_n(1)</code></pre>
+  distinct() </code></pre>
 </div>
 <div id="inspect-for-potential-coding-issues" class="section level1">
 <h1>Inspect for potential coding issues:</h1>
@@ -285,7 +283,7 @@ n_coded%&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Lara Basiao</td>
-<td align="right">645</td>
+<td align="right">649</td>
 </tr>
 <tr class="even">
 <td align="left">Maki Ianovic</td>
@@ -450,6 +448,12 @@ FERC_coded %&gt;%
 </tr>
 </tbody>
 </table>
+<p>Lara and Priyal have much fewer Place_ codings.</p>
+<p>Gabriela may be over-coding state and District, but maybe not.</p>
+<p>Priyal finds much less Pro-business, and Lara finds much less Anti-business.</p>
+<p>Lara finds a lot more case proceedings, probably understanding it differently.</p>
+<p>Gabriela used “No” in Constituent, whereas the others used NA more.<br />
+Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for “et al”, indicating co-signing.</p>
 <pre class="r"><code># differences in cosigned coding
 FERC_coded %&gt;% 
   mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %&gt;%
@@ -480,7 +484,7 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Lara Basiao</td>
 <td align="left">FALSE</td>
-<td align="right">560</td>
+<td align="right">564</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
@@ -539,12 +543,12 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Lara Basiao</td>
 <td align="left">FALSE</td>
-<td align="right">458</td>
+<td align="right">460</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
 <td align="left">TRUE</td>
-<td align="right">187</td>
+<td align="right">189</td>
 </tr>
 <tr class="odd">
 <td align="left">Maki Ianovic</td>
@@ -598,7 +602,7 @@ FERC_coded %&gt;%
 <tr class="odd">
 <td align="left">Lara Basiao</td>
 <td align="left">FALSE</td>
-<td align="right">560</td>
+<td align="right">564</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
@@ -631,7 +635,27 @@ FERC_coded %&gt;%
 <div id="merge-coded-letters-into-master-sheet" class="section level1">
 <h1>Merge coded letters into master sheet:</h1>
 <p>Duplicates?</p>
-<pre class="r"><code># get master data
+<pre class="r"><code># duplicates?
+FERC_coded %&gt;% 
+  group_by(ID) %&gt;%
+  count() %&gt;% 
+  arrange(-n) %&gt;% 
+  filter(n&gt;1)%&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<pre class="r"><code># Drop duplicates
+FERC_coded %&lt;&gt;% group_by(ID) %&gt;% top_n(1)
+
+# get master data
 FERC_letters &lt;- gs_title(&quot;DOE_FERC&quot;) %&gt;% gs_read()
 
 # duplicates?

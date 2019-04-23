@@ -70,9 +70,7 @@ FERC_coded %<>%
   mutate(n = n()) %>% 
   mutate(Freelancer = ifelse(n>1, "double coded", Freelancer)) %>% 
   select(-n) %>%
-  distinct() %>% 
-  # Drop remaining duplicates
-  top_n(1)
+  distinct() 
 
 ```
 
@@ -99,7 +97,24 @@ FERC_coded %>%
    spread(Freelancer, value) %>%
   knitr::kable(caption = "Percent coded")
 
+```
 
+Lara and Priyal have much fewer Place_ codings. 
+
+Gabriela may be over-coding state and District, but maybe not. 
+
+Priyal finds much less Pro-business, and Lara finds much less Anti-business.
+
+Lara finds a lot more case proceedings, probably understanding it differently. 
+
+Gabriela used "No" in Constituent, whereas the others used NA more. \
+
+Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for "et al", indicating co-signing. 
+
+
+
+
+```{r}
 # differences in cosigned coding
 FERC_coded %>% 
   mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %>%
@@ -133,6 +148,17 @@ FERC_coded %>%
 
 Duplicates?
 ```{r}
+# duplicates?
+FERC_coded %>% 
+  group_by(ID) %>%
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n>1)%>% 
+  knitr::kable()
+
+# Drop duplicates
+FERC_coded %<>% group_by(ID) %>% top_n(1)
+
 # get master data
 FERC_letters <- gs_title("DOE_FERC") %>% gs_read()
 
