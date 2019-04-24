@@ -32,6 +32,8 @@ library(magrittr)
 library(here)
 ```
 
+Updated: `r  Sys.time()`
+
 # Load coded congressional letters data:
 ```{r}
 # log in to google docs
@@ -122,6 +124,7 @@ FERC_coded %>%
   count() %>% 
   arrange(Freelancer) %>% 
   filter(Freelancer != "double coded") %>% 
+  spread(Freelancer, n) %>%
   knitr::kable()
 
 # differences in pro and anti coding
@@ -131,15 +134,17 @@ FERC_coded %>%
   count() %>% 
   arrange(Freelancer)%>% 
   filter(Freelancer != "double coded") %>% 
+    spread(Freelancer, n) %>%
   knitr::kable()
 
 # differences in cosigned coding
 FERC_coded %>% 
-  mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %>%
-  group_by(Freelancer, cosigned) %>%
+  mutate(Constituent = tolower(Constituent)) %>%
+  group_by(Freelancer, Constituent) %>%
   count() %>% 
   arrange(Freelancer)%>% 
   filter(Freelancer != "double coded") %>% 
+    spread(Freelancer, n) %>%
   knitr::kable()
 ```
 

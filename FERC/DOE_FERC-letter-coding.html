@@ -216,6 +216,7 @@ $(document).ready(function () {
 library(googlesheets)
 library(magrittr)
 library(here)</code></pre>
+<p>Updated: 2019-04-23 23:05:26</p>
 <div id="load-coded-congressional-letters-data" class="section level1">
 <h1>Load coded congressional letters data:</h1>
 <pre class="r"><code># log in to google docs
@@ -279,7 +280,7 @@ n_coded%&gt;%
 </tr>
 <tr class="even">
 <td align="left">Gabriela Iocab</td>
-<td align="right">508</td>
+<td align="right">513</td>
 </tr>
 <tr class="odd">
 <td align="left">Lara Basiao</td>
@@ -291,7 +292,7 @@ n_coded%&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Priyal Singh</td>
-<td align="right">501</td>
+<td align="right">503</td>
 </tr>
 </tbody>
 </table>
@@ -409,7 +410,7 @@ FERC_coded %&gt;%
 <td align="right">40</td>
 <td align="right">9</td>
 <td align="right">40</td>
-<td align="right">3</td>
+<td align="right">4</td>
 </tr>
 <tr class="even">
 <td align="left">Place_District</td>
@@ -461,54 +462,31 @@ FERC_coded %&gt;%
   count() %&gt;% 
   arrange(Freelancer) %&gt;% 
   filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  spread(Freelancer, n) %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Freelancer</th>
 <th align="left">cosigned</th>
-<th align="right">n</th>
+<th align="right">Gabriela Iocab</th>
+<th align="right">Lara Basiao</th>
+<th align="right">Maki Ianovic</th>
+<th align="right">Priyal Singh</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Gabriela Iocab</td>
 <td align="left">FALSE</td>
-<td align="right">383</td>
+<td align="right">388</td>
+<td align="right">564</td>
+<td align="right">464</td>
+<td align="right">452</td>
 </tr>
 <tr class="even">
-<td align="left">Gabriela Iocab</td>
 <td align="left">TRUE</td>
 <td align="right">125</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">FALSE</td>
-<td align="right">564</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">TRUE</td>
 <td align="right">85</td>
-</tr>
-<tr class="odd">
-<td align="left">Maki Ianovic</td>
-<td align="left">FALSE</td>
-<td align="right">464</td>
-</tr>
-<tr class="even">
-<td align="left">Maki Ianovic</td>
-<td align="left">TRUE</td>
 <td align="right">34</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">FALSE</td>
-<td align="right">450</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">TRUE</td>
 <td align="right">51</td>
 </tr>
 </tbody>
@@ -520,114 +498,75 @@ FERC_coded %&gt;%
   count() %&gt;% 
   arrange(Freelancer)%&gt;% 
   filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+    spread(Freelancer, n) %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Freelancer</th>
 <th align="left">company_identified</th>
-<th align="right">n</th>
+<th align="right">Gabriela Iocab</th>
+<th align="right">Lara Basiao</th>
+<th align="right">Maki Ianovic</th>
+<th align="right">Priyal Singh</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Gabriela Iocab</td>
 <td align="left">FALSE</td>
-<td align="right">245</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">TRUE</td>
-<td align="right">263</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">FALSE</td>
+<td align="right">246</td>
 <td align="right">460</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">TRUE</td>
-<td align="right">189</td>
-</tr>
-<tr class="odd">
-<td align="left">Maki Ianovic</td>
-<td align="left">FALSE</td>
 <td align="right">279</td>
+<td align="right">374</td>
 </tr>
 <tr class="even">
-<td align="left">Maki Ianovic</td>
 <td align="left">TRUE</td>
+<td align="right">267</td>
+<td align="right">189</td>
 <td align="right">219</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">FALSE</td>
-<td align="right">373</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">TRUE</td>
-<td align="right">128</td>
+<td align="right">129</td>
 </tr>
 </tbody>
 </table>
 <pre class="r"><code># differences in cosigned coding
 FERC_coded %&gt;% 
-  mutate(cosigned = !is.na(Cosigned_House) | !is.na(Cosigned_Senate)) %&gt;%
-  group_by(Freelancer, cosigned) %&gt;%
+  mutate(Constituent = tolower(Constituent)) %&gt;%
+  group_by(Freelancer, Constituent) %&gt;%
   count() %&gt;% 
   arrange(Freelancer)%&gt;% 
   filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+    spread(Freelancer, n) %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Freelancer</th>
-<th align="left">cosigned</th>
-<th align="right">n</th>
+<th align="left">Constituent</th>
+<th align="right">Gabriela Iocab</th>
+<th align="right">Lara Basiao</th>
+<th align="right">Maki Ianovic</th>
+<th align="right">Priyal Singh</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">FALSE</td>
-<td align="right">383</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">TRUE</td>
+<td align="left">no</td>
+<td align="right">375</td>
+<td align="right">234</td>
 <td align="right">125</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">FALSE</td>
-<td align="right">564</td>
+<td align="right">5</td>
 </tr>
 <tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">TRUE</td>
-<td align="right">85</td>
+<td align="left">yes</td>
+<td align="right">95</td>
+<td align="right">110</td>
+<td align="right">157</td>
+<td align="right">98</td>
 </tr>
 <tr class="odd">
-<td align="left">Maki Ianovic</td>
-<td align="left">FALSE</td>
-<td align="right">464</td>
-</tr>
-<tr class="even">
-<td align="left">Maki Ianovic</td>
-<td align="left">TRUE</td>
-<td align="right">34</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">FALSE</td>
-<td align="right">450</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">TRUE</td>
-<td align="right">51</td>
+<td align="left">NA</td>
+<td align="right">43</td>
+<td align="right">305</td>
+<td align="right">216</td>
+<td align="right">400</td>
 </tr>
 </tbody>
 </table>
