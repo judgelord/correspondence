@@ -273,6 +273,7 @@ look <- d %>%
 ```
 
 ## Member name errors
+Coders vs names extracted from letter summary (should also do this with names extracted from letter text)
 ```{r}
 # Add auto-extracted member names that coders may have missed
 d %>% 
@@ -284,8 +285,8 @@ d %>%
     ), collapse = ";")),
   tolower(last_name) ) ) %>% 
   filter(!is.na(FROM)) %>% 
-  select(missed, FROM, CongressPerson, Cosigned_House, Cosigned_Senate) %>% 
   filter(missed == T, !str_detect(tolower(CongressPerson), "badfiles|bad files")) %>% 
+  select(Freelancer, ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate) %>% 
   knitr::kable()
 ```
 ---

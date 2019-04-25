@@ -84,14 +84,19 @@ d %<>%
     CongressPerson) )
 
 # Id ones still missed
-d %>% 
+look <- d %>% 
   group_by(ID) %>%
   mutate(missed = !str_detect(
   tolower(str_c
           (str_replace_na(
     c(CongressPerson, Cosigned_House, Cosigned_Senate)
     ), collapse = ";")),
-  tolower(last_name) ) ) 
+  tolower(last_name) ) )  %>% 
+  filter(missed) %>% 
+  select(CongressPerson, FROM, missed) %>%
+  mutate(CongressPerson = ifelse(missed,
+                                 "adfd",#str_c(str_replace_na(c(CongressPerson, FROM))),
+                                 "booin") )
   
 
 # Split out members
