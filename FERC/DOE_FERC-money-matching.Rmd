@@ -32,8 +32,10 @@ library(magrittr)
 library(here)
 ```
 
+(mostly a to-do list right now)
+
 # Match companies from FERC website and congressoinal letters
-```{r}
+```{r, eval = FALSE}
 load(here("data", "DOE_FERC-corps.Rdata"))
 load(here("data", "DOE_FERC-letters-corps.Rdata"))
 
@@ -43,21 +45,16 @@ ferc_short <- unique(FERC_corps$company_short) %>%
   str_remove_all("||")
 
 # bad string
-str_detect("", ferc_short)
-
-d <- FERC_letters
-d %>% 
-  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
-  select(probusiness) %>%  distinct() 
+# str_detect("", ferc_short)
 ```
 
-```{r}
+```{r, eval = FALSE}
 ## Split availability status from summary
 FERC_letters %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ") 
 
 ## Combine letter summary and letter text
 FERC_letters %<>% 
-  mutate(text = str_c(text, sep = "; ")) %>%
+  mutate(text = str_c(text_clean, sep = "; ")) %>%
   mutate(text = str_c(SUBJECT, text, sep = ". Letter Text: ")) 
 
 ## A helper function to select and combine a set of unique strings
@@ -126,7 +123,7 @@ save(dime_ferc, file = here("data/dime_ferc_corp_matches.Rdata"))
 ## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website
 
 #### Step 1. Match companies from the FERC webiste to DIME Fortune 500 dataset
-```{r}
+```{r, eval= FALSE}
 ## Fortune 500 companies
 download.file("https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/6R1HAS/DP6TOL", destfile = here("data", "DIME500.csv") )
 

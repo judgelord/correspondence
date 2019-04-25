@@ -4,8 +4,8 @@ subtitle: ""
 author:
 output:
     html_document:
-      #toc: true
-      #toc_float: true
+      toc: true
+      toc_float: true
       code_folding: hide
 editor_options: 
   chunk_output_type: console
@@ -76,7 +76,20 @@ FERC_coded %<>%
 
 ```
 
-# Inspect for potential coding issues:
+# Potential coding issues:
+
+Lara and Priyal have much fewer Place_ codings. 
+
+Gabriela may be over-coding state and District, but maybe not. 
+
+Priyal finds much less Pro-business, and Lara finds much less Anti-business.
+
+Lara finds a lot more case proceedings, probably understanding it differently. 
+
+Gabriela used "No" in Constituent, whereas the others used NA more. \
+
+Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for "et al", indicating co-signing. 
+
 ```{r}
 # coded
 n_coded <- FERC_coded %>% 
@@ -100,20 +113,6 @@ FERC_coded %>%
   knitr::kable(caption = "Percent coded")
 
 ```
-
-Lara and Priyal have much fewer Place_ codings. 
-
-Gabriela may be over-coding state and District, but maybe not. 
-
-Priyal finds much less Pro-business, and Lara finds much less Anti-business.
-
-Lara finds a lot more case proceedings, probably understanding it differently. 
-
-Gabriela used "No" in Constituent, whereas the others used NA more. \
-
-Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for "et al", indicating co-signing. 
-
-
 
 
 ```{r}
@@ -187,7 +186,10 @@ combined %>%
   knitr::kable()
 ```
 
-# Companies
+---
+
+# Letters citing companies registered to lobby FERC
+## Pro-business letters
 ```{r}
 load(here("data", "DOE_FERC-corps.Rdata"))
 FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
@@ -196,6 +198,9 @@ FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_
 ferc_short <- unique(FERC_corps$company_short) %>% 
   str_c(collapse = "|") %>% 
   str_remove_all("||")
+
+# bad string? 
+# str_detect("", ferc_short)
 
 d <- combined
 d %>% 
@@ -208,7 +213,11 @@ d %>%
   select(company_short, members) %>%  distinct() %>%
   left_join(FERC_corps) %>% distinct() %>% 
   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
+```
 
+## Anti-business letters
+
+```{r}
 d %>% 
   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
   drop_na(company_short) %>% 
@@ -221,14 +230,19 @@ d %>%
   knitr::kable(caption = "Anti Businesses matching those registered with FERC")
 
 ```
-# Save coded letters data:
+
+
+---
+
+
+Save coded letters data:
 ```{r, eval=FALSE}
 # Save
 FERC_letters <- combined
 save(FERC_letters, file = here("data", "DOE_FERC-letters-corps.Rdata"))
 
-# edit master google sheet
-gs_title("DOE_FERC") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
+## edit master google sheet
+# gs_title("DOE_FERC") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)
 ```
 
 
