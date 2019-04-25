@@ -274,11 +274,22 @@ d <- tables
 ## If possible, read text
 d$text <- map(d$file_name, possibly(totext, NA_real_, quiet = T))
  
+
+## Rename 
+d %<>% rename(ID = id, 
+              DATE = doc_date, 
+              SUBJECT = summary)
+
+## Split availability status from summary
+d %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ") 
+
 ## name 
-FERC_files <- d
+FERC_letters <- d
 
 ## save
-# save(FERC_files, file = here("data", "FERC_files.Rdata"))
+# save(FERC_letters, file = here("data", "FERC_files.Rdata"))
+
+
 
 ##################################################################################
 # FOR ONE OBS PER LETTER SPREADSHEET 

@@ -187,6 +187,40 @@ combined %>%
   knitr::kable()
 ```
 
+# Companies
+```{r}
+load(here("data", "DOE_FERC-corps.Rdata"))
+FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
+
+## Make a single string of short corp names
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+d <- combined
+d %>% 
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
+  drop_na(company_short) %>% 
+  mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+  mutate(members = str_remove_all(members, ";NA")) %>% 
+  group_by(company_short) %>% 
+  mutate(members = str_c(unique(members), collapse = ";")) %>% 
+  select(company_short, members) %>%  distinct() %>%
+  left_join(FERC_corps) %>% distinct() %>% 
+  knitr::kable(caption = "Pro Businesses matching those registered with FERC")
+
+d %>% 
+  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
+  drop_na(company_short) %>% 
+  mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+  mutate(members = str_remove_all(members, ";NA")) %>% 
+  group_by(company_short) %>% 
+  mutate(members = str_c(unique(members), collapse = ";")) %>% 
+  select(company_short, members) %>%  distinct() %>%
+  left_join(FERC_corps) %>% distinct() %>% 
+  knitr::kable(caption = "Anti Businesses matching those registered with FERC")
+
+```
 # Save coded letters data:
 ```{r, eval=FALSE}
 # Save

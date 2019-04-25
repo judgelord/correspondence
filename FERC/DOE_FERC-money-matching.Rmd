@@ -23,13 +23,7 @@ knitr::opts_chunk$set(fig.height = 4,
 ```
 
 
-This example uses the `stringr`, `purrr`, `here` and `magrittr` packages. 
-
-- [`stringr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#stringr)
-
-- [RegEx cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)  
-
-- [`purrr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr)
+Required packages: [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html).
 
 ```{r libraries}
 library(tidyverse)
@@ -37,7 +31,6 @@ library(rvest)
 library(magrittr)
 library(here)
 ```
-
 
 # Match companies from FERC website and congressoinal letters
 ```{r}
@@ -49,8 +42,16 @@ ferc_short <- unique(FERC_corps$company_short) %>%
   str_c(collapse = "|") %>% 
   str_remove_all("||")
 
-str_extract_all(unique(FERC_coded$ProBusiness), ferc_short) %>% str_c(sep = "; ", collapse = ":") %>% unique()
+# bad string
+str_detect("", ferc_short)
 
+d <- FERC_letters
+d %>% 
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
+  select(probusiness) %>%  distinct() 
+```
+
+```{r}
 ## Split availability status from summary
 FERC_letters %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ") 
 

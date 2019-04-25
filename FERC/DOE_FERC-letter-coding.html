@@ -216,7 +216,7 @@ $(document).ready(function () {
 library(googlesheets)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-25 08:18:26</p>
+<p>Updated: 2019-04-25 09:22:32</p>
 <div id="load-coded-congressional-letters-data" class="section level1">
 <h1>Load coded congressional letters data:</h1>
 <pre class="r"><code># log in to google docs
@@ -292,7 +292,7 @@ n_coded%&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Priyal Singh</td>
-<td align="right">531</td>
+<td align="right">536</td>
 </tr>
 </tbody>
 </table>
@@ -340,7 +340,7 @@ FERC_coded %&gt;%
 <td align="right">1</td>
 <td align="right">23</td>
 <td align="right">0</td>
-<td align="right">4</td>
+<td align="right">5</td>
 </tr>
 <tr class="even">
 <td align="left">Case_Name</td>
@@ -375,7 +375,7 @@ FERC_coded %&gt;%
 <td align="right">92</td>
 <td align="right">60</td>
 <td align="right">56</td>
-<td align="right">24</td>
+<td align="right">25</td>
 </tr>
 <tr class="odd">
 <td align="left">Cosigned_House</td>
@@ -403,14 +403,14 @@ FERC_coded %&gt;%
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">2</td>
+<td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">Other_CC</td>
 <td align="right">15</td>
 <td align="right">10</td>
 <td align="right">8</td>
-<td align="right">11</td>
+<td align="right">10</td>
 </tr>
 <tr class="even">
 <td align="left">Place_City</td>
@@ -452,7 +452,7 @@ FERC_coded %&gt;%
 <td align="right">1</td>
 <td align="right">25</td>
 <td align="right">1</td>
-<td align="right">4</td>
+<td align="right">5</td>
 </tr>
 <tr class="even">
 <td align="left">X23</td>
@@ -494,14 +494,14 @@ FERC_coded %&gt;%
 <td align="right">411</td>
 <td align="right">757</td>
 <td align="right">463</td>
-<td align="right">476</td>
+<td align="right">479</td>
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
 <td align="right">126</td>
 <td align="right">105</td>
 <td align="right">35</td>
-<td align="right">55</td>
+<td align="right">57</td>
 </tr>
 </tbody>
 </table>
@@ -537,7 +537,7 @@ FERC_coded %&gt;%
 <td align="right">285</td>
 <td align="right">244</td>
 <td align="right">216</td>
-<td align="right">147</td>
+<td align="right">152</td>
 </tr>
 </tbody>
 </table>
@@ -566,21 +566,21 @@ FERC_coded %&gt;%
 <td align="right">384</td>
 <td align="right">341</td>
 <td align="right">126</td>
-<td align="right">23</td>
+<td align="right">27</td>
 </tr>
 <tr class="even">
 <td align="left">yes</td>
 <td align="right">109</td>
 <td align="right">180</td>
 <td align="right">155</td>
-<td align="right">103</td>
+<td align="right">105</td>
 </tr>
 <tr class="odd">
 <td align="left">NA</td>
 <td align="right">44</td>
 <td align="right">341</td>
 <td align="right">217</td>
-<td align="right">405</td>
+<td align="right">404</td>
 </tr>
 </tbody>
 </table>
@@ -709,8 +709,1059 @@ combined %&gt;%
 </tbody>
 </table>
 </div>
-<div id="save-coded-letters-data" class="section level1">
-<h1>Save coded letters data:</h1>
+<div id="companies" class="section level1">
+<h1>Companies</h1>
+<pre class="r"><code>load(here(&quot;data&quot;, &quot;DOE_FERC-corps.Rdata&quot;))
+FERC_corps %&lt;&gt;% ungroup() %&gt;% group_by(company_short) %&gt;% mutate(industry = str_c(unique(industry), collapse = &quot;;&quot;)) %&gt;% select(-company, -Fortune500) %&gt;% distinct() 
+
+## Make a single string of short corp names
+ferc_short &lt;- unique(FERC_corps$company_short) %&gt;% 
+  str_c(collapse = &quot;|&quot;) %&gt;% 
+  str_remove_all(&quot;||&quot;)
+
+d &lt;- combined
+d %&gt;% 
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %&gt;% 
+  drop_na(company_short) %&gt;% 
+  mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = &quot;;&quot;)) %&gt;%
+  mutate(members = str_remove_all(members, &quot;;NA&quot;)) %&gt;% 
+  group_by(company_short) %&gt;% 
+  mutate(members = str_c(unique(members), collapse = &quot;;&quot;)) %&gt;% 
+  select(company_short, members) %&gt;%  distinct() %&gt;%
+  left_join(FERC_corps) %&gt;% distinct() %&gt;% 
+  knitr::kable(caption = &quot;Pro Businesses matching those registered with FERC&quot;)</code></pre>
+<table>
+<caption>Pro Businesses matching those registered with FERC</caption>
+<thead>
+<tr class="header">
+<th align="left">company_short</th>
+<th align="left">members</th>
+<th align="left">industry</th>
+<th align="left">company_short_refs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Georgia Power</td>
+<td align="left">Rep. Jody Hice;Sen. Johnny Isakson</td>
+<td align="left">hydro;electric</td>
+<td align="left">Georgia Power Company; Georgia Power Company</td>
+</tr>
+<tr class="even">
+<td align="left">Dominion</td>
+<td align="left">Rep. Chris Sainato;Sen. Chris Van Hollen;Rep. Pam Snyder;Rep. Jeff Pyle;Rep. Alex X. Mooney;Rep. Bob Goodlatte;Rep. H. Morgan Griffith; Rep. Robert Hurt;Rep. Renne Ellmers;Sen. David R. Brinkley;Rep. Roscoe G. Bartlett</td>
+<td align="left">gas;electric</td>
+<td align="left">Dominion Energy Cove Point LNG, LP; Dominion Energy Questar Pipeline, LLC; Dominion Energy Overthrust Pipeline, LLC; Dominion Energy Transmission, Inc; Dominion Energy Cove Point LNG, LP; Dominion Energy Kewaunee, Inc.; Dominion Energy Manchester Street, Inc.; Dominion Energy Marketing, Inc.; Dominion Energy Transmission, Inc</td>
+</tr>
+<tr class="odd">
+<td align="left">PJM Interconnection</td>
+<td align="left">Rep. Conor Lamb</td>
+<td align="left">electric</td>
+<td align="left">PJM Interconnection, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">Duke</td>
+<td align="left">Sen. Thom Tillis;Sen. Lindsey Graham;Rep. James Clyburn; Rep. Walter B. Jones; Rep. Joe Wilson; Rep. Virginia Foxx; Rep. Patrick McHenry; Rep. Mick Mulvaney; Rep. Jeff Duncan; Rep. Renee Ellmers; Rep. Trey Gowdy; Rep. George Holding; Rep. Richard Hudson; Rep. Mark Meadows; Rep. Robert Pittenger; Rep. Tom Rice; Rep. David Rouzer; Rep. Mark Walker;Sen. Richard Burr; Sen. Tim Scott; Sen. Thom Tillis;Sen. Ernest F. Hollings</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Duke Energy Carolinas, LLC; Duke Energy Indiana, LLC.; Duke Energy Progress, LLC.; Duke Energy Kentucky, Inc.; Duke Energy Ohio, Inc.; Duke Energy Carolinas, LLC; Duke Energy Corporation; Duke Energy Florida, Inc.; Duke Energy Indiana, Inc.; Duke Energy Kentucky, Inc.; Duke Energy Ohio, Inc.; Duke Energy Progress, Inc.; Duke Energy Shared Services LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Columbia Gas Transmission</td>
+<td align="left">Sen. Shelley Moore Capito;Sen. Shelby Moore Capito;Rep. Alex X. Mooney;Rep. Steve Stivers;Rep. Evan Jenkins;Rep. Alex X. Mooney;Rep. David B. McKinley</td>
+<td align="left">gas</td>
+<td align="left">Columbia Gas Transmission, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Colonial</td>
+<td align="left">Rep. H. Morgan Griffith;Rep. Bob Goodlat; Rep. Thomas Garrett</td>
+<td align="left">oil</td>
+<td align="left">Colonial Pipeline Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Transcontinental</td>
+<td align="left">Rep. Alex X. Mooney;Rep. Leonard Lance;Rep. Sue Myrick;Rep. Jesse Helms;Rep. Rush Holt;Rep. Bill Pascrell,Jr.;Sen. Robert G. Torricelli</td>
+<td align="left">gas</td>
+<td align="left">Transcontinental Gas Pipeline Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">TransCanada</td>
+<td align="left">Rep. Alex X. Mooney;Sen. Patrick Leahy;Rep. Peter Welch;Sen. Bernard Sanders</td>
+<td align="left">gas;electric</td>
+<td align="left">TransCanada PipeLines Limited; TransCanada Energy Marketing USA, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">DTE</td>
+<td align="left">Rep. Alex X. Mooney;Rep. Tim Walberg</td>
+<td align="left">gas;electric</td>
+<td align="left">DTE Gas Company; DTE Energy Supply, Inc.; DTE Energy Trading, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Energy Transfer</td>
+<td align="left">Rep. Alex X. Mooney</td>
+<td align="left">electric</td>
+<td align="left">Energy Transfer Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Big Rivers Electric</td>
+<td align="left">Rep. Brett Guthrie</td>
+<td align="left">electric</td>
+<td align="left">Big Rivers Electric Corporation</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Shore Natural</td>
+<td align="left">Sen. Thomas R. Carper;Rep. Lisa Blunt Rochester;Sen. Christopher A. Coons;Sen. Thomas R. Carper;Rep. John C. Carney, Jr.;Sen. Christopher A. Coons</td>
+<td align="left">gas</td>
+<td align="left">Eastern Shore Natural Gas Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Empire</td>
+<td align="left">Sen. Charles E. Schumer</td>
+<td align="left">gas</td>
+<td align="left">Empire Pipeline, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Pacific Gas and Electric</td>
+<td align="left">Rep. Jared Hufman;Sen. Tom McClintoc;Rep. George Radanovich</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Pacific Gas and Electric Company; Pacific Gas and Electric Company,; Pacific Gas and Electric Company; Pacific Gas and Electric Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Public Power</td>
+<td align="left">Rep. Adrian Smith;Sen. Ben Sasse;Sen. Deb Fischer</td>
+<td align="left">electric</td>
+<td align="left">Public Power, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Southern Natural</td>
+<td align="left">Rep. Barry D. Loudermilk</td>
+<td align="left">gas</td>
+<td align="left">Southern Natural Gas Company, L.L.C.</td>
+</tr>
+<tr class="odd">
+<td align="left">PacifiCorp</td>
+<td align="left">Rep. Jared Huffman;Sen. Gordon H. Smith</td>
+<td align="left">hydro;electric</td>
+<td align="left">PacifiCorp; PacifiCorp</td>
+</tr>
+<tr class="even">
+<td align="left">Entergy</td>
+<td align="left">Rep. John Katko</td>
+<td align="left">electric</td>
+<td align="left">Entergy Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">Spectra</td>
+<td align="left">Rep. Stephen F. Lynch;Rep. Eliot L. Engel;Rep. Bob Gibbs;Rep. Bill Johnson;Rep. Albio Sires;Rep. Michael G. Grimm</td>
+<td align="left">gas</td>
+<td align="left">Spectra Energy Transmission, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Magnolia</td>
+<td align="left">Rep. Charles W. Boustany Jr.;Sen. Bill Cassidy;Sen. David Vitter;Sen. Bill Cassidy, M.D.</td>
+<td align="left">electric</td>
+<td align="left">Magnolia Energy LP</td>
+</tr>
+<tr class="odd">
+<td align="left">UGI</td>
+<td align="left">Rep. Tom Marino</td>
+<td align="left">electric</td>
+<td align="left">UGI Energy Services, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Pipeline Company LLC</td>
+<td align="left">Sen. Pat Toomey</td>
+<td align="left">gas</td>
+<td align="left">Pipeline Company LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Algonquin Gas Transmission</td>
+<td align="left">Rep. Stephen F. Lynch;Rep. Edward F.Coppinger;Sen. Michael F. Rush;Sen. Justin L. Alfond;Sen Roger Katz;Rep. Jeff McCabe;Sen. Troy Jackson</td>
+<td align="left">gas</td>
+<td align="left">Algonquin Gas Transmission, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Gulf South</td>
+<td align="left">Sen Bill Cassidy</td>
+<td align="left">gas</td>
+<td align="left">Gulf South Pipeline Company, LP,</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee Gas Pipeline</td>
+<td align="left">Sen. Charles E. Schumer;Sen. kirsten Gillibrand;Rep. James P. McGovern</td>
+<td align="left">gas</td>
+<td align="left">Tennessee Gas Pipeline Company, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">American Midstream</td>
+<td align="left">Rep. Bill Cassidy, M.D.;Sen. David Vitter;Rep. Bill Cassidy, M.D.;Sen. Thad Cochran;Sen. Roger Wicker</td>
+<td align="left">gas</td>
+<td align="left">American Midstream (AlaTenn), LLC; American Midstream (Midla), LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Southern California Edison</td>
+<td align="left">Sen. Tom Udall;Rep.Michelle Lujan Grisham;Sen. Martin Heinrich</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Southern California Edison Company; Southern California Edison Company; Southern California Edison Company</td>
+</tr>
+<tr class="even">
+<td align="left">Trunkline</td>
+<td align="left">Rep. Pete Olson;Rep. David Phelps;Sen. Richard D. Lugar;Sen. Evan Bayh</td>
+<td align="left">gas</td>
+<td align="left">Trunkline Gas Company, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Sabal Trail Transmission</td>
+<td align="left">Rep. Sanford D. Bishop, Jr</td>
+<td align="left">gas</td>
+<td align="left">Sabal Trail Transmission, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Elba Express</td>
+<td align="left">Sen. David Shafer</td>
+<td align="left">gas</td>
+<td align="left">Elba Express Company, L.L.C.</td>
+</tr>
+<tr class="odd">
+<td align="left">Alabama Power</td>
+<td align="left">Rep. Mike Rogers;Sen. Richard Shelby</td>
+<td align="left">electric;hydro</td>
+<td align="left">Alabama Power Company; Alabama Power Company</td>
+</tr>
+<tr class="even">
+<td align="left">Nevada Power</td>
+<td align="left">Sen. Den Heller;Sen. Harry Reid;Sen. Harry Reid;Rep. Shelley Berkley;Rep. Jon Porter;Rep. Dean Heller;Sen. John Ensign</td>
+<td align="left">electric</td>
+<td align="left">Nevada Power Company</td>
+</tr>
+<tr class="odd">
+<td align="left">California Independent System Operator</td>
+<td align="left">Sen.Darell Steinberg;Sen. Alex padilla; Sen Jean Fuller;Rep. Doug Ose</td>
+<td align="left">electric</td>
+<td align="left">California Independent System Operator Corporation, The</td>
+</tr>
+<tr class="even">
+<td align="left">Union Electric</td>
+<td align="left">Rep. Blaine Luetkemeyer;Rep. Vicky Hartzler; Rep. Emanuel Cleaver; Rep. Jo Ann Emerson; Rep. Sam Graves, Rep. W. Todd Akin; Rep. Billy Long; Rep. Wim Lacy Clay; Rep. Russ Camahan; Rep. Jerry Costelo; Rep. John Shimkus; Bobby Schilling;Sen. Claire McCaskill;Sen. Roy Blur</td>
+<td align="left">hydro;electric</td>
+<td align="left">Union Electric Company d/b/a Ameren Missouri; Union Electric Company d/b/a Ameren Missouri</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Natural</td>
+<td align="left">Sen. Mary L. Landrieu</td>
+<td align="left">gas</td>
+<td align="left">Northern Natural Gas Company</td>
+</tr>
+<tr class="even">
+<td align="left">Great River</td>
+<td align="left">Sen. Richard J. Durbin;Sen. Mark S. Kirk</td>
+<td align="left">electric</td>
+<td align="left">Great River Energy</td>
+</tr>
+<tr class="odd">
+<td align="left">Algonquin</td>
+<td align="left">Sen. Olympia J. Snowe;Sen. Susan M. Collins</td>
+<td align="left">electric</td>
+<td align="left">Algonquin Energy Services, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Southern LNG</td>
+<td align="left">Rep. John Barrow</td>
+<td align="left">gas</td>
+<td align="left">Southern LNG Company, L.L.C.</td>
+</tr>
+<tr class="odd">
+<td align="left">Ameren</td>
+<td align="left">Rep. Ike Skelton</td>
+<td align="left">electric</td>
+<td align="left">Ameren Corporation; Ameren Energy Medina Valley Cogen, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">Glen Falls Hydro</td>
+<td align="left">Sen. Christopher J. Dodd</td>
+<td align="left">hydro</td>
+<td align="left">Glen Falls Hydro, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Ruby</td>
+<td align="left">Sen. Michael B. Enzi</td>
+<td align="left">gas</td>
+<td align="left">Ruby Pipeline, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Green Island Power Authority</td>
+<td align="left">Sen. Charles E. Schumer</td>
+<td align="left">hydro</td>
+<td align="left">Green Island Power Authority</td>
+</tr>
+<tr class="odd">
+<td align="left">Rockies Express</td>
+<td align="left">Rep. Timothy V. Johnson</td>
+<td align="left">gas</td>
+<td align="left">Rockies Express Pipeline LLC</td>
+</tr>
+<tr class="even">
+<td align="left">El Dorado</td>
+<td align="left">Rep. Tom McClintock</td>
+<td align="left">electric</td>
+<td align="left">El Dorado Energy, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Brookfield</td>
+<td align="left">Rep. Jerry F. Costello</td>
+<td align="left">electric</td>
+<td align="left">Brookfield Energy Marketing LP</td>
+</tr>
+<tr class="even">
+<td align="left">Erie Boulevard Hydropower</td>
+<td align="left">Rep. Kirsten E. Gillibrand;Sen. Charles Schumer;Hillary Redham Clinton</td>
+<td align="left">hydro</td>
+<td align="left">Erie Boulevard Hydropower, LP</td>
+</tr>
+<tr class="odd">
+<td align="left">Colorado Interstate</td>
+<td align="left">Sen. Wayne Allard</td>
+<td align="left">gas</td>
+<td align="left">Colorado Interstate Gas Company; Colorado Interstate Gas Company, L.L.C</td>
+</tr>
+<tr class="even">
+<td align="left">New York Independent System Operator</td>
+<td align="left">Rep. Steve Israel;Rep. Anthony D. Weiner</td>
+<td align="left">electric</td>
+<td align="left">New York Independent System Operator, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">Calnev</td>
+<td align="left">Rep. Shelley Berkley;Rep. Jon Porter; Rep. Dean Heller</td>
+<td align="left">oil</td>
+<td align="left">Calnev Pipeline Company</td>
+</tr>
+<tr class="even">
+<td align="left">Marina</td>
+<td align="left">Rep. John Sullivan;Rep. Dan Boren</td>
+<td align="left">electric</td>
+<td align="left">Marina Energy, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">American Ref-Fuel</td>
+<td align="left">Sen. Rick Santorum</td>
+<td align="left">electric</td>
+<td align="left">American Ref-Fuel Company; American Ref-Fuel Company L.L.C.; American Ref-Fuel Company of Delaware Valley, L.P.; American Ref-Fuel Company of Essex County; American Ref-Fuel Company of Hempstead; American Ref-Fuel Company of Niagara, L.P.; American Ref-Fuel Company of SEMAS, L.P.; American Ref-Fuel Company of Southeastern Connecticut</td>
+</tr>
+<tr class="even">
+<td align="left">Maritimes &amp; Northeast</td>
+<td align="left">Rep. Richard E. Neal</td>
+<td align="left">gas</td>
+<td align="left">Maritimes &amp; Northeast Pipeline, L.L.C.</td>
+</tr>
+<tr class="odd">
+<td align="left">Wisconsin Public Service</td>
+<td align="left">Rep. Mark Green</td>
+<td align="left">hydro;electric</td>
+<td align="left">Wisconsin Public Service Corporation; Wisconsin Public Service Corporation</td>
+</tr>
+<tr class="even">
+<td align="left">Florida Gas Transmission</td>
+<td align="left">Sen. Richard Shelby;Rep. Sonny Callahan;Sen. Jeff Sessions</td>
+<td align="left">gas</td>
+<td align="left">Florida Gas Transmission Company, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Florida Power &amp; Light</td>
+<td align="left">Rep. Arlan R. Jodrey;Sen. Bob Graham</td>
+<td align="left">electric</td>
+<td align="left">Florida Power &amp; Light Company</td>
+</tr>
+<tr class="even">
+<td align="left">Valley Electric Association</td>
+<td align="left">Sen. Ted Stevens;Rep. Don Young;Sen. Frank H. Murkowski</td>
+<td align="left">electric</td>
+<td align="left">Valley Electric Association, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">ISO New England</td>
+<td align="left">Sen. Olympia J. Snowe;Rep. John E. Baldacci; Rep. Thomas H. Allen;Sen. Susan M. Collins</td>
+<td align="left">electric</td>
+<td align="left">ISO New England Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Carolina Power &amp; Light</td>
+<td align="left">Rep. Robin Hayes</td>
+<td align="left">hydro</td>
+<td align="left">Carolina Power &amp; Light Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Dynegy</td>
+<td align="left">Sen. Phil Gramm</td>
+<td align="left">electric</td>
+<td align="left">Dynegy Energy Service (East), LLC; Dynegy Energy Service, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Millennium</td>
+<td align="left">Rep. Sue W. Kelly</td>
+<td align="left">gas</td>
+<td align="left">Millennium Pipeline Company, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Koch</td>
+<td align="left">Sen. Sheacy L Reynolds</td>
+<td align="left">oil;electric</td>
+<td align="left">Koch Pipeline Company, L.P.; Koch Energy Services, LLC; Koch Energy Trading, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Montana Power</td>
+<td align="left">Sen. Max Baucus</td>
+<td align="left">hydro</td>
+<td align="left">Montana Power Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Appalachian Power</td>
+<td align="left">Rep. Virgil H. Good;Sen. Virgil Goode,Jr</td>
+<td align="left">electric</td>
+<td align="left">Appalachian Power Company</td>
+</tr>
+<tr class="even">
+<td align="left">Excel</td>
+<td align="left">Rep. Bob Schaffer</td>
+<td align="left">oil</td>
+<td align="left">Excel Pipeline LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Destin</td>
+<td align="left">Rep. Gene Taylor;Rep. Chip Pickering</td>
+<td align="left">gas</td>
+<td align="left">Destin Pipeline Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Guardian</td>
+<td align="left">Rep. James Sensenbrenner,Jr.</td>
+<td align="left">gas</td>
+<td align="left">Guardian Pipeline, L.L.C.</td>
+</tr>
+<tr class="odd">
+<td align="left">ANR</td>
+<td align="left">Rep. Paul Ryan</td>
+<td align="left">gas</td>
+<td align="left">ANR Pipeline Company</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>d %&gt;% 
+  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %&gt;% 
+  drop_na(company_short) %&gt;% 
+  mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = &quot;;&quot;)) %&gt;%
+  mutate(members = str_remove_all(members, &quot;;NA&quot;)) %&gt;% 
+  group_by(company_short) %&gt;% 
+  mutate(members = str_c(unique(members), collapse = &quot;;&quot;)) %&gt;% 
+  select(company_short, members) %&gt;%  distinct() %&gt;%
+  left_join(FERC_corps) %&gt;% distinct() %&gt;% 
+  knitr::kable(caption = &quot;Anti Businesses matching those registered with FERC&quot;)</code></pre>
+<table>
+<caption>Anti Businesses matching those registered with FERC</caption>
+<thead>
+<tr class="header">
+<th align="left">company_short</th>
+<th align="left">members</th>
+<th align="left">industry</th>
+<th align="left">company_short_refs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">PJM Interconnection</td>
+<td align="left">Rep. Frank Pallone, Jr.;Sen. Tammy Duckworth;Sen. Cory A. Booker; Sen. Robert Menendez; Sen. Richard J. Durbin;Sen. Sherrod Brown;Sen. Barbara A. Mikulski;Rep. Tim Murphy</td>
+<td align="left">electric</td>
+<td align="left">PJM Interconnection, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">Brookfield</td>
+<td align="left">Sen. Robert P. Casey, Jr.</td>
+<td align="left">electric</td>
+<td align="left">Brookfield Energy Marketing LP</td>
+</tr>
+<tr class="odd">
+<td align="left">Heartland</td>
+<td align="left">Rep. John Shimkus</td>
+<td align="left">oil;gas</td>
+<td align="left">Heartland Pipeline Company; Heartland Pipeline Company</td>
+</tr>
+<tr class="even">
+<td align="left">MoGas</td>
+<td align="left">Sen. Roy Blunt;Rep. Vicky Hartzler; Rep. Jason Smith;Sen. Claire McCaskill</td>
+<td align="left">gas</td>
+<td align="left">MoGas Pipeline LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Transcontinental</td>
+<td align="left">Rep. Frank Pallone, Jr.;Sen. Cory A. Booker;Rep. Thomas McArthur;Rep. Rush Holt;Sen. Arlen Specter;Rep. Joe Pitts;Sen. Arlen Specter;Rep. Jim Gerlach;Sen. Robert P. Casey, Jr.;;Rep. Jim Gerlach;Sen. Robert P. Casey, Jr.;Sen. Jim Webb;Rep. Frank R. Wolf;Rep. Melvin L Watt;Rep. Frank Pallone.Jr.</td>
+<td align="left">gas</td>
+<td align="left">Transcontinental Gas Pipeline Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Spectra</td>
+<td align="left">Rep. Stephen F. Lynch;Sen. Edward J. Markey;Sen. Elizabeth Warren;Sen. Elizabeth Warren;Rep. Nita M. Lowey;Sen. Charles Schumer;Sen. Kirsten Gillibrand;Sen. Elizabeth Warren;Sen. Edward J. Markey;Sen. Charles E. Schumer;Rep. Nita M. Lowey;Sen. Kirsten Gillibrand;Sen. Saxby Chambliss;Rep. Albio Sires;Rep. Todd Russell Platts;Sen. Robert P. Casey, Jr.;Rep. Bill Shuster;Sen. John F. Kerry</td>
+<td align="left">gas</td>
+<td align="left">Spectra Energy Transmission, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Ameren</td>
+<td align="left">Sen. Roy Blunt;Rep. Blaine Luetkemeyer;Sen. Claire McCaskill;Rep. Kenny Hulshof</td>
+<td align="left">electric</td>
+<td align="left">Ameren Corporation; Ameren Energy Medina Valley Cogen, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee Gas Pipeline</td>
+<td align="left">Sen. Edward J. Markey;Sen. Elizabeth Warren;Rep. Richard E. Neal;Sen. Elizabeth Warren;Sen. Edward J. Markey;Rep. Jim Cooper;Sen. Mitch McConnell;Rep. Ann McLane Kuster;Sen. Kelly A. Ayotte;Sen. Charles E. Schumer;Sen. Kirsten Gillibrand;Rep. Niki Tsongas;John B. Larson;Rep. Paul D. Tonko;Sen. Charles E. Schumer;Rep. Chris Gibson;Sen. Kirsten Gillibrand;Rep. James P. McGovern;Rep. Chris Gibson;Sen. Robert P. Casey, Jr.;Rep. Tom Mariano;Rep. Christopher P. Carney;Sen. Rick Santorum</td>
+<td align="left">gas</td>
+<td align="left">Tennessee Gas Pipeline Company, L.L.C.</td>
+</tr>
+<tr class="odd">
+<td align="left">Georgia Power</td>
+<td align="left">Rep. Jody Hice</td>
+<td align="left">hydro;electric</td>
+<td align="left">Georgia Power Company; Georgia Power Company</td>
+</tr>
+<tr class="even">
+<td align="left">Eversource</td>
+<td align="left">Sen. Richard Blumenthal</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Eversource Energy and subsidiaries: Northeast Utilities, North East Utilities Service Company,, and Public Service Company of New Hampshire.; Eversource Energy and subsidiaries: NSTAR Gas Company, Yankee Gas Services, Company, Eversource Energy Service Company; Eversource Energy and subsidiaries: The Connecticut Light and Power Company,, NSTAR Electric Company, Public Service Company of New Hampshire, Western, Massachusetts Electric Company, Eversource Energy Service Company, Northern, Pass Transmission LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Sabine</td>
+<td align="left">Rep. Mike Johnson;Sen. Mary L. Landrieu;Rep. Jim McCrery</td>
+<td align="left">gas</td>
+<td align="left">Sabine Pipe Line LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Green Power</td>
+<td align="left">Sen. Elizabeth Warren;Rep. Niki Tsongas;Sen. Edward J. Markey</td>
+<td align="left">electric</td>
+<td align="left">Green Power Corporation, The</td>
+</tr>
+<tr class="odd">
+<td align="left">Dominion</td>
+<td align="left">Sen. Chris Van Hollen;Rep. Bob Goodlate;Rep. Bob Goodlatte;Rep. Tim Kaine;Rep. J. Randy Forbes;Rep. Chris Gibson;Rep. Richard Hanna;Sen. Thad Cochran;Sen. Barbara A. Mikulski;Sen. Benjamin L. Cardin;Rep. Albert R. Wynn;Rep. Virgil H. Goode, Jr.;Sen. John Warner;Sen. Benjamin L. Cardin;Sen. Barbara A. Mikulski</td>
+<td align="left">gas;electric</td>
+<td align="left">Dominion Energy Cove Point LNG, LP; Dominion Energy Questar Pipeline, LLC; Dominion Energy Overthrust Pipeline, LLC; Dominion Energy Transmission, Inc; Dominion Energy Cove Point LNG, LP; Dominion Energy Kewaunee, Inc.; Dominion Energy Manchester Street, Inc.; Dominion Energy Marketing, Inc.; Dominion Energy Transmission, Inc</td>
+</tr>
+<tr class="even">
+<td align="left">Enbridge</td>
+<td align="left">Rep. James R. Langevin;Rep. Elizabeth H. Esty;Sen. Herb Kohl</td>
+<td align="left">oil</td>
+<td align="left">Enbridge Energy, Limited Partnership; Enbridge Pipelines (North Dakota) LLC; Enbridge Pipelines (Ozark) LLC; Enbridge Pipelines (Toledo) LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Panhandle Eastern</td>
+<td align="left">Sen. Todd Young</td>
+<td align="left">gas</td>
+<td align="left">Panhandle Eastern Pipe Line Company, LP</td>
+</tr>
+<tr class="even">
+<td align="left">Energy Transfer</td>
+<td align="left">Frank Pallone, Jr.;Maria Cantwell</td>
+<td align="left">electric</td>
+<td align="left">Energy Transfer Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Appalachian Power</td>
+<td align="left">Rep. Thomas A. Garrett, Jr.;Sen. Tim Kaine;Rep. H. Morgan griffith;Sen. Robert Hurt;Rep. David P. Roe;Rep. Tom Perriello;Sen. Mark Warner;Sen. Mark R. Warner;Rep. Tom Perriello;Rep. Virgil H. Goode, Jr.</td>
+<td align="left">electric</td>
+<td align="left">Appalachian Power Company</td>
+</tr>
+<tr class="even">
+<td align="left">Duke</td>
+<td align="left">Rep. Patrick McHenry;Rep. John D. Szoka;Rep. Jeff Duncan;Sen. Kay R. Hagan;Rep. Sue Myrick;Rep. Patrick T. McHenry;Sen. Elizabeth Dole;Rep. Todd Russell Platts;Sen. Jim DeMint</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Duke Energy Carolinas, LLC; Duke Energy Indiana, LLC.; Duke Energy Progress, LLC.; Duke Energy Kentucky, Inc.; Duke Energy Ohio, Inc.; Duke Energy Carolinas, LLC; Duke Energy Corporation; Duke Energy Florida, Inc.; Duke Energy Indiana, Inc.; Duke Energy Kentucky, Inc.; Duke Energy Ohio, Inc.; Duke Energy Progress, Inc.; Duke Energy Shared Services LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Midcontinent Independent System Operator</td>
+<td align="left">Rep. Debbie Dingell;Rep. Tim Walberg; Rep. John Moolenaar; Rep. Bill Huizenga; Rep. Justin Amash; Rep. Brenda Lawrence; Rep. Paul Mitchell; Rep. Mike Bishop; Rep. Dave Trott; Rep. Jack Bergman; Rep. Sander M. Levin; Rep. Daniel T. Kildee;Sen. Richard J. Durbin</td>
+<td align="left">electric</td>
+<td align="left">Midcontinent Independent System Operator, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Jersey Central Power &amp; Light</td>
+<td align="left">Rep. Christopher H. Smith</td>
+<td align="left">hydro;electric</td>
+<td align="left">Jersey Central Power &amp; Light Company; Jersey Central Power &amp; Light Company, Metropolitan Edison Company and Pennsylvania Electric Company; Jersey Central Power &amp; Light Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Southern Star Central</td>
+<td align="left">Sen. Jerry Moran</td>
+<td align="left">gas</td>
+<td align="left">Southern Star Central Gas Pipeline, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Arlington Storage</td>
+<td align="left">Sen. Charles Schumer;Sen. Kirsten Gillibrand;Sen. Charles E. Schumer;Sen. Kirsten Gillibrand</td>
+<td align="left">gas</td>
+<td align="left">Arlington Storage Company, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Algonquin</td>
+<td align="left">Rep. Stephen F. Lynch;Rep. Paul McMurtry; Rep. Edward F. Coppinger;Sen. Elizabeth Warren; Sen. Edward J. Markey; Sen. Michael F. Rush;Rep. Stephen F. Lynch</td>
+<td align="left">electric</td>
+<td align="left">Algonquin Energy Services, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Sabal Trail Transmission</td>
+<td align="left">Rep. Sanford D. Bishop, Jr.;Rep. Sanford D. Bishop, Jr.;Rep. John Lewis; Rep. David Scott; Rep. Henry C. Hank Johnson, Jr.</td>
+<td align="left">gas</td>
+<td align="left">Sabal Trail Transmission, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Plains Pipeline</td>
+<td align="left">Rep. Lois Capps</td>
+<td align="left">oil</td>
+<td align="left">Plains Pipeline, L.P.; Plains Pipeline Montana LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Algonquin Gas Transmission</td>
+<td align="left">Rep. Stephen F. Lynch;Rep. Christopher S. Murphy</td>
+<td align="left">gas</td>
+<td align="left">Algonquin Gas Transmission, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">NextEra</td>
+<td align="left">Sen. Tim Kaine</td>
+<td align="left">electric</td>
+<td align="left">NextEra Energy Resources, LLC.</td>
+</tr>
+<tr class="even">
+<td align="left">Public Power</td>
+<td align="left">Sen. Deb Fischer</td>
+<td align="left">electric</td>
+<td align="left">Public Power, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Portland Natural</td>
+<td align="left">Sen. Angus King, Jr.;Sen. Susan M. Collins;Rep. Michael Michaud; Rep. Chellie; Pingree;Sen. Olympia J. Snowe</td>
+<td align="left">gas</td>
+<td align="left">Portland Natural Gas Company</td>
+</tr>
+<tr class="even">
+<td align="left">Union Electric</td>
+<td align="left">Rep.Blaine Leutkemeyer;Rep. Ike Skelton</td>
+<td align="left">hydro;electric</td>
+<td align="left">Union Electric Company d/b/a Ameren Missouri; Union Electric Company d/b/a Ameren Missouri</td>
+</tr>
+<tr class="odd">
+<td align="left">Enterprise TE Products</td>
+<td align="left">Sen. Mark Pryor;Rep. Rick Crawford; Rep. Tim griffin; Rep. Steve Womack;Sen. John Boozman</td>
+<td align="left">oil</td>
+<td align="left">Enterprise TE Products Pipeline Company LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Gulf South</td>
+<td align="left">Sen Thad Cochran;Rep. Bennie G. Thompson;Sen. David Vitter</td>
+<td align="left">gas</td>
+<td align="left">Gulf South Pipeline Company, LP,</td>
+</tr>
+<tr class="odd">
+<td align="left">Columbia Gas Transmission</td>
+<td align="left">Sen. Benjamin L. Cardin;Rep. Steny Hoyer; Rep. C.A. Dutch Rupperberger; Rep. Elijah E. Cummings; Rep. John Sarbanes;Sen. Barbara A. Mikulski;Sen. Benjamin L. Cardin;Rep.Elijah E. Cummings; Rep. C.A. Dutch Ruppersberger; Rep. John Sarbanes;Sen. Barbara A. Mikulski;Sen. Sherrod Brown;Sen. George V. Voinovich;Rep. Jim Jordan</td>
+<td align="left">gas</td>
+<td align="left">Columbia Gas Transmission, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Allegheny</td>
+<td align="left">Rep. Chris Van Hollen</td>
+<td align="left">electric;hydro</td>
+<td align="left">Allegheny Energy Service Corporation; Allegheny Energy Supply Company, LLC; Allegheny Energy Supply Company, LLC; Allegheny Energy Supply Units 3, 4, &amp; 5, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">El Paso Natural</td>
+<td align="left">Rep. Raul Grijalva</td>
+<td align="left">gas</td>
+<td align="left">El Paso Natural Gas Company; El Paso Natural Gas Company, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">Suburban Propane</td>
+<td align="left">Rep. Bill Owens</td>
+<td align="left">oil</td>
+<td align="left">Suburban Propane, L.P.</td>
+</tr>
+<tr class="odd">
+<td align="left">Consolidated Edison</td>
+<td align="left">Sen. Kirstin Gillibrand;Sen. Michael N. Gianaris</td>
+<td align="left">electric</td>
+<td align="left">Consolidated Edison Company of New York, Inc.; Consolidated Edison Energy Massachusetts, Inc.; Consolidated Edison Energy, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Alabama Power</td>
+<td align="left">Sen. Richard Shelby;Sen. Jeff Sessions</td>
+<td align="left">electric;hydro</td>
+<td align="left">Alabama Power Company; Alabama Power Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Midcontinent Express</td>
+<td align="left">Sen. Thad Cochran</td>
+<td align="left">gas</td>
+<td align="left">Midcontinent Express Pipeline LLC</td>
+</tr>
+<tr class="even">
+<td align="left">New Brunswick</td>
+<td align="left">Sen. Olympia J. Snowe;Sen. Susan M. Collins</td>
+<td align="left">electric</td>
+<td align="left">New Brunswick Energy Marketing Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">AER NY-Gen</td>
+<td align="left">Maurice D. Hinchey;Charles E. Schumer;Rep. Maurice Hinchey</td>
+<td align="left">electric</td>
+<td align="left">AER NY-Gen, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Northern States Power</td>
+<td align="left">Sen. Russell D. Feingold</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Northern States Power Company - Minnesota; Northern States Power Company - Wisconsin; Northern States Power Company – Minnesota; Northern States Power Company –Wisconsin; Northern States Power Company - Minnesota; Northern States Power Company - Wisconsin</td>
+</tr>
+<tr class="odd">
+<td align="left">American Electric Power</td>
+<td align="left">Sen. Mark R. Warner;Sen. Don Nickles</td>
+<td align="left">electric</td>
+<td align="left">American Electric Power Company, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Xcel</td>
+<td align="left">Sen. Russell D. Feingold;Rep. David R. Obey</td>
+<td align="left">electric</td>
+<td align="left">Xcel Energy Services, Inc; Xcel Energy Services, Inc. - Energy Marketing; Xcel Energy Services, Inc. - Transmission Services; Xcel Energy Southwest Transmission Company, LLC; Xcel Energy Transmission Development Company, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Florida Gas Transmission</td>
+<td align="left">Sen. Bill Nelson;Rep. Michael Bilikaris;Sen. Bob Graham</td>
+<td align="left">gas</td>
+<td align="left">Florida Gas Transmission Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby</td>
+<td align="left">Sen. Harry Reid</td>
+<td align="left">gas</td>
+<td align="left">Ruby Pipeline, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Southeast Supply Header</td>
+<td align="left">Rep. Jo Bonner;Rep. Gene Taylor;Sen. Thad Cochran;Sen. Trent Lott</td>
+<td align="left">gas</td>
+<td align="left">Southeast Supply Header, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Emera</td>
+<td align="left">Sen. Olympia J. Snowe;Rep. Michael H. Michaud;Sen. Susan M. Collins</td>
+<td align="left">electric</td>
+<td align="left">Emera Energy Services Inc.; Emera Energy Services Subsidiary No. 1 LLC; Emera Energy Services Subsidiary No. 2 LLC; Emera Energy Services Subsidiary No. 3 LLC; Emera Energy Services Subsidiary No. 4 LLC; Emera Energy Services Subsidiary No. 5 LLC; Emera Energy Services Subsidiary No. 6 LLC; Emera Energy Services Subsidiary No. 7 LLC; Emera Energy Services Subsidiary No. 8 LLC; Emera Energy Services Subsidiary No. 9 LLC; Emera Energy Services Subsidiary No. 10 LLC; Emera Energy U.S. Subsidiary No. 1, Inc.; Emera Energy U.S. Subsidiary No. 2, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">Pacific Gas and Electric</td>
+<td align="left">Rep. Wally Herger;Rep. George Radanovich</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">Pacific Gas and Electric Company; Pacific Gas and Electric Company,; Pacific Gas and Electric Company; Pacific Gas and Electric Company</td>
+</tr>
+<tr class="even">
+<td align="left">South Carolina Electric &amp;</td>
+<td align="left">Rep. Joe Wilson;Sen. Lindsey O. Graham</td>
+<td align="left">hydro;gas;electric</td>
+<td align="left">South Carolina Electric &amp; Gas Company; South Carolina Electric &amp; Gas Company; South Carolina Electric &amp; Gas Company</td>
+</tr>
+<tr class="odd">
+<td align="left">FPL</td>
+<td align="left">Sen. Susan M. Collins;Sen. Deidre Anderson</td>
+<td align="left">electric</td>
+<td align="left">FPL Energy Maine Hydro, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Northern Natural</td>
+<td align="left">Rep. Todd Tiahrt;Sen. Sam Brownback;Rep. Todd Tiahrt; Rep. Dennis Moore; Rep. Nancy Boyda;Sen. Pat Roberts;Rep. Jerry Moran</td>
+<td align="left">gas</td>
+<td align="left">Northern Natural Gas Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Northwest Pipeline</td>
+<td align="left">Sen. Patty Murray;Sen. Larry E. Craig</td>
+<td align="left">gas</td>
+<td align="left">Northwest Pipeline LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Texas Eastern Transmission</td>
+<td align="left">Rep. Todd Russell Platts;Sen. Rick Santorum;Rep. Peter J. Visclosky</td>
+<td align="left">gas</td>
+<td align="left">Texas Eastern Transmission, LP</td>
+</tr>
+<tr class="odd">
+<td align="left">Exelon</td>
+<td align="left">Sen. Benjamin L. Cardin</td>
+<td align="left">electric</td>
+<td align="left">Exelon Corporation</td>
+</tr>
+<tr class="even">
+<td align="left">Florida Power &amp; Light</td>
+<td align="left">Sen. Susan M. Collins;Sen. Bob Smith</td>
+<td align="left">electric</td>
+<td align="left">Florida Power &amp; Light Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Rockies Express</td>
+<td align="left">Rep. Mike Pence;Rep. Michael R. Turner;Rep. John A. Boehner;Sen. Richard G. Lugar;Sen. Evan Bayh;Rep. David L. Hobson;Sen. George V. Voinovich;Rep. Phil Hare</td>
+<td align="left">gas</td>
+<td align="left">Rockies Express Pipeline LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Seneca Falls Power</td>
+<td align="left">Rep. Eric J.J. Massa;Rep. Michael A. Arcuri;Rep. John R. Kuhl, Jr.;Rep. John “Randy” Kuhl, Jr.</td>
+<td align="left">oil</td>
+<td align="left">Seneca Falls Power Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">American Transmission</td>
+<td align="left">Sen. Herb Kohl</td>
+<td align="left">electric</td>
+<td align="left">American Transmission Company LLC</td>
+</tr>
+<tr class="even">
+<td align="left">PG&amp;E</td>
+<td align="left">Sen. Dianne Feinstein</td>
+<td align="left">electric</td>
+<td align="left">PG&amp;E Energy Trading-Power, L.P.</td>
+</tr>
+<tr class="odd">
+<td align="left">PacifiCorp</td>
+<td align="left">Rep. Brian Baird</td>
+<td align="left">hydro;electric</td>
+<td align="left">PacifiCorp; PacifiCorp</td>
+</tr>
+<tr class="even">
+<td align="left">Gas Transmission Northwest</td>
+<td align="left">Rep. David Wu</td>
+<td align="left">gas</td>
+<td align="left">Gas Transmission Northwest Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">Kern River Gas Transmission</td>
+<td align="left">Rep. Jon C. Porter</td>
+<td align="left">gas</td>
+<td align="left">Kern River Gas Transmission Company</td>
+</tr>
+<tr class="even">
+<td align="left">California Independent System Operator</td>
+<td align="left">Rep. George Radanovich;Rep. Doris O. Matsui</td>
+<td align="left">electric</td>
+<td align="left">California Independent System Operator Corporation, The</td>
+</tr>
+<tr class="odd">
+<td align="left">Consolidated Water Power</td>
+<td align="left">Sen. Herb Kohl</td>
+<td align="left">hydro;electric</td>
+<td align="left">Consolidated Water Power Company; Consolidated Water Power Company</td>
+</tr>
+<tr class="even">
+<td align="left">Steckman Ridge</td>
+<td align="left">Rep. Bill Shuster</td>
+<td align="left">gas</td>
+<td align="left">Steckman Ridge, LP</td>
+</tr>
+<tr class="odd">
+<td align="left">Enogex</td>
+<td align="left">Rep. Mac Thornberry;Sen. Kay Bailey Hutchison;Rep. John Culberson;Rep. Kevin Brady;Rep. Michael C. Burgess</td>
+<td align="left">gas</td>
+<td align="left">Enogex Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Wisconsin Public Service</td>
+<td align="left">Sen. Herb Kohl</td>
+<td align="left">hydro;electric</td>
+<td align="left">Wisconsin Public Service Corporation; Wisconsin Public Service Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">PSEG</td>
+<td align="left">Sen. Robert Menendez</td>
+<td align="left">electric</td>
+<td align="left">PSEG Energy Resources &amp; Trade LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Vermont Electric Power</td>
+<td align="left">Sen. Bernard Sanders</td>
+<td align="left">electric</td>
+<td align="left">Vermont Electric Power Company, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">Guardian</td>
+<td align="left">Sen. Herb Kohl;Sen. Russell D. Feingold;Rep. Donald Manzullo</td>
+<td align="left">gas</td>
+<td align="left">Guardian Pipeline, L.L.C.</td>
+</tr>
+<tr class="even">
+<td align="left">Gulf Crossing</td>
+<td align="left">Sen. David Vitter;Sen. John Cornyn</td>
+<td align="left">gas</td>
+<td align="left">Gulf Crossing Pipeline Company, LLC,</td>
+</tr>
+<tr class="odd">
+<td align="left">Transwestern</td>
+<td align="left">Sen. Jon KYL;Rep. Raul M. Grijalva;Sen. Jon Kyl</td>
+<td align="left">gas</td>
+<td align="left">Transwestern Pipeline Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Colorado Interstate</td>
+<td align="left">Sen. Ken Salazar</td>
+<td align="left">gas</td>
+<td align="left">Colorado Interstate Gas Company; Colorado Interstate Gas Company, L.L.C</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Maine Independent System Administrator</td>
+<td align="left">Rep. Michael H. Michaud</td>
+<td align="left">electric</td>
+<td align="left">Northern Maine Independent System Administrator, Inc.</td>
+</tr>
+<tr class="even">
+<td align="left">Northbrook</td>
+<td align="left">Rep. John M. McHugh</td>
+<td align="left">electric</td>
+<td align="left">Northbrook Energy, LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">ISO New England</td>
+<td align="left">Sen. John F. Kerry;Rep. Edward J. Marley;Rep. John Joseph Moakley; Rep. Barney Frank; Rep. William D. Delahunt; Rep. John W. Wolver; Rep. James P. McGovern; Rep. Michael E. Capuano; Rep. Martin T. Meehan; Richard E. Neal; John F. Tierney;Sen. Edward M. Kennedy; Sen. John Kerry;Sen. Jack Reed;</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Sen. Olympia J. Snowe;Rep. Thomas H. Allen; Rep. J</td>
+<td align="left">ohn E. Baldacci;Sen. Susan M. Collins;Rep. Edward J. Marley;Rep. John Joseph Moakley; Rep. Barney Frank; Rep. William D. Delahunt; Rep. John W. Wolver; Rep. James P. McGovern; Rep. Michael E. Capuano; Rep. Martin T. Meehan; Richard E. Neal; John F. Tierney;Sen. Edward M. Kennedy; Sen John Kerry electric ISO New England Inc.</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Midwestern Gas Transmission</td>
+<td align="left">Rep. Bart Gordon</td>
+<td align="left">gas</td>
+<td align="left">Midwestern Gas Transmission Company</td>
+</tr>
+<tr class="even">
+<td align="left">Rocky Mountain</td>
+<td align="left">Sen. Evan Bayh</td>
+<td align="left">oil</td>
+<td align="left">Rocky Mountain Pipeline Montana LLC; Rocky Mountain Pipeline System LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Holtwood</td>
+<td align="left">Sen. Arlen Specter</td>
+<td align="left">hydro</td>
+<td align="left">Holtwood, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Enron Power Marketing</td>
+<td align="left">Rep. Jay Inslee</td>
+<td align="left">electric</td>
+<td align="left">Enron Power Marketing, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">Express Pipeline LLC</td>
+<td align="left">Rep. Jim Hansen</td>
+<td align="left">oil</td>
+<td align="left">Express Pipeline LLC</td>
+</tr>
+<tr class="even">
+<td align="left">MidAmerican</td>
+<td align="left">Sen. Charles E. Grassler</td>
+<td align="left">electric</td>
+<td align="left">MidAmerican Energy Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Entergy</td>
+<td align="left">Sen. John Breaux</td>
+<td align="left">electric</td>
+<td align="left">Entergy Corporation</td>
+</tr>
+<tr class="even">
+<td align="left">Orion Power</td>
+<td align="left">Rep. John M. McHugh</td>
+<td align="left">hydro</td>
+<td align="left">Orion Power Holdings, Inc.</td>
+</tr>
+<tr class="odd">
+<td align="left">Iroquois Gas Transmission System</td>
+<td align="left">Rep. Jose E. Serrano</td>
+<td align="left">gas</td>
+<td align="left">Iroquois Gas Transmission System, L.P.</td>
+</tr>
+<tr class="even">
+<td align="left">Centennial</td>
+<td align="left">Rep. David Phelps</td>
+<td align="left">oil</td>
+<td align="left">Centennial Pipeline LLC</td>
+</tr>
+<tr class="odd">
+<td align="left">Trunkline</td>
+<td align="left">Sen. Peter G. Fitzgerald</td>
+<td align="left">gas</td>
+<td align="left">Trunkline Gas Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Buccaneer</td>
+<td align="left">Rep. Michael Bilirakis</td>
+<td align="left">oil;gas</td>
+<td align="left">Buccaneer Pipe Line Company; Buccaneer Pipe Line Company</td>
+</tr>
+<tr class="odd">
+<td align="left">Alliance</td>
+<td align="left">Rep. James A. Leach;Sen. Charkes E. Grassley</td>
+<td align="left">gas;electric</td>
+<td align="left">Alliance Pipeline Inc.; Alliance Pipeline L.P.; Alliance Energy Services Partnership</td>
+</tr>
+<tr class="even">
+<td align="left">Central Vermont Public Service</td>
+<td align="left">Rep. Bernard Sanders</td>
+<td align="left">hydro;electric</td>
+<td align="left">Central Vermont Public Service Corporation; Central Vermont Public Service Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">Millennium</td>
+<td align="left">Rep. Sue W. Kelly</td>
+<td align="left">gas</td>
+<td align="left">Millennium Pipeline Company, LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Niagara Mohawk Power</td>
+<td align="left">Rep. John M. McHugh</td>
+<td align="left">hydro</td>
+<td align="left">Niagara Mohawk Power Corporation</td>
+</tr>
+<tr class="odd">
+<td align="left">Minnesota Power</td>
+<td align="left">Rep. James L. Oberstar</td>
+<td align="left">hydro;electric</td>
+<td align="left">Minnesota Power; Minnesota Power, Inc. - Hydro; Minnesota Power, Inc. - Transmission; Minnesota Power, Inc. - Wholesale</td>
+</tr>
+<tr class="even">
+<td align="left">Wisconsin Electric Power</td>
+<td align="left">Sen. Carl Levin</td>
+<td align="left">hydro;electric</td>
+<td align="left">Wisconsin Electric Power Company; Wisconsin Electric Power Company</td>
+</tr>
+<tr class="odd">
+<td align="left">ANR</td>
+<td align="left">Rep. Sean D. Logan;Rep.Ron Amstutz</td>
+<td align="left">gas</td>
+<td align="left">ANR Pipeline Company</td>
+</tr>
+<tr class="even">
+<td align="left">Reliant</td>
+<td align="left">Rep. Sheila Jackson Lee</td>
+<td align="left">electric</td>
+<td align="left">Reliant Energy Northeast LLC</td>
+</tr>
+<tr class="odd">
+<td align="left"># Save coded letters data:</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code># Save
 FERC_letters &lt;- combined
 save(FERC_letters, file = here(&quot;data&quot;, &quot;DOE_FERC-letters-corps.Rdata&quot;))
