@@ -23,11 +23,10 @@ knitr::opts_chunk$set(fig.height = 4,
 ```
 
 
-Required packages: [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html).
+Required packages: [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html).
 
 ```{r libraries}
 library(tidyverse)
-library(rvest)
 library(magrittr)
 library(here)
 ```
@@ -35,9 +34,13 @@ library(here)
 (mostly a to-do list right now)
 
 # Match companies from FERC website and congressoinal letters
+
+### Load data
+- companies registered to lobby FERC
+- letters from members
 ```{r, eval = FALSE}
 load(here("data", "DOE_FERC-corps.Rdata"))
-load(here("data", "DOE_FERC-letters-corps.Rdata"))
+load(here("data", "DOE_FERC-letters.Rdata"))
 
 ## Make a single string of short corp names
 ferc_short <- unique(FERC_corps$company_short) %>% 

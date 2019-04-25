@@ -49,7 +49,9 @@ FERC_coders <- gs_title("FERC Data Assignments") %>% gs_read() %>%
 gs_read_url <- function(coder_sheet){
   coder_sheet %>% gs_url() %>% 
     gs_read() %>%
-    mutate(coder_sheet = coder_sheet)
+    mutate(coder_sheet = coder_sheet) %>% 
+    rownames_to_column() %>% 
+    mutate(rowname = as.numeric(rowname))
 }
 
 # read and merge sheets into a data frame
@@ -64,6 +66,7 @@ FERC_coded %<>%
   full_join(FERC_coders) %>% 
   select(-coder_sheet) %>%
   # drop duplicates
+  filter(Freelancer == "Ellie" | rowname>5)  %>%
   distinct() %>% 
   # name ID the same as master sheet
   rename(ID = `Document ID`) %>% 
@@ -78,15 +81,17 @@ FERC_coded %<>%
 
 # Potential coding issues:
 
-Lara and Priyal have much fewer Place_ codings. 
+Lara is identifying fewer companies than the others. 
+
+Lara and Priyal have fewer Place_ codings. 
 
 Gabriela may be over-coding state and District, but maybe not. 
 
 Priyal finds much less Pro-business, and Lara finds much less Anti-business.
 
-Lara finds a lot more case proceedings, probably understanding it differently. 
+Lara finds a lot more Case Proceedings, probably understanding it differently. 
 
-Gabriela used "No" in Constituent, whereas the others used NA more. \
+Gabriela used "No" in Constituent, where the others used NA.
 
 Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for "et al", indicating co-signing. 
 
@@ -107,7 +112,7 @@ FERC_coded %>%
   mutate_at(vars(-n, -Freelancer), funs(round((1-(./n) )*100))) %>% 
   arrange(Freelancer) %>% 
   select(-CongressPerson, -ID, -SUBJECT, -n) %>%
-  filter(Freelancer != "double coded") %>%
+  filter(!Freelancer %in% c("Ellie", "double coded")) %>%
    gather(var, value, -Freelancer) %>% 
    spread(Freelancer, value) %>%
   knitr::kable(caption = "Percent coded")
@@ -122,7 +127,7 @@ FERC_coded %>%
   group_by(Freelancer, cosigned) %>%
   count() %>% 
   arrange(Freelancer) %>% 
-  filter(Freelancer != "double coded") %>% 
+  filter(!Freelancer %in% c("Ellie", "double coded")) %>%
   spread(Freelancer, n) %>%
   knitr::kable()
 
@@ -132,7 +137,7 @@ FERC_coded %>%
   group_by(Freelancer, company_identified) %>%
   count() %>% 
   arrange(Freelancer)%>% 
-  filter(Freelancer != "double coded") %>% 
+  filter(!Freelancer %in% c("Ellie", "double coded")) %>% 
     spread(Freelancer, n) %>%
   knitr::kable()
 
@@ -142,7 +147,7 @@ FERC_coded %>%
   group_by(Freelancer, Constituent) %>%
   count() %>% 
   arrange(Freelancer)%>% 
-  filter(Freelancer != "double coded") %>% 
+  filter(!Freelancer %in% c("Ellie", "double coded")) %>% 
     spread(Freelancer, n) %>%
   knitr::kable()
 ```
@@ -154,14 +159,14 @@ Duplicates?
 ```{r}
 # duplicates?
 FERC_coded %>% 
-  group_by(ID) %>%
+  group_by(rowname, ID) %>%
   count() %>% 
   arrange(-n) %>% 
   filter(n>1)%>% 
   knitr::kable()
 
 # Drop duplicates
-FERC_coded %<>% group_by(ID) %>% top_n(1)
+FERC_coded %<>% group_by(rowname, ID) %>% top_n(1)
 
 # get master data
 FERC_letters <- gs_title("DOE_FERC") %>% gs_read()
@@ -179,7 +184,7 @@ combined <- FERC_letters %>% full_join(FERC_coded %>% select(-SUBJECT))
 
 # duplicates?
 combined %>% 
-  group_by(ID) %>%
+  group_by(rowname, ID) %>%
   count() %>% 
   arrange(-n) %>% 
   filter(n>1)%>% 

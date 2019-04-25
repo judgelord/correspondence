@@ -315,7 +315,7 @@ div.tocify {
 library(googlesheets)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-25 09:40:55</p>
+<p>Updated: 2019-04-25 10:57:34</p>
 <div id="load-coded-congressional-letters-data" class="section level1">
 <h1>Load coded congressional letters data:</h1>
 <pre class="r"><code># log in to google docs
@@ -331,7 +331,9 @@ FERC_coders &lt;- gs_title(&quot;FERC Data Assignments&quot;) %&gt;% gs_read() %
 gs_read_url &lt;- function(coder_sheet){
   coder_sheet %&gt;% gs_url() %&gt;% 
     gs_read() %&gt;%
-    mutate(coder_sheet = coder_sheet)
+    mutate(coder_sheet = coder_sheet) %&gt;% 
+    rownames_to_column() %&gt;% 
+    mutate(rowname = as.numeric(rowname))
 }
 
 # read and merge sheets into a data frame
@@ -346,6 +348,7 @@ FERC_coded %&lt;&gt;%
   full_join(FERC_coders) %&gt;% 
   select(-coder_sheet) %&gt;%
   # drop duplicates
+  filter(Freelancer == &quot;Ellie&quot; | rowname&gt;5)  %&gt;%
   distinct() %&gt;% 
   # name ID the same as master sheet
   rename(ID = `Document ID`) %&gt;% 
@@ -358,12 +361,13 @@ FERC_coded %&lt;&gt;%
 </div>
 <div id="potential-coding-issues" class="section level1">
 <h1>Potential coding issues:</h1>
-<p>Lara and Priyal have much fewer Place_ codings.</p>
+<p>Lara is identifying fewer companies than the others.</p>
+<p>Lara and Priyal have fewer Place_ codings.</p>
 <p>Gabriela may be over-coding state and District, but maybe not.</p>
 <p>Priyal finds much less Pro-business, and Lara finds much less Anti-business.</p>
-<p>Lara finds a lot more case proceedings, probably understanding it differently.</p>
-<p>Gabriela used “No” in Constituent, whereas the others used NA more.<br />
-Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for “et al”, indicating co-signing.</p>
+<p>Lara finds a lot more Case Proceedings, probably understanding it differently.</p>
+<p>Gabriela used “No” in Constituent, where the others used NA.</p>
+<p>Maki is suspiciously low on identifying co-signing. This is difficult to audit, but we can search the summary/SUBJECT column for “et al”, indicating co-signing.</p>
 <pre class="r"><code># coded
 n_coded &lt;- FERC_coded %&gt;% 
   group_by(Freelancer) %&gt;%
@@ -381,21 +385,25 @@ n_coded%&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">double coded</td>
-<td align="right">16</td>
+<td align="right">9</td>
 </tr>
 <tr class="even">
+<td align="left">Ellie</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
 <td align="left">Gabriela Iocab</td>
 <td align="right">537</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Lara Basiao</td>
 <td align="right">862</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Maki Ianovic</td>
 <td align="right">498</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Priyal Singh</td>
 <td align="right">540</td>
 </tr>
@@ -410,7 +418,7 @@ FERC_coded %&gt;%
   mutate_at(vars(-n, -Freelancer), funs(round((1-(./n) )*100))) %&gt;% 
   arrange(Freelancer) %&gt;% 
   select(-CongressPerson, -ID, -SUBJECT, -n) %&gt;%
-  filter(Freelancer != &quot;double coded&quot;) %&gt;%
+  filter(!Freelancer %in% c(&quot;Ellie&quot;, &quot;double coded&quot;)) %&gt;%
    gather(var, value, -Freelancer) %&gt;% 
    spread(Freelancer, value) %&gt;%
   knitr::kable(caption = &quot;Percent coded&quot;)</code></pre>
@@ -560,6 +568,13 @@ FERC_coded %&gt;%
 <td align="right">6</td>
 </tr>
 <tr class="even">
+<td align="left">rowname</td>
+<td align="right">100</td>
+<td align="right">100</td>
+<td align="right">100</td>
+<td align="right">100</td>
+</tr>
+<tr class="odd">
 <td align="left">X23</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -574,7 +589,7 @@ FERC_coded %&gt;%
   group_by(Freelancer, cosigned) %&gt;%
   count() %&gt;% 
   arrange(Freelancer) %&gt;% 
-  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  filter(!Freelancer %in% c(&quot;Ellie&quot;, &quot;double coded&quot;)) %&gt;%
   spread(Freelancer, n) %&gt;%
   knitr::kable()</code></pre>
 <table>
@@ -610,7 +625,7 @@ FERC_coded %&gt;%
   group_by(Freelancer, company_identified) %&gt;%
   count() %&gt;% 
   arrange(Freelancer)%&gt;% 
-  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  filter(!Freelancer %in% c(&quot;Ellie&quot;, &quot;double coded&quot;)) %&gt;% 
     spread(Freelancer, n) %&gt;%
   knitr::kable()</code></pre>
 <table>
@@ -646,7 +661,7 @@ FERC_coded %&gt;%
   group_by(Freelancer, Constituent) %&gt;%
   count() %&gt;% 
   arrange(Freelancer)%&gt;% 
-  filter(Freelancer != &quot;double coded&quot;) %&gt;% 
+  filter(!Freelancer %in% c(&quot;Ellie&quot;, &quot;double coded&quot;)) %&gt;% 
     spread(Freelancer, n) %&gt;%
   knitr::kable()</code></pre>
 <table>
@@ -689,7 +704,7 @@ FERC_coded %&gt;%
 <p>Duplicates?</p>
 <pre class="r"><code># duplicates?
 FERC_coded %&gt;% 
-  group_by(ID) %&gt;%
+  group_by(rowname, ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
   filter(n&gt;1)%&gt;% 
@@ -697,35 +712,31 @@ FERC_coded %&gt;%
 <table>
 <thead>
 <tr class="header">
+<th align="right">rowname</th>
 <th align="left">ID</th>
 <th align="right">n</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">20080522-0154</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">20080522-0156</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
+<td align="right">1502</td>
 <td align="left">20080522-0161</td>
 <td align="right">2</td>
 </tr>
 <tr class="even">
-<td align="left">20190221-0008</td>
+<td align="right">1503</td>
+<td align="left">20080522-0156</td>
 <td align="right">2</td>
 </tr>
 <tr class="odd">
-<td align="left">20190221-0009</td>
+<td align="right">1504</td>
+<td align="left">20080522-0154</td>
 <td align="right">2</td>
 </tr>
 </tbody>
 </table>
 <pre class="r"><code># Drop duplicates
-FERC_coded %&lt;&gt;% group_by(ID) %&gt;% top_n(1)
+FERC_coded %&lt;&gt;% group_by(rowname, ID) %&gt;% top_n(1)
 
 # get master data
 FERC_letters &lt;- gs_title(&quot;DOE_FERC&quot;) %&gt;% gs_read()
@@ -752,7 +763,7 @@ combined &lt;- FERC_letters %&gt;% full_join(FERC_coded %&gt;% select(-SUBJECT))
 
 # duplicates?
 combined %&gt;% 
-  group_by(ID) %&gt;%
+  group_by(rowname, ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
   filter(n&gt;1)%&gt;% 
@@ -760,69 +771,25 @@ combined %&gt;%
 <table>
 <thead>
 <tr class="header">
+<th align="right">rowname</th>
 <th align="left">ID</th>
 <th align="right">n</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">20020117-0094</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">20020204-0161</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="left">20060720-0018(partial)</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">20060816-0137</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="left">20061002-0056</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">20061215-0203</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="left">20080118-0303(partial)</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">20080320-0049</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="left">20080515-0185(partial)</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">20080522-0154</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="left">20080522-0156</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
+<td align="right">1502</td>
 <td align="left">20080522-0161</td>
 <td align="right">2</td>
 </tr>
-<tr class="odd">
-<td align="left">20190221-0008</td>
-<td align="right">2</td>
-</tr>
 <tr class="even">
-<td align="left">20190221-0009</td>
+<td align="right">1503</td>
+<td align="left">20080522-0156</td>
 <td align="right">2</td>
 </tr>
 <tr class="odd">
-<td align="left">20190311-0022</td>
+<td align="right">1504</td>
+<td align="left">20080522-0154</td>
 <td align="right">2</td>
 </tr>
 </tbody>
