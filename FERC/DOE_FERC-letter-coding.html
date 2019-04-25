@@ -216,7 +216,7 @@ $(document).ready(function () {
 library(googlesheets)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-23 23:05:26</p>
+<p>Updated: 2019-04-25 08:18:26</p>
 <div id="load-coded-congressional-letters-data" class="section level1">
 <h1>Load coded congressional letters data:</h1>
 <pre class="r"><code># log in to google docs
@@ -276,15 +276,15 @@ n_coded%&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">double coded</td>
-<td align="right">8</td>
+<td align="right">14</td>
 </tr>
 <tr class="even">
 <td align="left">Gabriela Iocab</td>
-<td align="right">513</td>
+<td align="right">537</td>
 </tr>
 <tr class="odd">
 <td align="left">Lara Basiao</td>
-<td align="right">649</td>
+<td align="right">862</td>
 </tr>
 <tr class="even">
 <td align="left">Maki Ianovic</td>
@@ -292,7 +292,7 @@ n_coded%&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Priyal Singh</td>
-<td align="right">503</td>
+<td align="right">531</td>
 </tr>
 </tbody>
 </table>
@@ -304,7 +304,7 @@ FERC_coded %&gt;%
   full_join(n_coded) %&gt;% 
   mutate_at(vars(-n, -Freelancer), funs(round((1-(./n) )*100))) %&gt;% 
   arrange(Freelancer) %&gt;% 
-  select(-CongressPerson, -ID, -SUBJECT, -X23, -X22, -n) %&gt;%
+  select(-CongressPerson, -ID, -SUBJECT, -n) %&gt;%
   filter(Freelancer != &quot;double coded&quot;) %&gt;%
    gather(var, value, -Freelancer) %&gt;% 
    spread(Freelancer, value) %&gt;%
@@ -323,38 +323,38 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">AntiBusiness</td>
-<td align="right">28</td>
-<td align="right">12</td>
+<td align="right">30</td>
+<td align="right">14</td>
 <td align="right">33</td>
-<td align="right">21</td>
+<td align="right">22</td>
 </tr>
 <tr class="even">
 <td align="left">AntiProject</td>
 <td align="right">33</td>
-<td align="right">14</td>
+<td align="right">15</td>
 <td align="right">25</td>
-<td align="right">25</td>
+<td align="right">26</td>
 </tr>
 <tr class="odd">
 <td align="left">AntiSide</td>
 <td align="right">1</td>
-<td align="right">20</td>
+<td align="right">23</td>
 <td align="right">0</td>
-<td align="right">2</td>
+<td align="right">4</td>
 </tr>
 <tr class="even">
 <td align="left">Case_Name</td>
 <td align="right">1</td>
-<td align="right">4</td>
+<td align="right">5</td>
 <td align="right">1</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">Case_Proceeding</td>
 <td align="right">1</td>
-<td align="right">31</td>
+<td align="right">29</td>
 <td align="right">2</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">CC_House</td>
@@ -373,79 +373,93 @@ FERC_coded %&gt;%
 <tr class="even">
 <td align="left">Constituent</td>
 <td align="right">92</td>
-<td align="right">53</td>
-<td align="right">57</td>
-<td align="right">20</td>
+<td align="right">60</td>
+<td align="right">56</td>
+<td align="right">24</td>
 </tr>
 <tr class="odd">
 <td align="left">Cosigned_House</td>
-<td align="right">18</td>
-<td align="right">8</td>
+<td align="right">17</td>
+<td align="right">7</td>
 <td align="right">4</td>
 <td align="right">8</td>
 </tr>
 <tr class="even">
 <td align="left">Cosigned_Senate</td>
 <td align="right">15</td>
-<td align="right">10</td>
+<td align="right">9</td>
 <td align="right">5</td>
 <td align="right">7</td>
 </tr>
 <tr class="odd">
 <td align="left">Notes</td>
 <td align="right">9</td>
-<td align="right">7</td>
+<td align="right">6</td>
 <td align="right">20</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
+<td align="left">NOTES</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
 <td align="left">Other_CC</td>
 <td align="right">15</td>
 <td align="right">10</td>
 <td align="right">8</td>
 <td align="right">11</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Place_City</td>
-<td align="right">40</td>
+<td align="right">42</td>
 <td align="right">9</td>
 <td align="right">40</td>
-<td align="right">4</td>
+<td align="right">6</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Place_District</td>
-<td align="right">91</td>
-<td align="right">24</td>
+<td align="right">92</td>
+<td align="right">39</td>
 <td align="right">55</td>
 <td align="right">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Place_State</td>
-<td align="right">81</td>
-<td align="right">32</td>
+<td align="right">82</td>
+<td align="right">34</td>
 <td align="right">53</td>
-<td align="right">14</td>
+<td align="right">17</td>
+</tr>
+<tr class="odd">
+<td align="left">ProBusiness</td>
+<td align="right">24</td>
+<td align="right">16</td>
+<td align="right">12</td>
+<td align="right">7</td>
 </tr>
 <tr class="even">
-<td align="left">ProBusiness</td>
-<td align="right">25</td>
-<td align="right">17</td>
-<td align="right">12</td>
-<td align="right">5</td>
-</tr>
-<tr class="odd">
 <td align="left">ProProject</td>
 <td align="right">33</td>
-<td align="right">22</td>
-<td align="right">9</td>
-<td align="right">6</td>
+<td align="right">20</td>
+<td align="right">10</td>
+<td align="right">7</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">ProSide</td>
 <td align="right">1</td>
-<td align="right">28</td>
+<td align="right">25</td>
 <td align="right">1</td>
-<td align="right">1</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="left">X23</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
 </tr>
 </tbody>
 </table>
@@ -477,17 +491,17 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">FALSE</td>
-<td align="right">388</td>
-<td align="right">564</td>
-<td align="right">464</td>
-<td align="right">452</td>
+<td align="right">411</td>
+<td align="right">757</td>
+<td align="right">463</td>
+<td align="right">476</td>
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
-<td align="right">125</td>
-<td align="right">85</td>
-<td align="right">34</td>
-<td align="right">51</td>
+<td align="right">126</td>
+<td align="right">105</td>
+<td align="right">35</td>
+<td align="right">55</td>
 </tr>
 </tbody>
 </table>
@@ -513,17 +527,17 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">FALSE</td>
-<td align="right">246</td>
-<td align="right">460</td>
-<td align="right">279</td>
-<td align="right">374</td>
+<td align="right">252</td>
+<td align="right">618</td>
+<td align="right">282</td>
+<td align="right">384</td>
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
-<td align="right">267</td>
-<td align="right">189</td>
-<td align="right">219</td>
-<td align="right">129</td>
+<td align="right">285</td>
+<td align="right">244</td>
+<td align="right">216</td>
+<td align="right">147</td>
 </tr>
 </tbody>
 </table>
@@ -549,24 +563,24 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">no</td>
-<td align="right">375</td>
-<td align="right">234</td>
-<td align="right">125</td>
-<td align="right">5</td>
+<td align="right">384</td>
+<td align="right">341</td>
+<td align="right">126</td>
+<td align="right">23</td>
 </tr>
 <tr class="even">
 <td align="left">yes</td>
-<td align="right">95</td>
-<td align="right">110</td>
-<td align="right">157</td>
-<td align="right">98</td>
+<td align="right">109</td>
+<td align="right">180</td>
+<td align="right">155</td>
+<td align="right">103</td>
 </tr>
 <tr class="odd">
 <td align="left">NA</td>
-<td align="right">43</td>
-<td align="right">305</td>
-<td align="right">216</td>
-<td align="right">400</td>
+<td align="right">44</td>
+<td align="right">341</td>
+<td align="right">217</td>
+<td align="right">405</td>
 </tr>
 </tbody>
 </table>
@@ -589,6 +603,18 @@ FERC_coded %&gt;%
 </tr>
 </thead>
 <tbody>
+<tr class="odd">
+<td align="left">20080522-0154</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20080522-0156</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">20080522-0161</td>
+<td align="right">2</td>
+</tr>
 </tbody>
 </table>
 <pre class="r"><code># Drop duplicates
@@ -632,6 +658,54 @@ combined %&gt;%
 </tr>
 </thead>
 <tbody>
+<tr class="odd">
+<td align="left">20020204-0161</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20060720-0018(partial)</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">20060816-0137</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20061002-0056</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">20061215-0203</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20080118-0303(partial)</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">20080320-0049</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20080515-0185(partial)</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">20080522-0154</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20080522-0156</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">20080522-0161</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">20190311-0022</td>
+<td align="right">2</td>
+</tr>
 </tbody>
 </table>
 </div>

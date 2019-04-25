@@ -93,7 +93,7 @@ FERC_coded %>%
   full_join(n_coded) %>% 
   mutate_at(vars(-n, -Freelancer), funs(round((1-(./n) )*100))) %>% 
   arrange(Freelancer) %>% 
-  select(-CongressPerson, -ID, -SUBJECT, -X23, -X22, -n) %>%
+  select(-CongressPerson, -ID, -SUBJECT, -n) %>%
   filter(Freelancer != "double coded") %>%
    gather(var, value, -Freelancer) %>% 
    spread(Freelancer, value) %>%
