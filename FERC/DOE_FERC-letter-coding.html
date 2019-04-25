@@ -315,7 +315,7 @@ div.tocify {
 library(googlesheets)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-25 13:59:57</p>
+<p>Updated: 2019-04-25 14:14:15</p>
 <div id="load-coded-congressional-letters-data" class="section level1">
 <h1>Load coded congressional letters data:</h1>
 <pre class="r"><code># log in to google docs
@@ -557,7 +557,7 @@ FERC_coded %&gt;%
 <td align="right">100</td>
 <td align="right">39</td>
 <td align="right">55</td>
-<td align="right">2</td>
+<td align="right">7</td>
 </tr>
 <tr class="even">
 <td align="left">Place_State</td>
@@ -795,10 +795,10 @@ FERC_letters %&gt;%
 </tbody>
 </table>
 <pre class="r"><code># merge coded sheets into master data
-combined &lt;- FERC_letters %&gt;% full_join(FERC_coded %&gt;% select(-SUBJECT))
+d &lt;- FERC_letters %&gt;% full_join(FERC_coded %&gt;% select(-SUBJECT))
 
 # duplicates?
-combined %&gt;% 
+d %&gt;% 
   group_by(rowname, ID) %&gt;%
   count() %&gt;% 
   arrange(-n) %&gt;% 
@@ -831,6 +831,922 @@ combined %&gt;%
 </tbody>
 </table>
 <hr />
+<div id="use-of-commas-and-semi-colons" class="section level2">
+<h2>Use of commas and semi-colons</h2>
+<pre class="r"><code># Find problems with &quot;,&quot; instead of &quot;;&quot; sep
+d %&gt;% select(ID, CongressPerson, Freelancer) %&gt;%
+  filter(str_detect(CongressPerson, &quot;;&quot;) ) %&gt;%
+  knitr::kable(caption = &quot;More than one primary member&quot;)  </code></pre>
+<table>
+<caption>More than one primary member</caption>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">CongressPerson</th>
+<th align="left">Freelancer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">20150728-0017</td>
+<td align="left">Sen. Jeanne Shaheen; Sen. Kelly Ayotte</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">20000828-0335</td>
+<td align="left">Sen. Evan Bayh; Sen. Richard J. Durbin</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="odd">
+<td align="left">20000828-0105</td>
+<td align="left">Sen. Patrick Leahy; Sen James Jeffords</td>
+<td align="left">Lara Basiao</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Find problems with &quot;,&quot; instead of &quot;;&quot; sep
+d %&gt;% select(ID, Cosigned_House, Cosigned_Senate, Freelancer) %&gt;%
+  filter(str_detect(Cosigned_House, &quot;, R|,R&quot;) | str_detect(Cosigned_Senate, &quot;, S|,S&quot;) ) %&gt;%
+  knitr::kable(caption = &quot;Wrong list breaks&quot;)  </code></pre>
+<table>
+<caption>Wrong list breaks</caption>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">Cosigned_House</th>
+<th align="left">Cosigned_Senate</th>
+<th align="left">Freelancer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">20190221-0008</td>
+<td align="left">NA</td>
+<td align="left">Sen. Cory A. Booker; Sen. Martin Heinrich; Sen. Ron Wyden; Sen. Kamala D. Harris; Sen. Edward J. Markey; Sen. Catherine Cortez Masto; Sen. Brian Schatz; Sen. Jeffrey A. Merkley; Sen. Richard Blumenthal; Sen. Jack Reed; Sen. Tina Smith; Sen. Margaret Wood Hassan; Sen. Dianne Feinstein; Sen. Angus S. King, Jr., Sen. Jacky Rosen; Sen. Jeanne Shaheen; Sen. Bernard Sanders</td>
+<td align="left">Ellie</td>
+</tr>
+<tr class="even">
+<td align="left">20171023-0010</td>
+<td align="left">NA</td>
+<td align="left">Sen. Tammy Duckworth; Sen. Al Franken; Sen. Martin Heinrich; Sen. Mazie K. Hirono; Sen. Angus S. King Jr., Sen. Debbie Stabenow; Sen. Edward J. Markey; Sen. Jeffrey A. Merkley; Sen. Sheldon Whitehouse; Sen. Ron Wyden</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Find problems with &quot;,&quot; instead of &quot;;&quot; sep
+d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
+  filter(str_detect(AntiBusiness, &quot;,&quot;) | str_detect(ProBusiness, &quot;,&quot;) ) %&gt;%
+  filter(!(str_detect(AntiBusiness, &quot;,L|, L|,I|, I&quot;) | str_detect(ProBusiness, &quot;,L|, L|,I|, I&quot;) ) ) %&gt;%
+  knitr::kable(caption = &quot;Suspicious comma use to look at&quot;) </code></pre>
+<table>
+<caption>Suspicious comma use to look at</caption>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">ProBusiness</th>
+<th align="left">AntiBusiness</th>
+<th align="left">Freelancer</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+<div id="chamber-errors" class="section level2">
+<h2>Chamber errors</h2>
+<pre class="r"><code>d %&gt;% 
+  mutate(Senate = ifelse(str_detect(CongressPerson,&quot;^Sen&quot;), 
+                         str_c(CongressPerson, Cosigned_Senate, sep = &quot;;&quot;),
+                         Cosigned_Senate) ) %&gt;%
+  mutate(House = ifelse(str_detect(CongressPerson,&quot;^Rep&quot;), 
+                         str_c(CongressPerson, Cosigned_House, sep = &quot;;&quot;),
+                        Cosigned_House) ) %&gt;%
+  mutate(Senate = Senate %&gt;% str_split(&quot;;&quot;)) %&gt;%
+  unnest(Senate) %&gt;% 
+  mutate(House = House %&gt;% str_split(&quot;;&quot;)) %&gt;%
+  unnest(House) %&gt;%
+  select(House, Senate, ID, Freelancer) %&gt;% 
+  filter(str_detect(Senate, &quot;Rep&quot;)|str_detect(House, &quot;Sen&quot;)) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">House</th>
+<th align="left">Senate</th>
+<th align="left">ID</th>
+<th align="left">Freelancer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sen. Bill Cassidy</td>
+<td align="left">NA</td>
+<td align="left">20181207-0008</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Sen. Bill Cassidy</td>
+<td align="left">NA</td>
+<td align="left">20180706-4009</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Sen. Cory Gardner</td>
+<td align="left">NA</td>
+<td align="left">20160419-0010</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Sen. Michael F. Bennet</td>
+<td align="left">NA</td>
+<td align="left">20160419-0010</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Sen. Mike Lee</td>
+<td align="left">NA</td>
+<td align="left">20160419-0010</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Sen. Michael B. Enzi</td>
+<td align="left">NA</td>
+<td align="left">20160419-0010</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Sen. Orrin G. Hatch</td>
+<td align="left">NA</td>
+<td align="left">20160419-0010</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Sen. Susan M. Collins</td>
+<td align="left">Sen. Angus King, Jr.</td>
+<td align="left">20141230-0008</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="odd">
+<td align="left">Sen. Susan M. Collins</td>
+<td align="left">Rep. Michael Michaud</td>
+<td align="left">20141230-0008</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="even">
+<td align="left">Sen. Susan M. Collins</td>
+<td align="left">Rep. Chellie</td>
+<td align="left">20141230-0008</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="odd">
+<td align="left">Sen. Susan M. Collins</td>
+<td align="left">Pingree</td>
+<td align="left">20141230-0008</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Rep. Michael C. Burgess, M.D.</td>
+<td align="left">20131217-0024</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="odd">
+<td align="left">Sen. John Cornyn</td>
+<td align="left">NA</td>
+<td align="left">20120120-0002</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Peter DeFazio</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. Norm Dicks</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Jim McDermott</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. George Nethercutt</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Doc Hastings</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. Earl Blumenauer</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Darlene Hooley</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. Adam Smith</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Greg Walden</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. Brian Baird</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Jennifer Dunn</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. David Wu</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. C.L. Otter</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">Rep. Rick Larsen</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">Rep. Jay Inslee</td>
+<td align="left">Rep. Mike Crapo</td>
+<td align="left">20020604-0400</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Rep. Paul Ryan</td>
+<td align="left">20000918-0275</td>
+<td align="left">Lara Basiao</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="member-name-errors" class="section level2">
+<h2>Member name errors</h2>
+<p>Coders vs names extracted from letter summary (should also do this with names extracted from letter text)</p>
+<pre class="r"><code># Add auto-extracted member names that coders may have missed
+d %&gt;% 
+  group_by(ID) %&gt;%
+  mutate(missed = !str_detect(
+  tolower(str_c
+          (str_replace_na(
+    c(CongressPerson, Cosigned_House, Cosigned_Senate)
+    ), collapse = &quot;;&quot;)),
+  tolower(last_name) ) ) %&gt;% 
+  filter(!is.na(FROM)) %&gt;% 
+  filter(missed == T, !str_detect(tolower(CongressPerson), &quot;badfiles|bad files&quot;)) %&gt;% 
+  select(Freelancer, ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Freelancer</th>
+<th align="left">ID</th>
+<th align="left">FROM</th>
+<th align="left">CongressPerson</th>
+<th align="left">Cosigned_House</th>
+<th align="left">Cosigned_Senate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Ellie</td>
+<td align="left">20190221-0009</td>
+<td align="left">Peter WELCH</td>
+<td align="left">Rep. Donald S. Beyer Jr.</td>
+<td align="left">Rep. Nanette Diaz Barragan; Rep. Jamie Raskin; Rep. Mike Doyle; Rep. Matt Cartwrite; Rep. Sean Casten; Rep. James P. McGovern</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20181107-0008</td>
+<td align="left">Jeff LANDRY</td>
+<td align="left">noncongress (Attorney General)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20180124-0062</td>
+<td align="left">Timothy KAINE</td>
+<td align="left">Rep. Morgan Griffith</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20180111-0006</td>
+<td align="left">Timothy KAINE</td>
+<td align="left">Sen. Tim Kayne</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20170802-0032</td>
+<td align="left">John BARRASSO</td>
+<td align="left">Sen. John Barasso</td>
+<td align="left">Rep. Scott R. Tipton</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20170802-0031</td>
+<td align="left">Robert GOODLATTE</td>
+<td align="left">Rep. Bob Goodlate</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20170802-0030</td>
+<td align="left">Jared HUFFMAN</td>
+<td align="left">Rep. Jared Hufman</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20170714-4014(partial)</td>
+<td align="left">Robert GOODLATTE</td>
+<td align="left">Rep. Bob Goodlate</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20170613-0049(partial)</td>
+<td align="left">Thomas GARRETT</td>
+<td align="left">BAD LINKS</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20170609-0037</td>
+<td align="left">Robert GOODLATTE</td>
+<td align="left">Rep. Bob Goodlate</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20160624-0006</td>
+<td align="left">Kelly AYOTTE</td>
+<td align="left">Sen. Kelly A. Ayote</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20160301-0012</td>
+<td align="left">Thomas MacARTHUR</td>
+<td align="left">Rep. Thomas McArthur</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20150828-0039</td>
+<td align="left">Keith ELLISON</td>
+<td align="left">Rep. Keith Ellsion</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20150702-0024</td>
+<td align="left">Mark WARNER</td>
+<td align="left">Sen. Mark R. Warmer</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20150518-0140</td>
+<td align="left">Todd ROKITA</td>
+<td align="left">&quot; Dulpicate File“</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20150508-0016</td>
+<td align="left">Tom McCLINTOCK</td>
+<td align="left">Sen. Tom McClintoc</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20150224-0014</td>
+<td align="left">David McKINLEY</td>
+<td align="left">Rep. David B. McKenly, P.E.</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20150204-0013</td>
+<td align="left">Jeff MERKLEY</td>
+<td align="left">Sen. Jeffrey A. Merkly</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20150204-0012</td>
+<td align="left">Ronald WYDEN</td>
+<td align="left">Sen Roy Wayden</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20150115-0027</td>
+<td align="left">Joseph PITTS</td>
+<td align="left">Rep. Joseph R. Kitts</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20141218-0036</td>
+<td align="left">Dianne FEINSTEIN</td>
+<td align="left">Sen. Dianne Feistein</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20141205-0019</td>
+<td align="left">Jim RENACCI</td>
+<td align="left">Rep. James Renneci</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20141112-0113</td>
+<td align="left">David McKINLEY</td>
+<td align="left">Rep. David B. McKenly, P.E.</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20141104-0011</td>
+<td align="left">Dan BENISHEK</td>
+<td align="left">Rep. Dan Benlshek, M.D.</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20140407-0046</td>
+<td align="left">Ruben HINOJOSA</td>
+<td align="left">Sen. Juan Hinijosa</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20140326-0013</td>
+<td align="left">Robert GOODLATTE</td>
+<td align="left">Rep. Bob Godlatte</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20140311-0021</td>
+<td align="left">Robert GOODLATTE</td>
+<td align="left">Rep. Bob Godlatte</td>
+<td align="left">NA</td>
+<td align="left">Sen. Robert Hurt</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20140206-0011</td>
+<td align="left">Dianne FEINSTEIN</td>
+<td align="left">Sen. Dianne Feistein</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20130703-0037</td>
+<td align="left">Rodney FRELINGHUYSEN</td>
+<td align="left">Rep. Rodney P. Frelinghuysin</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20130624-0010</td>
+<td align="left">Rodney FRELINGHUYSEN</td>
+<td align="left">Rep. rodney P. Frelinghuysin</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20130624-0005</td>
+<td align="left">Johnny ISAKSON</td>
+<td align="left">Sen. Saxby Chambliss</td>
+<td align="left">NA</td>
+<td align="left">Sen. Johnny Y. Sakson</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20130614-0003</td>
+<td align="left">Cathy McMORRIS RODGERS</td>
+<td align="left">Rep. Cathy McMorris Rogers</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20121024-4001</td>
+<td align="left">Benjamin CARDIN</td>
+<td align="left">Duplicate content “20150518-0140”</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20120508-0010(partial)</td>
+<td align="left">Scott GARRETT</td>
+<td align="left">Rep.Scott Garreth</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20120229-0008</td>
+<td align="left">Cathy McMORRIS RODGERS</td>
+<td align="left">Rep. Cathy McMorris Rogers</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20120214-0001</td>
+<td align="left">Al FRANKEN</td>
+<td align="left">Sen. Al Franklen</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20111117-0041</td>
+<td align="left">Cathy McMORRIS RODGERS</td>
+<td align="left">Rep. McMorris Rogers</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20111108-0046</td>
+<td align="left">Roscoe BARTLETT</td>
+<td align="left">Sen. Roscoe G. Barlett</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20110927-0131</td>
+<td align="left">Luis GUTIERREZ</td>
+<td align="left">Rep. Luis V. Gutierez</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20110831-0002</td>
+<td align="left">Ronald WYDEN</td>
+<td align="left">“For Verify No Name of consigned person</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">only signature</td>
+<td align="left">&quot; NA</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20110617-0011</td>
+<td align="left">Nicola TSONGAS</td>
+<td align="left">Rep. Niki tsingas</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20110329-0010</td>
+<td align="left">Kay HAGAN</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">20091123-0149</td>
+<td align="left">Herb BARRETT</td>
+<td align="left">Sen. Herb Kohl</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="left">20090618-0127</td>
+<td align="left">Edward MARKEY</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">20090515-0066(partial)</td>
+<td align="left">Robert CASEY</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="left">20090227-0021</td>
+<td align="left">Michael THOMPSON</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">20080929-0005</td>
+<td align="left">Joe BARTON</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20080522-0128</td>
+<td align="left">Susan COLLINS</td>
+<td align="left">Sen. Deidre Anderson</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20080324-0259</td>
+<td align="left">David WU</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20080320-0048</td>
+<td align="left">James BARRETT</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20080215-0205</td>
+<td align="left">Barbara BOXER</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20071218-0172</td>
+<td align="left">Pete DOMENICI</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20071217-0181</td>
+<td align="left">Pete DOMENICI</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20070720-0065</td>
+<td align="left">Todd PLATTS</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20070716-0266</td>
+<td align="left">Christopher BOND</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20070221-0064</td>
+<td align="left">Barbara MIKULSKI</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20061117-0147</td>
+<td align="left">Barbara CUBIN</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20061113-0133</td>
+<td align="left">Richard LUGAR</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20061024-0158</td>
+<td align="left">Jim HARMAN</td>
+<td align="left">Sen. Jim DeMint</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20061013-0060</td>
+<td align="left">Lindsey HARMAN</td>
+<td align="left">Sen. Lindsey O. Graham</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20061002-0194</td>
+<td align="left">John SHADEGG</td>
+<td align="left">Rep. John Sadegg</td>
+<td align="left">Rep. J.D. Hayworth; Rep. Jeff Flake; Rep. Trent Franks; Rep. Rick Renzi</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20060907-0034</td>
+<td align="left">Thomas DAVIS</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20060816-0133</td>
+<td align="left">Robert BENNETT</td>
+<td align="left">Sen. Robert F. Bernnett</td>
+<td align="left">NA</td>
+<td align="left">Sen. Orrin G. Hatch</td>
+</tr>
+<tr class="odd">
+<td align="left">Priyal Singh</td>
+<td align="left">20060810-0067</td>
+<td align="left">Carl LEVIN</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Priyal Singh</td>
+<td align="left">20060727-0139</td>
+<td align="left">Joe BARTON</td>
+<td align="left">noncongress</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Gabriela Iocab</td>
+<td align="left">20020528-0404</td>
+<td align="left">Charles GRASSLEY</td>
+<td align="left">Sen. Charles E. Grassler</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20010329-0009</td>
+<td align="left">Edward MARKEY</td>
+<td align="left">Rep. Edward J. Marley</td>
+<td align="left">Rep. John Joseph Moakley; Rep. Barney Frank; Rep. William D. Delahunt; Rep. John W. Wolver; Rep. James P. McGovern; Rep. Michael E. Capuano; Rep. Martin T. Meehan; Richard E. Neal; John F. Tierney</td>
+<td align="left">Sen. Edward M. Kennedy; Sen. John Kerry</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20001018-0309</td>
+<td align="left">William PASCRELL</td>
+<td align="left">Rep. Bill Parcell, Jn.</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20000921-0181</td>
+<td align="left">Charles SCHUMER</td>
+<td align="left">Sen. Charles E. Schumper</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20000828-0125</td>
+<td align="left">Robert BYRD</td>
+<td align="left">Sen. Robert C. Bryd</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20000828-0122</td>
+<td align="left">Robert BYRD</td>
+<td align="left">Sen.Robert C. Bryd</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20000828-0121</td>
+<td align="left">Jefferson SESSIONS</td>
+<td align="left">Sen. Jeff Sesions</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Lara Basiao</td>
+<td align="left">20000828-0073</td>
+<td align="left">James McCRERY</td>
+<td align="left">Rep. Jim McCkery</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Lara Basiao</td>
+<td align="left">20000810-0330</td>
+<td align="left">Virgil GOODE</td>
+<td align="left">Rep. Virgil H. Good</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
 </div>
 <div id="letters-citing-companies-registered-to-lobby-ferc" class="section level1">
 <h1>Letters citing companies registered to lobby FERC</h1>
@@ -847,7 +1763,7 @@ ferc_short &lt;- unique(FERC_corps$company_short) %&gt;%
 # bad string? 
 # str_detect(&quot;&quot;, ferc_short)
 
-d &lt;- combined
+
 d %&gt;% 
   mutate(company_short = str_extract(ProBusiness, ferc_short)) %&gt;% 
   drop_na(company_short) %&gt;% 
@@ -1893,738 +2809,14 @@ d %&gt;%
 </tr>
 </tbody>
 </table>
-</div>
-<div id="use-of-commas-and-semi-colons" class="section level2">
-<h2>Use of commas and semi-colons</h2>
-<pre class="r"><code># Find problems with &quot;,&quot; instead of &quot;;&quot; sep
-d %&gt;% select(ID, CongressPerson, Freelancer) %&gt;%
-  filter(str_detect(CongressPerson, &quot;;&quot;) ) %&gt;%
-  knitr::kable(caption = &quot;More than one primary member&quot;)  </code></pre>
-<table>
-<caption>More than one primary member</caption>
-<thead>
-<tr class="header">
-<th align="left">ID</th>
-<th align="left">CongressPerson</th>
-<th align="left">Freelancer</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">20150728-0017</td>
-<td align="left">Sen. Jeanne Shaheen; Sen. Kelly Ayotte</td>
-<td align="left">Gabriela Iocab</td>
-</tr>
-<tr class="even">
-<td align="left">20000828-0335</td>
-<td align="left">Sen. Evan Bayh; Sen. Richard J. Durbin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20000828-0105</td>
-<td align="left">Sen. Patrick Leahy; Sen James Jeffords</td>
-<td align="left">Lara Basiao</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code># Find problems with &quot;,&quot; instead of &quot;;&quot; sep
-d %&gt;% select(ID, Cosigned_House, Cosigned_Senate, Freelancer) %&gt;%
-  filter(str_detect(Cosigned_House, &quot;, R|,R&quot;) | str_detect(Cosigned_Senate, &quot;, S|,S&quot;) ) %&gt;%
-  knitr::kable(caption = &quot;Wrong list breaks&quot;)  </code></pre>
-<table>
-<caption>Wrong list breaks</caption>
-<thead>
-<tr class="header">
-<th align="left">ID</th>
-<th align="left">Cosigned_House</th>
-<th align="left">Cosigned_Senate</th>
-<th align="left">Freelancer</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">20190221-0008</td>
-<td align="left">NA</td>
-<td align="left">Sen. Cory A. Booker; Sen. Martin Heinrich; Sen. Ron Wyden; Sen. Kamala D. Harris; Sen. Edward J. Markey; Sen. Catherine Cortez Masto; Sen. Brian Schatz; Sen. Jeffrey A. Merkley; Sen. Richard Blumenthal; Sen. Jack Reed; Sen. Tina Smith; Sen. Margaret Wood Hassan; Sen. Dianne Feinstein; Sen. Angus S. King, Jr., Sen. Jacky Rosen; Sen. Jeanne Shaheen; Sen. Bernard Sanders</td>
-<td align="left">Ellie</td>
-</tr>
-<tr class="even">
-<td align="left">20171023-0010</td>
-<td align="left">NA</td>
-<td align="left">Sen. Tammy Duckworth; Sen. Al Franken; Sen. Martin Heinrich; Sen. Mazie K. Hirono; Sen. Angus S. King Jr., Sen. Debbie Stabenow; Sen. Edward J. Markey; Sen. Jeffrey A. Merkley; Sen. Sheldon Whitehouse; Sen. Ron Wyden</td>
-<td align="left">Gabriela Iocab</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code># Find problems with &quot;,&quot; instead of &quot;;&quot; sep
-d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
-  filter(str_detect(AntiBusiness, &quot;,&quot;) | str_detect(ProBusiness, &quot;,&quot;) ) %&gt;%
-  filter(!(str_detect(AntiBusiness, &quot;,L|, L|,I|, I&quot;) | str_detect(ProBusiness, &quot;,L|, L|,I|, I&quot;) ) ) %&gt;%
-  knitr::kable(caption = &quot;Suspicious comma use to look at&quot;) </code></pre>
-<table>
-<caption>Suspicious comma use to look at</caption>
-<thead>
-<tr class="header">
-<th align="left">ID</th>
-<th align="left">ProBusiness</th>
-<th align="left">AntiBusiness</th>
-<th align="left">Freelancer</th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
-</div>
-<div id="chamber-errors" class="section level2">
-<h2>Chamber errors</h2>
-<pre class="r"><code>look &lt;- d %&gt;% 
-  mutate(Senate = ifelse(str_detect(CongressPerson,&quot;^Sen&quot;), 
-                         str_c(CongressPerson, Cosigned_Senate, sep = &quot;;&quot;),
-                         Cosigned_Senate) ) %&gt;%
-  mutate(House = ifelse(str_detect(CongressPerson,&quot;^Rep&quot;), 
-                         str_c(CongressPerson, Cosigned_House, sep = &quot;;&quot;),
-                        Cosigned_House) ) %&gt;%
-  mutate(Senate = Senate %&gt;% str_split(&quot;;&quot;)) %&gt;%
-  unnest(Senate) %&gt;% 
-  mutate(House = House %&gt;% str_split(&quot;;&quot;)) %&gt;%
-  unnest(House) %&gt;%
-  select(House, Senate, ID, Freelancer) %&gt;% 
-  filter(str_detect(Senate, &quot;Rep&quot;)|str_detect(House, &quot;Sen&quot;))</code></pre>
-</div>
-<div id="member-name-errors" class="section level2">
-<h2>Member name errors</h2>
-<p>Coders vs names extracted from letter summary (should also do this with names extracted from letter text)</p>
-<pre class="r"><code># Add auto-extracted member names that coders may have missed
-d %&gt;% 
-  group_by(ID) %&gt;%
-  mutate(missed = !str_detect(
-  tolower(str_c
-          (str_replace_na(
-    c(CongressPerson, Cosigned_House, Cosigned_Senate)
-    ), collapse = &quot;;&quot;)),
-  tolower(last_name) ) ) %&gt;% 
-  filter(!is.na(FROM)) %&gt;% 
-  filter(missed == T, !str_detect(tolower(CongressPerson), &quot;badfiles|bad files&quot;)) %&gt;% 
-  select(Freelancer, ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate) %&gt;% 
-  knitr::kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Freelancer</th>
-<th align="left">ID</th>
-<th align="left">FROM</th>
-<th align="left">CongressPerson</th>
-<th align="left">Cosigned_House</th>
-<th align="left">Cosigned_Senate</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Ellie</td>
-<td align="left">20190221-0009</td>
-<td align="left">Peter WELCH</td>
-<td align="left">Rep. Donald S. Beyer Jr.</td>
-<td align="left">Rep. Nanette Diaz Barragan; Rep. Jamie Raskin; Rep. Mike Doyle; Rep. Matt Cartwrite; Rep. Sean Casten; Rep. James P. McGovern</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20181107-0008</td>
-<td align="left">Jeff LANDRY</td>
-<td align="left">noncongress (Attorney General)</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20180124-0062</td>
-<td align="left">Timothy KAINE</td>
-<td align="left">Rep. Morgan Griffith</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20180111-0006</td>
-<td align="left">Timothy KAINE</td>
-<td align="left">Sen. Tim Kayne</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170802-0032</td>
-<td align="left">John BARRASSO</td>
-<td align="left">Sen. John Barasso</td>
-<td align="left">Rep. Scott R. Tipton</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170802-0031</td>
-<td align="left">Robert GOODLATTE</td>
-<td align="left">Rep. Bob Goodlate</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170802-0030</td>
-<td align="left">Jared HUFFMAN</td>
-<td align="left">Rep. Jared Hufman</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170714-4014(partial)</td>
-<td align="left">Robert GOODLATTE</td>
-<td align="left">Rep. Bob Goodlate</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170613-0049(partial)</td>
-<td align="left">Thomas GARRETT</td>
-<td align="left">BAD LINKS</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170609-0037</td>
-<td align="left">Robert GOODLATTE</td>
-<td align="left">Rep. Bob Goodlate</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20160624-0006</td>
-<td align="left">Kelly AYOTTE</td>
-<td align="left">Sen. Kelly A. Ayote</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20160301-0012</td>
-<td align="left">Thomas MacARTHUR</td>
-<td align="left">Rep. Thomas McArthur</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20150828-0039</td>
-<td align="left">Keith ELLISON</td>
-<td align="left">Rep. Keith Ellsion</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20150702-0024</td>
-<td align="left">Mark WARNER</td>
-<td align="left">Sen. Mark R. Warmer</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20150518-0140</td>
-<td align="left">Todd ROKITA</td>
-<td align="left">&quot; Dulpicate File“</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20150508-0016</td>
-<td align="left">Tom McCLINTOCK</td>
-<td align="left">Sen. Tom McClintoc</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20150224-0014</td>
-<td align="left">David McKINLEY</td>
-<td align="left">Rep. David B. McKenly, P.E.</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20150204-0013</td>
-<td align="left">Jeff MERKLEY</td>
-<td align="left">Sen. Jeffrey A. Merkly</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20150204-0012</td>
-<td align="left">Ronald WYDEN</td>
-<td align="left">Sen Roy Wayden</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20150115-0027</td>
-<td align="left">Joseph PITTS</td>
-<td align="left">Rep. Joseph R. Kitts</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20141218-0036</td>
-<td align="left">Dianne FEINSTEIN</td>
-<td align="left">Sen. Dianne Feistein</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20141205-0019</td>
-<td align="left">Jim RENACCI</td>
-<td align="left">Rep. James Renneci</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20141112-0113</td>
-<td align="left">David McKINLEY</td>
-<td align="left">Rep. David B. McKenly, P.E.</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20141104-0011</td>
-<td align="left">Dan BENISHEK</td>
-<td align="left">Rep. Dan Benlshek, M.D.</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20140407-0046</td>
-<td align="left">Ruben HINOJOSA</td>
-<td align="left">Sen. Juan Hinijosa</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20140326-0013</td>
-<td align="left">Robert GOODLATTE</td>
-<td align="left">Rep. Bob Godlatte</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20140311-0021</td>
-<td align="left">Robert GOODLATTE</td>
-<td align="left">Rep. Bob Godlatte</td>
-<td align="left">NA</td>
-<td align="left">Sen. Robert Hurt</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20140206-0011</td>
-<td align="left">Dianne FEINSTEIN</td>
-<td align="left">Sen. Dianne Feistein</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20130703-0037</td>
-<td align="left">Rodney FRELINGHUYSEN</td>
-<td align="left">Rep. Rodney P. Frelinghuysin</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20130624-0010</td>
-<td align="left">Rodney FRELINGHUYSEN</td>
-<td align="left">Rep. rodney P. Frelinghuysin</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20130624-0005</td>
-<td align="left">Johnny ISAKSON</td>
-<td align="left">Sen. Saxby Chambliss</td>
-<td align="left">NA</td>
-<td align="left">Sen. Johnny Y. Sakson</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20130614-0003</td>
-<td align="left">Cathy McMORRIS RODGERS</td>
-<td align="left">Rep. Cathy McMorris Rogers</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20121024-4001</td>
-<td align="left">Benjamin CARDIN</td>
-<td align="left">Duplicate content “20150518-0140”</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20120508-0010(partial)</td>
-<td align="left">Scott GARRETT</td>
-<td align="left">Rep.Scott Garreth</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20120229-0008</td>
-<td align="left">Cathy McMORRIS RODGERS</td>
-<td align="left">Rep. Cathy McMorris Rogers</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20120214-0001</td>
-<td align="left">Al FRANKEN</td>
-<td align="left">Sen. Al Franklen</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20111117-0041</td>
-<td align="left">Cathy McMORRIS RODGERS</td>
-<td align="left">Rep. McMorris Rogers</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20111108-0046</td>
-<td align="left">Roscoe BARTLETT</td>
-<td align="left">Sen. Roscoe G. Barlett</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20110927-0131</td>
-<td align="left">Luis GUTIERREZ</td>
-<td align="left">Rep. Luis V. Gutierez</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20110831-0002</td>
-<td align="left">Ronald WYDEN</td>
-<td align="left">“For Verify No Name of consigned person</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">only signature</td>
-<td align="left">&quot; NA</td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left">NA</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20110617-0011</td>
-<td align="left">Nicola TSONGAS</td>
-<td align="left">Rep. Niki tsingas</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20110329-0010</td>
-<td align="left">Kay HAGAN</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Maki Ianovic</td>
-<td align="left">20091123-0149</td>
-<td align="left">Herb BARRETT</td>
-<td align="left">Sen. Herb Kohl</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Maki Ianovic</td>
-<td align="left">20090618-0127</td>
-<td align="left">Edward MARKEY</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Maki Ianovic</td>
-<td align="left">20090515-0066(partial)</td>
-<td align="left">Robert CASEY</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Maki Ianovic</td>
-<td align="left">20090227-0021</td>
-<td align="left">Michael THOMPSON</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Maki Ianovic</td>
-<td align="left">20080929-0005</td>
-<td align="left">Joe BARTON</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20080522-0128</td>
-<td align="left">Susan COLLINS</td>
-<td align="left">Sen. Deidre Anderson</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20080324-0259</td>
-<td align="left">David WU</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20080320-0048</td>
-<td align="left">James BARRETT</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20080215-0205</td>
-<td align="left">Barbara BOXER</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20071218-0172</td>
-<td align="left">Pete DOMENICI</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20071217-0181</td>
-<td align="left">Pete DOMENICI</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20070720-0065</td>
-<td align="left">Todd PLATTS</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20070716-0266</td>
-<td align="left">Christopher BOND</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20070221-0064</td>
-<td align="left">Barbara MIKULSKI</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20061117-0147</td>
-<td align="left">Barbara CUBIN</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20061113-0133</td>
-<td align="left">Richard LUGAR</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20061024-0158</td>
-<td align="left">Jim HARMAN</td>
-<td align="left">Sen. Jim DeMint</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20061013-0060</td>
-<td align="left">Lindsey HARMAN</td>
-<td align="left">Sen. Lindsey O. Graham</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20061002-0194</td>
-<td align="left">John SHADEGG</td>
-<td align="left">Rep. John Sadegg</td>
-<td align="left">Rep. J.D. Hayworth; Rep. Jeff Flake; Rep. Trent Franks; Rep. Rick Renzi</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20060907-0034</td>
-<td align="left">Thomas DAVIS</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20060816-0133</td>
-<td align="left">Robert BENNETT</td>
-<td align="left">Sen. Robert F. Bernnett</td>
-<td align="left">NA</td>
-<td align="left">Sen. Orrin G. Hatch</td>
-</tr>
-<tr class="odd">
-<td align="left">Priyal Singh</td>
-<td align="left">20060810-0067</td>
-<td align="left">Carl LEVIN</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Priyal Singh</td>
-<td align="left">20060727-0139</td>
-<td align="left">Joe BARTON</td>
-<td align="left">noncongress</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20020528-0404</td>
-<td align="left">Charles GRASSLEY</td>
-<td align="left">Sen. Charles E. Grassler</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20010329-0009</td>
-<td align="left">Edward MARKEY</td>
-<td align="left">Rep. Edward J. Marley</td>
-<td align="left">Rep. John Joseph Moakley; Rep. Barney Frank; Rep. William D. Delahunt; Rep. John W. Wolver; Rep. James P. McGovern; Rep. Michael E. Capuano; Rep. Martin T. Meehan; Richard E. Neal; John F. Tierney</td>
-<td align="left">Sen. Edward M. Kennedy; Sen. John Kerry</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20001018-0309</td>
-<td align="left">William PASCRELL</td>
-<td align="left">Rep. Bill Parcell, Jn.</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20000921-0181</td>
-<td align="left">Charles SCHUMER</td>
-<td align="left">Sen. Charles E. Schumper</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20000828-0125</td>
-<td align="left">Robert BYRD</td>
-<td align="left">Sen. Robert C. Bryd</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20000828-0122</td>
-<td align="left">Robert BYRD</td>
-<td align="left">Sen.Robert C. Bryd</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20000828-0121</td>
-<td align="left">Jefferson SESSIONS</td>
-<td align="left">Sen. Jeff Sesions</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Lara Basiao</td>
-<td align="left">20000828-0073</td>
-<td align="left">James McCRERY</td>
-<td align="left">Rep. Jim McCkery</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">Lara Basiao</td>
-<td align="left">20000810-0330</td>
-<td align="left">Virgil GOODE</td>
-<td align="left">Rep. Virgil H. Good</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-</tbody>
-</table>
+<hr />
 <p>Save coded letters data:</p>
-<pre class="r"><code># Save
-FERC_letters &lt;- combined
-save(FERC_letters, file = here(&quot;data&quot;, &quot;DOE_FERC-letters-corps.Rdata&quot;))
+<pre class="r"><code>## Split availability status from summary
+d %&lt;&gt;% separate(SUBJECT, into = c(&quot;SUBJECT&quot;, &quot;availability&quot;), sep = &quot;Availability: &quot;) 
+
+# Save combined data
+FERC_letters &lt;- d
+save(FERC_letters, file = here(&quot;data&quot;, &quot;DOE_FERC-letters.Rdata&quot;))
 
 ## edit master google sheet
 # gs_title(&quot;DOE_FERC&quot;) %&gt;% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)</code></pre>
