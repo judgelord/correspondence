@@ -51,10 +51,8 @@ ferc_short <- unique(FERC_corps$company_short) %>%
 # str_detect("", ferc_short)
 ```
 
+### Extract company names that coders may have missed
 ```{r, eval = FALSE}
-## Split availability status from summary
-FERC_letters %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ") 
-
 ## Combine letter summary and letter text
 FERC_letters %<>% 
   mutate(text = str_c(text_clean, sep = "; ")) %>%
@@ -66,14 +64,61 @@ str_unique <- function(x){
 }
 
 ## Find corporation names in combined summary and text
-FERC_letters$company_short <- str_extract_all(FERC_letters$text, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
+FERC_letters$company_short_detected <- str_extract_all(FERC_letters$text, ferc_short) %>% map_chr(str_unique) %>% str_remove_all("^; |; ; |; $")
 
 ## Number of letters where a company from the FERC website was found:
-sum(FERC_letters$company_short!="")
+sum(FERC_letters$company_short_detected!="")
 
 ## Companies found
-unique(FERC_letters$company_short)
+unique(FERC_letters$company_short_detected)
 ```
+
+
+### Organize as one observation per letter per member per company, with pro and con as a variable `position`.
+```{r}
+# Add auto-extracted member names that coders may have missed
+d %<>% 
+  mutate(CongressPerson = ifelse(
+    is.na(CongressPerson)|str_detect(tolower(CongressPerson), "badfiles|bad files|noncongress|non congress"),
+    FROM,
+    CongressPerson) )
+
+# Id ones still missed
+d %>% 
+  group_by(ID) %>%
+  mutate(missed = !str_detect(
+  tolower(str_c
+          (str_replace_na(
+    c(CongressPerson, Cosigned_House, Cosigned_Senate)
+    ), collapse = ";")),
+  tolower(last_name) ) ) 
+  
+
+# Split out members
+look <- d %>% 
+  mutate(Senate = ifelse(str_detect(CongressPerson,"^Sen"), 
+                         str_c(CongressPerson, Cosigned_Senate, sep = ";"),
+                         Cosigned_Senate) ) %>%
+  mutate(House = ifelse(str_detect(CongressPerson,"^Rep"), 
+                         str_c(CongressPerson, Cosigned_House, sep = ";"),
+                        Cosigned_House) ) %>%
+  mutate(Senate = Senate %>% str_split(";")) %>%
+  unnest(Senate) %>% 
+  mutate(Senate = ifelse(!str_detect(Senate, "Sen"),
+                         str_c("Sen. ", Senate),
+                         Senate) ) %>%
+  mutate(House = House %>% str_split(";")) %>%
+  unnest(House) %>%
+  mutate(House = ifelse(!str_detect(House, "Rep"),
+                         str_c("Rep. ", House),
+                         House) ) %>%
+  select(SUBJECT, FROM, House, Senate, ID, Freelancer) 
+  
+```
+
+
+
+
 
 
 # Match corporations and officials to their campaign donations.

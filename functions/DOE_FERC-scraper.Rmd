@@ -256,7 +256,7 @@ tables %>% group_by(link_text, file_downloaded) %>% tally()
 ```
 
 # Convert pdf letters to text 
-This function uses `pdf_text` (we can also OCR images).
+This function uses `pdf_text` (we can also OCR images, but I have not yet done so).
 ```{r, eval=FALSE}
 totext <- function(file_name){
   # paste pages
@@ -281,19 +281,24 @@ d %<>% rename(ID = id,
               SUBJECT = summary)
 
 ## Split availability status from summary
-d %<>% separate(SUBJECT, into = c("summary", "availability"), sep = "Availability: ") 
+d %<>% separate(SUBJECT, into = c("SUBJECT", "availability"), sep = "Availability: ") 
+
+
+###################################
+# FOR ONE OBS PER FILE SPREADSHEET 
+###################################
 
 ## name 
 FERC_letters <- d
 
 ## save
-# save(FERC_letters, file = here("data", "FERC_letters.Rdata"))
+save(FERC_files, file = here("data", "FERC_files.Rdata"))
 
 
 
-##################################################################################
+######################################
 # FOR ONE OBS PER LETTER SPREADSHEET 
-###################
+#####################################
 
 # helper function
 Clean_String <- function(string){
@@ -304,7 +309,7 @@ Clean_String <- function(string){
 }
 
 # collapse to one obs per ID
-log <- d %>%
+FERC_letters <- d %>%
   group_by(id) %>% 
   mutate(link_text = paste(link_text, collapse = "; "),
          file_name = paste(file_name, collapse = "; "),
@@ -316,6 +321,9 @@ log <- d %>%
   arrange(desc(id)) %>%
   ungroup() 
 
-head(log$text_clean)
+head(FERC_letters$text_clean)
+
+## save
+save(FERC_letters, file = here("data", "FERC_letters.Rdata"))
 ```
 

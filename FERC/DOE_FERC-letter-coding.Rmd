@@ -81,7 +81,7 @@ FERC_coded %<>%
 
 # Potential coding issues:
 
-Lara is identifying fewer companies than the others. 
+Lara is identifying fewer companies than the others.
 
 Lara and Priyal have fewer Place_ codings. 
 
@@ -236,7 +236,58 @@ d %>%
 
 ```
 
+## Use of commas and semi-colons
+```{r}
+# Find problems with "," instead of ";" sep
+d %>% select(ID, CongressPerson, Freelancer) %>%
+  filter(str_detect(CongressPerson, ";") ) %>%
+  knitr::kable(caption = "More than one primary member")  
 
+# Find problems with "," instead of ";" sep
+d %>% select(ID, Cosigned_House, Cosigned_Senate, Freelancer) %>%
+  filter(str_detect(Cosigned_House, ", R|,R") | str_detect(Cosigned_Senate, ", S|,S") ) %>%
+  knitr::kable(caption = "Wrong list breaks")  
+
+# Find problems with "," instead of ";" sep
+d %>% select(ID, ProBusiness, AntiBusiness, Freelancer) %>%
+  filter(str_detect(AntiBusiness, ",") | str_detect(ProBusiness, ",") ) %>%
+  filter(!(str_detect(AntiBusiness, ",L|, L|,I|, I") | str_detect(ProBusiness, ",L|, L|,I|, I") ) ) %>%
+  knitr::kable(caption = "Suspicious comma use to look at") 
+```
+
+## Chamber errors
+```{r}
+look <- d %>% 
+  mutate(Senate = ifelse(str_detect(CongressPerson,"^Sen"), 
+                         str_c(CongressPerson, Cosigned_Senate, sep = ";"),
+                         Cosigned_Senate) ) %>%
+  mutate(House = ifelse(str_detect(CongressPerson,"^Rep"), 
+                         str_c(CongressPerson, Cosigned_House, sep = ";"),
+                        Cosigned_House) ) %>%
+  mutate(Senate = Senate %>% str_split(";")) %>%
+  unnest(Senate) %>% 
+  mutate(House = House %>% str_split(";")) %>%
+  unnest(House) %>%
+  select(House, Senate, ID, Freelancer) %>% 
+  filter(str_detect(Senate, "Rep")|str_detect(House, "Sen"))
+```
+
+## Member name errors
+```{r}
+# Add auto-extracted member names that coders may have missed
+d %>% 
+  group_by(ID) %>%
+  mutate(missed = !str_detect(
+  tolower(str_c
+          (str_replace_na(
+    c(CongressPerson, Cosigned_House, Cosigned_Senate)
+    ), collapse = ";")),
+  tolower(last_name) ) ) %>% 
+  filter(!is.na(FROM)) %>% 
+  select(missed, FROM, CongressPerson, Cosigned_House, Cosigned_Senate) %>% 
+  filter(missed == T, !str_detect(tolower(CongressPerson), "badfiles|bad files")) %>% 
+  knitr::kable()
+```
 ---
 
 
