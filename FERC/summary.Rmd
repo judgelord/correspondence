@@ -126,7 +126,7 @@ d %>%
 ---
 
 
-### Companies
+# Letters citing companies registered to lobby FERC
 Of the companies registered to lobby FERC, several appear in the letter texts:
 ```{r}
 load(here("data", "DOE_FERC-corps.Rdata"))
@@ -142,7 +142,7 @@ ferc_short <- unique(FERC_corps$company_short) %>%
 
 ```
 
-# Letters citing companies registered to lobby FERC
+
 ## Pro-business letters
 ```{r}
 d %>% 
@@ -172,7 +172,7 @@ d %>%
 
 ```{r}
 d %>% 
-  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
+  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
   group_by(company_short) %>% 
   select(id, last_name, company_short) %>% 
   filter(company_short != "")%>%
