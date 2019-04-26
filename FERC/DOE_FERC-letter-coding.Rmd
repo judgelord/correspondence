@@ -34,7 +34,7 @@ library(here)
 
 Updated: `r  Sys.time()`
 
-# Load coded congressional letters data:
+Load coded congressional letters data:
 ```{r}
 # log in to google docs
 gs_auth() 
@@ -298,14 +298,111 @@ d %>%
 
 ---
 
+# Organize as one observation per letter per member
+```{r}
+# Letters with members identified by coders
+sum(!is.na(d$CongressPerson))
+
+# Letters with members identified by auto-detection
+sum(!is.na(d$CongressPerson))
+
+# Add auto-extracted member names that coders may have missed
+d %<>% 
+  group_by(ID) %>% 
+  mutate(Notes = ifelse(
+    str_detect(tolower(CongressPerson), "badfiles|bad files|noncongress|non congress|bad links"),
+    paste(CongressPerson, Notes),
+    Notes) ) %>% 
+  mutate(CongressPerson = ifelse(
+    is.na(CongressPerson)|str_detect(tolower(CongressPerson), "badfiles|bad files|noncongress|non congress|bad links"),
+    FROM,
+    CongressPerson) )
+
+# Letters with members identified by coders or auto-detection
+sum(!is.na(d$CongressPerson))
+
+# Id ones still missed and paste auto-extracted FROM onto CongressPerson
+d %<>% 
+  group_by(ID) %>%
+  mutate(missed = !str_detect(
+  tolower(paste(CongressPerson, Cosigned_House, Cosigned_Senate, 
+          collapse = ";")),
+  tolower(last_name) ) )  %>% 
+  mutate(CongressPerson = ifelse(missed,
+                                 paste(CongressPerson, FROM, sep = ";"),
+                                 CongressPerson) ) # %>% select(missed, FROM, CongressPerson)
+  
+
+# Letters with members identified by coders or auto-detection
+sum(!is.na(d$CongressPerson))
+
+
+# Helper function for combining strings
+str_unique <- function(x){
+  paste(unique(x), collapse="; ")
+}
+
+
+# Split out members
+d %<>% 
+  # add senators
+  mutate(Senate = ifelse(str_detect(CongressPerson,"^Sen"), 
+                         paste(CongressPerson, Cosigned_Senate, sep = ";"),
+                         Cosigned_Senate) ) %>%
+  # add reps
+  mutate(House = ifelse(str_detect(CongressPerson,"^Rep"), 
+                         paste(CongressPerson, Cosigned_House, sep = ";"),
+                        Cosigned_House) ) %>%
+  mutate(Senate = Senate %>% str_split(";")) %>%
+  # split senators and add prefix where missing
+  unnest(Senate) %>% 
+  mutate(Senate = ifelse(!str_detect(Senate, "Sen"),
+                         str_c("Sen. ", Senate),
+                         Senate) ) %>%
+  # split reps and add prefix where missing
+  mutate(House = House %>% str_split(";")) %>%
+  unnest(House) %>%
+  mutate(House = ifelse(!str_detect(House, "Rep"),
+                         str_c("Rep. ", House),
+                         House) ) %>%
+  # paste unique house, senate, and auto-detected names
+  group_by(ID) %>%
+  mutate(members = str_unique(c(CongressPerson, House, Senate))) %>% 
+  # split out these
+  mutate(members = members %>% str_split(";")) %>%
+  unnest(members) %>%
+  # remove temp house and senate vars 
+  select(-House, -Senate) %>%
+  # remove trailing whitespace 
+  mutate(members = trimws(members)) %>%
+  # drop non-member observations
+  add_count(ID) %>% 
+  filter(n==1|!members %in% c("NA", "Rep. NA", "Sen. NA", "bad files", "badfiles", "BAD FILES"))%>%
+  distinct()  
+```
+
+Corrected names
+```{r}
+d %>%
+  filter(str_detect(CongressPerson, ";")&missed)  %>% select(Freelancer, ID, CongressPerson) %>% distinct() %>% knitr::kable()
+```
+
+Observations dropped:
+```{r}
+FERC_letters %>% 
+  filter(ID %in% d$ID) %>% select(ID, FROM, SUBJECT) %>% 
+  knitr::kable()
+```
+
 Save coded letters data:
 ```{r, eval=TRUE}
 ## Split availability status from summary
 d %<>% separate(SUBJECT, into = c("SUBJECT", "availability"), sep = "Availability: ") 
 
 # Save combined data
-FERC_letters <- d
-save(FERC_letters, file = here("data", "DOE_FERC-letters.Rdata"))
+FERC_letters <- d %>% select(-CongressPerson, -FROM, -last_name, -first_name, -n) %>% distinct()
+
+save(FERC_letters, file = here("data", "DOE_FERC-letters-coded.Rdata"))
 
 ## edit master google sheet
 # gs_title("DOE_FERC") %>% gs_edit_cells(input = FERC_letters, trim = F, byrow = T)

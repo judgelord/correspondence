@@ -41,6 +41,7 @@ library(here)
 ```{r, eval = FALSE}
 load(here("data", "DOE_FERC-corps.Rdata"))
 load(here("data", "DOE_FERC-letters.Rdata"))
+d <- FERC_letters
 
 ## Make a single string of short corp names
 ferc_short <- unique(FERC_corps$company_short) %>% 
@@ -55,8 +56,7 @@ ferc_short <- unique(FERC_corps$company_short) %>%
 ```{r, eval = FALSE}
 ## Combine letter summary and letter text
 FERC_letters %<>% 
-  mutate(text = str_c(text_clean, sep = "; ")) %>%
-  mutate(text = str_c(SUBJECT, text, sep = ". Letter Text: ")) 
+  mutate(text = str_c(SUBJECT, text_clean, sep = ". Letter Text: ")) 
 
 ## A helper function to select and combine a set of unique strings
 str_unique <- function(x){
@@ -71,54 +71,6 @@ sum(FERC_letters$company_short_detected!="")
 
 ## Companies found
 unique(FERC_letters$company_short_detected)
-```
-
-
-### Organize as one observation per letter per member per company, with pro and con as a variable `position`.
-```{r}
-# Add auto-extracted member names that coders may have missed
-d %<>% 
-  mutate(CongressPerson = ifelse(
-    is.na(CongressPerson)|str_detect(tolower(CongressPerson), "badfiles|bad files|noncongress|non congress"),
-    FROM,
-    CongressPerson) )
-
-# Id ones still missed
-look <- d %>% 
-  group_by(ID) %>%
-  mutate(missed = !str_detect(
-  tolower(str_c
-          (str_replace_na(
-    c(CongressPerson, Cosigned_House, Cosigned_Senate)
-    ), collapse = ";")),
-  tolower(last_name) ) )  %>% 
-  filter(missed) %>% 
-  select(CongressPerson, FROM, missed) %>%
-  mutate(CongressPerson = ifelse(missed,
-                                 "adfd",#str_c(str_replace_na(c(CongressPerson, FROM))),
-                                 "booin") )
-  
-
-# Split out members
-look <- d %>% 
-  mutate(Senate = ifelse(str_detect(CongressPerson,"^Sen"), 
-                         str_c(CongressPerson, Cosigned_Senate, sep = ";"),
-                         Cosigned_Senate) ) %>%
-  mutate(House = ifelse(str_detect(CongressPerson,"^Rep"), 
-                         str_c(CongressPerson, Cosigned_House, sep = ";"),
-                        Cosigned_House) ) %>%
-  mutate(Senate = Senate %>% str_split(";")) %>%
-  unnest(Senate) %>% 
-  mutate(Senate = ifelse(!str_detect(Senate, "Sen"),
-                         str_c("Sen. ", Senate),
-                         Senate) ) %>%
-  mutate(House = House %>% str_split(";")) %>%
-  unnest(House) %>%
-  mutate(House = ifelse(!str_detect(House, "Rep"),
-                         str_c("Rep. ", House),
-                         House) ) %>%
-  select(SUBJECT, FROM, House, Senate, ID, Freelancer) 
-  
 ```
 
 
