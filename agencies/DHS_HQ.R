@@ -5,7 +5,7 @@
 #file.name <- "DHS_HQ Anna" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() # get data
   
   data %<>% select(-n)
   

@@ -39,15 +39,14 @@ dfdata %<>% group_by(Department) %>% summarise(N =n()) %>% distinct()
 # join foia sheet data with r data
 data %<>% full_join(dfdata)
 #
-data %<>% mutate(n = ifelse(is.na(n), 0, n))
+data %<>% mutate(N = ifelse(is.na(N), 0, N))
 
 # totals 
 data %<>% ungroup() %>%
   bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total")))
 
-write.csv(data, file = "response table.csv")
+write.csv(data, file = "data/_FOIA_response_table.csv")
 
-library(stargazer)
-
-stargazer(data,  summary=F, rownames=FALSE)
+# library(stargazer)
+# stargazer(data,  summary=F, rownames=FALSE)
 
