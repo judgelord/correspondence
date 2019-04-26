@@ -136,7 +136,8 @@ formatFirstName <- function(data, col_name){
 }
 
 # function will extract names found in members dataset from data$Summary column 
-# typical call:   data <- extractMemberName(data, members, 'FROM')
+# typical call:   data <- extractMemberName(data, members, 'FROM') -- POSSIBLY REQUIRED THAT col_name ='From'
+# MAY NOT HAVE VAR NAMED members IN DATA 
 
 extractMemberName <- function(data, members, col_name){
   
@@ -261,8 +262,8 @@ extractMemberName <- function(data, members, col_name){
                                     grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
                                     grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
                                     grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE),
-                                  
-                                  first_name, NA) ) %>% 
+                                  first_name, NA) ) 
+  data %<>% 
     mutate(last_name = ifelse(
       grepl(paste(members$first_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
         grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
@@ -276,7 +277,9 @@ extractMemberName <- function(data, members, col_name){
         grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
         grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
         grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE), 
-      last_name, NA)) %>% 
+      last_name, NA)) 
+  
+data %>% 
     mutate(FROM2 = ifelse( is.na(first_name) & is.na(last_name), NA, FROM2))
   
   
