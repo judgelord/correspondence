@@ -227,7 +227,7 @@ d %>%
   unnest(Senate) %>% 
   mutate(House = House %>% str_split(";")) %>%
   unnest(House) %>%
-  select(House, Senate, ID, Freelancer) %>% 
+  select(ID, House, Senate, Freelancer) %>% 
   filter(str_detect(Senate, "Rep")|str_detect(House, "Sen")) %>% 
   knitr::kable()
 ```
@@ -339,8 +339,8 @@ d %<>%
 ```
 
 ### Conflicting names human-coded vs. detected. 
-Coders;names extracted from letter summary (should also compare with names extracted from letter text).
-Keeping both names for now. Eventually, we should remove any incorrect MOCs. Non-MOCs will be dropped. 
+CongressPerson = "names identified by coders;names extracted from letter summary""
+Keeping both names for now. Eventually, we should remove any incorrect MOCs. Non-MOCs or misspelled names will be dropped. 
 ```{r}
 d %>%
   filter(str_detect(CongressPerson, ";")&missed)  %>% select(Freelancer, ID, CongressPerson) %>% distinct() %>% knitr::kable()

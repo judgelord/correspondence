@@ -65,7 +65,8 @@ In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received
 So far we have matched `r nrow(d)` of these letters to member names for years `r unique(d$year)`. 
 
 
-Rule-based coding of constituent type (click `CODE` to see inductively-developed coding rules):
+## Rule-based coding of constituent type 
+(click `CODE` to see inductively-developed coding rules):
 ```{r code, eval=FALSE}
 d %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
@@ -103,7 +104,8 @@ d %<>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), 
                              "1", CERTAINTY)) 
 ```
-
+## Coders coding of constituent type 
+To-do: share marked "Constituent" vs those with Pro or Anti Business
 
 ```{r data-coverage-by-type}
 d %>% 
@@ -435,6 +437,15 @@ dcommittees %>%
 
 FIXME, calculate real data when we have coding. This is a rough under-estimate: 
 ```{r cosigned, eval=FALSE}
+FERC_letters %>% 
+  mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, probably_cosigned) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = probably_cosigned) +
+  geom_col() 
+
 FERC_letters %>% 
   mutate(probably_cosigned = ifelse(str_detect(summary, "et al"), "et al",
                                  ifelse(str_detect(summary, "&"), "&", " neither"))) %>%
