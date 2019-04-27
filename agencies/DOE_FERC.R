@@ -39,12 +39,17 @@ clean <- function(file.name) {
   data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.|")) %>% 
     select(-members)
   
-
-  ## extract member names from the letter texts
-  data %<>% extractMemberName(members = members, col_name = "FROM")
+# SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
+  ## extract member names from the letter texts (members is only for 110th - 118th)
+  ## (NOTE: with purrr, extractMemberName shuold not break if too big, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
+  #FIXME
+  d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
+  d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
+  
+  data <- full_join(d1, d2)
   
   look <- filter(data, 
-                 is.na(FROM2)  & !is.na(FROM) & FROM != "NA") %>% select(FROM, chamber, SUBJECT)
+                 is.na(last_name)  & !is.na(FROM) & FROM != "NA") %>% select(FROM, congress, chamber, SUBJECT)
 
   # arrange columns for hand coding
   data %<>% select(ID, FROM, SUBJECT, text_clean, everything())
