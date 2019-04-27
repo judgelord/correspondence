@@ -58,12 +58,12 @@ data_list <- as.data.frame(matrix(c(
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # no records before 2013
- "DOD_OIG", "not coded", NA, # waiting for records back from Joe    # only last name info --> 600+ non matches
+"DOD_OIG", "not coded", NA, # waiting for records back from Joe    # only last name info --> 600+ non matches
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
 # DOE
-"DOE_FERC Extended", "not coded", NA,
+"DOE_FERC", "not coded", NA,
 # DOI # we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
@@ -177,7 +177,7 @@ d <- d1
 ##################################
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter((agency %in% "DOE_FERC")) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(!is.na(data_list[i,1])) {
   
@@ -198,13 +198,16 @@ while(!is.na(data_list[i,1])) {
   i <- i+1
 }
 
+## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
-library(gmailr)
-send_message(mime(
-  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
-  From = "correspondenceresearch@gmail.com",
-  Subject =  paste("merge.R stopped at", data_list$agency[i]),
-  body = paste("merge.R stopped at", data_list$agency[i])))
+
+## Text Devin 
+# library(gmailr)
+# send_message(mime(
+#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
+#   From = "correspondenceresearch@gmail.com",
+#   Subject =  paste("merge.R stopped at", data_list$agency[i]),
+#  body = paste("merge.R stopped at", data_list$agency[i])))
 
 ##############################
 #########################################################################################
@@ -264,11 +267,11 @@ d %<>%
 # date typos 
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
-  filter(year > 2018 | year < 2000) %>% 
+  filter(year > 2018 | year < 1999) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 # select  timeframe
-d %<>% filter(year < 2018 & year > 2006)
+d %<>% filter(year < 2019 & year > 1999)
 
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
@@ -455,6 +458,7 @@ df %<>%
   mutate(presidents_party = ifelse(year > 2016 & year < 2021 & party == "(R)", 1, presidents_party)) 
 
 # election cycle 
+#FIXME
 df %<>% 
   mutate(election_year = ifelse(chamber == "Senate" & 
                                   !is.na(yearelected) &
@@ -465,7 +469,8 @@ df %<>%
                                   year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
                                 1, 0)) 
 
-# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN
+# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN 
+#FIXME
 df$icpsr %<>% as.numeric()
 
 df %<>% left_join(
@@ -631,12 +636,9 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before merging oversight data 
 
 # Add agency names by acronym from the FOIA List google sheet
-df %<>% left_join(
-  gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct() #%>% group_by(agency) %>% tally()
-)
-write.csv(gs_title("FOIA List") %>% gs_read() %>% select(Department, agency) %>% filter(!is.na(agency)) %>% distinct(), 
-          file = "agencies/FOIA List.csv",
-          row.names = F) #%>% group_by(agency) %>% tally()
+df %<>% left_join(read_csv("data/_FOIA_list.csv"))
+
+
 
 # corrections
 df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
@@ -716,7 +718,9 @@ length(unique(df$agency)) == length(unique(d$agency))
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("data/correspondence.RData")
-  logs <- df
-  save(logs, file = "data/logs.RData")
+  all_contacts <- df
+  save(all_contacts, file = "data/all_contacts.RData")
+  all_contacts_committees <- dcommittees
+  save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
 }
 

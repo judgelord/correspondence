@@ -43,24 +43,26 @@ knitr::opts_chunk$set(echo = TRUE,
 
 # Data
 ```{r data}
-load(here("data/correspondence.RData"))
-dcommittees %<>% filter(agency == "DOE_FERC")
-all <- df 
-df %<>% filter(agency=="DOE_FERC")
+load(here("data/all_contacts.RData"))
+# one obs per member per letter 
+d <- all_contacts %>% filter(agency=="DOE_FERC")
 
-load(here("data/logs.RData"))
-logs %<>% filter(agency=="DOE_FERC Extended") 
+# one obs per member per letter per committee
+load(here("data/all_contacts_committees.RData"))
+dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
-load(here("data/DOE_FERC-letters-corps.RData"))
-FERC_letters %<>% mutate(year = as.numeric(str_sub(doc_date, 1,4))) %>% 
-  rename(ID =id)
+# one obs per member per letter 
+load(here("data/DOE_FERC-letters-coded.RData")) # replace with DOE_FERC-letters-corps when corps added
+FERC_letters %<>% 
+  select(ID, text_clean, Place_State, Place_District,Place_District, ProBusiness, AntiBusiness, year) %>% distinct()
 
-d <- full_join(logs, FERC_letters)
+# merge in coded letters 
+d %<>% left_join(FERC_letters)
 ```
 
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from 2000-2018. 
 
-So far we have matched `r nrow(logs)` of these letters to member names for years `r unique(logs$year)`. 
+So far we have matched `r nrow(d)` of these letters to member names for years `r unique(d$year)`. 
 
 
 Rule-based coding of constituent type (click `CODE` to see inductively-developed coding rules):
@@ -113,7 +115,7 @@ d %>%
   geom_col(aes(x = Type, y = nT)) + 
   geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
   labs(x = "",
-       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       y = paste("Number of Contacts, N =", sum(nrow(d))),
        title = "") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
@@ -124,17 +126,75 @@ d %>%
 ---
 
 
-### Companies
+# Letters citing companies registered to lobby FERC
 Of the companies registered to lobby FERC, several appear in the letter texts:
 ```{r}
-d %>% group_by(company_short) %>% 
+load(here("data", "DOE_FERC-corps.Rdata"))
+FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
+
+## Make a single string of short corp names
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+# bad string? 
+# str_detect("", ferc_short)
+
+```
+
+
+## Pro-business letters
+```{r}
+d %>% 
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
+  group_by(company_short) %>% 
   select(id, last_name, company_short) %>% 
   filter(company_short != "")%>%
   distinct() %>% 
   summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
   arrange(-n) %>%
   knitr::kable()
+
+## Longer list with company full names
+# d %>% 
+#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
+#   drop_na(company_short) %>% 
+#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+#   mutate(members = str_remove_all(members, ";NA")) %>% 
+#   group_by(company_short) %>% 
+#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
+#   select(company_short, members) %>%  distinct() %>%
+#   left_join(FERC_corps) %>% distinct() %>% 
+#   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
 ```
+
+## Anti-business letters
+
+```{r}
+d %>% 
+  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
+  group_by(company_short) %>% 
+  select(id, last_name, company_short) %>% 
+  filter(company_short != "")%>%
+  distinct() %>% 
+  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
+  arrange(-n) %>%
+  knitr::kable()
+
+## Longer list with company full names
+# d %>% 
+#   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
+#   drop_na(company_short) %>% 
+#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+#   mutate(members = str_remove_all(members, ";NA")) %>% 
+#   group_by(company_short) %>% 
+#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
+#   select(company_short, members) %>%  distinct() %>%
+#   left_join(FERC_corps) %>% distinct() %>% 
+#   knitr::kable(caption = "Anti Businesses matching those registered with FERC")
+
+```
+
 
 ### Senators vs. state population 
 
@@ -248,22 +308,36 @@ d %>%
 ```
 
 ### Members who contact FERC more, relative to other agencies: 
-
-
 ```{r ferc_vs_all_rate}
-all %>%
+all_contacts %>%
   mutate(FERC = agency == "DOE_FERC") %>%
-  group_by(chamber, committees, FERC, name_state, state) %>%
+  group_by(chamber, FERC, name_state, state) %>%
   summarise(n = n() ) %>%
   ungroup() %>%
   spread(key = "FERC", value = "n") %>% 
   mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>% 
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
-  select(name_state, chamber, committees, total, ShareToFERC) %>% 
+  select(name_state, chamber, total, ShareToFERC) %>% 
   filter(ShareToFERC>.1) %>%
   knitr::kable()
-  
+```
+
+
+### Members who contact FERC more in a Congress, relative to other agencies: 
+```{r ferc_vs_all_rate_committees}
+all_contacts %>%
+  mutate(FERC = agency == "DOE_FERC") %>%
+  group_by(congress, chamber, committees, FERC, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  spread(key = "FERC", value = "n") %>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>% 
+  arrange(-ShareToFERC) %>% 
+  mutate(total = `TRUE` + `FALSE`) %>% 
+  select(name_state, congress, chamber, committees, total, ShareToFERC) %>% 
+  filter(ShareToFERC>.3) %>%
+  knitr::kable()
 ```
 
 ## Interesting cases
@@ -360,7 +434,7 @@ dcommittees %>%
 ## Many letters to FERC are cosigned
 
 FIXME, calculate real data when we have coding. This is a rough under-estimate: 
-```{r cosigned}
+```{r cosigned, eval=FALSE}
 FERC_letters %>% 
   mutate(probably_cosigned = ifelse(str_detect(summary, "et al"), "et al",
                                  ifelse(str_detect(summary, "&"), "&", " neither"))) %>%

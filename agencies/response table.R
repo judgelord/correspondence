@@ -45,6 +45,8 @@ data %<>% mutate(n = ifelse(is.na(n), 0, n))
 data %<>% ungroup() %>%
   bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total")))
 
+write.csv(data, file = "response table.csv")
+
 library(stargazer)
 
 stargazer(data,  summary=F, rownames=FALSE)

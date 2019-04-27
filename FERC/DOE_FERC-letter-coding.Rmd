@@ -22,12 +22,13 @@ knitr::opts_chunk$set(fig.height = 4,
                       message = FALSE)
 ```
 
-Required packages: [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html).
+Required packages: [`gs_sheets`](https://cran.r-project.org/web/packages/googlesheets/vignettes/basic-usage.html), `httpuv`, [`stringr`](https://www.rstudio.com/resources/cheatsheets/#stringr) (for [regular expressions](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)), [`purrr`](https://www.rstudio.com/resources/cheatsheets/#purrr), [`here`](https://github.com/jennybc/here_here) and [`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html).
 
 
 ```{r libraries}
 library(tidyverse)
 library(googlesheets)
+library(httpuv)
 library(magrittr)
 library(here)
 ```
@@ -36,7 +37,7 @@ Updated: `r  Sys.time()`
 
 Load coded congressional letters data:
 ```{r}
-# log in to google docs
+# log in to google drive
 gs_auth() 
 
 ## Load coded data
@@ -213,7 +214,7 @@ d %>% select(ID, ProBusiness, AntiBusiness, Freelancer) %>%
   knitr::kable(caption = "Suspicious comma use to look at") 
 ```
 
-## Chamber errors
+## Potential chamber errors
 ```{r}
 d %>% 
   mutate(Senate = ifelse(str_detect(CongressPerson,"^Sen"), 
@@ -231,81 +232,23 @@ d %>%
   knitr::kable()
 ```
 
-## Member name errors
-Coders vs names extracted from letter summary (should also do this with names extracted from letter text)
-
-```{r}
-# Add auto-extracted member names that coders may have missed
-d %>% 
-  group_by(ID) %>%
-  mutate(missed = !str_detect(
-  tolower(str_c
-          (str_replace_na(
-    c(CongressPerson, Cosigned_House, Cosigned_Senate)
-    ), collapse = ";")),
-  tolower(last_name) ) ) %>% 
-  filter(!is.na(FROM)) %>% 
-  filter(missed == T, !str_detect(tolower(CongressPerson), "badfiles|bad files")) %>% 
-  select(Freelancer, ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate) %>% 
-  knitr::kable()
-```
-
----
-
-
-# Letters citing companies registered to lobby FERC
-## Pro-business letters
-```{r}
-load(here("data", "DOE_FERC-corps.Rdata"))
-FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
-
-## Make a single string of short corp names
-ferc_short <- unique(FERC_corps$company_short) %>% 
-  str_c(collapse = "|") %>% 
-  str_remove_all("||")
-
-# bad string? 
-# str_detect("", ferc_short)
-
-
-d %>% 
-  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
-  drop_na(company_short) %>% 
-  mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-  mutate(members = str_remove_all(members, ";NA")) %>% 
-  group_by(company_short) %>% 
-  mutate(members = str_c(unique(members), collapse = ";")) %>% 
-  select(company_short, members) %>%  distinct() %>%
-  left_join(FERC_corps) %>% distinct() %>% 
-  knitr::kable(caption = "Pro Businesses matching those registered with FERC")
-```
-
-## Anti-business letters
-
-```{r}
-d %>% 
-  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
-  drop_na(company_short) %>% 
-  mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-  mutate(members = str_remove_all(members, ";NA")) %>% 
-  group_by(company_short) %>% 
-  mutate(members = str_c(unique(members), collapse = ";")) %>% 
-  select(company_short, members) %>%  distinct() %>%
-  left_join(FERC_corps) %>% distinct() %>% 
-  knitr::kable(caption = "Anti Businesses matching those registered with FERC")
-
-```
 
 ---
 
 # Organize as one observation per letter per member
+
+Names identified by coders vs extracted from text:
 ```{r}
 # Letters with members identified by coders
 sum(!is.na(d$CongressPerson))
 
 # Letters with members identified by auto-detection
-sum(!is.na(d$CongressPerson))
+sum(!is.na(d$FROM))
+```
 
+
+Names identified by coders and extraction combined:
+```{r}
 # Add auto-extracted member names that coders may have missed
 d %<>% 
   group_by(ID) %>% 
@@ -320,7 +263,11 @@ d %<>%
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))
+```
 
+
+
+```{r}
 # Id ones still missed and paste auto-extracted FROM onto CongressPerson
 d %<>% 
   group_by(ID) %>%
@@ -331,12 +278,22 @@ d %<>%
   mutate(CongressPerson = ifelse(missed,
                                  paste(CongressPerson, FROM, sep = ";"),
                                  CongressPerson) ) # %>% select(missed, FROM, CongressPerson)
-  
+
+# # Inspect mismatched namess 
+# d %>%
+#   filter(!is.na(FROM),
+#          missed == T, 
+#          !str_detect(tolower(CongressPerson), "badfiles|bad files")) %>% 
+#   select(Freelancer, ID, FROM, CongressPerson) %>% 
+#   knitr::kable()
+
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))
+```
 
-
+Break out members 
+```{r}
 # Helper function for combining strings
 str_unique <- function(x){
   paste(unique(x), collapse="; ")
@@ -381,14 +338,16 @@ d %<>%
   distinct()  
 ```
 
-Corrected names
+### Conflicting names human-coded vs. detected. 
+Coders;names extracted from letter summary (should also compare with names extracted from letter text).
+Keeping both names for now. Eventually, we should remove any incorrect MOCs. Non-MOCs will be dropped. 
 ```{r}
 d %>%
   filter(str_detect(CongressPerson, ";")&missed)  %>% select(Freelancer, ID, CongressPerson) %>% distinct() %>% knitr::kable()
 ```
 
-Observations dropped:
-```{r}
+### Observations dropped:
+```{r, eval=FALSE}
 FERC_letters %>% 
   filter(ID %in% d$ID) %>% select(ID, FROM, SUBJECT) %>% 
   knitr::kable()
