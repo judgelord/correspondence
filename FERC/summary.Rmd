@@ -92,6 +92,21 @@ d %>%
   coord_flip() + facet_grid(. ~ majority)
 ```
 
+```{r part-constituent}
+d %>% 
+  mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
+         For = ifelse(!is.na(ProBusiness), "Business", For)) %>% 
+  count(party, For, majority) %>% 
+  filter(party != "(I)",
+         !is.na(For),
+         !is.na(majority)) %>% 
+  ggplot() + 
+  aes(y = n, x = party, fill = For) + 
+  geom_col( position = "dodge") + 
+  coord_flip() + facet_grid(. ~ majority) + 
+  scale_fill_viridis_d()
+```
+
 
 ## Rule-based coding of constituent type 
 (click `CODE` to see inductively-developed coding rules):
