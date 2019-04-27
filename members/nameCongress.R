@@ -1,6 +1,6 @@
 # This script aguments member names from voteview to enable merging with wide variety of name formats. Matching functions are in nameMethods.R
 
-members <- full_join(member_search(congress = c(106:108)) %>% select(-congresses),
+members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
                      member_search(congress = c(109:120))) %>% # get voteview data for selected Congresses
   # format state
   mutate(state = tolower(state)) %>%
@@ -298,7 +298,7 @@ members <- full_join(member_search(congress = c(106:108)) %>% select(-congresses
   
   members$congresses <- NA # this list format throughs errors in merge
 
-  members_106to109th <- filter(members, congress < 110)
+  members_106to109th <- filter(members, congress < 112)
   
   members %<>% filter(congress > 109)
   
