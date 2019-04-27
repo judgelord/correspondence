@@ -45,7 +45,7 @@ knitr::opts_chunk$set(echo = TRUE,
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter 
-d <- all_contacts %>% filter(agency=="DOE_FERC")
+d <- all_contacts %>% filter(agency=="DOE_FERC") %>% select(-SUBJECT)
 
 # one obs per member per letter per committee
 load(here("data/all_contacts_committees.RData"))
@@ -54,7 +54,12 @@ dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 # one obs per member per letter 
 load(here("data/DOE_FERC-letters-coded.RData")) # replace with DOE_FERC-letters-corps when corps added
 FERC_letters %<>% 
-  select(ID, text_clean, Place_State, Place_District,Place_District, ProBusiness, AntiBusiness, year) %>% distinct()
+  select(ID, SUBJECT, 
+         Freelancer, Cosigned_House, Cosigned_Senate,
+         text_clean, Constituent, year,
+         Place_State, Place_District, Place_District, 
+         ProBusiness, AntiBusiness) %>% 
+  distinct()
 
 # merge in coded letters 
 d %<>% left_join(FERC_letters)
@@ -63,6 +68,22 @@ d %<>% left_join(FERC_letters)
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from 2000-2018. 
 
 So far we have matched `r nrow(d)` of these letters to member names for years `r unique(d$year)`. 
+
+
+## By party 
+
+```{r part-business}
+d %>% 
+  mutate(position = ifelse(!is.na(ProBusiness), "ProBusiness", NA),
+         position = ifelse(!is.na(AntiBusiness), "AntiBusiness", position),
+         position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", position)) %>% 
+  count(party, position) %>% 
+  filter(party != "(I)") %>% 
+  ggplot() + 
+  aes(y = n, x = party, fill = position) + 
+  geom_col( position = "dodge") + 
+  coord_flip()
+```
 
 
 ## Rule-based coding of constituent type 
@@ -435,9 +456,12 @@ dcommittees %>%
 
 ## Many letters to FERC are cosigned
 
-FIXME, calculate real data when we have coding. This is a rough under-estimate: 
-```{r cosigned, eval=FALSE}
+```{r cosigned_estimated, eval=FALSE}
+#A rough under-estimate based on whether "et al" or "&" appears in the summary:
+
 FERC_letters %>% 
+  group_by(ID) %>% 
+  top_n(1) %>% 
   mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
                                  ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
   group_by(year, probably_cosigned) %>% 
@@ -445,14 +469,18 @@ FERC_letters %>%
   ggplot() + 
   aes(x = year, y = n, fill = probably_cosigned) +
   geom_col() 
+```
 
+Identified cosigned letters of those coded so far:
+```{r cosigned_coded, eval=FALSE}
 FERC_letters %>% 
-  mutate(probably_cosigned = ifelse(str_detect(summary, "et al"), "et al",
-                                 ifelse(str_detect(summary, "&"), "&", " neither"))) %>%
-  group_by(year, probably_cosigned) %>% 
+  filter(!is.na(Freelancer)) %>% 
+  mutate(cosigned = ifelse(!is.na(Cosigned_House)|!is.na(Cosigned_Senate),
+                                 T, F)) %>%
+  group_by(year, cosigned) %>% 
   tally %>% 
   ggplot() + 
-  aes(x = year, y = n, fill = probably_cosigned) +
+  aes(x = year, y = n, fill = cosigned) +
   geom_col() 
 ```
 
