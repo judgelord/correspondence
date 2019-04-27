@@ -45,7 +45,10 @@ knitr::opts_chunk$set(echo = TRUE,
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter 
-d <- all_contacts %>% filter(agency=="DOE_FERC") %>% select(-SUBJECT)
+d <- all_contacts %>% 
+  filter(agency=="DOE_FERC") %>% 
+  select(-SUBJECT) %>% 
+  mutate(majority = ifelse(majority == 1, "Majority", "Minority"))
 
 # one obs per member per letter per committee
 load(here("data/all_contacts_committees.RData"))
@@ -75,14 +78,18 @@ So far we have matched `r nrow(d)` of these letters to member names for years `r
 ```{r part-business}
 d %>% 
   mutate(position = ifelse(!is.na(ProBusiness), "ProBusiness", NA),
-         position = ifelse(!is.na(AntiBusiness), "AntiBusiness", position),
-         position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", position)) %>% 
-  count(party, position) %>% 
-  filter(party != "(I)") %>% 
+         position = ifelse(!is.na(AntiBusiness), "AntiBusiness", position)#,
+         #position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", position),
+         #position = ifelse(is.na(position)&!is.na(Constituent), "Neutral Constituent", position)
+         ) %>% 
+  count(party, position, majority) %>% 
+  filter(party != "(I)",
+         !is.na(position),
+         !is.na(majority)) %>% 
   ggplot() + 
   aes(y = n, x = party, fill = position) + 
   geom_col( position = "dodge") + 
-  coord_flip()
+  coord_flip() + facet_grid(. ~ majority)
 ```
 
 
