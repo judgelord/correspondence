@@ -10,6 +10,9 @@ output:
 requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+  
+devtools::install_github("wmurphyrd/fiftystater")
+
   library(tidyr)
   library(ineq)
   library(dplyr)

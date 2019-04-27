@@ -177,7 +177,7 @@ d <- d1
 ##################################
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter((agency %in% "DOE_FERC")) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(!is.na(data_list[i,1])) {
   
@@ -267,11 +267,11 @@ d %<>%
 # date typos 
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
-  filter(year > 2019 | year < 1999) %>% 
+  filter(year > 2018 | year < 1999) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 # select  timeframe
-d %<>% filter(year < 2020 & year > 2000)
+d %<>% filter(year < 2019 & year > 1999)
 
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
