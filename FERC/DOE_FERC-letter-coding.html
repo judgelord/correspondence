@@ -310,7 +310,7 @@ library(googlesheets)
 library(httpuv)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-28 14:33:39</p>
+<p>Updated: 2019-04-28 15:51:14</p>
 <p>Load coded congressional letters data:</p>
 <pre class="r"><code># log in to google drive
 gs_auth() 
@@ -386,7 +386,7 @@ n_coded%&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Gabriela Iocab</td>
-<td align="right">602</td>
+<td align="right">605</td>
 </tr>
 <tr class="even">
 <td align="left">Jobelle</td>
@@ -442,7 +442,7 @@ FERC_coded %&gt;%
 </tr>
 <tr class="even">
 <td align="left">AntiProject</td>
-<td align="right">36</td>
+<td align="right">35</td>
 <td align="right">49</td>
 <td align="right">17</td>
 <td align="right">25</td>
@@ -522,7 +522,7 @@ FERC_coded %&gt;%
 </tr>
 <tr class="even">
 <td align="left">Other_CC</td>
-<td align="right">18</td>
+<td align="right">19</td>
 <td align="right">20</td>
 <td align="right">13</td>
 <td align="right">8</td>
@@ -562,7 +562,7 @@ FERC_coded %&gt;%
 </tr>
 <tr class="odd">
 <td align="left">ProProject</td>
-<td align="right">30</td>
+<td align="right">31</td>
 <td align="right">13</td>
 <td align="right">19</td>
 <td align="right">10</td>
@@ -617,7 +617,7 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">FALSE</td>
-<td align="right">467</td>
+<td align="right">468</td>
 <td align="right">178</td>
 <td align="right">1041</td>
 <td align="right">463</td>
@@ -625,7 +625,7 @@ FERC_coded %&gt;%
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
-<td align="right">135</td>
+<td align="right">137</td>
 <td align="right">9</td>
 <td align="right">177</td>
 <td align="right">35</td>
@@ -656,7 +656,7 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">FALSE</td>
-<td align="right">263</td>
+<td align="right">266</td>
 <td align="right">66</td>
 <td align="right">848</td>
 <td align="right">282</td>
@@ -695,7 +695,7 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">no</td>
-<td align="right">418</td>
+<td align="right">421</td>
 <td align="right">73</td>
 <td align="right">563</td>
 <td align="right">126</td>
@@ -1214,12 +1214,14 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 <p>Names identified by coders vs extracted from text:</p>
 <pre class="r"><code># Letters with members identified by coders
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 3357</code></pre>
+<pre><code>## [1] 3360</code></pre>
 <pre class="r"><code># Letters with members identified by auto-detection
 sum(!is.na(d$FROM))</code></pre>
 <pre><code>## [1] 3191</code></pre>
 <p>Names identified by coders and extraction combined:</p>
-<pre class="r"><code># Add auto-extracted member names that coders may have missed
+<pre class="r"><code>d &lt;- FERC_letters %&gt;% full_join(FERC_coded %&gt;% select(-SUBJECT))
+
+# Add auto-extracted member names that coders may have missed
 d %&lt;&gt;% 
   group_by(ID) %&gt;% 
   mutate(Notes = ifelse(
@@ -1233,17 +1235,27 @@ d %&lt;&gt;%
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 3940</code></pre>
+<pre><code>## [1] 3941</code></pre>
 <pre class="r"><code># Id ones still missed and paste auto-extracted FROM onto CongressPerson
+d %&lt;&gt;% select(ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate, everything()) %&gt;% arrange(desc(ID))
+
+#FIXME
+
 d %&lt;&gt;% 
   group_by(ID) %&gt;%
-  mutate(missed = !str_detect(
-  tolower(paste(CongressPerson, Cosigned_House, Cosigned_Senate, 
-          collapse = &quot;;&quot;)),
-  tolower(last_name) ) )  %&gt;% 
+  mutate(members = tolower(paste(CongressPerson, Cosigned_House, Cosigned_Senate, 
+          collapse = &quot;;&quot;))) %&gt;% 
+  # auto-detected last name missed by coders
+  mutate(missed = !str_detect(members,
+                              tolower(last_name) ) )   %&gt;%
+  mutate(missed = replace_na(missed, FALSE)) %&gt;% 
+  # fill CongressPerson with auto-detected names where missed
   mutate(CongressPerson = ifelse(missed,
                                  paste(CongressPerson, FROM, sep = &quot;;&quot;),
-                                 CongressPerson) ) # %&gt;% select(missed, FROM, CongressPerson)
+                                 CongressPerson) )  %&gt;%
+  distinct()# %&gt;% select(missed,FROM, CongressPerson)
+
+d %&lt;&gt;% select(ID, FROM, members, missed, CongressPerson, everything())
 
 # # Inspect mismatched namess 
 # d %&gt;%
@@ -1256,7 +1268,7 @@ d %&lt;&gt;%
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 3191</code></pre>
+<pre><code>## [1] 3941</code></pre>
 <p>Break out members</p>
 <pre class="r"><code># Helper function for combining strings
 str_unique &lt;- function(x){
@@ -1730,8 +1742,19 @@ d %&lt;&gt;%
 <div id="observations-dropped" class="section level3">
 <h3>Observations dropped:</h3>
 <pre class="r"><code>FERC_letters %&gt;% 
-  filter(ID %in% d$ID) %&gt;% select(ID, FROM, SUBJECT) %&gt;% 
+  filter(!ID %in% d$ID) %&gt;% select(ID, FROM, SUBJECT) %&gt;% distinct() %&gt;% 
   knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">FROM</th>
+<th align="left">SUBJECT</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
 <p>Save coded letters data:</p>
 <pre class="r"><code>## Split availability status from summary
 d %&lt;&gt;% separate(SUBJECT, into = c(&quot;SUBJECT&quot;, &quot;availability&quot;), sep = &quot;Availability: &quot;) 

@@ -249,6 +249,8 @@ sum(!is.na(d$FROM))
 
 Names identified by coders and extraction combined:
 ```{r}
+d <- FERC_letters %>% full_join(FERC_coded %>% select(-SUBJECT))
+
 # Add auto-extracted member names that coders may have missed
 d %<>% 
   group_by(ID) %>% 
@@ -268,16 +270,27 @@ sum(!is.na(d$CongressPerson))
 
 
 ```{r}
+
 # Id ones still missed and paste auto-extracted FROM onto CongressPerson
+d %<>% select(ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate, everything()) %>% arrange(desc(ID))
+
+#FIXME
+
 d %<>% 
   group_by(ID) %>%
-  mutate(missed = !str_detect(
-  tolower(paste(CongressPerson, Cosigned_House, Cosigned_Senate, 
-          collapse = ";")),
-  tolower(last_name) ) )  %>% 
+  mutate(members = tolower(paste(CongressPerson, Cosigned_House, Cosigned_Senate, 
+          collapse = ";"))) %>% 
+  # auto-detected last name missed by coders
+  mutate(missed = !str_detect(members,
+                              tolower(last_name) ) )   %>%
+  mutate(missed = replace_na(missed, FALSE)) %>% 
+  # fill CongressPerson with auto-detected names where missed
   mutate(CongressPerson = ifelse(missed,
                                  paste(CongressPerson, FROM, sep = ";"),
-                                 CongressPerson) ) # %>% select(missed, FROM, CongressPerson)
+                                 CongressPerson) )  %>%
+  distinct()# %>% select(missed,FROM, CongressPerson)
+
+d %<>% select(ID, FROM, members, missed, CongressPerson, everything())
 
 # # Inspect mismatched namess 
 # d %>%
@@ -347,9 +360,9 @@ d %>%
 ```
 
 ### Observations dropped:
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 FERC_letters %>% 
-  filter(ID %in% d$ID) %>% select(ID, FROM, SUBJECT) %>% 
+  filter(!ID %in% d$ID) %>% select(ID, FROM, SUBJECT) %>% distinct() %>% 
   knitr::kable()
 ```
 

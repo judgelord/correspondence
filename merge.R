@@ -162,8 +162,10 @@ d1 <- clean.agency(agency = data_list[i, 1],
                      coders = data_list[i, 3])
 d1 %<>% # and merge with voteview data
   left_join(members) %>% # merge on common variables (may differ)
+  left_join(members_106to109th) %>% # merge on common variables (may differ)
   select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
+  left_join(members_106to109th) %>% # merge on common variables (may differ)
   distinct()
 
 d <- d1
