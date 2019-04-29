@@ -393,7 +393,10 @@ dcorps %>%
 
 
 # Letters citing companies registered to lobby FERC
-Of the companies registered to lobby FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. *TO DO: extract company contact persons and information from the FERC website.*  
+Of the companies registered to lobby FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
+*TO DO:* 
+- (1) Identify linked corporations for other top companies in the data
+- (2) extract company contact persons and information from the FERC website.
 ```{r}
 load(here("data", "DOE_FERC-corps.Rdata"))
 FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 

@@ -310,7 +310,7 @@ library(googlesheets)
 library(httpuv)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-29 14:08:44</p>
+<p>Updated: 2019-04-29 14:38:38</p>
 <p>Load coded congressional letters data:</p>
 <pre class="r"><code># log in to google drive
 gs_auth() 
@@ -402,7 +402,7 @@ n_coded%&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Priyal Singh</td>
-<td align="right">941</td>
+<td align="right">948</td>
 </tr>
 </tbody>
 </table>
@@ -534,7 +534,7 @@ FERC_coded %&gt;%
 <td align="right">0</td>
 <td align="right">8</td>
 <td align="right">40</td>
-<td align="right">19</td>
+<td align="right">20</td>
 </tr>
 <tr class="even">
 <td align="left">Place_District</td>
@@ -621,7 +621,7 @@ FERC_coded %&gt;%
 <td align="right">275</td>
 <td align="right">1157</td>
 <td align="right">467</td>
-<td align="right">833</td>
+<td align="right">840</td>
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
@@ -660,7 +660,7 @@ FERC_coded %&gt;%
 <td align="right">108</td>
 <td align="right">938</td>
 <td align="right">283</td>
-<td align="right">595</td>
+<td align="right">597</td>
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
@@ -668,7 +668,7 @@ FERC_coded %&gt;%
 <td align="right">192</td>
 <td align="right">421</td>
 <td align="right">220</td>
-<td align="right">346</td>
+<td align="right">351</td>
 </tr>
 </tbody>
 </table>
@@ -699,7 +699,7 @@ FERC_coded %&gt;%
 <td align="right">120</td>
 <td align="right">646</td>
 <td align="right">131</td>
-<td align="right">250</td>
+<td align="right">253</td>
 </tr>
 <tr class="even">
 <td align="left">no</td>
@@ -715,7 +715,7 @@ FERC_coded %&gt;%
 <td align="right">175</td>
 <td align="right">310</td>
 <td align="right">156</td>
-<td align="right">256</td>
+<td align="right">260</td>
 </tr>
 <tr class="even">
 <td align="left">NA</td>
@@ -1364,7 +1364,7 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 <p>Names identified by coders vs extracted from text:</p>
 <pre class="r"><code># Letters with members identified by coders
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 3811</code></pre>
+<pre><code>## [1] 3818</code></pre>
 <pre class="r"><code># Letters with members identified by auto-detection
 sum(!is.na(d$FROM))</code></pre>
 <pre><code>## [1] 3191</code></pre>
@@ -1385,7 +1385,7 @@ d %&lt;&gt;%
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4124</code></pre>
+<pre><code>## [1] 4127</code></pre>
 <pre class="r"><code># Id ones still missed and paste auto-extracted FROM onto CongressPerson
 d %&lt;&gt;% select(ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate, everything()) %&gt;% arrange(desc(ID))
 
@@ -1418,7 +1418,7 @@ d %&lt;&gt;% select(ID, FROM, members, missed, CongressPerson, everything())
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4124</code></pre>
+<pre><code>## [1] 4127</code></pre>
 <p>Break out members</p>
 <pre class="r"><code># Helper function for combining strings
 str_unique &lt;- function(x){
