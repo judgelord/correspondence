@@ -75,7 +75,7 @@ So far we have matched `r nrow(d)` of these letters to member names for years `r
 
 ## By party 
 
-```{r part-business}
+```{r part-business, fig.height=2}
 d %>% 
   mutate(position = ifelse(!is.na(ProBusiness), "ProBusiness", NA),
          position = ifelse(!is.na(AntiBusiness), "AntiBusiness", position)#,
@@ -92,7 +92,7 @@ d %>%
   coord_flip() + facet_grid(. ~ majority)
 ```
 
-```{r part-constituent}
+```{r part-constituent, fig.height=2}
 d %>% 
   mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
          For = ifelse(!is.na(ProBusiness), "Business", For)) %>% 
@@ -197,6 +197,7 @@ d %>%
   filter(company_short != "")%>%
   distinct() %>% 
   summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
+  filter(n>mean(n))%>%
   arrange(-n) %>%
   knitr::kable()
 
@@ -223,6 +224,7 @@ d %>%
   filter(company_short != "")%>%
   distinct() %>% 
   summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
+  filter(n>mean(n))%>%
   arrange(-n) %>%
   knitr::kable()
 
@@ -364,7 +366,7 @@ all_contacts %>%
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, chamber, total, ShareToFERC) %>% 
-  filter(ShareToFERC>.1) %>%
+  filter(ShareToFERC>.3) %>%
   knitr::kable()
 ```
 
@@ -381,7 +383,7 @@ all_contacts %>%
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, congress, chamber, committees, total, ShareToFERC) %>% 
-  filter(ShareToFERC>.3) %>%
+  filter(ShareToFERC>.5) %>%
   knitr::kable()
 ```
 

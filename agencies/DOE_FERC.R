@@ -41,16 +41,21 @@ clean <- function(file.name) {
   
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
   ## extract member names from the letter texts (members is only for 110th - 118th)
-  ## (NOTE: with purrr, extractMemberName shuold not break if too big, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
+  ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
   #FIXME
   d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
   d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
   
+  sum(!is.na(d2$last_name))
+  
+  sum(!is.na(d2$last_name)&d2$year==2001)
+  
   data <- full_join(d1, d2)
   
-  look <- filter(data, 
-                 is.na(last_name)  & !is.na(FROM) & FROM != "NA") %>% select(FROM, congress, chamber, SUBJECT)
-
+  sum(!is.na(data$last_name))
+  
+  sum(!is.na(data$last_name)&data$year==2001)
+  
   # arrange columns for hand coding
   data %<>% select(ID, FROM, SUBJECT, text_clean, everything())
 
@@ -88,4 +93,12 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", text_clean, ignore.case = TRUE), "3", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", text_clean, ignore.case = TRUE), "1", CERTAINTY)) 
 
+  return(data)
 } ## END CLEAN FUNCTION
+
+
+
+
+
+
+

@@ -5,12 +5,13 @@ When you first work with text in R, R has no way of knowing if words are nouns, 
 
 Installing `cleanNLP` is trivial—it's just a normal R package, so use the "Packages" panel in RStudio—but connecting it with external NLP algorithms is a little trickier. To install spaCy, which is a really fast tagging library, do this:
   
-  1. Make sure Python is installed (it is if you're on macOS or Linux; good luck with Windows—I have no idea how to install this stuff there, but there's a way).
+1. Make sure Python is installed (it is if you're on macOS or Linux; good luck with Windows—I have no idea how to install this stuff there, but there's a way).
 2. Open Terminal and run this command to install `spaCy`:
   
-  ```sh
+```sh
 pip install -U spacy
 ```
+
 3. Run this command to download `spaCy`'s English algorithms:
 
 ```sh
@@ -21,7 +22,7 @@ python -m spacy download en
 
 Here's the general process for tagging (they call it annotating) text:
   
-  1. Make a dataset where the first column is the id (line number, chapter number, book+chapter, whatever) and the second column is the text itself.
+1. Make a dataset where the first column is the id (line number, chapter number, book+chapter, whatever) and the second column is the text itself.
 2. Initialize the NLP tagger. You can use an R-only one that doesn't need Python or any other external dependencies with `cnlp_init_udpipe()`. If you've installed spaCy, use `cnlp_init_spacy()`. If you've installed Stanford's thing, use `cnlp_init_corenlp()`.
 3. Feed the data frame from step 1 into the `cnlp_annotate()` function and wait.
 4. Save the tagged data as a file on your computer so you don't have to retag it every time. Use `cnlp_get_tif() %>% write_csv()`.

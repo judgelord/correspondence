@@ -154,21 +154,25 @@ data_list
 ##################
 
 # initialize for full merge (default)
-i <- 26
+i <- 1
 # or choose one agency
-# i <- which(data_list$agency == "IRS") 
+i <- which(data_list$agency == "DOE_FERC") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
-d1 %<>% # and merge with voteview data
-  left_join(members) %>% # merge on common variables (may differ)
-  left_join(members_106to109th) %>% # merge on common variables (may differ)
+
+d1 %>% filter(!is.na(last_name)) %>% count(congress)
+
+members2 <- full_join(members, members_106to109th) 
+
+d <- d1 %>% # and merge with voteview data
+  left_join(members2) %>% # merge on common variables (may differ)
   select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
-  left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
-  left_join(members_106to109th) %>% # merge on common variables (may differ)
+  #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
+  left_join(members2) %>% # merge on common variables (may differ)
   distinct()
 
-d <- d1
+d %>% filter(!is.na(last_name)) %>% count(year)
 ####################
 
 
@@ -679,13 +683,21 @@ sum(df$oversight_committee_chair)
 # add to dcommittees
 # chairs committee names
 dcommittees %<>% full_join(
-  df %>% dplyr::select(icpsr,congress, agency, oversight_committee) %>% 
-    group_by(icpsr, congress, agency) %>% top_n(1, wt = oversight_committee) %>% distinct() %>% filter(!is.na(oversight_committee))
-) %>% filter(!is.na(bioname))
+  df %>% 
+    dplyr::select(icpsr,congress, agency, oversight_committee) %>% 
+    group_by(icpsr, congress, agency) %>% 
+    top_n(1, wt = oversight_committee) %>% 
+    distinct() %>% 
+    filter(!is.na(oversight_committee))
+  ) %>% filter(!is.na(bioname) )
 
 dcommittees %<>% full_join(
-  df %>% dplyr::select(icpsr,congress, agency, oversight_committee_chair) %>% 
-    group_by(icpsr, congress, agency) %>% top_n(1, wt = oversight_committee_chair) %>% distinct() %>% filter(!is.na(oversight_committee_chair))
+  df %>% 
+    dplyr::select(icpsr,congress, agency, oversight_committee_chair) %>% 
+    group_by(icpsr, congress, agency) %>% 
+    top_n(1, wt = oversight_committee_chair) %>% 
+    distinct() %>% 
+    filter(!is.na(oversight_committee_chair))
 ) %>% filter(!is.na(bioname))
 
 
@@ -717,6 +729,15 @@ length(unique(d$agency)) == length(unique(data_list$agency))
 # all agencies made it through merge into df?
 length(unique(df$agency)) == length(unique(d$agency)) 
 
+# merge new data with old? 
+if(F){
+load("data/all_contacts.RData")
+df %<>% full_join(all_contacts)
+load("data/all_contacts_committees.Rdata")
+dcommittees %<>% full_join(all_contacts_committees)
+}
+
+save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 save.image("data/correspondence.RData")
