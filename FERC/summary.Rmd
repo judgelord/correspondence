@@ -65,16 +65,34 @@ FERC_letters %<>%
   distinct()
 
 # merge in coded letters 
-d %<>% left_join(FERC_letters)
+d %<>% left_join(FERC_letters) %>% filter(year <2019)
 ```
 
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from 2000-2018. 
 
-So far we have matched `r nrow(d)` of these letters to member names for years `r unique(d$year)`. 
+Many letters are cosigned, yeilding `r d %>% filter(year >1999, !is.na(bioname)) %>% nrow()` members-level observations for years `r min(d$year)`-`r max(d$year)`. 
 
+---
 
 ## By party 
 
+# FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
+```{r part-constituent, fig.height=2}
+d %>% 
+  mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
+         For = ifelse(!is.na(ProBusiness), "Business", For)) %>% 
+  count(party, For, majority) %>% 
+  filter(party != "(I)",
+         !is.na(For),
+         !is.na(majority)) %>% 
+  ggplot() + 
+  aes(y = n, x = party, fill = For) + 
+  geom_col( position = "dodge") + 
+  coord_flip() + facet_grid(. ~ majority) + 
+  scale_fill_viridis_d()
+```
+
+Some letters oppose businesses: 
 ```{r part-business, fig.height=2}
 d %>% 
   mutate(position = ifelse(!is.na(ProBusiness), "ProBusiness", NA),
@@ -92,24 +110,10 @@ d %>%
   coord_flip() + facet_grid(. ~ majority)
 ```
 
-```{r part-constituent, fig.height=2}
-d %>% 
-  mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
-         For = ifelse(!is.na(ProBusiness), "Business", For)) %>% 
-  count(party, For, majority) %>% 
-  filter(party != "(I)",
-         !is.na(For),
-         !is.na(majority)) %>% 
-  ggplot() + 
-  aes(y = n, x = party, fill = For) + 
-  geom_col( position = "dodge") + 
-  coord_flip() + facet_grid(. ~ majority) + 
-  scale_fill_viridis_d()
-```
+---
 
-
-## Rule-based coding of constituent type 
-(click `CODE` to see inductively-developed coding rules):
+## Coding of constituent type 
+Our coding of letter type is a mix of hand coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders (click `CODE` to see inductively-developed coding rules):
 ```{r code, eval=FALSE}
 d %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
@@ -147,14 +151,13 @@ d %<>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), 
                              "1", CERTAINTY)) 
 ```
-## Coders coding of constituent type 
-To-do: share marked "Constituent" vs those with Pro or Anti Business
+
 
 ```{r data-by-type}
 d %<>%  
   mutate(Type = as.character(Type)) %>% 
   mutate(Type = ifelse(tolower(Constituent) =="yes", "Indiv. Constituent", Type)) %>% 
-  mutate(Type = ifelse(!is.na(ProBusiness), "Corp. Constituent", Type))
+  mutate(Type = ifelse(!is.na(ProBusiness), "Corp. Constituent", Type)) 
 
 d %>% 
   filter(Type != "To be coded") %>%  
@@ -166,25 +169,46 @@ d %>%
   geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
   labs(x = "",
        y = paste("Number of Contacts, N =", sum(nrow(d))),
-       title = "") +
+       title = "Legislator Contacts with FERC") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text())
 ```
 
+```{r data-by-type-all}
+all_contacts %>% 
+  mutate(Type = as.character(Type)) %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
+  ggplot() + 
+  geom_col(aes(x = Type, y = nT)) + 
+  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
+  labs(x = "",
+       y = paste("Number of Contacts, N =", sum(nrow(all_contacts))),
+       title = "All Legislators Contacts with Federal Agencies") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
+```
 
 ---
 
 # Top companies in pro-business letters
 ```{r}
-d %<>% str_replace("RTO", "Regional Transmission Organization")
+d %<>% mutate(ProBusiness = str_replace(ProBusiness,"RTO", "Regional Transmission Organization"))%>%
+  mutate(AntiBusiness = str_replace(AntiBusiness,"RTO", "Regional Transmission Organization"))
+
 d %>%
   filter(!is.na(ProBusiness)) %>%
   group_by(ProBusiness) %>%
-  select(id, last_name, ProBusiness) %>%
+  select(id, last_name, ProBusiness, ID) %>%
   distinct() %>%
-  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>%
-  filter(n>mean(n))%>%
+  summarise( n = n() , 
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(unique(ID), collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
   arrange(-n) %>%
   knitr::kable()
 ```
@@ -216,7 +240,7 @@ d %>%
   filter(company_short != "")%>%
   distinct() %>%
   summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>%
-  filter(n>mean(n))%>%
+  filter(n>quantile(n,.9))%>%
   arrange(-n) %>%
   knitr::kable()
 
@@ -243,7 +267,7 @@ d %>%
   filter(company_short != "")%>%
   distinct() %>% 
   summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
-  filter(n>mean(n))%>%
+  filter(n>quantile(n,.9))%>%
   arrange(-n) %>%
   knitr::kable()
 
