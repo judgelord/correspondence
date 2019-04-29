@@ -150,7 +150,12 @@ d %<>%
 ## Coders coding of constituent type 
 To-do: share marked "Constituent" vs those with Pro or Anti Business
 
-```{r data-coverage-by-type}
+```{r data-by-type}
+d %<>%  
+  mutate(Type = as.character(Type)) %>% 
+  mutate(Type = ifelse(tolower(Constituent) =="yes", "Indiv. Constituent", Type)) %>% 
+  mutate(Type = ifelse(!is.na(ProBusiness), "Corp. Constituent", Type))
+
 d %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
@@ -169,6 +174,20 @@ d %>%
 
 
 ---
+
+# Top companies in pro-business letters
+```{r}
+d %<>% str_replace("RTO", "Regional Transmission Organization")
+d %>%
+  filter(!is.na(ProBusiness)) %>%
+  group_by(ProBusiness) %>%
+  select(id, last_name, ProBusiness) %>%
+  distinct() %>%
+  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>%
+  filter(n>mean(n))%>%
+  arrange(-n) %>%
+  knitr::kable()
+```
 
 
 # Letters citing companies registered to lobby FERC
@@ -190,27 +209,27 @@ ferc_short <- unique(FERC_corps$company_short) %>%
 
 ## Pro-business letters
 ```{r}
-d %>% 
-  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
-  group_by(company_short) %>% 
-  select(id, last_name, company_short) %>% 
+d %>%
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
+  group_by(company_short) %>%
+  select(id, last_name, company_short) %>%
   filter(company_short != "")%>%
-  distinct() %>% 
-  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
+  distinct() %>%
+  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>%
   filter(n>mean(n))%>%
   arrange(-n) %>%
   knitr::kable()
 
 ## Longer list with company full names
-# d %>% 
-#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>% 
-#   drop_na(company_short) %>% 
+# d %>%
+#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
+#   drop_na(company_short) %>%
 #   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-#   mutate(members = str_remove_all(members, ";NA")) %>% 
-#   group_by(company_short) %>% 
-#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
+#   mutate(members = str_remove_all(members, ";NA")) %>%
+#   group_by(company_short) %>%
+#   mutate(members = str_c(unique(members), collapse = ";")) %>%
 #   select(company_short, members) %>%  distinct() %>%
-#   left_join(FERC_corps) %>% distinct() %>% 
+#   left_join(FERC_corps) %>% distinct() %>%
 #   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
 ```
 
