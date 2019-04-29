@@ -44,18 +44,21 @@ knitr::opts_chunk$set(echo = TRUE,
 # Data
 ```{r data}
 load(here("data/all_contacts.RData"))
-# one obs per member per letter 
+# one obs per member per letter for all agencies
 d <- all_contacts %>% 
+  # define d as just FERC
   filter(agency=="DOE_FERC") %>% 
   select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority"))
 
-# one obs per member per letter per committee
+# one obs per member per letter per committee for all agencies
 load(here("data/all_contacts_committees.RData"))
+# define dcommittees as just FERC
 dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
-# one obs per member per letter 
-load(here("data/DOE_FERC-letters-coded.RData")) # replace with DOE_FERC-letters-corps when corps added
+# Coded letters, one obs per member per letter 
+load(here("data/DOE_FERC-letters-coded.RData")) 
+# TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
 FERC_letters %<>% 
   select(ID, SUBJECT, 
          Freelancer, Cosigned_House, Cosigned_Senate,
@@ -64,7 +67,7 @@ FERC_letters %<>%
          ProBusiness, AntiBusiness) %>% 
   distinct()
 
-# merge in coded letters 
+# merge in coded letters
 d %<>% left_join(FERC_letters) %>% filter(year <2019)
 ```
 
@@ -76,7 +79,7 @@ Many letters are cosigned, yeilding `r d %>% filter(year >1999, !is.na(bioname))
 
 ## By party 
 
-# FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
+
 ```{r part-constituent, fig.height=2}
 d %>% 
   mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
@@ -152,6 +155,7 @@ d %<>%
                              "1", CERTAINTY)) 
 ```
 
+FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
 
 ```{r data-by-type}
 d %<>%  
@@ -569,14 +573,13 @@ TODO
 
 
 # TO DO 
-
-## Before upwork data
-- add clean text from scraper to google sheet 
+- Fix Goode, who is being double counted as an R and I
 - add company names from company scraper to google sheet
 - template to match company names to donation (lobbyview, DIME)
 - template match company names to industry codes (center for responsive politics)
 
-## After upwork data 
+# DONE
+- add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
 
 # References 
