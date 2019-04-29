@@ -199,97 +199,6 @@ all_contacts %>%
 
 ---
 
-# Top companies in pro-business letters
-```{r}
-d %<>% mutate(ProBusiness = str_replace(ProBusiness,"RTO", "Regional Transmission Organization"))%>%
-  mutate(AntiBusiness = str_replace(AntiBusiness,"RTO", "Regional Transmission Organization"))
-
-d %>%
-  filter(!is.na(ProBusiness)) %>%
-  group_by(ProBusiness) %>%
-  select(id, last_name, ProBusiness, ID) %>%
-  distinct() %>%
-  summarise( n = n() , 
-             members = str_c(last_name, collapse = "; "),
-             ID = str_c(unique(ID), collapse = "; ")) %>%
-  filter(n>quantile(n,.9))%>%
-  arrange(-n) %>%
-  knitr::kable()
-```
-
-
-# Letters citing companies registered to lobby FERC
-Of the companies registered to lobby FERC, several appear in the letter texts:
-```{r}
-load(here("data", "DOE_FERC-corps.Rdata"))
-FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
-
-## Make a single string of short corp names
-ferc_short <- unique(FERC_corps$company_short) %>% 
-  str_c(collapse = "|") %>% 
-  str_remove_all("||")
-
-# bad string? 
-# str_detect("", ferc_short)
-
-```
-
-
-## Pro-business letters
-```{r}
-d %>%
-  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
-  group_by(company_short) %>%
-  select(id, last_name, company_short) %>%
-  filter(company_short != "")%>%
-  distinct() %>%
-  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>%
-  filter(n>quantile(n,.9))%>%
-  arrange(-n) %>%
-  knitr::kable()
-
-## Longer list with company full names
-# d %>%
-#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
-#   drop_na(company_short) %>%
-#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-#   mutate(members = str_remove_all(members, ";NA")) %>%
-#   group_by(company_short) %>%
-#   mutate(members = str_c(unique(members), collapse = ";")) %>%
-#   select(company_short, members) %>%  distinct() %>%
-#   left_join(FERC_corps) %>% distinct() %>%
-#   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
-```
-
-## Anti-business letters
-
-```{r}
-d %>% 
-  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
-  group_by(company_short) %>% 
-  select(id, last_name, company_short) %>% 
-  filter(company_short != "")%>%
-  distinct() %>% 
-  summarise( n = n() , members = str_c(last_name, collapse = "; ")) %>% 
-  filter(n>quantile(n,.9))%>%
-  arrange(-n) %>%
-  knitr::kable()
-
-## Longer list with company full names
-# d %>% 
-#   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
-#   drop_na(company_short) %>% 
-#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-#   mutate(members = str_remove_all(members, ";NA")) %>% 
-#   group_by(company_short) %>% 
-#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
-#   select(company_short, members) %>%  distinct() %>%
-#   left_join(FERC_corps) %>% distinct() %>% 
-#   knitr::kable(caption = "Anti Businesses matching those registered with FERC")
-
-```
-
-
 ### Senators vs. state population 
 
 ```{r population, fig.height= 3.7, fig.width=6}
@@ -434,6 +343,7 @@ all_contacts %>%
   knitr::kable()
 ```
 
+
 ## Interesting cases
 
 In an article titled "Republican congressmen’s funding dwarfs challengers’", the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
@@ -448,9 +358,128 @@ Columbia s Mountaineer XPress Project,
 Atlantic Coast Pipeline ACP project. 
 The parent companies of these projects spend millions of dollars on lobbying (Lobbyview). The WV Gazette reports funding from Dominion that is not included in Lobbyview totals. 
 
+---
+
+
+# Top companies in pro-business letters
+```{r}
+# Split out to one obs per member per letter per business
+dcorps <- d %>%
+  mutate(ProBusiness = ProBusiness %>% str_split(";")) %>%
+  unnest(ProBusiness)
+
+dcorps %<>% mutate(ProBusiness = ProBusiness %>%
+                     str_replace("RTO", 
+                                 "Regional Transmission Organization") %>%  
+         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )%>%
+  mutate(AntiBusiness = AntiBusiness %>% 
+           str_replace("RTO", 
+                       "Regional Transmission Organization") %>%  
+         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
+
+dcorps %>%
+  filter(!is.na(ProBusiness),
+         !str_detect(ProBusiness, "Regional Transmission Organization") ) %>%
+  group_by(ProBusiness) %>%
+  select(id, last_name, ProBusiness, ID) %>%
+  distinct() %>%
+  summarise( n = n() , 
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(unique(ID), collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
+  arrange(-n) %>%
+  knitr::kable()
+```
+
+
+# Letters citing companies registered to lobby FERC
+Of the companies registered to lobby FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. *TO DO: extract company contact persons and information from the FERC website.*  
+```{r}
+load(here("data", "DOE_FERC-corps.Rdata"))
+FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
+
+## Make a single string of short corp names
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+# bad string? 
+# str_detect("", ferc_short)
+
+```
+
+
+## Pro-business letters
+```{r}
+dcorps %>%
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
+  left_join(FERC_corps) %>% 
+  distinct() %>%
+  group_by(company_short_refs) %>%
+  select(ID, last_name, company_short, company_short_refs) %>%
+  filter(company_short != "")%>%
+  distinct() %>%
+  summarise( n = n() , 
+             company_short = str_c(unique(company_short), collapse = "; "),
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(ID, collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
+  select(company_short, n, everything()) %>%
+  arrange(-n) %>%
+  knitr::kable()
+
+## Longer list with company full names
+# d %>%
+#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
+#   drop_na(company_short) %>%
+#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+#   mutate(members = str_remove_all(members, ";NA")) %>%
+#   group_by(company_short) %>%
+#   mutate(members = str_c(unique(members), collapse = ";")) %>%
+#   select(company_short, members) %>%  distinct() %>%
+#   left_join(FERC_corps) %>% distinct() %>%
+#   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
+```
+
+## Anti-business letters
+
+```{r}
+dcorps %>%
+  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>%
+  left_join(FERC_corps) %>% 
+  distinct() %>%
+  group_by(company_short_refs) %>%
+  select(ID, last_name, company_short, company_short_refs) %>%
+  filter(company_short != "")%>%
+  distinct() %>%
+  summarise( n = n() , 
+             company_short = str_c(unique(company_short), collapse = "; "),
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(ID, collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
+  select(company_short, n, everything()) %>%
+  arrange(-n) %>%
+  knitr::kable()
+
+## Longer list with company full names
+# d %>% 
+#   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
+#   drop_na(company_short) %>% 
+#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+#   mutate(members = str_remove_all(members, ";NA")) %>% 
+#   group_by(company_short) %>% 
+#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
+#   select(company_short, members) %>%  distinct() %>%
+#   left_join(FERC_corps) %>% distinct() %>% 
+#   knitr::kable(caption = "Anti Businesses matching those registered with FERC")
+
+```
 
 
 
+
+
+---
 
 ## Committee Chairs
 
