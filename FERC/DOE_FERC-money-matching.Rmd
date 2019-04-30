@@ -98,6 +98,7 @@ download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=
 
 list.files("data")
 filename <- 'data/dime_contributors.gz'
+# install.packages("R.util")
 R.utils::gunzip(filename, destname = str_replace(filename, "[.]gz$", ".csv"))
 
 ## LOAD DIME DATA
@@ -110,6 +111,7 @@ save(dime, file = here("data/dime_corps.Rdata"))
 load("data/dime_corps.Rdata")
 
 dim(dime)
+names(dime)
 
 ## TRIM DOWN TO POSSIBLE MATCHES
 dime_ferc <- dime %>% 

@@ -1,10 +1,10 @@
 ---
 title: "Lobbying the U.S. Federal Energy Regulatory Commission (FERC)"
 output:
-  html_document:
-    toc: true
-    toc_float: true
-    code_folding: hide
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: hide
 editor_options: 
   chunk_output_type: console
 ---
@@ -33,6 +33,7 @@ requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", 
 knitr::opts_chunk$set(echo = TRUE, 
                       cache = F, 
                       fig.width=8.5, 
+                      split = T,
                       fig.align = 'center', 
                       fig.path='Figs/',
                       warning=FALSE, 
@@ -62,7 +63,7 @@ FERC_letters %<>%
          Freelancer, Cosigned_House, Cosigned_Senate,
          text_clean, Constituent, year,
          Place_State, Place_District, Place_District, 
-         ProBusiness, AntiBusiness) %>% 
+         ProBusiness, AntiBusiness, ProProject, AntiProject) %>% 
   distinct()
 
 # merge in coded letters
@@ -361,7 +362,7 @@ The parent companies of these projects spend millions of dollars on lobbying (Lo
 
 
 # Top companies in pro-business letters
-```{r}
+```{r probusiness-letters}
 # Split out to one obs per member per letter per business
 dcorps <- d %>%
   mutate(ProBusiness = ProBusiness %>% str_split(";")) %>%
@@ -391,8 +392,8 @@ dcorps %>%
 ```
 
 
-# Letters citing companies registered to lobby FERC
-Of the companies registered to lobby FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
+# Letters citing companies registered with FERC
+Of the companies registered to interact with FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
 *TO DO:* 
 - (1) Identify linked corporations for other top companies in the data
 - (2) extract company contact persons and information from the FERC website.
@@ -412,7 +413,7 @@ ferc_short <- unique(FERC_corps$company_short) %>%
 
 
 ## Pro-business letters
-```{r}
+```{r probusiness-letters-ferc}
 dcorps %>%
   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
   left_join(FERC_corps) %>% 
@@ -445,7 +446,7 @@ dcorps %>%
 
 ## Anti-business letters
 
-```{r}
+```{r antibusiness-letters-ferc}
 dcorps %>%
   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>%
   left_join(FERC_corps) %>% 
@@ -482,17 +483,16 @@ dcorps %>%
 
 ## Company lookup table
 
-Clean companies names extracted from letters and create shortened name that is more likely to be found in other datasets.
-```{r}
+Clean companies names extracted from letters and create shortened name that is more likely to be found in other datasets (like done with FERC-registerd companies above).
+```{r company-inspect}
 # Split out to one obs per member per letter per business
 dcorps <- d %>%
-  select(ID, bioname, ProBusiness, AntiBusiness, Proproject, AntiProject) %>% 
-  group_by(ID, bioname)
-  gather(key = company, value = position) %>%
-  mutate(ProBusiness = ProBusiness %>% str_split(";")) %>%
-  unnest(ProBusiness)
+  select(ID, bioname, ProBusiness, AntiBusiness, ProProject, AntiProject) %>% 
+  gather(value = "company", key = "position", -ID, -bioname) %>%
+  mutate(company = company %>% str_split(";")) %>%
+  unnest(company) %>% distinct()
 
-dcorps %<>% mutate(ProBusiness = ProBusiness %>%
+dcorps %<>% mutate(company = company %>%
                      str_replace("RTO", 
                                  "Regional Transmission Organization") %>%  
          str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
@@ -500,12 +500,9 @@ dcorps %<>% mutate(ProBusiness = ProBusiness %>%
 dcorps$company %<>% 
   str_replace_all("\r\n", ", ") %>% 
   str_remove_all("^, ") %>%
-  trimws() # trim white space before and after company names
+  trimws()  # trim white space before and after company names
 
-dcorps %<>% 
-  filter(nchar(company)>1) %>% # filter out names less than 2 characters 
-  filter(!company %in% c("FERC Online Support", "Note:","LLC", "Transportation, LLC")) %>% # not companies
-  filter(!str_detect(company, "[0-9]{2}/[0-9]{2}/[0-9]{4}")) %>% # dates not companies
+dcorps %<>%   filter(nchar(company)>1) %>%# drop names less than 1 character
   distinct() # drop duplicates
 
 ## For matching, remove endings like ", Inc." etc. 
@@ -516,18 +513,25 @@ d %>%
   trimws()  # filter out names less than 2 characters 
 }
 
-FERC_corps$company_short <- trim(FERC_corps$company) %>% trim()
+dcorps$company_short <- trim(dcorps$company) %>% trim()
+```
 
-FERC_corps %<>% filter(nchar(company_short)>1,
+Problem names that need to be fixed (e.g. to remove special characters or spell out abbreviated name)
+```{r problem-names}
+# Problem Names
+dcorps %>% filter(nchar(company_short)<2) %>% knitr::kable()
+
+dcorps %<>% filter(nchar(company_short)>1,
                        company_short != "Â")
 
 head(FERC_corps)
 ```
 
 
-```{r, include = FALSE}
+
+```{r, include = FALSE, eval=FALSE}
 ## Correct over-trimmed names
-FERC_corps %<>% 
+dcorps %<>% 
   mutate(company_short = ifelse(company == "Columbia Energy Power Marketing Corporation", "Columbia Energy", company_short))%>%
   mutate(company_short = ifelse(company == "Michigan Energy Exchange, LLC", "Michigan Energy", company_short))%>%
   mutate(company_short = ifelse(company == "Midwest Energy, Inc.", "Midwest Energy", company_short))%>%
@@ -726,10 +730,20 @@ TODO
 - template to match company names to donation (lobbyview, DIME)
 - template match company names to industry codes (center for responsive politics)
 
+# SHORT TERM
+ 1. Identify relevent industry codes 
+ 2. Get cycle-specific PAC classification for those industry codes 
+ 3. Subset dime to those PAC classification 
+ 
+# LONG TERM 
+- link industry codes to CRP committee classification 
+
 # DONE
 - add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
 
 # References 
 
+<!--
 ![Sources of Bureaucratic Delay: A Case Study of FERC Dam Relicensing](https://academic.oup.com/jleo/article/22/1/258/938707)
+-->
