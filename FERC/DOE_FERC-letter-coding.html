@@ -310,7 +310,7 @@ library(googlesheets)
 library(httpuv)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-04-30 09:01:29</p>
+<p>Updated: 2019-04-30 13:52:16</p>
 <p>Load coded congressional letters data:</p>
 <pre class="r"><code># log in to google drive
 gs_auth() 
@@ -398,11 +398,11 @@ n_coded%&gt;%
 </tr>
 <tr class="even">
 <td align="left">Maki Ianovic</td>
-<td align="right">554</td>
+<td align="right">567</td>
 </tr>
 <tr class="odd">
 <td align="left">Priyal Singh</td>
-<td align="right">993</td>
+<td align="right">994</td>
 </tr>
 </tbody>
 </table>
@@ -437,7 +437,7 @@ FERC_coded %&gt;%
 <td align="right">37</td>
 <td align="right">53</td>
 <td align="right">17</td>
-<td align="right">32</td>
+<td align="right">33</td>
 <td align="right">30</td>
 </tr>
 <tr class="even">
@@ -493,7 +493,7 @@ FERC_coded %&gt;%
 <td align="right">93</td>
 <td align="right">98</td>
 <td align="right">70</td>
-<td align="right">60</td>
+<td align="right">61</td>
 <td align="right">56</td>
 </tr>
 <tr class="odd">
@@ -525,7 +525,7 @@ FERC_coded %&gt;%
 <td align="right">19</td>
 <td align="right">22</td>
 <td align="right">13</td>
-<td align="right">8</td>
+<td align="right">9</td>
 <td align="right">12</td>
 </tr>
 <tr class="odd">
@@ -541,7 +541,7 @@ FERC_coded %&gt;%
 <td align="right">93</td>
 <td align="right">99</td>
 <td align="right">56</td>
-<td align="right">59</td>
+<td align="right">60</td>
 <td align="right">38</td>
 </tr>
 <tr class="odd">
@@ -549,7 +549,7 @@ FERC_coded %&gt;%
 <td align="right">82</td>
 <td align="right">70</td>
 <td align="right">37</td>
-<td align="right">55</td>
+<td align="right">54</td>
 <td align="right">44</td>
 </tr>
 <tr class="even">
@@ -620,15 +620,15 @@ FERC_coded %&gt;%
 <td align="right">548</td>
 <td align="right">275</td>
 <td align="right">1157</td>
-<td align="right">514</td>
-<td align="right">882</td>
+<td align="right">525</td>
+<td align="right">883</td>
 </tr>
 <tr class="even">
 <td align="left">TRUE</td>
 <td align="right">146</td>
 <td align="right">25</td>
 <td align="right">202</td>
-<td align="right">40</td>
+<td align="right">42</td>
 <td align="right">111</td>
 </tr>
 </tbody>
@@ -659,7 +659,7 @@ FERC_coded %&gt;%
 <td align="right">295</td>
 <td align="right">108</td>
 <td align="right">938</td>
-<td align="right">310</td>
+<td align="right">312</td>
 <td align="right">620</td>
 </tr>
 <tr class="even">
@@ -667,8 +667,8 @@ FERC_coded %&gt;%
 <td align="right">399</td>
 <td align="right">192</td>
 <td align="right">421</td>
-<td align="right">244</td>
-<td align="right">373</td>
+<td align="right">255</td>
+<td align="right">374</td>
 </tr>
 </tbody>
 </table>
@@ -698,7 +698,7 @@ FERC_coded %&gt;%
 <td align="right">469</td>
 <td align="right">120</td>
 <td align="right">646</td>
-<td align="right">150</td>
+<td align="right">159</td>
 <td align="right">270</td>
 </tr>
 <tr class="even">
@@ -714,8 +714,8 @@ FERC_coded %&gt;%
 <td align="right">179</td>
 <td align="right">175</td>
 <td align="right">310</td>
-<td align="right">183</td>
-<td align="right">290</td>
+<td align="right">187</td>
+<td align="right">291</td>
 </tr>
 <tr class="even">
 <td align="left">NA</td>
@@ -911,18 +911,6 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">20130329-0007</td>
-<td align="left">NA</td>
-<td align="left">Rep. Greg Walden</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040802-0052</td>
-<td align="left">NA</td>
-<td align="left">Rep. Carl Holmes</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
 <td align="left">20040331-0239</td>
 <td align="left">Rep. Jim Sensenbrenner</td>
 <td align="left">Sen. Herb Kohl</td>
@@ -932,138 +920,6 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 <td align="left">20040331-0239</td>
 <td align="left">Rep. Jim Sensenbrenner</td>
 <td align="left">Sen. Russ Feingold</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. John Shimku</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Bobby Rush</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Mike Rogers</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Jim Greenwood</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Ray LaHood</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Ted Strickland</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Michael Ferguson</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Vito Fossella</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Jim Gerlach</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep.</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Stephanie Tubbs</td>
-<td align="left">Jones Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Frank Pallone</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Mike Doyle</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Jerry Weller</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Jerry Costello</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Michael Oxley</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep.</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">Dave Camp</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Fred Upton</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Bart Stupak</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="odd">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Joseph Pitts</td>
-<td align="left">Rep. Ben Cardin</td>
-<td align="left">Lara Basiao</td>
-</tr>
-<tr class="even">
-<td align="left">20040322-0258</td>
-<td align="left">Rep. Bill Lipinski</td>
-<td align="left">Rep. Ben Cardin</td>
 <td align="left">Lara Basiao</td>
 </tr>
 <tr class="odd">
@@ -1364,7 +1220,7 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 <p>Names identified by coders vs extracted from text:</p>
 <pre class="r"><code># Letters with members identified by coders
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 3914</code></pre>
+<pre><code>## [1] 3928</code></pre>
 <pre class="r"><code># Letters with members identified by auto-detection
 sum(!is.na(d$FROM))</code></pre>
 <pre><code>## [1] 3191</code></pre>
@@ -1385,7 +1241,7 @@ d %&lt;&gt;%
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4156</code></pre>
+<pre><code>## [1] 4157</code></pre>
 <pre class="r"><code># Id ones still missed and paste auto-extracted FROM onto CongressPerson
 d %&lt;&gt;% select(ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate, everything()) %&gt;% arrange(desc(ID))
 
@@ -1418,7 +1274,7 @@ d %&lt;&gt;% select(ID, FROM, members, missed, CongressPerson, everything())
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4156</code></pre>
+<pre><code>## [1] 4157</code></pre>
 <p>Break out members</p>
 <pre class="r"><code># Helper function for combining strings
 str_unique &lt;- function(x){
@@ -1483,48 +1339,8 @@ d %&lt;&gt;%
 </tr>
 <tr class="even">
 <td align="left">Gabriela Iocab</td>
-<td align="left">20180111-0006</td>
-<td align="left">Sen. Tim Kayne;Timothy KAINE</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170802-0032</td>
-<td align="left">Sen. John Barasso;John BARRASSO</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170802-0031</td>
-<td align="left">Rep. Bob Goodlate;Robert GOODLATTE</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170802-0030</td>
-<td align="left">Rep. Jared Hufman;Jared HUFFMAN</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170714-4014(partial)</td>
-<td align="left">Rep. Bob Goodlate;Robert GOODLATTE</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20170609-0037</td>
-<td align="left">Rep. Bob Goodlate;Robert GOODLATTE</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20160624-0006</td>
-<td align="left">Sen. Kelly A. Ayote;Kelly AYOTTE</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20160301-0012</td>
-<td align="left">Rep. Thomas McArthur;Thomas MacARTHUR</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
 <td align="left">20150828-0039</td>
-<td align="left">Rep. Keith Ellsion;Keith ELLISON</td>
+<td align="left">Rep. Keith Ellision;Keith ELLISON</td>
 </tr>
 <tr class="odd">
 <td align="left">Lara Basiao</td>
@@ -1878,18 +1694,8 @@ d %&lt;&gt;%
 </tr>
 <tr class="odd">
 <td align="left">Gabriela Iocab</td>
-<td align="left">20020528-0404</td>
-<td align="left">Sen. Charles E. Grassler;Charles GRASSLEY</td>
-</tr>
-<tr class="even">
-<td align="left">Gabriela Iocab</td>
 <td align="left">20020509-0021</td>
 <td align="left">Anna G. Eshoo;Ed CASE</td>
-</tr>
-<tr class="odd">
-<td align="left">Gabriela Iocab</td>
-<td align="left">20020222-0263</td>
-<td align="left">Rep. Peter De Fazio;Peter DeFAZIO</td>
 </tr>
 <tr class="even">
 <td align="left">Priyal Singh</td>

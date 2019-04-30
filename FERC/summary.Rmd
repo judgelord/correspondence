@@ -616,18 +616,17 @@ shortcorps <- dcorps %>%
 filter(dcorps, company_short %in% shortcorps$company_short) %>% select(company_short, company_short_refs) %>% distinct() %>% knitr::kable()
 
 #dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
+```
 
-
+```{r, eval=FALSE}
 dcorps %>% ungroup() %>% 
+  filter(position %in% c("ProProject", "ProBusiness")) %>% 
+  select(ID, company_short, company_short_refs)%>% 
   group_by(company_short) %>% 
-  mutate(
-    #company_refs = str_c(unique(company_short_refs), collapse = "; "),
-    IDs = str_c(unique(ID), collapse = "; "),
-    position = str_c(unique(position), collapse = "; "),
-    n = n() ) %>%
-  select(IDs,company_short, company_short_refs, n) %>%
   distinct() %>%
-  arrange(-n) %>% write_csv(path = "FERC/corps.csv")
+  add_count() %>% 
+  arrange(-n) %>% 
+  write_csv(path = "FERC/ProBusinesses.csv")
 ```
 
 
