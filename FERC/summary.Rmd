@@ -616,6 +616,10 @@ shortcorps <- dcorps %>%
 filter(dcorps, company_short %in% shortcorps$company_short) %>% select(company_short, company_short_refs) %>% distinct() %>% knitr::kable()
 
 #dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
+
+ 
+  
+
 ```
 
 ```{r, eval=FALSE}
@@ -627,6 +631,16 @@ dcorps %>% ungroup() %>%
   add_count() %>% 
   arrange(-n) %>% 
   write_csv(path = "FERC/ProBusinesses.csv")
+
+## Make a single string of short corp names
+dcorp_short <- unique(dcorps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+# bad string? 
+# str_detect("", ferc_short)
+
+save(dcorp_short, file = "data/dcorp_short.Rdata")
 ```
 
 

@@ -128,23 +128,64 @@ save(dime_ferc, file = here("data/dime_ferc_corp_matches.Rdata"))
 ```
 
 ## Get PAC id - industry code crosswalk from CRP
+(notice industry codes included and excluded)
 ```{r CRP-data}
-crp <- read_delim("CRP Data/cmtes00.txt", 
+read_crp <- . %>% {read_delim(file = here(str_c("CRP Data/cmtes/", .)),
                   delim = ",", 
                   quote = "|",
                   col_names = c("Cycle", "CmteID", "PACShort","Affiliate",
                     "UltOrg","RecipID","RecipCode", "FECCandID",
                     "Party", "PrimCode","Source", "Sensitive", 
-                    "Foreign", "Active"))
+                    "Foreign", "Active"))}
+
+crp <- map_dfr(list.files(here("CRP Data/cmtes")), read_crp)
 
 ## INDUSTRY CODES
 
-industry <- readxl::read_xls("CRP Data/CRP_IDs.xls", sheet = "CRP Industry Codes")
+industry <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "CRP Industry Codes")
 names(industry) <- industry[5,]
 
-industry %>% 
-  filter(Sector %in% "Energy/Nat Resource", )
+industry %<>% 
+  filter(Sector %in% "Energy/Nat Resource",
+         !Industry %in% c("Mining", "Waste Management" , "Fisheries & Wildlife", "Misc. Energy"),
+         !Catname %in% c("Nuclear energy", 
+                         "Nuclear plant construction, equipment & svcs",
+                         "Water Utilities",
+                         "Oilfield service, equipment & exploration"))
 
+
+crpEnergy <- crp %>% filter(PrimCode %in% industry$Catcode) %>% 
+  select(PrimCode, CmteID, PACShort, Affiliate, UltOrg) %>% distinct()
+```
+
+## Companies with PACs linked to companies registered with FERC's website
+```{r crp-ferc-match}
+load(here("data", "DOE_FERC-corps.Rdata"))
+FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
+
+## Make a single string of short corp names
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+# bad string? 
+# str_detect("", ferc_short)
+
+## Companies to look out for
+crpEnergy %>% filter(str_detect(UltOrg, ferc_short)|str_detect(Affiliate, ferc_short)) %>% mutate(company_short = str_extract(UltOrg, ferc_short)) %>% select(company_short, UltOrg) %>% distinct() %>% knitr::kable()
+```
+
+## Companies with PACs matching companies in member letters to FERC
+```{r}
+load(here("data/dcorp_short.Rdata"))
+
+crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, ferc_short)) %>% mutate(company_short = str_extract(UltOrg, dcorp_short)) %>% select(company_short, UltOrg)  %>% distinct()%>% 
+  # FIXME
+  # THESE SHOULD BE FILTERED OUT IN THE SUMMARY or LETTER_CODING SCRIP 
+  filter(!is.na(company_short),
+         !company_short %in% c("Na", "Energy", "West", "NA", "Central",
+                               "Power", "Natural", "Consumers")) %>% 
+  knitr::kable()
 ```
 
 
