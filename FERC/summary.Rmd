@@ -497,9 +497,7 @@ dcorps %<>% mutate(company = company %>%
                                  "Regional Transmission Organization") %>%  
          str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
 
-dcorps$company %<>% 
-  str_replace_all("\r\n", ", ") %>% 
-  str_remove_all("^, ") %>%
+dcorps$company %<>%
   trimws()  # trim white space before and after company names
 
 dcorps %<>%   filter(nchar(company)>1) %>%# drop names less than 1 character
@@ -508,7 +506,7 @@ dcorps %<>%   filter(nchar(company)>1) %>%# drop names less than 1 character
 ## For matching, remove endings like ", Inc." etc. 
 trim <- function(d){
 d %>%
-  str_remove_all("Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation") %>% 
+  str_remove_all("Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation") %>% 
   str_remove_all("^, ") %>%
   trimws()  # filter out names less than 2 characters 
 }
@@ -585,18 +583,20 @@ dcorps %<>%
   mutate(company_short = ifelse(company_short == "Mitchell", "Mitchell Energy", company_short)) %>%
   mutate(company_short = ifelse(company_short == "Stream", "Stream Energy", company_short))%>%
   mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short)) %>% 
-  mutate(company_short = ifelse(company_short == "N/A|Na|NO", "NOT A COMPANY?", company_short))
+  mutate(company_short = ifelse(company_short %in% c("N/A|Na|NO|Clean Water Act"), "NOT A COMPANY?", company_short))
 
 #FIXME
 # ADD company_short_refs 
-dcorps %<>% group_by(company_short) %>% mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
+dcorps %<>% 
+  group_by(company_short) %>% 
+  mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
 
 # dcorps %>% group_by(company_short) %>% mutate(n=n()) %>% arrange(-n)
 
 # Save 
 
 ## Inspect over-trimmed company names
-dcorps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs) %>% distinct() %>% knitr::kable()
+dcorps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs, ID) %>% distinct() %>% knitr::kable()
 
 ##  did I acidentally delete everything before a comma? 
 # dcorps %>% filter(str_detect(company_short, ","))

@@ -1334,9 +1334,7 @@ dcorps %&lt;&gt;% mutate(company = company %&gt;%
                                  &quot;Regional Transmission Organization&quot;) %&gt;%  
          str_remove_all(&quot; Company.*| \\(.*| Inc.*| LLC.*| Energy.*&quot;) )
 
-dcorps$company %&lt;&gt;% 
-  str_replace_all(&quot;\r\n&quot;, &quot;, &quot;) %&gt;% 
-  str_remove_all(&quot;^, &quot;) %&gt;%
+dcorps$company %&lt;&gt;%
   trimws()  # trim white space before and after company names
 
 dcorps %&lt;&gt;%   filter(nchar(company)&gt;1) %&gt;%# drop names less than 1 character
@@ -1345,7 +1343,7 @@ dcorps %&lt;&gt;%   filter(nchar(company)&gt;1) %&gt;%# drop names less than 1 c
 ## For matching, remove endings like &quot;, Inc.&quot; etc. 
 trim &lt;- function(d){
 d %&gt;%
-  str_remove_all(&quot;Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation&quot;) %&gt;% 
+  str_remove_all(&quot;Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation&quot;) %&gt;% 
   str_remove_all(&quot;^, &quot;) %&gt;%
   trimws()  # filter out names less than 2 characters 
 }
@@ -1440,57 +1438,303 @@ dcorps %&lt;&gt;%
   mutate(company_short = ifelse(company_short == &quot;Mitchell&quot;, &quot;Mitchell Energy&quot;, company_short)) %&gt;%
   mutate(company_short = ifelse(company_short == &quot;Stream&quot;, &quot;Stream Energy&quot;, company_short))%&gt;%
   mutate(company_short = ifelse(company_short == &quot;AI&quot;, &quot;AI Energy&quot;, company_short)) %&gt;% 
-  mutate(company_short = ifelse(company_short == &quot;N/A|Na|NO&quot;, &quot;NOT A COMPANY?&quot;, company_short))
+  mutate(company_short = ifelse(company_short %in% c(&quot;N/A|Na|NO|Clean Water Act&quot;), &quot;NOT A COMPANY?&quot;, company_short))
 
 #FIXME
 # ADD company_short_refs 
-dcorps %&lt;&gt;% group_by(company_short) %&gt;% mutate(company_short_refs = str_c(unique(company), collapse = &quot;; &quot;)) %&gt;% ungroup()
+dcorps %&lt;&gt;% 
+  group_by(company_short) %&gt;% 
+  mutate(company_short_refs = str_c(unique(company), collapse = &quot;; &quot;)) %&gt;% ungroup()
 
 # dcorps %&gt;% group_by(company_short) %&gt;% mutate(n=n()) %&gt;% arrange(-n)
 
 # Save 
 
 ## Inspect over-trimmed company names
-dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;RTO&quot;)) %&gt;% select(company_short, company_short_refs) %&gt;% distinct() %&gt;% knitr::kable()</code></pre>
+dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;RTO&quot;)) %&gt;% select(company_short, company_short_refs, ID) %&gt;% distinct() %&gt;% knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th align="left">company_short</th>
 <th align="left">company_short_refs</th>
+<th align="left">ID</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20150430-0038</td>
 </tr>
 <tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20141006-0054</td>
+</tr>
+<tr class="odd">
 <td align="left">Energy</td>
 <td align="left">Energy,; Energy Projects</td>
+<td align="left">20040813-0003</td>
+</tr>
+<tr class="even">
+<td align="left">El Paso</td>
+<td align="left">El Paso Corporation; El Paso Pipeline</td>
+<td align="left">20040728-0251</td>
 </tr>
 <tr class="odd">
 <td align="left">El Paso</td>
 <td align="left">El Paso Corporation; El Paso Pipeline</td>
+<td align="left">20040723-0183</td>
 </tr>
 <tr class="even">
+<td align="left">El Paso</td>
+<td align="left">El Paso Corporation; El Paso Pipeline</td>
+<td align="left">20031010-0098</td>
+</tr>
+<tr class="odd">
 <td align="left">Natural</td>
 <td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20000828-0077</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20180111-0007</td>
 </tr>
 <tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20170428-0009</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20170421-0006</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20161014-0011</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160926-0009</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160624-0017</td>
+</tr>
+<tr class="even">
 <td align="left">Consumers</td>
 <td align="left">Consumers</td>
+<td align="left">20160526-0013</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160510-0011</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160510-0010</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160405-0074</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160309-0119</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20160212-0008</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20151020-0012</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20150908-0010</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20150908-0009</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20150902-0023</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20150715-0058</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20150518-0133</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20141107-0007</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20120712-0011</td>
 </tr>
 <tr class="even">
 <td align="left">Southern</td>
 <td align="left">Southern</td>
+<td align="left">20060530-0194</td>
 </tr>
 <tr class="odd">
+<td align="left">El Paso</td>
+<td align="left">El Paso Corporation; El Paso Pipeline</td>
+<td align="left">20040513-0093</td>
+</tr>
+<tr class="even">
+<td align="left">El Paso</td>
+<td align="left">El Paso Corporation; El Paso Pipeline</td>
+<td align="left">20040511-0203</td>
+</tr>
+<tr class="odd">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20031205-0074</td>
+</tr>
+<tr class="even">
 <td align="left">Express</td>
 <td align="left">Express Pipeline</td>
+<td align="left">20020604-0435</td>
+</tr>
+<tr class="odd">
+<td align="left">Northwest</td>
+<td align="left">Northwest Pipeline Corporation; Northwest Pipeline Corp.</td>
+<td align="left">20020423-0102</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20020318-0734</td>
+</tr>
+<tr class="odd">
+<td align="left">Northwest</td>
+<td align="left">Northwest Pipeline Corporation; Northwest Pipeline Corp.</td>
+<td align="left">20020214-0533</td>
 </tr>
 <tr class="even">
 <td align="left">Northwest</td>
 <td align="left">Northwest Pipeline Corporation; Northwest Pipeline Corp.</td>
+<td align="left">20011129-0057</td>
+</tr>
+<tr class="odd">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+<td align="left">20010712-0179</td>
+</tr>
+<tr class="even">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+<td align="left">20010709-0593</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20010709-0434</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20010709-0433</td>
+</tr>
+<tr class="odd">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+<td align="left">20010709-0265</td>
+</tr>
+<tr class="even">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+<td align="left">20010622-0315</td>
+</tr>
+<tr class="odd">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+<td align="left">20010621-0392</td>
+</tr>
+<tr class="even">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+<td align="left">20010402-0103</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20000828-0095</td>
+</tr>
+<tr class="even">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20040322-0269</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20020315-0274</td>
+</tr>
+<tr class="even">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+<td align="left">20020301-0098</td>
+</tr>
+<tr class="odd">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20000828-0070</td>
+</tr>
+<tr class="even">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20080327-0152</td>
+</tr>
+<tr class="odd">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20040211-0390</td>
+</tr>
+<tr class="even">
+<td align="left">Energy</td>
+<td align="left">Energy,; Energy Projects</td>
+<td align="left">20031201-0210</td>
+</tr>
+<tr class="odd">
+<td align="left">El Paso</td>
+<td align="left">El Paso Corporation; El Paso Pipeline</td>
+<td align="left">20020509-0108</td>
+</tr>
+<tr class="even">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20011221-0261</td>
+</tr>
+<tr class="odd">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+<td align="left">20011004-0483</td>
 </tr>
 </tbody>
 </table>
@@ -1517,7 +1761,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20180411-0025</td>
 </tr>
 <tr class="odd">
@@ -1537,7 +1781,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20171020-0018</td>
 </tr>
 <tr class="odd">
@@ -1551,1223 +1795,1203 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20170615-0007</td>
 </tr>
 <tr class="odd">
-<td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20160908-0008</td>
-</tr>
-<tr class="even">
 <td align="left">PennEast</td>
 <td align="left">PennEast; PennEast Pipeline; PennEast Pipeline Project; PennEast Pipeline Project, Docket No. CP15-558-000; PennEast Pipelinne; PennEast Pipelinne Project</td>
 <td align="left">20160715-0011</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Mountain Valley</td>
 <td align="left">Mountain Valley Pipeline; Mountain Valley Pipeline,; Mountain Valley Pipeline Project; Mountain Valley Pipeline project; Mountain Valley Pipeline - Southgate</td>
 <td align="left">20160629-0006</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20160602-0013</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20160523-0008</td>
 </tr>
-<tr class="even">
-<td align="left">Jordane</td>
+<tr class="odd">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20160519-0010</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20160506-0033</td>
 </tr>
-<tr class="even">
-<td align="left">Jordane</td>
+<tr class="odd">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20160419-0011</td>
 </tr>
-<tr class="odd">
-<td align="left">Jordane</td>
+<tr class="even">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20160419-0010</td>
 </tr>
-<tr class="even">
-<td align="left">Jordane</td>
+<tr class="odd">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20160413-0017</td>
 </tr>
-<tr class="odd">
-<td align="left">Jordane</td>
+<tr class="even">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20160411-0008</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20160315-0013</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PennEast</td>
 <td align="left">PennEast; PennEast Pipeline; PennEast Pipeline Project; PennEast Pipeline Project, Docket No. CP15-558-000; PennEast Pipelinne; PennEast Pipelinne Project</td>
 <td align="left">20160309-0012</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20160119-0008</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20151223-0021</td>
 </tr>
-<tr class="even">
-<td align="left">Atlanticst</td>
+<tr class="odd">
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20151124-0021</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20151103-0008</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20151103-0007</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PennEast</td>
 <td align="left">PennEast; PennEast Pipeline; PennEast Pipeline Project; PennEast Pipeline Project, Docket No. CP15-558-000; PennEast Pipelinne; PennEast Pipelinne Project</td>
 <td align="left">20151022-0039</td>
 </tr>
-<tr class="even">
-<td align="left">Atlanticst</td>
+<tr class="odd">
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150507-0015</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20150430-0038</td>
 </tr>
-<tr class="even">
-<td align="left">Atlanticst</td>
+<tr class="odd">
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150430-0037</td>
 </tr>
-<tr class="odd">
-<td align="left">Jordane</td>
+<tr class="even">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20150402-0007</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20150302-0021</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150204-0011</td>
 </tr>
-<tr class="even">
-<td align="left">Jordane</td>
+<tr class="odd">
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20150115-0026</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20141229-0090</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20141006-0054</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20131009-0016</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Nevada Power</td>
 <td align="left">Nevada Power</td>
 <td align="left">20130725-0017</td>
 </tr>
-<tr class="odd">
-<td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20120210-0001</td>
-</tr>
 <tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20120113-0002</td>
+<td align="left">Spectra</td>
+<td align="left">20120210-0001</td>
 </tr>
 <tr class="odd">
+<td align="left">Spectra</td>
+<td align="left">Spectra</td>
+<td align="left">20120113-0002</td>
+</tr>
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20110816-0036</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Algonquin</td>
 <td align="left">Algonquin</td>
 <td align="left">20101028-0010</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20090629-0037</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Nevada Power</td>
 <td align="left">Nevada Power</td>
 <td align="left">20080626-0022</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20080619-0123</td>
 </tr>
-<tr class="even">
-<td align="left">Weaver’se</td>
+<tr class="odd">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040716-0364</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Nevada Power</td>
 <td align="left">Nevada Power</td>
 <td align="left">20040702-0082</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Regional Transmission Organization</td>
 <td align="left">Regional Transmission Organization</td>
 <td align="left">20040322-0258</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Regional Transmission Organization</td>
 <td align="left">Regional Transmission Organization</td>
 <td align="left">20040312-0255</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20040305-0198</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20040212-0120</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Nevada Power</td>
 <td align="left">Nevada Power</td>
 <td align="left">20031120-0152</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Nevada Power</td>
 <td align="left">Nevada Power</td>
 <td align="left">20031105-0382</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20030716-0209</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Greenbrier</td>
 <td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
 <td align="left">20030623-0120</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Greenbrier</td>
 <td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
 <td align="left">20030320-0389</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20021008-0082</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20020617-0403</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Regional Transmission Organization West</td>
 <td align="left">Regional Transmission Organization West</td>
 <td align="left">20020509-0028</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Regional Transmission Organization West</td>
 <td align="left">Regional Transmission Organization West</td>
 <td align="left">20020509-0027</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Regional Transmission Organization West</td>
 <td align="left">Regional Transmission Organization West</td>
 <td align="left">20020506-0005</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Florida Gas Transmission</td>
 <td align="left">Florida Gas Transmission</td>
 <td align="left">20020117-0096</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Florida Gas Transmission</td>
 <td align="left">Florida Gas Transmission</td>
 <td align="left">20020102-0239</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Florida Gas Transmission</td>
 <td align="left">Florida Gas Transmission</td>
 <td align="left">20020102-0086</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PJM Interconnection</td>
 <td align="left">PJM Interconnection; PJM Interconnection,; PJM Interconnection,LLC</td>
 <td align="left">20020102-0046</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">ISO New England</td>
 <td align="left">ISO New England; ISO New England,Inc.; ISO New England,Inc</td>
 <td align="left">20011019-0270</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">ISO New England</td>
 <td align="left">ISO New England; ISO New England,Inc.; ISO New England,Inc</td>
 <td align="left">20010111-0319</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20001229-0112</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20000828-0092</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20000828-0051</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PJM Interconnection</td>
 <td align="left">PJM Interconnection; PJM Interconnection,; PJM Interconnection,LLC</td>
 <td align="left">20180611-0032</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20180516-0006</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PennEast</td>
 <td align="left">PennEast; PennEast Pipeline; PennEast Pipeline Project; PennEast Pipeline Project, Docket No. CP15-558-000; PennEast Pipelinne; PennEast Pipelinne Project</td>
 <td align="left">20180405-0013</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20180326-0009</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20180223-0007</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20180111-0007</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20170918-0007</td>
 </tr>
-<tr class="even">
-<td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
-<td align="left">20170802-0031</td>
-</tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
-<td align="left">20170609-0037</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">20170802-0031</td>
 </tr>
 <tr class="even">
+<td align="left">Dominion</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">20170609-0037</td>
+</tr>
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20170508-0011(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20170428-0009</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20170421-0006</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20170405-0192</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20170201-0010</td>
 </tr>
-<tr class="odd">
-<td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20170109-0048</td>
-</tr>
 <tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20161216-0007</td>
+<td align="left">Spectra</td>
+<td align="left">20170109-0048</td>
 </tr>
 <tr class="odd">
+<td align="left">Spectra</td>
+<td align="left">Spectra</td>
+<td align="left">20161216-0007</td>
+</tr>
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20161014-0011</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20161011-0018</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20161004-0075</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160926-0009</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20160926-0008</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20160805-0007</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20160729-0015</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20160729-0014</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160624-0017</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160624-0017</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20160614-0011</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20160601-0006</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160510-0011</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160510-0011</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160510-0010</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160428-0006</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160405-0074</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160329-0033</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160325-0007</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160309-0119</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160309-0119</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20160301-0012</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160226-0015</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20160212-0013</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20160212-0008</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20151216-0008</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20151103-0009</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20151022-0040</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20151020-0012</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20151019-0007</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150914-0025</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150914-0007</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150908-0011</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150908-0010</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20150908-0010</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150908-0009</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20150908-0009</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20150902-0023</td>
 </tr>
-<tr class="odd">
-<td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
-<td align="left">20150826-0036</td>
-</tr>
 <tr class="even">
-<td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
-<td align="left">20150826-0031</td>
-</tr>
-<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150812-0015</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150730-0012</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150728-0017</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20150715-0058</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20150625-0023</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20150610-0008</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Mountain Valley</td>
 <td align="left">Mountain Valley Pipeline; Mountain Valley Pipeline,; Mountain Valley Pipeline Project; Mountain Valley Pipeline project; Mountain Valley Pipeline - Southgate</td>
 <td align="left">20150602-0300</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20150518-0133</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20150408-0006</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Northeast</td>
 <td align="left">Northeast</td>
 <td align="left">20150402-0009</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20150126-0033</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20150115-0028</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20141229-0090</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">PennEast</td>
 <td align="left">PennEast; PennEast Pipeline; PennEast Pipeline Project; PennEast Pipeline Project, Docket No. CP15-558-000; PennEast Pipelinne; PennEast Pipelinne Project</td>
 <td align="left">20141218-0006</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20141107-0007</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20140424-0016</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PJM Interconnection</td>
 <td align="left">PJM Interconnection; PJM Interconnection,; PJM Interconnection,LLC</td>
 <td align="left">20131009-0015</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20130625-0010</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20130124-0015</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20130108-0016</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Tennessee</td>
 <td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
 <td align="left">20120712-0011</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20120712-0003</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PJM Interconnection</td>
 <td align="left">PJM Interconnection; PJM Interconnection,; PJM Interconnection,LLC</td>
 <td align="left">20110411-0044</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20110328-0003</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20110302-0023</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20101119-0024</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Florida Gas Transmission</td>
 <td align="left">Florida Gas Transmission</td>
 <td align="left">20100910-0033(partial)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Florida Gas Transmission</td>
 <td align="left">Florida Gas Transmission</td>
 <td align="left">20100910-0029(partial)</td>
 </tr>
-<tr class="odd">
-<td align="left">Weaver’se</td>
+<tr class="even">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20100830-0005</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20100804-0015</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20100525-0030</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20100525-0021</td>
 </tr>
-<tr class="odd">
-<td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20100318-0018</td>
-</tr>
 <tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
-<td align="left">20090908-0072(partial)</td>
+<td align="left">Spectra</td>
+<td align="left">20100318-0018</td>
 </tr>
 <tr class="odd">
+<td align="left">Spectra</td>
+<td align="left">Spectra</td>
+<td align="left">20090908-0072(partial)</td>
+</tr>
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20090908-0069</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20090908-0068</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20090812-0016</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20090702-0125</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20090618-0095</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20090527-0015</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20090508-0077</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20090113-0362(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20081222-0201</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20081204-0022(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20081113-0083</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20081029-0112</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20081016-4009</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20081001-0013</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20081001-0012</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20080929-0011</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20080919-0131</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20080919-0123(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20080820-0006</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Columbia Gas Transmission</td>
 <td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
 <td align="left">20080731-0190</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20080731-0186(partial)</td>
 </tr>
-<tr class="even">
-<td align="left">Weaver’se</td>
+<tr class="odd">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20080722-0015</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20080611-0154</td>
 </tr>
-<tr class="even">
-<td align="left">Weaver’se</td>
+<tr class="odd">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20080611-0073</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20080602-0040</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">PJM Interconnection</td>
 <td align="left">PJM Interconnection; PJM Interconnection,; PJM Interconnection,LLC</td>
 <td align="left">20080522-0156</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20080522-0154</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20080522-0130</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20080522-0129</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20080515-0182(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20080512-0256</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20080424-0053</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20080411-0032</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20080310-0104</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Guardian</td>
 <td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
 <td align="left">20080215-0206</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Kinder Morgan</td>
 <td align="left">Kinder Morgan; Kinder Morgan,</td>
 <td align="left">20080102-0300</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Spectra</td>
-<td align="left">Spectra, Energy.; Spectra</td>
+<td align="left">Spectra</td>
 <td align="left">20071217-0183</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20071107-0195(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20070807-0083</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20070709-0238(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20070709-0237</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Guardian</td>
 <td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
 <td align="left">20070529-0063</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20070507-0290</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20070402-0017</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20070312-0037</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20070308-0146</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Guardian</td>
 <td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
 <td align="left">20070222-0304</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Guardian</td>
 <td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
 <td align="left">20070116-4005</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Millenium</td>
 <td align="left">Millenium Pipeline; Millenium; Millenium Pipeline Project; Millenium Pipeline/Columbia Gas Project</td>
 <td align="left">20061130-0116</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Millenium</td>
 <td align="left">Millenium Pipeline; Millenium; Millenium Pipeline Project; Millenium Pipeline/Columbia Gas Project</td>
 <td align="left">20061120-0032</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Millenium</td>
 <td align="left">Millenium Pipeline; Millenium; Millenium Pipeline Project; Millenium Pipeline/Columbia Gas Project</td>
 <td align="left">20061106-0188</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20061011-0271(partial)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20061010-0221</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Millenium</td>
 <td align="left">Millenium Pipeline; Millenium; Millenium Pipeline Project; Millenium Pipeline/Columbia Gas Project</td>
 <td align="left">20060802-0114</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Rockies Express</td>
 <td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
 <td align="left">20060725-0018</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20060628-0012</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20060622-0070</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20060530-0198</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20060530-0197</td>
 </tr>
-<tr class="even">
-<td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
-<td align="left">20060530-0195</td>
-</tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
-<td align="left">20060518-0152</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
+<td align="left">20060530-0195</td>
 </tr>
 <tr class="even">
+<td align="left">Enron</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
+<td align="left">20060518-0152</td>
+</tr>
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20041018-0033</td>
 </tr>
-<tr class="odd">
-<td align="left">Weaver’se</td>
+<tr class="even">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20041018-0032</td>
 </tr>
-<tr class="even">
-<td align="left">Weaver’se</td>
+<tr class="odd">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040928-0117</td>
 </tr>
-<tr class="odd">
-<td align="left">Weaver’se</td>
+<tr class="even">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040928-0110</td>
 </tr>
-<tr class="even">
-<td align="left">Weaver’se</td>
+<tr class="odd">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040928-0108</td>
 </tr>
-<tr class="odd">
-<td align="left">Weaver’se</td>
+<tr class="even">
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040922-0114</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20040902-0041</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20040824-0164</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20040813-0002</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20040716-0159</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20040716-0158</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20040712-0075</td>
 </tr>
-<tr class="even">
-<td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
-<td align="left">20040712-0074</td>
-</tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
-<td align="left">20040618-0006</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
+<td align="left">20040712-0074</td>
 </tr>
 <tr class="even">
+<td align="left">Enron</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
+<td align="left">20040618-0006</td>
+</tr>
+<tr class="odd">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20040217-0007</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Transcontinental</td>
 <td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
 <td align="left">20030813-0100</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Greenbrier</td>
 <td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
 <td align="left">20030320-0395</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Greenbrier</td>
 <td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
 <td align="left">20030320-0394</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Greenbrier</td>
 <td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
 <td align="left">20030313-0205</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20030305-0180</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20030220-0083</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20030123-0074</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Williams</td>
 <td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
 <td align="left">20021218-0422</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Guardian</td>
 <td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
 <td align="left">20021211-0322</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Guardian</td>
 <td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
 <td align="left">20021209-0156</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20021206-0130</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Duke</td>
 <td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
 <td align="left">20021206-0098</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dominion Transmission</td>
 <td align="left">Dominion Transmission,; Dominion Transmission</td>
 <td align="left">20021206-0098</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Greenbrier</td>
 <td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
 <td align="left">20021104-0114</td>
 </tr>
-<tr class="odd">
-<td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
-<td align="left">20021104-0076</td>
-</tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20021023-0211</td>
 </tr>
 <tr class="odd">
@@ -2782,7 +3006,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20021008-0089</td>
 </tr>
 <tr class="even">
@@ -2792,7 +3016,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20021008-0081</td>
 </tr>
 <tr class="even">
@@ -2807,7 +3031,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20021008-0062</td>
 </tr>
 <tr class="odd">
@@ -2817,77 +3041,77 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20021008-0059</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20021001-0192</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20021001-0191</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0236</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0230</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0229</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0228</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0227</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0226</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020930-0220</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020926-0397</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020924-0059</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020923-0162</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020910-0166</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020910-0164</td>
 </tr>
 <tr class="odd">
@@ -2897,17 +3121,17 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020909-0633</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020909-0178</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020823-0296</td>
 </tr>
 <tr class="odd">
@@ -2917,17 +3141,17 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020815-0648</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020815-0640</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020813-0319</td>
 </tr>
 <tr class="odd">
@@ -2937,7 +3161,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020813-0007</td>
 </tr>
 <tr class="odd">
@@ -2972,12 +3196,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020716-0149</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020716-0145</td>
 </tr>
 <tr class="odd">
@@ -2987,12 +3211,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020716-0141</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020716-0140</td>
 </tr>
 <tr class="even">
@@ -3002,92 +3226,92 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020702-0076</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020702-0068</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020702-0061</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020702-0042</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0315</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0314</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0313</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0312</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0311</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0310</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020625-0309</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020625-0063</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020621-0230</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020617-0409</td>
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020610-0326</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020610-0156</td>
 </tr>
 <tr class="odd">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020610-0155</td>
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20020610-0154</td>
 </tr>
 <tr class="odd">
@@ -3152,7 +3376,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020604-0437</td>
 </tr>
 <tr class="even">
@@ -3162,12 +3386,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020524-0456</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020524-0455</td>
 </tr>
 <tr class="odd">
@@ -3187,7 +3411,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020521-0017</td>
 </tr>
 <tr class="odd">
@@ -3232,7 +3456,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020510-0257</td>
 </tr>
 <tr class="even">
@@ -3252,7 +3476,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020506-0181</td>
 </tr>
 <tr class="even">
@@ -3352,17 +3576,17 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020419-0157</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020403-0764</td>
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020403-0762</td>
 </tr>
 <tr class="even">
@@ -3412,7 +3636,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020403-0567</td>
 </tr>
 <tr class="even">
@@ -3437,42 +3661,42 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020304-0355</td>
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020304-0353</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020304-0245</td>
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020304-0244</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020215-0229</td>
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020215-0228</td>
 </tr>
 <tr class="even">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020214-0732</td>
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20020214-0727</td>
 </tr>
 <tr class="even">
@@ -3677,7 +3901,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="even">
 <td align="left">Dominion</td>
-<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+<td align="left">Dominion; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
 <td align="left">20010709-0426</td>
 </tr>
 <tr class="odd">
@@ -3771,7 +3995,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20180731-0107</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180731-0107</td>
 </tr>
@@ -3781,27 +4005,27 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20180726-5029</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180726-5029</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180720-0008</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180515-0006</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180511-0008</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180330-0012</td>
 </tr>
@@ -3811,7 +4035,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20180330-0012</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180216-0014</td>
 </tr>
@@ -3821,7 +4045,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20180111-0006</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20180111-0006</td>
 </tr>
@@ -3831,57 +4055,57 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20171020-0014</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170921-0021</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170915-0007</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20170809-0032</td>
 </tr>
 <tr class="even">
-<td align="left">Jordane</td>
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20170809-0032</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20170802-0032</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20170728-0018</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170714-4014(partial)</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20170712-0125</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20170712-0119</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20170707-0013</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170214-0133</td>
 </tr>
@@ -3911,22 +4135,22 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20160523-0008</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20160519-0010</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20160419-0011</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20160419-0010</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20160411-0008</td>
 </tr>
@@ -3941,7 +4165,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20151223-0021</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20151211-0026</td>
 </tr>
@@ -3961,7 +4185,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150430-0038</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20150402-0007</td>
 </tr>
@@ -3981,12 +4205,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150126-0032</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20150115-0026</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20141229-0087</td>
 </tr>
@@ -3996,47 +4220,47 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20141121-0009</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20141112-0113</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20141104-0024</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20141020-4009</td>
 </tr>
 <tr class="odd">
-<td align="left">Jordane</td>
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20120816-0006</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20120816-0006</td>
 </tr>
 <tr class="odd">
-<td align="left">Jordane</td>
+<td align="left">Jordan Cove</td>
 <td align="left">Jordan Cove</td>
 <td align="left">20091028-0041</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20091028-0041</td>
 </tr>
 <tr class="odd">
-<td align="left">Weaver’se</td>
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040726-0299</td>
 </tr>
 <tr class="even">
-<td align="left">Weaver’se</td>
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040720-0182</td>
 </tr>
@@ -4111,7 +4335,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20180124-0062</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170802-0031</td>
 </tr>
@@ -4121,12 +4345,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20170619-0007</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170609-0037</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20170508-0009(partial)</td>
 </tr>
@@ -4176,7 +4400,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20160921-0011</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20160826-0009</td>
 </tr>
@@ -4211,7 +4435,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20160713-0006</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20160617-0025</td>
 </tr>
@@ -4236,7 +4460,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20160428-0006</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20160406-0022</td>
 </tr>
@@ -4256,12 +4480,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20160329-0033</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20160329-0031</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20160325-0008</td>
 </tr>
@@ -4291,7 +4515,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20151216-0008</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20151203-0012(partial)</td>
 </tr>
@@ -4341,12 +4565,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150908-0011</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150826-0036</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150826-0031</td>
 </tr>
@@ -4396,7 +4620,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150625-0023</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150603-0088</td>
 </tr>
@@ -4411,17 +4635,17 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150505-0193</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150504-0007</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20150420-0007</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150410-0009</td>
 </tr>
@@ -4431,12 +4655,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150408-0006</td>
 </tr>
 <tr class="odd">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150311-0008</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150311-0007</td>
 </tr>
@@ -4446,7 +4670,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150311-0006</td>
 </tr>
 <tr class="even">
-<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast</td>
 <td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
 <td align="left">20150303-0016</td>
 </tr>
@@ -4456,7 +4680,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20150210-0059</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20150204-0013</td>
 </tr>
@@ -4546,12 +4770,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20061030-0178(partial)</td>
 </tr>
 <tr class="even">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20060907-0127</td>
 </tr>
 <tr class="odd">
-<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector</td>
 <td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
 <td align="left">20060823-0271</td>
 </tr>
@@ -4561,17 +4785,17 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 <td align="left">20060817-0093(partial)</td>
 </tr>
 <tr class="odd">
-<td align="left">Weaver’se</td>
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20041001-0011</td>
 </tr>
 <tr class="even">
-<td align="left">Weaver’se</td>
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040922-0115</td>
 </tr>
 <tr class="odd">
-<td align="left">Weaver’se</td>
+<td align="left">Weaver’s Cove</td>
 <td align="left">Weaver’s Cove; Weaver’s Cove,</td>
 <td align="left">20040304-0096</td>
 </tr>
@@ -4602,7 +4826,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_
 </tr>
 <tr class="odd">
 <td align="left">Enron</td>
-<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+<td align="left">Enron; Enron Corporation; Enron Corp</td>
 <td align="left">20030221-0291</td>
 </tr>
 <tr class="even">
