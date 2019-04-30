@@ -80,7 +80,7 @@ unique(FERC_letters$company_short_detected)
 
 # Match corporations and officials to their campaign donations.
 
-## Campaign contributions of companies listed on the FERC website
+## Get DIME campaign contributions data
 ```{r, eval=FALSE}
 ## To load FERC data 
 load(here("data", "DOE_FERC-letters-corps.Rdata"))
@@ -126,6 +126,29 @@ head(dime_ferc)
 ## SAVE
 save(dime_ferc, file = here("data/dime_ferc_corp_matches.Rdata"))
 ```
+
+## Get PAC id - industry code crosswalk from CRP
+```{r CRP-data}
+crp <- read_delim("CRP Data/cmtes00.txt", 
+                  delim = ",", 
+                  quote = "|",
+                  col_names = c("Cycle", "CmteID", "PACShort","Affiliate",
+                    "UltOrg","RecipID","RecipCode", "FECCandID",
+                    "Party", "PrimCode","Source", "Sensitive", 
+                    "Foreign", "Active"))
+
+## INDUSTRY CODES
+
+industry <- readxl::read_xls("CRP Data/CRP_IDs.xls", sheet = "CRP Industry Codes")
+names(industry) <- industry[5,]
+
+industry %>% 
+  filter(Sector %in% "Energy/Nat Resource", )
+
+```
+
+
+
 
 ## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website
 
