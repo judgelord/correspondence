@@ -516,15 +516,12 @@ d %>%
 dcorps$company_short <- trim(dcorps$company) %>% trim()
 ```
 
-Problem names that need to be fixed (e.g. to remove special characters or spell out abbreviated name)
+Problem company names that need to be fixed (e.g. to remove special characters or spell out abbreviated name)
 ```{r problem-names}
 # Problem Names
 dcorps %>% filter(nchar(company_short)<2) %>% knitr::kable()
 
-dcorps %<>% filter(nchar(company_short)>1,
-                       company_short != "Â")
-
-head(FERC_corps)
+dcorps %<>% filter(nchar(company_short)>1)
 ```
 
 
@@ -587,18 +584,38 @@ dcorps %<>%
   mutate(company_short = ifelse(company_short == "Lakeside", "Lakeside Energy", company_short)) %>%
   mutate(company_short = ifelse(company_short == "Mitchell", "Mitchell Energy", company_short)) %>%
   mutate(company_short = ifelse(company_short == "Stream", "Stream Energy", company_short))%>%
-  mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short))
+  mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short)) %>% 
+  mutate(company_short = ifelse(company_short == "N/A|Na|NO", "NOT A COMPANY?", company_short))
+
+#FIXME
+# ADD company_short_refs 
+dcorps %<>% group_by(company_short) %>% mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
+
+dcorps %>% group_by(company_short) %>% mutate(n=n()) %>% arrange(-n)
+
+# Save 
 
 ## Inspect over-trimmed company names
-FERC_corps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short)
+dcorps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs) %>% distinct()
 
-FERC_corps %>% filter(str_detect(company_short, ","))
+# did I acidentally delete everything before a comma? 
+dcorps %>% filter(str_detect(company_short, ","))
 
-FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(-n) 
+# top corps
+topcorps <- dcorps %>% group_by(company_short) %>% tally() %>% arrange(-n) %>% top_n(20)
 
-FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(nchar(company_short)) %>% mutate(nchar = nchar(company_short))
+filter(dcorps, company_short %in% topcorps$company_short) %>% select(company_short, company_short_refs) %>% distinct() %>% knitr::kable()
 
-FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(-nchar(company_short)) 
+# corps with short names 
+shortcorps <- dcorps %>% 
+  group_by(company_short) %>% 
+  tally() %>% arrange(nchar(company_short)) %>% 
+  mutate(nchar = nchar(company_short))%>%
+  top_n(10, -nchar) 
+
+filter(dcorps, company_short %in% shortcorps$company_short) %>% select(company_short, company_short_refs) %>% distinct() %>% knitr::kable()
+
+dcorps %>% group_by(company_short) %>% tally() %>% arrange(-nchar(company_short)) 
 ```
 
 

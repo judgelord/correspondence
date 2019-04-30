@@ -1351,7 +1351,7 @@ d %&gt;%
 }
 
 dcorps$company_short &lt;- trim(dcorps$company) %&gt;% trim()</code></pre>
-<p>Problem names that need to be fixed (e.g. to remove special characters or spell out abbreviated name)</p>
+<p>Problem company names that need to be fixed (e.g. to remove special characters or spell out abbreviated name)</p>
 <pre class="r"><code># Problem Names
 dcorps %&gt;% filter(nchar(company_short)&lt;2) %&gt;% knitr::kable()</code></pre>
 <table>
@@ -1381,20 +1381,7 @@ dcorps %&gt;% filter(nchar(company_short)&lt;2) %&gt;% knitr::kable()</code></pr
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>dcorps %&lt;&gt;% filter(nchar(company_short)&gt;1,
-                       company_short != &quot;Â&quot;)
-
-head(FERC_corps)</code></pre>
-<pre><code>## # A tibble: 6 x 3
-## # Groups:   company_short [6]
-##   industry      company_short       company_short_refs                     
-##   &lt;chr&gt;         &lt;chr&gt;               &lt;chr&gt;                                  
-## 1 oil           Alpine Transportat… Alpine Transportation Company          
-## 2 oil           Anadarko Gulf of M… Anadarko Gulf of Mexico Pipeline, Inc. 
-## 3 oil           Anschutz Ranch East Anschutz Ranch East Pipeline, Inc.     
-## 4 oil           Apache              Apache Corporation                     
-## 5 oil           Apache GOM          Apache GOM Pipeline, Inc.              
-## 6 oil;gas;elec… Barclays Bank PLC   Barclays Bank PLC; Barclays Bank PLC; …</code></pre>
+<pre class="r"><code>dcorps %&lt;&gt;% filter(nchar(company_short)&gt;1)</code></pre>
 <hr />
 </div>
 <div id="committee-chairs" class="section level2">
@@ -1516,6 +1503,20 @@ FERC_letters %&gt;%
 <li>add company names from company scraper to google sheet</li>
 <li>template to match company names to donation (lobbyview, DIME)</li>
 <li>template match company names to industry codes (center for responsive politics)</li>
+</ul>
+</div>
+<div id="short-term" class="section level1">
+<h1>SHORT TERM</h1>
+<ol style="list-style-type: decimal">
+<li>Identify relevent industry codes</li>
+<li>Get cycle-specific PAC classification for those industry codes</li>
+<li>Subset dime to those PAC classification</li>
+</ol>
+</div>
+<div id="long-term" class="section level1">
+<h1>LONG TERM</h1>
+<ul>
+<li>link industry codes to CRP committee classification</li>
 </ul>
 </div>
 <div id="done" class="section level1">
