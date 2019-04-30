@@ -1351,7 +1351,7 @@ d %&gt;%
 }
 
 dcorps$company_short &lt;- trim(dcorps$company) %&gt;% trim()</code></pre>
-<p>Problem company names that need to be fixed (e.g. to remove special characters or spell out abbreviated name)</p>
+<p>Problem company names that may need to be fixed (e.g. to remove special characters or spell out abbreviated name)</p>
 <pre class="r"><code># Problem Names
 dcorps %&gt;% filter(nchar(company_short)&lt;2) %&gt;% knitr::kable()</code></pre>
 <table>
@@ -1382,6 +1382,446 @@ dcorps %&gt;% filter(nchar(company_short)&lt;2) %&gt;% knitr::kable()</code></pr
 </tbody>
 </table>
 <pre class="r"><code>dcorps %&lt;&gt;% filter(nchar(company_short)&gt;1)</code></pre>
+<pre class="r"><code>## Correct over-trimmed names
+dcorps %&lt;&gt;% 
+  mutate(company_short = ifelse(company == &quot;Columbia Energy Power Marketing Corporation&quot;, &quot;Columbia Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Michigan Energy Exchange, LLC&quot;, &quot;Michigan Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Midwest Energy, Inc.&quot;, &quot;Midwest Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Northwest Pipeline LLC&quot;, &quot;Northwest Pipeline&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Peak Energy, Inc.&quot;, &quot;Peak Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Public Service Company of New Mexico&quot;, &quot;Public Service Company of New Mexico&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Salt Lake Energy Systems, LLC&quot;, &quot;Salt Lake Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Natural Gas Pipeline Company of America&quot;, &quot;Natural Gas Pipeline Company of America&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Natural Gas Trading Corporation&quot;, &quot;Natural Gas Trading Corporation&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Energy, USA-TPC Corp.&quot;, &quot;TPC&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;New Energy Partners, L.L.C.&quot;, &quot;New Energy Partners&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;New Energy Service, LLC&quot;, &quot;New Energy Service&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;North Energy Associates, A Limited Partnership&quot;, &quot;North Energy Associates&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Pipeline Company LLC&quot;, &quot;Pipeline Company LLC&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Express Pipeline LLC&quot;, &quot;Express Pipeline LLC&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;American Energy Savings, Inc.&quot;, &quot;American Energy Savings&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Electric Energy, Inc.&quot;, &quot;Electric Energy, Inc.&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;System Energy Resources, Inc., Llano Estacado Wind, LLC, System Energy Resources, Inc., Northern Iowa Windpower, LLC, and RS Cogen, L.L.C.&quot;, &quot;System Energy Resources&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Public Service Company of Colorado&quot;, &quot;Public Service Company of Colorado&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Southern Company Services, Inc.&quot;, &quot;Southern Company&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;International Energy Consultants&quot;, &quot;International Energy Consultants&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Jackson Pipeline Company&quot;, &quot;Jackson Pipeline&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Southern Energy California&quot;, &quot;Southern Energy California&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Tennessee Gas Pipeline Company, L.L.C.&quot;, &quot;Tennessee Gas Pipeline&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Select Energy New York, Inc.&quot;, &quot;Select Energy New York&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Inland Corporation&quot;, &quot;Inland Corporation&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Advanced Energy Systems, Inc.&quot;, &quot;Advanced Energy Systems&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Consumers Energy Company&quot;, &quot;Consumers Energy Company&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Boston Energy Trading and Marketing LLC&quot;, &quot;Boston Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Complete Energy Services, Inc.&quot;, &quot;Complete Energy Services&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;El Paso Energy Intrastate, L.P.&quot;, &quot;El Paso Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Houston Pipe Line Company LP&quot;, &quot;Houston Pipe Line&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;North American Energy, Inc.&quot;, &quot;North American Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Spokane Energy, LLC&quot;, &quot;Spokane Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company == &quot;Salem Energy Systems, LLC&quot;, &quot;Salem Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Direct&quot;, &quot;Direct Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company_short == &quot;DC&quot;, &quot;DC Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company_short == &quot;PS&quot;, &quot;PS Energy Group&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Coastal&quot;, &quot;Coastal Pipeline&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;CT&quot;, &quot;CT Corporation&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Forest&quot;, &quot;Forest Pipeline&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Minnesota&quot;, &quot;Minnesota Pipe Line&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;NW&quot;, &quot;NW Pipeline&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Ohio River&quot;, &quot;Ohio River Pipe Line&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Rio Grande&quot;, &quot;Rio Grande Pipeline&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Plains&quot;, &quot;Plains Pipeline&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Portland&quot;, &quot;Portland Pipe Line&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;AP&quot;, &quot;AP Holdings&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Ohio River&quot;, &quot;Ohio River Pipe Line&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Boundary&quot;, &quot;Boundary Gas&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Columbia&quot;, &quot;Columbia Energy&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Independence&quot;, &quot;Independence Energy Group&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Lakeside&quot;, &quot;Lakeside Energy&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Mitchell&quot;, &quot;Mitchell Energy&quot;, company_short)) %&gt;%
+  mutate(company_short = ifelse(company_short == &quot;Stream&quot;, &quot;Stream Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(company_short == &quot;AI&quot;, &quot;AI Energy&quot;, company_short)) %&gt;% 
+  mutate(company_short = ifelse(company_short == &quot;N/A|Na|NO&quot;, &quot;NOT A COMPANY?&quot;, company_short))
+
+#FIXME
+# ADD company_short_refs 
+dcorps %&lt;&gt;% group_by(company_short) %&gt;% mutate(company_short_refs = str_c(unique(company), collapse = &quot;; &quot;)) %&gt;% ungroup()
+
+# dcorps %&gt;% group_by(company_short) %&gt;% mutate(n=n()) %&gt;% arrange(-n)
+
+# Save 
+
+## Inspect over-trimmed company names
+dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;RTO&quot;)) %&gt;% select(company_short, company_short_refs) %&gt;% distinct() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">company_short</th>
+<th align="left">company_short_refs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+</tr>
+<tr class="even">
+<td align="left">Energy</td>
+<td align="left">Energy,; Energy Projects</td>
+</tr>
+<tr class="odd">
+<td align="left">El Paso</td>
+<td align="left">El Paso Corporation; El Paso Pipeline</td>
+</tr>
+<tr class="even">
+<td align="left">Natural</td>
+<td align="left">Natural Gas; Natural Gas Pipeline Project; Natural Gas Pipeline</td>
+</tr>
+<tr class="odd">
+<td align="left">Consumers</td>
+<td align="left">Consumers</td>
+</tr>
+<tr class="even">
+<td align="left">Express</td>
+<td align="left">Express Pipeline</td>
+</tr>
+<tr class="odd">
+<td align="left">Northwest</td>
+<td align="left">Northwest Pipeline Corporation; Northwest Pipeline Corp.</td>
+</tr>
+<tr class="even">
+<td align="left">Southern</td>
+<td align="left">Southern</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>##  did I acidentally delete everything before a comma? 
+# dcorps %&gt;% filter(str_detect(company_short, &quot;,&quot;))
+
+# top corps
+topcorps &lt;- dcorps %&gt;% group_by(company_short) %&gt;% tally() %&gt;% arrange(-n) %&gt;% top_n(30)
+
+filter(dcorps, company_short %in% topcorps$company_short) %&gt;% select(company_short, company_short_refs) %&gt;% distinct() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">company_short</th>
+<th align="left">company_short_refs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">PJM Interconnection</td>
+<td align="left">PJM Interconnection; PJM Interconnection,; PJM Interconnection,LLC</td>
+</tr>
+<tr class="even">
+<td align="left">Dominion</td>
+<td align="left">Dominion; Dominion, Duke, Piedmont NEnural Qas, and AGL Resources.; Dominion Gas; Dominion Corp; Dominion Pipeline Corp; Dominion Gas Pipeline project</td>
+</tr>
+<tr class="odd">
+<td align="left">Duke</td>
+<td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
+</tr>
+<tr class="even">
+<td align="left">Columbia Gas Transmission</td>
+<td align="left">Columbia Gas Transmission,; Columbia Gas Transmission; Columbia Gas Transmission Corporation; Columbia Gas Transmission Corp; Columbia Gas Transmission Pipeline</td>
+</tr>
+<tr class="odd">
+<td align="left">Transcontinental</td>
+<td align="left">Transcontinental Gas Pipe Line; Transcontinental Gas Pipeline; Transcontinental Gas Pipeline Corporation; Transcontinental Pipeline Corporation; Transcontinental Pipeline; Transcontinental Gas; Transcontinental Gas Pipe Line Corporation; Transcontinental Gas Pipe Line Corp.; Transcontinental Gas Pipe Line compressor station 206; Transcontinental Gas Pipeline / Williams Sentinel Expansion Project</td>
+</tr>
+<tr class="even">
+<td align="left">Spectra</td>
+<td align="left">Spectra, Energy.; Spectra</td>
+</tr>
+<tr class="odd">
+<td align="left">PennEast</td>
+<td align="left">PennEast; PennEast Pipeline; PennEast Pipeline Project; PennEast Pipeline Project, Docket No. CP15-558-000; PennEast Pipelinne; PennEast Pipelinne Project</td>
+</tr>
+<tr class="even">
+<td align="left">Mountain Valley</td>
+<td align="left">Mountain Valley Pipeline; Mountain Valley Pipeline,; Mountain Valley Pipeline Project; Mountain Valley Pipeline project; Mountain Valley Pipeline - Southgate</td>
+</tr>
+<tr class="odd">
+<td align="left">Jordane</td>
+<td align="left">Jordan Cove</td>
+</tr>
+<tr class="even">
+<td align="left">Atlanticst</td>
+<td align="left">Atlantic Coast Pipeline,; Atlantic Coast Pipeline; Atlantic Coast Pipeline Project; Atlantic Coast Pipeline project</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee</td>
+<td align="left">Tennessee Gas Pipeline; Tennessee Gas Pipeline Co; Tennessee Gas</td>
+</tr>
+<tr class="even">
+<td align="left">Kinder Morgan</td>
+<td align="left">Kinder Morgan; Kinder Morgan,</td>
+</tr>
+<tr class="odd">
+<td align="left">Nevada Power</td>
+<td align="left">Nevada Power</td>
+</tr>
+<tr class="even">
+<td align="left">Algonquin</td>
+<td align="left">Algonquin</td>
+</tr>
+<tr class="odd">
+<td align="left">Rockies Express</td>
+<td align="left">Rockies Express Pipeline; Rockies Express,; Rockies Express Pipeline,; Rockies Express Gas; Rockies Express; Rockies Express Pipeline, East; Rockies Express Pipeline - East; Rockies Express - East Pipeline; Rockies Express Pipeline / REX East Project; Rockies Express Pipeline - East Project</td>
+</tr>
+<tr class="even">
+<td align="left">Dominion Transmission</td>
+<td align="left">Dominion Transmission,; Dominion Transmission</td>
+</tr>
+<tr class="odd">
+<td align="left">Weaver’se</td>
+<td align="left">Weaver’s Cove; Weaver’s Cove,</td>
+</tr>
+<tr class="even">
+<td align="left">Regional Transmission Organization</td>
+<td align="left">Regional Transmission Organization</td>
+</tr>
+<tr class="odd">
+<td align="left">Williams</td>
+<td align="left">Williams; Williams Pipeline; Williams Gas; Williams Gas Pipeline West; Williams Gas Pipeline Group; Williams Pipeline Co’s pipeline through Thurston County</td>
+</tr>
+<tr class="even">
+<td align="left">Enron</td>
+<td align="left">Enron; Enron Corporation; Enron Co.; Enron Corp</td>
+</tr>
+<tr class="odd">
+<td align="left">Greenbrier</td>
+<td align="left">Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.</td>
+</tr>
+<tr class="even">
+<td align="left">Regional Transmission Organization West</td>
+<td align="left">Regional Transmission Organization West</td>
+</tr>
+<tr class="odd">
+<td align="left">Florida Gas Transmission</td>
+<td align="left">Florida Gas Transmission</td>
+</tr>
+<tr class="even">
+<td align="left">ISO New England</td>
+<td align="left">ISO New England; ISO New England,Inc.; ISO New England,Inc</td>
+</tr>
+<tr class="odd">
+<td align="left">Northeast</td>
+<td align="left">Northeast</td>
+</tr>
+<tr class="even">
+<td align="left">Guardian</td>
+<td align="left">Guardian Pipeline; Guardian Pipeline Co; Guardian; Guardian Pipeline,; Guardian Pipeline Project; Guardian Pipeline project</td>
+</tr>
+<tr class="odd">
+<td align="left">Millenium</td>
+<td align="left">Millenium Pipeline; Millenium; Millenium Pipeline Project; Millenium Pipeline/Columbia Gas Project</td>
+</tr>
+<tr class="even">
+<td align="left">Pacificnector</td>
+<td align="left">Pacific Connector Gas Pipeline project; Pacific Connector Gas Pipeline Project; Pacific Connector Pipeline project; Pacific Connector Project; Pacific Connector Gas Pipeline; Pacific Connector Pipeline Projects</td>
+</tr>
+<tr class="odd">
+<td align="left">CatawbaWateree Hydroelectric</td>
+<td align="left">CatawbaWateree Hydroelectric Project</td>
+</tr>
+<tr class="even">
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr class="odd">
+<td align="left">Broadwater Liquefied Natural</td>
+<td align="left">Broadwater Liquefied Natural Gas</td>
+</tr>
+<tr class="even">
+<td align="left">Dominion’s Greenbrier</td>
+<td align="left">Dominion’s Greenbrier Pipeline Project</td>
+</tr>
+<tr class="odd">
+<td align="left">West</td>
+<td align="left">West, Midwest, Northeast and Southeast Regional Transmission Organizations</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># corps with short names 
+shortcorps &lt;- dcorps %&gt;% 
+  group_by(company_short) %&gt;% 
+  tally() %&gt;% arrange(nchar(company_short)) %&gt;% 
+  mutate(nchar = nchar(company_short))%&gt;%
+  top_n(30, -nchar) 
+
+filter(dcorps, company_short %in% shortcorps$company_short) %&gt;% select(company_short, company_short_refs) %&gt;% distinct() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">company_short</th>
+<th align="left">company_short_refs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Duke</td>
+<td align="left">Duke; Duke, Dynergy, Mirant, Reliant, AES and Williams</td>
+</tr>
+<tr class="even">
+<td align="left">DTE</td>
+<td align="left">DTE</td>
+</tr>
+<tr class="odd">
+<td align="left">GB</td>
+<td align="left">GB</td>
+</tr>
+<tr class="even">
+<td align="left">NV</td>
+<td align="left">NV</td>
+</tr>
+<tr class="odd">
+<td align="left">Ruby</td>
+<td align="left">Ruby Pipeline; Ruby Pipeline Project</td>
+</tr>
+<tr class="even">
+<td align="left">Army</td>
+<td align="left">Army Corps of Engineer; Army Corps of Engineers</td>
+</tr>
+<tr class="odd">
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+</tr>
+<tr class="even">
+<td align="left">PPL</td>
+<td align="left">PPL Corporation; PPL; PPL, Montana</td>
+</tr>
+<tr class="odd">
+<td align="left">BP</td>
+<td align="left">BP</td>
+</tr>
+<tr class="even">
+<td align="left">PG&amp;E</td>
+<td align="left">PG&amp;E Corp.; PG&amp;E</td>
+</tr>
+<tr class="odd">
+<td align="left">CP&amp;I</td>
+<td align="left">CP&amp;I</td>
+</tr>
+<tr class="even">
+<td align="left">SCG</td>
+<td align="left">SCG Pipeline</td>
+</tr>
+<tr class="odd">
+<td align="left">PNM</td>
+<td align="left">PNM</td>
+</tr>
+<tr class="even">
+<td align="left">HOBO</td>
+<td align="left">HOBO</td>
+</tr>
+<tr class="odd">
+<td align="left">FERC</td>
+<td align="left">FERC; FERC Project No. 12569; FERC Project No. 10482; FERC Project No. 2114</td>
+</tr>
+<tr class="even">
+<td align="left">PJM</td>
+<td align="left">PJM</td>
+</tr>
+<tr class="odd">
+<td align="left">DWR</td>
+<td align="left">DWR</td>
+</tr>
+<tr class="even">
+<td align="left">MVP</td>
+<td align="left">MVP</td>
+</tr>
+<tr class="odd">
+<td align="left">GE</td>
+<td align="left">GE</td>
+</tr>
+<tr class="even">
+<td align="left">EQT</td>
+<td align="left">EQT</td>
+</tr>
+<tr class="odd">
+<td align="left">NED</td>
+<td align="left">NED</td>
+</tr>
+<tr class="even">
+<td align="left">Na</td>
+<td align="left">Na</td>
+</tr>
+<tr class="odd">
+<td align="left">Xcel</td>
+<td align="left">Xcel</td>
+</tr>
+<tr class="even">
+<td align="left">FPL</td>
+<td align="left">FPL</td>
+</tr>
+<tr class="odd">
+<td align="left">AES</td>
+<td align="left">AES</td>
+</tr>
+<tr class="even">
+<td align="left">REX</td>
+<td align="left">REX; REX Pipeline</td>
+</tr>
+<tr class="odd">
+<td align="left">WPSC</td>
+<td align="left">WPSC</td>
+</tr>
+<tr class="even">
+<td align="left">PSEG</td>
+<td align="left">PSEG</td>
+</tr>
+<tr class="odd">
+<td align="left">AEP</td>
+<td align="left">AEP</td>
+</tr>
+<tr class="even">
+<td align="left">M&amp;J</td>
+<td align="left">M&amp;J Holdings,</td>
+</tr>
+<tr class="odd">
+<td align="left">Sun</td>
+<td align="left">Sun Pipe Line Co; Sun Pipe Line Co.right-of-way line project</td>
+</tr>
+<tr class="even">
+<td align="left">JDJ</td>
+<td align="left">JDJ</td>
+</tr>
+<tr class="odd">
+<td align="left">ANR</td>
+<td align="left">ANR Pipeline</td>
+</tr>
+<tr class="even">
+<td align="left">CMS</td>
+<td align="left">CMS</td>
+</tr>
+<tr class="odd">
+<td align="left">AIM</td>
+<td align="left">AIM Project</td>
+</tr>
+<tr class="even">
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr class="odd">
+<td align="left">Elba</td>
+<td align="left">Elba Project</td>
+</tr>
+<tr class="even">
+<td align="left">West</td>
+<td align="left">West, Midwest, Northeast and Southeast Regional Transmission Organizations</td>
+</tr>
+<tr class="odd">
+<td align="left">FGT</td>
+<td align="left">FGT</td>
+</tr>
+<tr class="even">
+<td align="left">VLP</td>
+<td align="left">VLP Project</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>#dcorps %&gt;% filter(!position %in% c(&quot;ProProject&quot;, &quot;AntiProject&quot;)) %&gt;%  group_by(company_short) %&gt;% tally() %&gt;% arrange(-nchar(company_short))  %&gt;% top_n(20) %&gt;% knitr::kable()</code></pre>
 <hr />
 </div>
 <div id="committee-chairs" class="section level2">
