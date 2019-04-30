@@ -6,6 +6,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{csquotes}
 \usepackage{setspace}
+\usepackage{subcaption}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -106,17 +107,47 @@ In some cases, legislators appeared motivated by personal business concerns.  Fo
 
 
 \section{Dependent Variable: Member Attempts to Influence Bureaucracy}
-
+\clearpage
 \section{Findings: Types of Congressional Requests to FERC}
 
-\begin{figure}[hbt!]
+
+
+Our coding of letter type is a mix of hand coding “Pro-business” and “Constituent” letters, as well as some coding rules applied to letters that were not put in either group by human coders (click CODE to see inductively-developed coding rules):
+
+FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents.
+
+\begin{figure}[htp]
 \centering
-\caption{Distribution Across Types of Congressional Requests to FERC 2000-2019} \label{f:fig2}
-\scalebox{0.3}{\includegraphics{data-coverage-by-type-1.png}}
+\caption{Distribution Across Types of Congressional Requests FERC vs. All* Agencies} \label{f:types}
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\textwidth]{data-by-type-1.png}
+\end{subfigure}
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\textwidth]{data-by-type-all-1.png}
+\end{subfigure}
 \end{figure}
 
 \clearpage
 \section{Findings: What Members Attempt to Influence FERC}
+
+
+
+
+\begin{figure}[htp]
+\centering
+\caption{Party Differences in Who Writes on Behalf of Constituent vs. Business} \label{f:party}
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\textwidth]{part-constituent-1}
+\end{subfigure}
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\textwidth]{part-business-1}
+\end{subfigure}
+\end{figure}
+
+
+
+
+
 
 In our research across federal agencies, we typically see senators from larger states doing more constituency service than senators from smaller states.  This isn't the case with letter-writing to FERC.  As figure \ref{f:statepop} below shows, letter-marking to the Federal Energy Regulatory Commission doesn't vary with state population.  
 
