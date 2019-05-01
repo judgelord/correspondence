@@ -146,7 +146,8 @@ industry %<>%
 
 
 crpEnergy <- crp %>% filter(PrimCode %in% industry$Catcode) %>% 
-  select(PrimCode, CmteID, PACShort, Affiliate, UltOrg) %>% distinct()
+  select(PrimCode, CmteID, PACShort, Affiliate, UltOrg) %>% distinct() %>% 
+  mutate(comid = CmteID)
 ```
 
 ## Companies with PACs linked to companies registered with FERC's website
@@ -169,25 +170,65 @@ crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, ferc_
 
 
 ## PAC contributions from DIME
-```{r}
+```{r, eval=FALSE}
+library(purrr)
 # load dime datarm(list=ls())
 load(here("data/DIME_79_14.rda"))
 ls()
 
 # rename dime data 
-dime <- 
+dime <- aresults
 
-# list dime vars
+# FOR TESTING 
+# dime <- head(dime) 
+
 names(dime)
+# head(dime$cands)
 
-# Select energy sector FEC PAC IDs 
-dime %<>% filter( %in% crpEnergy$CmteID)
+cands <- dime %>% 
+  purrr::pluck("cands") %>% 
+  as_tibble() %>% 
+  filter(cycle == 2008, Industry != "") %>% 
+  select(ICPSR, ICPSR2, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) 
+
+# cands$Industry
+# cands$Catcode
+
+contributors <- dime %>% 
+  purrr::pluck("contributors") %>% 
+  as_tibble() %>% 
+  filter(indiv == "C", contributor_ext_id != "") %>%
+  filter(contributor_ext_id %in% crpEnergy$comid) 
+
+# names(contributors)
 
 
+contrib_matrix <- dime %>% 
+  purrr::pluck("contrib.matrix") %>% 
+  # select comids matched with CRP data above
+  .[contributors$comid, cands$ICPSR] %>% 
+  as.matrix() %>% 
+  as_tibble(rownames = "comid") %>% 
+  gather(key = ICPSR, value = value, -comid)
 
+save(contrib_matrix, file =  "contrib_matrix.rds")
+
+contrib_total <- contrib_matrix %>% 
+  # FIXME
+  # collapse to all sector-level donations for now
+  group_by(ICPSR) %>% 
+  summarise(value = sum(value))
+
+save(contrib_total, file =  "contrib_total.rds")
+
+# git add "contrib_matrix.rds"
+# git add "contrib_total.rds"
+git commit -m "add dime data"
 ```
 
-
+```{r}
+# load("dime_sample.rda")
+```
 
 
 ## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website
