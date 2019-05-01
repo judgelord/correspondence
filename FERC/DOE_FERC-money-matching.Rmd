@@ -36,7 +36,7 @@ library(here)
 # Match companies from FERC website and congressoinal letters
 
 ### Load data
-- companies registered to lobby FERC
+- companies registered with FERC
 - letters from members
 ```{r, eval = FALSE}
 load(here("data", "DOE_FERC-corps.Rdata"))
@@ -82,15 +82,6 @@ unique(FERC_letters$company_short_detected)
 
 ## Get DIME campaign contributions data
 ```{r, eval=FALSE}
-## To load FERC data 
-load(here("data", "DOE_FERC-letters-corps.Rdata"))
-load(here("data", "DOE_FERC-corps.Rdata"))
-
-## Make a single string of short corp names
-# FIXME add company names extracted from letters
-ferc_short <- unique(FERC_corps$company_short) %>% 
-  str_c(collapse = "|") %>% 
-  str_remove_all("||")
 
 ## GET DIME DATA (>3GB)
 download.file("https://dataverse.harvard.edu/api/access/datafile/2865300?gbrecs=true",
@@ -160,16 +151,8 @@ crpEnergy <- crp %>% filter(PrimCode %in% industry$Catcode) %>%
 
 ## Companies with PACs linked to companies registered with FERC's website
 ```{r crp-ferc-match}
-load(here("data", "DOE_FERC-corps.Rdata"))
-FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
-
-## Make a single string of short corp names
-ferc_short <- unique(FERC_corps$company_short) %>% 
-  str_c(collapse = "|") %>% 
-  str_remove_all("||")
-
-# bad string? 
-# str_detect("", ferc_short)
+# Load a string of companies from FERC website
+load(here("data/ferc_short.Rdata"))
 
 ## Companies to look out for
 crpEnergy %>% filter(str_detect(UltOrg, ferc_short)|str_detect(Affiliate, ferc_short)) %>% mutate(company_short = str_extract(UltOrg, ferc_short)) %>% select(company_short, UltOrg) %>% distinct() %>% knitr::kable()
@@ -177,15 +160,20 @@ crpEnergy %>% filter(str_detect(UltOrg, ferc_short)|str_detect(Affiliate, ferc_s
 
 ## Companies with PACs matching companies in member letters to FERC
 ```{r}
+# Load a string of companies from FERC website
 load(here("data/dcorp_short.Rdata"))
 
 crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, ferc_short)) %>% mutate(company_short = str_extract(UltOrg, dcorp_short)) %>% select(company_short, UltOrg)  %>% distinct()%>% 
-  # FIXME
-  # THESE SHOULD BE FILTERED OUT IN THE SUMMARY or LETTER_CODING SCRIP 
-  filter(!is.na(company_short),
-         !company_short %in% c("Na", "Energy", "West", "NA", "Central",
-                               "Power", "Natural", "Consumers")) %>% 
   knitr::kable()
+```
+
+
+## PAC contributions from DIME
+```{r}
+load(here("data/DIME_79_14.rda"))
+dime <- 
+dime %<>% filter( %in% crpEnergy$ )
+
 ```
 
 

@@ -199,6 +199,8 @@ all_contacts %>%
 
 ---
 
+# Members
+
 ### Senators vs. state population 
 
 ```{r population, fig.height= 3.7, fig.width=6}
@@ -358,291 +360,6 @@ Columbia s Mountaineer XPress Project,
 Atlantic Coast Pipeline ACP project. 
 The parent companies of these projects spend millions of dollars on lobbying (Lobbyview). The WV Gazette reports funding from Dominion that is not included in Lobbyview totals. 
 
----
-
-
-# Top companies in pro-business letters
-```{r probusiness-letters}
-# Split out to one obs per member per letter per business
-dcorps <- d %>%
-  mutate(ProBusiness = ProBusiness %>% str_split(";")) %>%
-  unnest(ProBusiness)
-
-dcorps %<>% mutate(ProBusiness = ProBusiness %>%
-                     str_replace("RTO", 
-                                 "Regional Transmission Organization") %>%  
-         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )%>%
-  mutate(AntiBusiness = AntiBusiness %>% 
-           str_replace("RTO", 
-                       "Regional Transmission Organization") %>%  
-         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
-
-dcorps %>%
-  filter(!is.na(ProBusiness),
-         !str_detect(ProBusiness, "Regional Transmission Organization") ) %>%
-  group_by(ProBusiness) %>%
-  select(id, last_name, ProBusiness, ID) %>%
-  distinct() %>%
-  summarise( n = n() , 
-             members = str_c(last_name, collapse = "; "),
-             ID = str_c(unique(ID), collapse = "; ")) %>%
-  filter(n>quantile(n,.9))%>%
-  arrange(-n) %>%
-  knitr::kable()
-```
-
-
-# Letters citing companies registered with FERC
-Of the companies registered to interact with FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
-*TO DO:* 
-- (1) Identify linked corporations for other top companies in the data
-- (2) extract company contact persons and information from the FERC website.
-```{r}
-load(here("data", "DOE_FERC-corps.Rdata"))
-FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
-
-## Make a single string of short corp names
-ferc_short <- unique(FERC_corps$company_short) %>% 
-  str_c(collapse = "|") %>% 
-  str_remove_all("||")
-
-# bad string? 
-# str_detect("", ferc_short)
-
-```
-
-
-## Pro-business letters
-```{r probusiness-letters-ferc}
-dcorps %>%
-  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
-  left_join(FERC_corps) %>% 
-  distinct() %>%
-  group_by(company_short_refs) %>%
-  select(ID, last_name, company_short, company_short_refs) %>%
-  filter(company_short != "")%>%
-  distinct() %>%
-  summarise( n = n() , 
-             company_short = str_c(unique(company_short), collapse = "; "),
-             members = str_c(last_name, collapse = "; "),
-             ID = str_c(ID, collapse = "; ")) %>%
-  filter(n>quantile(n,.9))%>%
-  select(company_short, n, everything()) %>%
-  arrange(-n) %>%
-  knitr::kable()
-
-## Longer list with company full names
-# d %>%
-#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
-#   drop_na(company_short) %>%
-#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-#   mutate(members = str_remove_all(members, ";NA")) %>%
-#   group_by(company_short) %>%
-#   mutate(members = str_c(unique(members), collapse = ";")) %>%
-#   select(company_short, members) %>%  distinct() %>%
-#   left_join(FERC_corps) %>% distinct() %>%
-#   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
-```
-
-## Anti-business letters
-
-```{r antibusiness-letters-ferc}
-dcorps %>%
-  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>%
-  left_join(FERC_corps) %>% 
-  distinct() %>%
-  group_by(company_short_refs) %>%
-  select(ID, last_name, company_short, company_short_refs) %>%
-  filter(company_short != "")%>%
-  distinct() %>%
-  summarise( n = n() , 
-             company_short = str_c(unique(company_short), collapse = "; "),
-             members = str_c(last_name, collapse = "; "),
-             ID = str_c(ID, collapse = "; ")) %>%
-  filter(n>quantile(n,.9))%>%
-  select(company_short, n, everything()) %>%
-  arrange(-n) %>%
-  knitr::kable()
-
-## Longer list with company full names
-# d %>% 
-#   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
-#   drop_na(company_short) %>% 
-#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
-#   mutate(members = str_remove_all(members, ";NA")) %>% 
-#   group_by(company_short) %>% 
-#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
-#   select(company_short, members) %>%  distinct() %>%
-#   left_join(FERC_corps) %>% distinct() %>% 
-#   knitr::kable(caption = "Anti Businesses matching those registered with FERC")
-
-```
-
-
----
-
-## Company lookup table
-
-Clean companies names extracted from letters and create shortened name that is more likely to be found in other datasets (like done with FERC-registerd companies above).
-```{r company-inspect}
-# Split out to one obs per member per letter per business
-dcorps <- d %>%
-  select(ID, bioname, ProBusiness, AntiBusiness, ProProject, AntiProject) %>% 
-  gather(value = "company", key = "position", -ID, -bioname) %>%
-  mutate(company = company %>% str_split(";")) %>%
-  unnest(company) %>% distinct()
-
-dcorps %<>% mutate(company = company %>%
-                     str_replace("RTO", 
-                                 "Regional Transmission Organization") %>%  
-         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
-
-dcorps$company %<>%
-  trimws()  # trim white space before and after company names
-
-dcorps %<>%   filter(nchar(company)>1) %>%# drop names less than 1 character
-  distinct() # drop duplicates
-
-## For matching, remove endings like ", Inc." etc. 
-trim <- function(d){
-d %>%
-  str_remove_all("Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation") %>% 
-  str_remove_all("^, ") %>%
-  trimws()  # filter out names less than 2 characters 
-}
-
-dcorps$company_short <- trim(dcorps$company) %>% trim()
-```
-
-Problem company names that may need to be fixed (e.g. to remove special characters or spell out abbreviated name)
-```{r problem-names}
-# Problem Names
-dcorps %>% filter(nchar(company_short)<2) %>% knitr::kable()
-
-dcorps %<>% filter(nchar(company_short)>1)
-```
-
-
-
-```{r, lookup-table}
-## Correct over-trimmed names
-dcorps %<>% 
-  mutate(company_short = ifelse(company == "Columbia Energy Power Marketing Corporation", "Columbia Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Michigan Energy Exchange, LLC", "Michigan Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Midwest Energy, Inc.", "Midwest Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Northwest Pipeline LLC", "Northwest Pipeline", company_short))%>%
-  mutate(company_short = ifelse(company == "Peak Energy, Inc.", "Peak Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Public Service Company of New Mexico", "Public Service Company of New Mexico", company_short))%>%
-  mutate(company_short = ifelse(company == "Salt Lake Energy Systems, LLC", "Salt Lake Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Natural Gas Pipeline Company of America", "Natural Gas Pipeline Company of America", company_short))%>%
-  mutate(company_short = ifelse(company == "Natural Gas Trading Corporation", "Natural Gas Trading Corporation", company_short))%>%
-  mutate(company_short = ifelse(company == "Energy, USA-TPC Corp.", "TPC", company_short))%>%
-  mutate(company_short = ifelse(company == "New Energy Partners, L.L.C.", "New Energy Partners", company_short))%>%
-  mutate(company_short = ifelse(company == "New Energy Service, LLC", "New Energy Service", company_short))%>%
-  mutate(company_short = ifelse(company == "North Energy Associates, A Limited Partnership", "North Energy Associates", company_short))%>%
-  mutate(company_short = ifelse(company == "Pipeline Company LLC", "Pipeline Company LLC", company_short))%>%
-  mutate(company_short = ifelse(company == "Express Pipeline LLC", "Express Pipeline LLC", company_short))%>%
-  mutate(company_short = ifelse(company == "American Energy Savings, Inc.", "American Energy Savings", company_short))%>%
-  mutate(company_short = ifelse(company == "Electric Energy, Inc.", "Electric Energy, Inc.", company_short))%>%
-  mutate(company_short = ifelse(company == "System Energy Resources, Inc., Llano Estacado Wind, LLC, System Energy Resources, Inc., Northern Iowa Windpower, LLC, and RS Cogen, L.L.C.", "System Energy Resources", company_short))%>%
-  mutate(company_short = ifelse(company == "Public Service Company of Colorado", "Public Service Company of Colorado", company_short))%>%
-  mutate(company_short = ifelse(company == "Southern Company Services, Inc.", "Southern Company", company_short))%>%
-  mutate(company_short = ifelse(company == "International Energy Consultants", "International Energy Consultants", company_short))%>%
-  mutate(company_short = ifelse(company == "Jackson Pipeline Company", "Jackson Pipeline", company_short))%>%
-  mutate(company_short = ifelse(company == "Southern Energy California", "Southern Energy California", company_short))%>%
-  mutate(company_short = ifelse(company == "Tennessee Gas Pipeline Company, L.L.C.", "Tennessee Gas Pipeline", company_short))%>%
-  mutate(company_short = ifelse(company == "Select Energy New York, Inc.", "Select Energy New York", company_short))%>%
-  mutate(company_short = ifelse(company == "Inland Corporation", "Inland Corporation", company_short))%>%
-  mutate(company_short = ifelse(company == "Advanced Energy Systems, Inc.", "Advanced Energy Systems", company_short))%>%
-  mutate(company_short = ifelse(company == "Consumers Energy Company", "Consumers Energy Company", company_short))%>%
-  mutate(company_short = ifelse(company == "Boston Energy Trading and Marketing LLC", "Boston Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Complete Energy Services, Inc.", "Complete Energy Services", company_short))%>%
-  mutate(company_short = ifelse(company == "El Paso Energy Intrastate, L.P.", "El Paso Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Houston Pipe Line Company LP", "Houston Pipe Line", company_short))%>%
-  mutate(company_short = ifelse(company == "North American Energy, Inc.", "North American Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Spokane Energy, LLC", "Spokane Energy", company_short))%>%
-  mutate(company_short = ifelse(company == "Salem Energy Systems, LLC", "Salem Energy", company_short))%>%
-  mutate(company_short = ifelse(company_short == "Direct", "Direct Energy", company_short))%>%
-  mutate(company_short = ifelse(company_short == "DC", "DC Energy", company_short))%>%
-  mutate(company_short = ifelse(company_short == "PS", "PS Energy Group", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Coastal", "Coastal Pipeline", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "CT", "CT Corporation", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Forest", "Forest Pipeline", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Minnesota", "Minnesota Pipe Line", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "NW", "NW Pipeline", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Rio Grande", "Rio Grande Pipeline", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Plains", "Plains Pipeline", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Portland", "Portland Pipe Line", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "AP", "AP Holdings", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Boundary", "Boundary Gas", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Columbia", "Columbia Energy", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Independence", "Independence Energy Group", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Lakeside", "Lakeside Energy", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Mitchell", "Mitchell Energy", company_short)) %>%
-  mutate(company_short = ifelse(company_short == "Stream", "Stream Energy", company_short))%>%
-  mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short)) %>% 
-  mutate(company_short = ifelse(company_short %in% c("N/A|Na|NO|Clean Water Act"), "NOT A COMPANY?", company_short))
-
-#FIXME
-# ADD company_short_refs 
-dcorps %<>% 
-  group_by(company_short) %>% 
-  mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
-
-# dcorps %>% group_by(company_short) %>% mutate(n=n()) %>% arrange(-n)
-
-# Save 
-
-## Inspect over-trimmed company names
-dcorps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs, ID) %>% distinct() %>% knitr::kable()
-
-##  did I acidentally delete everything before a comma? 
-# dcorps %>% filter(str_detect(company_short, ","))
-
-# top corps
-topcorps <- dcorps %>% group_by(company_short) %>% tally() %>% arrange(-n) %>% top_n(30)
-
-filter(dcorps, company_short %in% topcorps$company_short) %>% select(company_short, company_short_refs, ID) %>% distinct() %>% knitr::kable() 
-
-# corps with short names 
-shortcorps <- dcorps %>% 
-  group_by(company_short) %>% 
-  tally() %>% arrange(nchar(company_short)) %>% 
-  mutate(nchar = nchar(company_short))%>%
-  top_n(30, -nchar) 
-
-filter(dcorps, company_short %in% shortcorps$company_short) %>% select(company_short, company_short_refs) %>% distinct() %>% knitr::kable()
-
-#dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
-
- 
-  
-
-```
-
-```{r, eval=FALSE}
-dcorps %>% ungroup() %>% 
-  filter(position %in% c("ProProject", "ProBusiness")) %>% 
-  select(ID, company_short, company_short_refs)%>% 
-  group_by(company_short) %>% 
-  distinct() %>%
-  add_count() %>% 
-  arrange(-n) %>% 
-  write_csv(path = "FERC/ProBusinesses.csv")
-
-## Make a single string of short corp names
-dcorp_short <- unique(dcorps$company_short) %>% 
-  str_c(collapse = "|") %>% 
-  str_remove_all("||")
-
-# bad string? 
-# str_detect("", ferc_short)
-
-save(dcorp_short, file = "data/dcorp_short.Rdata")
-```
-
 
 ---
 
@@ -748,6 +465,358 @@ FERC_letters %>%
   aes(x = year, y = n, fill = cosigned) +
   geom_col() 
 ```
+
+---
+
+# Companies 
+
+## Top companies in pro-business letters
+```{r probusiness-letters}
+# Split out to one obs per member per letter per business
+dcorps <- d %>%
+  mutate(ProBusiness = ProBusiness %>% str_split(";")) %>%
+  unnest(ProBusiness)
+
+dcorps %<>% mutate(ProBusiness = ProBusiness %>%
+                     str_replace("RTO", 
+                                 "Regional Transmission Organization") %>%  
+         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )%>%
+  mutate(AntiBusiness = AntiBusiness %>% 
+           str_replace("RTO", 
+                       "Regional Transmission Organization") %>%  
+         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
+
+dcorps %>%
+  filter(!is.na(ProBusiness),
+         !str_detect(ProBusiness, "Regional Transmission Organization") ) %>%
+  group_by(ProBusiness) %>%
+  select(id, last_name, ProBusiness, ID) %>%
+  distinct() %>%
+  summarise( n = n() , 
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(unique(ID), collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
+  arrange(-n) %>%
+  knitr::kable()
+```
+
+
+## Letters citing companies registered with FERC
+Of the companies registered to interact with FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
+*TO DO:* 
+- (1) Identify linked corporations for other top companies in the data
+- (2) extract company contact persons and information from the FERC website.
+```{r}
+load(here("data", "DOE_FERC-corps.Rdata"))
+FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
+
+## Make a single string of short corp names
+ferc_short <- unique(FERC_corps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+# bad string? 
+# str_detect("", ferc_short)
+
+save(ferc_short, file = here("data/ferc_short.Rdata"))
+```
+
+
+## Pro-business letters
+```{r probusiness-letters-ferc}
+dcorps %>%
+  mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
+  left_join(FERC_corps) %>% 
+  distinct() %>%
+  group_by(company_short_refs) %>%
+  select(ID, last_name, company_short, company_short_refs) %>%
+  filter(company_short != "")%>%
+  distinct() %>%
+  summarise( n = n() , 
+             company_short = str_c(unique(company_short), collapse = "; "),
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(ID, collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
+  select(company_short, n, everything()) %>%
+  arrange(-n) %>%
+  knitr::kable()
+
+## Longer list with company full names
+# d %>%
+#   mutate(company_short = str_extract(ProBusiness, ferc_short)) %>%
+#   drop_na(company_short) %>%
+#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+#   mutate(members = str_remove_all(members, ";NA")) %>%
+#   group_by(company_short) %>%
+#   mutate(members = str_c(unique(members), collapse = ";")) %>%
+#   select(company_short, members) %>%  distinct() %>%
+#   left_join(FERC_corps) %>% distinct() %>%
+#   knitr::kable(caption = "Pro Businesses matching those registered with FERC")
+```
+
+## Anti-business letters
+
+```{r antibusiness-letters-ferc}
+dcorps %>%
+  mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>%
+  left_join(FERC_corps) %>% 
+  distinct() %>%
+  group_by(company_short_refs) %>%
+  select(ID, last_name, company_short, company_short_refs) %>%
+  filter(company_short != "")%>%
+  distinct() %>%
+  summarise( n = n() , 
+             company_short = str_c(unique(company_short), collapse = "; "),
+             members = str_c(last_name, collapse = "; "),
+             ID = str_c(ID, collapse = "; ")) %>%
+  filter(n>quantile(n,.9))%>%
+  select(company_short, n, everything()) %>%
+  arrange(-n) %>%
+  knitr::kable()
+
+## Longer list with company full names
+# d %>% 
+#   mutate(company_short = str_extract(AntiBusiness, ferc_short)) %>% 
+#   drop_na(company_short) %>% 
+#   mutate(members = paste(CongressPerson, Cosigned_House, Cosigned_Senate, sep = ";")) %>%
+#   mutate(members = str_remove_all(members, ";NA")) %>% 
+#   group_by(company_short) %>% 
+#   mutate(members = str_c(unique(members), collapse = ";")) %>% 
+#   select(company_short, members) %>%  distinct() %>%
+#   left_join(FERC_corps) %>% distinct() %>% 
+#   knitr::kable(caption = "Anti Businesses matching those registered with FERC")
+
+```
+
+
+---
+
+## Company lookup table
+
+Clean companies names extracted from letters and create shortened name that is more likely to be found in other datasets (like done with FERC-registerd companies above).
+```{r company-inspect}
+# Split out to one obs per member per letter per business
+dcorps <- d %>%
+  select(ID, bioname, ProBusiness, AntiBusiness, ProProject, AntiProject) %>% 
+  gather(value = "company", key = "position", -ID, -bioname) %>%
+  mutate(company = company %>% str_split(";")) %>%
+  unnest(company) %>% distinct()
+
+dcorps %<>% mutate(company = company %>%
+                     str_replace("RTO", 
+                                 "Regional Transmission Organization") %>%  
+         str_remove_all(" Company.*| \\(.*| Inc.*| LLC.*| Energy.*") )
+
+dcorps$company %<>%
+  trimws()  # trim white space before and after company names
+
+dcorps %<>%   filter(nchar(company)>1) %>%# drop names less than 1 character
+  distinct() # drop duplicates
+
+## For matching, remove endings like ", Inc." etc. 
+trim <- function(d){
+d %>%
+  str_remove_all("Village of |\\(.*|,.*| -.*|^Proposed | Pipe.*| pipe.*| project$| Proiects$| Company.*| Comnany| Corp.*| Co$| Co.$| Energy$| energy$| power$| Power marketing$| Holdings.*| Group$| Gas$| Project.*| LLC| L.L.C.|  L.P.|^The | Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability|  Facility| Transportation and Storage| Storage and Transportation") %>% 
+  str_remove_all("^, ") %>%
+  trimws()  # filter out names less than 2 characters 
+}
+
+
+
+dcorps$company_short <- trim(dcorps$company) %>% trim()
+```
+
+Problem company names that may need to be fixed (e.g. to remove special characters or spell out abbreviated name)
+```{r problem-names}
+# Problem Names
+dcorps %>% filter(nchar(company_short)<2) %>% knitr::kable()
+
+dcorps %<>% filter(nchar(company_short)>1)
+```
+
+
+Identify short names by hand: 
+```{r, lookup-table}
+## Correct over-trimmed names
+dcorps %<>% 
+  mutate(company_short = ifelse(company == "Columbia Energy Power Marketing Corporation", "Columbia Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Michigan Energy Exchange, LLC", "Michigan Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Midwest Energy, Inc.", "Midwest Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Northwest Pipeline LLC", "Northwest Pipeline", company_short))%>%
+  mutate(company_short = ifelse( str_detect(company, "^Dominion"), 
+                                 "Dominion", company_short))%>%
+  mutate(company_short = ifelse(company == "Peak Energy, Inc.", "Peak Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Public Service Company of New Mexico", "Public Service Company of New Mexico", company_short))%>%
+  mutate(company_short = ifelse(company == "Salt Lake Energy Systems, LLC", "Salt Lake Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Natural Gas Pipeline Company of America", "Natural Gas Pipeline Company of America", company_short))%>%
+  mutate(company_short = ifelse(company == "Natural Gas Trading Corporation", "Natural Gas Trading Corporation", company_short))%>%
+  mutate(company_short = ifelse(company == "Energy, USA-TPC Corp.", "TPC", company_short))%>%
+  mutate(company_short = ifelse(company == "New Energy Partners, L.L.C.", "New Energy Partners", company_short))%>%
+  mutate(company_short = ifelse(company == "New Energy Service, LLC", "New Energy Service", company_short))%>%
+  mutate(company_short = ifelse(company == "North Energy Associates, A Limited Partnership", "North Energy Associates", company_short))%>%
+  mutate(company_short = ifelse(company == "Pipeline Company LLC", "Pipeline Company LLC", company_short))%>%
+  mutate(company_short = ifelse(company == "Express Pipeline LLC", "Express Pipeline LLC", company_short))%>%
+  mutate(company_short = ifelse(company == "American Energy Savings, Inc.", "American Energy Savings", company_short))%>%
+  mutate(company_short = ifelse(company == "Electric Energy, Inc.", "Electric Energy, Inc.", company_short))%>%
+  mutate(company_short = ifelse(company == "System Energy Resources, Inc., Llano Estacado Wind, LLC, System Energy Resources, Inc., Northern Iowa Windpower, LLC, and RS Cogen, L.L.C.", "System Energy Resources", company_short))%>%
+  mutate(company_short = ifelse(company == "Public Service Company of Colorado", "Public Service Company of Colorado", company_short))%>%
+  mutate(company_short = ifelse(company == "Southern Company Services, Inc.", "Southern Company", company_short))%>%
+  mutate(company_short = ifelse(company == "International Energy Consultants", "International Energy Consultants", company_short))%>%
+  mutate(company_short = ifelse(company == "Jackson Pipeline Company", "Jackson Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company == "Southern Energy California", "Southern Energy California", company_short))%>%
+  mutate(company_short = ifelse(company == "Tennessee Gas Pipeline Company, L.L.C.", "Tennessee Gas Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company == "Select Energy New York, Inc.", "Select Energy New York", company_short))%>%
+  mutate(company_short = ifelse(company == "Inland Corporation", "Inland Corporation", company_short))%>%
+  mutate(company_short = ifelse(company == "Advanced Energy Systems, Inc.", "Advanced Energy Systems", company_short))%>%
+  mutate(company_short = ifelse(company == "Consumers Energy Company", "Consumers Energy Company", company_short))%>%
+  mutate(company_short = ifelse(company == "Boston Energy Trading and Marketing LLC", "Boston Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Complete Energy Services, Inc.", "Complete Energy Services", company_short))%>%
+  mutate(company_short = ifelse(company == "El Paso Energy Intrastate, L.P.", "El Paso Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Houston Pipe Line Company LP", "Houston Pipe Line", company_short))%>%
+  mutate(company_short = ifelse(company == "North American Energy, Inc.", "North American Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Spokane Energy, LLC", "Spokane Energy", company_short))%>%
+  mutate(company_short = ifelse(company == "Salem Energy Systems, LLC", "Salem Energy", company_short))%>%
+  mutate(company_short = ifelse(company_short == "Direct", "Direct Energy", company_short))%>%
+  mutate(company_short = ifelse(company_short == "DC", "DC Energy", company_short))%>%
+  mutate(company_short = ifelse(company_short == "PS", "PS Energy Group", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Coastal", "Coastal Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "CT", "CT Corporation", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Forest", "Forest Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Minnesota", "Minnesota Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "NW", "NW Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Rio Grande", "Rio Grande Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Plains", "Plains Pipeline", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Portland", "Portland Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "AP", "AP Holdings", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Ohio River", "Ohio River Pipe Line", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Boundary", "Boundary Gas", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Columbia", "Columbia Energy", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Independence", "Independence Energy Group", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Lakeside", "Lakeside Energy", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Mitchell", "Mitchell Energy", company_short)) %>%
+  mutate(company_short = ifelse(company_short == "Stream", "Stream Energy", company_short))%>%
+  mutate(company_short = ifelse(str_detect(company, "^Northwest Pipeline"), "Northwest Pipeline", company_short))%>%
+  mutate(company_short = ifelse(str_detect(company, "^Tennessee Gas"), "Tennessee Gas", company_short))%>%
+  mutate(company_short = ifelse(str_detect(company, "Juniper Hills Country Club"), "Juniper Hills Country Club", company_short))%>%
+    mutate(company_short = ifelse(str_detect(company, regex("Columbia Gas", ignore_case = T)), "Columbia Gas", company_short))%>%
+  mutate(company_short = ifelse(str_detect(company, regex("Algonquin", ignore_case = T)), "Algonquin", company_short))%>%
+    mutate(company_short = ifelse(str_detect(company, regex("Spectra", ignore_case = T)), "Spectra", company_short))%>%
+  mutate(company_short = ifelse(str_detect(company, regex("Jordan Cove", ignore_case = T)), "Jordan Cove", company_short))%>%
+    mutate(company_short = ifelse(str_detect(company, regex("Enron", ignore_case = T)), "Enron", company_short))%>%
+     mutate(company_short = ifelse(str_detect(company, regex("Nexus", ignore_case = T)), "Nexus", company_short))%>%
+
+  mutate(company_short = ifelse(company == "Express Pipeline", "Express Pipeline", company_short))%>%
+  mutate(company_short = ifelse(company %in% c("American Energy", "American energy"), "American Energy", company_short))%>%
+  mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short)) %>% 
+  mutate(company_short = ifelse(company_short %in% c("N/A","Na","NO",
+                                                     "Clean Water Act","Na",
+                                                     "Energy", "West", "NA",
+                                                     "Central", "Power", "Natural",
+                                                     "Consumers"),
+         "NOT A COMPANY?",  company_short))
+```
+
+Short company names, e.g. "Duke" may refer to many affiliated companies. The variable `company_short_refs` lists these affiliated companies. 
+```{r}
+#FIXME
+# ADD company_short_refs 
+dcorps %<>% 
+  group_by(company_short) %>% 
+  mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
+```
+
+Look for problems with incorrect or over-trimed company names. For example what should we do with companies that are just state or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, etc.) 
+```{r}
+## Inspect over-trimmed company names
+dcorps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "gas", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Northeast", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs, ID) %>% 
+  group_by(company_short) %>%
+  summarise(company_short_refs = str_c(unique(company_short_refs), collapse = "; "),
+            IDs = str_c(unique(ID), collapse = "; ")) %>%
+  distinct() %>% knitr::kable()
+
+##  did I acidentally delete everything before a comma? 
+# dcorps %>% filter(str_detect(company_short, ","))
+
+# top corps
+topcorps <- dcorps %>% group_by(company_short) %>% tally() %>% arrange(-n) %>% top_n(30)
+
+filter(dcorps, company_short %in% topcorps$company_short) %>%   
+  group_by(company_short) %>%
+  summarise(company_short_refs = str_c(unique(company_short_refs), collapse = "; "),
+            IDs = str_c(unique(ID), collapse = "; ")) %>%
+  distinct() %>% knitr::kable() 
+
+# corps with short names 
+shortcorps <- dcorps %>% 
+  group_by(company_short) %>% 
+  tally() %>% 
+  arrange(nchar(company_short)) %>% 
+  mutate(nchar = nchar(company_short))%>%
+  top_n(30, -nchar) 
+
+filter(dcorps, company_short %in% shortcorps$company_short) %>% 
+  group_by(company_short) %>%
+  summarise(company_short_refs = str_c(unique(company_short_refs), collapse = "; "),
+            IDs = str_c(unique(ID), collapse = "; ")) %>%
+  distinct() %>% knitr::kable()
+
+#dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
+
+ 
+  
+
+```
+
+```{r, eval=FALSE}
+library(googlesheets)
+library(httpuv)
+
+# log in to google drive
+gs_auth() 
+
+notcorps <- gs_title("not_companies") %>% gs_read() 
+
+
+dcorps %<>% ungroup() %>% 
+  mutate(company_short = ifelse(company_short %in% notcorps$not_companies,
+                                "NOT A COMPANY?", company_short) )
+         
+#FIXME
+# ADD company_short_refs again after corrections
+dcorps %<>% 
+  group_by(company_short) %>% 
+  mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
+
+dcorps %>% 
+  filter(position %in% c("ProProject", "ProBusiness")) %>% 
+  select(ID, company_short, company_short_refs)%>% 
+  group_by(company_short) %>% 
+  distinct() %>%
+  add_count() %>% 
+  arrange(-n) %>% 
+  write_csv(path = "FERC/ProBusinesses.csv")
+
+sum(is.na(unique(dcorps$company_short)))
+
+## Make a single string of short corp names
+dcorp_short <- unique(dcorps$company_short) %>% 
+  str_c(collapse = "|") %>% 
+  str_remove_all("||")
+
+dcorp_short
+
+# bad string? 
+str_detect("", ferc_short)
+
+
+save(dcorp_short, file = "data/dcorp_short.Rdata")
+```
+
+
+---
+
+
 
 # About FERC 
 
