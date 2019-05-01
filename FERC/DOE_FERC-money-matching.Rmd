@@ -164,13 +164,14 @@ crpEnergy %>% filter(str_detect(UltOrg, ferc_short)|str_detect(Affiliate, ferc_s
 # Load a string of companies from FERC website
 load(here("data/dcorp_short.Rdata"))
 
-crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, ferc_short)) %>% mutate(company_short = str_extract(UltOrg, dcorp_short)) %>% select(company_short, UltOrg)  %>% distinct()%>% 
+crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, dcorp_short)) %>% mutate(company_short = str_extract(UltOrg, dcorp_short)) %>% select(company_short, UltOrg)  %>% distinct()%>% 
   knitr::kable()
 ```
 
 
 ## PAC contributions from DIME
 ```{r, eval=FALSE}
+source("setup.R")
 library(purrr)
 # load dime datarm(list=ls())
 load(here("data/DIME_79_14.rda"))
@@ -183,13 +184,16 @@ dime <- aresults
 # dime <- head(dime) 
 
 names(dime)
+glimpse(dime)
 # head(dime$cands)
 
 cands <- dime %>% 
   purrr::pluck("cands") %>% 
   as_tibble() %>% 
   filter(cycle == 2008, Industry != "") %>% 
-  select(ICPSR, ICPSR2, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) 
+  select(Name, ICPSR, ICPSR2, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) 
+
+cands %>% select(Name, ICPSR, votesmart_id)
 
 # cands$Industry
 # cands$Catcode
@@ -200,18 +204,27 @@ contributors <- dime %>%
   filter(indiv == "C", contributor_ext_id != "") %>%
   filter(contributor_ext_id %in% crpEnergy$comid) 
 
+cmdat <- dime %>% 
+  purrr::pluck("cmdat") %>% 
+  as_tibble() %>% 
+  filter(comid.crp %in% crpEnergy$comid) 
+
 # names(contributors)
 
 
 contrib_matrix <- dime %>% 
   purrr::pluck("contrib.matrix") %>% 
   # select comids matched with CRP data above
-  .[contributors$comid, cands$ICPSR] %>% 
+  .[cmdat$comid, cands$ICPSR] %>% 
   as.matrix() %>% 
   as_tibble(rownames = "comid") %>% 
   gather(key = ICPSR, value = value, -comid)
 
-save(contrib_matrix, file =  "contrib_matrix.rds")
+dim(contrib_matrix)
+
+contrib_matrix %<>% left_join(crpEnergy)
+
+save(contrib_matrix, file =  "data/contrib_matrix.rds")
 
 contrib_total <- contrib_matrix %>% 
   # FIXME
@@ -219,16 +232,14 @@ contrib_total <- contrib_matrix %>%
   group_by(ICPSR) %>% 
   summarise(value = sum(value))
 
-save(contrib_total, file =  "contrib_total.rds")
+save(contrib_total, file =  "data/contrib_total.rds")
 
-# git add "contrib_matrix.rds"
-# git add "contrib_total.rds"
+# git add "data/contrib_matrix.rds"
+# git add "data/contrib_total.rds"
 git commit -m "add dime data"
 ```
 
-```{r}
-# load("dime_sample.rda")
-```
+
 
 
 ## Campaign contributions of individuals at Fortune 500 companies listed on the FERC website

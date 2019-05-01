@@ -305,7 +305,11 @@ Piedmont NEnural Qas, and  AGL Resources.; Dominion Atlantic Coast Pipeline; Dom
 20040423-0012,Housatonic River,Housatonic River Project,4
 20040305-0128,Housatonic River,Housatonic River Project,4
 20030612-0044,Greenbrier,Greenbrier Pipeline Corporation; Greenbrier Pipeline; Greenbrier Pipeline Co.; Greenbrier Pipeline Project; Greenbrier Pipeline Project.,4
+20021008-0082,Patriot,The Patriot Project; Patriot Project; Patriot Pipeline Envionmental Impact Report; The Patriot  Project; Patriot Pipeline,4
+20020930-0222,Patriot,The Patriot Project; Patriot Project; Patriot Pipeline Envionmental Impact Report; The Patriot  Project; Patriot Pipeline,4
 20020815-0570,Housatonic River,Housatonic River Project,4
+20020702-0067,Patriot,The Patriot Project; Patriot Project; Patriot Pipeline Envionmental Impact Report; The Patriot  Project; Patriot Pipeline,4
+20020604-0497,Patriot,The Patriot Project; Patriot Project; Patriot Pipeline Envionmental Impact Report; The Patriot  Project; Patriot Pipeline,4
 20010712-0179,Swinging Bridge,Swinging Bridge Project,4
 20010709-0265,Swinging Bridge,Swinging Bridge Project,4
 20010622-0315,Swinging Bridge,Swinging Bridge Project,4
@@ -431,14 +435,11 @@ Piedmont NEnural Qas, and  AGL Resources.; Dominion Atlantic Coast Pipeline; Dom
 20040720-0182,Weaver's Cove,"Weaver's Cove; Weaver's Cove,",3
 20040423-0304,El Paso Natural,"El Paso Natural Gas, a subsidiary of Kinder Morgan; El Paso Natural Gas; El Paso Natural Gas Pipeline",3
 20021018-0377,St Lawrence/FDR & Niagara,St Lawrence/FDR & Niagara Project,3
-20020930-0222,Patriot,Patriot Project; Patriot Pipeline Envionmental Impact Report; Patriot Pipeline,3
 20020716-0563,pipelines in Connecticut,Proposed pipelines in Connecticut,3
 20020716-0239,St Lawrence/FDR & Niagara,St Lawrence/FDR & Niagara Project,3
-20020702-0067,Patriot,Patriot Project; Patriot Pipeline Envionmental Impact Report; Patriot Pipeline,3
 20020702-0063,pipelines in Connecticut,Proposed pipelines in Connecticut,3
 20020625-0459,St Lawrence/FDR & Niagara,St Lawrence/FDR & Niagara Project,3
 20020621-0396,pipelines in Connecticut,Proposed pipelines in Connecticut,3
-20020604-0497,Patriot,Patriot Project; Patriot Pipeline Envionmental Impact Report; Patriot Pipeline,3
 20020423-0090,El Paso Natural,"El Paso Natural Gas, a subsidiary of Kinder Morgan; El Paso Natural Gas; El Paso Natural Gas Pipeline",3
 20020423-0089,El Paso Natural,"El Paso Natural Gas, a subsidiary of Kinder Morgan; El Paso Natural Gas; El Paso Natural Gas Pipeline",3
 20010329-0123,White River Hydroelectric,White River Hydroelectric Project,3
@@ -483,8 +484,8 @@ Piedmont NEnural Qas, and  AGL Resources.; Dominion Atlantic Coast Pipeline; Dom
 20100525-0024,Alcoa Power Generating,"Alcoa Power Generating; Alcoa Power Generating,Inc.; Alcoa Power Generating,",2
 20100318-0017,Ruby,Ruby Pipeline; Ruby Pipeline Project,2
 20091125-0034(partial),Green Island Power Authority,Green Island Power Authority,2
-20080814-0227,The City of Holyoke Gas & Electric,The City of Holyoke Gas & Electric,2
-20080814-0224,The City of Holyoke Gas & Electric,The City of Holyoke Gas & Electric,2
+20080814-0227,City of Holyoke Gas & Electric,The City of Holyoke Gas & Electric,2
+20080814-0224,City of Holyoke Gas & Electric,The City of Holyoke Gas & Electric,2
 20080702-0298,Hydro Green,Hydro Green,2
 20080626-0001,Energie,Energie Group,2
 20080227-0019,Colorado Interstate,Colorado Interstate Gas,2
@@ -516,11 +517,11 @@ Piedmont NEnural Qas, and  AGL Resources.; Dominion Atlantic Coast Pipeline; Dom
 20040206-0074,PPL,"PPL Corporation; PPL; PPL, Montana",2
 20040202-0154,PPL,"PPL Corporation; PPL; PPL, Montana",2
 20031201-0211,Ponderay Newsprint,Ponderay Newsprint,2
-20031120-0152,Sierra Pacific power,Sierra Pacific power,2
+20031120-0152,Sierra Pacific,Sierra Pacific power,2
 20031120-0152,Morgan Stanley Capital,Morgan Stanley Capital Group,2
 20031120-0152,BP,BP,2
 20031120-0152,Allegheny,Allegheny,2
-20031105-0382,Sierra Pacific power,Sierra Pacific power,2
+20031105-0382,Sierra Pacific,Sierra Pacific power,2
 20031105-0382,Morgan Stanley Capital,Morgan Stanley Capital Group,2
 20031105-0382,BP,BP,2
 20031105-0382,Allegheny,Allegheny,2
@@ -559,12 +560,14 @@ Piedmont NEnural Qas, and  AGL Resources.; Dominion Atlantic Coast Pipeline; Dom
 20010709-0365,WEPCO,WEPCO,2
 20010627-0096,WEPCO,WEPCO,2
 20010329-0003,Bangor Hydro-Electric,Bangor Hydro-Electric,2
+20010329-0003,Maine Public Utilities Commission,The Maine Public Utilities Commission; Maine Public Utilities Commission,2
 20010329-0003,Industrial,Industrial,2
 20010328-0460,Trunkline,Trunkline Gas; Trunkline Pipeline,2
 20010126-0263,Trunkline,Trunkline Gas; Trunkline Pipeline,2
 20010116-0155,Connecticut Light and Power,Connecticut Light and Power,2
 20010111-0319,ISO New England,"ISO New England; ISO New England,Inc.; ISO New England,Inc",2
 20010111-0319,Bangor Hydro-Electric,Bangor Hydro-Electric,2
+20010111-0319,Maine Public Utilities Commission,The Maine Public Utilities Commission; Maine Public Utilities Commission,2
 20010111-0319,Industrial,Industrial,2
 20000828-0353,Connecticut Light and Power,Connecticut Light and Power,2
 20000802-0343,Destin,Destin Gas Pipeline,2
@@ -655,9 +658,9 @@ Locks and Dam Hydroelectric Project",2
 20020830-0139,Islander East,Islander East Pipeline; Islander East; Islander East pipeline; Islander East Pipeline Project,2
 20020716-0142,Southern Pines,Proposed Southern Pines,2
 20020702-0064,Southern Pines,Proposed Southern Pines,2
-20020617-0403,Patriot Extension,Patriot Extension Project; Patriot Extension; Patriot Extension Pipeline,2
+20020617-0403,Patriot Extension,Patriot Extension Project; The Patriot Extension Project; Patriot Extension; Patriot Extension Pipeline,2
 20011019-0138,Phase III,Phase III Project / HubLine Project,2
-20011019-0104,Patriot Extension,Patriot Extension Project; Patriot Extension; Patriot Extension Pipeline,2
+20011019-0104,Patriot Extension,Patriot Extension Project; The Patriot Extension Project; Patriot Extension; Patriot Extension Pipeline,2
 20011011-0189,Iroquois,Iroquois Pipeline; Iroquois Pipeline Eastchester Project; Iroquois Pipeline Project,2
 20011002-0661,Phase III,Phase III Project / HubLine Project,2
 20010815-0633,A.J. Allen Power Plant,A.J. Allen Power Plant,2
@@ -670,7 +673,7 @@ Locks and Dam Hydroelectric Project",2
 20181204-0007,Next Decade,Next Decade,1
 20181119-0028(partial),St. Germain ATV Club,St. Germain ATV Club,1
 20181016-0022,Adelphia Gateway,"Adelphia Gateway,; Adelphia Gateway Project",1
-20181002-0041,The Lake Associations,The Lake Associations,1
+20181002-0041,Lake Associations,The Lake Associations,1
 20180926-0011,Lake Association's,Lake Association's,1
 20180725-0462,ALLETE,ALLETE,1
 20180716-0016,Yuba County Water Agency',Yuba County Water Agency',1
@@ -690,7 +693,7 @@ Locks and Dam Hydroelectric Project",2
 20171017-0008,Eagle LNG,Eagle LNG,1
 20171010-0009,Big Rivers Electric,Big Rivers Electric Corporation,1
 20170927-0025,Empire,Empire Pipeline,1
-20170714-4014(partial),The Frazier Quarry,"The Frazier Quarry,",1
+20170714-4014(partial),Frazier Quarry,"The Frazier Quarry,",1
 20170621-0008,Northern Pass Transmission,Northern Pass Transmission,1
 20170508-0011(partial),Lake Norman Touchless Boat Covers,Lake Norman Touchless Boat Covers,1
 20170428-0017(partial),Georgia Power,Georgia Power,1
@@ -734,7 +737,7 @@ American Midstream Pipeline",1
 20130528-0023,Cameron LNG,Cameron LNG,1
 20130425-0009,Carbon Zero,"Carbon Zero,",1
 20120619-0018,Fairlawn Hydroelectric,Fairlawn Hydroelectric,1
-20110328-0002,The Atlantic Wind Connection,The Atlantic Wind Connection,1
+20110328-0002,Atlantic Wind Connection,The Atlantic Wind Connection; Atlantic Wind Connection Project,1
 20110315-0004,Great River Hydropower,Great River Hydropower,1
 20110315-0004,Mississippi River Number 21 Hydropower,Mississippi River Number 21 Hydropower,1
 20101119-0026,Portland Electric,Portland Electric,1
@@ -844,12 +847,10 @@ American Midstream Pipeline",1
 20010705-0049,Con Edison,Con Edison,1
 20010705-0046,Norton,Norton,1
 20010627-0136,Reynolds Plantation,Reynolds Plantation,1
-20010329-0003,The Maine Public Utilities Commission,The Maine Public Utilities Commission,1
 20010209-0376,Kodiak Electric Association,Kodiak Electric Association,1
 20010209-0376,Copper Valley Electric Association,Copper Valley Electric Association,1
 20010116-0155,Northeast Utilities,Northeast Utilities,1
 20010116-0155,Northeast Generation,Northeast Generation,1
-20010111-0319,Maine Public Utilities Commission,Maine Public Utilities Commission,1
 20001229-0113,Lay Lake home Owners & Boat Owners,Lay Lake home Owners & Boat Owners,1
 20001229-0060,Carolina Power & Light,Carolina Power & Light,1
 20001229-0057,Gulf Trace Homeowners Association,Gulf Trace Homeowners Association,1
@@ -960,7 +961,7 @@ American Midstream Pipeline",1
 20130528-0032,Stagecoach Hydroelectric,"Stagecoach Hydroelectric Project,",1
 20130425-0009,Vermont Tissue hydroelectric plant,Vermont Tissue hydroelectric plant,1
 20130102-0022,Angelo Dam Hydropower,Angelo Dam Hydropower Project,1
-20121119-0001,Astoria Generating Comnany,"Astoria Generating Comnany, L.P.",1
+20121119-0001,Astoria Generating,"Astoria Generating Comnany, L.P.",1
 20121119-0001,TC Ravenswood.,TC Ravenswood.,1
 20121026-0003,Oregon LNG Export,Oregon LNG Export project,1
 20120925-0047,Trunklme,Trunklme Gas,1
@@ -977,7 +978,6 @@ American Midstream Pipeline",1
 20110823-4001,MARC I,MARC I Pipeline project,1
 20110621-0056,Multi-Value,Multi-Value Projects,1
 20110518-0032,DF SUEZ Solar,DF SUEZ Solar Project,1
-20110328-0002,Atlantic Wind Connection,Atlantic Wind Connection Project,1
 20110315-0004,Hydropower project at Mississippi River Lok and Dam No.21,Hydropower project at Mississippi River Lok and Dam No.21,1
 20101119-0026,Clackamas River Hydroelectric,Clackamas River Hydroelectric Project,1
 20101119-0025,Project Lands for a recreational facility,Project Lands for a recreational facility,1
@@ -1059,7 +1059,6 @@ Project",1
 20021018-0222,Project nos  3218,"Project nos  3218, 6901 and 6902",1
 20021008-0144,St. Lawrence FDR,St. Lawrence FDR,1
 20021008-0144,Niagara Hydroelectric,Niagara Hydroelectric Project,1
-20021008-0082,The Patriot,The Patriot Project; The Patriot  Project,1
 20020923-0130,Islander East Natural,Islander East Natural Gas Pipeline,1
 20020919-0204,Holyoke,Holyoke Project; Holyoke Project No. 2004,1
 20020909-0485,Midwest Independent System Operator for a Regional Transmission Organization,Midwest Independent System Operator for a Regional Transmission Organization,1

@@ -811,9 +811,23 @@ str_detect("", ferc_short)
 
 
 save(dcorp_short, file = "data/dcorp_short.Rdata")
+save(dcorps, file = "data/dcorps.Rdata")
 ```
 
+---
 
+# Contributions from the Energy Sector
+Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber.
+
+```{r}
+load("data/contrib_total.rds")
+
+contrib_total %<>% 
+  rename(icpsr = asICPSR)
+
+# join by ICPSR 
+d %<>% left_join(contrib_total)
+```
 ---
 
 
