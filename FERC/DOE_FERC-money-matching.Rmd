@@ -170,9 +170,20 @@ crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, ferc_
 
 ## PAC contributions from DIME
 ```{r}
+# load dime datarm(list=ls())
 load(here("data/DIME_79_14.rda"))
+ls()
+
+# rename dime data 
 dime <- 
-dime %<>% filter( %in% crpEnergy$ )
+
+# list dime vars
+names(dime)
+
+# Select energy sector FEC PAC IDs 
+dime %<>% filter( %in% crpEnergy$CmteID)
+
+
 
 ```
 

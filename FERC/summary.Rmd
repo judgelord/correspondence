@@ -534,8 +534,8 @@ dcorps %>%
   distinct() %>%
   summarise( n = n() , 
              company_short = str_c(unique(company_short), collapse = "; "),
-             members = str_c(last_name, collapse = "; "),
-             ID = str_c(ID, collapse = "; ")) %>%
+             members = str_c(unique(last_name), collapse = "; "),
+             ID = str_c(unique(ID), collapse = "; ")) %>%
   filter(n>quantile(n,.9))%>%
   select(company_short, n, everything()) %>%
   arrange(-n) %>%
@@ -567,8 +567,8 @@ dcorps %>%
   distinct() %>%
   summarise( n = n() , 
              company_short = str_c(unique(company_short), collapse = "; "),
-             members = str_c(last_name, collapse = "; "),
-             ID = str_c(ID, collapse = "; ")) %>%
+             members = str_c(unique(last_name), collapse = "; "),
+             ID = str_c(unique(ID), collapse = "; ")) %>%
   filter(n>quantile(n,.9))%>%
   select(company_short, n, everything()) %>%
   arrange(-n) %>%
