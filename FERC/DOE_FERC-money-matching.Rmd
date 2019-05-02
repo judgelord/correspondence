@@ -202,7 +202,12 @@ cands %<>%
   # icpsr = ICPSR without cycle at the end
   mutate(icpsr = str_remove(ICPSR, cycle))%>%
   # trim down to members serving in since the 106th
-  filter(icpsr %in% members$icpsr | icpsr %in% members_106to109th$icpsr)
+  filter(icpsr %in% members$icpsr | icpsr %in% members_106to109th$icpsr) # %>% 
+  # FIXME 
+  # TESTING WITH A FEW
+  # filter(icpsr %in% c(15446,49702), cycle == 2012)
+
+dim(cands)
 
 # pluck out PAC data matrix
 cmdat <- dime %>% 
@@ -231,15 +236,13 @@ glimpse(contributors)
 
 # pluck out the contribution sparse matrix (mostly zeros)
 contrib_matrix <- dime %>% 
-  purrr::pluck("contrib.matrix") %>% 
+  purrr::pluck("contrib.matrix.am") %>% 
   # select comids and ICPSR numbers matched above
   .[contributors$comid_fixed_width, cands$ICPSR] %>% 
   as.matrix() %>% 
   as_tibble(rownames = "comid_fixed_width") %>% 
   # make long format tidy data
   gather(key = ICPSR, value = value, -comid_fixed_width)
-
-dim(contrib_matrix)
 
 contrib_matrix %<>% 
   # drop zeros to speed things up, make a smaller file
@@ -249,9 +252,10 @@ contrib_matrix %<>%
               distinct() ) %>% 
   # merge with CRP data 
   left_join(crpEnergy) %>% 
-  distinct()
+  distinct() %>% 
+  arrange(-value)
 
-contrib_matrix %>% select(PACShort, Affiliate)
+contrib_matrix %>% select(PACShort, Affiliate, value)
 
 save(contrib_matrix, file =  "data/contrib_matrix.rds")
 
@@ -262,10 +266,37 @@ contrib_total <- contrib_matrix %>%
   summarise(value = sum(value))
 
 save(contrib_total, file =  "data/contrib_total.rds")
+```
 
-# git add "data/contrib_matrix.rds"
-# git add "data/contrib_total.rds"
-# git commit -m "add dime data"
+
+```{r not run, include = FALSE, eval=FALSE}
+dime %>% 
+  purrr::pluck("contrib.matrix") %>% 
+  # select comids and ICPSR numbers matched above
+  .[1:10, 1:10]
+
+dime %>% 
+  purrr::pluck("cm.am") %>% 
+  # select comids and ICPSR numbers matched above
+  .[1:10, 1:10]
+
+dime %>% 
+  purrr::pluck("cm") %>% 
+  # select comids and ICPSR numbers matched above
+  .[1:10, 1:10]
+
+
+dime %>% 
+  purrr::pluck("contrib.matrix.am") %>% 
+  # select comids and ICPSR numbers matched above
+  .[1:10, 1:10]
+
+ssh -Y judgelord@linstat.ssc.wisc.edu
+cd /project/judgelord/correspondence
+git add "data/contrib_matrix.rds"
+git add "data/contrib_total.rds"
+git commit -m "add dime data"
+git push
 ```
 
 

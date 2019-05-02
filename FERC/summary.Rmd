@@ -825,7 +825,8 @@ contrib_total %<>%
          PAC_contributions = value) %>% 
   mutate(cycle = str_sub(icpsryear, -4),
          icpsr = as.numeric(str_remove(icpsryear, cycle)),
-         cycle = as.numeric(cycle))
+         cycle = as.numeric(cycle)) %>% 
+  filter(cycle > 1990) 
 
 d %<>% 
   # rounding years up is approximate, rewrite to go Nov-Nov?
@@ -834,29 +835,19 @@ d %<>%
 
 letters_money <- d %>% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
-  group_by(icpsryear, cycle, name_state, congress, icpsr) %>%
-  summarise(ProBusiness_Letters = n() ) %>% 
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
+  summarise(ProBusiness_Letters = n()) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
-  full_join(contrib_total) %>% ungroup()
+  full_join(contrib_total) %>% ungroup() %>% 
+  ungroup() %>% group_by(icpsr) %>% 
+  mutate(party = paste(unique(party), collapse = ";")) %>% 
+  mutate(party = str_remove(party, ";.*")) %>% 
+  ungroup()
 
 letters_money %>% filter(!is.na(name_state)) %>% top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
-```{r add-zeros, include = FALSE, eval = FALSE}
-source(here("setup.R"))
-
-# Load corrected members from voteview to identify members with zero letters
-members2 <- full_join(members, members_106to109th) %>%
-  select(congress, icpsr) %>% distinct() %>% 
-  filter(congress >106) %>% 
-  mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, cycle)) 
-
-letters_money %<>% 
-  full_join(members2)
-```
-
-
+Add zero-letter-cycle observations:
 ```{r add-zeros2, include = FALSE}
 letters_money %<>% 
  mutate(ProBusiness_Letters = ifelse(is.na(ProBusiness_Letters) & cycle > 2000, 0, ProBusiness_Letters)) 
@@ -870,7 +861,7 @@ U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Na
 
 ```{r letters_money_total}
 letters_money_total <- letters_money %>% 
-  group_by(icpsr, name_state) %>% 
+  group_by(icpsr, name_state, party) %>% 
   summarise(ProBusiness_Letters_Per_Cycle = round(mean(ProBusiness_Letters, na.rm = TRUE)),
             PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
   ungroup()
@@ -895,19 +886,20 @@ We identify `r length(unique(contrib_matrix$comid))` PACs in the energy sector (
 For example:
 
 ### The top PAC recipient in a single cycle
-
-
-
 ```{r letters_PACs}
 letters_PACs <- d %>% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
-  group_by(icpsryear, cycle, name_state) %>%
+  group_by(icpsryear, cycle, name_state, party) %>%
   summarise(ProBusiness_Letters = n()) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
-  left_join(contrib_matrix) 
+  left_join(contrib_matrix) %>% 
+  ungroup() %>% group_by(icpsr) %>% 
+  mutate(party = paste(unique(party), collapse = ";")) %>% 
+  mutate(party = str_remove(party, ";.*")) %>% 
+  ungroup()
 
 letters_PACs_cycle <- letters_PACs %>% 
-  group_by(cycle, icpsr, name_state) %>%
+  group_by(cycle, icpsr, name_state, party) %>%
   # delete PACs that did not give from list, but keep members that recieved no contributions
   mutate(PACShort = ifelse(PAC_contributions > 0, PACShort, NA)) %>% 
   summarise(PAC_contributions = sum(PAC_contributions),
@@ -919,7 +911,6 @@ letters_PACs_cycle %>% top_n(1, PAC_contributions) %>% knitr::kable()
 ```
 
 ### The top PAC recipient overall 
-
 ```{r letters_PACs-total}
 letters_PACs_total <- letters_PACs %>% 
   ungroup() %>% 
@@ -932,7 +923,7 @@ letters_PACs_total <- letters_PACs %>%
 letters_PACs_total %>% top_n(1, PAC_contributions) %>% knitr::kable()
 ```
 
-```{r}
+```{r, fig.height=1}
 letters_money %<>% filter(!is.na(name_state),
                           !is.na(PAC_contributions))
 
@@ -953,28 +944,40 @@ letters_money_total %>%
 
 # Models
 
-### Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016
-```{r money-letters-per-cycle-model}
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %>%
-  tidy()
+### Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
+```{r money-letters-per-cycle-model, fig.height=1}
+mplot <- function(m){m %>%
+  tidy(conf.int = TRUE) %>%
+    filter(term!="(Intercept)") %>%
+ggplot() + 
+  aes(x = term,
+      y = estimate, 
+      ymin = conf.low, 
+      ymax = conf.high)+ 
+  geom_pointrange() + coord_flip() + 
+  labs(x="", y="OLS Estimate, additional letters per dollar")}
+
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %>% mplot()
 ```
 
 Subset to members who wrote at least once:
-```{r money-letters-per-cycle-model-no-zeros}
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% filter(ProBusiness_Letters>0)) %>%
-  tidy()
+```{r money-letters-per-cycle-model-no-zeros, fig.height=1}
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% filter(ProBusiness_Letters>0))  %>% mplot()
 ```
 
-### Linear model: Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 2000-2016
-```{r money-letters-total}
-lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total) %>% 
-  tidy() 
+With a party interaction:
+```{r money-letters-per-cycle-model-party, fig.height=1}
+lm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(party !="NA"))  %>% mplot()
+```
+
+### Linear model: Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
+```{r money-letters-total, fig.height=1}
+lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total)  %>% mplot()
 ```
 
 Subset to members who wrote at least once:
-```{r money-letters-total-no-zeros}
-lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total %>% filter(ProBusiness_Letters_Per_Cycle>0)) %>%
-  tidy()
+```{r money-letters-total-no-zeros, fig.height=1}
+lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total %>% filter(ProBusiness_Letters_Per_Cycle>0))  %>% mplot()
 ```
 ---
 
@@ -1020,3 +1023,17 @@ TODO
 <!--
 ![Sources of Bureaucratic Delay: A Case Study of FERC Dam Relicensing](https://academic.oup.com/jleo/article/22/1/258/938707)
 -->
+
+```{r add-zeros, include = FALSE, eval = FALSE}
+source(here("setup.R"))
+
+# Load corrected members from voteview to identify members with zero letters
+members2 <- full_join(members, members_106to109th) %>%
+  select(congress, icpsr) %>% distinct() %>% 
+  filter(congress >106) %>% 
+  mutate(cycle = congress*2+1786 ) %>% 
+  mutate(icpsryear = str_c(icpsr, cycle)) 
+
+letters_money %<>% 
+  full_join(members2)
+```

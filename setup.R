@@ -37,8 +37,7 @@
   source(here("members/nameCongress.R")) # augments voteview member names
   source(here("members/MemberNameDateCorrections.R"))
   
-  # FIXME
-  # source(here("committees/committees.R"))
+  source(here("committees/committees.R"))
   
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,
