@@ -1579,7 +1579,7 @@ dcorps %&lt;&gt;%
   mutate(company_short_refs = str_c(unique(company), collapse = &quot;; &quot;)) %&gt;% ungroup()</code></pre>
 <p>Look for problems with incorrect or over-trimed company names. For example what should we do with companies that are just state or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, etc.)</p>
 <pre class="r"><code>## Inspect over-trimmed company names
-dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;gas&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Northeast&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;RTO&quot;)) %&gt;% select(company_short, company_short_refs, ID) %&gt;% 
+dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;NA&quot;, &quot;na&quot;, &quot;Na&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;gas&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Northeast&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;RTO&quot;)) %&gt;% select(company_short, company_short_refs, ID) %&gt;% 
   group_by(company_short) %&gt;%
   summarise(company_short_refs = str_c(unique(company_short_refs), collapse = &quot;; &quot;),
             IDs = str_c(unique(ID), collapse = &quot;; &quot;)) %&gt;%
@@ -2055,12 +2055,62 @@ dcorp_short &lt;- unique(dcorps$company_short) %&gt;%
 dcorp_short
 
 # bad string? 
-str_detect(&quot;&quot;, ferc_short)
+str_detect(&quot;&quot;, dcorp_short)
 
 
-save(dcorp_short, file = &quot;data/dcorp_short.Rdata&quot;)</code></pre>
+save(dcorp_short, file = &quot;data/dcorp_short.Rdata&quot;)
+save(dcorps, file = &quot;data/dcorps.Rdata&quot;)</code></pre>
 <hr />
 </div>
+</div>
+<div id="contributions-from-the-energy-sector" class="section level1">
+<h1>Contributions from the Energy Sector</h1>
+<p>Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber.</p>
+<pre class="r"><code>load(here(&quot;data/contrib_total.rds&quot;))
+contrib_total %&lt;&gt;% 
+  rename(icpsryear = ICPSR,
+         PAC_contributions = value)
+head(contrib_total$icpsryear)</code></pre>
+<pre><code>## [1] &quot;104211980&quot; &quot;104211982&quot; &quot;104211984&quot; &quot;104211986&quot; &quot;104211988&quot; &quot;104211990&quot;</code></pre>
+<pre class="r"><code>d %&lt;&gt;% 
+  # rounding years up, is this right? 
+  mutate(cycle = 2 * round(year/2) ) %&gt;% 
+  mutate(icpsryear = str_c(icpsr, cycle)) 
+head(d$icpsryear)</code></pre>
+<pre><code>## [1] &quot;299032018&quot; &quot;209552018&quot; &quot;209482018&quot; &quot;211622018&quot; &quot;211912018&quot; &quot;403052018&quot;</code></pre>
+<pre class="r"><code># if value = NA, 0 (because I droped zeros from sparse DIME matrix)
+
+letters_money &lt;- d %&gt;% 
+  filter(!is.na(ProBusiness)|!is.na(ProProject))%&gt;% 
+  group_by(icpsryear, bioname) %&gt;%
+  summarise(Letters = n() ) %&gt;% 
+  # join by ICPSR, adding a sum of sector PAC contributions per member
+
+  left_join(contrib_total) </code></pre>
+<p>Linear model: Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016</p>
+<pre class="r"><code>lm(Letters ~ PAC_contributions, data = letters_money) %&gt;% 
+  tidy()</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term                estimate std.error statistic   p.value
+##   &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1 (Intercept)        1.94       0.0663      29.2   4.14e-111
+## 2 PAC_contributions -0.0000328  0.000186    -0.176 8.60e-  1</code></pre>
+<p>Linear model: Total letters ~ total Energy Sector PAC contributions 2000-2016</p>
+<pre class="r"><code>letters_money %&lt;&gt;% 
+  ungroup() %&gt;% 
+  select(-icpsryear) %&gt;% 
+  group_by(bioname) %&gt;% 
+  summarise_all(list(sum))
+
+
+lm(Letters ~ PAC_contributions, data = letters_money) %&gt;% 
+  tidy()</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term              estimate std.error statistic  p.value
+##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)        2.25     0.168        13.3  4.10e-31
+## 2 PAC_contributions  0.00204  0.000278      7.35 2.70e-12</code></pre>
+<hr />
 </div>
 <div id="about-ferc" class="section level1">
 <h1>About FERC</h1>

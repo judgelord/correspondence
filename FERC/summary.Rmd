@@ -729,7 +729,7 @@ dcorps %<>%
 Look for problems with incorrect or over-trimed company names. For example what should we do with companies that are just state or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, etc.) 
 ```{r}
 ## Inspect over-trimmed company names
-dcorps %>% filter(company_short %in% c("", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "gas", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Northeast", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs, ID) %>% 
+dcorps %>% filter(company_short %in% c("", "NA", "na", "Na", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "gas", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Northeast", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs, ID) %>% 
   group_by(company_short) %>%
   summarise(company_short_refs = str_c(unique(company_short_refs), collapse = "; "),
             IDs = str_c(unique(ID), collapse = "; ")) %>%
@@ -807,7 +807,7 @@ dcorp_short <- unique(dcorps$company_short) %>%
 dcorp_short
 
 # bad string? 
-str_detect("", ferc_short)
+str_detect("", dcorp_short)
 
 
 save(dcorp_short, file = "data/dcorp_short.Rdata")
@@ -818,16 +818,47 @@ save(dcorps, file = "data/dcorps.Rdata")
 
 # Contributions from the Energy Sector
 Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber.
-
 ```{r}
-load("data/contrib_total.rds")
-
+load(here("data/contrib_total.rds"))
 contrib_total %<>% 
-  rename(icpsr = asICPSR)
+  rename(icpsryear = ICPSR,
+         PAC_contributions = value)
+head(contrib_total$icpsryear)
 
-# join by ICPSR 
-d %<>% left_join(contrib_total)
+d %<>% 
+  # rounding years up is approximate, rewrite to go Nov-Nov?
+  mutate(cycle = 2 * round(year/2) ) %>% 
+  mutate(icpsryear = str_c(icpsr, cycle)) 
+head(d$icpsryear)
+
+letters_money <- d %>% 
+  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
+  group_by(icpsryear, bioname) %>%
+  summarise(Letters = n() ) %>% 
+  # join by ICPSR, adding a sum of sector PAC contributions per member
+
+  left_join(contrib_total) 
 ```
+
+Linear model: Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016
+```{r money-letters-per-cycle}
+lm(Letters ~ PAC_contributions, data = letters_money) %>% 
+  tidy()
+```
+
+Linear model: Total letters ~ total Energy Sector PAC contributions 2000-2016
+```{r money-letters-total}
+letters_money %<>% 
+  ungroup() %>% 
+  select(-icpsryear) %>% 
+  group_by(bioname) %>% 
+  summarise_all(list(sum))
+
+
+lm(Letters ~ PAC_contributions, data = letters_money) %>% 
+  tidy()
+```
+
 ---
 
 
