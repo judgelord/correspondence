@@ -29,15 +29,16 @@
   library(here)
   library(rvest)
   
-  source("functions/clean.R") # data cleaning and intercoder agreement functions 
-  source("functions/stateFromLower.R") # format state names
-  source("functions/dateMethods.R")
-  source("functions/nameMethods.R") # functions for cleaning member names to match the augmented member file
+  source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
+  source(here("functions/stateFromLower.R")) # format state names
+  source(here("functions/dateMethods.R"))
+  source(here("functions/nameMethods.R")) # functions for cleaning member names to match the augmented member file
   
-  source("members/nameCongress.R") # augments voteview member names
-  source("members/MemberNameDateCorrections.R")
+  source(here("members/nameCongress.R")) # augments voteview member names
+  source(here("members/MemberNameDateCorrections.R"))
   
-  source("committees/committees.R")
+  # FIXME
+  # source(here("committees/committees.R"))
   
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,

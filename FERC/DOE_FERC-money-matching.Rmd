@@ -220,6 +220,7 @@ contributors <- dime %>%
   # why is comid not the same between contributors and cmdat?
   # rename as it seems cmdat$comid = contributor_ext_id here...not sure
   rename(comid_fixed_width = comid) %>% 
+  # fec_id = contributor_ext_id
   rename(comid = contributor_ext_id) %>% 
   # first merge with cmdat?
   left_join(cmdat) %>% 

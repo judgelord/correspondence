@@ -789,7 +789,7 @@ dcorps %<>%
 
 dcorps %>% 
   filter(position %in% c("ProProject", "ProBusiness")) %>% 
-  select(ID, company_short, company_short_refs)%>% 
+  select(ID, company_short, company, SUBJECT)%>% 
   group_by(company_short) %>% 
   distinct() %>%
   add_count() %>% 
@@ -816,17 +816,20 @@ save(dcorps, file = "data/dcorps.Rdata")
 ---
 
 # PAC Contributions from the Energy Sector
-Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber per year.
+Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber per cycle, matching a congress with the cycle when it was elected (e.g. 116th congress = 2018 cycle). 
 
 ```{r letters_money}
 load(here("data/contrib_total.rds"))
 contrib_total %<>% 
   rename(icpsryear = ICPSR,
-         PAC_contributions = value)
+         PAC_contributions = value) %>% 
+  mutate(cycle = str_sub(icpsryear, -4),
+         icpsr = as.numeric(str_remove(icpsryear, cycle)),
+         cycle = as.numeric(cycle))
 
 d %<>% 
   # rounding years up is approximate, rewrite to go Nov-Nov?
-  mutate(cycle = congress*2+1788 ) %>% 
+  mutate(cycle = congress*2+1786 ) %>% 
   mutate(icpsryear = str_c(icpsr, cycle)) 
 
 letters_money <- d %>% 
@@ -836,47 +839,64 @@ letters_money <- d %>%
   # join by ICPSR, adding a sum of sector PAC contributions per member
   full_join(contrib_total) %>% ungroup()
 
-members2 <- full_join(members, members_106to109th) %>% 
-  select(congress, icpsr) %>% distinct() %>% 
-  filter(congress >106)
-
-letters_money %<>% 
-  full_join(members2)
-
-letters_money %<>% 
-  replace_na(list(ProBusiness_Letters = 0)) %>%
-  mutate(ProBusiness_Letters = ifelse(ProBusiness_Letters  == 0 & congress<107, NA, ProBusiness_Letters))
-
 letters_money %>% filter(!is.na(name_state)) %>% top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
-## Overall top ten PAC recepients.
-Fred Upton (R-Mich.) was chair of the House Energy and Commerce Committee 2011-2017.
-```{r letters_money_total}
-letters_money_total <- letters_money %>% 
-  drop_na(ProBusiness_Letters, PAC_contributions) %>% 
-  ungroup() %>% 
-  select(-icpsryear) %>% 
-  group_by(name_state) %>% 
-  summarise(ProBusiness_Letters_Per_Cycle = round(mean(ProBusiness_Letters)),
-            PAC_contributions = sum(PAC_contributions))
+```{r add-zeros, include = FALSE, eval = FALSE}
+source(here("setup.R"))
 
-letters_money_total %>% top_n(10, PAC_contributions) %>% knitr::kable()
+# Load corrected members from voteview to identify members with zero letters
+members2 <- full_join(members, members_106to109th) %>%
+  select(congress, icpsr) %>% distinct() %>% 
+  filter(congress >106) %>% 
+  mutate(cycle = congress*2+1786 ) %>% 
+  mutate(icpsryear = str_c(icpsr, cycle)) 
+
+letters_money %<>% 
+  full_join(members2)
 ```
 
 
+```{r add-zeros2, include = FALSE}
+letters_money %<>% 
+ mutate(ProBusiness_Letters = ifelse(is.na(ProBusiness_Letters) & cycle > 2000, 0, ProBusiness_Letters)) 
+```
+
+## Overall top ten PAC recepients.
+
+Fred Upton (R-Mich.) was chair of the House Energy and Commerce Committee 2011-2017.
+
+U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Natural Resources 2014-2015.
+
+```{r letters_money_total}
+letters_money_total <- letters_money %>% 
+  group_by(icpsr, name_state) %>% 
+  summarise(ProBusiness_Letters_Per_Cycle = round(mean(ProBusiness_Letters, na.rm = TRUE)),
+            PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
+  ungroup()
+
+letters_money_total %>% filter(!is.na(name_state)) %>%  top_n(10, PAC_contributions) %>% knitr::kable()
+```
+
+## PAC-specific contributions
 ```{r letters_PACs-data}
 load(here("data/contrib_matrix.rds"))
 contrib_matrix %<>% 
   rename(icpsryear = ICPSR,
-         PAC_contributions = value)
+         PAC_contributions = value) %>% 
+  mutate(cycle = str_sub(icpsryear, -4),
+         icpsr = as.numeric(str_remove(icpsryear, cycle)),
+         cycle = as.numeric(cycle)) %>% 
+  filter(cycle > 1990)
 ```
 
 We identify `r length(unique(contrib_matrix$comid))` PACs in the energy sector (oil, gas, and electricity) and match their PAC contributions to each member of congress. 
 
 For example:
 
-### The top PAC recipient in a single cycle: 
+### The top PAC recipient in a single cycle
+
+
 
 ```{r letters_PACs}
 letters_PACs <- d %>% 
@@ -884,27 +904,26 @@ letters_PACs <- d %>%
   group_by(icpsryear, cycle, name_state) %>%
   summarise(ProBusiness_Letters = n()) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
-  left_join(contrib_matrix) %>% 
-  filter(PAC_contributions>0) %>% 
-  group_by(cycle, name_state) %>%
-  summarise(PAC_contributions = sum(PAC_contributions),
-            PACs = str_c(unique(PACShort), collapse = ";")) %>% 
-  ungroup()
+  left_join(contrib_matrix) 
 
-letters_PACs %>% top_n(1, PAC_contributions) %>% knitr::kable()
+letters_PACs_cycle <- letters_PACs %>% 
+  group_by(cycle, icpsr, name_state) %>%
+  # delete PACs that did not give from list, but keep members that recieved no contributions
+  mutate(PACShort = ifelse(PAC_contributions > 0, PACShort, NA)) %>% 
+  summarise(PAC_contributions = sum(PAC_contributions),
+            PACs = paste(unique(PACShort), collapse = ";")) %>% 
+  ungroup() %>% 
+  arrange(-PAC_contributions)
+
+letters_PACs_cycle %>% top_n(1, PAC_contributions) %>% knitr::kable()
 ```
 
 ### The top PAC recipient overall 
-U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Natural Resources 2014-2015.
+
 ```{r letters_PACs-total}
-letters_PACs_total <- d %>% 
-  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
-  group_by(icpsryear, name_state) %>%
-  summarise(ProBusiness_Letters = n()) %>% 
-  # join by ICPSR, adding a sum of sector PAC contributions per member
-  full_join(contrib_matrix) %>% 
-  filter(PAC_contributions>0) %>% 
-  group_by(name_state) %>%
+letters_PACs_total <- letters_PACs %>% 
+  ungroup() %>% 
+  group_by(icpsr, name_state) %>% 
   summarise(PAC_contributions = sum(PAC_contributions),
             PACs = str_c(unique(PACShort), collapse = ";")) %>% 
   filter(!is.na(name_state)) %>% 
