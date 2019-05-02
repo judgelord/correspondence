@@ -1034,6 +1034,19 @@ lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total
 ```{r pacs-corps, eval = FALSE}
 letters_PACs_corps <- contrib_matrix %>% 
   mutate(str_detect())
+
+letterID 
+date
+member
+district 
+committee 
+position 
+company
+pac 
+ammount 
+
+
+# risiduals 
 ```
 
 
