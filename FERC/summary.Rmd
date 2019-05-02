@@ -493,7 +493,7 @@ dcorps %>%
   select(id, last_name, ProBusiness, ID) %>%
   distinct() %>%
   summarise( n = n() , 
-             members = str_c(last_name, collapse = "; "),
+             members = str_c(unique(last_name), collapse = "; "),
              ID = str_c(unique(ID), collapse = "; ")) %>%
   filter(n>quantile(n,.9))%>%
   arrange(-n) %>%
@@ -737,14 +737,17 @@ dcorps %>% filter(company_short %in% c("", "NA", "na", "Na", "LLC", "Energy", "P
 
 ##  did I acidentally delete everything before a comma? 
 # dcorps %>% filter(str_detect(company_short, ","))
+```
 
+## Top 10 cited parent companies pro or con
+```{r top-corps}
 # top corps
-topcorps <- dcorps %>% group_by(company_short) %>% tally() %>% arrange(-n) %>% top_n(30)
+topcorps <- dcorps %>% group_by(company_short) %>% tally() %>% arrange(-n) %>% top_n(10)
 
 filter(dcorps, company_short %in% topcorps$company_short) %>%   
   group_by(company_short) %>%
-  summarise(company_short_refs = str_c(unique(company_short_refs), collapse = "; "),
-            IDs = str_c(unique(ID), collapse = "; ")) %>%
+  summarise(#IDs = str_c(unique(ID), collapse = "; ")
+    company_short_refs = str_c(unique(company_short_refs), collapse = "; ") ) %>%
   distinct() %>% knitr::kable() 
 
 # corps with short names 
@@ -753,7 +756,7 @@ shortcorps <- dcorps %>%
   tally() %>% 
   arrange(nchar(company_short)) %>% 
   mutate(nchar = nchar(company_short))%>%
-  top_n(30, -nchar) 
+  top_n(10, -nchar) 
 
 filter(dcorps, company_short %in% shortcorps$company_short) %>% 
   group_by(company_short) %>%
@@ -762,10 +765,6 @@ filter(dcorps, company_short %in% shortcorps$company_short) %>%
   distinct() %>% knitr::kable()
 
 #dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
-
- 
-  
-
 ```
 
 ```{r, eval=FALSE}
@@ -816,10 +815,10 @@ save(dcorps, file = "data/dcorps.Rdata")
 
 ---
 
-# Contributions from the Energy Sector
+# PAC Contributions from the Energy Sector
 Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber per year.
 
-```{r}
+```{r letters_money}
 load(here("data/contrib_total.rds"))
 contrib_total %<>% 
   rename(icpsryear = ICPSR,
@@ -827,46 +826,137 @@ contrib_total %<>%
 
 d %<>% 
   # rounding years up is approximate, rewrite to go Nov-Nov?
-  mutate(cycle = 2 * round(year/2) ) %>% 
+  mutate(cycle = congress*2+1788 ) %>% 
   mutate(icpsryear = str_c(icpsr, cycle)) 
 
 letters_money <- d %>% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
-  group_by(icpsryear, cycle, name_state) %>%
+  group_by(icpsryear, cycle, name_state, congress, icpsr) %>%
   summarise(ProBusiness_Letters = n() ) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
-  left_join(contrib_total) %>% ungroup()
+  full_join(contrib_total) %>% ungroup()
 
-letters_money %>% top_n(10, PAC_contributions) %>% knitr::kable()
+members2 <- full_join(members, members_106to109th) %>% 
+  select(congress, icpsr) %>% distinct() %>% 
+  filter(congress >106)
+
+letters_money %<>% 
+  full_join(members2)
+
+letters_money %<>% 
+  replace_na(list(ProBusiness_Letters = 0)) %>%
+  mutate(ProBusiness_Letters = ifelse(ProBusiness_Letters  == 0 & congress<107, NA, ProBusiness_Letters))
+
+letters_money %>% filter(!is.na(name_state)) %>% top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
-## Overall top ten PAC recepients
-```{r}
+## Overall top ten PAC recepients.
+Fred Upton (R-Mich.) was chair of the House Energy and Commerce Committee 2011-2017.
+```{r letters_money_total}
 letters_money_total <- letters_money %>% 
   drop_na(ProBusiness_Letters, PAC_contributions) %>% 
   ungroup() %>% 
   select(-icpsryear) %>% 
   group_by(name_state) %>% 
-  summarise_all(list(sum))
+  summarise(ProBusiness_Letters_Per_Cycle = round(mean(ProBusiness_Letters)),
+            PAC_contributions = sum(PAC_contributions))
 
 letters_money_total %>% top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
 
+```{r letters_PACs-data}
+load(here("data/contrib_matrix.rds"))
+contrib_matrix %<>% 
+  rename(icpsryear = ICPSR,
+         PAC_contributions = value)
+```
+
+We identify `r length(unique(contrib_matrix$comid))` PACs in the energy sector (oil, gas, and electricity) and match their PAC contributions to each member of congress. 
+
+For example:
+
+### The top PAC recipient in a single cycle: 
+
+```{r letters_PACs}
+letters_PACs <- d %>% 
+  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
+  group_by(icpsryear, cycle, name_state) %>%
+  summarise(ProBusiness_Letters = n()) %>% 
+  # join by ICPSR, adding a sum of sector PAC contributions per member
+  left_join(contrib_matrix) %>% 
+  filter(PAC_contributions>0) %>% 
+  group_by(cycle, name_state) %>%
+  summarise(PAC_contributions = sum(PAC_contributions),
+            PACs = str_c(unique(PACShort), collapse = ";")) %>% 
+  ungroup()
+
+letters_PACs %>% top_n(1, PAC_contributions) %>% knitr::kable()
+```
+
+### The top PAC recipient overall 
+U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Natural Resources 2014-2015.
+```{r letters_PACs-total}
+letters_PACs_total <- d %>% 
+  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
+  group_by(icpsryear, name_state) %>%
+  summarise(ProBusiness_Letters = n()) %>% 
+  # join by ICPSR, adding a sum of sector PAC contributions per member
+  full_join(contrib_matrix) %>% 
+  filter(PAC_contributions>0) %>% 
+  group_by(name_state) %>%
+  summarise(PAC_contributions = sum(PAC_contributions),
+            PACs = str_c(unique(PACShort), collapse = ";")) %>% 
+  filter(!is.na(name_state)) %>% 
+  ungroup()
+
+letters_PACs_total %>% top_n(1, PAC_contributions) %>% knitr::kable()
+```
+
+```{r}
+letters_money %<>% filter(!is.na(name_state),
+                          !is.na(PAC_contributions))
+
+top1 <- top_n(letters_money_total, 5, PAC_contributions) %>% .$name_state
+top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% .$name_state
+
+letters_money_total %>% 
+  ggplot() + 
+  aes(x = PAC_contributions, 
+      y = ProBusiness_Letters_Per_Cycle) + 
+  geom_point(alpha = .5) + 
+  geom_text(aes(label = ifelse(name_state %in% top1|name_state %in% top2,
+                               name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
+  labs(x = "PAC Contributions 2000-2016",
+       y = "Pro-Business Letters sent to FERC per Cycle")
+  
+```
+
 # Models
 
-Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016
-```{r money-letters-per-cycle}
+### Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016
+```{r money-letters-per-cycle-model}
 lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %>%
-  tidy() %>% knitr::kable()
+  tidy()
 ```
 
-Linear model: Total Pro-Business letters ~ total Energy Sector PAC contributions 2000-2016
+Subset to members who wrote at least once:
+```{r money-letters-per-cycle-model-no-zeros}
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% filter(ProBusiness_Letters>0)) %>%
+  tidy()
+```
+
+### Linear model: Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 2000-2016
 ```{r money-letters-total}
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money_total) %>% 
-  tidy() %>% knitr::kable()
+lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total) %>% 
+  tidy() 
 ```
 
+Subset to members who wrote at least once:
+```{r money-letters-total-no-zeros}
+lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total %>% filter(ProBusiness_Letters_Per_Cycle>0)) %>%
+  tidy()
+```
 ---
 
 
@@ -884,7 +974,7 @@ TODO
 ## Letters are on behalf of donors
 TODO
 
-# Comparing FERC to other agencies
+## Comparing FERC to other agencies
 TODO 
 
 
@@ -894,15 +984,15 @@ TODO
 - template to match company names to donation (lobbyview, DIME)
 - template match company names to industry codes (center for responsive politics)
 
-# SHORT TERM
+## SHORT TERM
  1. Identify relevent industry codes 
  2. Get cycle-specific PAC classification for those industry codes 
  3. Subset dime to those PAC classification 
  
-# LONG TERM 
+## LONG TERM 
 - link industry codes to CRP committee classification 
 
-# DONE
+## DONE
 - add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
 
