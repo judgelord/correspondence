@@ -767,7 +767,7 @@ filter(dcorps, company_short %in% shortcorps$company_short) %>%
 #dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 library(googlesheets)
 library(httpuv)
 
@@ -789,28 +789,35 @@ dcorps %<>%
 
 dcorps %>% 
   filter(position %in% c("ProProject", "ProBusiness")) %>% 
-  select(ID, company_short, company, SUBJECT)%>% 
+  select(ID, company_short, company)%>% 
   group_by(company_short) %>% 
   distinct() %>%
   add_count() %>% 
   arrange(-n) %>% 
-  write_csv(path = "FERC/ProBusinesses.csv")
+  #write_csv(path = here("FERC/ProBusinesses.csv"))
+  head()
 
-sum(is.na(unique(dcorps$company_short)))
+# sum(is.na(unique(dcorps$company_short)))
 
 ## Make a single string of short corp names
 dcorp_short <- unique(dcorps$company_short) %>% 
   str_c(collapse = "|") %>% 
   str_remove_all("||")
 
-dcorp_short
-
 # bad string? 
-str_detect("", dcorp_short)
+# str_detect("", dcorp_short)
 
 
-save(dcorp_short, file = "data/dcorp_short.Rdata")
-save(dcorps, file = "data/dcorps.Rdata")
+save(dcorp_short, file = here("data/dcorp_short.Rdata"))
+save(dcorps, file = here("data/dcorps.Rdata"))
+
+notcorps <- filter(dcorps, company_short == "NOT A COMPANY?")
+# notcorps$company
+
+# Drop non company observations from d 
+d %<>% mutate(ProBusiness = ifelse(ProBusiness %in% notcorps$company, NA, ProBusiness)) %>% 
+  mutate(ProProject = ifelse(ProProject %in% notcorps$company, NA, ProProject))
+  
 ```
 
 ---
@@ -834,7 +841,9 @@ d %<>%
   mutate(icpsryear = str_c(icpsr, cycle)) 
 
 letters_money <- d %>% 
-  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
+  # FIXME
+  filter(!is.na(ProBusiness) |!is.na(ProProject))%>% 
+  #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
   group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
   summarise(ProBusiness_Letters = n()) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
@@ -844,13 +853,13 @@ letters_money <- d %>%
   mutate(party = str_remove(party, ";.*")) %>% 
   ungroup()
 
-letters_money %>% filter(!is.na(name_state)) %>% top_n(10, PAC_contributions) %>% knitr::kable()
+letters_money %>% filter(!is.na(name_state)) %>% select(-icpsryear, -icpsr) %>% top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
 Add zero-letter-cycle observations:
-```{r add-zeros2, include = FALSE}
+```{r add-zeros}
 letters_money %<>% 
- mutate(ProBusiness_Letters = ifelse(is.na(ProBusiness_Letters) & cycle > 2000, 0, ProBusiness_Letters)) 
+ mutate(ProBusiness_Letters = ifelse(is.na(ProBusiness_Letters) & cycle > 1997, 0, ProBusiness_Letters)) 
 ```
 
 ## Overall top ten PAC recepients.
@@ -923,11 +932,13 @@ letters_PACs_total <- letters_PACs %>%
 letters_PACs_total %>% top_n(1, PAC_contributions) %>% knitr::kable()
 ```
 
-```{r, fig.height=1}
+
+### Pro-business letters per cycle
+```{r, letter_money}
 letters_money %<>% filter(!is.na(name_state),
                           !is.na(PAC_contributions))
 
-top1 <- top_n(letters_money_total, 5, PAC_contributions) %>% .$name_state
+top1 <- top_n(letters_money_total %>% filter(!is.na(name_state)), 5, PAC_contributions) %>% .$name_state
 top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% .$name_state
 
 letters_money_total %>% 
@@ -937,6 +948,7 @@ letters_money_total %>%
   geom_point(alpha = .5) + 
   geom_text(aes(label = ifelse(name_state %in% top1|name_state %in% top2,
                                name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
+  
   labs(x = "PAC Contributions 2000-2016",
        y = "Pro-Business Letters sent to FERC per Cycle")
   
@@ -954,32 +966,47 @@ ggplot() +
       y = estimate, 
       ymin = conf.low, 
       ymax = conf.high)+ 
-  geom_pointrange() + coord_flip() + 
-  labs(x="", y="OLS Estimate, additional letters per dollar")}
+    geom_hline(yintercept = 0, color = "grey") + 
+  geom_pointrange() + coord_flip() +
+  labs(x="", y="OLS Estimate, additional letters per thousand dollars")}
 
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %>% mplot()
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000) ) %>% mplot()
 ```
 
 Subset to members who wrote at least once:
 ```{r money-letters-per-cycle-model-no-zeros, fig.height=1}
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% filter(ProBusiness_Letters>0))  %>% mplot()
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% filter(ProBusiness_Letters>0) %>% mutate(PAC_contributions = PAC_contributions/1000) )  %>% mplot()
 ```
 
-With a party interaction:
-```{r money-letters-per-cycle-model-party, fig.height=1}
-lm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(party !="NA"))  %>% mplot()
+By party:
+```{r letters-per-cycle-model-party, fig.height=1}
+m <- lm(ProBusiness_Letters ~ party, data = letters_money %>% filter(party !="NA") ) %>% tidy()
+
+m
 ```
+Republicans send an additional `r round(m$estimate[2],1)` letters per Congress, on average.
+
+
+
+PAC*party interaction:
+```{r money-letters-per-cycle-model-party, fig.height=1}
+lm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000) )  %>% mplot()
+```
+
+
 
 ### Linear model: Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
 ```{r money-letters-total, fig.height=1}
-lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total)  %>% mplot()
+lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total%>% mutate(PAC_contributions = PAC_contributions/1000))  %>% mplot()
 ```
 
 Subset to members who wrote at least once:
 ```{r money-letters-total-no-zeros, fig.height=1}
 lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total %>% filter(ProBusiness_Letters_Per_Cycle>0))  %>% mplot()
 ```
+
 ---
+
 
 
 
@@ -1024,7 +1051,7 @@ TODO
 ![Sources of Bureaucratic Delay: A Case Study of FERC Dam Relicensing](https://academic.oup.com/jleo/article/22/1/258/938707)
 -->
 
-```{r add-zeros, include = FALSE, eval = FALSE}
+```{r, include = FALSE, eval = FALSE}
 source(here("setup.R"))
 
 # Load corrected members from voteview to identify members with zero letters
