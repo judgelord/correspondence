@@ -190,22 +190,63 @@ load(here("data/DIME_79_14.rda"))
 dime <- aresults
 glimpse(dime)
 
+
+
 # pluck out the candidate data 
 cands <- dime %>% 
   purrr::pluck("cands") %>% 
-  as_tibble() %>% 
-  #filter(cycle == 2008) %>% # for testing 
-  select(Name, cycle, ICPSR, ICPSR2, votesmart_id, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) 
+  as_tibble() 
+
+## Fixing incorrect ICPSR scores in the DIME Candidate Data
+cands$ICPSR2[cands$ICPSR2==29334 & cands$cycle >2001]<-"20358" ## Separating Carrie Meek and her son Kendrick Meek
+cands$ICPSR[cands$ICPSR2==29334 & cands$cycle >2001]<-"20358" ## Separating Carrie Meek and her son Kendrick Meek
+cands$ICPSR2[cands$ICPSR2==8883 &cands$Cand.ID=="H8MS04040"]<-"H8MS04040" ## Separating Senator John C. Stennis from his sone John Hampton Stennis who ran for the House
+cands$bonica.rid[cands$Cand.ID=="H8MS04040"]<-"cand3319a" ## Separating Senator John C. Stennis from his son John Hampton Stennis who ran for the House, and giving them separate bonica scores by adding a to the son's score
+cands$bonica.cid[cands$Cand.ID=="H8MS04040"]<-"3787950641a" ## Separating Senator John C. Stennis from his son John Hampton Stennis who ran for the House, and giving them separate bonica scores by adding a to the son's score
+cands<-cands[!(cands$ICPSR=="H8TX060271984"),] ## Removing duplicate row for Senator Phil Gramm.  (in 1984 he ran for senate not house)
+cands<-cands[!(cands$ICPSR=="S6TX000401982"),] ## Removing duplicate row for Senator Phil Gramm.  (in 1982 he ran for house not senate)
+cands$ICPSR2[cands$bonica.rid=="cand134709" & cands$cycle==1980]<-"94628" #Fixing the ICPSR2 score for Phil Gramm (party switch)
+cands<-cands[!(cands$ICPSR=="ID129951990"),] ## Removing duplicates for Senator Mike Crapo (confusion with state legislature)
+cands<-cands[!(cands$ICPSR=="ID129951992"),] ## Removing duplicates for Senator Mike Crapo (confusion with state legislature)
+cands<-cands[!(cands$ICPSR=="ID129951996"),] ## Removing duplicates for Senator Mike Crapo (confusion with state legislature)
+cands<-cands[!(cands$ICPSR=="ID129951996"),] ## Removing duplicates for Senator Mike Crapo (confusion with state legislature)
+cands<-cands[!(cands$ICPSR=="AK174572002"),] ## Removing duplicates for Senator Lisa Murkowski (confusion with state legislature & father mid replace)
+cands<-cands[!(cands$ICPSR=="ID185872008"),] ## Removing duplicates for Senator Jim Risch (confusion with gov)
+cands<-cands[!(cands$ICPSR=="S0ND000932010"),] ## Removing duplicates for Senator John Hoeven (confusion with gov)
+cands<-cands[!(cands$ICPSR=="IL138871998"),] ## Removing duplicates for Senator Peter Fitzgerald (confusion with state legislature)
+cands<-cands[!(cands$ICPSR=="H8NJ011432008"),] ## Removing CAMILLE SPINELLO ANDREWS, who temporarily ran for the primary for her husband's house seat , while he was running for senate.  He lost the Senate primary, and then she withdrew from House race.  In this case she is erroniously credited with her husband's ICPSR #.  She never served in Congress.  
+
+
+cands$ICPSR2[cands$bonica.rid=="cand121877" & cands$cycle >2005]<-"20538" #Fixing the ICPSR2 scores for Doris Matsui, her husband Bob scores are correct
+## Parker Griffith changed parties from Dem to Rep.  Bonica wanted a single consistent ICPSR score so used 90901, but voteview and others use separate scores for party switch
+#cands$ICPSR2[cands$ICPSR2==91901 & cands$cycle==2008]<-"15617"
+#cands$ICPSR2[cands$ICPSR2==91901 & cands$cycle==2010]<-"95617"
+# Wes Watkins changed parties, so others changed his ICPSR score.  Changing to match NOMINATE/Stewart
+cands$ICPSR2[cands$ICPSR2=="14462" & cands$cycle>1994]<-"29749"
+# Billy Tauzin changed parties, so others changed his ICPSR score.  Changing to match NOMINATE/Stewart
+cands$ICPSR2[cands$ICPSR2=="14679" & cands$cycle>1996]<-"94679"
+# Bill Grant changed parties, In earlier years should have earlier number
+cands$ICPSR2[cands$ICPSR2=="95415" & cands$cycle>1988]<-"15415"
+# GARDNER, CORY had and FEC ID instead of an ICPSR 
+cands %<>% 
+  mutate(ICPSR = ifelse(Name=="GARDNER, CORY" & cands$cycle>2009,
+                        str_c(21112,cycle),ICPSR)) %>%
+  mutate(ICPSR = ifelse(Name=="MARINO, THOMAS ANTHONY" & cands$cycle>2009,
+                        str_c(21170,cycle),ICPSR))
+  
+cands %>% filter(str_detect(Name,"MARINO, THOMAS")) %>% select(Name, ICPSR, ICPSR2, cycle)  %>% distinct()
+
 
 # trim it down
 cands %<>%  
+  select(Name, cycle, ICPSR, ICPSR2, votesmart_id, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) %>%
   # icpsr = ICPSR without cycle at the end
   mutate(icpsr = str_remove(ICPSR, cycle))%>%
   # trim down to members serving in since the 106th
-  filter(icpsr %in% members$icpsr | icpsr %in% members_106to109th$icpsr) # %>% 
+  filter(icpsr %in% members$icpsr | icpsr %in% members_106to109th$icpsr)  # %>% 
   # FIXME 
   # TESTING WITH A FEW
-  # filter(icpsr %in% c(15446,49702), cycle == 2012)
+  # filter(icpsr %in% c(21170,21112))
 
 dim(cands)
 
@@ -265,7 +306,7 @@ load(here("data/ferc_short.Rdata"))
 
 ## Find companies from FERC website 
 contrib_matrix %>% 
-  mutate(company_short = str_extract(UltOrg, ferc_short)) 
+  mutate(ferc_short = str_extract(UltOrg, ferc_short)) 
 
 contrib_matrix %>% select(company_short, UltOrg) %>% distinct() %>% knitr::kable()
 ```
@@ -300,12 +341,17 @@ save(contrib_total, file =  "data/contrib_total.rds")
 
 
 ```{r not run, include = FALSE, eval=FALSE}
+rm(list=ls())
+q()
+n
 ssh -Y judgelord@linstat.ssc.wisc.edu
 cd /project/judgelord/correspondence
 git add "data/contrib_matrix.rds"
 git add "data/contrib_total.rds"
 git commit -m "add dime data"
+git pull
 git push
+judgelord
 ```
 
 
