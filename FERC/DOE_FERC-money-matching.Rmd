@@ -145,9 +145,17 @@ industry %<>%
                          "Oilfield service, equipment & exploration"))
 
 
-crpEnergy <- crp %>% filter(PrimCode %in% industry$Catcode) %>% 
-  select(PrimCode, CmteID, PACShort, Affiliate, UltOrg) %>% distinct() %>% 
-  mutate(comid = CmteID)
+crpEnergy <- crp %>% 
+  filter(PrimCode %in% industry$Catcode) %>% 
+  mutate(comid = CmteID) %>% 
+  select(comid, UltOrg, Affiliate, PACShort) %>% 
+  distinct() %>% 
+  group_by(comid) %>%
+  summarise(UltOrg = str_c(unique(UltOrg), collapse = "; "),
+            Affiliate = paste(unique(Affiliate), collapse = "; "),
+            PACShort = str_c(unique(PACShort), collapse = "; ")) %>%
+  distinct()
+
 ```
 
 ## Companies with PACs linked to companies registered with FERC's website
@@ -164,7 +172,11 @@ crpEnergy %>% filter(str_detect(UltOrg, ferc_short)|str_detect(Affiliate, ferc_s
 # Load a string of companies from FERC website
 load(here("data/dcorp_short.Rdata"))
 
-crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, dcorp_short)) %>% mutate(company_short = str_extract(UltOrg, dcorp_short)) %>% select(company_short, UltOrg)  %>% distinct()%>% 
+crpEnergy %>% 
+  filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, dcorp_short)) %>%
+  mutate(company_short = str_extract(UltOrg, dcorp_short)) %>%
+  select(company_short, UltOrg)  %>% 
+  distinct()%>% 
   knitr::kable()
 ```
 
@@ -173,56 +185,72 @@ crpEnergy %>% filter(str_detect(UltOrg, dcorp_short)|str_detect(Affiliate, dcorp
 ```{r, eval=FALSE}
 source("setup.R")
 library(purrr)
-# load dime datarm(list=ls())
+# load dime data
 load(here("data/DIME_79_14.rda"))
-ls()
-
-# rename dime data 
 dime <- aresults
-
-# FOR TESTING 
-# dime <- head(dime) 
-
-names(dime)
 glimpse(dime)
-# head(dime$cands)
 
+# pluck out the candidate data 
 cands <- dime %>% 
   purrr::pluck("cands") %>% 
   as_tibble() %>% 
-  filter(cycle == 2008, Industry != "") %>% 
-  select(Name, ICPSR, ICPSR2, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) 
+  #filter(cycle == 2008) %>% # for testing 
+  select(Name, cycle, ICPSR, ICPSR2, votesmart_id, Cand.ID, FEC.ID, unq_fecids, unq_candids, recipient_nid, bonica_rid) 
 
-cands %>% select(Name, ICPSR, votesmart_id)
+# trim it down
+cands %<>%  
+  # icpsr = ICPSR without cycle at the end
+  mutate(icpsr = str_remove(ICPSR, cycle))%>%
+  # trim down to members serving in since the 106th
+  filter(icpsr %in% members$icpsr | icpsr %in% members_106to109th$icpsr)
 
-# cands$Industry
-# cands$Catcode
-
-contributors <- dime %>% 
-  purrr::pluck("contributors") %>% 
-  as_tibble() %>% 
-  filter(indiv == "C", contributor_ext_id != "") %>%
-  filter(contributor_ext_id %in% crpEnergy$comid) 
-
+# pluck out PAC data matrix
 cmdat <- dime %>% 
   purrr::pluck("cmdat") %>% 
   as_tibble() %>% 
+  # Select CRP PAC IDs
   filter(comid.crp %in% crpEnergy$comid) 
 
-# names(contributors)
+glimpse(cmdat)
 
+# pluck out the other PAC data matrix with the right comid
+contributors <- dime %>% 
+  purrr::pluck("contributors") %>% 
+  as_tibble() %>% 
+  # why is comid not the same between contributors and cmdat?
+  # rename as it seems cmdat$comid = contributor_ext_id here...not sure
+  rename(comid_fixed_width = comid) %>% 
+  rename(comid = contributor_ext_id) %>% 
+  # first merge with cmdat?
+  left_join(cmdat) %>% 
+  # trim it down to those in CRP data (could just fliter these data to energy companies)
+  filter(comid.crp %in% crpEnergy$comid)  
 
+glimpse(contributors)
+
+# pluck out the contribution sparse matrix (mostly zeros)
 contrib_matrix <- dime %>% 
   purrr::pluck("contrib.matrix") %>% 
-  # select comids matched with CRP data above
-  .[cmdat$comid, cands$ICPSR] %>% 
+  # select comids and ICPSR numbers matched above
+  .[contributors$comid_fixed_width, cands$ICPSR] %>% 
   as.matrix() %>% 
-  as_tibble(rownames = "comid") %>% 
-  gather(key = ICPSR, value = value, -comid)
+  as_tibble(rownames = "comid_fixed_width") %>% 
+  # make long format tidy data
+  gather(key = ICPSR, value = value, -comid_fixed_width)
 
 dim(contrib_matrix)
 
-contrib_matrix %<>% left_join(crpEnergy)
+contrib_matrix %<>% 
+  # drop zeros to speed things up, make a smaller file
+  #filter(value >0) %>%
+  # make comid not fixed width
+  left_join(contributors %>% select(comid_fixed_width, comid) %>%
+              distinct() ) %>% 
+  # merge with CRP data 
+  left_join(crpEnergy) %>% 
+  distinct()
+
+contrib_matrix %>% select(PACShort, Affiliate)
 
 save(contrib_matrix, file =  "data/contrib_matrix.rds")
 
@@ -236,7 +264,7 @@ save(contrib_total, file =  "data/contrib_total.rds")
 
 # git add "data/contrib_matrix.rds"
 # git add "data/contrib_total.rds"
-git commit -m "add dime data"
+# git commit -m "add dime data"
 ```
 
 
