@@ -767,6 +767,8 @@ filter(dcorps, company_short %in% shortcorps$company_short) %>%
 #dcorps %>% filter(!position %in% c("ProProject", "AntiProject")) %>%  group_by(company_short) %>% tally() %>% arrange(-nchar(company_short))  %>% top_n(20) %>% knitr::kable()
 ```
 
+
+[This sheet](https://docs.google.com/spreadsheets/d/1-QNgeiMnH97jN_0vCqFKEGEB5Ztpito3iRsqK8jN3Cs/edit#gid=0) tracks non-companies in our data.
 ```{r, eval=TRUE}
 library(googlesheets)
 library(httpuv)
@@ -814,10 +816,15 @@ save(dcorps, file = here("data/dcorps.Rdata"))
 notcorps <- filter(dcorps, company_short == "NOT A COMPANY?")
 # notcorps$company
 
-# Drop non company observations from d 
+sum(!is.na(d$ProBusiness))
+```
+
+Drop non-company observations
+```{r}
 d %<>% mutate(ProBusiness = ifelse(ProBusiness %in% notcorps$company, NA, ProBusiness)) %>% 
   mutate(ProProject = ifelse(ProProject %in% notcorps$company, NA, ProProject))
   
+sum(!is.na(d$ProBusiness))
 ```
 
 ---
@@ -833,7 +840,8 @@ contrib_total %<>%
   mutate(cycle = str_sub(icpsryear, -4),
          icpsr = as.numeric(str_remove(icpsryear, cycle)),
          cycle = as.numeric(cycle)) %>% 
-  filter(cycle > 1990) 
+  filter(cycle > 1990) %>% 
+  left_join(d %>% select(icpsr, name_state, party) %>% distinct())
 
 d %<>% 
   # rounding years up is approximate, rewrite to go Nov-Nov?
@@ -841,19 +849,29 @@ d %<>%
   mutate(icpsryear = str_c(icpsr, cycle)) 
 
 letters_money <- d %>% 
-  # FIXME
-  filter(!is.na(ProBusiness) |!is.na(ProProject))%>% 
+  #FIXME
+  filter(cycle <2016) %>% 
+  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
   group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
-  summarise(ProBusiness_Letters = n()) %>% 
-  # join by ICPSR, adding a sum of sector PAC contributions per member
-  full_join(contrib_total) %>% ungroup() %>% 
-  ungroup() %>% group_by(icpsr) %>% 
+  summarise(ProBusiness_Letters = n())
+
+# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
+letters_money %<>% 
+  ungroup() %>% 
+  full_join(contrib_total) %>% 
+  group_by(icpsr) %>% 
+  # FIXME
+  # one party per member, need to deal with party switchers 
   mutate(party = paste(unique(party), collapse = ";")) %>% 
   mutate(party = str_remove(party, ";.*")) %>% 
   ungroup()
 
-letters_money %>% filter(!is.na(name_state)) %>% select(-icpsryear, -icpsr) %>% top_n(10, PAC_contributions) %>% knitr::kable()
+# top 10 by contributions in a cycle 
+letters_money %>% 
+  filter(!is.na(name_state)) %>% 
+  select(-icpsryear, -icpsr) %>% 
+  top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
 Add zero-letter-cycle observations:
@@ -871,7 +889,7 @@ U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Na
 ```{r letters_money_total}
 letters_money_total <- letters_money %>% 
   group_by(icpsr, name_state, party) %>% 
-  summarise(ProBusiness_Letters_Per_Cycle = round(mean(ProBusiness_Letters, na.rm = TRUE)),
+  summarise(ProBusiness_Letters_Per_Cycle = mean(ProBusiness_Letters, na.rm = TRUE),
             PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
   ungroup()
 
@@ -887,7 +905,8 @@ contrib_matrix %<>%
   mutate(cycle = str_sub(icpsryear, -4),
          icpsr = as.numeric(str_remove(icpsryear, cycle)),
          cycle = as.numeric(cycle)) %>% 
-  filter(cycle > 1990)
+  filter(cycle > 1990)%>% 
+  left_join(d %>% select(icpsr, name_state, party) %>% distinct())
 ```
 
 We identify `r length(unique(contrib_matrix$comid))` PACs in the energy sector (oil, gas, and electricity) and match their PAC contributions to each member of congress. 
@@ -897,6 +916,8 @@ For example:
 ### The top PAC recipient in a single cycle
 ```{r letters_PACs}
 letters_PACs <- d %>% 
+  #FIXME
+  filter(cycle <2016) %>% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
   group_by(icpsryear, cycle, name_state, party) %>%
   summarise(ProBusiness_Letters = n()) %>% 
@@ -935,9 +956,6 @@ letters_PACs_total %>% top_n(1, PAC_contributions) %>% knitr::kable()
 
 ### Pro-business letters per cycle
 ```{r, letter_money}
-letters_money %<>% filter(!is.na(name_state),
-                          !is.na(PAC_contributions))
-
 top1 <- top_n(letters_money_total %>% filter(!is.na(name_state)), 5, PAC_contributions) %>% .$name_state
 top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% .$name_state
 
@@ -946,17 +964,31 @@ letters_money_total %>%
   aes(x = PAC_contributions, 
       y = ProBusiness_Letters_Per_Cycle) + 
   geom_point(alpha = .5) + 
-  geom_text(aes(label = ifelse(name_state %in% top1|name_state %in% top2,
+  geom_text(aes(label = ifelse(name_state %in% top2,
                                name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
   
-  labs(x = "PAC Contributions 2000-2016",
+  labs(x = "PAC Contributions 2000-2014",
+       y = "Pro-Business Letters sent to FERC per Cycle")
+
+letters_money_total %>% 
+  ggplot() + 
+  coord_flip() + 
+  aes(x = PAC_contributions, 
+      y = ProBusiness_Letters_Per_Cycle) + 
+  geom_point(alpha = .5) + 
+  geom_text(aes(label = ifelse(name_state %in% top1,
+                               name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
+  
+  labs(x = "PAC Contributions 2000-2014",
        y = "Pro-Business Letters sent to FERC per Cycle")
   
 ```
 
 # Models
 
-### Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
+## Sector-level
+
+#### Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
 ```{r money-letters-per-cycle-model, fig.height=1}
 mplot <- function(m){m %>%
   tidy(conf.int = TRUE) %>%
@@ -966,16 +998,11 @@ ggplot() +
       y = estimate, 
       ymin = conf.low, 
       ymax = conf.high)+ 
-    geom_hline(yintercept = 0, color = "grey") + 
+    geom_hline(yintercept = 0, linetype =2) + 
   geom_pointrange() + coord_flip() +
   labs(x="", y="OLS Estimate, additional letters per thousand dollars")}
 
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000) ) %>% mplot()
-```
-
-Subset to members who wrote at least once:
-```{r money-letters-per-cycle-model-no-zeros, fig.height=1}
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% filter(ProBusiness_Letters>0) %>% mutate(PAC_contributions = PAC_contributions/1000) )  %>% mplot()
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000) )  %>% mplot()
 ```
 
 By party:
@@ -995,17 +1022,20 @@ lm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filte
 
 
 
-### Linear model: Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
+#### Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
 ```{r money-letters-total, fig.height=1}
 lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total%>% mutate(PAC_contributions = PAC_contributions/1000))  %>% mplot()
 ```
 
-Subset to members who wrote at least once:
-```{r money-letters-total-no-zeros, fig.height=1}
-lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total %>% filter(ProBusiness_Letters_Per_Cycle>0))  %>% mplot()
-```
 
----
+## PAC-level
+
+```{r pacs-corps, eval = FALSE}
+letters_PACs_corps <- contrib_matrix %>% 
+  mutate(dcorps = str_extract_all(UltOrg, dcorp_short))
+
+
+```
 
 
 

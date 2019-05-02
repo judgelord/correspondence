@@ -181,7 +181,7 @@ crpEnergy %>%
 ```
 
 
-## PAC contributions from DIME
+# PAC contributions from DIME
 ```{r, eval=FALSE}
 source("setup.R")
 library(purrr)
@@ -256,12 +256,42 @@ contrib_matrix %<>%
   arrange(-value)
 
 contrib_matrix %>% select(PACShort, Affiliate, value)
+```
 
+## Companies with PACs linked to companies registered with FERC's website
+```{r crp-ferc-match}
+# Load a string of companies from FERC website
+load(here("data/ferc_short.Rdata"))
+
+## Find companies from FERC website 
+contrib_matrix %>% 
+  mutate(company_short = str_extract(UltOrg, ferc_short)) 
+
+contrib_matrix %>% select(company_short, UltOrg) %>% distinct() %>% knitr::kable()
+```
+
+## Companies with PACs matching companies in member letters to FERC
+```{r}
+# Load a string of companies from FERC website
+load(here("data/dcorp_short.Rdata"))
+
+# Find these companies in UltOrg
+contrib_matrix %>% 
+  mutate(dcorp_short = str_extract(UltOrg, dcorp_short)) 
+
+contrib_matrix %>%
+  select(dcorp_short, UltOrg)  %>% 
+  distinct()%>% 
+  knitr::kable()
+```
+
+Save results
+```{r save}
+#########################################################
 save(contrib_matrix, file =  "data/contrib_matrix.rds")
 
+# collapse to all sector-level donations for now
 contrib_total <- contrib_matrix %>% 
-  # FIXME
-  # collapse to all sector-level donations for now
   group_by(ICPSR) %>% 
   summarise(value = sum(value))
 
@@ -270,27 +300,6 @@ save(contrib_total, file =  "data/contrib_total.rds")
 
 
 ```{r not run, include = FALSE, eval=FALSE}
-dime %>% 
-  purrr::pluck("contrib.matrix") %>% 
-  # select comids and ICPSR numbers matched above
-  .[1:10, 1:10]
-
-dime %>% 
-  purrr::pluck("cm.am") %>% 
-  # select comids and ICPSR numbers matched above
-  .[1:10, 1:10]
-
-dime %>% 
-  purrr::pluck("cm") %>% 
-  # select comids and ICPSR numbers matched above
-  .[1:10, 1:10]
-
-
-dime %>% 
-  purrr::pluck("contrib.matrix.am") %>% 
-  # select comids and ICPSR numbers matched above
-  .[1:10, 1:10]
-
 ssh -Y judgelord@linstat.ssc.wisc.edu
 cd /project/judgelord/correspondence
 git add "data/contrib_matrix.rds"
