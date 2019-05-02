@@ -817,46 +817,54 @@ save(dcorps, file = "data/dcorps.Rdata")
 ---
 
 # Contributions from the Energy Sector
-Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber.
+Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber per year.
+
 ```{r}
 load(here("data/contrib_total.rds"))
 contrib_total %<>% 
   rename(icpsryear = ICPSR,
          PAC_contributions = value)
-head(contrib_total$icpsryear)
 
 d %<>% 
   # rounding years up is approximate, rewrite to go Nov-Nov?
   mutate(cycle = 2 * round(year/2) ) %>% 
   mutate(icpsryear = str_c(icpsr, cycle)) 
-head(d$icpsryear)
 
 letters_money <- d %>% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
-  group_by(icpsryear, bioname) %>%
-  summarise(Letters = n() ) %>% 
+  group_by(icpsryear, cycle, name_state) %>%
+  summarise(ProBusiness_Letters = n() ) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
+  left_join(contrib_total) %>% ungroup()
 
-  left_join(contrib_total) 
+letters_money %>% top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
-Linear model: Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016
-```{r money-letters-per-cycle}
-lm(Letters ~ PAC_contributions, data = letters_money) %>% 
-  tidy()
-```
-
-Linear model: Total letters ~ total Energy Sector PAC contributions 2000-2016
-```{r money-letters-total}
-letters_money %<>% 
+## Overall top ten PAC recepients
+```{r}
+letters_money_total <- letters_money %>% 
+  drop_na(ProBusiness_Letters, PAC_contributions) %>% 
   ungroup() %>% 
   select(-icpsryear) %>% 
-  group_by(bioname) %>% 
+  group_by(name_state) %>% 
   summarise_all(list(sum))
 
+letters_money_total %>% top_n(10, PAC_contributions) %>% knitr::kable()
+```
 
-lm(Letters ~ PAC_contributions, data = letters_money) %>% 
-  tidy()
+
+# Models
+
+Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016
+```{r money-letters-per-cycle}
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %>%
+  tidy() %>% knitr::kable()
+```
+
+Linear model: Total Pro-Business letters ~ total Energy Sector PAC contributions 2000-2016
+```{r money-letters-total}
+lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money_total) %>% 
+  tidy() %>% knitr::kable()
 ```
 
 ---

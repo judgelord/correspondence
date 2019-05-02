@@ -2065,51 +2065,254 @@ save(dcorps, file = &quot;data/dcorps.Rdata&quot;)</code></pre>
 </div>
 <div id="contributions-from-the-energy-sector" class="section level1">
 <h1>Contributions from the Energy Sector</h1>
-<p>Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber.</p>
+<p>Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber per year.</p>
 <pre class="r"><code>load(here(&quot;data/contrib_total.rds&quot;))
 contrib_total %&lt;&gt;% 
   rename(icpsryear = ICPSR,
          PAC_contributions = value)
-head(contrib_total$icpsryear)</code></pre>
-<pre><code>## [1] &quot;104211980&quot; &quot;104211982&quot; &quot;104211984&quot; &quot;104211986&quot; &quot;104211988&quot; &quot;104211990&quot;</code></pre>
-<pre class="r"><code>d %&lt;&gt;% 
-  # rounding years up, is this right? 
+
+d %&lt;&gt;% 
+  # rounding years up is approximate, rewrite to go Nov-Nov?
   mutate(cycle = 2 * round(year/2) ) %&gt;% 
   mutate(icpsryear = str_c(icpsr, cycle)) 
-head(d$icpsryear)</code></pre>
-<pre><code>## [1] &quot;299032018&quot; &quot;209552018&quot; &quot;209482018&quot; &quot;211622018&quot; &quot;211912018&quot; &quot;403052018&quot;</code></pre>
-<pre class="r"><code># if value = NA, 0 (because I droped zeros from sparse DIME matrix)
 
 letters_money &lt;- d %&gt;% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%&gt;% 
-  group_by(icpsryear, bioname) %&gt;%
-  summarise(Letters = n() ) %&gt;% 
+  group_by(icpsryear, cycle, name_state) %&gt;%
+  summarise(ProBusiness_Letters = n() ) %&gt;% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
+  left_join(contrib_total) %&gt;% ungroup()
 
-  left_join(contrib_total) </code></pre>
-<p>Linear model: Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016</p>
-<pre class="r"><code>lm(Letters ~ PAC_contributions, data = letters_money) %&gt;% 
-  tidy()</code></pre>
-<pre><code>## # A tibble: 2 x 5
-##   term                estimate std.error statistic   p.value
-##   &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-## 1 (Intercept)        1.94       0.0663      29.2   4.14e-111
-## 2 PAC_contributions -0.0000328  0.000186    -0.176 8.60e-  1</code></pre>
-<p>Linear model: Total letters ~ total Energy Sector PAC contributions 2000-2016</p>
-<pre class="r"><code>letters_money %&lt;&gt;% 
+letters_money %&gt;% top_n(10, PAC_contributions) %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">icpsryear</th>
+<th align="right">cycle</th>
+<th align="left">name_state</th>
+<th align="right">ProBusiness_Letters</th>
+<th align="right">PAC_contributions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">141032002</td>
+<td align="right">2002</td>
+<td align="left">DOMENICI, Pete Vichi (R) - NM</td>
+<td align="right">2</td>
+<td align="right">1275</td>
+</tr>
+<tr class="even">
+<td align="left">149122000</td>
+<td align="right">2000</td>
+<td align="left">BINGAMAN, Jesse Francis, Jr. (Jeff) (D) - NM</td>
+<td align="right">1</td>
+<td align="right">1497</td>
+</tr>
+<tr class="odd">
+<td align="left">150852000</td>
+<td align="right">2000</td>
+<td align="left">BARTON, Joe Linus (R) - TX</td>
+<td align="right">2</td>
+<td align="right">1307</td>
+</tr>
+<tr class="even">
+<td align="left">150852004</td>
+<td align="right">2004</td>
+<td align="left">BARTON, Joe Linus (R) - TX</td>
+<td align="right">3</td>
+<td align="right">1781</td>
+</tr>
+<tr class="odd">
+<td align="left">154462012</td>
+<td align="right">2012</td>
+<td align="left">UPTON, Frederick Stephen (R) - MI</td>
+<td align="right">1</td>
+<td align="right">2618</td>
+</tr>
+<tr class="even">
+<td align="left">291242012</td>
+<td align="right">2012</td>
+<td align="left">CAMP, David Lee (R) - MI</td>
+<td align="right">1</td>
+<td align="right">1927</td>
+</tr>
+<tr class="odd">
+<td align="left">291412000</td>
+<td align="right">2000</td>
+<td align="left">SANTORUM, Richard John (Rick) (R) - PA</td>
+<td align="right">1</td>
+<td align="right">1244</td>
+</tr>
+<tr class="even">
+<td align="left">297182012</td>
+<td align="right">2012</td>
+<td align="left">SHIMKUS, John M. (R) - IL</td>
+<td align="right">1</td>
+<td align="right">1211</td>
+</tr>
+<tr class="odd">
+<td align="left">297272004</td>
+<td align="right">2004</td>
+<td align="left">JOHN, Christopher (D) - LA</td>
+<td align="right">1</td>
+<td align="right">1167</td>
+</tr>
+<tr class="even">
+<td align="left">497022002</td>
+<td align="right">2002</td>
+<td align="left">LANDRIEU, Mary L. (D) - LA</td>
+<td align="right">2</td>
+<td align="right">1801</td>
+</tr>
+</tbody>
+</table>
+<div id="overall-top-ten-pac-recepients" class="section level2">
+<h2>Overall top ten PAC recepients</h2>
+<pre class="r"><code>letters_money_total &lt;- letters_money %&gt;% 
+  drop_na(ProBusiness_Letters, PAC_contributions) %&gt;% 
   ungroup() %&gt;% 
   select(-icpsryear) %&gt;% 
-  group_by(bioname) %&gt;% 
+  group_by(name_state) %&gt;% 
   summarise_all(list(sum))
 
-
-lm(Letters ~ PAC_contributions, data = letters_money) %&gt;% 
-  tidy()</code></pre>
-<pre><code>## # A tibble: 2 x 5
-##   term              estimate std.error statistic  p.value
-##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)        2.25     0.168        13.3  4.10e-31
-## 2 PAC_contributions  0.00204  0.000278      7.35 2.70e-12</code></pre>
+letters_money_total %&gt;% top_n(10, PAC_contributions) %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">name_state</th>
+<th align="right">cycle</th>
+<th align="right">ProBusiness_Letters</th>
+<th align="right">PAC_contributions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">BARTON, Joe Linus (R) - TX</td>
+<td align="right">4004</td>
+<td align="right">5</td>
+<td align="right">3088</td>
+</tr>
+<tr class="even">
+<td align="left">BAUCUS, Max Sieben (D) - MT</td>
+<td align="right">8016</td>
+<td align="right">11</td>
+<td align="right">2960</td>
+</tr>
+<tr class="odd">
+<td align="left">BINGAMAN, Jesse Francis, Jr. (Jeff) (D) - NM</td>
+<td align="right">4004</td>
+<td align="right">2</td>
+<td align="right">1835</td>
+</tr>
+<tr class="even">
+<td align="left">BOUCHER, Frederick C. (D) - VA</td>
+<td align="right">6006</td>
+<td align="right">3</td>
+<td align="right">2268</td>
+</tr>
+<tr class="odd">
+<td align="left">BOUSTANY, Charles W. (R) - LA</td>
+<td align="right">6028</td>
+<td align="right">4</td>
+<td align="right">1488</td>
+</tr>
+<tr class="even">
+<td align="left">CAMP, David Lee (R) - MI</td>
+<td align="right">6016</td>
+<td align="right">4</td>
+<td align="right">2383</td>
+</tr>
+<tr class="odd">
+<td align="left">LANDRIEU, Mary L. (D) - LA</td>
+<td align="right">12044</td>
+<td align="right">10</td>
+<td align="right">3393</td>
+</tr>
+<tr class="even">
+<td align="left">SHIMKUS, John M. (R) - IL</td>
+<td align="right">4020</td>
+<td align="right">3</td>
+<td align="right">1814</td>
+</tr>
+<tr class="odd">
+<td align="left">SMITH, Gordon Harold (R) - OR</td>
+<td align="right">10020</td>
+<td align="right">17</td>
+<td align="right">2556</td>
+</tr>
+<tr class="even">
+<td align="left">UPTON, Frederick Stephen (R) - MI</td>
+<td align="right">6016</td>
+<td align="right">4</td>
+<td align="right">3071</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="models" class="section level1">
+<h1>Models</h1>
+<p>Linear model: Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016</p>
+<pre class="r"><code>lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %&gt;% 
+  tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.9367269</td>
+<td align="right">0.0663070</td>
+<td align="right">29.2084747</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">PAC_contributions</td>
+<td align="right">-0.0000328</td>
+<td align="right">0.0001859</td>
+<td align="right">-0.1762922</td>
+<td align="right">0.8601341</td>
+</tr>
+</tbody>
+</table>
+<p>Linear model: Total letters ~ total Energy Sector PAC contributions 2000-2016</p>
+<pre class="r"><code>lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money_total) %&gt;% 
+  tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">2.5408936</td>
+<td align="right">0.1775716</td>
+<td align="right">14.30912</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">PAC_contributions</td>
+<td align="right">0.0019972</td>
+<td align="right">0.0002902</td>
+<td align="right">6.88260</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
 <hr />
 </div>
 <div id="about-ferc" class="section level1">
