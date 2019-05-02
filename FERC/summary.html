@@ -2253,8 +2253,8 @@ letters_money_total %&gt;% top_n(10, PAC_contributions) %&gt;% knitr::kable()</c
 </div>
 <div id="models" class="section level1">
 <h1>Models</h1>
-<p>Linear model: Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016</p>
-<pre class="r"><code>lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %&gt;% 
+<p>Linear model: Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 2000-2016</p>
+<pre class="r"><code>lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money) %&gt;%
   tidy() %&gt;% knitr::kable()</code></pre>
 <table>
 <thead>
@@ -2283,7 +2283,7 @@ letters_money_total %&gt;% top_n(10, PAC_contributions) %&gt;% knitr::kable()</c
 </tr>
 </tbody>
 </table>
-<p>Linear model: Total letters ~ total Energy Sector PAC contributions 2000-2016</p>
+<p>Linear model: Total Pro-Business letters ~ total Energy Sector PAC contributions 2000-2016</p>
 <pre class="r"><code>lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money_total) %&gt;% 
   tidy() %&gt;% knitr::kable()</code></pre>
 <table>
