@@ -1178,16 +1178,18 @@ TODO
 - template match company names to industry codes (center for responsive politics)
 
 ## SHORT TERM
- 1. Identify relevent industry codes 
- 2. Get cycle-specific PAC classification for those industry codes 
- 3. Subset dime to those PAC classification 
- 
+- letters per company 
+- letters per company pac (before and after merging in partent companies)
+
 ## LONG TERM 
-- link industry codes to CRP committee classification 
 
 ## DONE
 - add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
+- link industry codes to CRP PAC committee classification 
+ 1. Identify relevent industry codes 
+ 2. Get cycle-specific PAC classification for those industry codes 
+ 3. Subset dime to those PAC classification 
 
 # References 
 
