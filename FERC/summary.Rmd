@@ -863,15 +863,15 @@ letters_money %<>%
   full_join(contrib_total) %>% 
   group_by(icpsr) %>% 
   # FIXME
-  # one party per member, need to deal with party switchers 
+  # one party per member, need to deal with party switchers
   mutate(party = paste(unique(party), collapse = ";")) %>% 
   mutate(party = str_remove(party, ";.*")) %>% 
   ungroup()
 
 # top 10 by contributions in a cycle 
 letters_money %>% 
-  filter(!is.na(name_state)) %>% 
-  select(-icpsryear, -icpsr) %>% 
+  filter(!is.na(ProBusiness_Letters)) %>% 
+  select(-icpsryear, -icpsr, -congress) %>% 
   top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
@@ -895,7 +895,43 @@ letters_money_total <- letters_money %>%
             PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
   ungroup()
 
+# add zeros 
+letters_money_total %<>% 
+ mutate(ProBusiness_Letters_Per_Cycle = ifelse(is.na(ProBusiness_Letters_Per_Cycle), 0, ProBusiness_Letters_Per_Cycle)) 
+
 letters_money_total %>% filter(!is.na(name_state)) %>%  top_n(10, PAC_contributions) %>% knitr::kable()
+```
+
+```{r antibusiness}
+Antiletters_money <- d %>% 
+  #FIXME
+  filter(cycle <2016) %>% 
+  filter(!is.na(AntiBusiness)|!is.na(AntiProject))%>% 
+  #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
+  summarise(AntiBusiness_Letters = n())
+
+# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
+Antiletters_money %<>% 
+  ungroup() %>% 
+  full_join(contrib_total) %>% 
+  group_by(icpsr) %>% 
+  # FIXME
+  # one party per member, need to deal with party switchers
+  mutate(party = paste(unique(party), collapse = ";")) %>% 
+  mutate(party = str_remove(party, ";.*")) %>% 
+  ungroup()
+
+# Add zero-letter-cycle observations:
+Antiletters_money %<>% 
+ mutate(AntiBusiness_Letters = ifelse(is.na(AntiBusiness_Letters) & cycle > 1997, 0, AntiBusiness_Letters)) 
+
+Antiletters_money_total <- Antiletters_money %>% 
+  filter(!is.na(PAC_contributions)) %>% 
+  group_by(icpsr, name_state, party) %>% 
+  summarise(AntiBusiness_Letters_Per_Cycle = mean(AntiBusiness_Letters, na.rm = TRUE),
+            PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
+  ungroup()
 ```
 
 ## PAC-specific contributions
@@ -1028,9 +1064,10 @@ Republicans send an additional `r round(m$coefficients[2], 1)` letters per Congr
 
 
 
-PAC*party interaction:
-```{r money-letters-per-cycle-model-party, fig.height=1}
-m<-glm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
+```{r money-letters-per-cycle-model-party, fig.height=1, include = FALSE }
+# PAC*party interaction:
+  m<-glm(ProBusiness_Letters ~ PAC_contributions * party, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 tidy(m)
 mplot(m)+
   labs(x="", y="Additional letters per congress")
@@ -1047,6 +1084,52 @@ mplot(m)+
   labs(x="", y="Average additional letters per cycle per million dollars 1990-2014")
 ```
 
+#### Anti-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
+```{r money-Antiletters-per-cycle-model, fig.height=1}
+Antiletters_money%<>% drop_na(AntiBusiness_Letters, PAC_contributions) %>% mutate(Log_PAC_contributions = log(PAC_contributions+1)) 
+
+m <- glm(AntiBusiness_Letters ~ PAC_contributions, data = Antiletters_money %>% mutate(PAC_contributions = PAC_contributions/1000000), family = poisson)  
+tidy(m)
+m %>% mplot()+
+  labs(x="", y="Additional anti-buisness letters per congress per million dollars")
+
+m <- glm(AntiBusiness_Letters ~ Log_PAC_contributions, data = Antiletters_money, family = poisson  ) 
+tidy(m)
+m %>% mplot()+
+  labs(x="", y="Additional anti-business Letters per congress per Log(PAC Contributions)")
+```
+
+By party:
+```{r Antiletters-per-cycle-model-party, fig.height=1}
+m <- glm(AntiBusiness_Letters ~ party, data = Antiletters_money %>% filter(party !="NA"), family = "poisson" ) 
+
+tidy(m)
+mplot(m) +
+  labs(x="", y="Additional anti-business  letters per congress")
+```
+Democrats send an additional `r -round(m$coefficients[2], 1)` Anti-Business letters per Congress, on average.
+
+
+
+
+```{r money-Antiletters-per-cycle-model-party, fig.height=1, include=FALSE}
+#PAC*party interaction:
+m<-glm(AntiBusiness_Letters ~ PAC_contributions*party, data = Antiletters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+tidy(m)
+mplot(m)+
+  labs(x="", y="Additional anti-business letters per congress")
+```
+
+
+
+#### Average Anti-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
+```{r money-Antiletters-total, fig.height=1}
+m <- glm(AntiBusiness_Letters_Per_Cycle ~ PAC_contributions, data = Antiletters_money_total%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson")  
+
+tidy(m)
+mplot(m)+
+  labs(x="", y="Average additional anti-business letters per cycle per million dollars 1990-2014")
+```
 
 ## PAC-level
 
