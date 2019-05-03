@@ -197,6 +197,8 @@ cands <- dime %>%
   purrr::pluck("cands") %>% 
   as_tibble() 
 
+# ALL OF THESE CORRECTOINS NEED TO GO AFTER MERGE WITH CONTRIBUTIONS MATRIX BECAUSE THAT USES BONICA'S NUMBERS 
+
 ## Fixing incorrect ICPSR scores in the DIME Candidate Data
 cands$ICPSR2[cands$ICPSR2==29334 & cands$cycle >2001]<-"20358" ## Separating Carrie Meek and her son Kendrick Meek
 cands$ICPSR[cands$ICPSR2==29334 & cands$cycle >2001]<-"20358" ## Separating Carrie Meek and her son Kendrick Meek

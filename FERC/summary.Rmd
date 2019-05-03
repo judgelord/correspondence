@@ -889,6 +889,7 @@ U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Na
 
 ```{r letters_money_total}
 letters_money_total <- letters_money %>% 
+  filter(!is.na(PAC_contributions)) %>% 
   group_by(icpsr, name_state, party) %>% 
   summarise(ProBusiness_Letters_Per_Cycle = mean(ProBusiness_Letters, na.rm = TRUE),
             PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
@@ -1000,38 +1001,56 @@ ggplot() +
       ymin = conf.low, 
       ymax = conf.high)+ 
     geom_hline(yintercept = 0, linetype =2) + 
-  geom_pointrange() + coord_flip() +
-  labs(x="", y="OLS Estimate, additional letters per thousand dollars")}
+  geom_pointrange() + coord_flip() }
 
-lm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000) )  %>% mplot()
+letters_money%<>% drop_na(ProBusiness_Letters, PAC_contributions) %>% mutate(Log_PAC_contributions = log(PAC_contributions+1)) 
+
+m <- glm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000000), family = poisson)  
+tidy(m)
+m %>% mplot()+
+  labs(x="", y="Additional letters per congress per million dollars")
+
+m <- glm(ProBusiness_Letters ~ Log_PAC_contributions, data = letters_money, family = poisson  ) 
+tidy(m)
+m %>% mplot()+
+  labs(x="", y="Additional letters per congress per Log(PAC Contributions)")
 ```
 
 By party:
 ```{r letters-per-cycle-model-party, fig.height=1}
-m <- lm(ProBusiness_Letters ~ party, data = letters_money %>% filter(party !="NA") ) %>% tidy()
+m <- glm(ProBusiness_Letters ~ party, data = letters_money %>% filter(party !="NA"), family = "poisson" ) 
 
-m
+tidy(m)
+mplot(m) +
+  labs(x="", y="Additional letters per congress")
 ```
-Republicans send an additional `r round(m$estimate[2],1)` letters per Congress, on average.
+Republicans send an additional `r round(m$coefficients[2], 1)` letters per Congress, on average.
 
 
 
 PAC*party interaction:
 ```{r money-letters-per-cycle-model-party, fig.height=1}
-lm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000) )  %>% mplot()
+m<-glm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+tidy(m)
+mplot(m)+
+  labs(x="", y="Additional letters per congress")
 ```
 
 
 
 #### Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
 ```{r money-letters-total, fig.height=1}
-lm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total%>% mutate(PAC_contributions = PAC_contributions/1000))  %>% mplot()
+m <- glm(ProBusiness_Letters_Per_Cycle ~ PAC_contributions, data = letters_money_total%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson")  
+
+tidy(m)
+mplot(m)+
+  labs(x="", y="Average additional letters per cycle per million dollars 1990-2014")
 ```
 
 
 ## PAC-level
 
-```{r pacs-corps, eval = FALSE}
+```{r pacs-corps, eval = FALSE, include=FALSE}
 letters_PACs_corps <- contrib_matrix %>% 
   mutate(str_detect())
 
