@@ -48,7 +48,11 @@ d <- all_contacts %>%
   # define d as just FERC
   filter(agency=="DOE_FERC") %>% 
   select(-SUBJECT) %>% 
-  mutate(majority = ifelse(majority == 1, "Majority", "Minority"))
+  mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
+  # FIXME 
+  # GOODE needs to be fixed in party switchers portion of merge.R
+  filter(!(last_name == "GOODE"&party == "(I)"))
+  
 
 # one obs per member per letter per committee for all agencies
 load(here("data/all_contacts_committees.RData"))
@@ -118,6 +122,11 @@ d %>%
 ## Coding of constituent type 
 Our coding of letter type is a mix of hand coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders (click `CODE` to see inductively-developed coding rules):
 ```{r code, eval=FALSE}
+# TYPE 1: Indiv. constituent service 
+# TYPE 2: Corp. contituent service 
+# TYPE 3: 501c3 constituent service 
+# TYPE 4: Corp./Industry serving policy 
+# TYPE 5: General policy 
 d %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
                         "1", TYPE)) %>%
@@ -163,38 +172,39 @@ d %<>%
   mutate(Type = ifelse(tolower(Constituent) =="yes", "Indiv. Constituent", Type)) %>% 
   mutate(Type = ifelse(!is.na(ProBusiness), "Corp. Constituent", Type)) 
 
-d %>% 
+all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
+
+all_percent <- all_contacts %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
   group_by(Type, total) %>% summarise(nT = n()) %>% 
-  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
+  mutate(percent = 100*round(nT/total, 2) ) %>% 
+  mutate(agency = "Overall")
+
+d$Type %<>% fct_recode(Policy = "Corp. Policy")
+d_percent <- d%>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = 100*round(nT/total, 2) ) %>% 
+  mutate(agency = "DOE FERC")
+
+full_join( all_percent, d_percent)%>% 
   ggplot() + 
-  geom_col(aes(x = Type, y = nT)) + 
-  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
+  aes(x = Type, y = percent, fill = agency, color = agency, label = nT) + 
+  geom_col(position = "dodge") + 
+  geom_text(vjust = -.1,
+            aes(hjust = ifelse(agency == "Overall", 0,1))) +
   labs(x = "",
-       y = paste("Number of Contacts, N =", sum(nrow(d))),
+       fill = "",
+       color = "",
+       y = "Percent", #paste("Number of Contacts, N =", sum(nrow(all_contacts))),
        title = "Legislator Contacts with FERC") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
-        axis.text.x.top = element_text())
-```
-
-```{r data-by-type-all}
-all_contacts %>% 
-  mutate(Type = as.character(Type)) %>% 
-  filter(Type != "To be coded") %>%  
-  mutate(total = n()) %>% 
-  group_by(Type, total) %>% summarise(nT = n()) %>% 
-  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
-  ggplot() + 
-  geom_col(aes(x = Type, y = nT)) + 
-  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
-  labs(x = "",
-       y = paste("Number of Contacts, N =", sum(nrow(all_contacts))),
-       title = "All Legislators Contacts with Federal Agencies") +
-  theme(panel.background = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text.x.top = element_text())
+        axis.text.x.top = element_text()) + 
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
 ```
 
 ---
@@ -368,7 +378,9 @@ The parent companies of these projects spend millions of dollars on lobbying (Lo
 ```{r committeechiars_barcode_senate, fig.height=10}
 Chamber = "Senate"
 dcommittees %>%  
-  mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  mutate(position = ifelse(position == "Other", NA, position)) %>%
+  filter(!str_detect(chair, "^NA ")) %>% 
+  filter(!is.na(position)) %>% 
   filter(chamber == Chamber, 
          chair_since_2007 == T,  
          DATE < as.Date("2017-01-01"),
@@ -376,6 +388,7 @@ dcommittees %>%
         assigneddate < as.Date("2017-01-01"),
         terminationdate > as.Date("2007-01-01")) %>%
   select(DATE, chair, position, department, assigneddate, terminationdate, chamber, committee) %>% 
+  distinct() %>% 
   ggplot() +
   geom_point(
     aes(x = DATE, 
@@ -387,7 +400,7 @@ dcommittees %>%
                    x = assigneddate, xend = terminationdate, 
                    linetype = factor(position)),
                position = position_nudge(y = -0.3)) +
-  labs(title = paste(Chamber, "Committee Chairs"),
+  labs(title = paste(Chamber, "Committee Chairs who wrote to FERC"),
        y = "", 
        x = "" ) +
   scale_y_discrete(position = "right") +
@@ -404,6 +417,8 @@ dcommittees %>%
 Chamber = "House"
 dcommittees %>%  
   mutate(position = ifelse(position == "Other", NA, position)) %>% 
+  filter(!str_detect(chair, "^NA ")) %>% 
+  filter(!is.na(position)) %>% 
   filter(chamber == Chamber, 
          chair_since_2007 == T,  
          DATE < as.Date("2017-01-01"),
@@ -422,7 +437,7 @@ dcommittees %>%
                    x = assigneddate, xend = terminationdate, 
                    linetype = factor(position)),
                position = position_nudge(y = -0.3)) +
-  labs(title = paste(Chamber, "Committee Chairs"),
+  labs(title = paste(Chamber, "Committee Chairs who wrote to FERC"),
        y = "", 
        x = "" ) +
   scale_y_discrete(position = "right") +
@@ -1133,10 +1148,40 @@ mplot(m)+
 
 ## PAC-level
 
-```{r pacs-corps, eval = FALSE, include=FALSE}
-letters_PACs_corps <- contrib_matrix %>% 
-  mutate(str_detect())
+Before matching projects and 
+```{r pacs-corps, eval = FALSE}
+# letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
+# 1. id pacs per letter - spit letters matching several pacs 
+# 2. count up per member 
+# 3. add 0s for all other pac-member-cycle compinations 
+# merge in with contributions per pac per member 
+PACs <- contrib_matrix %>% select(comid, UltOrg,Affiliate,PACShort) %>% distinct()
 
+# Test corp that we know has a PAC
+corp <- c("ONEOK")
+
+# A function to match PACs with companies in the letters data
+get_pacs <- function(corps, pacs){
+ifelse(str_detect(pacs, corps), pacs, NA)
+}
+
+map2(corp, PACs$UltOrg, get_pacs) %>% 
+  discard(is.na) %>% 
+  # split out multiple ultorgs per pac
+  str_split(";") %>% 
+  # select unique ones
+  unlist() %>% unique() %>% 
+  # paste them back together to retrun a single value 
+  str_c(collapse  = ";")
+
+dcorp %>% 
+  mutate(pac = pmap_chr(company_short, ) )
+      
+
+################################################   
+# merge in and split out parent corps 
+
+# TABLE 
 letterID 
 date
 member
