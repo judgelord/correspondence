@@ -1149,16 +1149,37 @@ mplot(m)+
 ## PAC-level
 
 Before matching projects and 
-```{r pacs-corps, eval = FALSE, include=FALSE}
+```{r pacs-corps, eval = FALSE}
 # letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
 # 1. id pacs per letter - spit letters matching several pacs 
 # 2. count up per member 
 # 3. add 0s for all other pac-member-cycle compinations 
 # merge in with contributions per pac per member 
+PACs <- contrib_matrix %>% select(comid, UltOrg,Affiliate,PACShort) %>% distinct()
+
+# Test corp that we know has a PAC
+corp <- c("ONEOK")
+
+# A function to match PACs with companies in the letters data
+get_pacs <- function(corps, pacs){
+ifelse(str_detect(pacs, corps), pacs, NA)
+}
+
+map2(corp, PACs$UltOrg, get_pacs) %>% 
+  discard(is.na) %>% 
+  # split out multiple ultorgs per pac
+  str_split(";") %>% 
+  # select unique ones
+  unlist() %>% unique() %>% 
+  # paste them back together to retrun a single value 
+  str_c(collapse  = ";")
+
 dcorp %>% 
-  mutate(pac = pmap_chr() )
-         
-         # merge in and split out parent corps 
+  mutate(pac = pmap_chr(company_short, ) )
+      
+
+################################################   
+# merge in and split out parent corps 
 
 # TABLE 
 letterID 
