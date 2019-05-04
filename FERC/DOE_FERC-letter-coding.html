@@ -310,7 +310,7 @@ library(googlesheets)
 library(httpuv)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-05-03 12:31:31</p>
+<p>Updated: 2019-05-03 22:33:38</p>
 <p>Load coded congressional letters data:</p>
 <pre class="r"><code># log in to google drive
 gs_auth() 
@@ -398,7 +398,7 @@ n_coded%&gt;%
 </tr>
 <tr class="even">
 <td align="left">Maki Ianovic</td>
-<td align="right">930</td>
+<td align="right">992</td>
 </tr>
 <tr class="odd">
 <td align="left">Priyal Singh</td>
@@ -445,7 +445,7 @@ FERC_coded %&gt;%
 <td align="right">35</td>
 <td align="right">47</td>
 <td align="right">18</td>
-<td align="right">35</td>
+<td align="right">36</td>
 <td align="right">26</td>
 </tr>
 <tr class="odd">
@@ -493,7 +493,7 @@ FERC_coded %&gt;%
 <td align="right">93</td>
 <td align="right">98</td>
 <td align="right">71</td>
-<td align="right">73</td>
+<td align="right">74</td>
 <td align="right">56</td>
 </tr>
 <tr class="odd">
@@ -533,7 +533,7 @@ FERC_coded %&gt;%
 <td align="right">46</td>
 <td align="right">0</td>
 <td align="right">8</td>
-<td align="right">45</td>
+<td align="right">46</td>
 <td align="right">22</td>
 </tr>
 <tr class="even">
@@ -541,7 +541,7 @@ FERC_coded %&gt;%
 <td align="right">93</td>
 <td align="right">99</td>
 <td align="right">56</td>
-<td align="right">71</td>
+<td align="right">72</td>
 <td align="right">38</td>
 </tr>
 <tr class="odd">
@@ -549,7 +549,7 @@ FERC_coded %&gt;%
 <td align="right">82</td>
 <td align="right">70</td>
 <td align="right">37</td>
-<td align="right">60</td>
+<td align="right">61</td>
 <td align="right">44</td>
 </tr>
 <tr class="even">
@@ -557,7 +557,7 @@ FERC_coded %&gt;%
 <td align="right">21</td>
 <td align="right">11</td>
 <td align="right">16</td>
-<td align="right">12</td>
+<td align="right">11</td>
 <td align="right">12</td>
 </tr>
 <tr class="odd">
@@ -565,7 +565,7 @@ FERC_coded %&gt;%
 <td align="right">29</td>
 <td align="right">14</td>
 <td align="right">18</td>
-<td align="right">16</td>
+<td align="right">18</td>
 <td align="right">10</td>
 </tr>
 <tr class="even">
@@ -620,7 +620,7 @@ FERC_coded %&gt;%
 <td align="right">548</td>
 <td align="right">275</td>
 <td align="right">1155</td>
-<td align="right">845</td>
+<td align="right">891</td>
 <td align="right">883</td>
 </tr>
 <tr class="even">
@@ -628,7 +628,7 @@ FERC_coded %&gt;%
 <td align="right">146</td>
 <td align="right">25</td>
 <td align="right">204</td>
-<td align="right">85</td>
+<td align="right">101</td>
 <td align="right">111</td>
 </tr>
 </tbody>
@@ -659,7 +659,7 @@ FERC_coded %&gt;%
 <td align="right">295</td>
 <td align="right">108</td>
 <td align="right">932</td>
-<td align="right">514</td>
+<td align="right">551</td>
 <td align="right">620</td>
 </tr>
 <tr class="even">
@@ -667,7 +667,7 @@ FERC_coded %&gt;%
 <td align="right">399</td>
 <td align="right">192</td>
 <td align="right">427</td>
-<td align="right">416</td>
+<td align="right">441</td>
 <td align="right">374</td>
 </tr>
 </tbody>
@@ -698,7 +698,7 @@ FERC_coded %&gt;%
 <td align="right">469</td>
 <td align="right">120</td>
 <td align="right">651</td>
-<td align="right">313</td>
+<td align="right">343</td>
 <td align="right">270</td>
 </tr>
 <tr class="even">
@@ -730,7 +730,7 @@ FERC_coded %&gt;%
 <td align="right">179</td>
 <td align="right">175</td>
 <td align="right">313</td>
-<td align="right">366</td>
+<td align="right">393</td>
 <td align="right">291</td>
 </tr>
 <tr class="even">
@@ -738,7 +738,7 @@ FERC_coded %&gt;%
 <td align="right">46</td>
 <td align="right">5</td>
 <td align="right">394</td>
-<td align="right">249</td>
+<td align="right">254</td>
 <td align="right">433</td>
 </tr>
 </tbody>
@@ -954,7 +954,7 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 <p>Names identified by coders vs extracted from text:</p>
 <pre class="r"><code># Letters with members identified by coders
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4291</code></pre>
+<pre><code>## [1] 4353</code></pre>
 <pre class="r"><code># Letters with members identified by auto-detection
 sum(!is.na(d$FROM))</code></pre>
 <pre><code>## [1] 3191</code></pre>
@@ -975,7 +975,7 @@ d %&lt;&gt;%
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4242</code></pre>
+<pre><code>## [1] 4260</code></pre>
 <pre class="r"><code># Id ones still missed and paste auto-extracted FROM onto CongressPerson
 d %&lt;&gt;% select(ID, FROM, CongressPerson, Cosigned_House, Cosigned_Senate, everything()) %&gt;% arrange(desc(ID))
 
@@ -1008,7 +1008,7 @@ d %&lt;&gt;% select(ID, FROM, members, missed, CongressPerson, everything())
 
 # Letters with members identified by coders or auto-detection
 sum(!is.na(d$CongressPerson))</code></pre>
-<pre><code>## [1] 4242</code></pre>
+<pre><code>## [1] 4260</code></pre>
 <p>Break out members</p>
 <pre class="r"><code># Helper function for combining strings
 str_unique &lt;- function(x){
@@ -1140,6 +1140,16 @@ d %&lt;&gt;%
 <td align="left">Maki Ianovic</td>
 <td align="left">20050208-0334</td>
 <td align="left">Rep. Cathy McMorris;Cathy McMORRIS RODGERS</td>
+</tr>
+<tr class="even">
+<td align="left">Maki Ianovic</td>
+<td align="left">20041115-0071</td>
+<td align="left">Sen. Senator John E;John SUNUNU</td>
+</tr>
+<tr class="odd">
+<td align="left">Maki Ianovic</td>
+<td align="left">20041022-0024</td>
+<td align="left">Sen. Tom Daschle;Stephanie HERSETH SANDLIN</td>
 </tr>
 <tr class="even">
 <td align="left">Lara Basiao</td>
