@@ -723,12 +723,14 @@ dcorps %<>%
 
   mutate(company_short = ifelse(company == "Express Pipeline", "Express Pipeline", company_short))%>%
   mutate(company_short = ifelse(company %in% c("American Energy", "American energy"), "American Energy", company_short))%>%
+  mutate(company_short = ifelse(str_detect(company, "PG&E|Pacific Gas & Electric|Pacific Gas and Electric"), "PG&E", company_short)) %>% 
+  mutate(company_short = ifelse(company %in% c("Pacific Corp.", "Pacific Corps"), "PacifiCorp", company_short)) %>% 
   mutate(company_short = ifelse(company_short == "AI", "AI Energy", company_short)) %>% 
   mutate(company_short = ifelse(company_short %in% c("N/A","Na","NO",
                                                      "Clean Water Act","Na",
                                                      "Energy", "West", "NA",
                                                      "Central", "Power", "Natural",
-                                                     "Consumers"),
+                                                     "Consumers", "LNG"),
          "NOT A COMPANY?",  company_short))
 ```
 
@@ -741,10 +743,10 @@ dcorps %<>%
   mutate(company_short_refs = str_c(unique(company), collapse = "; ")) %>% ungroup()
 ```
 
-Look for problems with incorrect or over-trimed company names. For example what should we do with companies that are just state or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, etc.) 
+Look for problematic company names. For example what should we do with companies that are just state, region, or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, Southern, etc.) 
 ```{r}
 ## Inspect over-trimmed company names
-dcorps %>% filter(company_short %in% c("", "NA", "na", "Na", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "gas", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Northeast", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "RTO")) %>% select(company_short, company_short_refs, ID) %>% 
+dcorps %>% filter(company_short %in% c("", "NA", "na", "Na", "LLC", "Energy", "Pipeline", "Natural", "North", "New", "Express", "gas", "American", "Electric", "System", "Direct", "DC", "PS", "CT", "Forest", "International", "Tennessee", "Salt Lake", "Lakeside", "NW", "Jackson", "Public Service", "Peak", "Independence", "Select", "Portland", "Michigan", "Boundary", "Coastal", "Minnesota", "Midwest", "Northeast", "Columbia", "Plains", "Stream", "Mitchell", "AP", "Southern", "Ohio River", "Northwest", "Rio Grande", "AI", "Transportation", "12/20/2018", "Salem", "Boston", "Spokane", "El Paso", "Houston", "North American", "Consumers", "Advanced", "Complete", "Inland", "Limited Partnership", "Sun", "RTO", "Pacific", "LNG")) %>% select(company_short, company_short_refs, ID) %>% 
   group_by(company_short) %>%
   summarise(company_short_refs = str_c(unique(company_short_refs), collapse = "; "),
             IDs = str_c(unique(ID), collapse = "; ")) %>%
@@ -767,11 +769,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %>%
 
 # corps with short names 
 shortcorps <- dcorps %>% 
+  ungroup() %>% 
   group_by(company_short) %>% 
   tally() %>% 
   arrange(nchar(company_short)) %>% 
   mutate(nchar = nchar(company_short))%>%
-  top_n(10, -nchar) 
+  top_n(10, -nchar) %>% distinct()
 
 filter(dcorps, company_short %in% shortcorps$company_short) %>% 
   group_by(company_short) %>%
@@ -1149,35 +1152,106 @@ mplot(m)+
 ## PAC-level
 
 Before matching projects and 
-```{r pacs-corps, eval = FALSE}
+```{r pacs-corps}
 # letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
 # 1. id pacs per letter - spit letters matching several pacs 
 # 2. count up per member 
 # 3. add 0s for all other pac-member-cycle compinations 
 # merge in with contributions per pac per member 
-PACs <- contrib_matrix %>% select(comid, UltOrg,Affiliate,PACShort) %>% distinct()
 
-# Test corp that we know has a PAC
-corp <- c("ONEOK")
+# First, clean up the contributions data a bit
 
-# A function to match PACs with companies in the letters data
-get_pacs <- function(corps, pacs){
-ifelse(str_detect(pacs, corps), pacs, NA)
-}
-
-map2(corp, PACs$UltOrg, get_pacs) %>% 
-  discard(is.na) %>% 
-  # split out multiple ultorgs per pac
+# a helper function to concat unique strings
+unique_string <- . %>% 
   str_split(";") %>% 
   # select unique ones
-  unlist() %>% unique() %>% 
+  unlist() %>% 
+  unique() %>% 
+  trimws() %>% 
   # paste them back together to retrun a single value 
-  str_c(collapse  = ";")
+  paste(collapse = ";") %>%
+  str_remove_all("na;|;na$|NA;|;NA$")
 
-dcorp %>% 
-  mutate(pac = pmap_chr(company_short, ) )
-      
+# Just the PAC names and IDs from the contributions matrix (will merge in relevent contributions later)
+PACs <- contrib_matrix %>% 
+  select(comid, UltOrg,Affiliate,PACShort) %>% distinct() %>% 
+  # make a full list of pac-affiliated orgs
+  group_by(comid) %>%
+  mutate(UltOrg2 = str_c(UltOrg,Affiliate,PACShort, sep = ";") %>% 
+           tolower() %>% 
+           # select unique ones
+           unique_string())
 
+# A function to get matching names
+get_pac <- function(corp, PAC){
+  ifelse(str_detect(tolower(PAC), tolower(corp)), PAC, NA) 
+}
+
+# A function to get IDs where names match 
+get_pacID <- function(corp, PAC, PACid){
+  ifelse(str_detect(tolower(PAC), tolower(corp)), PACid, NA) 
+}
+
+
+# corp = "Exxon"
+
+# A function to augment the PAC data with any matching company names 
+get_pacs <- function(corp){
+PACs %>% 
+    mutate(pacs = get_pac(tolower(corp), UltOrg2),
+           pacIDs = get_pacID(tolower(corp), UltOrg2, comid)) %>% 
+    ungroup() %>% 
+    select(pacs, pacIDs) %>% 
+    distinct() %>% 
+    summarise_all(unique_string) %>% 
+    mutate(company_short = corp)
+}
+
+# TESTING 
+# corp = "Exxon"
+# get_pacs(corp)
+# corp <- dcorps$company_short[1]
+# get_pacs(corp)
+
+crosswalk <- map_dfr(dcorps$company_short, get_pacs)
+
+crosswalk %<>% distinct()
+
+# use crosswalk to merge in contribution data 
+dpacs <- dcorps %>% 
+  full_join(crosswalk) %>% 
+  # letters per year per pac
+  select(ID, position, company_short, position, pacs, pacIDs) %>% 
+  distinct() %>% 
+  mutate(pacIDs = str_split(pacIDs, ";")) %>% 
+  unnest(pacIDs) %>% 
+  distinct() %>% 
+  # merge in pac totals
+  rename(comid = pacIDs) %>% 
+  # merge in contribution data
+  left_join(contrib_matrix) # %>% group_by(comid, position) %>% summarise(PAC_contributions)
+
+dpacs %<>% 
+  ungroup() %>% 
+  filter(!is.na(ID), !is.na(comid)) %>% 
+  select(ID, name_state, position, company_short, pacs, comid, PAC_contributions) %>% 
+  distinct()
+  
+dpacs %>% 
+  group_by(name_state, position, company_short, pacs, comid) %>% 
+  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T)) %>% 
+  ungroup() %>% 
+  group_by(position)  %>%
+  top_n(10, PAC_contributions) %>% 
+  knitr::kable()
+
+#Before connecting companies to the PAC donations of their parent companies, we find `r sum(!is.na(dpacs$ID))` letters with a pack donation.
+```
+ 
+
+
+
+```{}
 ################################################   
 # merge in and split out parent corps 
 
