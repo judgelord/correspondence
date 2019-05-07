@@ -1151,7 +1151,7 @@ mplot(m)+
 
 ## PAC-level
 
-Before matching projects and 
+### Before matching projects and companies to their parent companies: 
 ```{r pacs-corps}
 # letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
 # 1. id pacs per letter - spit letters matching several pacs 
@@ -1234,12 +1234,38 @@ dpacs <- dcorps %>%
 dpacs %<>% 
   ungroup() %>% 
   filter(!is.na(ID), !is.na(comid)) %>% 
-  select(ID, name_state, position, company_short, pacs, comid, PAC_contributions) %>% 
+  select(ID, icpsryear, cycle, name_state, position, company_short, pacs, comid, PAC_contributions) %>% 
   distinct()
-  
+```
+
+#### Pro-business letters linked to PAC contributions:
+```{r pro-pacs}
 dpacs %>% 
-  group_by(name_state, position, company_short, pacs, comid) %>% 
-  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T)) %>% 
+  filter(position %in% c("ProBusiness", "ProProject")) %>% 
+  # select letters with an identified person
+  drop_na(name_state, ID) %>%
+  group_by(name_state, cycle, position, company_short, pacs, comid) %>% 
+  distinct()%>%  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T),
+                           # FIXME 
+                           # SHOULD NOT NEED UNIQUE HERE 
+            Letter_IDs = paste(unique(ID), collapse = ";")) %>% 
+  ungroup() %>% 
+  group_by(position)  %>%
+  top_n(10, PAC_contributions) %>% 
+  knitr::kable()
+```
+
+#### Anti-business letters linked to PAC contributions:
+```{r anti-pacs}
+dpacs %>% 
+  filter(position %in% c("AntiBusiness", "AntiProject")) %>% 
+  # select letters with an identified person
+  drop_na(name_state, ID) %>%
+  group_by(name_state, cycle, position, company_short, pacs, comid) %>% 
+  distinct()%>%  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T),
+                           # FIXME 
+                           # SHOULD NOT NEED UNIQUE HERE 
+            Letter_IDs = paste(unique(ID), collapse = ";")) %>% 
   ungroup() %>% 
   group_by(position)  %>%
   top_n(10, PAC_contributions) %>% 

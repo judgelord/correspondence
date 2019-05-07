@@ -2432,7 +2432,8 @@ tidy(m)</code></pre>
 </div>
 <div id="pac-level" class="section level2">
 <h2>PAC-level</h2>
-<p>Before matching projects and</p>
+<div id="before-matching-projects-and-companies-to-their-parent-companies" class="section level3">
+<h3>Before matching projects and companies to their parent companies:</h3>
 <pre class="r"><code># letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
 # 1. id pacs per letter - spit letters matching several pacs 
 # 2. count up per member 
@@ -2460,7 +2461,7 @@ PACs &lt;- contrib_matrix %&gt;%
   mutate(UltOrg2 = str_c(UltOrg,Affiliate,PACShort, sep = &quot;;&quot;) %&gt;% 
            tolower() %&gt;% 
            # select unique ones
-           unique_string()
+           unique_string())
 
 # A function to get matching names
 get_pac &lt;- function(corp, PAC){
@@ -2497,6 +2498,7 @@ crosswalk &lt;- map_dfr(dcorps$company_short, get_pacs)
 
 crosswalk %&lt;&gt;% distinct()
 
+# use crosswalk to merge in contribution data 
 dpacs &lt;- dcorps %&gt;% 
   full_join(crosswalk) %&gt;% 
   # letters per year per pac
@@ -2507,23 +2509,538 @@ dpacs &lt;- dcorps %&gt;%
   distinct() %&gt;% 
   # merge in pac totals
   rename(comid = pacIDs) %&gt;% 
+  # merge in contribution data
   left_join(contrib_matrix) # %&gt;% group_by(comid, position) %&gt;% summarise(PAC_contributions)
 
 dpacs %&lt;&gt;% 
   ungroup() %&gt;% 
   filter(!is.na(ID), !is.na(comid)) %&gt;% 
-  select(ID, name_state, position, company_short, pacs, comid, PAC_contributions) %&gt;% 
-  distinct()
-  
-dpacs %&gt;% 
-  group_by(name_state, position, company_short, pacs, comid) %&gt;% 
-  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T)) %&gt;% 
+  select(ID, icpsryear, cycle, name_state, position, company_short, pacs, comid, PAC_contributions) %&gt;% 
+  distinct()</code></pre>
+<div id="pro-business-letters-linked-to-pac-contributions" class="section level4">
+<h4>Pro-business letters linked to PAC contributions:</h4>
+<pre class="r"><code>dpacs %&gt;% 
+  filter(position %in% c(&quot;ProBusiness&quot;, &quot;ProProject&quot;)) %&gt;% 
+  # select letters with an identified person
+  drop_na(name_state, ID) %&gt;%
+  group_by(name_state, cycle, position, company_short, pacs, comid) %&gt;% 
+  distinct()%&gt;%  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T),
+                           # FIXME 
+                           # SHOULD NOT NEED UNIQUE HERE 
+            Letter_IDs = paste(unique(ID), collapse = &quot;;&quot;)) %&gt;% 
   ungroup() %&gt;% 
   group_by(position)  %&gt;%
   top_n(10, PAC_contributions) %&gt;% 
-  knitr::kable()
-
-#Before connecting companies to the PAC donations of their parent companies, we find `r sum(!is.na(dpacs$ID))` letters with a pack donation.</code></pre>
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">name_state</th>
+<th align="right">cycle</th>
+<th align="left">position</th>
+<th align="left">company_short</th>
+<th align="left">pacs</th>
+<th align="left">comid</th>
+<th align="right">PAC_contributions</th>
+<th align="left">Letter_IDs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">BARRASSO, John A. (R) - WY</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">40000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="even">
+<td align="left">BARTON, Joe Linus (R) - TX</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">50000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="odd">
+<td align="left">BASS, Charles Foster (R) - NH</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">47000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="even">
+<td align="left">BOEHNER, John Andrew (R) - OH</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">165000</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="odd">
+<td align="left">CANTOR, Eric (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">93500</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="even">
+<td align="left">CANTOR, Eric (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">100000</td>
+<td align="left">20180411-0025;20171020-0018;20151211-0026;20080619-0123;20020521-0018</td>
+</tr>
+<tr class="odd">
+<td align="left">CANTOR, Eric (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">40000</td>
+<td align="left">20140606-0010;20140428-0006</td>
+</tr>
+<tr class="even">
+<td align="left">COURTNEY, Joe (D) - CT</td>
+<td align="right">2010</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">40000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="odd">
+<td align="left">DENT, Charles W. (R) - PA</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Pennsylvania</td>
+<td align="left">ppl corp;pennsylvania power &amp; light;pp&amp;l resources;independent oil &amp; gas assn of pa;pennsylvania natural gas;firstenergy corp;pennsylvania power</td>
+<td align="left">C00228106</td>
+<td align="right">70000</td>
+<td align="left">20000331-0267;20000323-0126</td>
+</tr>
+<tr class="even">
+<td align="left">HUTCHISON, Kathryn Ann Bailey (Kay) (R) - TX</td>
+<td align="right">1994</td>
+<td align="left">ProProject</td>
+<td align="left">El Paso Natural</td>
+<td align="left">el paso energy;el paso corp;burlington northern;el paso natural gas</td>
+<td align="left">C00093948</td>
+<td align="right">60000</td>
+<td align="left">20040423-0304;20020423-0090;20020423-0089</td>
+</tr>
+<tr class="odd">
+<td align="left">LANDRIEU, Mary L. (D) - LA</td>
+<td align="right">2002</td>
+<td align="left">ProProject</td>
+<td align="left">El Paso Natural</td>
+<td align="left">el paso energy;el paso corp;burlington northern;el paso natural gas</td>
+<td align="left">C00093948</td>
+<td align="right">42000</td>
+<td align="left">20040423-0304;20020423-0090;20020423-0089</td>
+</tr>
+<tr class="even">
+<td align="left">LARSON, John B. (D) - CT</td>
+<td align="right">2010</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">42000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="odd">
+<td align="left">LUGAR, Richard Green (R) - IN</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">109978</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="even">
+<td align="left">MURPHY, Christopher (D) - CT</td>
+<td align="right">2010</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">40000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="odd">
+<td align="left">MURPHY, Christopher (D) - CT</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">140000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="even">
+<td align="left">MURPHY, Timothy (R) - PA</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">198000</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="odd">
+<td align="left">NICKLES, Donald Lee (R) - OK</td>
+<td align="right">1992</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">132000</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="even">
+<td align="left">SANTORUM, Richard John (Rick) (R) - PA</td>
+<td align="right">2006</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">99000</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="odd">
+<td align="left">SHUSTER, William (Bill) (R) - PA</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">203500</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="even">
+<td align="left">SUNUNU, John E. (R) - NH</td>
+<td align="right">2002</td>
+<td align="left">ProProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">40000</td>
+<td align="left">20160105-0021;20150518-0133;20150430-0038;20150204-0011</td>
+</tr>
+<tr class="odd">
+<td align="left">TIBERI, Patrick (Pat) (R) - OH</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">110000</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="even">
+<td align="left">WHITFIELD, Wayne Edward (Ed) (R) - KY</td>
+<td align="right">2012</td>
+<td align="left">ProBusiness</td>
+<td align="left">Columbia Gas</td>
+<td align="left">nisource inc;columbia gas system;columbia energy group;columbia gas transmission;columbia natural resources;columbia gas distribution;columbia gas of ohio</td>
+<td align="left">C00051979</td>
+<td align="right">132000</td>
+<td align="left">20171129-0011;20171012-0012;20170615-0007;20160506-0033;20160315-0013;20160119-0008;20151103-0008;20151103-0007;20150224-0014;20040305-0198;20020403-0770</td>
+</tr>
+<tr class="odd">
+<td align="left">WHITFIELD, Wayne Edward (Ed) (R) - KY</td>
+<td align="right">2012</td>
+<td align="left">ProProject</td>
+<td align="left">Pennsylvania</td>
+<td align="left">ppl corp;pennsylvania power &amp; light;pp&amp;l resources;independent oil &amp; gas assn of pa;pennsylvania natural gas;firstenergy corp;pennsylvania power</td>
+<td align="left">C00228106</td>
+<td align="right">40000</td>
+<td align="left">20000331-0267;20000323-0126</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="anti-business-letters-linked-to-pac-contributions" class="section level4">
+<h4>Anti-business letters linked to PAC contributions:</h4>
+<pre class="r"><code>dpacs %&gt;% 
+  filter(position %in% c(&quot;AntiBusiness&quot;, &quot;AntiProject&quot;)) %&gt;% 
+  # select letters with an identified person
+  drop_na(name_state, ID) %&gt;%
+  group_by(name_state, cycle, position, company_short, pacs, comid) %&gt;% 
+  distinct()%&gt;%  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T),
+                           # FIXME 
+                           # SHOULD NOT NEED UNIQUE HERE 
+            Letter_IDs = paste(unique(ID), collapse = &quot;;&quot;)) %&gt;% 
+  ungroup() %&gt;% 
+  group_by(position)  %&gt;%
+  top_n(10, PAC_contributions) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">name_state</th>
+<th align="right">cycle</th>
+<th align="left">position</th>
+<th align="left">company_short</th>
+<th align="left">pacs</th>
+<th align="left">comid</th>
+<th align="right">PAC_contributions</th>
+<th align="left">Letter_IDs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ALLEN, George (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1890000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">ALLEN, George (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">735000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">CANTOR, Eric (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">2520000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">CANTOR, Eric (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">980000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">COURTNEY, Joe (D) - CT</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1890000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">COURTNEY, Joe (D) - CT</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">735000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">FORBES, J. Randy (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1701000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">FORBES, J. Randy (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">661500</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">HOYER, Steny Hamilton (D) - MD</td>
+<td align="right">2010</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1890000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">HOYER, Steny Hamilton (D) - MD</td>
+<td align="right">2010</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">735000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">HOYER, Steny Hamilton (D) - MD</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1890000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">HOYER, Steny Hamilton (D) - MD</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">735000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">MURPHY, Christopher (D) - CT</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1701000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="even">
+<td align="left">MURPHY, Christopher (D) - CT</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">661500</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="odd">
+<td align="left">MURPHY, Christopher (D) - CT</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Northeast</td>
+<td align="left">northeast utilities;eversource energy;public service co of new hampshire</td>
+<td align="left">C00102160</td>
+<td align="right">910000</td>
+<td align="left">20160510-0011;20160510-0010;20160428-0006;20160405-0074;20160401-0060;20160329-0033;20160325-0007;20160309-0119;20160226-0015;20160212-0013;20151216-0008;20151103-0009;20151022-0040;20151020-0012;20151019-0007;20150914-0025;20150914-0007;20150908-0011;20150812-0015;20150804-0057;20150730-0012;20150728-0017;20150715-0058;20150505-0193;20150311-0006;20141107-0007</td>
+</tr>
+<tr class="even">
+<td align="left">UPTON, Frederick Stephen (R) - MI</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">2205000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="odd">
+<td align="left">UPTON, Frederick Stephen (R) - MI</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">857500</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="even">
+<td align="left">VISCLOSKY, Peter (D) - IN</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1890000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="odd">
+<td align="left">VISCLOSKY, Peter (D) - IN</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">735000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="even">
+<td align="left">WHITFIELD, Wayne Edward (Ed) (R) - KY</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1701000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="odd">
+<td align="left">WHITFIELD, Wayne Edward (Ed) (R) - KY</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">661500</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+<tr class="even">
+<td align="left">WITTMAN, Robert J. (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiBusiness</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">1764000</td>
+<td align="left">20170918-0007;20170802-0031;20170609-0037;20160406-0022;20150826-0036;20150826-0031;20150311-0008;20150311-0007;20150303-0016;20150130-0007;20150126-0033;20150115-0028;20141229-0090;20140311-0010;20130108-0016;20070716-0289;20060622-0070;20060508-0086(partial);20060508-0085(partial);20060215-0049;20050415-0090;20050401-0069;20050127-0001;20041118-0117;20040907-0363;20030423-0206;20030305-0180;20030123-0076;20030123-0075;20030123-0074;20021206-0098;20021023-0211;20021018-0239;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020919-0119;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020610-0153;20020610-0152;20020610-0151;20020610-0149;20020610-0148;20020610-0147;20020610-0146;20020610-0145;20020610-0144;20020610-0143;20020610-0142;20020610-0141;20020524-0542;20020521-0016;20020521-0015;20020521-0014;20020521-0013;20020521-0012;20020521-0011;20020521-0010;20020509-0097;20020423-0285;20020423-0283;20020423-0282;20020423-0281;20020423-0280;20020423-0279;20020423-0278;20020423-0120;20020423-0119;20020423-0118;20020423-0117;20020423-0116;20020423-0115;20020423-0114;20020423-0106;20020403-0672;20020403-0671;20020403-0669;20020403-0668;20020403-0667;20020403-0666;20020403-0653;20020403-0651;20020403-0649;20020318-0738;20020315-0080;20020311-0007;20011010-0217;20011005-0099;20010806-0443;20010709-0426</td>
+</tr>
+<tr class="odd">
+<td align="left">WITTMAN, Robert J. (R) - VA</td>
+<td align="right">2012</td>
+<td align="left">AntiProject</td>
+<td align="left">Dominion</td>
+<td align="left">dominion resources;consolidated gas transmission corp;consolidated natural gas;dominion transmission &amp; storage;cng transmission corp;questar corp;dominion peoples natural gas;peoples natural gas;east ohio gas;cng producing co;hope gas</td>
+<td align="left">C00108209</td>
+<td align="right">686000</td>
+<td align="left">20150126-0033;20141027-0017;20140617-0271;20140311-0010;20030220-0028;20030123-0074;20021104-0114;20021001-0192;20021001-0191;20021001-0190;20020930-0236;20020930-0230;20020930-0229;20020930-0228;20020930-0227;20020930-0226;20020930-0220;20020926-0397;20020924-0059;20020910-0166;20020910-0164;20020909-0633;20020909-0178;20020823-0296;20020815-0648;20020815-0640;20020813-0319;20020813-0007;20020716-0149;20020716-0145;20020716-0141;20020716-0140;20020702-0076;20020702-0068;20020702-0061;20020625-0315;20020625-0314;20020625-0313;20020625-0312;20020625-0311;20020625-0310;20020625-0309;20020621-0230;20020617-0409;20020610-0156;20020610-0155;20020610-0154;20020509-0097;20020423-0285</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>#Before connecting companies to the PAC donations of their parent companies, we find `r sum(!is.na(dpacs$ID))` letters with a pack donation.</code></pre>
 <pre><code>################################################   
 # merge in and split out parent corps 
 
@@ -2540,6 +3057,8 @@ ammount
 
 
 # risiduals </code></pre>
+</div>
+</div>
 </div>
 </div>
 <div id="about-ferc" class="section level1">
