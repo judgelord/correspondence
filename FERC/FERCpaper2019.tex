@@ -168,7 +168,7 @@ The panel on the right-side of Figure \ref{f:party} shows how many letters each 
 
 One of the challenges of our approach to studying legislative letter-writing to federal agencies is that we don't observe the demand for letters from constituents or businesses.  In an ideal world, we'd want to be able to measure and control for demand for letters.  However, since our project covers both the U.S. House and the U.S. Senate, we can take advantage of the large differences in state population to proxy for the demand for letter-writing from constituents.  For example, in 2018 the most populous state of California had a population of 39,557,045, while the least populated state of Wyoming had a population of only 577,737 \citep{WikipediaPop2019}.  Thus California's population is approximately 68 times that of Wyoming, and it is not unreasonable to assume that California's senators receive more requests for constituency service than Wyoming's senators.  
 
-In our research across federal agencies, we typically see senators from larger states doing more constituency service than senators from smaller states. Figure \ref{f:statepop} below shows annual Senate letter-writing by state population.  The top panel Senate letter-writing to all agencies in which we observe this positive relationship between state population and Senate letter-writing to all agencies. The bottom panel shows the relationship between state population and only Senate letter-writing to FERC.\footnote{Readers should be careful in noting the differences in y-axis scales between the two panels of this figure.}  The comparison across these two panels shows a much weaker relationship between state population and letter-writing to FERC than we observed in the data as a whole.  
+In our research across federal agencies, we typically see senators from larger states doing more constituency service than senators from smaller states. Figure \ref{f:statepop} below shows annual Senate letter-writing by state population.  The figure includes a lowess smoothing trendline and 95\% confidence intervals.  The top panel Senate letter-writing to all agencies in which we observe this positive relationship between state population and Senate letter-writing to all agencies. The bottom panel shows the relationship between state population and only Senate letter-writing to FERC.\footnote{Readers should be careful in noting the differences in y-axis scales between the two panels of this figure.}  The figure includes a lowess smoothing trendline and 95\% confidence intervals. The comparison across these two panels shows a much weaker relationship between state population and letter-writing to FERC than we observed in the data as a whole.  
 
 \begin{figure}[ht!]
 \centering
@@ -182,6 +182,9 @@ In our research across federal agencies, we typically see senators from larger s
 \includegraphics[width = \textwidth]{population-1}
 \end{subfigure}
 \end{figure}
+\clearpage
+
+While the preceding figure shows the name and state of high-letter writing outlier Senators, it is difficult to identify the amount of letters coming from each state in the figure.  Figure \ref{f:statepoptotal} shows the number of letters to FERC from Senators by state.   
 
 \begin{figure}[ht!]
 \centering
