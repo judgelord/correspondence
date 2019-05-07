@@ -313,6 +313,7 @@ d &lt;- all_contacts %&gt;%
   select(-SUBJECT) %&gt;% 
   mutate(majority = ifelse(majority == 1, &quot;Majority&quot;, &quot;Minority&quot;)) %&gt;%
   # FIXME 
+  # GOODE needs to be fixed in party switchers portion of merge.R
   filter(!(last_name == &quot;GOODE&quot;&amp;party == &quot;(I)&quot;))
   
 
@@ -1566,12 +1567,14 @@ dcorps %&lt;&gt;%
 
   mutate(company_short = ifelse(company == &quot;Express Pipeline&quot;, &quot;Express Pipeline&quot;, company_short))%&gt;%
   mutate(company_short = ifelse(company %in% c(&quot;American Energy&quot;, &quot;American energy&quot;), &quot;American Energy&quot;, company_short))%&gt;%
+  mutate(company_short = ifelse(str_detect(company, &quot;PG&amp;E|Pacific Gas &amp; Electric|Pacific Gas and Electric&quot;), &quot;PG&amp;E&quot;, company_short)) %&gt;% 
+  mutate(company_short = ifelse(company %in% c(&quot;Pacific Corp.&quot;, &quot;Pacific Corps&quot;), &quot;PacifiCorp&quot;, company_short)) %&gt;% 
   mutate(company_short = ifelse(company_short == &quot;AI&quot;, &quot;AI Energy&quot;, company_short)) %&gt;% 
   mutate(company_short = ifelse(company_short %in% c(&quot;N/A&quot;,&quot;Na&quot;,&quot;NO&quot;,
                                                      &quot;Clean Water Act&quot;,&quot;Na&quot;,
                                                      &quot;Energy&quot;, &quot;West&quot;, &quot;NA&quot;,
                                                      &quot;Central&quot;, &quot;Power&quot;, &quot;Natural&quot;,
-                                                     &quot;Consumers&quot;),
+                                                     &quot;Consumers&quot;, &quot;LNG&quot;),
          &quot;NOT A COMPANY?&quot;,  company_short))</code></pre>
 <p>Short company names, e.g. “Duke” may refer to many affiliated companies. The variable <code>company_short_refs</code> lists these affiliated companies.</p>
 <pre class="r"><code>#FIXME
@@ -1579,9 +1582,9 @@ dcorps %&lt;&gt;%
 dcorps %&lt;&gt;% 
   group_by(company_short) %&gt;% 
   mutate(company_short_refs = str_c(unique(company), collapse = &quot;; &quot;)) %&gt;% ungroup()</code></pre>
-<p>Look for problems with incorrect or over-trimed company names. For example what should we do with companies that are just state or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, etc.)</p>
+<p>Look for problematic company names. For example what should we do with companies that are just state, region, or city names? (e.g. El Paso Corporation, Tennessee Gas, American Energy, Southern, etc.)</p>
 <pre class="r"><code>## Inspect over-trimmed company names
-dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;NA&quot;, &quot;na&quot;, &quot;Na&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;gas&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Northeast&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;RTO&quot;)) %&gt;% select(company_short, company_short_refs, ID) %&gt;% 
+dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;NA&quot;, &quot;na&quot;, &quot;Na&quot;, &quot;LLC&quot;, &quot;Energy&quot;, &quot;Pipeline&quot;, &quot;Natural&quot;, &quot;North&quot;, &quot;New&quot;, &quot;Express&quot;, &quot;gas&quot;, &quot;American&quot;, &quot;Electric&quot;, &quot;System&quot;, &quot;Direct&quot;, &quot;DC&quot;, &quot;PS&quot;, &quot;CT&quot;, &quot;Forest&quot;, &quot;International&quot;, &quot;Tennessee&quot;, &quot;Salt Lake&quot;, &quot;Lakeside&quot;, &quot;NW&quot;, &quot;Jackson&quot;, &quot;Public Service&quot;, &quot;Peak&quot;, &quot;Independence&quot;, &quot;Select&quot;, &quot;Portland&quot;, &quot;Michigan&quot;, &quot;Boundary&quot;, &quot;Coastal&quot;, &quot;Minnesota&quot;, &quot;Midwest&quot;, &quot;Northeast&quot;, &quot;Columbia&quot;, &quot;Plains&quot;, &quot;Stream&quot;, &quot;Mitchell&quot;, &quot;AP&quot;, &quot;Southern&quot;, &quot;Ohio River&quot;, &quot;Northwest&quot;, &quot;Rio Grande&quot;, &quot;AI&quot;, &quot;Transportation&quot;, &quot;12/20/2018&quot;, &quot;Salem&quot;, &quot;Boston&quot;, &quot;Spokane&quot;, &quot;El Paso&quot;, &quot;Houston&quot;, &quot;North American&quot;, &quot;Consumers&quot;, &quot;Advanced&quot;, &quot;Complete&quot;, &quot;Inland&quot;, &quot;Limited Partnership&quot;, &quot;Sun&quot;, &quot;RTO&quot;, &quot;Pacific&quot;, &quot;LNG&quot;)) %&gt;% select(company_short, company_short_refs, ID) %&gt;% 
   group_by(company_short) %&gt;%
   summarise(company_short_refs = str_c(unique(company_short_refs), collapse = &quot;; &quot;),
             IDs = str_c(unique(ID), collapse = &quot;; &quot;)) %&gt;%
@@ -1614,6 +1617,11 @@ dcorps %&gt;% filter(company_short %in% c(&quot;&quot;, &quot;NA&quot;, &quot;na
 <td align="left">Southern</td>
 <td align="left">Southern</td>
 <td align="left">20060530-0194; 20060406-0079; 20060406-0078; 20010712-0179; 20010709-0593; 20010709-0265; 20010622-0315; 20010621-0392; 20010402-0103</td>
+</tr>
+<tr class="odd">
+<td align="left">Sun</td>
+<td align="left">Sun Pipe Line Co; Sun Pipe Line Co.right-of-way line project</td>
+<td align="left">20020930-0231</td>
 </tr>
 </tbody>
 </table>
@@ -1676,7 +1684,7 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;%
 </tr>
 <tr class="even">
 <td align="left">NOT A COMPANY?</td>
-<td align="left">Energy,; N/A; Natural Gas; Consumers; Na; NO; Clean Water Act; Natural Gas Pipeline Project; Central Pipeline North; Natural Gas Pipeline; Energy Projects; Power Project; West, Midwest, Northeast and Southeast Regional Transmission Organizations</td>
+<td align="left">Energy,; N/A; Natural Gas; Consumers; Na; NO; Clean Water Act; Natural Gas Pipeline Project; Central Pipeline North; Natural Gas Pipeline; LNG pipeline extension at Cove Point; Energy Projects; Power Project; West, Midwest, Northeast and Southeast Regional Transmission Organizations</td>
 </tr>
 <tr class="odd">
 <td align="left">Pacific Connector</td>
@@ -1690,11 +1698,12 @@ filter(dcorps, company_short %in% topcorps$company_short) %&gt;%
 </table>
 <pre class="r"><code># corps with short names 
 shortcorps &lt;- dcorps %&gt;% 
+  ungroup() %&gt;% 
   group_by(company_short) %&gt;% 
   tally() %&gt;% 
   arrange(nchar(company_short)) %&gt;% 
   mutate(nchar = nchar(company_short))%&gt;%
-  top_n(10, -nchar) 
+  top_n(10, -nchar) %&gt;% distinct()
 
 filter(dcorps, company_short %in% shortcorps$company_short) %&gt;% 
   group_by(company_short) %&gt;%
@@ -1791,71 +1800,66 @@ filter(dcorps, company_short %in% shortcorps$company_short) %&gt;%
 <td align="left">20030801-0191</td>
 </tr>
 <tr class="odd">
-<td align="left">LNG</td>
-<td align="left">LNG pipeline extension at Cove Point</td>
-<td align="left">20060215-0049</td>
-</tr>
-<tr class="even">
 <td align="left">M&amp;J</td>
 <td align="left">M&amp;J Holdings,</td>
 <td align="left">20031030-0017</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">MVP</td>
 <td align="left">MVP</td>
 <td align="left">20160921-0011</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">NED</td>
 <td align="left">NED</td>
 <td align="left">20150311-0006</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">New</td>
 <td align="left">New pipeline and storage wells in Rankin County</td>
 <td align="left">20050531-0064</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">NV</td>
 <td align="left">NV</td>
 <td align="left">20130725-0017</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PJM</td>
 <td align="left">PJM</td>
 <td align="left">20180622-0008; 20150928-0009</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">PNM</td>
 <td align="left">PNM</td>
 <td align="left">20011018-0299</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">PPL</td>
 <td align="left">PPL Corporation; PPL; PPL, Montana</td>
 <td align="left">20040206-0074; 20040202-0154; 20091218-4021; 20091209-0036</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">REX</td>
 <td align="left">REX; REX Pipeline</td>
 <td align="left">20080813-0285; 20080616-0014; 20080611-0084(partial); 20080522-0150; 20080522-0149; 20080207-0113; 20080102-0300; 20090918-0094; 20080602-0021</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">SCG</td>
 <td align="left">SCG Pipeline</td>
 <td align="left">20020506-0070; 20020509-0112</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">SMP</td>
 <td align="left">SMP project</td>
 <td align="left">20000828-0115</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Sun</td>
 <td align="left">Sun Pipe Line Co; Sun Pipe Line Co.right-of-way line project</td>
 <td align="left">20020930-0231</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">VLP</td>
 <td align="left">VLP Project</td>
 <td align="left">20000331-0104</td>
@@ -2429,6 +2433,113 @@ tidy(m)</code></pre>
 <div id="pac-level" class="section level2">
 <h2>PAC-level</h2>
 <p>Before matching projects and</p>
+<pre class="r"><code># letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
+# 1. id pacs per letter - spit letters matching several pacs 
+# 2. count up per member 
+# 3. add 0s for all other pac-member-cycle compinations 
+# merge in with contributions per pac per member 
+
+# First, clean up the contributions data a bit
+
+# a helper function to concat unique strings
+unique_string &lt;- . %&gt;% 
+  str_split(&quot;;&quot;) %&gt;% 
+  # select unique ones
+  unlist() %&gt;% 
+  unique() %&gt;% 
+  trimws() %&gt;% 
+  # paste them back together to retrun a single value 
+  paste(collapse = &quot;;&quot;) %&gt;%
+  str_remove_all(&quot;na;|;na$|NA;|;NA$&quot;)
+
+# Just the PAC names and IDs from the contributions matrix (will merge in relevent contributions later)
+PACs &lt;- contrib_matrix %&gt;% 
+  select(comid, UltOrg,Affiliate,PACShort) %&gt;% distinct() %&gt;% 
+  # make a full list of pac-affiliated orgs
+  group_by(comid) %&gt;%
+  mutate(UltOrg2 = str_c(UltOrg,Affiliate,PACShort, sep = &quot;;&quot;) %&gt;% 
+           tolower() %&gt;% 
+           # select unique ones
+           unique_string()
+
+# A function to get matching names
+get_pac &lt;- function(corp, PAC){
+  ifelse(str_detect(tolower(PAC), tolower(corp)), PAC, NA) 
+}
+
+# A function to get IDs where names match 
+get_pacID &lt;- function(corp, PAC, PACid){
+  ifelse(str_detect(tolower(PAC), tolower(corp)), PACid, NA) 
+}
+
+
+# corp = &quot;Exxon&quot;
+
+# A function to augment the PAC data with any matching company names 
+get_pacs &lt;- function(corp){
+PACs %&gt;% 
+    mutate(pacs = get_pac(tolower(corp), UltOrg2),
+           pacIDs = get_pacID(tolower(corp), UltOrg2, comid)) %&gt;% 
+    ungroup() %&gt;% 
+    select(pacs, pacIDs) %&gt;% 
+    distinct() %&gt;% 
+    summarise_all(unique_string) %&gt;% 
+    mutate(company_short = corp)
+}
+
+# TESTING 
+# corp = &quot;Exxon&quot;
+# get_pacs(corp)
+# corp &lt;- dcorps$company_short[1]
+# get_pacs(corp)
+
+crosswalk &lt;- map_dfr(dcorps$company_short, get_pacs)
+
+crosswalk %&lt;&gt;% distinct()
+
+dpacs &lt;- dcorps %&gt;% 
+  full_join(crosswalk) %&gt;% 
+  # letters per year per pac
+  select(ID, position, company_short, position, pacs, pacIDs) %&gt;% 
+  distinct() %&gt;% 
+  mutate(pacIDs = str_split(pacIDs, &quot;;&quot;)) %&gt;% 
+  unnest(pacIDs) %&gt;% 
+  distinct() %&gt;% 
+  # merge in pac totals
+  rename(comid = pacIDs) %&gt;% 
+  left_join(contrib_matrix) # %&gt;% group_by(comid, position) %&gt;% summarise(PAC_contributions)
+
+dpacs %&lt;&gt;% 
+  ungroup() %&gt;% 
+  filter(!is.na(ID), !is.na(comid)) %&gt;% 
+  select(ID, name_state, position, company_short, pacs, comid, PAC_contributions) %&gt;% 
+  distinct()
+  
+dpacs %&gt;% 
+  group_by(name_state, position, company_short, pacs, comid) %&gt;% 
+  summarise(PAC_contributions = sum(PAC_contributions, na.rm = T)) %&gt;% 
+  ungroup() %&gt;% 
+  group_by(position)  %&gt;%
+  top_n(10, PAC_contributions) %&gt;% 
+  knitr::kable()
+
+#Before connecting companies to the PAC donations of their parent companies, we find `r sum(!is.na(dpacs$ID))` letters with a pack donation.</code></pre>
+<pre><code>################################################   
+# merge in and split out parent corps 
+
+# TABLE 
+letterID 
+date
+member
+district 
+committee 
+position 
+company
+pac 
+ammount 
+
+
+# risiduals </code></pre>
 </div>
 </div>
 <div id="about-ferc" class="section level1">

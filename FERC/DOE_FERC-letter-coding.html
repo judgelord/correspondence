@@ -310,7 +310,7 @@ library(googlesheets)
 library(httpuv)
 library(magrittr)
 library(here)</code></pre>
-<p>Updated: 2019-05-03 22:33:38</p>
+<p>Updated: 2019-05-06 17:26:00</p>
 <p>Load coded congressional letters data:</p>
 <pre class="r"><code># log in to google drive
 gs_auth() 
@@ -695,7 +695,7 @@ FERC_coded %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">no</td>
-<td align="right">469</td>
+<td align="right">470</td>
 <td align="right">120</td>
 <td align="right">651</td>
 <td align="right">343</td>
@@ -727,7 +727,7 @@ FERC_coded %&gt;%
 </tr>
 <tr class="odd">
 <td align="left">yes</td>
-<td align="right">179</td>
+<td align="right">178</td>
 <td align="right">175</td>
 <td align="right">313</td>
 <td align="right">393</td>
@@ -879,7 +879,7 @@ d %&gt;% select(ID, Cosigned_House, Cosigned_Senate, Freelancer) %&gt;%
 d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
   filter(str_detect(AntiBusiness, &quot;,&quot;) | str_detect(ProBusiness, &quot;,&quot;) ) %&gt;%
   filter(!(str_detect(AntiBusiness, &quot;,L|, L|,I|, I&quot;) | str_detect(ProBusiness, &quot;,L|, L|,I|, I&quot;) ) ) %&gt;%
-  knitr::kable(caption = &quot;Suspicious comma use to look at&quot;) </code></pre>
+  knitr::kable(caption = &quot;Suspicious comma use to look at&quot;)</code></pre>
 <table>
 <caption>Suspicious comma use to look at</caption>
 <thead>
@@ -891,6 +891,149 @@ d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
 </tr>
 </thead>
 <tbody>
+</tbody>
+</table>
+<pre class="r"><code># Find problems with &quot;/&quot; instead of &quot;;&quot; sep
+d %&gt;% select(ID, ProBusiness, AntiBusiness, Freelancer) %&gt;%
+  filter(str_detect(AntiBusiness, &quot;/&quot;) | str_detect(ProBusiness, &quot;/&quot;) ) %&gt;%
+  knitr::kable(caption = &quot;Suspicious backslash use to look at&quot;) </code></pre>
+<table>
+<caption>Suspicious backslash use to look at</caption>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">ProBusiness</th>
+<th align="left">AntiBusiness</th>
+<th align="left">Freelancer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">20180216-0016</td>
+<td align="left">NA</td>
+<td align="left">AmerenUE/AmerenMO</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">20171108-0007</td>
+<td align="left">FFP Missouri/Rye Development</td>
+<td align="left">NA</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="odd">
+<td align="left">20151118-0010</td>
+<td align="left">NA</td>
+<td align="left">Transco/Williams</td>
+<td align="left">Gabriela Iocab</td>
+</tr>
+<tr class="even">
+<td align="left">20150520-0074</td>
+<td align="left">NA</td>
+<td align="left">NIPSCO/USFWS</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="odd">
+<td align="left">20140723-0052</td>
+<td align="left">Tranco / Williams</td>
+<td align="left">NA</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="even">
+<td align="left">20080201-0218</td>
+<td align="left">NA</td>
+<td align="left">Broadwalk Pipeline LLC / Gulf Crossing LLC; ABL Land Services</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="odd">
+<td align="left">20080118-0302</td>
+<td align="left">NA</td>
+<td align="left">Broadwalk Pipeline LLC / Gulf Crossing LLC; ABL Land Services</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="even">
+<td align="left">20041118-0117</td>
+<td align="left">NA</td>
+<td align="left">Dominion/Hope</td>
+<td align="left">Maki Ianovic</td>
+</tr>
+<tr class="odd">
+<td align="left">20040728-0251</td>
+<td align="left">Royal Dutch/Shell Group; El Paso Corporation</td>
+<td align="left">NA</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="even">
+<td align="left">20040723-0183</td>
+<td align="left">Royal Dutch/Shell Group; El Paso Corporation</td>
+<td align="left">NA</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="odd">
+<td align="left">20040702-0083</td>
+<td align="left">N/A</td>
+<td align="left">Cross Sound Cable</td>
+<td align="left">Lara Basiao</td>
+</tr>
+<tr class="even">
+<td align="left">20021018-0249</td>
+<td align="left">NA</td>
+<td align="left">CMS/Truckline Liquified Natural Gas (LNG) and Dynegy LNG</td>
+<td align="left">Jobelle</td>
+</tr>
+<tr class="odd">
+<td align="left">20020117-0094</td>
+<td align="left">NA</td>
+<td align="left">Enron/Exxon/Chevron Florida Gas</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="even">
+<td align="left">20011019-0138</td>
+<td align="left">Maritimes and Northeast Pipeline, L.L.C./Algonquin Gas Transmission Company</td>
+<td align="left">NA</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="odd">
+<td align="left">20011004-0504</td>
+<td align="left">NA</td>
+<td align="left">Duke Energy / East Tennesse Natural Gas Company</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="even">
+<td align="left">20011004-0498</td>
+<td align="left">NA</td>
+<td align="left">Duke Energy / East Tennesse Natural Gas Company</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="odd">
+<td align="left">20011002-0661</td>
+<td align="left">Maritimes and Northeast Pipeline, L.L.C./Algonquin Gas Transmission Company</td>
+<td align="left">NA</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="even">
+<td align="left">20011002-0352</td>
+<td align="left">NA</td>
+<td align="left">Duke Energy / East Tennesse Natural Gas Company</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="odd">
+<td align="left">20010703-0113</td>
+<td align="left">NA</td>
+<td align="left">William/Transco</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="even">
+<td align="left">20010702-0281</td>
+<td align="left">NA</td>
+<td align="left">William/Transco</td>
+<td align="left">Priyal Singh</td>
+</tr>
+<tr class="odd">
+<td align="left">20010702-0280</td>
+<td align="left">NA</td>
+<td align="left">William/Transco</td>
+<td align="left">Priyal Singh</td>
+</tr>
 </tbody>
 </table>
 </div>

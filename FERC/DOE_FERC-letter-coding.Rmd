@@ -211,7 +211,12 @@ d %>% select(ID, Cosigned_House, Cosigned_Senate, Freelancer) %>%
 d %>% select(ID, ProBusiness, AntiBusiness, Freelancer) %>%
   filter(str_detect(AntiBusiness, ",") | str_detect(ProBusiness, ",") ) %>%
   filter(!(str_detect(AntiBusiness, ",L|, L|,I|, I") | str_detect(ProBusiness, ",L|, L|,I|, I") ) ) %>%
-  knitr::kable(caption = "Suspicious comma use to look at") 
+  knitr::kable(caption = "Suspicious comma use to look at")
+
+# Find problems with "/" instead of ";" sep
+d %>% select(ID, ProBusiness, AntiBusiness, Freelancer) %>%
+  filter(str_detect(AntiBusiness, "/") | str_detect(ProBusiness, "/") ) %>%
+  knitr::kable(caption = "Suspicious backslash use to look at") 
 ```
 
 ## Potential chamber errors
