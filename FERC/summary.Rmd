@@ -119,6 +119,7 @@ d %>%
   filter(party_name != "Independent",
          !is.na(For),
          For != "Not coded",
+         For != "Other",
          !is.na(majority)) %>% 
   group_by(party_name, majority) %>% 
   mutate(percent = n / sum(n) * 100 ) %>% 
