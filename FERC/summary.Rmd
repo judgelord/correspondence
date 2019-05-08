@@ -205,7 +205,7 @@ Our coding of letter type is a mix of hand coding "Pro-business" and "Constituen
 
 FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
 
-```{r data-by-type, fig.width=4, fig.height=3}
+```{r data-by-type, fig.width=6, fig.height=3}
 all_percent <- all_contacts %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
