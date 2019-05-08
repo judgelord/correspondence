@@ -119,6 +119,7 @@ d %>%
   filter(party_name != "Independent",
          !is.na(For),
          For != "Not coded",
+         For != "Other",
          !is.na(majority)) %>% 
   group_by(party_name, majority) %>% 
   mutate(percent = n / sum(n) * 100 ) %>% 
@@ -205,7 +206,7 @@ Our coding of letter type is a mix of hand coding "Pro-business" and "Constituen
 
 FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
 
-```{r data-by-type, fig.width=6, fig.height=3}
+```{r data-by-type, fig.width=7, fig.height=4}
 all_percent <- all_contacts %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
@@ -243,7 +244,7 @@ full_join( all_percent, d_percent)%>%
   theme(panel.grid.major.x  = element_blank())
 ```
 
-```{r constituent-non-constituent, fig.height=3, fig.width=4}
+```{r constituent-non-constituent, fig.height=3, fig.width=7}
 d  %>% 
   filter(Constituent != "Not coded") %>% 
   ggplot() + 
@@ -371,8 +372,6 @@ d %>%
 
 ```{r members_barcoded, fig.height=4, fig.width=9}
 # barcode plot of committee members 
-
-Chamber <- "Senate" # "House" #  
  
 # member by year by agency 
 d %>% 
@@ -518,6 +517,8 @@ dcommittees %>%
 #A rough under-estimate based on whether "et al" or "&" appears in the summary:
 
 FERC_letters %>% 
+  filter(year>1999,
+         year<2019) %>% 
   group_by(ID) %>% 
   top_n(1) %>% 
   mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
@@ -529,16 +530,18 @@ FERC_letters %>%
   geom_col() 
 ```
 
-Identified cosigned letters of those coded so far:
-```{r cosigned_coded, eval=FALSE}
+Cosigned letters identified by coders
+```{r cosigned_coded}
 FERC_letters %>% 
-  filter(!is.na(Freelancer)) %>% 
-  mutate(cosigned = ifelse(!is.na(Cosigned_House)|!is.na(Cosigned_Senate),
+  filter(!is.na(Freelancer),
+         year>1999,
+         year<2019) %>% 
+  mutate(Cosigned = ifelse(!is.na(Cosigned_House)|!is.na(Cosigned_Senate),
                                  T, F)) %>%
-  group_by(year, cosigned) %>% 
+  group_by(year, Cosigned) %>% 
   tally %>% 
   ggplot() + 
-  aes(x = year, y = n, fill = cosigned) +
+  aes(x = year, y = n, fill = Cosigned) +
   geom_col() 
 ```
 
@@ -1306,7 +1309,7 @@ mplot(mAntiTotal)+
 ## PAC-level
 
 ### Before matching projects and companies to their parent companies: 
-```{r pacs-corps}
+```{r pacs-corps, eval= FALSE}
 # letter count per pac ~ pac contributions (lots of 0$-0letter pairs )
 # 1. id pacs per letter - spit letters matching several pacs 
 # 2. count up per member 
@@ -1406,7 +1409,7 @@ mAntiTotal
 ```
 
 #### Pro-business letters linked to PAC contributions:
-```{r pro-pacs}
+```{r pro-pacs, eval = FALSE}
 dpacs %>% 
   filter(position %in% c("ProBusiness", "ProProject")) %>% 
   # select letters with an identified person
@@ -1423,7 +1426,7 @@ dpacs %>%
 ```
 
 #### Anti-business letters linked to PAC contributions:
-```{r anti-pacs}
+```{r anti-pacs, eval = FALSE}
 dpacs %>% 
   filter(position %in% c("AntiBusiness", "AntiProject")) %>% 
   left_join(d %>% select(ID, Constituent) %>% distinct() ) %>% 
