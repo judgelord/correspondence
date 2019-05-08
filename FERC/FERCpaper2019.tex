@@ -208,11 +208,11 @@ In our research across federal agencies, we typically see senators from larger s
 \caption{State population and Senate Letter-writing}\label{f:statepop}
 \begin{subfigure}{\columnwidth}
 \caption{Letters to All Agencies}
-\includegraphics[width=\textwidth]{../gh-pages/Figs/population-1}
+\includegraphics[width=\textwidth]{../gh-pages/Figs/population-1.png}
 \end{subfigure}
 \begin{subfigure}{\columnwidth}
 \caption{Letters to FERC}
-\includegraphics[width = \textwidth]{population-1}
+\includegraphics[width = \textwidth]{population-1.png}
 \end{subfigure}
 \end{figure}
 \clearpage
@@ -222,7 +222,7 @@ While the preceding figure shows the name and state of high-letter writing outli
 \begin{figure}[ht!]
 \centering
 \caption{Total Number of FERC Contacts from Senators by State}\label{f:statepoptotal}
-\includegraphics[width = \textwidth]{sentate_percapita_map-1}
+\includegraphics[width = \textwidth]{sentate_percapita_map-1.png}
 \end{figure}
 
 %\begin{figure}[ht!]
@@ -261,7 +261,7 @@ While the preceding figure shows the name and state of high-letter writing outli
 \section{Findings: How do Campaign Contributions Impact Member Letter-marking Activity}
 \subsection{Measuring Industry Money}
  
- In this paper we focus exclusively on campaign contributions from political action committees in the energy sector.  To do this we rely on two data sources.  First, we draw on campaign contribution data from Bonica's Database on Ideology, Money in Politics, and Elections \citep{DIME}. Second, we use the Center for Responsive Politics' classification of PACs into industries to identify relevant PAC contributions.  
+ In this paper we focus exclusively on campaign contributions from political action committees in the energy sector.  To do this we rely on two data sources.  First, we draw on campaign contribution data from Bonica's Database on Ideology, Money in Politics, and Elections \citep{DIME}. Second, we use the Center for Responsive Politics' classification of PACs into industries to identify relevant PAC contributions.  Given our focus on the Federal Energy Regulatory Commission and the jurisdiction of that Commission, we are including in our totals all political action committees they classify as Oil, Gas, or Energy Utility.  Using these two sources we can create an industry-specific total of PAC contributions to a given member in an election cycle.  
  
  
  \begin{figure}[ht!]
@@ -304,8 +304,11 @@ While the preceding figure shows the name and state of high-letter writing outli
 \includegraphics[width = \textwidth]{money-letters-total-no-zeros-1}
 \end{figure}
 
+\subsection{Connecting Company Specific Campaign Contributions to FERC Letters}
 
+On the surface it would seem that it would be relatively straight-forward to connect political action committees associated with individual companies to the companies that are mentioned in legislators' letters to FERC. The Federal Election Commission's rules require that the PAC's name include the full name of the connected organization (sponsoring company or organization) must appear in the name of the SSF. However, one challenge in this industry area is that if a connected organization has parent companies or subsidiaries those names don't need to be included in the name of the PAC. Thus we need to link the companies to their subsidiary/parent companies.  In addition, the letters to FERC often simply mention the name of an Energy Project that is being developed by a company, and don't always include the full sponsoring company in the letter.  So to be complete, we need to link parent companies, subsidiary companies, and relevant energy projects.  
 
+As an example of the challenge of connecting corporate PACs to companies and projects mentioned in FERC letters we will consider the Williams Company. The Williams Company is a Fortune 500 energy company based in Tulsa, Okalahoma whose primary business is natural gas, but also has subsidiary parts that cover petroleum and electricity generation \citep{BloombergWilliams2019}.  
 
 
 
