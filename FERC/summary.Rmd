@@ -513,7 +513,7 @@ dcommittees %>%
 
 ## Many letters to FERC are cosigned
 
-```{r cosigned_estimated, eval=TRUE}
+```{r cosigned_estimated, eval=FALSE}
 #A rough under-estimate based on whether "et al" or "&" appears in the summary:
 
 FERC_letters %>% 
