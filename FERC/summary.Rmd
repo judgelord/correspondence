@@ -72,6 +72,16 @@ FERC_letters %<>%
 
 # merge in coded letters
 d %<>% left_join(FERC_letters) %>% filter(year <2019)
+
+d %<>%  
+  mutate(Type = as.character(Type)) %>% 
+  mutate(Type = ifelse(tolower(Constituent) =="yes", "Indiv. Constituent", Type)) %>% 
+  mutate(Type = ifelse(!is.na(ProBusiness), "Corp. Constituent", Type)) 
+
+# For this analysis, treat corp policy letters as Policy
+all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
+d$Type %<>% fct_recode(Policy = "Corp. Policy")
+
 ```
 
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`. 
@@ -83,7 +93,7 @@ Of the `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` 
 ## By party 
 
 
-```{r part-constituent, fig.height=2, fig.width=2}
+```{r part-constituent, fig.height=2, fig.width=4}
 d %>% 
   mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
          For = ifelse(!is.na(ProBusiness), "Business", For)) %>% 
@@ -95,11 +105,16 @@ d %>%
   aes(y = n, x = "", fill = For) + 
   geom_col( position = "dodge") + 
   facet_grid(party_name ~ majority) + 
-  scale_fill_viridis_d(option = "C", end = .8)
+  scale_fill_viridis_d(option = "C", end = .8) + 
+    labs(x = "",
+       fill = "",
+       y = paste("Letters 2000-2018, N =", as.character(d%>% nrow() %>% as.character() ))) + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank())
 ```
 
 Some letters oppose businesses: 
-```{r part-business, fig.height=2, fig.width=2}
+```{r part-business, fig.height=2, fig.width=4}
 d %>% 
   mutate(position = ifelse(!is.na(ProBusiness), "ProBusiness", NA),
          position = ifelse(!is.na(AntiBusiness), "AntiBusiness", position)#,
@@ -114,7 +129,12 @@ d %>%
   aes(y = n, x = "", fill = position) + 
   geom_col( position = "dodge") + 
   facet_grid(party_name ~ majority)+ 
-  scale_fill_viridis_d(option = "C", end = .8)
+  scale_fill_viridis_d(option = "C", end = .8) + 
+  labs(x = "",
+       fill = "",
+       y = paste("Letters 2000-2018, N =", as.character(d%>% nrow() %>% as.character() ))) + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank())
 ```
 
 ---
@@ -127,7 +147,6 @@ Our coding of letter type is a mix of hand coding "Pro-business" and "Constituen
 # TYPE 3: 501c3 constituent service 
 # TYPE 4: Corp./Industry serving policy 
 # TYPE 5: General policy 
-d %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
                         "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
@@ -166,14 +185,7 @@ d %<>%
 
 FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
 
-```{r data-by-type}
-d %<>%  
-  mutate(Type = as.character(Type)) %>% 
-  mutate(Type = ifelse(tolower(Constituent) =="yes", "Indiv. Constituent", Type)) %>% 
-  mutate(Type = ifelse(!is.na(ProBusiness), "Corp. Constituent", Type)) 
-
-all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
-
+```{r data-by-type, fig.width=4}
 all_percent <- all_contacts %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
@@ -181,7 +193,6 @@ all_percent <- all_contacts %>%
   mutate(percent = 100*round(nT/total, 2) ) %>% 
   mutate(agency = "Overall")
 
-d$Type %<>% fct_recode(Policy = "Corp. Policy")
 
 d_percent <- d%>% 
   filter(Type != "To be coded") %>%  
@@ -274,6 +285,7 @@ ggplot() +
   scale_x_continuous(breaks = NULL) + 
   scale_y_continuous(breaks = NULL) +
   labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
   theme(legend.position = "bottom", legend.title = element_blank(),
         panel.background = element_blank())# + facet_grid(. ~ Type)
 
@@ -290,6 +302,7 @@ d %>%
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous(breaks = NULL) +
   labs(x = "", y = "", title = paste("Contacts Per Million Residents from Members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
   theme(legend.position = "bottom", legend.title = element_blank(),
         panel.background = element_blank()) #+
   #facet_grid(. ~ Type)
