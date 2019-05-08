@@ -74,47 +74,47 @@ FERC_letters %<>%
 d %<>% left_join(FERC_letters) %>% filter(year <2019)
 ```
 
-In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from 2000-2018. 
+In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`. 
 
-Many letters are cosigned, yeilding `r d %>% filter(year >1999, !is.na(bioname)) %>% nrow()` members-level observations for years `r min(d$year)`-`r max(d$year)`. 
+Of the `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`, we identified Members of Congress in `r length(unique(d$ID))`. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
 
 ---
 
 ## By party 
 
 
-```{r part-constituent, fig.height=2}
+```{r part-constituent, fig.height=2, fig.width=2}
 d %>% 
   mutate(For = ifelse(tolower(Constituent) =="yes", "Constituent", NA),
          For = ifelse(!is.na(ProBusiness), "Business", For)) %>% 
-  count(party, For, majority) %>% 
-  filter(party != "(I)",
+  count(party_name, For, majority) %>% 
+  filter(party_name != "Independent",
          !is.na(For),
          !is.na(majority)) %>% 
   ggplot() + 
-  aes(y = n, x = party, fill = For) + 
+  aes(y = n, x = "", fill = For) + 
   geom_col( position = "dodge") + 
-  coord_flip() + facet_grid(. ~ majority) + 
-  scale_fill_viridis_d(option = "A")
+  facet_grid(party_name ~ majority) + 
+  scale_fill_viridis_d(option = "C", end = .8)
 ```
 
 Some letters oppose businesses: 
-```{r part-business, fig.height=2}
+```{r part-business, fig.height=2, fig.width=2}
 d %>% 
   mutate(position = ifelse(!is.na(ProBusiness), "ProBusiness", NA),
          position = ifelse(!is.na(AntiBusiness), "AntiBusiness", position)#,
          #position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", position),
          #position = ifelse(is.na(position)&!is.na(Constituent), "Neutral Constituent", position)
          ) %>% 
-  count(party, position, majority) %>% 
-  filter(party != "(I)",
+  count(party_name, position, majority) %>% 
+  filter(party_name != "Independent",
          !is.na(position),
          !is.na(majority)) %>% 
   ggplot() + 
-  aes(y = n, x = party, fill = position) + 
+  aes(y = n, x = "", fill = position) + 
   geom_col( position = "dodge") + 
-  coord_flip() + facet_grid(. ~ majority)+ 
-  scale_fill_viridis_d(option = "C")
+  facet_grid(party_name ~ majority)+ 
+  scale_fill_viridis_d(option = "C", end = .8)
 ```
 
 ---
@@ -182,6 +182,7 @@ all_percent <- all_contacts %>%
   mutate(agency = "Overall")
 
 d$Type %<>% fct_recode(Policy = "Corp. Policy")
+
 d_percent <- d%>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
@@ -203,13 +204,43 @@ full_join( all_percent, d_percent)%>%
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text()) + 
-  scale_color_viridis_d() +
-  scale_fill_viridis_d()
+  scale_color_viridis_d(option = "C", end = .8) +
+  scale_fill_viridis_d(option = "C", end = .8)
+```
+
+```{r constituent-non-constituent}
+d %<>% 
+  mutate(letter_position = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "ProBusiness", NA),
+         letter_position = ifelse(!is.na(AntiBusiness)|!is.na(AntiProject), "AntiBusiness", letter_position),
+         letter_position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", letter_position)) %>% 
+  mutate(Constituent = ifelse(Type == "Indiv. Constituent", "Indiv. Constituent", "Non_constituent"))
+
+d  %>% 
+  drop_na(letter_position, Constituent) %>% 
+  ggplot() + 
+  aes(x = letter_position) + 
+  geom_bar() + 
+  facet_wrap("Constituent") +
+  labs(x = "",
+       y = paste("Letters 2000-2018, N =", as.character(d%>%drop_na(letter_position, Constituent) %>% nrow() %>% as.character() )))
+
+d  %>% 
+  ggplot() + 
+  aes(x = letter_position) + 
+  geom_bar() + 
+  facet_wrap("Constituent") +
+  labs(title = "Total coded letters", 
+       x = "",
+       y = paste("Letters 2000-2018, N =", as.character(d %>% nrow() %>% as.character() )))
 ```
 
 ---
 
 # Members
+
+
+
+Of the `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from 2000-2018, we identified Members of Congress in `r length(unique(d$ID))`. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
 
 ### Senators vs. state population 
 
@@ -519,7 +550,7 @@ dcorps %>%
 ## Letters citing companies registered with FERC
 Of the companies registered to interact with FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
 *TO DO:* 
-- (1) Identify linked corporations for other top companies in the data
+- (1) Identify linked corporations for other top companies in the data using [this sheet](https://docs.google.com/spreadsheets/d/1FjZIuz8T97nczCbYskjT7-Hl6we6hoa6VndOnFmKDGU/edit#gid=0)
 - (2) extract company contact persons and information from the FERC website.
 ```{r}
 load(here("data", "DOE_FERC-corps.Rdata"))
@@ -840,7 +871,8 @@ notcorps <- filter(dcorps, company_short == "NOT A COMPANY?")
 Drop non-company observations
 ```{r}
 sum(!is.na(d$ProBusiness))
-d %<>% mutate(ProBusiness = ifelse(ProBusiness %in% notcorps$company, NA, ProBusiness)) %>% 
+d %<>% 
+  mutate(ProBusiness = ifelse(ProBusiness %in% notcorps$company, NA, ProBusiness)) %>% 
   mutate(ProProject = ifelse(ProProject %in% notcorps$company, NA, ProProject))
   
 sum(!is.na(d$ProBusiness))
@@ -905,6 +937,7 @@ Fred Upton (R-Mich.) was chair of the House Energy and Commerce Committee 2011-2
 
 U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Natural Resources 2014-2015.
 
+Count pro-business and pro-project letters:
 ```{r letters_money_total}
 letters_money_total <- letters_money %>% 
   filter(!is.na(PAC_contributions)) %>% 
@@ -920,6 +953,7 @@ letters_money_total %<>%
 letters_money_total %>% filter(!is.na(name_state)) %>%  top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
+Count anti-business and anti-project letters:
 ```{r antibusiness}
 Antiletters_money <- d %>% 
   #FIXME
@@ -948,6 +982,40 @@ Antiletters_money_total <- Antiletters_money %>%
   filter(!is.na(PAC_contributions)) %>% 
   group_by(icpsr, name_state, party) %>% 
   summarise(AntiBusiness_Letters_Per_Cycle = mean(AntiBusiness_Letters, na.rm = TRUE),
+            PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
+  ungroup()
+```
+
+Count non-constituent letters:
+```{r constituent}
+# constituent letters
+Non_Constituent_money <- d %>% 
+  #FIXME
+  filter(cycle <2016) %>% 
+  drop_na(Constituent) %>% 
+  #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
+  summarise(Non_Constituent_Letters = n())
+
+# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
+Non_Constituent_money %<>% 
+  ungroup() %>% 
+  full_join(contrib_total) %>% 
+  group_by(icpsr) %>% 
+  # FIXME
+  # one party per member, need to deal with party switchers
+  mutate(party = paste(unique(party), collapse = ";")) %>% 
+  mutate(party = str_remove(party, ";.*")) %>% 
+  ungroup()
+
+# Add zero-letter-cycle observations:
+Non_Constituent_money %<>% 
+ mutate(Non_Constituent_Letters = ifelse(is.na(Non_Constituent_Letters) & cycle > 1997, 0, Non_Constituent_Letters)) 
+
+Non_Constituent_money_total <- Non_Constituent_money %>% 
+  drop_na(PAC_contributions) %>% 
+  group_by(icpsr, name_state, party) %>% 
+  summarise(Non_Constituent_Letters_Per_Cycle = mean(Non_Constituent_Letters, na.rm = TRUE),
             PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
   ungroup()
 ```
@@ -1057,7 +1125,9 @@ ggplot() +
     geom_hline(yintercept = 0, linetype =2) + 
   geom_pointrange() + coord_flip() }
 
-letters_money%<>% drop_na(ProBusiness_Letters, PAC_contributions) %>% mutate(Log_PAC_contributions = log(PAC_contributions+1)) 
+letters_money %<>% 
+  drop_na(ProBusiness_Letters, PAC_contributions) %>%
+  mutate(Log_PAC_contributions = log(PAC_contributions+1))  
 
 m <- glm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000000), family = poisson)  
 tidy(m)
@@ -1068,6 +1138,11 @@ m <- glm(ProBusiness_Letters ~ Log_PAC_contributions, data = letters_money, fami
 tidy(m)
 m %>% mplot()+
   labs(x="", y="Additional letters per congress per Log(PAC Contributions)")
+
+m <- glm(Non_Constituent_Letters ~ PAC_contributions, data = Non_Constituent_money, family = poisson  ) 
+tidy(m)
+m %>% mplot()+
+  labs(x="", y="Additional letters per congress per million dollars")
 ```
 
 By party:
@@ -1259,6 +1334,8 @@ dpacs %>%
 ```{r anti-pacs}
 dpacs %>% 
   filter(position %in% c("AntiBusiness", "AntiProject")) %>% 
+  left_join(d %>% select(ID, Constituent) %>% distinct() ) %>% 
+  filter(Constituent == "No") %>%
   # select letters with an identified person
   drop_na(name_state, ID) %>%
   group_by(name_state, cycle, position, company_short, pacs, comid) %>% 

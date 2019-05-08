@@ -269,10 +269,10 @@ d %<>%
     CongressPerson) )
 
 # Letters with members identified by coders or auto-detection
-sum(!is.na(d$CongressPerson))
+number_matched = sum(!is.na(d$CongressPerson)&!str_detect(tolower(d$CongressPerson), "badfiles|bad files|noncongress|non congress|bad links"))
 ```
 
-
+Total of `r number_matched` letters. 
 
 ```{r}
 
