@@ -31,7 +31,7 @@ requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", 
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = TRUE, 
+                      cache = FALSE, 
                       fig.width=8.5, 
                       split = T,
                       fig.align = 'center', 
@@ -527,7 +527,8 @@ FERC_letters %>%
   tally %>% 
   ggplot() + 
   aes(x = year, y = n, fill = probably_cosigned) +
-  geom_col() 
+  geom_col() +
+  scale_fill_viridis_d(option = "C", end = .8)
 ```
 
 Cosigned letters identified by coders
@@ -542,7 +543,8 @@ FERC_letters %>%
   tally %>% 
   ggplot() + 
   aes(x = year, y = n, fill = Cosigned) +
-  geom_col() 
+  geom_col() +
+  scale_fill_viridis_d(option = "C", end = .8)
 ```
 
 ---
@@ -583,7 +585,9 @@ dcorps %>%
 ## Letters citing companies registered with FERC
 Of the companies registered to interact with FERC, several appear in the letter texts. Here `company_short` is a shortened version a name that refrences several affiliated companies, each of which are registered separatly. 
 *TO DO:* 
-- (1) Identify linked corporations for other top companies in the data using [this sheet](https://docs.google.com/spreadsheets/d/1FjZIuz8T97nczCbYskjT7-Hl6we6hoa6VndOnFmKDGU/edit#gid=0)
+
+- (1) Identify linked corporations for other top companies in the data using [this
+sheet](https://docs.google.com/spreadsheets/d/1FjZIuz8T97nczCbYskjT7-Hl6we6hoa6VndOnFmKDGU/edit#gid=0)
 - (2) extract company contact persons and information from the FERC website.
 ```{r}
 load(here("data", "DOE_FERC-corps.Rdata"))
@@ -935,7 +939,8 @@ letters_money <- d %>%
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
   group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
-  summarise(ProBusiness_Letters = n())
+  summarise(ProBusiness_Letters = n()) %>% 
+  distinct()
 
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
 letters_money %<>% 
@@ -1220,7 +1225,7 @@ mProLog %>% mplot()+
 mNonConstituent <- glm(Non_Constituent_Letters ~ PAC_contributions, data = Non_Constituent_money, family = poisson  ) 
 tidy(mNonConstituent)
 mNonConstituent %>% mplot()+
-  labs(x="", y="Additional letters per congress per million dollars")
+  labs(x="", y="Additional non-constituent letters per congress per million dollars")
 ```
 
 By party:
@@ -1302,8 +1307,58 @@ mplot(m)+
 mAntiTotal <- glm(AntiBusiness_Letters_Per_Cycle ~ PAC_contributions, data = Antiletters_money_total%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson")  
 
 tidy(mAntiTotal)
+
 mplot(mAntiTotal)+
   labs(x="", y="Average additional anti-business letters per cycle per million dollars 1990-2014")
+```
+
+
+```{r models, fig.height=2}
+dplot <- function(x){dwplot(x) +
+    aes(shape = model) + 
+    geom_vline(xintercept = 0, linetype = 2) +
+    scale_color_viridis_d(option = "C", end = .8) + 
+    labs(color = "Dependent Variable",
+         shape = "Dependent Variable") +
+  theme(panel.grid.major.y  = element_blank()) 
+}
+
+# Basic PAC money models 
+models <- full_join(
+  tidy(mAll) %>% mutate(model = "All Letters per Cycle"),
+  tidy(mPro) %>% mutate(model = "Pro-business Letters per Cycle") ) %>% 
+  full_join(tidy(mNonConstituent) %>% mutate(model = "Non-constituent Letters per Cycle")) %>%
+  full_join(tidy(mAnti)  %>% mutate(model = "Anti-business Letters per Cycle")) 
+dplot(models)+ 
+    labs(color = "Dependent Variable",
+         shape = "Dependent Variable",
+         x = "Additional letters per million dollars per cycle")
+
+## logged PAC money models 
+models <- tidy(mProLog) %>% mutate(model = "Pro-business Letters per Cycle") %>%  
+full_join(tidy(mAntiLog) %>% mutate(model = "Anti-business Letters per Cycle")) 
+
+dplot(models)+ 
+    labs(x = "Additional letters per million dollars per cycle")
+
+
+## PAC contributions over entire time period 
+models <- tidy(mProTotal) %>% 
+  mutate(model = "Pro-business Letters per Cycle") %>% 
+  full_join(tidy(mAntiTotal) %>% mutate(model = "Anti-business Letters per Cycle")) 
+
+dplot(models) + 
+    labs(x = "Average additional letters per cycle per million dollars 1990-2014")
+
+## With party IV 
+models <- mProParty %>% 
+  tidy() %>%
+  mutate(model = "Pro-business Letters per Cycle") %>%   full_join(tidy(mAntiParty) %>% 
+                                                                     mutate(model = "Anti-business Letters per Cycle")) %>% 
+  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
+
+dplot(models) + 
+    labs(x = "Additional letters per cycle")
 ```
 
 ## PAC-level
@@ -1395,18 +1450,6 @@ dpacs %<>%
   distinct()
 ```
 
-```{r models, include=FALSE}
-mAll
-mPro
-mProLog
-mNonConstituent
-mProParty
-mProTotal
-mAnti
-mAntiLog
-mAntiParty
-mAntiTotal
-```
 
 #### Pro-business letters linked to PAC contributions:
 ```{r pro-pacs, eval = FALSE}
