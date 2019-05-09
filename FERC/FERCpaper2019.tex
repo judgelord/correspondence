@@ -5,6 +5,7 @@
 % \usepackage[colorinlistoftodos, prependcaption]{todonotes} % to use \todo 
 \usepackage[margin=1in]{geometry}
 \usepackage{csquotes}
+\usepackage{rotating}
 \usepackage{setspace}
 \usepackage{filecontents}
 \usepackage[labelformat=empty]{caption}
@@ -339,22 +340,44 @@ To attempt to link parent companies that have corporate PACs that make campaign 
 \clearpage
 \section{Regression Result Tables}
 
-\begin{filecontents*}{../FERC/tables/mProLog-mAntiLog.tex}
-\begin{table}[!htb]
+\begin{table}[h!]
     \centering
-    \caption{ Test }
+ \input{../FERC/tables/mProTotal-mAntiTotal.tex}
+    \caption{Test }
     \label{tab:test}
 \end{table}
-\end{filecontents*}
 
-
+\begin{table}[h!]
+    \centering
 \input{../FERC/tables/mProParty-mAntiParty.tex}
+    \caption{Test }
+    \label{tab:test}
+\end{table}
 
-\input{../FERC/tables/mProTotal-mAntiTotal.tex}
 
+
+\begin{table}[h!]
+    \centering
+    \input{../FERC/tables/mProLog-mAntiLog.tex}
+    \caption{Test }
+    \label{tab:test}
+\end{table}
+
+\begin{table}[h!]
+    \centering
 \input{../FERC/tables/All-mPro-mAnti-mNonConstituent.tex}
+    \caption{Test }
+    \label{tab:test}
+\end{table}
 
+\begin{sidewaystable}[h!]
+    \centering
 \input{../FERC/tables/m.tex}
+    \caption{Test }
+    \label{tab:test}
+\end{sidewaystable}
+
+
 
 
 \end{appendices}
