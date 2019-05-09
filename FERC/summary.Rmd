@@ -1454,7 +1454,7 @@ write_lines(stargazer(mAll, mPro, mAnti, mNonConstituent, float=F),
 
 table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
                 type = "html",
-                notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex)
+                notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex")
 ```
 
 ```{r}
@@ -1500,7 +1500,6 @@ write_lines(
 table <- stargazer(mProTotal, mAntiTotal, 
                 type = "html",
                 notes = "FERC/tables/mProTotal-mAntiTotal.tex")
-
 ```
 
 ```{r}
