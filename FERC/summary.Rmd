@@ -1428,12 +1428,12 @@ dplot(models)+
 
 library(stargazer)
 library(dplyr)
-write_lines(stargazer(mAll, mPro, mAnti, mNonConstituent),
+write_lines(stargazer(mAll, mPro, mAnti, mNonConstituent, float=F),
   path = here("FERC/tables/All-mPro-mAnti-mNonConstituent.tex"))
 
 table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
                 type = "html",
-                notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex")
+                notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex)
 ```
 
 ```{r}
@@ -1450,7 +1450,7 @@ dplot(models)+
     labs(x = "Additional letters per million dollars per cycle")
 
 write_lines(
-  stargazer::stargazer(mProLog, mAntiLog),
+  stargazer::stargazer(mProLog, mAntiLog, float=F),
   path = here("FERC/tables/mProLog-mAntiLog.tex"))
 
 table <- stargazer(mProLog, mAntiLog, 
@@ -1473,7 +1473,7 @@ dplot(models) +
     labs(x = "Average additional letters per cycle per million dollars 1990-2014")
 
 write_lines(
-  stargazer::stargazer(mProTotal, mAntiTotal),
+  stargazer::stargazer(mProTotal, mAntiTotal, float=F),
   path = here("FERC/tables/mProTotal-mAntiTotal.tex"))
 
 table <- stargazer(mProTotal, mAntiTotal, 
@@ -1499,7 +1499,7 @@ dplot(models) +
     labs(x = "Additional letters per cycle")
 
 write_lines(
-  stargazer::stargazer(mProParty, mAntiParty),
+  stargazer::stargazer(mProParty, mAntiParty, float=F),
   path = here("FERC/tables/mProParty-mAntiParty.tex"))
 
 table <- stargazer(mProParty, mAntiParty, 

@@ -6,6 +6,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{csquotes}
 \usepackage{setspace}
+\usepackage{filecontents}
 \usepackage[labelformat=empty]{caption}
 \usepackage[title]{appendix}
 \usepackage{subcaption}
@@ -247,6 +248,8 @@ Turning from the question of how constituent demand (i.e. population) to the rol
 \caption*{\textbf{Figure \ref{f:chairs}: Committee Chairs Attempting to Influence FERC.} Each hash mark indicates the legislator wrote a letter on that date. The solid horizontal lines indicate the period for which that member was a committee chair, the dashed horizontal lines indicate the period for which that member was ranking member (top minority party leader) of the committee.  Note that many members listed in the table weren't in the chamber for the entire period, so blank stretches at the end or beginning of the line may indicate the member was out of office during that period.}
 \end{figure}
 
+As we can see in Figure \ref{f:chairs}, committee chairs of policy-relevant committees wrote a lot of letters to FERC.  This is particularly true for the Energy and Commerce Committee in the House and the Senate Committee on Energy and Natural Resources, which is the more policy relevant committee for each chamber, and whose chairs were active letter writers before, during and after their time as chair 
+
 \section{Findings: How do Campaign Contributions Impact Member Letter-marking Activity}
 \subsection{Measuring Industry Money}
  
@@ -310,25 +313,49 @@ To attempt to link parent companies that have corporate PACs that make campaign 
 \setcounter{figure}{0}
 \section{Sample Letters to the Federal Energy Regulatory Commission}
 
-\begin{figure}[hbt!]
+\begin{figure}[h!]
 \centering
-\caption{Example of Constituency Service Letter} \label{f:exampleconstituencyservice}
-\scalebox{0.7}{\includegraphics{20080515-0185small}}
+\caption{} \label{f:exampleconstituencyservice}
+\scalebox{0.65}{\includegraphics{20080515-0185small}}
+\caption*{\textbf{Figure \ref{f:exampleconstituencyservice}: Example of Constituency Service Letter.} This is a constituency service letter written by Senator Susan Collins (R-ME) to FERC on April 28, 2008.} 
 \end{figure}
 
 
-\begin{figure}[hbt!]
+\begin{figure}[h!]
 \centering
-\caption{Example of Energy Project Advocacy} \label{f:exampleenergyproj}
+\caption{} \label{f:exampleenergyproj}
 \scalebox{0.7}{\includegraphics{20171020-0018-14718216}}
+\caption*{\textbf{Figure \ref{f:exampleenergyproj}: Example of Energy Project Advocacy}. This is a letter written by Rep. Alex Mooney (R-WV2) to FERC on October 12, 2017.} 
 \end{figure}
 
  
-\begin{figure}[hbt!]
+\begin{figure}[h!]
 \centering
-\caption{Example of Personal Business Interest} \label{f:examplepersonalbus}
+\caption{} \label{f:examplepersonalbus}
 \scalebox{0.8}{\includegraphics{20141002-4001-13649830small.pdf}}
+\caption*{\textbf{Figure \ref{f:examplepersonalbus}: Example of Personal Business Interest}.  This is a letter written by former Senator Bob Graham (R-FL) to FERC on September 30, 2014. nearly a decade after retiring from the U.S. Senate.} 
 \end{figure}
+
+\clearpage
+\section{Regression Result Tables}
+
+\begin{filecontents*}{../FERC/tables/mProLog-mAntiLog.tex}
+\begin{table}[!htb]
+    \centering
+    \caption{ Test }
+    \label{tab:test}
+\end{table}
+\end{filecontents*}
+
+
+\input{../FERC/tables/mProParty-mAntiParty.tex}
+
+\input{../FERC/tables/mProTotal-mAntiTotal.tex}
+
+\input{../FERC/tables/All-mPro-mAnti-mNonConstituent.tex}
+
+\input{../FERC/tables/m.tex}
+
 
 \end{appendices}
 %\listoftodos[Notes]
