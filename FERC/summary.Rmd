@@ -1299,6 +1299,11 @@ mNonConstituent <- glm(Non_Constituent_Letters ~ PAC_contributions, data = Non_C
 tidy(mNonConstituent)
 mNonConstituent %>% mplot()+
   labs(x="", y="Additional non-constituent letters per congress per million dollars")
+
+mNonConstituentLog <- glm(Non_Constituent_Letters ~ Log_PAC_contributions, data = Non_Constituent_money %>% mutate(Log_PAC_contributions = log(PAC_contributions+1)), family = poisson  ) 
+tidy(mNonConstituent)
+mNonConstituent %>% mplot()+
+  labs(x="", y="Additional non-constituent letters per congress per logged million dollars")
 ```
 
 #### By party
@@ -1349,14 +1354,45 @@ mplot(mPro_nominate)+
 
 # PAC + ideology:
 mPro_pac_nominate <-glm(ProBusiness_Letters ~ PAC_contributions * nominate.dim1, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
 tidy(mPro_pac_nominate)
+
 mplot(mPro_pac_nominate)+
   labs(x="", y="Additional letters per congress")
 
 # Full model:
-mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + nominate.dim1 + chair + oversight_committee, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
 tidy(mPro_Full)
+
 mplot(mPro_Full)+
+  labs(x="", y="Additional letters per congress")
+
+# Full model with interaction:
+mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
+tidy(mPro_Fullx)
+
+mplot(mPro_Fullx)+
+  labs(x="", y="Additional letters per congress")
+
+# MERGE IN LETTER DATA TO ANTI 
+Antiletters_money %<>% left_join(d %>% 
+dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+  dplyr::rename(chair = chair_since_2007))
+
+
+mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
+tidy(mAnti_Full)
+
+mplot(mAnti_Full)+
+  labs(x="", y="Additional letters per congress")
+
+# full model with interaction 
+mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+tidy(mAnti_Fullx)
+mplot(mAnti_Fullx)+
   labs(x="", y="Additional letters per congress")
 ```
 
@@ -1388,7 +1424,7 @@ mAntiLog %>% mplot()+
   labs(x="", y="Additional anti-business Letters per congress per Log(PAC Contributions)")
 ```
 
-By party:
+#### By party:
 ```{r Antiletters-per-cycle-model-party, fig.height=1}
 
 mAntiParty <- glm(AntiBusiness_Letters ~ party, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent")), family = "poisson" ) 
@@ -1471,7 +1507,8 @@ dplot(models)+
     labs(x = "Additional letters per million dollars per cycle")
 
 write_lines(
-  stargazer::stargazer(mProLog, mAntiLog, float=F),
+  stargazer::stargazer(mProLog, mAntiLog,
+                       float=F),
   path = here("FERC/tables/mProLog-mAntiLog.tex"))
 
 table <- stargazer(mProLog, mAntiLog, 
@@ -1531,11 +1568,36 @@ table <- stargazer(mProParty, mAntiParty,
 kable(table)
 ```
 
+### Full Models
+```{r models-full, fig.height=2, results='hide'}
+## Full model
+models <- tidy(mPro_Full) %>% 
+  mutate(model = "Pro-business Letters per Cycle") %>%
+  full_join(tidy(mAnti_Full) %>%
+              mutate(model = "Anti-business Letters per Cycle")) %>%
+  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
+
+dplot(models) + 
+    labs(x = "Additional letters per cycle")
+
+write_lines(
+  stargazer::stargazer(mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx, float=F),
+  path = here("FERC/tables/mFull.tex"))
+
+table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
+                type = "html",
+                notes = "FERC/tables/mProParty-mFull.tex")
+```
+
+```{r}
+kable(table)
+```
+
 ### All models 
 ```{r models-ALL, fig.height=2, results='hide'}
 # All models 
 write_lines(
-  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty),
+  stargazer::stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx, mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
   path = here("FERC/tables/m.tex"))
 
 table <-stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
