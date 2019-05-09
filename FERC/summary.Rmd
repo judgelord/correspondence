@@ -1160,6 +1160,20 @@ contrib_matrix %>%
        fill = "PACs in top 2%") + 
   scale_fill_viridis_d(option = "C", na.value = "grey50")
 
+contrib_matrix %>% 
+  mutate(cycle = str_sub(ICPSR, -4)) %>% 
+  # FIXME
+  filter(cycle < 2014) %>% 
+  group_by(cycle, PACShort) %>% 
+  summarise(PACcycle = sum(value, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+    group_by(PACShort) %>% 
+  mutate(PACtotal = sum(PACcycle, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  filter(PACtotal > quantile(PACtotal, .98)) %>%  
+  arrange(-as.numeric(cycle), PACshort) %>% 
+  kable()
+
 # mere with letters data, d
 contrib_matrix %<>% 
   dplyr::rename(icpsryear = ICPSR,
@@ -1342,8 +1356,8 @@ tidy(mPro_pacXparty)
 mplot(mPro_pacXparty)+
   labs(x="", y="Additional letters per congress")
 
-letters_money %<>% left_join(d %>% 
-                               dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+letters_money %<>% left_join(d %>%
+                               dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee, chamber) %>%
   dplyr::rename(chair = chair_since_2007))
 
 # DW NOMINATE 
@@ -1365,11 +1379,11 @@ mplot(mPro_pac_nominate)+
 ```{r full-model}
 # MERGE IN LETTER DATA TO ALL Letters COUNTS  
 All_Letters_money %<>% left_join(d %>% 
-dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee, chamber) %>%
   dplyr::rename(chair = chair_since_2007))
 
 # Full model, all letters
-mAll_Full <- glm(All_Letters ~ PAC_contributions + party + chair + oversight_committee, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAll_Full <- glm(All_Letters ~ PAC_contributions + party + chair + oversight_committee + chamber + chamber, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAll_Full)
 
@@ -1377,7 +1391,7 @@ mplot(mAll_Full)+
   labs(x="", y="Additional letters per congress")
 
 # Full model with interaction:
-mAll_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAll_Fullx <- glm(All_Letters ~ PAC_contributions*party + chair + oversight_committee + chamber, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAll_Fullx)
 
@@ -1385,13 +1399,17 @@ mplot(mAll_Fullx)+
   labs(x="", y="Additional letters per congress")
 
 # MERGE IN LETTERS DATA TO NONCONSTITUENT LETTERS COUNTS  
-Antiletters_money %<>% left_join(d %>% 
-dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+# TO DO 
+
+
+# MERGE IN LETTERS DATA TO PRO-BUSINESS LETTERS
+letters_money %<>% left_join(d %>% 
+dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee, chamber) %>%
   dplyr::rename(chair = chair_since_2007))
 
 
 # Full model, pro business letters 
-mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee + chamber, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mPro_Full)
 
@@ -1399,7 +1417,7 @@ mplot(mPro_Full)+
   labs(x="", y="Additional letters per congress")
 
 # Full model with interaction:
-mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee + chamber, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mPro_Fullx)
 
@@ -1408,11 +1426,11 @@ mplot(mPro_Fullx)+
 
 # MERGE IN LETTER DATA TO ANTI 
 Antiletters_money %<>% left_join(d %>% 
-dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee, chamber) %>%
   dplyr::rename(chair = chair_since_2007))
 
 
-mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee + chamber, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAnti_Full)
 
@@ -1420,7 +1438,7 @@ mplot(mAnti_Full)+
   labs(x="", y="Additional letters per congress")
 
 # full model with interaction 
-mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee + chamber, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
   labs(x="", y="Additional letters per congress")
@@ -1634,7 +1652,7 @@ dplot(models) +
     labs(x = "Additional letters per cycle")
 
 write_lines(
-  stargazer::stargazer(mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx, float=F),
+  stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx, float=F),
   path = here("FERC/tables/mFull.tex"))
 
 table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,

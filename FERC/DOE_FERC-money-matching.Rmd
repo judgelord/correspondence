@@ -309,7 +309,7 @@ load(here("data/ferc_short.Rdata"))
 
 ## Find companies from FERC website 
 contrib_matrix %>% 
-  mutate(ferc_short = str_extract(UltOrg, ferc_short)) 
+  mutate(company_short = str_extract(UltOrg, ferc_short)) 
 
 contrib_matrix %>% select(company_short, UltOrg) %>% distinct() %>% knitr::kable()
 ```
@@ -320,7 +320,7 @@ contrib_matrix %>% select(company_short, UltOrg) %>% distinct() %>% knitr::kable
 load(here("data/dcorp_short.Rdata"))
 
 # Find these companies in UltOrg
-contrib_matrix %>% 
+contrib_matrix %<>% 
   mutate(dcorp_short = str_extract(UltOrg, dcorp_short)) 
 
 contrib_matrix %>%
