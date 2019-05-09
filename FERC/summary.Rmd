@@ -928,9 +928,13 @@ library(dplyr)
 # load data 
 load(here("data/contrib_total.rds"))
 
+contrib_total %<>% 
+    mutate(cycle = str_sub(ICPSR, -4)) %>% 
+  filter(cycle < 2014)
+  
+
 # inspect coverage 
 contrib_total %>% 
-  mutate(cycle = str_sub(ICPSR, -4)) %>% 
   group_by(cycle, ICPSR) %>% 
   summarise(total = sum(value, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -963,6 +967,7 @@ contrib_total %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party) + 
   geom_col() + 
+  scale_fill_grey() + 
   labs(y = "Average Energy-sector PAC contributions \n (ommitting energy extraction companies)", 
        fill = "Party", 
        x = "FEC Electoral Cycle")
@@ -1125,6 +1130,10 @@ Non_Constituent_money_total <- Non_Constituent_money %>%
 ```{r letters_PACs-data, fig.width=9.5}
 # load DIME data 
 load(here("data/contrib_matrix.rds"))
+
+contrib_matrix %<>% 
+  mutate(cycle = str_sub(ICPSR, -4)) %>% 
+  filter(cycle < 2014)
 
 contrib_matrix %>% 
   mutate(cycle = str_sub(ICPSR, -4)) %>% 
@@ -1604,7 +1613,8 @@ models <- tidy(mProParty) %>%
   mutate(model = "Pro-business Letters per Cycle") %>%
   full_join(tidy(mAntiParty) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
-  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
+  mutate(term = str_replace(term, "party\\(R\\)", "Republican")) %>% 
+  filter(term != "party(I)")
 
 dplot(models) + 
     labs(x = "Additional letters per cycle")
@@ -1644,9 +1654,9 @@ kable(table)
 ```{r models-full, fig.height=2, results='hide'}
 ## Full model
 models <- tidy(mAll_Full) %>% 
-  mutate(model = "Letters per Cycle") %>%
-  full_join(tidy(mAnti_Full) %>%
-              mutate(model = "Anti-business Letters per Cycle")) %>%
+  mutate(model = "Total Letters per Cycle") %>%
+  full_join(tidy(mPro_Full) %>%
+              mutate(model = "Pro-business Letters per Cycle")) %>%
   full_join(tidy(mAnti_Full) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
   mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
