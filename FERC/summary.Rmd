@@ -1,10 +1,11 @@
 ---
 title: "Lobbying the U.S. Federal Energy Regulatory Commission (FERC)"
 output:
-    html_document:
-      toc: true
-      toc_float: true
-      code_folding: hide
+  pdf_document
+    # html_document:
+    #   toc: true
+    #   toc_float: true
+    #   code_folding: hide
 editor_options: 
   chunk_output_type: console
 ---
@@ -12,7 +13,7 @@ editor_options:
 ```{r setup, include=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
-requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
+requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here", "pander", "memisc")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   devtools::install_github("wmurphyrd/fiftystater")
@@ -31,7 +32,7 @@ requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", 
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = FALSE, 
+                      cache = TRUE, 
                       fig.width=8.5, 
                       split = T,
                       fig.align = 'center', 
@@ -1254,7 +1255,7 @@ tidy(mPro_pacXparty)
 mplot(mPro_pacXparty)+
   labs(x="", y="Additional letters per congress")
 
-letters_money %<>% left_join(d %>% select(icpsryear, nominate.dim1, chair_since_2007)) %>% rename(chair = chair_since_2007)
+letters_money %<>% left_join(d %>% select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee)) %>% rename(chair = chair_since_2007)
 
 # DW NOMINATE 
 mPro_nominate <-glm(ProBusiness_Letters ~  nominate.dim1, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
@@ -1269,7 +1270,7 @@ mplot(mPro_pac_nominate)+
   labs(x="", y="Additional letters per congress")
 
 # Full model:
-mPro_Full<-glm(ProBusiness_Letters ~ PAC_contributions + nominate.dim1 + chair, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + nominate.dim1 + chair, oversight_committee, data = letters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 tidy(mPro_Full)
 mplot(mPro_Full)+
   labs(x="", y="Additional letters per congress")
@@ -1360,7 +1361,13 @@ dplot(models)+
          shape = "Dependent Variable",
          x = "Additional letters per million dollars per cycle")
 
-knitr::kable(models %>% select(model, everything()), digets = 3, caption = "Additional letters per million dollars per cycle")
+knitr::kable(models %>% dplyr::select(model, everything()), digets = 3, caption = "Additional letters per million dollars per cycle")
+
+write_lines(
+  stargazer::stargazer(mAll, mPro, mAnti, mNonConstituent),
+  path = here("FERC/tables/All-mPro-mAnti-mNonConstituent.tex"))
+
+"FERC/tables/All-mPro-mAnti-mNonConstituent.tex"
 
 ## logged PAC money models 
 models <- tidy(mProLog) %>% mutate(model = "Pro-business Letters per Cycle") %>%  
@@ -1369,23 +1376,29 @@ full_join(tidy(mAntiLog) %>% mutate(model = "Anti-business Letters per Cycle"))
 dplot(models)+ 
     labs(x = "Additional letters per million dollars per cycle")
 
-knitr::kable(models%>% select(model, everything()), digets = 3, caption = "Additional letters per million dollars per cycle")
+knitr::kable(models %>% dplyr::select(model, everything()), digets = 3, caption = "Additional letters per million dollars per cycle")
 
-models %>% 
-  # mutate_at(vars(estimate,std.error), round(3)) %>% 
-  knitr::kable()
+write_lines(
+  stargazer::stargazer(mProLog, mAntiLog),
+  path = here("FERC/tables/mProLog-mAntiLog.tex"))
+
+"FERC/tables/mProLog-mAntiLog.tex"
 
 ## PAC contributions over entire time period 
 models <- tidy(mProTotal) %>% 
   mutate(model = "Pro-business Letters per Cycle") %>% 
   full_join(tidy(mAntiTotal) %>% mutate(model = "Anti-business Letters per Cycle")) 
 
-
 dplot(models) + 
     labs(x = "Average additional letters per cycle per million dollars 1990-2014")
 
-knitr::kable(models%>% select(model, everything()), digets = 3, caption = "Average additional letters per cycle per million dollars 1990-2014")
+knitr::kable(models%>% dplyr::select(model, everything()), digets = 3, caption = "Average additional letters per cycle per million dollars 1990-2014")
 
+write_lines(
+  stargazer::stargazer(mProTotal, mAntiTotal),
+  path = here("FERC/tables/mProTotal-mAntiTotal.tex"))
+
+"FERC/tables/mProTotal-mAntiTotal.tex"
 
 ## With party IV 
 models <- tidy(mProParty) %>% 
@@ -1397,8 +1410,20 @@ models <- tidy(mProParty) %>%
 dplot(models) + 
     labs(x = "Additional letters per cycle")
 
-knitr::kable(models%>% select(model, everything()), digets = 3, caption = "Average additional letters per cycle")
+knitr::kable(models%>% dplyr::select(model, everything()), digets = 3, caption = "Average additional letters per cycle")
+
+write_lines(
+  stargazer::stargazer(mProParty, mAntiParty),
+  path = here("FERC/tables/mProParty-mAntiParty.tex"))
+
+"FERC/tables/mProParty-mAntiParty.tex"
+
+write_lines(
+  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty),
+  path = here("FERC/tables/m.tex"))
 ```
+
+
 
 ## PAC-level
 
