@@ -253,27 +253,33 @@ As we can see in Figure \ref{f:chairs}, committee chairs of policy-relevant comm
 \section{Findings: How do Campaign Contributions Impact Member Letter-marking Activity}
 \subsection{Measuring Industry Money}
  
- In this paper we focus exclusively on campaign contributions from political action committees in the energy sector.  To do this we rely on two data sources.  First, we draw on campaign contribution data from Bonica's Database on Ideology, Money in Politics, and Elections \citep{DIME}. Second, we use the Center for Responsive Politics' classification of PACs into industries to identify relevant PAC contributions.  Given our focus on the Federal Energy Regulatory Commission and the jurisdiction of that Commission, we are including in our totals all political action committees they classify as Oil, Gas, or Energy Utility.  Using these two sources we can create an industry-specific total of PAC contributions to a given member in an election cycle.  
+ In this paper we focus exclusively on campaign contributions from political action committees in the energy sector.  To do this we rely on two data sources.  First, we draw on campaign contribution data from Bonica's Database on Ideology, Money in Politics, and Elections \citep{DIME}. Second, we use the Center for Responsive Politics' classification of PACs into industries to identify relevant PAC contributions.  Given our focus on the Federal Energy Regulatory Commission and the jurisdiction of that Commission, we are including in our totals all political action committees they classify as Oil, Gas, or Energy Utility.  Using these two sources we can create an industry-specific total of PAC contributions to a given member in an election cycle.  Collectively this covers 428 PACs in the energy sector (oil, gas, and electricity), which we then match to their PAC contributions to each member of congress.
+ 
+Figure \ref{f:lettersmoney1} below shows the average amount a member received in each election cycle from all energy sector PAC contributions combined.
  
  \begin{figure}[ht!]
 \centering
 \caption{}\label{f:lettersmoney1}
 \includegraphics[width = \textwidth]{letters_PACs-data-1.png}
-\caption{\textbf{Figure \ref{f:lettersmoney1}: }}
+\caption{\textbf{Figure \ref{f:lettersmoney1}: Average Energy Sector PAC Contributions Per Member Per Cycle.}}
 \end{figure}
+
+The data in Figure \ref{f:lettersmoney1} suggests that the average legislator receives considerable support for their campaigns from energy sector PACs.  This figure, however, masks the variation across parties in support from the energy industry.  Figure \ref{f:lettersmoney2} below shows the dramatic cross-party variation in support from the energy industry.  
  
  \begin{figure}[ht!]
 \centering
 \caption{}\label{f:lettersmoney2}
 \includegraphics[width = \textwidth]{letters_money-2.png}
-\caption{\textbf{Figure \ref{f:lettersmoney2}: }}
+\caption{\textbf{Figure \ref{f:lettersmoney2}: Cross-Party Differences in Campaign Contributions from Energy Sector PACs.} Note that these contributions are stacked, so the amount the Democrats received appears directly above the amount Republicans received.}
 \end{figure} 
- 
-  \begin{figure}[ht!]
+
+We can draw from Figure \ref{f:lettersmoney2}, that Democrats received substantially less money from the energy sector.  For example, in the 2012 election cycle Democrats received approximately a third of what Republicans did.   
+
+\begin{figure}[ht!]
 \centering
 \caption{}\label{f:lettersPACsmoney2}
 \includegraphics[width = \textwidth]{letters_PACs-data-2.png}
-\caption{\textbf{Figure \ref{f:lettersPACsmoney2}: }}
+\caption{\textbf{Figure \ref{f:lettersPACsmoney2}: Unequal Money Across Energy Sector PACs}. The seven PACs that comprise the top 2\% of energy PACs contribute a disproportionate share of the energy industry's contributions.  The contribution activity of those PACs across election cycles is highlighted in individual colors.}
 \end{figure} 
  
  
@@ -404,8 +410,7 @@ To attempt to link parent companies that have corporate PACs that make campaign 
 \begin{sidewaystable}[ht!]
     \centering
 \input{../FERC/tables/mFull.tex}
-    \caption{Test }
-    \label{tab:test}
+  \caption{\textbf{Table \ref{tab:multmoney}: Multivariate Models - Predicting Different Types of Letter-writing Activity}. Multivariate Ordinary Least Squares Regression models predicting letter-writing activity to FERC.}\label{tab:multmoney}
 \end{sidewaystable}
 
 
