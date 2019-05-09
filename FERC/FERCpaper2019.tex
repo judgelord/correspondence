@@ -6,6 +6,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{csquotes}
 \usepackage{setspace}
+\usepackage{caption}
 \usepackage[title]{appendix}
 \usepackage{subcaption}
 \hypersetup{
@@ -137,13 +138,14 @@ Before presenting our analysis, we should note that we define constituents broad
 
 We also consider constituent service as broader than casework. For example, Senator Rubio asking the IRS for special treatment for residents of hurricane-affected parts of Florida was coded as ``Individual Constituent Service.'' We note these ``hard cases'' to illustrate the boundaries of our coding scheme. Most contacts were more easily parsed into either individual casework or policy work related to hearings, regulations, and legislation.
 
-Figure \ref{f:types} below shows how letter-writing to FERC compares to letter-writing to all other agencies.  The x-axis shows our four categories of letters: 501c3 (i.e. non-profit) or local government, corporate constituent, individual constituent, and policy.  The y-axis shows the percentage of letters that were of that type.  The dark purple bars are for letters written to FERC (which is a subsidiary of the Department of Energy) and the mustard color bars are for the overall averages across all agencies that we have previously coded.  For example, to interpret the figure, across all agencies over 60\% of letters were written on behalf of constituents, but for FERC only about 35\% of their letters were written on behalf of constituents.  Across all\footnote{We say all agencies here to indicate all the agencies that we have currently processed. While we do not believe there are systematic differences between the agencies we have and have not processed, these numbers are subject to change as we process the remainder of the agencies.} agencies, most letters (just over 60\%) are written on behalf of individual constituents, followed by letters on behalf of local governments or non-profits, followed by policy-related letters, and finally letters on behalf of corporate constituents. \citep{JudgeLordGrimmerPowell2018}.
+Figure \ref{f:types} below shows how letter-writing to FERC compares to letter-writing to all other agencies.  The x-axis shows our four categories of letters: 501c3 (i.e. non-profit) or local government, corporate constituent, individual constituent, and policy.  The y-axis shows the percentage of letters that were of that type.  The dark purple bars are for letters written to FERC (which is a subsidiary of the Department of Energy) and the mustard color bars are for the overall averages across all agencies that we have previously coded.  The numbers on top of each bar represent the total number of letters represented by the percentages.  For example, to interpret the figure, across all agencies over 60\% of letters were written on behalf of constituents (67,081 letters), but for FERC only about 35\% of their letters were written on behalf of constituents (1,505 letters).  Across all\footnote{We say all agencies here to indicate all the agencies that we have currently processed. While we do not believe there are systematic differences between the agencies we have and have not processed, these numbers are subject to change as we process the remainder of the agencies.} agencies, most letters (just over 60\%) are written on behalf of individual constituents, followed by letters on behalf of local governments or non-profits, followed by policy-related letters, and finally letters on behalf of corporate constituents. \citep{JudgeLordGrimmerPowell2018}.
 
 \begin{figure}[htp!]
 \centering
-\caption{Distribution Across Types of Congressional Requests FERC vs. All* Agencies} \label{f:types}
 %\begin{subfigure}{\columnwidth}
+\caption{The Distribution Across Types of Congressional Requests FERC vs. All* Agencies}\label{f:types}
 \includegraphics[width=\textwidth]{data-by-type-1.png}
+\caption*{\textbf{Figure \ref{f:types}: The Distribution Across Types of Congressional Requests FERC vs. All* Agencies.}The x-axis shows our four categories of letters: 501c3 (i.e. non-profit) or local government, corporate constituent, individual constituent, and policy.  The y-axis shows the percentage of letters that were of that type.  The dark purple bars are for letters written to FERC (which is a subsidiary of the Department of Energy) and the mustard color bars are for the overall averages across all agencies that we have previously coded.  The numbers on top of each bar represent the total number of letters represented by the percentages.}
 %\end{subfigure}
 %\begin{subfigure}{\columnwidth}
 %\includegraphics[width=\textwidth]{data-by-type-all-1.png}
@@ -158,6 +160,7 @@ We can learn more by considering not just who the letter is written on behalf of
 \centering
 \caption{What Types of Letters are Supportive of Businesses?} \label{f:constituentbusiness}
 \includegraphics[width=\textwidth]{constituent-non-constituent-1.png}
+\caption*{\textbf{Figure \ref{f:constituentbusiness}:What Types of Letters are Supportive of Businesses?}}
 \end{figure}
 
 In sum, Figure \ref{f:constituentbusiness} provides strong evidence that most constituent letters are advocating against businesses rather than in favor of businesses.  In contrast to the constituent letters, most non-constituent letters advocate in favor of named businesses. 
@@ -255,8 +258,6 @@ While the preceding figure shows the name and state of high-letter writing outli
 
 \subsection{Findings: How do Attempts to Influence FERC Differ from other Letter-marking}
 \section{Findings: What Members Attempt to Influence on Behalf of Constituents vs. Companies}
-
-
 
 \section{Findings: How do Campaign Contributions Impact Member Letter-marking Activity}
 \subsection{Measuring Industry Money}
