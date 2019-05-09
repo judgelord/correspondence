@@ -3794,7 +3794,7 @@ dplot(models) +
 
 table &lt;- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
                 type = &quot;html&quot;,
-                notes = &quot;FERC/tables/mProParty-mFull.tex&quot;)</code></pre>
+                notes = &quot;FERC/tables/mFull.tex&quot;)</code></pre>
 <pre class="r"><code>kable(table)</code></pre>
 <table>
 <thead>
@@ -4406,12 +4406,12 @@ FERC/tables/m.tex
 <h3>All models</h3>
 <pre class="r"><code># All models 
 write_lines(
-  stargazer::stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx, mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
-  path = here(&quot;FERC/tables/m.tex&quot;))
+  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
+  path = here(&quot;FERC/tables/mUnivariate.tex&quot;))
 
-table &lt;-stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
+table &lt;-stargazer(mAll, mPro, mAnti, mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
                 type = &quot;html&quot;,
-                notes = &quot;FERC/tables/m.tex&quot;)</code></pre>
+                notes = &quot;FERC/tables/mUnivariate.tex&quot;)</code></pre>
 <pre class="r"><code>kable(table)</code></pre>
 <table>
 <thead>

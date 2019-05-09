@@ -186,8 +186,8 @@ crpEnergy %>%
 source("setup.R")
 library(purrr)
 # load dime data
-load(here("data/DIME_79_14.rda"))
-# load(here("data/dime_contributors_1979_2018.rdata"))
+# load(here("data/DIME_79_14.rda"))
+load(here("data/dime_contributors_1979_2018.rdata"))
 dime <- aresults
 glimpse(dime)
 
@@ -343,19 +343,7 @@ save(contrib_total, file =  "data/contrib_total.rds")
 ```
 
 
-```{r not run, include = FALSE, eval=FALSE}
-rm(list=ls())
-q()
-n
-ssh -Y judgelord@linstat.ssc.wisc.edu
-cd /project/judgelord/correspondence
-git add "data/contrib_matrix.rds"
-git add "data/contrib_total.rds"
-git commit -m "add dime data"
-git pull
-git push
-judgelord
-```
+
 
 
 
@@ -436,3 +424,18 @@ sum(FERC_letters$Fortune500)
 # save(dime, file = here("data/dime_ferc_fortune500_people_matches.Rdata"))
 ```
 
+
+
+```{r not run, include = FALSE, eval=FALSE}
+rm(list=ls())
+q()
+n
+ssh -Y judgelord@linstat.ssc.wisc.edu
+cd /project/judgelord/correspondence
+git add "data/contrib_matrix.rds"
+git add "data/contrib_total.rds"
+git commit -m "add dime data"
+git pull
+git push
+judgelord
+```

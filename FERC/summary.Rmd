@@ -1359,8 +1359,38 @@ tidy(mPro_pac_nominate)
 
 mplot(mPro_pac_nominate)+
   labs(x="", y="Additional letters per congress")
+```
 
-# Full model:
+#### Full (multivariate) models 
+```{r full-model}
+# MERGE IN LETTER DATA TO ALL Letters COUNTS  
+All_Letters_money %<>% left_join(d %>% 
+dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+  dplyr::rename(chair = chair_since_2007))
+
+# Full model, all letters
+mAll_Full <- glm(All_Letters ~ PAC_contributions + party + chair + oversight_committee, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
+tidy(mAll_Full)
+
+mplot(mAll_Full)+
+  labs(x="", y="Additional letters per congress")
+
+# Full model with interaction:
+mAll_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party + chair + oversight_committee, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+
+tidy(mAll_Fullx)
+
+mplot(mAll_Fullx)+
+  labs(x="", y="Additional letters per congress")
+
+# MERGE IN LETTERS DATA TO NONCONSTITUENT LETTERS COUNTS  
+Antiletters_money %<>% left_join(d %>% 
+dplyr::select(icpsryear, nominate.dim1, chair_since_2007, oversight_committee) %>%
+  dplyr::rename(chair = chair_since_2007))
+
+
+# Full model, pro business letters 
 mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + party + chair + oversight_committee, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mPro_Full)
@@ -1394,6 +1424,11 @@ mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party + chair + over
 tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
   labs(x="", y="Additional letters per congress")
+
+
+
+
+
 ```
 
 
@@ -1568,7 +1603,25 @@ table <- stargazer(mProParty, mAntiParty,
 kable(table)
 ```
 
-### Full Models
+
+### All univariate models 
+```{r models-ALL, fig.height=2, results='hide'}
+# All models 
+write_lines(
+  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
+  path = here("FERC/tables/mUnivariate.tex"))
+
+table <-stargazer(mAll, mPro, mAnti, mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
+                type = "html",
+                notes = "FERC/tables/mUnivariate.tex")
+```
+
+```{r}
+kable(table)
+```
+
+
+### All Full (multivariate) Models
 ```{r models-full, fig.height=2, results='hide'}
 ## Full model
 models <- tidy(mPro_Full) %>% 
@@ -1586,23 +1639,7 @@ write_lines(
 
 table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
                 type = "html",
-                notes = "FERC/tables/mProParty-mFull.tex")
-```
-
-```{r}
-kable(table)
-```
-
-### All models 
-```{r models-ALL, fig.height=2, results='hide'}
-# All models 
-write_lines(
-  stargazer::stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx, mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
-  path = here("FERC/tables/m.tex"))
-
-table <-stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
-                type = "html",
-                notes = "FERC/tables/m.tex")
+                notes = "FERC/tables/mFull.tex")
 ```
 
 ```{r}
