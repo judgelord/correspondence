@@ -33,7 +33,7 @@ requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", 
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = TRUE, 
+                      cache = FALSE, 
                       fig.width=8.5, 
                       split = T,
                       fig.align = 'center', 
@@ -1171,7 +1171,7 @@ contrib_matrix %>%
   mutate(PACtotal = sum(PACcycle, na.rm = TRUE)) %>% 
   ungroup() %>% 
   filter(PACtotal > quantile(PACtotal, .98)) %>%  
-  arrange(-as.numeric(cycle), PACshort) %>% 
+  arrange(-as.numeric(cycle)) %>% 
   kable()
 
 # mere with letters data, d
@@ -1199,7 +1199,8 @@ letters_PACs <- d %>%
   summarise(ProBusiness_Letters = n()) %>% 
   # join by ICPSR, adding a sum of sector PAC contributions per member
   left_join(contrib_matrix) %>% 
-  ungroup() %>% group_by(icpsr) %>% 
+  ungroup() %>% 
+  group_by(icpsr) %>% 
   mutate(party = paste(unique(party), collapse = ";")) %>% 
   mutate(party = str_remove(party, ";.*")) %>% 
   ungroup()
@@ -1217,7 +1218,7 @@ letters_PACs_cycle %>% top_n(1, PAC_contributions) %>% knitr::kable()
 ```
 
 ### The top PAC recipient overall 
-```{r letters_PACs-total}
+```{r letters_PACs-total, eval = FALSE}
 letters_PACs_total <- letters_PACs %>% 
   ungroup() %>% 
   group_by(icpsr, name_state) %>% 
@@ -1642,8 +1643,10 @@ kable(table)
 ### All Full (multivariate) Models
 ```{r models-full, fig.height=2, results='hide'}
 ## Full model
-models <- tidy(mPro_Full) %>% 
-  mutate(model = "Pro-business Letters per Cycle") %>%
+models <- tidy(mAll_Full) %>% 
+  mutate(model = "Letters per Cycle") %>%
+  full_join(tidy(mAnti_Full) %>%
+              mutate(model = "Anti-business Letters per Cycle")) %>%
   full_join(tidy(mAnti_Full) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
   mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
@@ -1819,9 +1822,7 @@ ammount
 
 # About FERC 
 
-FERC regulates electricity markets, oil and gas pipelines, and hydropower and gas export terminal projects. 
-
-FERC controls pipeline market entry. 
+FERC regulates electricity markets, oil and gas pipelines, and hydropower and gas export projects. Many of these decisions have major implications for business profets. For example, because many natual gas pipelines cross state lines, FERC largely controls pipeline market entry. Similarly, because electricity grids are regional. 
 
 
 ## Letters on behalf of projects in their districts
