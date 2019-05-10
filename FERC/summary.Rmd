@@ -1445,7 +1445,7 @@ mplot(mPro_pacXparty)+
 #### Full (multivariate) models 
 ```{r full-model}
 # Full model, all letters
-mAll_Full <- glm(All_Letters ~ PAC_contributions + party +  chamber, data = All_Letters_money %>% 
+mAll_Full <- glm(All_Letters ~ PAC_contributions + party, data = All_Letters_money %>% 
                    filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAll_Full)
