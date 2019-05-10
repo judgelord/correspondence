@@ -2,7 +2,7 @@
 \usepackage{lmodern, amssymb,amsmath, graphicx, hyperref}
 % === bibliography package ===
 \usepackage{natbib}
-% \usepackage[colorinlistoftodos, prependcaption]{todonotes} % to use \todo 
+\usepackage[colorinlistoftodos, prependcaption]{todonotes} % to use \todo 
 \usepackage[margin=1in]{geometry}
 \usepackage{csquotes}
 \usepackage{rotating}
@@ -40,7 +40,7 @@
 \begin{abstract}
 \noindent 
 
-In this paper we use letters legislators write to a bureaucratic agency (the Federal Energy Regulatory Commission) to study congressional attempts to influence bureaucratic decisions. In exploring this question we are strongly influenced by \citet{Arnold1979}'s theory of bureaucrats and legislators who \emph{anticipate} how others will react to their actions. Drawing on eighteen years worth of letters from legislators to the commission, we find that these letters are filled with specific references to companies that legislators seek to assist.  We explore which legislators seek to influence the agency, on whose behalf they seek influence, and what outcome they are attempting to influence.  Finally, we match these letters with campaign finance records to see whether Members' efforts are correlated with the campaign contributions they receive from the energy industry.
+In this paper we use letters legislators write to a bureaucratic agency (the Federal Energy Regulatory Commission) to study congressional attempts to influence bureaucratic decisions. In exploring this question we are strongly influenced by \citet{Arnold1979}'s theory of bureaucrats and legislators who \emph{anticipate} how others will react to their actions. Drawing on eighteen years worth of letters from legislators to the commission, we find that these letters are filled with specific references to companies that legislators seek to assist.  We explore which legislators seek to influence the agency, on whose behalf they seek influence, and what outcome they are attempting to influence.  Finally, we match these letters with campaign finance records to see whether Members' efforts are correlated with the campaign contributions they receive from the energy industry. \todo{Finish abstract to include sentence summarizing paper results.}
 
 \end{abstract}
 
@@ -53,6 +53,7 @@ Concern over the potential for campaign contributions to influence the policy-ma
 
 Compared to the intense scrutiny to roll call votes, scholars have paid much less attention to congressional letter-marking activity--when legislators write letters to bureaucratic agencies urging them toward or against some regulatory decision.\footnote{This has begun to change in the last few years with recent studies by  \citet{MillsKalafHuges2015, Ritchie2017, Lowande2018JOP, LowandeRitchieLauterbach2018}.}  While technically these letters are subject to federal open records act requirements that process is often slow and laborious, meaning that in practice these letters rarely see the light of day and are highly unlikely to draw public scrutiny.  Thus letter-marking may be a preferred vehicle for those seeking to quietly influence regulatory decisions and policy through campaign contributions.  In this paper, we build on our earlier work \citep{JudgeLordGrimmerPowell2018}  to deeply examine one agency -- the Federal Energy Regulatory Commission--and explore whether campaign contributions to legislators explain legislative letter-writing to the agency on behalf of those companies.  
 
+\todo{Finish introduction to reflect what analysis we actually cover in the paper.}
 
 \section{Arnold's Impact: Studying Congress-Bureaucracy}
 
@@ -71,9 +72,11 @@ In \emph{Congress and the Bureaucracy}, Arnold argues that bureaucrats anticipat
 
 Arnold's key insights of anticipation---that actors are forward-looking when making decisions, reacting to how the world might be rather than how it is right now---provides the background for understanding why letters to FERC will matter for legislators and bureaucrats alike.  With this notion of anticipation in mind, we turn to the literature on the influence of money in politics.  
 
-\section{Studying the Influence of Lobbying and Campaign Contributions on Congressional-Bureaucratic Relations}
+\section{Studying the Influence of Campaign Contributions on Congressional-Bureaucratic Relations}
+
+\todo{Write section on studying the influence of campaign contributions}
 \subsection{Findings: Previous Research on the Influence of Money}
- 
+ \todo{Finish section on previous research on the influence of money.}
 Donors appear to contribute in ways consistent with short term access seeking \citep{Snyder1992, RomerSnyder1994, PowellGrimmer2016, Barber2016,FourinaiesHall2018}. 
 
 Yet, the evidence that legislators undertake actions explicitly for donors is limited.  There are some exceptions. First, there is the contribution to donations literature.  Where it is clear that corporations donate to pivotal legislators congressional committees.  But this fails to connect to key actions in the institution. \citet{KallaBroockman2016} show that donors are more likely to get meetings with key members of Congress.  But again, there is no connection to what legislators are actually doing in the institution.  
@@ -95,18 +98,25 @@ The campaign financing landscape has undergone substantial transformation over t
 \end{quotation}
 \doublespacing
 
+\todo{Finish section on how corporations make campaign contributions.}
+
 \section{Why Study the Federal Energy Regulatory Committee?}
+
+\todo{Write Why FERC section}
+
 \section{Theory: What Motivates Legislator Letter-marking Activity}
-\subsection{Theory: Influence of \$ on Letter-marking Activity}
+
+\todo{Write Theory Section.  Connect to Arnold.}
+
 \section{Letter-marking \& FOIA Data}
 
-To examine the relationship between campaign contributions and letter-marking activity, we assemble a new dataset of legislator-agency contacts covering a wide array of government agencies and broadest time frame to date. We submitted FOIA request for all records of communication from Members of Congress and their staff to all cabinet departments, their component agencies, and 34 independent agencies for the period from 2007-2017.
+To examine the relationship between campaign contributions and letter-marking activity, we assemble a new dataset of legislator-agency contacts covering a wide array of government agencies and broadest time frame to date. We submitted FOIA request for all records of communication from Members of Congress and their staff to all cabinet departments, their component agencies, and 34 independent agencies for the period from 2007-2017. For some agencies, like the Federal Energy Regulatory Commission, we received data from a longer time period. 
 
 As of August 2018, all departments except for the State Department and Department of Veterans' Affairs have provided records, though we are still processing the majority of records from the Departments of Defense and Energy, and the majority of Department of Justice components have either not yet granted our request or claimed that they do not track congressional correspondence. Some components provided records that duplicated records from the Secretary's office, for example in the Department of Agriculture where several such component records were dropped. As for independent agencies, we are waiting on records from the SEC, OPM, MSPB, FTC, FLRA, NSF, NRC, U.S. Export-Import Bank, CPSC, CFPB, CFTC, CIA, and Appalachian Regional Commission. The remaining 21 independent agencies have provided records, though some are still in the process of reviewing and releasing additional records. Of these, 18 have been sufficiently cleaned, coded, and linked with other data source for inclusion in this analysis. 
 
 Upon receiving records, we extracted names matching variations on the names of members of Congress and matched them to other datasets such as ideology scores \citep{dwnominate2018}, committee membership \citep{StewartWoon2017}, and committee oversight \citep{LewisSelin2012}. We also made a considerable effort to verify and update committee membership data. 
 
-In all, we have 7600 letters received by FERC and marked “congressional” since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on 4308 letters from 2000-2018. Many of these letters are co-signed, which for the purposes of this paper we are treating as equivalent to writing the letter.  Including the co-signed letters yields 6988 members-level observations for years 2000-2018.
+In this paper we draw on both our general across-all agency letter-writing, and focus particularly on letters sent to the Federal Energy Regulatory Commission.  For the Federal Energy Regulatory Commission, we have 7600 letters received by FERC and marked “congressional” since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on 4308 letters from 2000-2018. Many of these letters are co-signed, which for the purposes of this paper we are treating as equivalent to writing the letter.  Including the co-signed letters yields 6988 members-level observations for years 2000-2018.
 
 \subsection{Examples of FERC Letters}
 
@@ -250,9 +260,12 @@ Turning from the question of how constituent demand (i.e. population) to the rol
 As we can see in Figure \ref{f:chairs}, committee chairs of policy-relevant committees wrote a lot of letters to FERC.  This is particularly true for the Energy and Commerce Committee in the House and the Senate Committee on Energy and Natural Resources, which is the more policy relevant committee for each chamber, and whose chairs were active letter writers before, during and after their time as chair 
 
 \section{Exploring the Relationship between Letter-writing and Campaign Contributions}
+
+Next we turn to a preliminary analysis of the relationship between the PAC contributions a legislator receives from the energy sector and the legislator's letter-writing activity to FERC.
+
 \subsection{Measuring Industry Money}
  
- In this paper we focus exclusively on campaign contributions from political action committees in the energy sector.  To do this we rely on two data sources.  First, we draw on campaign contribution data from Bonica's Database on Ideology, Money in Politics, and Elections \citep{DIME}. Second, we use the Center for Responsive Politics' classification of PACs into industries to identify relevant PAC contributions.  Given our focus on the Federal Energy Regulatory Commission and the jurisdiction of that Commission, we are including in our totals all political action committees they classify as Oil, Gas, or Energy Utility.  Using these two sources we can create an industry-specific total of PAC contributions to a given member in an election cycle.  Collectively this covers 428 PACs in the energy sector (oil, gas, and electricity), which we then match to their PAC contributions to each member of congress.
+To begin this exploration, in this paper we are focusing exclusively on campaign contributions from political action committees in the energy sector.  To do this we rely on two data sources.  First, we draw on campaign contribution data from Bonica's Database on Ideology, Money in Politics, and Elections \citep{DIME}. Second, we use the Center for Responsive Politics' classification of PACs into industries to identify relevant PAC contributions.  Given our focus on the Federal Energy Regulatory Commission and the jurisdiction of that Commission, we are including in our totals all political action committees they classify as Oil, Gas, or Energy Utility.  Using these two sources we can create an industry-specific total of PAC contributions to a given member in an election cycle.  Collectively this covers 428 PACs in the energy sector (oil, gas, and electricity), which we then match to their PAC contributions to each member of congress.
  
 Figure \ref{f:lettersmoney1} below shows the average amount a member received in each election cycle from all energy sector PAC contributions combined.
  
@@ -286,6 +299,8 @@ We also observe substantial inequality across energy sector PACs in how much mon
  The differences across energy PACs and the often diverging goals of competitor companies suggest a promising area of future research is to specifically link a company's PAC contributions to the companies and projects mentioned in the congressional letters to FERC.  In the Future Research section of at the end of this paper we discuss how we plan to pursue this line of research in the future.
 
 \subsection{Preliminary Results}
+
+\todo{Write text surrounding preliminary money regression results.}
 
 \begin{figure}[ht!]
 \centering
@@ -328,8 +343,9 @@ We also observe substantial inequality across energy sector PACs in how much mon
 
 
 \section{Conclusion}
-
+\todo{Write Conclusion}
 \section{Future Research}
+\todo{Write Future Research Section}
 \begin{itemize}
 \item Lobbying Data
 \item Expansion to earlier time periods
@@ -344,9 +360,7 @@ On the surface it would seem that it would be relatively straight-forward to con
 
 As an example of the challenge of connecting corporate PACs to companies and projects mentioned in FERC letters we will consider the Williams Company. The Williams Company is a Fortune 500 energy company based in Tulsa, Oklahoma whose primary business is natural gas, but also has subsidiary parts that cover petroleum and electricity generation \citep{BloombergWilliams2019}.  The Williams Company PAC has been an active contributor to congressional campaigns in recent cycles.  In the 2016 election cycle the Williams Company PAC contributed \$392,000 to congressional candidates with 7\% going to Democrats and 93\% to Republicans.  
 
-Connecting these contributions to letters written by members of Congress on behalf of the company is more challenging.  The Williams Company also own the Transcontinental Pipeline Company, the Transcontinental Gas Company, and the Transco Pipeline Company.  In addition, they're the company behind a large number of projects such as the Atlantic Sunrise Project, and the Northeast Supply Enhancement (NESE) Pipeline, among many others. Unfortunately, for our purposes here, the name Williams doesn't appear in their subsidiary companies.  Nor does the name Williams appear in the energy projects undertaken by the company.  
-
-To attempt to link parent companies that have corporate PACs that make campaign contributions like the Williams Company to the projects and subsidiary companies mentioned in the letters, we draw on a combination of news reports and company filings with the Securities Exchange Commission. While we will present some preliminary results here based on these linkages, we do not yet believe we have comprehensive coverage of these relationships.  
+Connecting these contributions to letters written by members of Congress on behalf of the company is more challenging.  The Williams Company also own the Transcontinental Pipeline Company, the Transcontinental Gas Company, and the Transco Pipeline Company.  In addition, they're the company behind a large number of projects such as the Atlantic Sunrise Project, and the Northeast Supply Enhancement (NESE) Pipeline, among many others. Unfortunately, for our purposes here, the name Williams doesn't appear in their subsidiary companies.  Nor does the name Williams appear in the energy projects undertaken by the company. To attempt to link parent companies that have corporate PACs that make campaign contributions like the Williams Company to the projects and subsidiary companies mentioned in the letters, we plan to draw on a combination of news reports and company filings with the Securities Exchange Commission. %While we will present some preliminary results here based on these linkages, we do not yet believe we have comprehensive coverage of these relationships.  
 
 
 
@@ -430,7 +444,9 @@ To attempt to link parent companies that have corporate PACs that make campaign 
 
 
 \end{appendices}
-%\listoftodos[Notes]
+
+\clearpage
+\listoftodos[Notes]
 
 
 \end{document}
