@@ -331,7 +331,7 @@ We also observe substantial inequality across energy sector PACs in how much mon
 
 \subsection{Preliminary Results: Relationship between Letter-writing and Campaign Contributions}
 
-In the preceding section, we established that taken collectively energy sector political action committees have been spending substantial sums of money on congressional campaigns.  Earlier in this paper we observed considerable variation in legislator's letter-writing to FERC in terms of number of letters, whom the legislator is advocating on behalf of, and what the letters are about.  In this section of the paper we bring these two sets of data together to begin exploring the relationship between letter-writing and campaign contributions from energy industry political action committees.  In Figure \ref{f:model1} below we see the coefficient and 95\% confidence intervals for energy industry PAC contributions on letter-writing activity to FERC.  These are bivariate ordinary least squres regression models in which each color represents a different dependent variable (type of letter). The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.
+In the preceding section, we established that taken collectively energy sector political action committees have been spending substantial sums of money on congressional campaigns.  Earlier in this paper we observed considerable variation in legislator's letter-writing to FERC in terms of number of letters, whom the legislator is advocating on behalf of, and what the letters are about.  In this section of the paper we bring these two sets of data together to begin exploring the relationship between letter-writing and campaign contributions from energy industry political action committees.  In Figure \ref{f:model1} below we see the coefficient and 95\% confidence intervals for energy industry PAC contributions on letter-writing activity to FERC.  These are bivariate ordinary least squres regression models in which each color represents a different dependent variable (type of letter). The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.\footnote{Frequently, the literature on campaign contributions posits non-linear relationships, and in particular we often see natural log tranformations implying diminishing effects of money as the amounts increase.  Table \ref{tab:bilogmoney} in the Appendix shows the same bivariate contribution models, but with the contribution amounts tranformed using natural logs.  Table \ref{tab:bicareermoney} in the Appendix shows the same bivariate contribution models, but with total amount of money received from the industry over a member's entire career. }
 
 \begin{figure}[ht!]
 \centering
@@ -342,39 +342,45 @@ In the preceding section, we established that taken collectively energy sector p
 
 The bivariate campaign contribution and letter-writing regression results in Figure \ref{f:model1} show a positive relationship for overall letter-writing to FERC per cycle and Pro-Business Letter-writing to FERC per cycle. They show a somewhat weaker relationship between Anti-Business Letter-writing to FERC, and no relationship between non-constituent letters and campaign contributions.  In terms of magnitude of the effect size, the model suggests that a \$1 million dollars in contributions from the energy sector PACs would yield 3.5 letters written to FERC in that cycle.  
 
-Frequently, the literature on campaign contributions posits non-linear relationships, and in particular we often see natural log tranformations implying diminishing effects of money as the amounts increase.  Figure \ref{f:model2} below shows the same bivariate contribution models, but with the contribution amounts tranformed using natural logs. 
+%Frequently, the literature on campaign contributions posits non-linear relationships, and in particular we often see natural log tranformations implying diminishing effects of money as the amounts increase.  Figure \ref{f:model2} below shows the same bivariate contribution models, but with the contribution amounts tranformed using natural logs. 
 
-\begin{figure}[ht!]
-\centering
-\caption{}\label{f:model2}
-\includegraphics[width = \textwidth]{models-log-1.png}
-\caption*{\textbf{Figure \ref{f:model2}: Bivariate Models - Log Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the natural log of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
-\end{figure}
+%\begin{figure}[ht!]
+%\centering
+%\caption{}\label{f:model2}
+%\includegraphics[width = \textwidth]{models-log-1.png}
+%\caption*{\textbf{Figure \ref{f:model2}: Bivariate Models - Log Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the natural log of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
+%\end{figure}
+
+Turning from campaign contributions to party relationships, we observed large partisan differences in letter-writing activity earlier in the paper in Figure \ref{f:party}.  In Figure \ref{f:model4} below we see a bivariate party model looking at the relationship between being a Republican and writing letters to FERC.\footnote{The full OLS regression model is available in Table \ref{tab:biparty} in the Appendix.}  The results in Figure \ref{f:model4} show stark partisan differences in letter-writing.  We see Republicans writing a lot more pro-business letters than Democrats, and writing many fewer anti-business letters than Democrats.  
 
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:model4}
 \includegraphics[width = \textwidth]{models-party-1.png}
-\caption*{\textbf{Figure \ref{f:model4}: Bi variate Models - Party Membership and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the natural log of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
+\caption*{\textbf{Figure \ref{f:model4}: Bivariate Models - Party Membership and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for being a Republican legislator on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter). The full OLS regression model is available in Table \ref{tab:biparty} in the Appendix.}
 \end{figure}
+
+
 
 
  
-\begin{figure}[ht!]
-\centering
-\caption{}\label{f:model3}
-\includegraphics[width = \textwidth]{models-total-1.png}
-\caption*{\textbf{Figure \ref{f:model3}: Bi-variate Models - Career Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the member's entire career worth of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
-\end{figure}
+%\begin{figure}[ht!]
+%\centering
+%\caption{}\label{f:model3}
+%\includegraphics[width = \textwidth]{models-total-1.png}
+%\caption*{\textbf{Figure \ref{f:model3}: Bi-variate Models - Career Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the member's entire career worth of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
+%\end{figure}
+
+Next we bring both party membership and energy industry PAC contributions into a multivariate model predicting letter-writing activity to FERC.  Figure \ref{f:modelsfull} shows the point estimates and 95\% confidence intervals for the coefficients in the multivariate OLS model with both party and energy industry PAC contributions.\footnote{The full regression table is available in Table \ref{tab:multmoney} in the Appendix.}  
 
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:modelsfull}
 \includegraphics[width = \textwidth]{models-full-1.png}
-\caption*{\textbf{Figure \ref{f:modelsfull}: Multivariate Models - Career Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the coefficients in the multivariate OLS model.  Each color represents a different dependent variable (type of letter).  The full regression table is available in Table \ref{tab:multmoney} in the Appendix.}
+\caption*{\textbf{Figure \ref{f:modelsfull}: Multivariate Models - Campaign Contributions, Party and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the coefficients in the multivariate OLS model.  Each color represents a different dependent variable (type of letter).  The full regression table is available in Table \ref{tab:multmoney} in the Appendix.}
 \end{figure}
 
-
+By including both legislator party and energy industry campaign contributions we see in Figure \ref{f:modelsfull}, that energy industry contributions positively predict total letter-writing and pro-business letters, while they appear to have no effect on anti-business letters.  Conversely, we find Republicans write fewer anti-business letters and total letters than Democrats.  
 
 \section{Conclusion}
 \todo{Write Conclusion}
