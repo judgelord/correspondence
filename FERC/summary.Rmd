@@ -982,7 +982,7 @@ letters_money <- d %>%
   filter(cycle <2014) %>% 
   filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>%
   summarise(ProBusiness_Letters = n()) %>% 
   #FIXME
   filter(cycle <2014) %>% 
@@ -1050,7 +1050,7 @@ Antiletters_money <- d %>%
   filter(cycle <2014) %>% 
   filter(!is.na(AntiBusiness)|!is.na(AntiProject))%>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>% distinct() %>% 
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>% distinct() %>% 
   summarise(AntiBusiness_Letters = n())
 
 nrow(Antiletters_money)
@@ -1091,7 +1091,7 @@ Count all letters:
 All_Letters_money <- d %>% 
   #FIXME
   filter(cycle <2014) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>%
   summarise(All_Letters = n()) %>% distinct()
 
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
@@ -1126,7 +1126,7 @@ Non_Constituent_money <- d %>%
   filter(cycle <2014) %>% 
   drop_na(Constituent) %>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr) %>%
+  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>%
   summarise(Non_Constituent_Letters = n()) %>% distinct()
 
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
@@ -1296,7 +1296,7 @@ letters_money_total %>%
   
 ```
 
-```{r}
+```{r, eval=FALSE}
 library(dplyr)
 
 # MERGE IN LETTERS DATA TO PRO-BUSINESS LETTERS
@@ -1304,23 +1304,26 @@ library(dplyr)
 # CALLE THIS Pro_letters and Antiletters Anti_letters 
 nrow(letters_money)
 letters_money %<>% left_join(d %>% 
-dplyr::select(icpsryear, nominate.dim1, #chair_since_2007,
-              oversight_committee, chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
+dplyr::select(icpsryear, # nominate.dim1, #chair_since_2007,
+              #oversight_committee, 
+              chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
 ) %>% distinct()
 nrow(letters_money)
 
 nrow(All_Letters_money)
 All_Letters_money %<>% distinct() %>% 
   left_join(d %>% 
-dplyr::select(icpsryear, nominate.dim1, #chair_since_2007,
-              oversight_committee, chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
+dplyr::select(icpsryear, #nominate.dim1, #chair_since_2007,
+              #oversight_committee, 
+              chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
 ) %>% distinct()
 nrow(All_Letters_money)
 
 nrow(Antiletters_money)
 Antiletters_money %<>% left_join(d %>% 
 dplyr::select(icpsryear, #nominate.dim1, chair_since_2007, 
-              oversight_committee, chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
+              #oversight_committee, 
+              chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
 )%>% distinct()
 nrow(Antiletters_money)
 
@@ -1362,7 +1365,7 @@ mAll %>% mplot()+
 #### Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
 ```{r money-letters-per-cycle-model, fig.height=1}
 letters_money %<>% 
-  drop_na(ProBusiness_Letters, PAC_contributions) %>%
+  #drop_na(ProBusiness_Letters, PAC_contributions) %>%
   mutate(Log_PAC_contributions = log(PAC_contributions+1))  
 
 mPro <- glm(ProBusiness_Letters ~ PAC_contributions, data = letters_money %>% mutate(PAC_contributions = PAC_contributions/1000000), family = poisson)  
@@ -1432,18 +1435,17 @@ mplot(mPro_pacXparty)+
 #mplot(mPro_nominate)+labs(x="", y="Additional letters per congress")
 
 # PAC + ideology:
-mPro_pac_nominate <-glm(ProBusiness_Letters ~ PAC_contributions * nominate.dim1, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+# mPro_pac_nominate <-glm(ProBusiness_Letters ~ PAC_contributions * nominate.dim1, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
-tidy(mPro_pac_nominate)
+# tidy(mPro_pac_nominate)
 
-mplot(mPro_pac_nominate)+
-  labs(x="", y="Additional letters per congress")
+# mplot(mPro_pac_nominate)+ labs(x="", y="Additional letters per congress")
 ```
 
 #### Full (multivariate) models 
 ```{r full-model}
 # Full model, all letters
-mAll_Full <- glm(All_Letters ~ PAC_contributions + party +  oversight_committee + chamber, data = All_Letters_money %>% 
+mAll_Full <- glm(All_Letters ~ PAC_contributions + party +  chamber, data = All_Letters_money %>% 
                    filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAll_Full)
@@ -1452,7 +1454,7 @@ mplot(mAll_Full)+
   labs(x="", y="Additional letters per congress")
 
 # Full model with interaction:
-mAll_Fullx <- glm(All_Letters ~ PAC_contributions*party + oversight_committee + chamber, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAll_Fullx <- glm(All_Letters ~ PAC_contributions*party, data = All_Letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAll_Fullx)
 
@@ -1462,7 +1464,7 @@ mplot(mAll_Fullx)+
 
 
 # Full model, pro business letters 
-mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + party +  oversight_committee + chamber, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mPro_Full <- glm(ProBusiness_Letters ~ PAC_contributions + party, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mPro_Full)
 
@@ -1470,14 +1472,14 @@ mplot(mPro_Full)+
   labs(x="", y="Additional letters per congress")
 
 # Full model with interaction:
-mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party + oversight_committee + chamber, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_contributions*party, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mPro_Fullx)
 
 mplot(mPro_Fullx)+
   labs(x="", y="Additional letters per congress")
 
-mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_contributions + party +  oversight_committee + chamber, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_contributions + party, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAnti_Full)
 
@@ -1485,7 +1487,7 @@ mplot(mAnti_Full)+
   labs(x="", y="Additional letters per congress")
 
 # full model with interaction 
-mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party +  oversight_committee + chamber, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
   labs(x="", y="Additional letters per congress")
@@ -1506,7 +1508,8 @@ mplot(mProTotal)+
 #### Anti-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
 ```{r money-Antiletters-per-cycle-model, fig.height=1}
 Antiletters_money %<>% 
-  drop_na(AntiBusiness_Letters, PAC_contributions) %>% mutate(Log_PAC_contributions = log(PAC_contributions+1)) 
+  #drop_na(AntiBusiness_Letters, PAC_contributions) %>%
+  mutate(Log_PAC_contributions = log(PAC_contributions+1)) 
 
 mAnti <- glm(AntiBusiness_Letters ~ PAC_contributions, data = Antiletters_money %>% mutate(PAC_contributions = PAC_contributions/1000000), family = poisson)  
 tidy(mAnti)
