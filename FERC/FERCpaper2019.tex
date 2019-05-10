@@ -311,7 +311,7 @@ Figure \ref{f:lettersmoney1} below shows the average amount a member received in
 \caption*{\textbf{Figure \ref{f:lettersmoney1}: Average Energy Sector PAC Contributions Per Member Per Cycle.}}
 \end{figure}
 
-The data in Figure \ref{f:lettersmoney1} suggests that the average legislator receives considerable support for their campaigns from energy sector PACs.  This figure, however, masks the variation across parties in support from the energy industry.  Figure \ref{f:lettersmoney2} below shows the dramatic cross-party variation in support from the energy industry.  
+The data in Figure \ref{f:lettersmoney1} suggests that the average legislator receives considerable support for their campaigns from energy sector PACs.  This figure, however, masks the variation across parties in support from the energy industry.  Figure \ref{f:lettersmoney2} below shows the dramatic cross-party variation in support from the energy industry.  We can draw from Figure \ref{f:lettersmoney2}, that Democrats received substantially less money from the energy sector.  For example, in the 2012 election cycle Democrats received approximately a third of what Republicans did.
  
  \begin{figure}[ht!]
 \centering
@@ -320,42 +320,41 @@ The data in Figure \ref{f:lettersmoney1} suggests that the average legislator re
 \caption*{\textbf{Figure \ref{f:lettersmoney2}: Cross-Party Differences in Campaign Contributions from Energy Sector PACs.} Note that these contributions are stacked, so the amount the Democrats received appears directly above the amount Republicans received.}
 \end{figure} 
 
-We can draw from Figure \ref{f:lettersmoney2}, that Democrats received substantially less money from the energy sector.  For example, in the 2012 election cycle Democrats received approximately a third of what Republicans did.  
-
-We also observe substantial inequality across energy sector PACs in how much money they contribute to congressional campaigns.  Figure \ref{f:lettersPACsmoney2} below highlights the money that the seven PACs that comprise the top 2\% of energy PACs.  The most active energy sector PAC in the 2012 cycle was the Bechtel Company PAC which contributed well over half a million dollars to members of Congress in that cycle.  
-
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:lettersPACsmoney2}
 \includegraphics[width = \textwidth]{letters_PACs-data-2.png}
 \caption*{\textbf{Figure \ref{f:lettersPACsmoney2}: Unequal Money Across Energy Sector PACs}. The seven PACs that comprise the top 2\% of energy PACs contribute a disproportionate share of the energy industry's contributions.  The contribution activity of those PACs across election cycles is highlighted in individual colors.}
 \end{figure} 
- 
- The differences across energy PACs and the often diverging goals of competitor companies suggest a promising area of future research is to specifically link a company's PAC contributions to the companies and projects mentioned in the congressional letters to FERC.  In the Future Research section of at the end of this paper we discuss how we plan to pursue this line of research in the future.
 
-\subsection{Preliminary Results}
+We also observe substantial inequality across energy sector PACs in how much money they contribute to congressional campaigns.  Figure \ref{f:lettersPACsmoney2} highlights the money that the seven PACs that comprise the top 2\% of energy PACs.  The most active energy sector PAC in the 2012 cycle was the Bechtel Company PAC which contributed well over half a million dollars to members of Congress in that cycle. These differences across energy PACs and the often diverging goals of competitor companies suggest a promising area of future research is to specifically link a company's PAC contributions to the companies and projects mentioned in the congressional letters to FERC.  In the Future Research section of at the end of this paper we discuss how we plan to pursue this line of research in the future.
 
-\todo{Write text surrounding preliminary money regression results.}
+\subsection{Preliminary Results: Relationship between Letter-writing and Campaign Contributions}
+
+In the preceding section, we established that taken collectively energy sector political action committees have been spending substantial sums of money on congressional campaigns.  Earlier in this paper we observed considerable variation in legislator's letter-writing to FERC in terms of number of letters, whom the legislator is advocating on behalf of, and what the letters are about.  In this section of the paper we bring these two sets of data together to begin exploring the relationship between letter-writing and campaign contributions from energy industry political action committees.  In Figure \ref{f:model1} below we see the coefficient and 95\% confidence intervals for energy industry PAC contributions on letter-writing activity to FERC.  These are bivariate ordinary least squres regression models in which each color represents a different dependent variable (type of letter). The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.
 
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:model1}
 \includegraphics[width = \textwidth]{models-1.png}
-\caption*{\textbf{Figure \ref{f:model1}: Bi-variate Models - Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
+\caption*{\textbf{Figure \ref{f:model1}: Bivariate Models - Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter). The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.}
 \end{figure}
 
+The bivariate campaign contribution and letter-writing regression results in Figure \ref{f:model1} show a positive relationship for overall letter-writing to FERC per cycle and Pro-Business Letter-writing to FERC per cycle. They show a somewhat weaker relationship between Anti-Business Letter-writing to FERC, and no relationship between non-constituent letters and campaign contributions.  In terms of magnitude of the effect size, the model suggests that a \$1 million dollars in contributions from the energy sector PACs would yield 3.5 letters written to FERC in that cycle.  
+
+Frequently, the literature on campaign contributions posits non-linear relationships, and in particular we often see natural log tranformations implying diminishing effects of money as the amounts increase.  Figure \ref{f:model2} below shows the same bivariate contribution models, but with the contribution amounts tranformed using natural logs. 
 
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:model2}
-\includegraphics[width = \textwidth]{models-2.png}
-\caption*{\textbf{Figure \ref{f:model2}: Bi variate Models - Log Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the natural log of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
+\includegraphics[width = \textwidth]{models-log-1.png}
+\caption*{\textbf{Figure \ref{f:model2}: Bivariate Models - Log Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the natural log of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
 \end{figure}
 
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:model4}
-\includegraphics[width = \textwidth]{models-4.png}
+\includegraphics[width = \textwidth]{models-party-1.png}
 \caption*{\textbf{Figure \ref{f:model4}: Bi variate Models - Party Membership and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the natural log of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
 \end{figure}
 
@@ -364,7 +363,7 @@ We also observe substantial inequality across energy sector PACs in how much mon
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:model3}
-\includegraphics[width = \textwidth]{models-3.png}
+\includegraphics[width = \textwidth]{models-total-1.png}
 \caption*{\textbf{Figure \ref{f:model3}: Bi-variate Models - Career Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the member's entire career worth of energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter).}
 \end{figure}
 
@@ -473,8 +472,8 @@ While the projects we have outlined here comprise an ambitious research agenda, 
 
 \end{appendices}
 
-\clearpage
-\listoftodos[Notes]
+%\clearpage
+%\listoftodos[Notes]
 
 
 \end{document}
