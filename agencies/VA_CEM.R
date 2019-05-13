@@ -4,9 +4,9 @@
 # file.name <- "VA_CEM" # for testing
 
 
+
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
-  
   
   names(data)[names(data) == 'Date Received'] <- 'DATE'
   names(data)[names(data) == 'Primary Person'] <- 'FROM'
@@ -25,5 +25,5 @@ clean <- function(file.name) {
   
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM,  everything())
+  data %<>% select(ID, DATE,  FROM, everything())
 }
