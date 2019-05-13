@@ -77,6 +77,7 @@ data_list <- as.data.frame(matrix(c(
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
+"DOL_SOL", "not coded", NA, # ~1500 bad.names.2 from misspellings and noncongressman
 "DOL_VETS", "not coded", NA,
 "DOL_OWCP", "not coded", NA,
 # DOS 

@@ -20,6 +20,7 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  data %<>% mutate(ERROR = ifelse(grepl("Randy Reeves", FROM, ignore.case = T), "Under Secretary", ERROR))
   
   data <- extractMemberName(data, members, 'FROM')
   
