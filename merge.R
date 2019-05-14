@@ -77,9 +77,9 @@ data_list <- as.data.frame(matrix(c(
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
-"DOL_SOL", "not coded", NA, # ~1500 bad.names.2 from misspellings and noncongressman
-"DOL_VETS", "not coded", NA,
 "DOL_OWCP", "not coded", NA,
+"DOL_SOL", "not coded", NA, #  ~1500 bad.names.2 from misspellings and noncongressman. Needs manual checking
+"DOL_VETS", "not coded", NA,
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
@@ -133,7 +133,7 @@ data_list <- as.data.frame(matrix(c(
 # USDA 
 "USDA", "not coded", NA,
 # "USDA_ARS", "not coded", NA, # No script, data doesn't have dates
-"USDA_ERS", "not coded", NA,
+"USDA_ERS", "not coded", NA, 
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
  "USDA_NIFA", "not coded", NA, 
