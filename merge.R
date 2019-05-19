@@ -5,7 +5,6 @@
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
 
-
 ## make sure gmailr is set up 
 # library(gmailr)
 # send_message(mime(
@@ -142,7 +141,7 @@ data_list <- as.data.frame(matrix(c(
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA,
-"VA_CEM", "not coded", NA
+"VA_CEM", "not coded", NA 
 ), ncol = 3, byrow = T))
 names(data_list) <- c("agency", "status", "coders")
 data_list
