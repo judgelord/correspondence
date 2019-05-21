@@ -83,6 +83,9 @@ ggplot(bigrams, aes(x = reorder(bigram, n), y = n)) +
   facet_wrap("POLICY_EVENT", scales = "free")
 
 
+
+## Rules to implement:    ##
+
 # "hearing entitled" --> hearing
 # grep("\\(grant support\\)|\\[grant support\\]",d$SUBJECT,ignore.case = T) --> grant (earmark?)
 # grep("meeting request",d$SUBJECT,ignore.case = T) --> meeting 
