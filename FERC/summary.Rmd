@@ -1491,6 +1491,12 @@ mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party, data = Antile
 tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
   labs(x="", y="Additional letters per congress")
+
+# FULL MODEL WITH NON- CONSTITUENT 
+# FIXME
+#mNonConstituent_Fullx <- glm(NonConstituent_Letters ~ PAC_contributions*party, data = NonConstituent_letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+#tidy(mNonConstituent_Fullx)
+#mplot(mNonConstituent_Fullx)+labs(x="", y="Additional non-constituent letters per congress")
 ```
 
 
@@ -1692,8 +1698,10 @@ models <- tidy(mAll_Full) %>%
   mutate(model = "Total Letters per Cycle") %>%
   full_join(tidy(mPro_Full) %>%
               mutate(model = "Pro-business Letters per Cycle")) %>%
+  full_join(tidy(mPro_Fullx) %>% mutate(model = "Pro-business Letters per Cycle, with interaction")) %>%
   full_join(tidy(mAnti_Full) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
+  full_join(tidy(mAnti_Fullx) %>% mutate(model = "Anti-business Letters per Cycle, with interaction")) %>%
   mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
 
 dplot(models) + 
