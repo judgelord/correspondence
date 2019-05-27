@@ -113,11 +113,14 @@ data %<>%
   #string RTO WEST 
    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
+           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
+           mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+            mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
+            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RTO West", SUBJECT, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE))
    #string "encourage"
-     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("encourag", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("encourag", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("encourag", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE))
+    # mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("encourag", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
+     #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("encourag", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+      #     mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("encourag", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE))
 
 
 data %<>%
@@ -164,10 +167,13 @@ data %<>%
      mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("RTO West", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RTO West", text_clean, ignore.case = TRUE), "2", CERTAINTY)) %>%
            mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("RTO West", text_clean, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
+            mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RTO West", text_clean, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+            mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RTO West", text_clean, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
+            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RTO West", text_clean, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE))
     #string "encourage" #how can we make this not apply to all #have encourage but not a specific company 
-     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("encourag", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("encourag", text_clean, ignore.case = TRUE), "2", CERTAINTY)) %>%
-           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("encourag", text_clean, ignore.case = TRUE), "4", ALT_TYPE))
+     # mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("encourag", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
+     #    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("encourag", text_clean, ignore.case = TRUE), "2", CERTAINTY)) %>%
+     #       mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("encourag", text_clean, ignore.case = TRUE), "4", ALT_TYPE))
 ##is this rule or decision making 
 ##if taking comments they are doing rule 
    
@@ -187,7 +193,8 @@ data %<>%
 #filter(is.na(TYPE))
 #behalf of individual|behalf of individuals|an individual's|on behalf of Mr|on behalf of Dr
   
-  
+
+#testing  
 temp <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean, EVENT_NAME) %>% 
   filter(str_detect(SUBJECT, "EL00-95"))
@@ -201,7 +208,7 @@ temp1 <- data %>%
  
 temp2 <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "encourag"))
+  filter(str_detect(SUBJECT, "comments, protests, and interventions"))
 
 temp3 <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean, url) %>% 
@@ -211,7 +218,7 @@ temp3 <- data %>%
 #   select(ID, SUBJECT, TYPE, text_clean) %>% 
 #   filter(str_detect(SUBJECT, "Proposed|proposed")) %>% 
 #   filter(!str_detect(SUBJECT, "Rulemaking|rulemaking"))
-
+#if reading letter and the letter is commenting on their district, note that they were in district 
 
 
   return(data)
