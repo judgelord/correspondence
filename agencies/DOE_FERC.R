@@ -45,8 +45,8 @@ clean <- function(file.name) {
   ## extract member names from the letter texts (members is only for 110th - 118th)
   ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
   #FIXME
-  d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
-  d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
+  # d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
+  # d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
   
   sum(!is.na(d2$last_name))
   
@@ -82,7 +82,9 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
-  
+  # FIXME 
+  data %<>% 
+    filter(is.na(TYPE))
   ## Repeat for text
   data %<>%
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", text_clean, ignore.case = TRUE), "1", TYPE)) %>%
@@ -100,6 +102,20 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", text_clean, ignore.case = TRUE), "3", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", text_clean, ignore.case = TRUE), "1", CERTAINTY)) 
 
+  data %<>% 
+    mutate(TYPE = ifelse(str_detect(SUBJECT, "Rulemaking|rulemaking"), "5", TYPE))#!str_detect("[0-9]"),
+  
+  
+  data %>% 
+    select(ID, SUBJECT, TYPE, text_clean) %>% 
+    filter(str_detect(SUBJECT, "rule"))  %>% 
+    write_csv(path = "temp.csv")
+  
+  # FIXME
+  data %>% 
+    drop_na(TYPE)
+  
+  
   return(data)
 } ## END CLEAN FUNCTION
 
