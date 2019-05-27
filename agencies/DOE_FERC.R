@@ -82,7 +82,9 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
-  
+  # FIXME 
+  data %<>% 
+    filter(is.na(TYPE))
   ## Repeat for text
   data %<>%
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", text_clean, ignore.case = TRUE), "1", TYPE)) %>%
@@ -100,11 +102,25 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", text_clean, ignore.case = TRUE), "3", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", text_clean, ignore.case = TRUE), "1", CERTAINTY)) 
 
-#finding "rule" or "rulemaking" 
-  
+
 temp <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean) %>% 
   filter(str_detect(SUBJECT, "Rulemaking|rulemaking"))
+
+  data %<>% 
+    mutate(TYPE = ifelse(str_detect(SUBJECT, "Rulemaking|rulemaking"), "5", TYPE))#!str_detect("[0-9]"),
+  
+  
+  data %>% 
+    select(ID, SUBJECT, TYPE, text_clean) %>% 
+    filter(str_detect(SUBJECT, "rule"))  %>% 
+    write_csv(path = "temp.csv")
+  
+  # FIXME
+  data %>% 
+    drop_na(TYPE)
+  
+
 
 temp2 <- data %>% 
  select(ID, SUBJECT, TYPE, text_clean) %>% 
@@ -117,6 +133,7 @@ temp3 <- data %>%
 
   
   return(data)
+
 } ## END CLEAN FUNCTION
 
 
