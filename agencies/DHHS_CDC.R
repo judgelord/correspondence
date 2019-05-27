@@ -12,7 +12,8 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   ### Remove duplicate IDs
-  data <- data[!duplicated(data$ID), ] # multiple IDs are TO different people 
+  # FIXME
+  # data <- data[!duplicated(data$ID), ] # multiple IDs are TO different people 
   
   #create agency column
   data$agency <- file.name
@@ -85,7 +86,10 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("BEHALF OF CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NEW YORK CONGRESSIONAL DELEGATION|WORLD TRADE CENTER EXPOSURE", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NEW YORK CONGRESSIONAL DELEGATION|WORLD TRADE CENTER EXPOSURE", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NEW YORK CONGRESSIONAL DELEGATION|WORLD TRADE CENTER EXPOSURE", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) 
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NEW YORK CONGRESSIONAL DELEGATION|WORLD TRADE CENTER EXPOSURE", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>% 
+  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant Support"), 1, TYPE)) %>% 
+  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & str_detect(Affiliation, "Constituent"), 1, TYPE))
+  
   
    
 
