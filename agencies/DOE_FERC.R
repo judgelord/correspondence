@@ -180,13 +180,13 @@ data %<>%
 
 
 #TO DO
-#find 1,find 5
-#figure out miscoding of 1 with constituents 
-#open example files of letters that type as 1 
-#can write on behalf of an individual on top line and then say individual later 
-#RTO
+###############
+#figure out the 1, personal service, and 5, policy
+#figure out any miscoding, old coding that might be overbroad 
+#look through letters and find key concepts, events, and their dates 
 
 #Notes
+###################
 #sum(!na) (data$)
   #whereever the data is you're working with
 ##for variable text_clean
@@ -205,14 +205,10 @@ temp1 <- data %>%
   filter(str_detect(SUBJECT, "forwards"))
 
 
- 
 temp2 <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean, url) %>% 
   filter(str_detect(SUBJECT, "comments, protests, and interventions"))
 
-temp3 <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "RTO"))
 
 # temp2 <- data %>% 
 #   select(ID, SUBJECT, TYPE, text_clean) %>% 
