@@ -106,20 +106,18 @@ temp <- data %>%
   select(ID, SUBJECT, TYPE, text_clean) %>% 
   filter(str_detect(SUBJECT, "Rulemaking|rulemaking"))
 
+temp2 <- data %>% 
+ select(ID, SUBJECT, TYPE, text_clean) %>% 
+ filter(str_detect(SUBJECT, "Proposed|proposed")) %>% 
+ filter(!str_detect(SUBJECT, "Rulemaking|rulemaking"))
 
-#put the ones you are more confident in at the top 
-#if true do 5 if false do Type 
-  
-  
-  
-  
+temp3 <- data %>% 
+ select(ID, SUBJECT, TYPE, text_clean) %>% 
+ filter(str_detect(SUBJECT, ""))
+
   
   return(data)
 } ## END CLEAN FUNCTION
 
 
-
-
-
-drop.na(type)
 
