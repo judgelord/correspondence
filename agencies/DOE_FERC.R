@@ -86,7 +86,7 @@ data %<>%
 
 data %<>%
   #string "on behalf of an individual" 
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of an individual|behalf of individual|on behalf of constituent|on behalf of his constituent|on behalf of her constituent", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of an individual|behalf of individual|on behalf of constituent|on behalf of his constituent|on behalf of her constituent|a resident of", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of an individual|behalf of individual", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   #string "EL00-95" #huge variety of letters under this 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
@@ -138,7 +138,7 @@ data %<>%
   #string ER18-1314
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ER18-1314", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ER18-1314", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Er18-1314", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE))
+           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("Er18-1314", SUBJECT, ignore.case = TRUE), "5", ALT_TYPE)) %>% 
   #string ER16-307-- New England Electricity Sector 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
@@ -152,7 +152,9 @@ data %<>%
         mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("extend|comment period", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT))
 
 
-
+  
+##for variable text_clean
+  
 data %<>%
     #string "on behalf of an individual"
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of an individual|behalf of individual|on behalf of constituent|on behalf of his constituent|on behalf of her constituent", text_clean, ignore.case = TRUE), "1", TYPE)) %>%
@@ -167,9 +169,6 @@ data %<>%
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Rulemaking|rulemaking", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("Rulemaking|rulemaking", text_clean, ignore.case = TRUE), "1", CERTAINTY)) %>%
         mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("Rulemaking|rulemaking", text_clean, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
-    # #string "individual"
-    # mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("individual|individual's", text_clean, ignore.case = TRUE), "1", TYPE)) %>% 
-    #     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("individual|individual's", text_clean, ignore.case = TRUE), "1", CERTAINTY)) %>%
     #string "Constituent"
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|constituent's", text_clean, ignore.case = TRUE), "1", TYPE)) %>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT|constituent's", text_clean, ignore.case = TRUE), "1", CERTAINTY)) %>%
@@ -200,10 +199,29 @@ data %<>%
     
 
 
+##CAN THIS BE USEFUL, want 3 to not be the else but a new idea.fix
+#finishing letters with "on the behalf of" #FIXME
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & TYPE != 1|4|5 & grepl("on behalf|on the behalf&project|Corportation|Corps|Corps'", SUBJECT, ignore.case = TRUE), "2", "3")) %>% 
+      mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf|on the behalf&project|Corportation|Corps|Corps'", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
 
+#NOTES
+######################################################################################################################
 
+##could write some code with "on the behalf of" after the "on the behalf of individual/constituent" andn find TYPE 2,3 
+onbehalf <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "on behalf")) %>%
+  filter(is.na(TYPE)) 
 
-##could write some could with "on the behalf of" after the "on the behalf of individual/constituent" andn find TYPE 2,3 
+################Trying to figure out...want on the behalf of that isn't a 1 and if it talks about ...its a 2 and if it talks about... its  a 3
+##if type is not equal to 1,5,4 and the subject is on the behalf of...then it is a 3 if detect __ and a 2 if detect ____
+#if then, this or 
+
+#if(TYPE != 1, 5, 4 & str_detect(SUBJECT "on behalf|on the behalf"))
+  #then (ifelse((!grepl("[0-9]", TYPE) & grepl("project|Corportation|Corps|Corps'", text_clean, ignore.case = TRUE), "2", TYPE))))
+  #mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & TYPE != 1|4|5 & grepl("on behalf|on the behalf&project|Corportation|Corps|Corps'", text_clean, ignore.case = TRUE), "2", "3")) %>% 
+  #if TYPE != 1, then (stringdetect "project|Corportation|Corps|Corps'" then 2 else "City of|"
+
 
 
 #TO DO
@@ -232,6 +250,23 @@ data %<>%
 showme <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, url) %>% 
   filter(is.na(TYPE))
+
+#showing all 5
+showme5 <- data %>% 
+  select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, url) %>% 
+  filter(TYPE == 5)
+
+temp <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "without further"))
+
+temp <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "take further actions"))
+
+temp2 <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "inability"))
   
 
 #extend a public comment period 
@@ -242,46 +277,9 @@ extend <- data %>%
 #testing for suggested events 
 tempEVENT <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "ER16-307"))
-
-
-tempEVENT <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "ISO-NE"))
-
-temp7 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(text_clean, "concern"))
-
-tempER <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "ER18-1314"))
-
-temp9 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "support collaboration"))
-
-temp10 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "ER16-307"))
+  filter(str_detect(SUBJECT, "comments of US Senator"))
 
  
-#write one on EL00-95
-#write one on in regards to....wihtout constituent 
-
-temp2 <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "on behalf of")) %>%
-  filter(is.na(TYPE))
-
-
-temp9 <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean, ProBusiness, ProProject, url) %>% 
-  filter(str_detect(SUBJECT, "RTO West"))
-
-
-
-
 # temp2 <- data %>% 
 #   select(ID, SUBJECT, TYPE, text_clean) %>% 
 #   filter(str_detect(SUBJECT, "Proposed|proposed")) %>% 
