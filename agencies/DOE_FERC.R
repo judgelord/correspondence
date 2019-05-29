@@ -61,26 +61,32 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, FROM, SUBJECT, text_clean, everything())
 
-    
-    
+
+#Cleaning Up Columns     
+#################################
+  
 #cleaning up ProBusiness
 data %<>% 
-  mutate(ProBusiness = ifelse(ProBusiness %in% c("N/A","Na","NO","Clean Water Act", "NA", "Consumers", "none"), NA, ProBusiness))
+  mutate(ProBusiness = ifelse(ProBusiness %in% c("N/A","Na","NO", "NA", "none"), NA, ProBusiness))
+
+#cleaning up AntiBusiness
+data %<>% 
+  mutate(AntiBusiness = ifelse(AntiBusiness %in% c("N/A","Na","NO", "NA", "none"), NA, AntiBusiness))
+
 
 #cleaning up ProProject
 data %<>% 
   mutate(ProProject= ifelse(ProProject %in% c("N/A","Na","NO","Clean Water Act", "NA", "Consumers", "none"), NA, ProProject))
 
-#determining that ProBusiness and ProProject that aren't n/a are TYPE 2 
+#cleaning up Constituent 
+data %<>% 
+  mutate(Constituent = ifelse(Constituent %in% c("N/A","Na","NO","No","NA", "none"), "no", Constituent)) %>% 
+  mutate(Constituent = ifelse(Constituent %in% c("YES","Yes"), "yes", Constituent))
+
+#determining Constituent "yes" is TYPE 1 that ProBusiness and ProProject that aren't n/a are TYPE 2 
 data %<>%  
   mutate(TYPE = ifelse(tolower(Constituent) == "yes", 1, TYPE)) %>% 
   mutate(TYPE = ifelse(!is.na(ProBusiness)|!is.na(ProProject), 2, TYPE))
-
-
-#constituent column clean up 
-#inspect hand coding 
-
-
 
   
 ##Categorizing Type in FERC data based on string patterns
@@ -228,14 +234,7 @@ data %<>%
             mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RTO West", text_clean, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE))
     
     
-#cleaning up Constituent 
-data %<>% 
-  mutate(Constituent = ifelse(Constituent %in% c("N/A","Na","NO","No","NA", "none"), "no", Constituent)) %>% 
-  mutate(Constituent = ifelse(Constituent %in% c("YES","Yes"), "yes", Constituent))
 
-#determining that Constiuent that are YES are TYPE 1 
-data %<>%  
-  mutate(TYPE = ifelse(tolower(Constituent) == "yes", 1, TYPE))
 
 
 
@@ -249,8 +248,8 @@ onbehalf <- data %>%
       drop_na(onbehalf) %>% 
       filter(is.na(TYPE))
     
-    #missing subject and ID text_clean, url
-  
+#missing subject and ID text_clean, url
+
 
 ################Trying to figure out...want on the behalf of that isn't a 1 and if it talks about ...its a 2 and if it talks about... its  a 3
 ##if type is not equal to 1,5,4 and the subject is on the behalf of...then it is a 3 if detect __ and a 2 if detect ____
@@ -268,15 +267,74 @@ onbehalf <- data %>%
 
 check <- data %>% 
   select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness) %>% 
-  filter(Constituent == "Yes", grepl(".", ProBusiness), is.na(AntiBusiness)) 
+  filter(Constituent == "no", grepl(".", ProBusiness), is.na(AntiBusiness)) 
 
-test <- data %>% 
-  select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness) %>% 
-  filter(Constituent == "Yes") 
+
+#TO DO:
+#why would they send in letter going against a business if they aren't for a consituent and they aren't supporting a project that is going against?
+checkAntiBusiness <- data %>% 
+  select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
+  filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
+
+
+#check if marked as a 2 and not marked under probusiness
+check2 <- data %>% 
+  select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
+  filter(TYPE == 2, is.na(ProBusiness), is.na(ProProject))
+
+
+
+#code fixing the antibusiness 
+#select this letter ID
+#case_when
+
+
+#the goal is when the ID is 20170201-0009 move antibusiness string to probusiness
+
+
+#if else 
+#case when
+
+
+
+##LUCY's case_when attempt
+when the id is this 
+  make probusiness = antibusiness
+  make antibusiness 0 
+
+temp <- data %>% 
+  select(ID, ProBusiness, AntiBusiness) %>% 
+  mutate(ID = ifelse(grepl(".", AntiBusiness, ignore.case = TRUE), )
+    ID = case_when(
+      ID == 20170201-0009 ~ 
+      
+    )
+  )
+
+
+temp <- data %>% 
+  mutate(AntiBusiness = ifelse(grepl(".", AntiBusiness, ignore.case = TRUE)) %>% 
+         case_when(ID == "20170201-0009" ~ AntiBusiness == ProBusiness,
+                  TRUE ~ is.na(AntiBusiness))
+         
+      
+
+
+mutate(ID = ifelse (!grepl("[0-9]", TYPE) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", text_clean, ignore.case = TRUE), "3", TYPE)) %>%
+      mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", text_clean, ignore.case = TRUE), "1", CERTAINTY)) %>%  
+
+
+
+
+
+
+
 
 check1 <- data %>% 
   select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness) %>% 
-  filter(Constituent == "No", grepl(".", ProBusiness), AntiBusiness == "No")
+  filter(Constituent == "Yes", grepl(".", ProBusiness), is.na(AntiBusiness)) 
+
+
 
 
 #rename_all(str_replace_all, "-", "_")
