@@ -7,27 +7,13 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
-  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
-  install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-  
-devtools::install_github("wmurphyrd/fiftystater")
+source(here::here("setup.R"))
 
-  library(tidyr)
-  library(ineq)
-  library(dplyr)
-  library(ggplot2)
-  library(magrittr)
-  library(stargazer)
-  library(maps)
-  library(fiftystater)
-  library(mapproj)
-  library(knitr)
-  library(broom)
-  library(dotwhisker)
-  library(here)
-  
-load(here("data/correspondence.RData"))
+load(here("data/all_contacts.RData"))
+df <- all_contacts
+load(here("data/all_contacts_committees.RData"))
+dcommittees <- all_contacts_committees
+
 ```
 
 ```{r global.options, include=FALSE}
@@ -51,10 +37,52 @@ Do legislators shift attention to policy work as they gain seniority or electora
 
 # Data  
 ```{r}
-kable(read_csv(here("data/_FOIA_response_table.csv")))
+kable(read_csv(here("data/_FOIA_response_table.csv")) %>% select(-X1))
 ```
 
+We classify legislator requests into five overall types:
+```{r data_by_type}
+
+df %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = paste0(nT, " = ", 100*round(nT/total, 2), "%")) %>% 
+  ggplot() + 
+  geom_col(aes(x = Type, y = nT)) + 
+  geom_text(aes(x = Type, y = nT, label = percent), vjust = -.1) +
+  labs(x = "",
+       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       title = "") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text())
+
+```   
+
 In additition to our five broad types, we have a second, more nuanced coding scheme focused on major agency decisions or events. This was, in part, developed inductively through the coding process. 
+
+```{r data_by_event}
+df %>% 
+  filter(!is.na(POLICY_EVENT)) %>% 
+  mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>%
+  group_by(POLICY_EVENT) %>% summarise(nPE = n()) %>% ungroup() %>%
+  mutate(total = sum(nPE))%>% 
+  filter(nPE > 10) %>% 
+  mutate(percent = paste(100*round(nPE/total, 3), "%")) %>% 
+  ggplot() + 
+  aes(x = POLICY_EVENT, y = nPE, label = percent) + 
+  geom_col() + 
+  coord_flip() +
+  geom_text(hjust = 0) +
+  labs(x = "",
+       y = paste("Number of Contacts, N =", sum(nrow(df))),
+       title = "") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text(),
+        axis.text.x = element_text(angle = 45))
+```   
 
 ---
 

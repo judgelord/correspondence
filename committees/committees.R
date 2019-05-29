@@ -9,7 +9,7 @@
 # Powell, Eleanor. 2017. Where Money Matters in Congress: A Window into How Parties Evolve, Cambridge University Press.
 
 options(stringsAsFactors = FALSE)
-requires <- c("dplyr", "magrittr", "readxl")
+requires <- c("dplyr", "magrittr", "readxl", "here")
 to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
 install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
 
@@ -24,7 +24,7 @@ library(readxl)
 
 ## House Committee Assignments 103-115. Downloaded July 12, 2018.  http://web.mit.edu/17.251/www/data_page.html
 
-hcd <- readxl::read_excel("committees/house_assignments_103-115-3.xls")
+hcd <- readxl::read_excel(here("committees/house_assignments_103-115-3.xls"))
 # [1] "Congress"                                            "Committee.code"                                     
 # [3] "ID.."                                                "Name"                                               
 # [5] "Maj.Min"                                             "Rank.Within.Party.Status"                           
@@ -67,7 +67,7 @@ hcd %<>% select(congress, stewarticpsr, name,statenumber, cd,party, seniorstatus
 
 ## Stewart's Senate Committee Assignments 103-112.  Dataset Date: 6/23/2011.  Downloaded July 12, 2018.
 
-scd<-readxl::read_excel("committees/senate_assignments_103-115-3.xls")
+scd<-readxl::read_excel(here("committees/senate_assignments_103-115-3.xls"))
 
 names(scd)<-c("congress", "commcode", "stewarticpsr", "name", "partystatus", "partyrank", "party", "assigneddate", "terminationdate", "X","seniorstatus", "committeeseniority", "committeeperiod", "assignmentstatusatend", "assignmentstatusnext", "ac",  "committeename", "statenumber", "cd", "state.name", "notes")
 
