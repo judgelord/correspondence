@@ -156,6 +156,7 @@ crpEnergy <- crp %>%
             PACShort = str_c(unique(PACShort), collapse = "; ")) %>%
   distinct()
 
+write_csv(crpEnergy, path = "data/crpEnergy.csv")
 ```
 
 ## Companies with PACs linked to companies registered with FERC's website

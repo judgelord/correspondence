@@ -1,7 +1,7 @@
   options(stringsAsFactors = FALSE)
   
   requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse",
-                "pdftools", "here", "Rvoteview", "rvest")
+                "pdftools", "here", "Rvoteview", "rvest","maps", "ineq", "mapproj", "dotwhisker")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
@@ -9,6 +9,10 @@
   if(!"Rvoteview" %in% rownames(installed.packages())) {
     devtools::install_github("voteview/Rvoteview")
   }
+  if(!"fiftystater" %in% rownames(installed.packages())) {
+    devtools::install_github("wmurphyrd/fiftystater")
+  }
+  
   library(tidyverse)
   library(dplyr) # in case tydyverse fails (problem on linux)
   library(ggplot2); theme_set(theme_bw())
@@ -28,6 +32,15 @@
   library(pdftools)
   library(here)
   library(rvest)
+  library(tidyr)
+  library(ineq)
+  # library(stargazer)
+  library(maps)
+  library(fiftystater)
+  library(mapproj)
+  library(knitr)
+  library(broom)
+  library(dotwhisker)
   
   source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
   source(here("functions/stateFromLower.R")) # format state names
