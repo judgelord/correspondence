@@ -334,17 +334,24 @@ tempEVENT <- data %>%
 #   filter(!str_detect(SUBJECT, "Rulemaking|rulemaking"))
 #if reading letter and the letter is commenting on their district, note that they were in district 
 
+miscoded <- c("20190311-0022","20190311-0022","20190311-0022")
+
+data %>% 
+  mutate(ProBusiness = ifelse(ID %in% miscoded, AntiBusiness, ProBusiness)) %>% 
+  mutate(AntiBusiness = ifelse(ID %in% miscoded, NA, AntiBusiness)) %>% 
 
 data %>% 
   ungroup() %>% 
   select(ID, ProBusiness, AntiBusiness) %>% 
-  .[1:2,] %>% 
+  .[1:6,] %>% 
+  mutate(ProBusiness = as.character(1:6)) %>% 
   mutate(ProBusiness = case_when(
     ID == "20190311-0022" ~ AntiBusiness,
-    AntiBusiness == "none" ~ NA
+    TRUE ~ ProBusiness
   )) %>% 
   mutate(AntiBusiness = case_when(
-    ID == "20190311-0022" ~ NA
+    AntiBusiness == "none" ~ "df",
+    TRUE ~ AntiBusiness
   )) 
   
   data[1,1]

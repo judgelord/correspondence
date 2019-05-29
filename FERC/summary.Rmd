@@ -1848,16 +1848,6 @@ TODO
 
 
 # TO DO 
-- Fix Goode, who is being double counted as an R and I
-- add company names from company scraper to google sheet
-- template to match company names to donation (lobbyview, DIME)
-- template match company names to industry codes (center for responsive politics)
-
-## SHORT TERM
-- letters per company 
-- letters per company pac (before and after merging in partent companies)
-
-## LONG TERM 
 
 ## DONE
 - add clean text from scraper to google sheet 
@@ -1866,6 +1856,22 @@ TODO
  1. Identify relevent industry codes 
  2. Get cycle-specific PAC classification for those industry codes 
  3. Subset dime to those PAC classification 
+ 
+ ## FERC Paper 1
+- Fix Goode, who is being double counted as an R and I
+- Add 2015-2018 DIME
+- Fix DIME ICPSRs 
+- Identify companies that did not match a PAC and see if they match a parent company 
+
+
+## FERC Paper 2 
+- letters per company 
+- letters per company pac (before and after merging in partent companies)
+- add company names from company scraper to google sheet
+- template to match company names to donation (lobbyview, DIME)
+- template match company names to industry codes (center for responsive politics)
+
+
 
 # References 
 
