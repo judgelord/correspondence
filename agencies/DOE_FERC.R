@@ -233,7 +233,18 @@ data %<>%
             mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RTO West", text_clean, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
             mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RTO West", text_clean, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE))
     
-    
+#Corrections to AntiBusiness Hand Coding
+######################################################
+
+#using case when to move Antibusiness to Probusiness based off of ID number 
+data %<>%
+  mutate(ProBusiness = case_when(
+    ID == "20170201-0009" ~ AntiBusiness,
+    AntiBusiness == "none" ~ NA
+  )) %>% 
+  mutate(AntiBusiness = case_when(
+    ID == "20170201-0009" ~ NA
+  )) 
 
 
 
@@ -302,6 +313,8 @@ when the id is this
   make probusiness = antibusiness
   make antibusiness 0 
 
+  
+##use purr and map to create a function with if else that functions in the case of ID 
 temp <- data %>% 
   select(ID, ProBusiness, AntiBusiness) %>% 
   mutate(ID = ifelse(grepl(".", AntiBusiness, ignore.case = TRUE), )
@@ -310,6 +323,12 @@ temp <- data %>%
       
     )
   )
+
+#purr take two arguments
+  #case ID
+  #create a vector, list of a bunch of case numbers
+  #mutate ifelse
+  #is the case number in this vectors 
 
 
 temp <- data %>% 
@@ -357,24 +376,6 @@ showme <- data %>%
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
   filter(is.na(TYPE))
 
-#showing all 5
-showme5 <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, url) %>% 
-  filter(TYPE == 5)
-
-temp <- data %>% 
-  select(ID, SUBJECT, TYPE, Constituent, ProBusiness, Freelancer, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "constitutent"))
-
-temp <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "take further actions"))
-
-temp2 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "inability"))
-  
-
 #extend a public comment period 
 extend <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
@@ -393,19 +394,19 @@ tempEVENT <- data %>%
 #if reading letter and the letter is commenting on their district, note that they were in district 
 
 
-data %>% 
-  ungroup() %>% 
-  select(ID, ProBusiness, AntiBusiness) %>% 
-  .[1:2,] %>% 
-  mutate(ProBusiness = case_when(
-    ID == "20190311-0022" ~ AntiBusiness,
-    AntiBusiness == "none" ~ NA
-  )) %>% 
-  mutate(AntiBusiness = case_when(
-    ID == "20190311-0022" ~ NA
-  )) 
-  
-  data[1,1]
+# data %>% 
+#   ungroup() %>% 
+#   select(ID, ProBusiness, AntiBusiness) %>% 
+#   .[1:2,] %>% 
+#   mutate(ProBusiness = case_when(
+#     ID == "20190311-0022" ~ AntiBusiness,
+#     AntiBusiness == "none" ~ NA
+#   )) %>% 
+#   mutate(AntiBusiness = case_when(
+#     ID == "20190311-0022" ~ NA
+#   )) 
+#   
+#   data[1,1]
 
   return(data)
 
