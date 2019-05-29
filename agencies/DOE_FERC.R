@@ -335,6 +335,20 @@ tempEVENT <- data %>%
 #if reading letter and the letter is commenting on their district, note that they were in district 
 
 
+data %>% 
+  ungroup() %>% 
+  select(ID, ProBusiness, AntiBusiness) %>% 
+  .[1:2,] %>% 
+  mutate(ProBusiness = case_when(
+    ID == "20190311-0022" ~ AntiBusiness,
+    AntiBusiness == "none" ~ NA
+  )) %>% 
+  mutate(AntiBusiness = case_when(
+    ID == "20190311-0022" ~ NA
+  )) 
+  
+  data[1,1]
+
   return(data)
 
 } ## END CLEAN FUNCTION
