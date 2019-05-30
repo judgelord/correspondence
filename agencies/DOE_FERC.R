@@ -302,6 +302,31 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT,
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
         mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE)) 
 
+#In District
+############
+#if project is within a district if they are pro or anti
+
+Place_District
+
+#Forwarding
+###########
+
+#forwarding if ProSide
+forward1 <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url, ProSide) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"), grepl(".", ProSide))
+
+#forwarding if AntiSide 
+forward2 <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide))
+
+#come up with a meter?
+#what does forwarding mean, are all forwards just things that allign anyway?
+#anticompany letters , just sending this along but wink wink i dont care 
+forward3 <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiBusiness))
 
 #Corrections to AntiBusiness Hand Coding
 ######################################################
@@ -345,12 +370,44 @@ showme <- data %>%
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
   filter(is.na(TYPE))
 
-
+#frame for problem searching above
 problemIDs <- PROBLEM$ID
+
 #extend a public comment period 
 extend <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "rulemaking"))
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"))
+
+
+#want data that is forwarded and pro or anti business
+#trying to determine if forwarded information from constiuents is supported 
+#are they reaching out after?
+forward <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"))
+
+#forwarding if Proside
+forward1 <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url, ProSide) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"), grepl(".", ProSide))
+
+#forwarding if Antiside 
+forward2 <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide))
+
+forward2 <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide)) %>% 
+  summarize(ID)
+
+
+
+forward2 <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(SUBJECT, "concerns"), grepl(".", ProBusiness))
+
+ #grepl(".", ProBusiness))
 
 #testing for suggested events 
 tempEVENT <- data %>% 
