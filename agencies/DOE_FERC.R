@@ -83,6 +83,9 @@ data %<>%
   mutate(Constituent = ifelse(Constituent %in% c("N/A","Na","NO","No","NA", "none"), "no", Constituent)) %>% 
   mutate(Constituent = ifelse(Constituent %in% c("YES","Yes"), "yes", Constituent))
 
+#in district 
+#should be yes no or n/a
+
 #determining Constituent "yes" is TYPE 1 that ProBusiness and ProProject that aren't n/a are TYPE 2 
 data %<>%  
   mutate(TYPE = ifelse(tolower(Constituent) == "yes", 1, TYPE)) %>% 
@@ -174,10 +177,10 @@ data %<>%
             mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "Federal Power Act, ISO New England", EVENT_NAME)) %>%
             mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "08-Jan-2016", EVENT_DATE)) %>% 
   #extend a public comment period 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("extend|comment period", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("extend|comment period", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-        mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("extend|comment period", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
-#string "individual"
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("extend.*comment", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("extend.*comment", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+        mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("extend.*comment", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+  #string "individual"
     mutate(TYPE = ifelse(!grepl("[0-9]", TYPE) & grepl("individual|individual's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("individual|individual's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
 
@@ -228,7 +231,11 @@ data %<>%
            mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("RTO West", text_clean, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
             mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RTO West", text_clean, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
             mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RTO West", text_clean, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
-            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RTO West", text_clean, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE))
+            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RTO West", text_clean, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE)) %>% 
+    #extend a public comment period 
+      mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("extend the comment|extension to the comment", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("extend the comment|extension to the comment", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+          mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("extend the comment|extension to the comment", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT))
     
 
 #Corrections to AntiBusiness Hand Coding
@@ -245,7 +252,9 @@ data %<>%
 #   )) 
 
 #using a vector of the ID numbers and ifelse to fix miscoded AntiBusiness to ProBusiness
-miscoded <- c("20190311-0022","20190311-0022","20190311-0022")
+#switching
+  #ID- 20170201-0009, review application in a timely manner for Midcontinent Independent System 
+miscoded <- c("20170201-0009","20190311-0022","20190311-0022")
 
 data %>% 
   mutate(ProBusiness = ifelse(ID %in% miscoded, AntiBusiness, ProBusiness)) %>% 
@@ -263,7 +272,6 @@ data %>%
 
 #NOTES
 ######################################################################################################################
-
 
 
 ##working on 
