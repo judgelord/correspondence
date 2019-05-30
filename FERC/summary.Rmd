@@ -1840,6 +1840,16 @@ FERC regulates electricity markets, oil and gas pipelines, and hydropower and ga
 ## Letters on behalf of projects in their districts
 TODO
 
+```{r}
+d %>% 
+  mutate(Place_District = tolower(Place_District)) %>% 
+  # FIXME 
+  # dropping odd observations, should correct
+  filter(Place_District %in% c("yes", "no", NA)) %>% 
+  group_by(Place_District, TYPE) %>% count()
+```
+
+
 ## Letters are on behalf of donors
 TODO
 
@@ -1852,7 +1862,7 @@ TODO
 ## DONE
 - add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
-- link industry codes to CRP PAC committee classification 
+- link industry codes to CRP PAC committee classification: 
  1. Identify relevent industry codes 
  2. Get cycle-specific PAC classification for those industry codes 
  3. Subset dime to those PAC classification 
@@ -1860,7 +1870,7 @@ TODO
  ## FERC Paper 1
 - Fix Goode, who is being double counted as an R and I
 - Add 2015-2018 DIME
-- Fix DIME ICPSRs 
+- Fix DIME ICPSRs and check to make sure other members are not being dropped
 - Identify companies that did not match a PAC and see if they match a parent company 
 
 
