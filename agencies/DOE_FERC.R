@@ -8,7 +8,7 @@
 # source("setup.R")
 # file.name <- "DOE_FERC Extended" # for testing
 
-# clean <- function(file.name) {
+clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
 
@@ -102,50 +102,64 @@ data %>% count(TYPE)
 ##Categorizing Type in FERC data based on string patterns
   ##first row is rule, second row is certainty level, third row (if uncertain) is an alternative type or can hold policy event information
 ###################################################################################################################################################
-  
+  # to restore data
 ##for variable SUBJECT 
-
-# data <- uncoded # to restore data
-
-data %<>%
-  #string "on behalf" constituent, string "on behalf" constituent 
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of an individual|behalf of individual|on behalf of constitutent|on behalf of a constitutent|on behalf of his constitutent|
-                                                         on behalf of her constitutent|on behalf of constitutents|on behalf of a resident of|on behalf of residents|
-                                                         on behalf of constituent|on behalf of a constituent|on behalf of his|on behalf of her|on behalf of constituents|
-                                                         behalf of concerned citizens|behalf of citzens|behalf of a number of", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of an individual|behalf of individual|on behalf of constitutent|on behalf of his constitutent|
-                                                        on behalf of her constitutent|on behalf of a resident of|on behalf of residents|
-                                                                      behalf of concerned citizens|behalf of citzens of|behalf of a number of", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
-
-data %>% count(TYPE)
-data %>% filter(ID %in% problemIDs)
-
+#uncoded <- data 
+#data <- uncoded
 
 data %<>%
-  #string "behalf of Company" 
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co.$|on behalf of .*Corp|on behalf of .*Company|
-                                                        on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|
-                                                        on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-          mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|
-                                                        on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) 
-data %>% count(TYPE)
-data %>% filter(ID %in% problemIDs)
-
-data %<>% 
+  #string "on behalf" constituent, string "on behalf" constituent TYPE 1
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("on behalf of an individual","behalf of indivudal", "on behalf of constituent", 
+                                                            "on behalf of his constiuent", "on behalf of her constituent", "behalf of a number of",
+                                                            "on behalf of a resident", "on behalf of resident", "behalf of citizen", "behalf of concerned citizens",
+                                                            "on behalf of his constitutent", "on behalf of her constitutent", "on behalf of constitutent", 
+                                                             sep = "|"), SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("on behalf of an individual", "behalf of indivudal", "on behalf of constituent", 
+                                                            "on behalf of his constiuent", "on behalf of her constituent", "behalf of a number of",
+                                                            "on behalf of a resident", "on behalf of resident", "behalf of citizen", "behalf of concerned citizens",
+                                                            "on behalf of his constitutent", "on behalf of her constitutent", "on behalf of constitutent", 
+                                                             sep = "|"), SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+#run to show the problems
+  filter(data, ID%in%problemIDs)
+  
   #string "behalf of" uppercase, constitutent names 
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #string "Constitutent"
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #run to show the problems
+  filter(data, ID%in%problemIDs)
+  
+  
+###Type 2 
+data %<>%
+  #string "behalf of Company" 
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co.$|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+          mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+  #string "behalf of" uppercase, constitutent names 
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #string "Constitutent"
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  
+  
+  
+###Type 3
+data %<>%
   #string "on behalf" government and nonprofit 
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("behalf of the|behalf of City|behalf of Town|behalf of efforts|
-                                                        behalf of .*assn|behalf of .*association|behalf of .*district|behalf of .*selectmen|
-                                                        behalf of .*project|behalf of .*operation|on behalf .* council", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>% 
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("behalf of the|behalf of City|behalf of Town|behalf of efforts|
-                                                                      behalf of .*assn|behalf of .*Association|behalf of .*district|behalf of .*selectmen|
-                                                                      behalf of .*project|behalf of .*operation|on behalf .* council", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("behalf of the", "behalf of City", "behalf of Town", "behalf of efforts", 
+                                                            " behalf of .*assn", "behalf of .*association", "behalf of .*district",
+                                                            "behalf of .*selectmen", "behalf of .*project", "behalf of .*operation", "on behalf .* council",
+                                                             sep = "|"), SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("behalf of the", "behalf of City", "behalf of Town", "behalf of efforts", 
+                                                            " behalf of .*assn", "behalf of .*association", "behalf of .*district",
+                                                            "behalf of .*selectmen", "behalf of .*project", "behalf of .*operation", "on behalf .* council",
+                                                             sep = "|"), SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+
+
   #string "EL00-95" #huge variety of letters under this #Enron
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%  
