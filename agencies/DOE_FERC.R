@@ -120,9 +120,10 @@ data %<>%
                                                             "on behalf of his constitutent", "on behalf of her constitutent", "on behalf of constitutent", 
                                                              sep = "|"), SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
 #run to show the problems
-  filter(data, ID%in%problemIDs)
+  #filter(data, ID%in%problemIDs)
   
   #string "behalf of" uppercase, constitutent names 
+data %<>% 
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #string "Constitutent"
@@ -161,6 +162,7 @@ data %<>%
 
 
   #string "EL00-95" #huge variety of letters under this #Enron
+data %<>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%  
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "decision", POLICY_EVENT)) %>% 
@@ -274,12 +276,13 @@ data %<>%
 
 
 #2003 request for refunds from San Diego Gas & Electric Company; Pacific Gas and Electric Company; Reliant Resources, Inc.
+data %<>% 
 mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
     mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
         mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
-        mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE)) %>% 
+        mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE)) 
 
 
 #Corrections to AntiBusiness Hand Coding
@@ -300,9 +303,9 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT,
   #ID- 20170201-0009, review application in a timely manner for Midcontinent Independent System 
 miscoded <- c("20170201-0009","20190311-0022","20190311-0022")
 
-data %>% 
+data %<>% 
   mutate(ProBusiness = ifelse(ID %in% miscoded, AntiBusiness, ProBusiness)) %>% 
-  mutate(AntiBusiness = ifelse(ID %in% miscoded, NA, AntiBusiness)) %>% 
+  mutate(AntiBusiness = ifelse(ID %in% miscoded, NA, AntiBusiness)) 
 
   
   
