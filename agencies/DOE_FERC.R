@@ -150,11 +150,11 @@ data %<>%
 ###TYPE 3
 data %<>%
   #string "on behalf" government and nonprofit 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("behalf of the", "behalf of City", "behalf of Town", "behalf of efforts", 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("behalf of City", "behalf of Town", "behalf of efforts", 
                                                             " behalf of .*assn", "behalf of .*association", "behalf of .*district",
                                                             "behalf of .*selectmen", "behalf of .*project", "behalf of .*operation", "on behalf .* council",
                                                              sep = "|"), SUBJECT, ignore.case = TRUE), "3", TYPE)) %>% 
-   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("behalf of the", "behalf of City", "behalf of Town", "behalf of efforts", 
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("behalf of City", "behalf of Town", "behalf of efforts", 
                                                             " behalf of .*assn", "behalf of .*association", "behalf of .*district",
                                                             "behalf of .*selectmen", "behalf of .*project", "behalf of .*operation", "on behalf .* council",
                                                              sep = "|"), SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
@@ -235,7 +235,12 @@ data %<>%
     mutate(TYPE = ifelse(!grepl("[0-9]", TYPE) & grepl("individual|individual's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("individual|individual's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
 
-
+###TYPE 2 (lower level) 
+data %<>%
+  #string "application"
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("application", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("application", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+                mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("application", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE))
 
 #for variable text_clean
 #########################
@@ -305,8 +310,7 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT,
 #In District
 ############
 #if project is within a district if they are pro or anti
-
-Place_District
+#use variable Place_District
 
 #Forwarding
 ###########
@@ -324,6 +328,10 @@ forward2 <- data %>%
 #come up with a meter?
 #what does forwarding mean, are all forwards just things that allign anyway?
 #anticompany letters , just sending this along but wink wink i dont care 
+#want data that is forwarded and pro or anti business
+#trying to determine if forwarded information from constiuents is supported 
+#are they reaching out after?
+
 forward3 <- data %>% 
   select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
   filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiBusiness))
@@ -351,6 +359,16 @@ data %<>%
   mutate(ProBusiness = ifelse(ID %in% miscoded, AntiBusiness, ProBusiness)) %>% 
   mutate(AntiBusiness = ifelse(ID %in% miscoded, NA, AntiBusiness)) 
 
+
+#Type 2 that aren't under probusiness or proproject
+###################################################
+#fix this
+#ID number, or compnay name
+#company name
+
+Type2 <- data %>% 
+select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
+filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
   
   
 #Old Code Removed
@@ -364,11 +382,17 @@ data %<>%
 #NOTES
 ######################################################################################################################
 
-
 ##working on 
 showme <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
-  filter(is.na(TYPE))
+  filter(is.na(TYPE)) %>% 
+  
+#Type 2 do they have an associated pro business or pro project?
+Type2 <- data %>% 
+select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
+filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
+  
+
 
 #frame for problem searching above
 problemIDs <- PROBLEM$ID
@@ -378,36 +402,6 @@ extend <- data %>%
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
   filter(str_detect(SUBJECT, "forwards|fwds|fwd"))
 
-
-#want data that is forwarded and pro or anti business
-#trying to determine if forwarded information from constiuents is supported 
-#are they reaching out after?
-forward <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"))
-
-#forwarding if Proside
-forward1 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url, ProSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"), grepl(".", ProSide))
-
-#forwarding if Antiside 
-forward2 <- data %>% 
-  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide))
-
-forward2 <- data %>% 
-  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide)) %>% 
-  summarize(ID)
-
-
-
-forward2 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(SUBJECT, "concerns"), grepl(".", ProBusiness))
-
- #grepl(".", ProBusiness))
 
 #testing for suggested events 
 tempEVENT <- data %>% 
@@ -421,12 +415,13 @@ onbehalf <- data %>%
   mutate(onbehalf = str_extract(SUBJECT, "on behalf of.*")) %>%
       drop_na(onbehalf) %>% 
       filter(is.na(TYPE))
-    
 #missing subject and ID text_clean, url
 
-comments <- data %>% 
+searching <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "new coal"))
+  filter(str_detect(SUBJECT, "meeting")) %>% 
+  filter(is.na(TYPE))
+
 
 
 ################Trying to figure out...want on the behalf of that isn't a 1 and if it talks about ...its a 2 and if it talks about... its  a 3
@@ -454,11 +449,12 @@ checkAntiBusiness <- data %>%
   select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
   filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
 
-
 #check if marked as a 2 and not marked under probusiness
 check2 <- data %>% 
   select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
   filter(TYPE == 2, is.na(ProBusiness), is.na(ProProject))
+
+
 
 #######end of notes 
 
