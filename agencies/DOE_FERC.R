@@ -147,7 +147,38 @@ data %<>%
                                                             "on behalf of a resident", "on behalf of resident", "behalf of citizen", "behalf of concerned citizens",
                                                             "on behalf of his constitutent", "on behalf of her constitutent", "on behalf of constitutent", 
                                                              sep = "|"), SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
-###TYPE 3
+
+#run to show the problems
+  #filter(data, ID%in%problemIDs)
+  
+  #string "behalf of" uppercase, constitutent names 
+data %<>% 
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #string "Constitutent"
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
+  #run to show the problems
+  #filter(data, ID%in%problemIDs)
+  
+  
+###Type 2 
+data %<>%
+  #string "behalf of Company" 
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co.$|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+          mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+  #string "behalf of" uppercase, constitutent names 
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #string "Constitutent"
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+  
+  
+  
+###Type 3
+
 data %<>%
   #string "on behalf" government and nonprofit 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("behalf of City", "behalf of Town", "behalf of efforts", 
@@ -312,6 +343,8 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT,
 #if project is within a district if they are pro or anti
 #use variable Place_District
 
+unique(data$Place_District)
+
 #Forwarding
 ###########
 
@@ -394,13 +427,15 @@ filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
   
 
 
-#frame for problem searching above
-problemIDs <- PROBLEM$ID
+## frame for problem searching above
+# problemIDs <- PROBLEM$ID
 
-#extend a public comment period 
-extend <- data %>% 
+#want data that is forwarded and pro or anti business
+#trying to determine if forwarded information from constiuents is supported 
+#are they reaching out after?
+forward <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"))
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"))
 
 
 #testing for suggested events 
@@ -422,16 +457,6 @@ searching <- data %>%
   filter(str_detect(SUBJECT, "meeting")) %>% 
   filter(is.na(TYPE))
 
-
-
-################Trying to figure out...want on the behalf of that isn't a 1 and if it talks about ...its a 2 and if it talks about... its  a 3
-##if type is not equal to 1,5,4 and the subject is on the behalf of...then it is a 3 if detect __ and a 2 if detect ____
-#if then, this or 
-
-#if(TYPE != 1, 5, 4 & str_detect(SUBJECT "on behalf|on the behalf"))
-  #then (ifelse((!grepl("[0-9]", TYPE) & grepl("project|Corportation|Corps|Corps'", text_clean, ignore.case = TRUE), "2", TYPE))))
-  #mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & TYPE != 1|4|5 & grepl("on behalf|on the behalf&project|Corportation|Corps|Corps'", text_clean, ignore.case = TRUE), "2", "3")) %>% 
-  #if TYPE != 1, then (stringdetect "project|Corportation|Corps|Corps'" then 2 else "City of|"
 
 
 
