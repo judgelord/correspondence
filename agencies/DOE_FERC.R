@@ -8,11 +8,12 @@
 # source("setup.R")
 # file.name <- "DOE_FERC Extended" # for testing
 
-clean <- function(file.name) {
+# clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
-  
+
   data <- FERC_letters
+  sum(!is.na(data$TYPE))
  
   data <- ungroup(FERC_letters)
 
@@ -59,9 +60,10 @@ clean <- function(file.name) {
   sum(!is.na(data$last_name)&data$year==2001)
   
   # arrange columns for hand coding
-  data %<>% select(ID, FROM, SUBJECT, text_clean, everything())
+  data %<>% select(ID, FROM, SUBJECT, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
 
-
+  sum(!is.na(data$TYPE))
+  
 #Cleaning Up Columns     
 #################################
   
@@ -86,17 +88,24 @@ data %<>%
 #in district 
 #should be yes no or n/a
 
+#############################################################
+# CODING TYPE 
+##############################################################
+
 #determining Constituent "yes" is TYPE 1 that ProBusiness and ProProject that aren't n/a are TYPE 2 
 data %<>%  
   mutate(TYPE = ifelse(tolower(Constituent) == "yes", 1, TYPE)) %>% 
   mutate(TYPE = ifelse(!is.na(ProBusiness)|!is.na(ProProject), 2, TYPE))
 
-  
+data %>% count(TYPE)
+
 ##Categorizing Type in FERC data based on string patterns
   ##first row is rule, second row is certainty level, third row (if uncertain) is an alternative type or can hold policy event information
 ###################################################################################################################################################
   
 ##for variable SUBJECT 
+
+# data <- uncoded # to restore data
 
 data %<>%
   #string "on behalf" constituent, string "on behalf" constituent 
@@ -106,14 +115,24 @@ data %<>%
                                                          behalf of concerned citizens|behalf of citzens|behalf of a number of", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of an individual|behalf of individual|on behalf of constitutent|on behalf of his constitutent|
                                                         on behalf of her constitutent|on behalf of a resident of|on behalf of residents|
-                                                                      behalf of concerned citizens|behalf of citzens of|behalf of a number of", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+                                                                      behalf of concerned citizens|behalf of citzens of|behalf of a number of", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
+
+data %>% count(TYPE)
+data %>% filter(ID %in% problemIDs)
+
+
+data %<>%
   #string "behalf of Company" 
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co.$|on behalf of .*Corp|on behalf of .*Company|
                                                         on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|
                                                         on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
           mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|
-                                                        on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+                                                        on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) 
+data %>% count(TYPE)
+data %>% filter(ID %in% problemIDs)
+
+data %<>% 
   #string "behalf of" uppercase, constitutent names 
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
@@ -185,8 +204,6 @@ data %<>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("individual|individual's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
 
 
-
-  
 ##for variable text_clean
   
 data %<>%
@@ -299,6 +316,7 @@ PROBLEM <- data %>%
       drop_na(onbehalf) %>% 
   filter(TYPE == 4)
 
+problemIDs <- PROBLEM$ID
 #extend a public comment period 
 extend <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
