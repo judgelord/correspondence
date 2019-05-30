@@ -108,7 +108,7 @@ data %<>%
                                                         on behalf of her constitutent|on behalf of a resident of|on behalf of residents|
                                                                       behalf of concerned citizens|behalf of citzens of|behalf of a number of", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   #string "behalf of Company" 
-    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co.$|on behalf of .*Corp|on behalf of .*Company|
                                                         on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|
                                                         on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
