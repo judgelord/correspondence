@@ -1866,8 +1866,9 @@ TODO
  1. Identify relevent industry codes 
  2. Get cycle-specific PAC classification for those industry codes 
  3. Subset dime to those PAC classification 
+
  
- ## FERC Paper 1
+## FERC Paper 1
 - Fix Goode, who is being double counted as an R and I
 - Add 2015-2018 DIME
 - Fix DIME ICPSRs and check to make sure other members are not being dropped
