@@ -130,7 +130,7 @@ data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #run to show the problems
-  filter(data, ID%in%problemIDs)
+  #filter(data, ID%in%problemIDs)
   
   
 ###Type 2 

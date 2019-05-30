@@ -6,12 +6,12 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 
 
 ## make sure gmailr is set up 
-# library(gmailr)
-# send_message(mime(
-#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
-#   From = "correspondenceresearch@gmail.com",
-#   Subject =  "Begin merge",
-#   body = ""))
+library(gmailr)
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
+  From = "correspondenceresearch@gmail.com",
+  Subject =  "Begin merge",
+  body = ""))
 
 # note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
@@ -183,7 +183,8 @@ d %>% filter(!is.na(last_name)) %>% count(year)
 ##################################
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
-# data_list %<>% filter((agency %in% "DOE_FERC")) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+head(data_list)
 i = 1
 while(!is.na(data_list[i,1])) {
   
@@ -208,12 +209,12 @@ while(!is.na(data_list[i,1])) {
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 
 ## Text Devin 
-# library(gmailr)
-# send_message(mime(
-#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
-#   From = "correspondenceresearch@gmail.com",
-#   Subject =  paste("merge.R stopped at", data_list$agency[i]),
-#  body = paste("merge.R stopped at", data_list$agency[i])))
+library(gmailr)
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
+  From = "correspondenceresearch@gmail.com",
+  Subject =  paste("merge.R stopped at", data_list$agency[i]),
+ body = paste("merge.R stopped at", data_list$agency[i])))
 
 ##############################
 #########################################################################################
