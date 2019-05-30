@@ -8,7 +8,7 @@
 # source("setup.R")
 # file.name <- "DOE_FERC Extended" # for testing
 
-clean <- function(file.name) {
+#clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
 
@@ -157,7 +157,7 @@ data %<>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #string "Constitutent"
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   #run to show the problems
   #filter(data, ID%in%problemIDs)
   
@@ -173,7 +173,7 @@ data %<>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of [[:upper:]]", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #string "Constitutent"
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUTENT|constitutent's|constituent|constituent's", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUTENT|constitutent's", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
   
   
@@ -337,7 +337,7 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT,
 ############
 #if project is within a district if they are pro or anti
 
-Place_District
+unique(data$Place_District)
 
 #Forwarding
 ###########
@@ -401,8 +401,8 @@ showme <- data %>%
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
   filter(is.na(TYPE))
 
-#frame for problem searching above
-problemIDs <- PROBLEM$ID
+## frame for problem searching above
+# problemIDs <- PROBLEM$ID
 
 #extend a public comment period 
 extend <- data %>% 
@@ -416,6 +416,10 @@ extend <- data %>%
 forward <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
   filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"))
+
+
+
+
 
 #forwarding if Proside
 forward1 <- data %>% 
@@ -436,7 +440,8 @@ forward2 <- data %>%
 
 forward2 <- data %>% 
   select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(SUBJECT, "concerns"), grepl(".", ProBusiness))
+  # NOTE: combine filter arguments with "&"
+  filter(str_detect(SUBJECT, "forwards|fwds|fwd") & str_detect(SUBJECT, "concerns"), grepl(".", ProBusiness))
 
  #grepl(".", ProBusiness))
 
