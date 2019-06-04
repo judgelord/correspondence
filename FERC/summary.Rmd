@@ -1844,9 +1844,18 @@ TODO
 d %>% 
   mutate(Place_District = tolower(Place_District)) %>% 
   # FIXME 
-  # dropping odd observations, should correct
+  # dropping odd observations, will correct in DOE_FERC.R script 
   filter(Place_District %in% c("yes", "no", NA)) %>% 
-  group_by(Place_District, TYPE) %>% count()
+  filter(letter_position %in% c("AntiBusiness", "ProBusiness")) %>% 
+  filter(Constituent != "Not coded") %>% 
+  count(Place_District, letter_position, Constituent) %>% 
+  ggplot() +
+  aes(x = Place_District, y = n, fill = letter_position) +
+  geom_col() + 
+  facet_grid(Constituent ~ .)+ 
+  labs(x = "Is the proposed project in the member's district?",
+       y = "Number of letters",
+       fill = "")
 ```
 
 

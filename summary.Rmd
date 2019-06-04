@@ -27,7 +27,11 @@ devtools::install_github("wmurphyrd/fiftystater")
   library(dotwhisker)
   library(here)
   
-load(here("data/correspondence.RData"))
+load(here("data/all_contacts.RData"))
+load(here("data/all_contacts_committees.RData"))
+
+df <- all_contacts
+dcommittees <- all_contacts_committees
 ```
 
 ```{r global.options, include=FALSE}
