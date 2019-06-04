@@ -99,6 +99,14 @@ data %<>%
   mutate(Place_District = ifelse(Place_District %in% c("YES","Yes"), "yes", Place_District)) %>% 
   mutate(Place_District = ifelse(Place_District %in% c("NO", "No"), "no", Place_District))
 
+#fixing the miscoding of AntiBusiness
+miscoded <- c("20170201-0009")
+
+data %<>% 
+  mutate(ProBusiness = ifelse(ID %in% miscoded, AntiBusiness, ProBusiness)) %>% 
+  mutate(AntiBusiness = ifelse(ID %in% miscoded, NA, AntiBusiness)) 
+
+
 
 #############################################################
 # CODING TYPE 
@@ -327,17 +335,15 @@ data %<>%
 #find missing dockets of TYPE 5
 docket <- data %>% 
 select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean, url) %>% 
-filter(TYPE == "5", is.na(EVENT_NAME), is.na(docket))
-
+filter(TYPE == "5", is.na(docket))
 
 
 #Event Labeling for Type 5
 ##############################
 
 data %<>% 
-  
 #FIX THIS 
-  if(grepl("rulemaking", SUBJECT, ignore.case = TRUE) {
+  if(grepl("rulemaking", SUBJECT, ignore.case = TRUE)) {
       #Distributed Energy Resources
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "Distributed Energy Resources", EVENT_NAME)) %>%
@@ -392,40 +398,49 @@ data %<>%
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "Promoting Transmission Investment through Pricing Reform", EVENT_NAME)) %>%
           mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "20-Jul-2006", EVENT_DATE))
-  } else if (is.na(TYPE))
+  } else{}
 
 
-#In District
-############
+
+#Place_District
+###############
 #if project is within a district if they are pro or anti
 #use variable Place_District
 
 unique(data$Place_District)
 
 #bad files
+  #assumed that if forward constituent than it was in their district?
+
+#The combined system is designed to transport and deliver gas from the Western Canadian 
+#Sedimentary Basin in Alberta and British Columbia, Canada to the United States/Canada border and 
+#through the states of North Dakota, Minnesota, Iowa, and Illinois
 fixingDistrict <- data %>% 
-select(ID, SUBJECT, TYPE, Place_District, docket, text_clean,url) %>% 
+select(ID, SUBJECT, TYPE, Place_State, Place_District, docket, text_clean,url) %>% 
 filter(grepl("bad files", Place_District, ignore.case = TRUE))
 
 
-fixingDistrict <- data %>% 
-select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, Place_District, docket, text_clean,url) %>% 
-filter(grepl("unsure, not a letter to FERC", Place_District, ignore.case = TRUE))
+#code to test which have no Place State but have a Place District
+fixingDistrict0 <- data %>% 
+select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, Place_State, Place_District, docket, text_clean,url) %>% 
+filter(is.na(Place_State), Place_District == 'yes')
+
 
 #fixing Place_District "4th district", fixing "2nd District", fixing "Ohio"
 data %<>% 
   mutate(Place_District = ifelse(Place_District %in% c("4th District"), "yes", Place_District)) %>% 
-  mutate(Place_District = ifelse(Place_District %in% c("2nd District"), "yes", Place_District))
-  mutate(Place_District = ifelse(Place_District %in% c("Ohio"), "yes", Place_District)) %>% 
+  mutate(Place_District = ifelse(Place_District %in% c("2nd District"), "yes", Place_District)) %>%
+  mutate(Place_District = ifelse(Place_District %in% c("Ohio"), "yes", Place_District))
 
 #fixing Place_District "unsure, not a letter to FERC" 
-mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("slamming the federal", text_clean, ignore.case = TRUE), "5", TYPE)) %>% 
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RTO West", text_clean, ignore.case = TRUE), "1", CERTAINTY)) %>%
-            mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("slamming the federal", text_clean, ignore.case = TRUE), "disaster", POLICY_EVENT)) %>% 
-            mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("slamming the federal", text_clean, ignore.case = TRUE), "Hurricane Katrina", EVENT_NAME)) %>%
-            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("slamming the federal", text_clean, ignore.case = TRUE), "", EVENT_DATE))
-
-
+data %<>% 
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+            mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "disaster", POLICY_EVENT)) %>% 
+            mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "Hurricane Katrina", EVENT_NAME))
+            #mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "", EVENT_DATE))
+  
+  
 #Forwarding
 ###########
 
@@ -450,29 +465,6 @@ forward3 <- data %>%
   select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
   filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiBusiness))
 
-#Corrections to AntiBusiness Hand Coding
-######################################################
-
-# #using case when to move Antibusiness to Probusiness based off of ID number 
-# data %<>%
-#   mutate(ProBusiness = case_when(
-#     ID == "20170201-0009" ~ AntiBusiness,
-#     AntiBusiness == "none" ~ NA
-#   )) %>% 
-#   mutate(AntiBusiness = case_when(
-#     ID == "20170201-0009" ~ NA
-#   )) 
-
-#using a vector of the ID numbers and ifelse to fix miscoded AntiBusiness to ProBusiness
-#switching
-  #ID- 20170201-0009, review application in a timely manner for Midcontinent Independent System 
-#miscoded <- c("20170201-0009","20190311-0022","20190311-0022")
-miscoded <- c("20170201-0009")
-
-data %<>% 
-  mutate(ProBusiness = ifelse(ID %in% miscoded, AntiBusiness, ProBusiness)) %>% 
-  mutate(AntiBusiness = ifelse(ID %in% miscoded, NA, AntiBusiness)) 
-
 
 #Type 2 that aren't under probusiness or proproject
 ###################################################
@@ -482,19 +474,27 @@ data %<>%
 
 Type2 <- data %>% 
 select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
-filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject)) %>% 
+filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
 
 
-Type2business <- data %>%
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
-  filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
+#AntiBusiness but not ProBusiness, notes
+#########################################
 
-Type2government <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
-  filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
+#checking
+checkAntiBusiness <- data %>% 
+  select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, Notes, url) %>% 
+  filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
 
+#adding notes on specific cases 
+data %<>% 
+  mutate(Notes = ifelse (grepl("20130124-0015", ID, ignore.case = TRUE), "Environmental Impact Study, commmunity has questions on public health concerns", Notes)) %>% 
+  mutate(Notes = ifelse (grepl("20090629-0029", ID, ignore.case = TRUE), "coexisting projects (hydroelectic and quarry)", Notes)) %>% 
+  mutate(Notes = ifelse (grepl("20060628-0019", ID, ignore.case = TRUE), "Enron, obligation to compensation to people of the Pacific Northwest", Notes)) %>% 
+  mutate(Notes = ifelse (grepl("20140914-0007", ID, ignore.case = TRUE), "Environmental Impact Study, extension to comment period", Notes))
 
-
+  
+  
+  
 
 #NOTES
 ######################################################################################################################
