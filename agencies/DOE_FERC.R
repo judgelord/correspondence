@@ -269,9 +269,9 @@ data %<>%
 ###TYPE 2 (lower level) 
 data %<>%
   #string "application"
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("application", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
-        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("application", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
-                mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("application", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE))
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("county .* application", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+        mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("county .* application", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+                mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("county .* application", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE))
 
 #for variable text_clean
 #########################
@@ -326,17 +326,49 @@ data %<>%
     
 
 
-#Event Labeling 
-###############
+#Event Labeling for Type 5
+##############################
 
 #2003 request for refunds from San Diego Gas & Electric Company; Pacific Gas and Electric Company; Reliant Resources, Inc.
 data %<>% 
-mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-    mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
-        mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
-        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "RTO WEST", EVENT_NAME)) %>%
-        mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("case for refunds", SUBJECT, ignore.case = TRUE), "18-Sep-2002", EVENT_DATE)) 
+      #Distributed Energy Resources
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "Distributed Energy Resources", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "11-Apr-2018", EVENT_DATE)) %>% 
+      #Electric Storage Participation in Markets Operated by Regional Transmission Organizations and Independent System Operators
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM16-23", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM16-23", SUBJECT, ignore.case = TRUE), "Electric Storage Participation in Markets Operated by Regional Transmission Organizations and Independent System Operators", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM16-23", SUBJECT, ignore.case = TRUE), "17-Nov-2016", EVENT_DATE)) %>% 
+      #Grid Reliability and Resilience Pricing
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM18-1", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM18-1", SUBJECT, ignore.case = TRUE), "Grid Reliability and Resilience Pricing", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM18-1", SUBJECT, ignore.case = TRUE), "08-Jan-2018", EVENT_DATE)) %>% 
+      #Transmission Planning and Cost Allocation by Transmission Owning and Operating Public Utilities
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM10-23", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM10-23", SUBJECT, ignore.case = TRUE), "Transmission Planning and Cost Allocation by Transmission Owning and Operating Public Utilities", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM10-23", SUBJECT, ignore.case = TRUE), "08-Jan-2018", EVENT_DATE)) %>% 
+      #Reliability Standard for Transmission System Planned, Performance for Geomagnetic Disturbance Events
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM15-11", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM15-11", SUBJECT, ignore.case = TRUE), "Reliability Standard for Transmission System Planned, Performance for Geomagnetic Disturbance Events", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM15-11", SUBJECT, ignore.case = TRUE), "19-Oct-2017", EVENT_DATE)) %>% 
+      #Reliability Standard for Transmission System Planned, Performance for Geomagnetic Disturbance Events
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM09-18", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM09-18", SUBJECT, ignore.case = TRUE), "Revision to Electric Reliability Organization Definition of Bulk Electric System", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM09-18", SUBJECT, ignore.case = TRUE), "18-Nov-2010", EVENT_DATE)) %>% 
+      
+    
+
+Type5 <- data %>% 
+select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean,url) %>% 
+filter(TYPE == "5", is.na(EVENT_NAME))
+        
+Type5 <- data %>% 
+select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean,url) %>% 
+filter(grepl("RM09-18", SUBJECT, ignore.case = TRUE))
+
+
+
+
 
 #In District
 ############
@@ -396,14 +428,23 @@ data %<>%
 #Type 2 that aren't under probusiness or proproject
 ###################################################
 #fix this
-#ID number, or compnay name
+#ID number, or company name
 #company name
 
 Type2 <- data %>% 
 select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
-filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
-  
-  
+filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject)) %>% 
+
+
+Type2business <- data %>%
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
+  filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
+
+Type2government <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
+  filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
+
+
 #Old Code Removed
 ###################
 
@@ -414,6 +455,20 @@ filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
 
 #NOTES
 ######################################################################################################################
+
+#CHECKING IF EVERYTHING HAS AN EVENT AND DOCKET
+#Type 5, event labeling
+Type5 <- data %>% 
+select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean,url) %>% 
+filter(TYPE == "5", is.na(EVENT_NAME))
+
+
+#15 missing docket #s need to be filled in
+docket <- data %>% 
+select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean, url) %>% 
+filter(TYPE == "5", is.na(EVENT_NAME), is.na(docket))
+
+
 
 ##working on 
 showme <- data %>% 
