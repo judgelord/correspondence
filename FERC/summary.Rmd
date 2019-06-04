@@ -10,13 +10,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE, eval = FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
 requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
-  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+  to_install <- c(!requires %in% rownames(installed.packages() ) )
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-  devtools::install_github("wmurphyrd/fiftystater")
+
+  if(!"fiftystater" %in% rownames(installed.packages())){
+    devtools::install_github("wmurphyrd/fiftystater")
+  }
+
 ```
 
 ```{r}
