@@ -85,8 +85,13 @@ data %<>%
   mutate(Constituent = ifelse(Constituent %in% c("N/A","Na","NO","No","NA", "none", NA), "no", Constituent)) %>% 
   mutate(Constituent = ifelse(Constituent %in% c("YES","Yes"), "yes", Constituent))
 
-#in district 
-#should be yes no or n/a
+
+#cleaning Place_district
+data %<>% 
+  mutate(Place_District = ifelse(Place_District %in% c("N/A","Na","NA", "none"), NA, Place_District)) %>% 
+  mutate(Place_District = ifelse(Place_District %in% c("YES","Yes"), "yes", Place_District)) %>% 
+  mutate(Place_District = ifelse(Place_District %in% c("NO", "No"), "no", Place_District))
+
 
 #############################################################
 # CODING TYPE 
@@ -324,13 +329,28 @@ data %<>%
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("extend the comment|extension to the comment", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
           mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("extend the comment|extension to the comment", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT))
     
+#Fixing Docket Variable
+############################
+
+#issues
+ #fix this one, docket 94-7/95-8  and fix docket number
+
+#cleaning for NA
+data %<>% 
+  mutate(docket = ifelse(docket %in% c("NONE-000", "none", "NONE"), NA , docket))
+
+#find missing dockets of TYPE 5
+docket <- data %>% 
+select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean, url) %>% 
+filter(TYPE == "5", is.na(EVENT_NAME), is.na(docket))
+
 
 
 #Event Labeling for Type 5
 ##############################
 
-#2003 request for refunds from San Diego Gas & Electric Company; Pacific Gas and Electric Company; Reliant Resources, Inc.
 data %<>% 
+  #if(grepl("rulemaking", SUBJECT, ignore.case = TRUE)
       #Distributed Energy Resources
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM18-9", SUBJECT, ignore.case = TRUE), "Distributed Energy Resources", EVENT_NAME)) %>%
@@ -351,20 +371,54 @@ data %<>%
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM15-11", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM15-11", SUBJECT, ignore.case = TRUE), "Reliability Standard for Transmission System Planned, Performance for Geomagnetic Disturbance Events", EVENT_NAME)) %>%
           mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM15-11", SUBJECT, ignore.case = TRUE), "19-Oct-2017", EVENT_DATE)) %>% 
-      #Reliability Standard for Transmission System Planned, Performance for Geomagnetic Disturbance Events
+      #Revision to Electric Reliability Organization Definition of Bulk Electric System
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM09-18", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
         mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM09-18", SUBJECT, ignore.case = TRUE), "Revision to Electric Reliability Organization Definition of Bulk Electric System", EVENT_NAME)) %>%
           mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM09-18", SUBJECT, ignore.case = TRUE), "18-Nov-2010", EVENT_DATE)) %>% 
-      
-    
+      #Hydroelectric Licensing under the Federal Power Act
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM02-16", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM02-16", SUBJECT, ignore.case = TRUE), "Hydroelectric Licensing under the Federal Power Act", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM02-16", SUBJECT, ignore.case = TRUE), "03-Jul-2003", EVENT_DATE)) %>% 
+      #Remedying Undue Discrimination Docket through Open Access Transmission Service and Standard Electricity Market Design, White Paper in the Pacific Northwest
+      ##many
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RT01-12", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RT01-12", SUBJECT, ignore.case = TRUE), "Remedying Undue Discrimination Docket through Open Access Transmission Service and Standard Electricity Market Design", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RT01-12", SUBJECT, ignore.case = TRUE), "07-Aug-2003", EVENT_DATE)) %>% 
+      #Remedying Undue Discrimination Docket through Open Access Transmission Service and Standard Electricity Market Design
+      ##terminate the proceedings in 2002-2003 for the Standard Market Design that was proposed 
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM01-12", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM01-12", SUBJECT, ignore.case = TRUE), "Remedying Undue Discrimination Docket through Open Access Transmission Service and Standard Electricity Market Design", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM01-12", SUBJECT, ignore.case = TRUE), "19-Jul-2005", EVENT_DATE)) %>% 
+      #Pipeline Service Obligations and Revisions to Regulations Governing Self-Implementing Transportation Under Part 284 of the Commission's Regulations
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM91-11", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM91-11", SUBJECT, ignore.case = TRUE), "Pipeline Service Obligations and Revisions to Regulations Governing Self-Implementing Transportation Under Part 284 of the Commission's Regulations", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM91-11", SUBJECT, ignore.case = TRUE), "08-Apr-1992", EVENT_DATE)) %>% 
+      #Reliability Standards for Geomagnetic Disturbances
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM12-22", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM12-22", SUBJECT, ignore.case = TRUE), "Reliability Standards for Geomagnetic Disturbances", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM12-22", SUBJECT, ignore.case = TRUE), "16-May-2013", EVENT_DATE)) %>% 
+      #Promoting Transmission Investment through Pricing Reform
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "Promoting Transmission Investment through Pricing Reform", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "20-Jul-2006", EVENT_DATE))
+      #Promoting Transmission Investment through Pricing Reform
+      mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+        mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "Promoting Transmission Investment through Pricing Reform", EVENT_NAME)) %>%
+          mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "20-Jul-2006", EVENT_DATE))
 
+
+  #)
+  #else(is.na(TYPE))
+    
+    
+##issues
+    #fix this one, docket 94-7/95-8  and fix docket number
+    #
 Type5 <- data %>% 
 select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean,url) %>% 
-filter(TYPE == "5", is.na(EVENT_NAME))
+filter(TYPE == "5", is.na(EVENT_NAME), grepl("rulemaking", SUBJECT, ignore.case = TRUE))
         
-Type5 <- data %>% 
-select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean,url) %>% 
-filter(grepl("RM09-18", SUBJECT, ignore.case = TRUE))
+
 
 
 
@@ -445,32 +499,12 @@ Type2government <- data %>%
   filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
 
 
-#Old Code Removed
-###################
-
-  # #string "Comments of US Senator"..etc. #check this?
-  # mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
 
 
 #NOTES
 ######################################################################################################################
 
-#CHECKING IF EVERYTHING HAS AN EVENT AND DOCKET
-#Type 5, event labeling
-Type5 <- data %>% 
-select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean,url) %>% 
-filter(TYPE == "5", is.na(EVENT_NAME))
-
-
-#15 missing docket #s need to be filled in
-docket <- data %>% 
-select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, docket, text_clean, url) %>% 
-filter(TYPE == "5", is.na(EVENT_NAME), is.na(docket))
-
-
-
-##working on 
+##constant working on 
 showme <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
   filter(is.na(TYPE)) %>% 
@@ -481,59 +515,14 @@ select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url)
 filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
   
 
-
 ## frame for problem searching above
 # problemIDs <- PROBLEM$ID
 
-#want data that is forwarded and pro or anti business
-#trying to determine if forwarded information from constiuents is supported 
-#are they reaching out after?
-forward <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"))
-
-
-#testing for suggested events 
-tempEVENT <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "comments of US Senator"))
-
-
-##could write some code with "on the behalf of" after the "on the behalf of individual/constituent" andn find TYPE 2,3 
-onbehalf <- data %>% 
-  select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject) %>% 
-  mutate(onbehalf = str_extract(SUBJECT, "on behalf of.*")) %>%
-      drop_na(onbehalf) %>% 
-      filter(is.na(TYPE))
-#missing subject and ID text_clean, url
-
-searching <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "meeting")) %>% 
-  filter(is.na(TYPE))
-
-
-
-
-########Figuring out code for if yes for pro business, and no constituent and no antibusinesss
-
-
-check <- data %>% 
-  select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness) %>% 
-  filter(Constituent == "no", grepl(".", ProBusiness), is.na(AntiBusiness)) 
-
-
-#TO DO:
+#Checking for situation where antibusiness and not pro business 
 #why would they send in letter going against a business if they aren't for a consituent and they aren't supporting a project that is going against?
 checkAntiBusiness <- data %>% 
   select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
   filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
-
-#check if marked as a 2 and not marked under probusiness
-check2 <- data %>% 
-  select(SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
-  filter(TYPE == 2, is.na(ProBusiness), is.na(ProProject))
-
 
 
 #######end of notes 
