@@ -1,5 +1,5 @@
 ---
-title: "How Legislators Actually Invest Their Time"
+title: "Correspondence Project Summary"
 output: 
    html_document:
     toc: true
@@ -24,14 +24,6 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning=FALSE, 
                       message=FALSE)
 ```
-
-# Abstract
-
-Legislators and their staff have limited time to serve constituents and advance policy goals. What determines their distribution of attention among constituents, potential donors, and policy goals? While scholarship has explored representational topics such as bill sponsorship, floor speeches, press releases, committee activity, and the like, much less is known about other, less visible forms of representation. In this paper, we contrast those traditional forms of representation against a much less visible form: how member’s advocate on behalf of their constituents, donors, and policy goals to federal agencies. By analyzing thousands of letters sent to government agencies by members of Congress, we develop new measures of legislator issue attention, specialization, and representational activity over time. 
-
-We use these data to examine relationships between committee membership, seniority, electoral security, and the type of advocacy behavior in which members engage.  Existing theories focusing on institutional position suggest that committee membership and seniority should drive letter-writing behavior and that it will focus on oversight of the agency's policy work. In contrast, theories focusing on electoral incentives and the creation of the personal vote suggest that constituent and donor service should drive letter-writing behavior and that it will focus on securing agency resources for constituents. Scholars have found that both institutional position and electoral incentive shape corporate donor service. Our data allow new tests of these theories, not just on the public forms of representation traditionally studied, but on the more subterranean forms of representation that have substantive policy consequences and may only be monitored by political insiders, if at all.  
-
-Do legislators shift attention to policy work as they gain seniority or electoral security? Do members in key fundraising positions or vulnerable districts disproportionately advocate on behalf of potential corporate supporters? Does a legislator's party or ideology influence the constituents on whose behalf legislators advocate? We address these questions with respect to which agencies legislators choose to contact, on whose behalf, and the distribution of attention to policy issues within and across federal agencies over time.
 
 
 # Data  

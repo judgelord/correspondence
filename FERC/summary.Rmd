@@ -10,13 +10,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE, eval = FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
 requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
-  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+  to_install <- c(!requires %in% rownames(installed.packages() ) )
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-  devtools::install_github("wmurphyrd/fiftystater")
+
+  if(!"fiftystater" %in% rownames(installed.packages())){
+    devtools::install_github("wmurphyrd/fiftystater")
+  }
+
 ```
 
 ```{r}
@@ -1844,9 +1848,18 @@ TODO
 d %>% 
   mutate(Place_District = tolower(Place_District)) %>% 
   # FIXME 
-  # dropping odd observations, should correct
+  # dropping odd observations, will correct in DOE_FERC.R script 
   filter(Place_District %in% c("yes", "no", NA)) %>% 
-  group_by(Place_District, TYPE) %>% count()
+  filter(letter_position %in% c("AntiBusiness", "ProBusiness")) %>% 
+  filter(Constituent != "Not coded") %>% 
+  count(Place_District, letter_position, Constituent) %>% 
+  ggplot() +
+  aes(x = Place_District, y = n, fill = letter_position) +
+  geom_col() + 
+  facet_grid(Constituent ~ .)+ 
+  labs(x = "Is the proposed project in the member's district?",
+       y = "Number of letters",
+       fill = "")
 ```
 
 
