@@ -18,24 +18,30 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%m/%d/%y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+ 
+  ############### 
+  #Filter FROM for / , & looking for observations with multiple authors 
+  
+  #Filter FROM to find only the data that includes "\\/|&" and has multiple authors
+#sampledata1<- data %>% 
+  #filter(str_detect(FROM, "\\/|&"))
 
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("\\/|&", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "\\/|&") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "\\/|&"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("\\/|&", data$FROM),] # removes orginal row with all data
+  #Creates duplicate rows for line with multiple representatives to check code
+  #sampledata1 %>% 
+  #  mutate(FROM = str_split(FROM, "\\/|&")) %>%
+   # unnest(FROM) 
+  
+  #Final Version with full data splits data on / and & to account for multiple authors
+data %<>%
+    mutate(FROM = str_split(FROM, "\\/|&")) %>%
+    unnest(FROM)
+#Will want to split on ";" as well
+  
   ################
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
 
+  
 
   #arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
