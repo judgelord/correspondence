@@ -257,7 +257,7 @@ data %<>%
   #string "behalf of Company" 
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("on behalf of .*Company|on behalf of .*Co.$|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-          mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+          mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("on behalf of .*Company|on behalf of .*Co|on behalf of .*Corp|on behalf of .*Company|on behalf of .*Inc", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE))
   
   
 ###Type 3
@@ -271,9 +271,13 @@ data %<>%
                                                             " behalf of .*assn", "behalf of .*association", "behalf of .*district",
                                                             "behalf of .*selectmen", "behalf of .*project", "behalf of .*operation", "on behalf .* council",
                                                              sep = "|"), SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
-  #string "City of"..etc. 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("city of.*application|application .*city of|on behalf of .*COUNTY"|"county .*application|district .* application", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("city of.*application|application .*city of|on behalf of .*COUNTY"|"county .*application|district .* application", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  #string "City of"..etc.
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("city of.*application", "application .*city of", "on behalf of .*county", 
+                                                            "county .*application", "district .* application",
+                                                            sep = "|"), SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("city of.*application", "application .*city of", "on behalf of .*county", 
+                                                                        "county .*application", "district .* application",
+                                                                        sep = "|"), SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #string "Public Utilities Comission" 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
@@ -308,7 +312,7 @@ data %<>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%  
       mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "decision", POLICY_EVENT)) %>% 
       mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "EL00-95", EVENT_NAME)) %>%
-      mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "19-Jun-2001", EVENT_DATE))
+      mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "19-Jun-2001", EVENT_DATE)) %>% 
   #string "EL00-95" #huge variety of letters under this #Enron
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EL00-95", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%  
@@ -414,11 +418,16 @@ data %<>%
 #Fixing Docket Variable
 ############################
 
-
 #check if these are miscoded and if not add the docket number 
 docket1 <- data %>% 
 select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, POLICY_EVENT, docket, text_clean, url) %>% 
-filter(POLICY_EVENT == "rule", is.na(docket))
+filter(POLICY_EVENT == "rule", !grepl("rulemaking", SUBJECT, ignore.case = TRUE))
+
+docket2 <- data %>% 
+  select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, POLICY_EVENT, docket, text_clean, url) %>% 
+  filter(POLICY_EVENT == "rule", is.na(docket))
+
+
 
 
 #Event Labeling for Type 5
@@ -514,7 +523,10 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("slamming the federal", SUBJ
             mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "disaster", POLICY_EVENT)) %>% 
             mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "Hurricane Katrina", EVENT_NAME))
   
-  
+
+#Testing
+######################################################################################################################
+
 #Forwarding
 ###########
 
@@ -573,8 +585,6 @@ data %<>%
   mutate(AntiBusiness = ifelse (grepl("20170324-0041", ID, ignore.case = TRUE), "PennEast Pipeline Company", AntiBusiness))
 
 
-
-  
   
 
 #NOTES
@@ -591,11 +601,6 @@ showme <- data %>%
 showme2 <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url, Freelancer) %>% 
   filter( grepl("Tennessee Gas Pipeline", ProBusiness, ignore.case = TRUE)) 
-
-  
-
-
-#is.na(TYPE),
 
 #checking to see if errors in business 
 businesscheck <- data %>% 
@@ -630,8 +635,7 @@ checkAntiBusiness <- data %>%
   filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
 
 
-
-#######end of notes 
+######################################################################################################################end of notes 
 
   return(data)
 
