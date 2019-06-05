@@ -6,9 +6,11 @@
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
   library(devtools)
-  if(!"Rvoteview" %in% rownames(installed.packages())) {
-    devtools::install_github("voteview/Rvoteview")
-  }
+  
+  ## Rvoteview dependencies through errors, so moving to a data file of member names defined by "members/nameCongress.R"
+  # if(!"Rvoteview" %in% rownames(installed.packages())) {
+  #   devtools::install_github("voteview/Rvoteview")
+  # }
   if(!"fiftystater" %in% rownames(installed.packages())) {
     devtools::install_github("wmurphyrd/fiftystater")
   }
@@ -47,7 +49,9 @@
   source(here("functions/dateMethods.R"))
   source(here("functions/nameMethods.R")) # functions for cleaning member names to match the augmented member file
   
-  source(here("members/nameCongress.R")) # augments voteview member names
+  #source(here("members/nameCongress.R")) # augments voteview member names
+  ## Load augmented member names 
+  load(here("members/nameCongress.Rdata"))
   source(here("members/MemberNameDateCorrections.R"))
   
   source(here("committees/committees.R"))
