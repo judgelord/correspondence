@@ -1,3 +1,11 @@
+library(devtools)
+
+## Rvoteview dependencies through errors, so moving to a data file of member names defined by "members/nameCongress.R"
+if(!"Rvoteview" %in% rownames(installed.packages())) {
+   devtools::install_github("voteview/Rvoteview")
+}
+library(Rvoteview)
+
 # This script aguments member names from voteview to enable merging with wide variety of name formats. Matching functions are in nameMethods.R
 
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
@@ -301,4 +309,6 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members_106to109th <- filter(members, congress < 112)
   
   members %<>% filter(congress > 109)
+  
+  save(members, members_106to109th, file = "members/nameCongress.Rdata")
   
