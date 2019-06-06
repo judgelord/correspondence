@@ -20,26 +20,39 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
  
   ############### 
-  #Filter FROM for / , & looking for observations with multiple authors 
   
-  #Filter FROM to find only the data that includes "\\/|&" and has multiple authors
-#sampledata1<- data %>% 
-  #filter(str_detect(FROM, "\\/|&"))
+#Filter FROM to find only the data that includes "\\/|&" and has multiple authors
+sampledata1<- data %>% 
+  filter(str_detect(FROM, "\\/|&|;"))
 
-  #Creates duplicate rows for line with multiple representatives to check code
-  #sampledata1 %>% 
-  #  mutate(FROM = str_split(FROM, "\\/|&")) %>%
-   # unnest(FROM) 
-  
-  #Final Version with full data splits data on / and & to account for multiple authors
+#Creates new variable chamber 
+  sampledata1 %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen") & ! str_detect(FROM, "\\(Cong"),
+                            "Senate", NA))
+  sampledata1 %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong") & ! str_detect(FROM, "\\(Sen"),
+                            "House", chamber)) 
+
+   #Filter FROM for / , & looking for observations with multiple authors 
+   
+   #Creates duplicate rows for line with multiple representatives to check code and to compare to original col
+   sampledata1 %<>% 
+     mutate(FROM = str_split(FROM, "\\/|&|;")) %>%
+     unnest(FROM) 
+   
+   #Removes chamber from var FROM    
+#sampledata1 %<>%
+#str_remove(FROM, "\\(Sen|(Cong")
+     
+  #Final Version with full data splits data on "/", "&", and ";" to account for multiple authors
 data %<>%
-    mutate(FROM = str_split(FROM, "\\/|&")) %>%
+    mutate(FROM = str_split(FROM, "\\/|&|;")) %>%
     unnest(FROM)
-#Will want to split on ";" as well
+
   
   ################
   
-  #data <- getFirstLast.Comma(data, 'FROM')
+  data <- getFirstLast.Comma(data, 'FROM')
 
   
 
