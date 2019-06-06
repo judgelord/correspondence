@@ -713,7 +713,6 @@ amountleft <- data %>%
   filter(is.na(TYPE))
 
 
-
 showme <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
   filter( grepl("RM18-1", SUBJECT, ignore.case = TRUE)) 
