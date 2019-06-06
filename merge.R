@@ -156,7 +156,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "DOE_FERC") 
+i <- which(data_list$agency == "DOL_SOL") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -741,10 +741,18 @@ dcommittees %<>% full_join(all_contacts_committees)
 save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
-save.image("data/correspondence.RData")
+
   all_contacts <- df
   save(all_contacts, file = "data/all_contacts.RData")
+  
   all_contacts_committees <- dcommittees
   save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
+  
+  save(bad.names.1, file = "data/bad.names.1.RData")
+  save(bad.names.2, file = "data/bad.names.2.RData")
+  save(bad.dates, file = "data/bad.dates.RData")
+  save(bad.party, file = "data/bad.party.RData")
+  # save(bad.committees.1, file = "data/bad.committees.1.RData")
+  save(bad.committees.2, file = "data/bad.committees.2.RData")
 }
 
