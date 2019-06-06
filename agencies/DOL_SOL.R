@@ -68,8 +68,10 @@ clean <- function(file.name) {
 data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
-data %/%
+
+data %<>%
   mutate(FROM = str_remove(FROM, " and"))
+
 data %<>% select(ID, DATE,  FROM, everything())
 
 sampledata3<-data %>%
