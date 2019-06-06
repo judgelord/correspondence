@@ -79,8 +79,13 @@ data %<>%
   
   data <- getFirstLast.Comma(data, 'FROM')
 
-#data %<>%
- # mutate(FROM = str_replace(FROM, "\\.", "\\,"))
+#Creates a Sample from the NA's
+sample1<-data %>%
+  filter(is.na(last_name))
+
+#Puts all data without a comma into last name variable
+sample1 %<>%
+  mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
 
 
   #arrange columns for hand coding
