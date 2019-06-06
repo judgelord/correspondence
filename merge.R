@@ -6,12 +6,12 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 
 
 ## make sure gmailr is set up 
-# library(gmailr)
-# send_message(mime(
-#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
-#   From = "correspondenceresearch@gmail.com",
-#   Subject =  "Begin merge",
-#   body = ""))
+library(gmailr)
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
+  From = "correspondenceresearch@gmail.com",
+  Subject =  "Begin merge",
+  body = ""))
 
 # note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)

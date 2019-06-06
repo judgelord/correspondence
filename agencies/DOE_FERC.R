@@ -46,8 +46,8 @@ clean <- function(file.name) {
   ## extract member names from the letter texts (members is only for 110th - 118th)
   ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
   #FIXME
-  #d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
-  #d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
+  d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
+  d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
   
   sum(!is.na(d2$last_name))
   
