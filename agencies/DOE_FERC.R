@@ -54,10 +54,16 @@
     #Michael A Arcuri
     mutate(FROM = ifelse (grepl("Michael A. Arcuri", FROM, ignore.case = TRUE), "Michael Arcuri", FROM)) %>% 
     #WJ "Billy" Tauzin
-    mutate(FROM = ifelse (grepl("W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", FROM, ignore.case = TRUE), "Wilbert Tauzin", FROM))
-
-
-  
+    mutate(FROM = ifelse (grepl("W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", FROM, ignore.case = TRUE), "Wilbert Tauzin", FROM)) %>% 
+    #Patty Muray 
+    mutate(FROM = ifelse (grepl("Patty Muray", FROM, ignore.case = TRUE), "Patty Murray", FROM)) %>% 
+    #Margret Wood Hassan 
+    mutate(FROM = ifelse (grepl("Margret Wood Hassan", FROM, ignore.case = TRUE), "Margaret Hassan", FROM)) %>% 
+    #Max Cleland
+    mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM))
+    #Herb Barrett has 2 misnamed observations but deadend 
+ 
+   
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
   ## extract member names from the letter texts (members is only for 110th - 118th)
   ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
