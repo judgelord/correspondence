@@ -8,7 +8,7 @@
 # source("setup.R")
 # file.name <- "DOE_FERC Extended" # for testing
 
-clean <- function(file.name) {
+#clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
 
@@ -17,12 +17,14 @@ clean <- function(file.name) {
  
   data <- ungroup(FERC_letters)
 
+
   # create agency column
   data$agency <- "DOE_FERC"
   
   # Format date, year, Congress, member name etc. 
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
   
   # chamber
   data %<>%
@@ -42,6 +44,26 @@ clean <- function(file.name) {
   data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.|")) %>% 
     select(-members)
   
+  #FIXME
+  #Correcting major member name errors 
+ data %<>% 
+    #Bob Graham 
+    mutate(FROM = ifelse (grepl("Bob Graham", FROM, ignore.case = TRUE), "Daniel Graham", FROM)) %>% 
+    #Strom Thurmond
+    mutate(FROM = ifelse (grepl("Strom Thurmond", FROM, ignore.case = TRUE), "James Thurmond", FROM)) %>% 
+    #Michael A Arcuri
+    mutate(FROM = ifelse (grepl("Michael A. Arcuri", FROM, ignore.case = TRUE), "Michael Arcuri", FROM)) %>% 
+    #WJ "Billy" Tauzin
+    mutate(FROM = ifelse (grepl("W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", FROM, ignore.case = TRUE), "Wilbert Tauzin", FROM)) %>% 
+    #Patty Muray 
+    mutate(FROM = ifelse (grepl("Patty Muray", FROM, ignore.case = TRUE), "Patty Murray", FROM)) %>% 
+    #Margret Wood Hassan 
+    mutate(FROM = ifelse (grepl("Margret Wood Hassan", FROM, ignore.case = TRUE), "Margaret Hassan", FROM)) %>% 
+    #Max Cleland
+    mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM))
+    #Herb Barrett has 2 misnamed observations but deadend 
+ 
+   
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
   ## extract member names from the letter texts (members is only for 110th - 118th)
   ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
@@ -63,6 +85,8 @@ clean <- function(file.name) {
   data %<>% select(ID, FROM, SUBJECT, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
 
   sum(!is.na(data$TYPE))
+
+  
   
 #Cleaning Up Columns     
 #################################
@@ -428,7 +452,7 @@ docket2 <- data %>%
   filter(POLICY_EVENT == "rule", is.na(docket))
 
 
-
+ 
 
 #Event Labeling for Type 5
 ##############################
@@ -527,29 +551,41 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("slamming the federal", SUBJ
 #Testing
 ######################################################################################################################
 
+
+###
+membersCHECK <- data %>% 
+  select(ID, Summary, FROM2, first_name, last_name, SUBJECT, TYPE, ProBusiness, ProProject) %>% 
+  filter(is.na(first_name), is.na(last_name))
+
+
+
 #Forwarding
 ###########
 
-#forwarding if ProSide
-forward1 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url, ProSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"), grepl(".", ProSide))
-
-#forwarding if AntiSide 
-forward2 <- data %>% 
-  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide))
-
-#come up with a meter?
-#what does forwarding mean, are all forwards just things that allign anyway?
-#anticompany letters , just sending this along but wink wink i dont care 
-#want data that is forwarded and pro or anti business
-#trying to determine if forwarded information from constiuents is supported 
-#are they reaching out after?
-
-forward3 <- data %>% 
+#forwarding with short text in the letter
+forwardSHORT <- data %>% 
   select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiBusiness))
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(str_extract(text_clean, ".*pagebreak") <= 350))
+
+#fowarding with long text in the letter
+forwardLONG <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350)
+
+
+#forwarding long letters Pro Business 
+#fewer than Anti
+forwardProBusiness <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, AntiProject, text_clean, url) %>% 
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350, grepl(".", ProBusiness))
+
+#forwarding long letters Anti Business
+#more than Anti
+forwardAntiBusiness <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350, grepl(".", AntiBusiness))
+
+
 
 
 #Type 2 that aren't under probusiness or proproject
@@ -599,8 +635,16 @@ showme <- data %>%
   filter( grepl("environmental impact statement", SUBJECT, ignore.case = TRUE)) 
 
 showme2 <- data %>% 
+
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url, Freelancer) %>% 
-  filter( grepl("Tennessee Gas Pipeline", ProBusiness, ignore.case = TRUE)) 
+  filter( grepl("20050127-0025", ID, ignore.case = TRUE)) 
+
+  select(ID, SUBJECT, TYPE, FROM2, first_name, last_name) %>% 
+  filter(grepl("Bob Graham", FROM2, ignore.case = TRUE)) 
+
+showme3 <- data %>% 
+  select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
+  filter( grepl("rulemaking", SUBJECT, ignore.case = TRUE)) 
 
 #checking to see if errors in business 
 businesscheck <- data %>% 
@@ -610,6 +654,12 @@ businesscheck <- data %>%
 #check the variables 
 unique(data$Place_District)
 
+#Useful to check through misnamed 
+#looking at members
+countMembers <- data %>% 
+  filter(is.na(last_name)) %>% 
+  count(FROM2) %>% 
+  arrange(-n)
 
 #PERCENT OF MISSED BUSINESS
 businesscheck <- data %>% 
@@ -639,7 +689,31 @@ checkAntiBusiness <- data %>%
 
   return(data)
 
-} ## END CLEAN FUNCTION
+#} ## END CLEAN FUNCTION
 
 
+#Useful Search Tools
+######################
 
+
+#Used to check through misnamed members
+#looking at members count
+countMembers <- data %>% 
+  select(ID, FROM2, last_name, ProBusiness) %>% 
+  filter(is.na(last_name), grepl(".", ProBusiness, ignore.case = TRUE)) %>% 
+  count(FROM2) %>% 
+  arrange(-n)
+
+##Used to check through whole dataset to find trends for TYPE
+showme <- data %>% 
+  select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
+  filter( grepl("environmental impact statement", SUBJECT, ignore.case = TRUE)) 
+
+check <- data %>% 
+  select(FROM, first_name, last_name) %>% 
+  filter(grepl("Muray", FROM))
+
+
+#duplicates, where they don't join
+anti_join(FERC_letters, data) 
+  

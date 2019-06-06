@@ -18,30 +18,70 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%m/%d/%y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
  
   ############### 
-  #Filter FROM for / , & looking for observations with multiple authors 
   
-  #Filter FROM to find only the data that includes "\\/|&" and has multiple authors
+#Filter FROM to find only the data that includes "\\/|&" and has multiple authors
 #sampledata1<- data %>% 
-  #filter(str_detect(FROM, "\\/|&"))
+#  filter(str_detect(FROM, "\\/|&|;"))
 
-  #Creates duplicate rows for line with multiple representatives to check code
-  #sampledata1 %>% 
-  #  mutate(FROM = str_split(FROM, "\\/|&")) %>%
-   # unnest(FROM) 
-  
-  #Final Version with full data splits data on / and & to account for multiple authors
+#Creates new variable chamber 
+ # sampledata1 %<>%
+  #  mutate(chamber = ifelse(str_detect(FROM, "\\(Sen") & ! str_detect(FROM, "\\(Cong"),
+   #                         "Senate", NA))
+  #sampledata1 %<>%
+   # mutate(chamber = ifelse(str_detect(FROM, "\\(Cong") & ! str_detect(FROM, "\\(Sen"),
+    #                        "House", chamber)) 
+
+   #Filter FROM for / , & looking for observations with multiple authors 
+   
+   #Creates duplicate rows for line with multiple representatives to check code and to compare to original col
+   #sampledata1 %<>% 
+    # mutate(FROM = str_split(FROM, "\\/|&|;")) %>%
+     #unnest(FROM) 
+   
+
+#Creates new variable chamber in full dataset
+  data %<>%
+     mutate(chamber = ifelse(str_detect(FROM, "\\(Sen|Sen\\.|Senator") & ! str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman"),
+                             "Senate", NA))
+ data %<>%
+     mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+                             "House", chamber)) 
+
+  #Removes the chamber assigment from the variable FROM
+ 
+ data %<>%
+   mutate(FROM = str_remove(FROM, "\\(.*\\)")) %>%
+   mutate(FROM = str_remove(FROM, "\\(.*")) %>%
+   mutate(FROM = str_remove(FROM, "\\).*")) %>%
+   mutate(FROM = str_remove(FROM, " Sen$|Sen\\.|Senator")) %>%
+   mutate(FROM = str_remove(FROM, " Cong$|Member of Congress|Congressman")) %>%
+   mutate(FROM = str_remove(FROM, "Chairman"))
+   
+ 
+ 
+    
+
+  #Final Version with full data splits data on "/", "&", and ";" to account for multiple authors
 data %<>%
-    mutate(FROM = str_split(FROM, "\\/|&")) %>%
+    mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
-#Will want to split on ";" as well
-  
+data %/%
+  mutate(FROM = str_remove(FROM, " and"))
+data %<>% select(ID, DATE,  FROM, everything())
+
+sampledata3<-data %>%
+  filter(str_detect(FROM, " and"))
+sampledata4 <- data %>%
+  filter(str_detect(FROM, "Sen"))
+
+
   ################
   
-  #data <- getFirstLast.Comma(data, 'FROM')
+  data <- getFirstLast.Comma(data, 'FROM')
 
-  
 
   #arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())

@@ -1,11 +1,16 @@
   options(stringsAsFactors = FALSE)
   
   requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse",
-                "pdftools", "here", "rvest","maps", "ineq", "mapproj", "dotwhisker")
+                "pdftools", "here", "Rvoteview", "rvest","maps", "ineq", "mapproj", "dotwhisker")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
   library(devtools)
+  
+  ## Rvoteview dependencies through errors, so moving to a data file of member names defined by "members/nameCongress.R"
+  # if(!"Rvoteview" %in% rownames(installed.packages())) {
+  #   devtools::install_github("voteview/Rvoteview")
+  # }
   if(!"fiftystater" %in% rownames(installed.packages())) {
     devtools::install_github("wmurphyrd/fiftystater")
   }
@@ -24,6 +29,7 @@
   library(magrittr)
   library(googlesheets)
   library(googledrive)
+  library(Rvoteview)
   library(stringi)
   library(pdftools)
   library(here)
