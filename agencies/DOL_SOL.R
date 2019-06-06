@@ -53,10 +53,10 @@ clean <- function(file.name) {
   #Removes the chamber assigment from the variable FROM
  
  data %<>%
-   mutate(FROM = str_remove(FROM, "\\(.*\\)")) %>%
+   mutate(FROM = str_remove_all(FROM, "\\(.*\\)")) %>%
    mutate(FROM = str_remove(FROM, "\\(.*")) %>%
    mutate(FROM = str_remove(FROM, "\\).*")) %>%
-   mutate(FROM = str_remove(FROM, " Sen$|Sen\\.|Senator")) %>%
+   mutate(FROM = str_remove_all(FROM, " Sen$|Sen\\.|Senator")) %>%
    mutate(FROM = str_remove(FROM, " Cong$|Member of Congress|Congressman")) %>%
    mutate(FROM = str_remove(FROM, "Chairman"))
    
@@ -69,15 +69,9 @@ data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
 
+#remove the word "and" from the variable FROM
 data %<>%
-  mutate(FROM = str_remove(FROM, " and"))
-
-data %<>% select(ID, DATE,  FROM, everything())
-
-sampledata3<-data %>%
-  filter(str_detect(FROM, " and"))
-sampledata4 <- data %>%
-  filter(str_detect(FROM, "Sen"))
+  mutate(FROM = str_remove(FROM, " and")) 
 
 
   ################
