@@ -428,7 +428,7 @@ docket2 <- data %>%
   filter(POLICY_EVENT == "rule", is.na(docket))
 
 
-
+ 
 
 #Event Labeling for Type 5
 ##############################
@@ -530,26 +530,30 @@ mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("slamming the federal", SUBJ
 #Forwarding
 ###########
 
-#forwarding if ProSide
-forward1 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, url, ProSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), str_detect(text_clean, "support"), grepl(".", ProSide))
-
-#forwarding if AntiSide 
-forward2 <- data %>% 
-  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url, AntiSide) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiSide))
-
-#come up with a meter?
-#what does forwarding mean, are all forwards just things that allign anyway?
-#anticompany letters , just sending this along but wink wink i dont care 
-#want data that is forwarded and pro or anti business
-#trying to determine if forwarded information from constiuents is supported 
-#are they reaching out after?
-
-forward3 <- data %>% 
+#forwarding with short text in the letter
+forwardSHORT <- data %>% 
   select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
-  filter(str_detect(SUBJECT, "forwards|fwds|fwd"), grepl(".", AntiBusiness))
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) <= 350)
+
+#fowarding with long text in the letter
+forwardLONG <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350)
+
+
+#forwarding long letters Pro Business 
+#fewer than Anti
+forwardProBusiness <- data %>% 
+  select(ID, SUBJECT, TYPE, ProBusiness, AntiProject, text_clean, url) %>% 
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350, grepl(".", ProBusiness))
+
+#forwarding long letters Anti Business
+#more than Anti
+forwardAntiBusiness <- data %>% 
+  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350, grepl(".", AntiBusiness))
+
+
 
 
 #Type 2 that aren't under probusiness or proproject
@@ -600,7 +604,7 @@ showme <- data %>%
 
 showme2 <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url, Freelancer) %>% 
-  filter( grepl("Tennessee Gas Pipeline", ProBusiness, ignore.case = TRUE)) 
+  filter( grepl("20050127-0025", ID, ignore.case = TRUE)) 
 
 #checking to see if errors in business 
 businesscheck <- data %>% 
