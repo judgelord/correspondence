@@ -565,7 +565,7 @@ membersCHECK <- data %>%
 #forwarding with short text in the letter
 forwardSHORT <- data %>% 
   select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
-  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) <= 350)
+  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(str_extract(text_clean, ".*pagebreak") <= 350))
 
 #fowarding with long text in the letter
 forwardLONG <- data %>% 
