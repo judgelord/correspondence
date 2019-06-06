@@ -183,7 +183,7 @@ d %>% filter(!is.na(last_name)) %>% count(year)
 ##################################
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
-# data_list %<>% filter((agency %in% "DOE_FERC")) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter((agency %in% data_list$agency)) # to add new agencies without updating old ones or restart interrupted merge
 i = 1
 while(!is.na(data_list[i,1])) {
   
