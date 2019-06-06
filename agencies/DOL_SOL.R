@@ -73,7 +73,20 @@ data %<>%
 data %<>%
   mutate(FROM = str_remove(FROM, " and")) 
 
+#Replaces "." with "," where they separate a first from a last name
+data %<>%
+  mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, "\\.", "\\,"), FROM))
 
+#Separates first and last name by comma
+data %<>%
+  mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
+
+#Switches the order so last name comes first
+data$FROM %<>% 
+  str_replace("Elaine, Chao", "Chao, Elaine")
+
+sample2<- data %>%
+  filter(str_detect(FROM, "Elaine"))
 
   ################
   
