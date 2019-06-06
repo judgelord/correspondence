@@ -18,6 +18,7 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%m/%d/%y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
  
   ############### 
   
@@ -58,6 +59,7 @@ clean <- function(file.name) {
    mutate(FROM = str_remove(FROM, " Sen$|Sen\\.|Senator")) %>%
    mutate(FROM = str_remove(FROM, " Cong$|Member of Congress|Congressman")) %>%
    mutate(FROM = str_remove(FROM, "Chairman"))
+   
  
  
     
@@ -66,7 +68,8 @@ clean <- function(file.name) {
 data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
-
+data %/%
+  mutate(FROM = str_remove(FROM, " and"))
 data %<>% select(ID, DATE,  FROM, everything())
 
 sampledata3<-data %>%
@@ -74,11 +77,11 @@ sampledata3<-data %>%
 sampledata4 <- data %>%
   filter(str_detect(FROM, "Sen"))
 
+
   ################
   
   data <- getFirstLast.Comma(data, 'FROM')
 
-  
 
   #arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
