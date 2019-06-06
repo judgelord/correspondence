@@ -69,14 +69,18 @@ data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
 
-#remove the word "and" from the variable FROM
+#Removes the word "and" from the variable FROM
 data %<>%
   mutate(FROM = str_remove(FROM, " and")) 
+
 
 
   ################
   
   data <- getFirstLast.Comma(data, 'FROM')
+
+#data %<>%
+ # mutate(FROM = str_replace(FROM, "\\.", "\\,"))
 
 
   #arrange columns for hand coding
