@@ -45,6 +45,7 @@ clean.agency <- function(agency, status, coders) {
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)  
   data %<>% mutate_at(names(data)[which(names(data) %in% c("year", "congress"))], as.numeric)
 
+
   
   data$agency <- agency # name agency
   data$department <- gsub("_.*", "", data$agency) # name dept
