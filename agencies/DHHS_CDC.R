@@ -60,9 +60,10 @@ clean <- function(file.name) {
     drop_na(last_name)
   
   #Binding datasets data and Unfoundnames & Unfoundnames2
-  data %<>%
-    mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
+  #Must be changed
+#data %<>%
+  #mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
+  #mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
   
  
   data %<>%
