@@ -238,11 +238,11 @@ data %<>%
   mutate(AntiProject = ifelse (grepl("20141024-0017", ID, ignore.case = TRUE), "Atlantic Sunrise Natural Gas Pipeline Expansion Project", AntiProject)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
-  #20070807-0086
+  #20070807-0086, political work 
   mutate(AntiProject = ifelse (grepl("20070807-0086", ID, ignore.case = TRUE), "Sentinel Expansion Project", AntiProject)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070807-0086", ID, ignore.case = TRUE), "5", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070807-0086", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
-  mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("20070807-0086", ID, ignore.case = TRUE), "political work", POLICY_EVENT))
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070807-0086", ID, ignore.case = TRUE), "1", CERTAINTY))
+
   
 #directly coding within project
 data %<>%
@@ -290,7 +290,15 @@ data %<>%
   #20061115-0129, 20061115-0128: on behalf of fishers, on behalf of livestock owners
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
-  mutate(AntiProject = ifelse (grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "Klamath Hydroelectric Project", AntiProject)) 
+  mutate(AntiProject = ifelse (grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "Klamath Hydroelectric Project", AntiProject)) %>% 
+  #20060802-0128
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20060802-0128", ID, ignore.case = TRUE), "3", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20060802-0128", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20021008-0147, reinstate and extend the deadline for commencement of construction on a hydroelectric project
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20021008-0147", ID, ignore.case = TRUE), "4", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20021008-0147", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20060412-0438", ID, ignore.case = TRUE), "2", ALT_TYPE))
+  
   
   
 
@@ -310,7 +318,7 @@ fixprojectPRO <- data %>%
 fixprojectPROnoConst <- data %>% 
 select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, text_clean, Freelancer) %>% 
   filter(grepl("project", SUBJECT, ignore.case = TRUE) & !grepl("constituent", SUBJECT, ignore.case = TRUE) & !grepl("concern", text_clean, ignore.case = TRUE),
-         is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject), Freelancer == "Priyal Singh", !grepl("badfiles|noncongress|bad files", Notes, ignore.case = TRUE))
+         is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject), Freelancer == "Jobelle", !grepl("badfiles|noncongress|bad files", Notes, ignore.case = TRUE))
 
 
 #type coding observations
