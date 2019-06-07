@@ -13,10 +13,11 @@ requires <- c("dplyr", "magrittr", "readxl", "here")
 to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
 install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
 
-# if(require("Rvoteview")==F) {
-#   devtools::install_github("voteview/Rvoteview")
-# }
-# library(Rvoteview)
+
+
+
+
+
 library(dplyr)
 library(magrittr)
 library(readr)

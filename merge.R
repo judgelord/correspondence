@@ -156,7 +156,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "DOE_FERC") 
+i <- which(data_list$agency == "DOL_SOL") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
@@ -183,7 +183,10 @@ d %>% filter(!is.na(last_name)) %>% count(year)
 ##################################
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
-# data_list %<>% filter((agency %in% "DOE_FERC")) # to add new agencies without updating old ones or restart interrupted merge
+
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+head(data_list)
+
 i = 1
 while(!is.na(data_list[i,1])) {
   
@@ -208,12 +211,12 @@ while(!is.na(data_list[i,1])) {
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 
 ## Text Devin 
-# library(gmailr)
-# send_message(mime(
-#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
-#   From = "correspondenceresearch@gmail.com",
-#   Subject =  paste("merge.R stopped at", data_list$agency[i]),
-#  body = paste("merge.R stopped at", data_list$agency[i])))
+library(gmailr)
+send_message(mime(
+  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
+  From = "correspondenceresearch@gmail.com",
+  Subject =  paste("merge.R stopped at", data_list$agency[i]),
+ body = paste("merge.R stopped at", data_list$agency[i])))
 
 ##############################
 #########################################################################################
@@ -740,10 +743,18 @@ dcommittees %<>% full_join(all_contacts_committees)
 save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
-save.image("data/correspondence.RData")
+
   all_contacts <- df
   save(all_contacts, file = "data/all_contacts.RData")
+  
   all_contacts_committees <- dcommittees
   save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
+  
+  save(bad.names.1, file = "data/bad.names.1.RData")
+  save(bad.names.2, file = "data/bad.names.2.RData")
+  save(bad.dates, file = "data/bad.dates.RData")
+  save(bad.party, file = "data/bad.party.RData")
+  # save(bad.committees.1, file = "data/bad.committees.1.RData")
+  save(bad.committees.2, file = "data/bad.committees.2.RData")
 }
 
