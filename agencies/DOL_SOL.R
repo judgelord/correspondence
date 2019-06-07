@@ -86,7 +86,7 @@ data %<>%
 
 #Switches the order so last name comes first
 data$FROM %<>% 
-  str_replace("Elaine, Chao", "Chao, Elaine") %<%
+  str_replace("Elaine, Chao", "Chao, Elaine") %>%
   str_replace("George, Miller", "Miller, George")
 
 #Fixes name typo
