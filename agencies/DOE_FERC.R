@@ -226,25 +226,105 @@ data %<>%
   mutate(AntiProject = ifelse (grepl("20140602-0029", ID, ignore.case = TRUE), "Cove Point LNG Project", AntiProject)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20140602-0029", ID, ignore.case = TRUE), "5", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20140602-0029", ID, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  #20140602-0029
-  mutate(AntiProject = ifelse (grepl("20140602-0029", ID, ignore.case = TRUE), "Cove Point LNG Project", AntiProject)) %>% 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20140602-0029", ID, ignore.case = TRUE), "5", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20140602-0029", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20161123-0039
+  mutate(AntiProject = ifelse (grepl("20161123-0039", ID, ignore.case = TRUE), "Algonquin Incremental Market Project", AntiProject)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20161123-0039", ID, ignore.case = TRUE), "5", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20161123-0039", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20150826-4031, 20150909-0009
+  mutate(AntiProject = ifelse (grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "Northeast Energy Direct Project", AntiProject)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+  #20141024-0017
+  mutate(AntiProject = ifelse (grepl("20141024-0017", ID, ignore.case = TRUE), "Atlantic Sunrise Natural Gas Pipeline Expansion Project", AntiProject)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20070807-0086
+  mutate(AntiProject = ifelse (grepl("20070807-0086", ID, ignore.case = TRUE), "Sentinel Expansion Project", AntiProject)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070807-0086", ID, ignore.case = TRUE), "5", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070807-0086", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("20070807-0086", ID, ignore.case = TRUE), "political work", POLICY_EVENT))
   
 #directly coding within project
-  data %<>%
+data %<>%
   #20130614-0007
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20140602-0029", ID, ignore.case = TRUE), "1", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20140602-0029", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #20120327-0043
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20120327-0043", ID, ignore.case = TRUE), "1", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20120327-0043", ID, ignore.case = TRUE), "1", CERTAINTY))
-
-#fixing Pro Project
-data %<>% 
-  #20130614-0007
-  mutate(AntiProject = ifelse (grepl("20140602-0029", ID, ignore.case = TRUE), "Cove Point LNG Project", AntiProject)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20120327-0043", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20151224-0024
+  mutate(AntiProject = ifelse (grepl("20151224-0024", ID, ignore.case = TRUE), "JD Pool Pumped Storage Project", AntiProject)) %>% 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20151224-0024", ID, ignore.case = TRUE), "3", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20151224-0024", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20151029-0045
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20151029-0045", ID, ignore.case = TRUE), "4", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20151029-0045", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20140606-0015
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20140606-0015", ID, ignore.case = TRUE), "1", TYPE)) %>% 
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20140606-0015", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20130807-0017, 20130528-0031
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20130807-0017|20130528-0031", ID, ignore.case = TRUE), "3", TYPE)) %>% 
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20130807-0017|20130528-0031", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20000828-0138
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20000828-0138", ID, ignore.case = TRUE), "3", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20000828-0138", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20060412-0438
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20060412-0438", ID, ignore.case = TRUE), "4", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20060412-0438", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20060412-0438", ID, ignore.case = TRUE), "5", ALT_TYPE)) %>% 
+  #20090811-0083
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20090811-0083", ID, ignore.case = TRUE), "4", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20090811-0083", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20050624-0053
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20050624-0053", ID, ignore.case = TRUE), "5", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20050624-0053", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20070910-0139
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070910-0139", ID, ignore.case = TRUE), "3", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070910-0139", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20070207-4009
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070207-4009", ID, ignore.case = TRUE), "2", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070207-4009", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  mutate(Notes = ifelse (grepl("20070207-4009", ID, ignore.case = TRUE), "meeting with communities, neither pro nor anti project", Notes)) %>%
+  #20061116-0290
+  mutate(Notes = ifelse (grepl("20061116-0290", ID, ignore.case = TRUE), "is for the project, but the letters intention is to reinvest revenues from project to development intitiatives in New York", Notes)) %>%
+  #20061115-0129, 20061115-0128: on behalf of fishers, on behalf of livestock owners
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  mutate(AntiProject = ifelse (grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "Klamath Hydroelectric Project", AntiProject)) 
   
+  
+
+
+
+#TESTING CODE-- 6/7
+fixprojectLUCY <- data %>% 
+  select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, Freelancer) %>% 
+  filter(grepl("project", SUBJECT, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject))
+
+#doesnt have concerns in it ie. more pro project
+fixprojectPRO <- data %>% 
+  select(ID, SUBJECT, TYPE, text_clean, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, Freelancer) %>% 
+  filter(grepl("project", SUBJECT, ignore.case = TRUE) & !grepl("concerns", text_clean, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject), Freelancer == "Lara Basiao")
+  
+#without constituent
+fixprojectPROnoConst <- data %>% 
+select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, text_clean, Freelancer) %>% 
+  filter(grepl("project", SUBJECT, ignore.case = TRUE) & !grepl("constituent", SUBJECT, ignore.case = TRUE) & !grepl("concern", text_clean, ignore.case = TRUE),
+         is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject), Freelancer == "Priyal Singh", !grepl("badfiles|noncongress|bad files", Notes, ignore.case = TRUE))
+
+
+#type coding observations
+  #FERC's view=4
+  #HR 2938 bill =4 
+
+  #environemtnal isnt 5
+#US Senator Dianne Feinstein' response to FERC's letter which detailed how states can, in effect, "veto" an LNG Project. = 5
+
+#I would appreciate it if you would accommodate the Board's request for a meeting and
+#advise me of when that will be help so that I can make sure I have my office staff
+#participate. 
+
+#request for a meeting to discuss.... = 5 
 
 
 
@@ -283,13 +363,13 @@ data %>% count(TYPE)
 ##TYPE 1
 data %<>%
   #string "on behalf" constituent, string "on behalf" constituent TYPE 1
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("on behalf of an individual","behalf of indivudal", "on behalf of constituent", "behalf of a number of",
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("on behalf of an individual","behalf of indivudal", "on behalf of individual", "on behalf of constituent", "behalf of a number of",
                                                             "on behalf of a constituent", "on behalf of his constituent", "on behalf of her constituent",
                                                             "on behalf of a resident", "on behalf of resident", "behalf of citizen", "behalf of concerned citizens",
                                                             "on behalf of his constitutent", "on behalf of her constitutent", "on behalf of constitutent",
                                                             "on behalf of, the residents of",
                                                             sep = "|"), SUBJECT, ignore.case = TRUE), "1", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("on behalf of an individual", "behalf of indivudal", "on behalf of constituent", 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("on behalf of an individual", "behalf of indivudal", "on behalf of individual", "on behalf of constituent", 
                                                                       "on behalf of his constiuent", "on behalf of her constituent", "behalf of a number of",
                                                                       "on behalf of a resident", "on behalf of resident", "behalf of citizen", "behalf of concerned citizens",
                                                                       "on behalf of his constitutent", "on behalf of her constitutent", "on behalf of constitutent", 
@@ -351,10 +431,10 @@ data %<>%
                                                              sep = "|"), SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
   #string "City of"..etc.
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl(str_c("city of.*application", "application .*city of", "on behalf of .*county", 
-                                                            "county .*application", "district .* application",
+                                                            "county .*application", "district .* application", "city of .* propose",
                                                             sep = "|"), SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl(str_c("city of.*application", "application .*city of", "on behalf of .*county", 
-                                                                        "county .*application", "district .* application",
+                                                                        "county .*application", "district .* application", "city of .* propos",
                                                                         sep = "|"), SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #string "Public Utilities Comission" 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("public utilities comission", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
