@@ -77,28 +77,45 @@ data %<>%
 data %<>%
   mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, "\\.", "\\,"), FROM))
 
+
+
 #Separates first and last name by comma
 data %<>%
+  mutate(FROM = str_trim(FROM)) %>%
   mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
 
 #Switches the order so last name comes first
 data$FROM %<>% 
-  str_replace("Elaine, Chao", "Chao, Elaine")
+  str_replace("Elaine, Chao", "Chao, Elaine") %<%
+  str_replace("George, Miller", "Miller, George")
 
-sample2<- data %>%
-  filter(str_detect(FROM, "Elaine"))
+#Fixes name typo
+data$FROM %<>%
+  str_replace("Davis, Arthur", "Davis, Artur") %>%
+  str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
+  str_replace("Leahy, Ted", "Leahy, Patrick") %>%
+  str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
+  str_replace("Obama, Brack", "Obama, Barack") %>%
+  str_replace("Hooley, Darene", "Hooley, Darlene")
+
+
 
   ################
   
   data <- getFirstLast.Comma(data, 'FROM')
 
+#Membership Errors
+data %<>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Fortuno, Luis"), "Puerto Rico Legislator", ERROR))
+
+
+#Puts all data without a comma into last name variable and 
+data %<>%
+  mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+
 #Creates a Sample from the NA's
 sample1<-data %>%
   filter(is.na(last_name))
-
-#Puts all data without a comma into last name variable
-sample1 %<>%
-  mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
 
 
   #arrange columns for hand coding
