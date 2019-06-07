@@ -11,9 +11,13 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  ### Remove duplicate IDs
-  # FIXME
-  # data <- data[!duplicated(data$ID), ] # multiple IDs are TO different people 
+  #Create LetterID
+  data %<>%
+    rename(LetterID = ID)
+  
+  #Fix Duplicate ID
+  data %<>%
+    mutate(ID = row_number())
   
   #create agency column
   data$agency <- file.name
@@ -28,8 +32,16 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+ 
+   # data2 %<>%
+  #   mutate(first_name = ifelse(FROM=="(b)(6)", first_name, NA)) %>%
+  #   mutate(last_name = ifelse(FROM=="(b)(6)", last_name, NA))
   
-  # create variable for first and last name
+  #data %<>%
+  #mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
+  #mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
+ 
+   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
   #Create sample for all of the NA names and extract names from 'Title' into dataset
@@ -37,31 +49,32 @@ clean <- function(file.name) {
     filter(is.na(last_name)) %>%
     extractMemberName(members, 'Title')
   
+  #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
+  Unfoundnames2 <- Unfoundnames %>%
+    filter(is.na(last_name)) %>%
+    extractMemberName(members, 'SUBJECT')
+  
   sample <- Unfoundnames %>%
     drop_na(last_name)
+  sample2 <- Unfoundnames2 %>%
+    drop_na(last_name)
   
-  # data2 %<>%
-  #   mutate(first_name = ifelse(FROM=="(b)(6)", first_name, NA)) %>%
-  #   mutate(last_name = ifelse(FROM=="(b)(6)", last_name, NA))
- 
- 
-  #Binding datasets data and data2 to compare extracting names from FROM and names from Title
-  #colnames(data2)[colnames(data2)=="last_name"] <- "last_name Title"
-  
-  #data2 %<>%
-   # select(ID, SUBJECT, `last_name Title`)
-  #data %<>%
-   # full_join(data2)
+  #Binding datasets data and Unfoundnames & Unfoundnames2
+  data %<>%
+    mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
+    mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
   
  
-  
-  #data %<>%
-   # mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
-    #mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
-  
+  data %<>%
+    mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$first_name  , data$first_name  )) %>% 
+    mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$last_name , data$last_name))
+#May have to recode for multiple authors and then split into two/or more rows
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
