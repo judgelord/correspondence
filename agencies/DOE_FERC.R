@@ -281,6 +281,18 @@ data %<>%
   #20070910-0139
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070910-0139", ID, ignore.case = TRUE), "3", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070910-0139", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20070207-4009
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070207-4009", ID, ignore.case = TRUE), "2", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070207-4009", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  mutate(Notes = ifelse (grepl("20070207-4009", ID, ignore.case = TRUE), "meeting with communities, neither pro nor anti project", Notes)) %>%
+  #20061116-0290
+  mutate(Notes = ifelse (grepl("20061116-0290", ID, ignore.case = TRUE), "is for the project, but the letters intention is to reinvest revenues from project to development intitiatives in New York", Notes)) %>%
+  #20061115-0129, 20061115-0128: on behalf of fishers, on behalf of livestock owners
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  mutate(AntiProject = ifelse (grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "Klamath Hydroelectric Project", AntiProject)) 
+  
+  
 
 
 
