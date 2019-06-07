@@ -29,18 +29,35 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data2 <- data
-  data2 <- extractMemberName(data, members, 'Title')
-  data2 %<>%
-    mutate(first_name = ifelse(FROM=="(b)(6)", first_name, NA)) %>% 
-    mutate(last_name = ifelse(FROM=="(b)(6)", last_name, NA))
- 
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
-  data %<>%
-    mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
+  #Create sample for all of the NA names and extract names from 'Title' into dataset
+  Unfoundnames <- data %>%
+    filter(is.na(last_name)) %>%
+    extractMemberName(members, 'Title')
+  
+  sample <- Unfoundnames %>%
+    drop_na(last_name)
+  
+  # data2 %<>%
+  #   mutate(first_name = ifelse(FROM=="(b)(6)", first_name, NA)) %>%
+  #   mutate(last_name = ifelse(FROM=="(b)(6)", last_name, NA))
+ 
+ 
+  #Binding datasets data and data2 to compare extracting names from FROM and names from Title
+  #colnames(data2)[colnames(data2)=="last_name"] <- "last_name Title"
+  
+  #data2 %<>%
+   # select(ID, SUBJECT, `last_name Title`)
+  #data %<>%
+   # full_join(data2)
+  
+ 
+  
+  #data %<>%
+   # mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
+    #mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
   
   
   data %<>%
