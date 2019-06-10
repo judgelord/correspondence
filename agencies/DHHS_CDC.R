@@ -44,6 +44,13 @@ clean <- function(file.name) {
    # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
+  #Filters out unwanted observations
+  data %<>%
+    filter( ! str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC")) %<>%
+    filter ( ! str_detect(FROM, "HHS, Secretary"))
+  
+  
+ 
   #Checks how many members are not captured
   FROMunamed <- data %>%
     filter(is.na(last_name))
@@ -67,16 +74,6 @@ clean <- function(file.name) {
   sample2 <- Unfoundnames2 %>%
     drop_na(last_name)
   
-  #Binding datasets data and Unfoundnames & Unfoundnames2
-  #Must be changed
-#data %<>%
-  #mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
-  #mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
-  
- 
-  #data %<>%
-   # mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$first_name  , data$first_name  )) %>% 
-    #mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$last_name , data$last_name))
 #May have to recode for multiple authors and then split into two/or more rows
   
 #Rejoin data that pulls authors from FROM, Title & SUBJECT
@@ -89,6 +86,10 @@ clean <- function(file.name) {
 #Checks the number of memebers still not captured
   notcaptured <- data %>%
     filter(is.na(last_name))
+  
+#Filters out CDC Director
+  FROMunamed %<>%
+    
 
   #Comments errors for CDC Director and HHS Secretary  
   data %<>%
