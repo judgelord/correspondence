@@ -12,14 +12,19 @@ clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
 
-  data <- FERC_letters
+  data <- FERC_letters %>%
+    select(members,SUBJECT,everything())
+  
   sum(!is.na(data$TYPE))
+  
  
   data <- ungroup(FERC_letters)
 
 
+  
   # create agency column
   data$agency <- "DOE_FERC"
+  
   
   # Format date, year, Congress, member name etc. 
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -37,8 +42,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(is.na(chamber) & grepl("(Senate|Senator)",text_clean), 'Senate', chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", text_clean), "House", chamber)) 
   
-  look <- filter(data, 
-                 is.na(chamber)  & !is.na(members) & members != "NA") %>% select(members)
+  ## look for chamber errors
+  #look <- filter(data, 
+                # is.na(chamber)  & !is.na(members) & members != "NA") %>% select(members)
   
   # FROM = members (drops old FROM)
   data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.|")) %>% 
@@ -66,8 +72,12 @@ clean <- function(file.name) {
    
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
   ## extract member names from the letter texts (members is only for 110th - 118th)
-  ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
+  ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasting to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
   #FIXME
+ 
+ ## incomplete function 
+ # data %<>% filter(str_detect(members))
+ 
   d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
   d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
   
@@ -76,6 +86,11 @@ clean <- function(file.name) {
   sum(!is.na(d2$last_name)&d2$year==2001)
   
   data <- full_join(d1, d2)
+  
+  look<-data %>% 
+    filter(is.na(last_name)) %>%
+    count(FROM) %>%
+    arrange(-n)
   
   sum(!is.na(data$last_name))
   
@@ -714,6 +729,21 @@ data %<>%
 } ## END CLEAN FUNCTION
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+## NOT RUN UNLESS TESTING
+if(F){
 #Useful Tools
 ###################################################################################################
 
@@ -783,3 +813,4 @@ fixingDistrict <- data %>%
 fixingDistrict1 <- data %>% 
   select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
   filter(is.na(Place_State), str_detect(Place_District, "yes"), str_detect(ProProject, "."))
+}
