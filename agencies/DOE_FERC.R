@@ -714,6 +714,21 @@ data %<>%
 } ## END CLEAN FUNCTION
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+## NOT RUN UNLESS TESTING
+if(F){
 #Useful Tools
 ###################################################################################################
 
@@ -783,3 +798,4 @@ fixingDistrict <- data %>%
 fixingDistrict1 <- data %>% 
   select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
   filter(is.na(Place_State), str_detect(Place_District, "yes"), str_detect(ProProject, "."))
+}
