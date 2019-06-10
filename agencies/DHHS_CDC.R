@@ -9,7 +9,7 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
   #Create LetterID
   data %<>%
@@ -40,9 +40,27 @@ clean <- function(file.name) {
   #data %<>%
   #mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
   #mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
- 
+  
+  
+  #Comments errors for CDC Director and HHS Secretary  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
+  
+  #Filters out unwanted observations
+  data %<>%
+    filter( ! str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC")) %<>%
+    filter ( ! str_detect(FROM, "HHS, Secretary")) %<>%
+    filter( ! str_detect(FROM, "President, of the United States"))
+  
    # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
+  
+  #Checks how many members are not captured
+  FROMunamed <- data %>%
+    filter(is.na(last_name))
   
   #Create sample for all of the NA names and extract names from 'Title' into dataset
   Unfoundnames <- data %>%
@@ -52,30 +70,53 @@ clean <- function(file.name) {
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members, 'SUBJECT')
-  
-  sample <- Unfoundnames %>%
-    drop_na(last_name)
-  sample2 <- Unfoundnames2 %>%
+    extractMemberName(members, 'SUBJECT') %>%
     drop_na(last_name)
   
-  #Binding datasets data and Unfoundnames & Unfoundnames2
-  #Must be changed
-#data %<>%
-  #mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
-  #mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
-  
+  Unfoundnames %<>%
+    drop_na(last_name)
  
+ #Drops duplicate observations  
+Unfoundnames %<>%
+   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
+Unfoundnames2 %<>%
+   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
+data %<>%
+  filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
+  
+#Rejoin data that pulls authors from FROM, Title & SUBJECT
   data %<>%
-    mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$last_name , data$last_name))
-#May have to recode for multiple authors and then split into two/or more rows
+    full_join(Unfoundnames)
   
   data %<>%
-    mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+    full_join(Unfoundnames2)
   
+#Checks the number of memebers still not captured
+  notcaptured <- data %>%
+    filter(is.na(last_name))
+  
+#Checking for duplicates  
+  data %>%
+    filter(ID %in% data$ID)
+  
+  #Filter for observations with un-named authors
+  otherauthors <- data %>%
+    filter(str_detect(FROM, "others|et al"))
+  
+  #Make note of all observations with un-named authors
   data %<>%
-    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
+    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES))
+    
+data %<>%
+  mutate(NOTES = ifelse(str_detect(SUBJECT, "others"), "multiple unnamed authors", NOTES))
+
+#Check (b)(6) removals are correct
+Nab6<- data %>%
+  filter(str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
