@@ -75,13 +75,17 @@ clean <- function(file.name) {
   
   Unfoundnames %<>%
     drop_na(last_name)
+ 
+ #Drops duplicate observations  
+Unfoundnames %<>%
+   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
   
-  sample <- Unfoundnames %>%
-    drop_na(last_name)
-  sample2 <- Unfoundnames2 %>%
-    drop_na(last_name)
+Unfoundnames2 %<>%
+   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
   
-#May have to recode for multiple authors and then split into two/or more rows
+data %<>%
+  filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
   
 #Rejoin data that pulls authors from FROM, Title & SUBJECT
   data %<>%
@@ -94,8 +98,6 @@ clean <- function(file.name) {
   notcaptured <- data %>%
     filter(is.na(last_name))
   
-#Unable to remove redacted duplicates due to issue with NA vs (b)(6) notation
-
 #Checking for duplicates  
   data %>%
     filter(ID %in% data$ID)
@@ -110,6 +112,10 @@ clean <- function(file.name) {
     
 data %<>%
   mutate(NOTES = ifelse(str_detect(SUBJECT, "others"), "multiple unnamed authors", NOTES))
+
+#Check (b)(6) removals are correct
+Nab6<- data %>%
+  filter(str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
 
 
   # arrange columns for hand coding
