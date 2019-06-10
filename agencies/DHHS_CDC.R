@@ -11,10 +11,45 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
+
+  
   #Create LetterID
   data %<>%
     rename(LetterID = ID)
   
+  #Fix duplication
+  data %<>%
+    select(-c(FolderID, LetterID, Action)) %<>% distinct()
+ 
+   data %<>%
+    group_by(FROM, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           addressees = str_c(Addressee, collapse = "; ")) %>%
+    arrange(-n) %>%
+    select(-Addressee) %>%
+     ungroup() %>%
+    distinct()
+  
+   data %<>%
+     group_by(FROM, SUBJECT, DATE) %>%
+     mutate(n = n(),
+            Prorities = str_c(Prority, collapse = "; "),
+            Titles = str_c(Title, collapse = "; "),
+            AnswerDates = str_c(Answer.Date, collapse = "; "),
+            CloseDates = str_c(Close.Date, collapse = "; "),
+            ProgramDueDates = str_c(Program.Due.Date, collapse = "; "),
+            ReceiveDates = str_c(Receive.Date, collapse = "; ")) %>%
+     arrange(-n) %>%
+     select(-Prority, -Title, -Answer.Date, -Close.Date, -Program.Due.Date, -Receive.Date) %>%
+     ungroup() %>%
+     distinct()
+  
+    data %<>%
+     group_by(FROM, SUBJECT, DATE) %>%
+     mutate(n = n())%>%
+     arrange(-n, FROM) %>%
+     ungroup()
+     
   #Fix Duplicate ID
   data %<>%
     mutate(ID = row_number())
@@ -94,13 +129,6 @@ data %<>%
   data %<>%
     full_join(Unfoundnames2)
   
-#Checks the number of memebers still not captured
-  notcaptured <- data %>%
-    filter(is.na(last_name))
-  
-#Checking for duplicates  
-  data %>%
-    filter(ID %in% data$ID)
   
   #Filter for observations with un-named authors
   otherauthors <- data %>%
@@ -112,6 +140,8 @@ data %<>%
     
 data %<>%
   mutate(NOTES = ifelse(str_detect(SUBJECT, "others"), "multiple unnamed authors", NOTES))
+
+
 
 #Check (b)(6) removals are correct
 Nab6<- data %>%
