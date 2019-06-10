@@ -9,10 +9,15 @@ library(Rvoteview)
 # This script aguments member names from voteview to enable merging with wide variety of name formats. Matching functions are in nameMethods.R
 
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
-                     member_search(congress = c(109:120))) %>% # get voteview data for selected Congresses
+                     member_search(congress = c(109:120)))  # get voteview data for selected Congresses
   # format state
-  mutate(state = tolower(state)) %>%
-  group_by(chamber, party_code, congress) %>% mutate(party_size = n()) %>% ungroup() %>% 
+ members%<>%
+   mutate(state = tolower(state)) %>%
+   
+  group_by(chamber, party_code, congress) %>%
+   mutate(party_size = n()) %>% 
+   
+   ungroup() %>% 
     # mutate(state = as.character(state)) %>%
     # extract first, middle, last, and common names
     mutate(last_name = gsub(", .*", "", bioname)) %>%
@@ -266,6 +271,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "REHBERG, Denny", "R", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "YOHO, Ted", "S", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "LIPINSKI, Daniel", "W", middle_initial)) %>%
+  
   # first names
     mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
@@ -311,4 +318,5 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% filter(congress > 109)
   
   save(members, members_106to109th, file = "members/nameCongress.Rdata")
+  
   
