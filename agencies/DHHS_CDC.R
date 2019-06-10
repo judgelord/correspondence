@@ -44,6 +44,10 @@ clean <- function(file.name) {
    # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
+  #Checks how many members are not captured
+  FROMunamed <- data %>%
+    filter(is.na(last_name))
+  
   #Create sample for all of the NA names and extract names from 'Title' into dataset
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
@@ -52,7 +56,11 @@ clean <- function(file.name) {
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members, 'SUBJECT')
+    extractMemberName(members, 'SUBJECT') %>%
+    drop_na(last_name)
+  
+  Unfoundnames %<>%
+    drop_na(last_name)
   
   sample <- Unfoundnames %>%
     drop_na(last_name)
@@ -60,16 +68,29 @@ clean <- function(file.name) {
     drop_na(last_name)
   
   #Binding datasets data and Unfoundnames & Unfoundnames2
-  data %<>%
-    mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
+  #Must be changed
+#data %<>%
+  #mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$first_name  , data$first_name  )) %>% 
+  #mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames$last_name , data$last_name))
   
  
-  data %<>%
-    mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$last_name , data$last_name))
+  #data %<>%
+   # mutate(first_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$first_name  , data$first_name  )) %>% 
+    #mutate(last_name = ifelse(data$FROM == is.na(FROM), Unfoundnames2$last_name , data$last_name))
 #May have to recode for multiple authors and then split into two/or more rows
   
+#Rejoin data that pulls authors from FROM, Title & SUBJECT
+  data %<>%
+    full_join(Unfoundnames)
+  
+  data %<>%
+    full_join(Unfoundnames2)
+  
+#Checks the number of memebers still not captured
+  notcaptured <- data %>%
+    filter(is.na(last_name))
+
+  #Comments errors for CDC Director and HHS Secretary  
   data %<>%
     mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
   
