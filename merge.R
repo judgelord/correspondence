@@ -740,7 +740,6 @@ load("data/all_contacts_committees.Rdata")
 dcommittees %<>% full_join(all_contacts_committees)
 }
 
-save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 
