@@ -9,7 +9,7 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
   #Create LetterID
   data %<>%
@@ -40,17 +40,24 @@ clean <- function(file.name) {
   #data %<>%
   #mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
   #mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
- 
-   # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  
+  
+  #Comments errors for CDC Director and HHS Secretary  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
   
   #Filters out unwanted observations
   data %<>%
     filter( ! str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC")) %<>%
-    filter ( ! str_detect(FROM, "HHS, Secretary"))
+    filter ( ! str_detect(FROM, "HHS, Secretary")) %<>%
+    filter( ! str_detect(FROM, "President, of the United States"))
   
+   # create variable for first and last name
+  data <- getFirstLast.Comma(data, "FROM")
   
- 
   #Checks how many members are not captured
   FROMunamed <- data %>%
     filter(is.na(last_name))
@@ -86,17 +93,22 @@ clean <- function(file.name) {
 #Checks the number of memebers still not captured
   notcaptured <- data %>%
     filter(is.na(last_name))
-  
-#Filters out CDC Director
-  FROMunamed %<>%
-    
 
-  #Comments errors for CDC Director and HHS Secretary  
-  data %<>%
-    mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+#Checking for duplicates  
+  data %>%
+    filter(ID %in% Unfoundnames$ID)
   
+  #Filter for observations with un-named authors
+  otherauthors <- data %>%
+    filter(str_detect(FROM, "others|et al"))
+  
+  #Make note of all observations with un-named authors
   data %<>%
-    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
+    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES))
+    
+data %<>%
+  mutate(NOTES = ifelse(str_detect(SUBJECT, "others"), "multiple unnamed authors", NOTES))
+
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
