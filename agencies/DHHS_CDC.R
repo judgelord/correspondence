@@ -93,10 +93,12 @@ clean <- function(file.name) {
 #Checks the number of memebers still not captured
   notcaptured <- data %>%
     filter(is.na(last_name))
+  
+#Unable to remove redacted duplicates due to issue with NA vs (b)(6) notation
 
 #Checking for duplicates  
   data %>%
-    filter(ID %in% Unfoundnames$ID)
+    filter(ID %in% data$ID)
   
   #Filter for observations with un-named authors
   otherauthors <- data %>%
