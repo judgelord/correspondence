@@ -236,19 +236,19 @@ send_message(mime(
 # fix date-specific member name and party issues. 
 # See bad.party object for party switchers to check 
 d$icpsr %<>% as.numeric()
-d %<>% fix.member.date.coding # edit MemberNameDateCorrections.R script in members folder
+
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
-d %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP - this is now done better in fix.member.data.coding function, hopefully
-d %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP  - this is now done better in fix.member.data.coding function, hopefully
-##############
 
-
+# party switchers etc
+d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
 
 #######################
 # ERRORS we can't fix #
 #######################
 
 # Reoccuring problem names
+# FIXME 
+# Rewrite with purrr
 names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey|Stacy','Plaskett'),
               e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
               i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'),l=c('Brian','De Va(|ll)ance'),
