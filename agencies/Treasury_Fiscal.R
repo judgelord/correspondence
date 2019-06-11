@@ -25,6 +25,8 @@ clean <- function(file.name) {
   
   # ###############    
   # # Creates duplicate rows for lines with multiple representatives
+  # FIXME 
+  # This cane be done better with str_split(FROM) %>% unnest(FROM)
   # for(i in 1:nrow(data)){
   #   if(grepl(" AND ", data$FROM[i])) {
   #     
@@ -41,12 +43,14 @@ clean <- function(file.name) {
   
   data <-  extractMemberName(data,members,"FROM")
   
-  data <- data[-grep("\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA", data$FROM),]
+  ## Are we shure that we want to delete all of these observations?
+  data %<>% filter(!str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())
   
+  # apply codebook
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DEBT|CHECK CLAIM|DIRECT DEPOSIT|EFT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DEBT|CHECK CLAIM|DIRECT DEPOSIT|EFT", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%

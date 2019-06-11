@@ -27,16 +27,25 @@ clean <- function(file.name) {
   # # create variable for full name
   # data$FROM <- gsub("Tanko", "Tonko", data$FROM)
   # data <- extractMemberName(data, members,"FROM")
-  data$FROM <- data$Status
-  data$last_name <- NA
+  data %<>% 
+    rename(FROM = Status)
+
+  # FIXME 
+  # Is this right? Are there no other places where names appear where FROM is NA?
+  data %<>% 
+    drop_na(FROM)
   
-  data <- data[!is.na(data$FROM),]
-  
-  data2 <- data[data$FROM == "Closed",]
-  data2 <- extractMemberName(data2, members, 'SUBJECT')
+  data2 %<>% 
+    # FIXME
+    # sometimes member names ended up in SUBJECT (where FROM is "Closed")
+    # maybe it would be better to just coppy subject into FROM in these cases
+    filter(FROM == "Closed") %>%
+    extractMemberName(members, 'SUBJECT')
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
+  # FIXME 
+  # better done with str_split and unnest. See DOL_SOL and FDA
   for(i in 1:nrow(data)){
     if(grepl(";", data$FROM[i])) {
       
@@ -47,13 +56,19 @@ clean <- function(file.name) {
       
     }
   }
+  # FIXME 
+  # dropping these observations is risky and maybe not necessary if we use unnest(FROM) above
   data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
+  
+  # Remove extra white space...there is a function for this 
+  data$FROM %<>% str_remove_all("^ |^  | $|  $", "")
+  
+  data %<>% filter(!FROM == "") # removes blank observations
   ################
   
   
-  
+  # FIXME 
+  # We should aim to run the extractMemberNames or getFirstLast.Comma or whatever name detection function we are using only once per column of names. 
   data <- getFirstLast.Comma(data, 'FROM')
   # data2 <- data[data$FROM == "Closed",]
   
@@ -72,6 +87,7 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())
   
+  # apply codebook to type 
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,DATE)) %>%
   mutate(SUBJECT = paste(SUBJECT,SYSTEM)) %>%
