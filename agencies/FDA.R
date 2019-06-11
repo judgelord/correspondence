@@ -38,11 +38,9 @@ clean <- function(file.name) {
   
  
   # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|Congressman) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
-  # clean from
-  data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|(b) (6)","", data$FROM)
-  data$FROM <- gsub("^ ","", data$FROM)
+ 
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
@@ -60,6 +58,24 @@ clean <- function(file.name) {
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
   data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
+  
+  # clean from
+  data %<>%
+    mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et.al|et. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
+                              ASSOCIATE.*| SENATOR.*| HOUSE OF REPRESENTATIVES.*| ASSOCIATE COMMISSIONER.*| HOUSE OF REPRESENTATIVES.*| CONGRESS.*|fno orgl |Ino orgl |\\[no orgl | U.S. Senate|FDA\\/OC\\/OPP\\/| G FDA\\/OPPLA\\/OL\\/|Mr. |Ms. |
+                              Dr. |Inc | Honorable| Sen| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida")))
+  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Warner, Mark R US", "Warner, Mark R")) %>%
+    mutate(FROM = str_replace(FROM, "BROWN, SHERROD .", "Brown, Sherrod")) %>%
+    mutate(FROM = str_replace(FROM, "STOCKMAN, STEVE (R) TEXAS", "Stockman, Steve")) %>%
+    mutate(FROM = str_replace(FROM, "Miller, Mke", "Miller, Mike"))
+  
+  #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
+  
+data$FROM <- gsub("^ ","", data$FROM)
+  
+
   ################
   
   
@@ -68,8 +84,21 @@ clean <- function(file.name) {
   data %<>%
     getFirstLast.Comma("FROM")
   
+ 
+data %<>%
+  filter( ! FROM %in% c("[no org]", "Rec/Create Date:", "Office:","[no person]", "CONSTITUENT", "BE3H","BE3^^H","Ino orgl", "UNITED STATES" ))
+
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
+    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne"), "Not Member of Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(FROM %in% c("Addtional", "E&C Committee, U. S. Congress"), "Multiple unnamed Members of Congress", NOTES))
   
-  
+#Filter while working (Comment out) 
+  #data %<>%
+   # filter( ! FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "Addtional", "E&C Committee, U. S. Congress", "von Eschenbach, Andrew C" ))
+ 
+  unfoundnames<- data %>%
+   filter(is.na(last_name))
   
   
   
