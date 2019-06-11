@@ -72,7 +72,8 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et.al|et. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
                               ASSOCIATE.*| SENATOR.*| HOUSE OF REPRESENTATIVES.*| ASSOCIATE COMMISSIONER.*| HOUSE OF REPRESENTATIVES.*| CONGRESS.*|fno orgl |Ino orgl |\\[no orgl | U.S. Senate|FDA\\/OC\\/OPP\\/| G FDA\\/OPPLA\\/OL\\/|Mr. |Ms. |
-                              Dr. |Inc | Honorable| Sen| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida")))
+                              Dr. |Inc | Honorable| Sen| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
+                                  anonymous |anonymous, anonymous | Ino orgl")))
   data %<>%
     mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR.|Jr."))
   
@@ -95,21 +96,23 @@ data$FROM <- gsub("^ ","", data$FROM)
   data %<>%
     getFirstLast.Comma("FROM")
 
-
-  
  
 data %<>%
   filter( ! FROM %in% c("[no org]", "Rec/Create Date:", "Office:","[no person]", "CONSTITUENT", "BE3H","BE3^^H","Ino orgl", "UNITED STATES", "SENATE", "fno orgl" ))
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
-    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER"), "Not Member of Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER", 
+                                      "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown"), "Not Member of Congress", ERROR)) %>%
     mutate(ERROR = ifelse(FROM %in% c("Addtional", "E&C Committee, U. S. Congress"), "Multiple unnamed Members of Congress", NOTES))
   
 #Filter while working (Comment out) 
-  #data %<>%
-   #filter( ! FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "Addtional", "E&C Committee, U. S. Congress", "von Eschenbach, Andrew C", "ST.JOHN ST. JOHN MEDICAL CENTER", "[no orq]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER" ))
+  data %<>%
+   filter( ! FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "Addtional", "E&C Committee, U. S. Congress", "von Eschenbach, Andrew C", "ST.JOHN ST. JOHN MEDICAL CENTER", "[no orq]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
+  "GINGREY, PHILLIP","INDIANA UNIVERSITY SCHOOL OF MEDICINE","Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.","Unknown, Unknown"))
  
+  data <- data[!data$FROM == "",] # removes blank observations
+  
   unfoundnames<- data %>%
    filter(is.na(last_name))
   
