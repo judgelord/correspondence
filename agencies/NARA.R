@@ -6,16 +6,22 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # No duplicated ID cases
-  data$ID <- c(1:nrow(data))
+  # Make ID column. No duplicated or multi-member letters cases found
+  data %<>% 
+    rowid_to_column("ID")
   
-  colnames(data)[colnames(data) == 'Description'] <- 'SUBJECT'
+  # Rename to standard column names 
+  data %<>% 
+    rename(SUBJECT = Description,
+           DATE = Date,
+           FROM = `Member of Congress`) 
   
   # create agency column
-  data$agency <- file.name
+  data %<>% 
+    mutate(agency = file.name)
+
 
   # Format date, year, Congress, member name etc.
-  colnames(data)[colnames(data) == 'Date'] <- 'DATE'
   data$DATE %<>% multidate( c("%m-%d-%y", "%m/%d/%Y"))
 
 
@@ -23,11 +29,8 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  # Create FROM column
-  colnames(data)[colnames(data) == 'Member of Congress'] <- 'FROM'
-  
   # create first and last name variables
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM')
   
   # arrange columns for hand coding
   data %<>% select(DATE, FROM, SUBJECT, everything())
