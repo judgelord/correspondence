@@ -156,7 +156,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "DHHS_CDC") 
+i <- which(data_list$agency == "NARA") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
