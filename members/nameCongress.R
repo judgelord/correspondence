@@ -17,7 +17,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   group_by(chamber, party_code, congress) %>%
    mutate(party_size = n()) %>% 
    
-   ungroup() %>% 
+   ungroup()
+   
+   
+   members %<>%
     # mutate(state = as.character(state)) %>%
     # extract first, middle, last, and common names
     mutate(last_name = gsub(", .*", "", bioname)) %>%
@@ -311,7 +314,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
 
   
-  members$congresses <- NA # this list format throughs errors in merge
+  members %<>% select(-congresses)
 
   members_106to109th <- filter(members, congress < 112)
   

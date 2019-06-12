@@ -13,7 +13,7 @@ editor_options:
 ```{r setup, include=FALSE, echo=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
-requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
+requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here", "devtools")
   to_install <- c(!requires %in% rownames(installed.packages() ) )
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
 
