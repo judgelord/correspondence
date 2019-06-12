@@ -87,11 +87,22 @@ clean <- function(file.name) {
   
   data <- full_join(d1, d2)
   
-  look<-data %>% 
-    filter(is.na(last_name)) %>%
-    count(FROM) %>%
-    arrange(-n)
   
+  
+look<-data %>% 
+    filter(is.na(last_name)) %>%
+    count(FROM,congress) %>%
+    arrange(-n)
+d1 <- look %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
+d2 <- look %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
+
+data <- look %>% filter(congress<110) 
+
+
+sum(!is.na(d1$first_name))
+
+look <- full_join(d1, d2)
+
   sum(!is.na(data$last_name))
   
   sum(!is.na(data$last_name)&data$year==2001)

@@ -43,7 +43,7 @@ clean <- function(file.name) {
    mutate(FROM = str_replace(FROM, "16 Addtional BURR, RICHARD", "16 Addtional; BURR, RICHARD"))
  
   # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|Congressman) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
  
   
@@ -53,6 +53,9 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, ";|\\[norg\\]|norgl")) %>%
     unnest(FROM)
   
+  #Filter while working
+  data %<>%
+    filter( ! FROM %in% c("HAMBURG, MARGARET Commissioner U.S. Food and Drug Administration", "HAMBURG, M.D., MARGARET Food and Drug Administration"))
   #for(i in 1:nrow(data)){
     #if(grepl(";|\\[norg\\]|norgl", data$FROM[i])) {
       
@@ -81,7 +84,13 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Warner, Mark R US", "Warner, Mark R")) %>%
     mutate(FROM = str_replace(FROM, "BROWN, SHERROD .", "Brown, Sherrod")) %>%
     mutate(FROM = str_replace(FROM, "STOCKMAN, STEVE (R) TEXAS", "Stockman, Steve")) %>%
-    mutate(FROM = str_replace(FROM, "Miller, Mke", "Miller, Mike"))
+    mutate(FROM = str_replace(FROM, "Miller, Mke", "Miller, Mike")) %>%
+    mutate(FROM = str_replace(FROM, "FRANKEN, ALS", "FRANKEN, AL S")) %>%
+    mutate(FROM = str_replace(FROM, "BACHUS, SPENCERT", "Bachus, Spencer T")) %>%
+    mutate(FROM = str_replace(FROM, "TIBERI, PATRICKJ", "Tiberi, Patrick J")) %>%
+    mutate(FROM = str_replace(FROM, "ESHOO, ANNAG", "Eshoo, Anna G")) %>%
+    mutate(FROM = str_replace(FROM, "KIRK, MARKS", "Kirk, Mark S")) %>%
+    mutate(FROM = str_replace(FROM, "LAUTENBERG, FRANKR", "Lautenberg, Frank R"))
   
   #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
   
@@ -102,14 +111,15 @@ data %<>%
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U.S. Food and Drug Administration", ERROR)) %>%
     mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER", 
                                       "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown"), "Not Member of Congress", ERROR)) %>%
     mutate(ERROR = ifelse(FROM %in% c("Addtional", "E&C Committee, U. S. Congress"), "Multiple unnamed Members of Congress", NOTES))
   
 #Filter while working (Comment out) 
-  #data %<>%
-   #filter( ! FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "Addtional", "E&C Committee, U. S. Congress", "von Eschenbach, Andrew C", "ST.JOHN ST. JOHN MEDICAL CENTER", "[no orq]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
-  #"GINGREY, PHILLIP","INDIANA UNIVERSITY SCHOOL OF MEDICINE","Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.","Unknown, Unknown"))
+  data %<>%
+   filter( ! FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "Addtional", "E&C Committee, U. S. Congress", "von Eschenbach, Andrew C", "ST.JOHN ST. JOHN MEDICAL CENTER", "[no orq]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
+  "GINGREY, PHILLIP","INDIANA UNIVERSITY SCHOOL OF MEDICINE","Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.","Unknown, Unknown"))
  
   data <- data[!data$FROM == "",] # removes blank observations
   
