@@ -152,24 +152,11 @@ formatFirstName <- function(data, col_name){
 extractMemberName <- function(data, members, col_name){
   
   data$Summary <- data[[col_name]]
+  
+  data %<>% mutate(Summary = data[[col_name]])
 
   
-  # MOVE To nameCongress.R 
-  # change NA to blanks for pasting purposes
 
-# change NA to blanks for pasting purposes
-  members$common_name <- ifelse(is.na(members$common_name), "zq", members$common_name)
-  
-  #create full name variables with different combinations of first, common, middle, middle initial, and last name
-  members$first_last <- paste(members$first_name, members$last_name, sep = " ")
-  members$common_last <- paste(members$common_name, members$last_name, sep = " ")
-  members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
-  members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
-  members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
-  members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
-  
-  
-members$common_name <- ifelse(members$common_name == "zq", NA, members$common_name)
   
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
@@ -721,7 +708,7 @@ getFirstLast.Comma <- function(data, col_name){
 # May need adjustments for different agencies/formats
 ocr.errors <- function(FROM){
   
-  # adds "ll" to last names
+  # adds deleted "ll" to last names
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("(^| )Dinge($| )", "\\1Dingell\\2", FROM)
   FROM <- gsub("Connoy", "Connolly", FROM)
