@@ -9,11 +9,50 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
-  ### Remove duplicate IDs
-  # FIXME
-  # data <- data[!duplicated(data$ID), ] # multiple IDs are TO different people 
+
+  
+  #Create LetterID
+  data %<>%
+    rename(LetterID = ID)
+  
+  #Fix duplication
+  data %<>%
+    select(-c(FolderID, LetterID, Action)) %<>% distinct()
+ 
+   data %<>%
+    group_by(FROM, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           addressees = str_c(Addressee, collapse = "; ")) %>%
+    arrange(-n) %>%
+    select(-Addressee) %>%
+     ungroup() %>%
+    distinct()
+  
+   data %<>%
+     group_by(FROM, SUBJECT, DATE) %>%
+     mutate(n = n(),
+            Prorities = str_c(Prority, collapse = "; "),
+            Titles = str_c(Title, collapse = "; "),
+            AnswerDates = str_c(Answer.Date, collapse = "; "),
+            CloseDates = str_c(Close.Date, collapse = "; "),
+            ProgramDueDates = str_c(Program.Due.Date, collapse = "; "),
+            ReceiveDates = str_c(Receive.Date, collapse = "; ")) %>%
+     arrange(-n) %>%
+     select(-Prority, -Title, -Answer.Date, -Close.Date, -Program.Due.Date, -Receive.Date) %>%
+     ungroup() %>%
+     distinct()
+  
+    data %<>%
+     group_by(FROM, SUBJECT, DATE) %>%
+     mutate(n = n())%>%
+     arrange(-n, FROM) %>%
+     ungroup()
+     
+  #Fix Duplicate ID
+  data %<>%
+    mutate(ID = row_number())
   
   #create agency column
   data$agency <- file.name
@@ -28,23 +67,86 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-  
-  data2 <- data
-  data2 <- extractMemberName(data, members, 'Title')
-  data2 %<>%
-    mutate(first_name = ifelse(FROM=="(b)(6)", first_name, NA)) %>% 
-    mutate(last_name = ifelse(FROM=="(b)(6)", last_name, NA))
  
-  # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+   # data2 %<>%
+  #   mutate(first_name = ifelse(FROM=="(b)(6)", first_name, NA)) %>%
+  #   mutate(last_name = ifelse(FROM=="(b)(6)", last_name, NA))
   
-  data %<>%
-    mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
-    mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
+  #data %<>%
+  #mutate(first_name = ifelse(data$FROM =="(b)(6)", data2$first_name  , data$first_name  )) %>% 
+  #mutate(last_name = ifelse(data$FROM == "(b)(6)", data2$last_name , data$last_name))
   
   
+  #Comments errors for CDC Director and HHS Secretary  
   data %<>%
     mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+  
+  data %<>%
+    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
+  
+  #Filters out unwanted observations
+  data %<>%
+    filter( ! str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC")) %<>%
+    filter ( ! str_detect(FROM, "HHS, Secretary")) %<>%
+    filter( ! str_detect(FROM, "President, of the United States"))
+  
+   # create variable for first and last name
+  data <- getFirstLast.Comma(data, "FROM")
+  
+  #Checks how many members are not captured
+  FROMunamed <- data %>%
+    filter(is.na(last_name))
+  
+  #Create sample for all of the NA names and extract names from 'Title' into dataset
+  Unfoundnames <- data %>%
+    filter(is.na(last_name)) %>%
+    extractMemberName(members, 'Title')
+  
+  #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
+  Unfoundnames2 <- Unfoundnames %>%
+    filter(is.na(last_name)) %>%
+    extractMemberName(members, 'SUBJECT') %>%
+    drop_na(last_name)
+  
+  Unfoundnames %<>%
+    drop_na(last_name)
+ 
+ #Drops duplicate observations  
+Unfoundnames %<>%
+   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
+Unfoundnames2 %<>%
+   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
+data %<>%
+  filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  
+  
+#Rejoin data that pulls authors from FROM, Title & SUBJECT
+  data %<>%
+    full_join(Unfoundnames)
+  
+  data %<>%
+    full_join(Unfoundnames2)
+  
+  
+  #Filter for observations with un-named authors
+  otherauthors <- data %>%
+    filter(str_detect(FROM, "others|et al"))
+  
+  #Make note of all observations with un-named authors
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES))
+    
+data %<>%
+  mutate(NOTES = ifelse(str_detect(SUBJECT, "others"), "multiple unnamed authors", NOTES))
+
+
+
+#Check (b)(6) removals are correct
+Nab6<- data %>%
+  filter(str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())

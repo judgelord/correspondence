@@ -8,6 +8,9 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  data %<>% 
+    mutate(ID = row_number())
+  
   data$FROM <- paste(data$AUTHOR.FIRST.NAME, data$AUTHOR.LAST.NAME, sep = " ")
   
   

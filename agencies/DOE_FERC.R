@@ -12,14 +12,19 @@ clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
 
-  data <- FERC_letters
+  data <- FERC_letters %>%
+    select(members,SUBJECT,everything())
+  
   sum(!is.na(data$TYPE))
+  
  
   data <- ungroup(FERC_letters)
 
 
+  
   # create agency column
   data$agency <- "DOE_FERC"
+  
   
   # Format date, year, Congress, member name etc. 
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -37,8 +42,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(is.na(chamber) & grepl("(Senate|Senator)",text_clean), 'Senate', chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", text_clean), "House", chamber)) 
   
-  look <- filter(data, 
-                 is.na(chamber)  & !is.na(members) & members != "NA") %>% select(members)
+  ## look for chamber errors
+  #look <- filter(data, 
+                # is.na(chamber)  & !is.na(members) & members != "NA") %>% select(members)
   
   # FROM = members (drops old FROM)
   data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.|")) %>% 
@@ -66,8 +72,12 @@ clean <- function(file.name) {
    
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
   ## extract member names from the letter texts (members is only for 110th - 118th)
-  ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasteing to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
+  ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasting to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
   #FIXME
+ 
+ ## incomplete function 
+ # data %<>% filter(str_detect(members))
+ 
   d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
   d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
   
@@ -76,6 +86,11 @@ clean <- function(file.name) {
   sum(!is.na(d2$last_name)&d2$year==2001)
   
   data <- full_join(d1, d2)
+  
+  look<-data %>% 
+    filter(is.na(last_name)) %>%
+    count(FROM) %>%
+    arrange(-n)
   
   sum(!is.na(data$last_name))
   
@@ -238,11 +253,11 @@ data %<>%
   mutate(AntiProject = ifelse (grepl("20141024-0017", ID, ignore.case = TRUE), "Atlantic Sunrise Natural Gas Pipeline Expansion Project", AntiProject)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20150826-4031|20150909-0009", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
-  #20070807-0086
+  #20070807-0086, political work 
   mutate(AntiProject = ifelse (grepl("20070807-0086", ID, ignore.case = TRUE), "Sentinel Expansion Project", AntiProject)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20070807-0086", ID, ignore.case = TRUE), "5", TYPE)) %>% 
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070807-0086", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
-  mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("20070807-0086", ID, ignore.case = TRUE), "political work", POLICY_EVENT))
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20070807-0086", ID, ignore.case = TRUE), "1", CERTAINTY))
+
   
 #directly coding within project
 data %<>%
@@ -290,42 +305,15 @@ data %<>%
   #20061115-0129, 20061115-0128: on behalf of fishers, on behalf of livestock owners
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
-  mutate(AntiProject = ifelse (grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "Klamath Hydroelectric Project", AntiProject)) 
+  mutate(AntiProject = ifelse (grepl("20061115-0129|20061115-0128", ID, ignore.case = TRUE), "Klamath Hydroelectric Project", AntiProject)) %>% 
+  #20060802-0128
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20060802-0128", ID, ignore.case = TRUE), "3", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20060802-0128", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
+  #20021008-0147, reinstate and extend the deadline for commencement of construction on a hydroelectric project
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20021008-0147", ID, ignore.case = TRUE), "4", TYPE)) %>% 
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20021008-0147", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20060412-0438", ID, ignore.case = TRUE), "2", ALT_TYPE))
   
-  
-
-
-
-#TESTING CODE-- 6/7
-fixprojectLUCY <- data %>% 
-  select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, Freelancer) %>% 
-  filter(grepl("project", SUBJECT, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject))
-
-#doesnt have concerns in it ie. more pro project
-fixprojectPRO <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, Freelancer) %>% 
-  filter(grepl("project", SUBJECT, ignore.case = TRUE) & !grepl("concerns", text_clean, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject), Freelancer == "Lara Basiao")
-  
-#without constituent
-fixprojectPROnoConst <- data %>% 
-select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, Notes, url, text_clean, Freelancer) %>% 
-  filter(grepl("project", SUBJECT, ignore.case = TRUE) & !grepl("constituent", SUBJECT, ignore.case = TRUE) & !grepl("concern", text_clean, ignore.case = TRUE),
-         is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject), Freelancer == "Priyal Singh", !grepl("badfiles|noncongress|bad files", Notes, ignore.case = TRUE))
-
-
-#type coding observations
-  #FERC's view=4
-  #HR 2938 bill =4 
-
-  #environemtnal isnt 5
-#US Senator Dianne Feinstein' response to FERC's letter which detailed how states can, in effect, "veto" an LNG Project. = 5
-
-#I would appreciate it if you would accommodate the Board's request for a meeting and
-#advise me of when that will be help so that I can make sure I have my office staff
-#participate. 
-
-#request for a meeting to discuss.... = 5 
-
 
 
 #############################################################
@@ -403,20 +391,37 @@ data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("extend.*comment|extension .*comment", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
         mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("extend.*comment|extension .*comment", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
         mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("extend.*comment|extension .*comment", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
-  #environmental impact statement 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("environmental impact statement", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("environmental impact statement", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-    mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("environmental impact statement", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
+  # #environmental impact statement 
+  # mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("environmental impact statement", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+  #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("environmental impact statement", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  #   mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("environmental impact statement", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
   #20171103-0262
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20171103-0262", ID, ignore.case = TRUE), "5", TYPE)) %>% 
    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20171103-0262", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   #PURPA Regulations
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("public utility regulatory", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("public utility regulatory", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
-      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("public utility regulatory", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE))
+      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("public utility regulatory", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
+  #Bill, most of them pre-2000
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & str_detect(SUBJECT, "bill") & !str_detect(SUBJECT, "bills") & !str_detect(SUBJECT, "billion") & !str_detect(SUBJECT, "billing"), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("public utility regulatory", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("public utility regulatory", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+  #Enron and 20020506-0181
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("enron", SUBJECT, ignore.case = TRUE) | grepl("enron", text_clean, ignore.case = TRUE) | grepl("20020506-0181", ID, ignore.case = TRUE), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("enron", SUBJECT, ignore.case = TRUE) | grepl("enron", text_clean, ignore.case = TRUE) | grepl("20020506-0181", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+  #ID 20050810-0209, Energy Policy Act of 2005 
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20050810-0209", ID, ignore.case = TRUE), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("20050810-0209", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20050810-0209", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
+  #ID 20011019-0286
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20011019-0286", ID, ignore.case = TRUE), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("20011019-0286", ID, ignore.case = TRUE), "2", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20011019-0286", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>% 
+  #ID 20011129-0011
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20011129-0011", ID, ignore.case = TRUE), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("20011129-0011", ID, ignore.case = TRUE), "2", CERTAINTY)) %>% 
+      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20011129-0011", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE))
 
- 
-  
 
 ###Type 3
 data %<>%
@@ -471,7 +476,20 @@ data %<>%
   #new license terms 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("new license terms", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("new license terms ", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("new license terms ", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE))  
+      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("new license terms ", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+  #ID 20020102-0045
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20020102-0045", ID, ignore.case = TRUE), "4", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20020102-0045", ID, ignore.case = TRUE), "2", CERTAINTY)) %>%
+      mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20020102-0045", ID, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+  #ID 20150203-0054
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20150203-0054", ID, ignore.case = TRUE), "4", TYPE)) %>%
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20150203-0054", ID, ignore.case = TRUE), "2", CERTAINTY)) %>%
+    mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20150203-0054", ID, ignore.case = TRUE), "2", ALT_TYPE)) %>% 
+  #ID 20141015-0038
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20141015-0038", ID, ignore.case = TRUE), "4", TYPE)) %>%
+   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20141015-0038", ID, ignore.case = TRUE), "2", CERTAINTY)) %>%
+    mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("20141015-0038", ID, ignore.case = TRUE), "2", ALT_TYPE))
+  
 
 ##TYPE 5 (lower level)
   data %<>% 
@@ -511,7 +529,10 @@ data %<>%
                mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
         mutate(POLICY_EVENT = ifelse(!grepl("[0-9]", POLICY_EVENT) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "rule", POLICY_EVENT)) %>% 
             mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "Federal Power Act, ISO New England", EVENT_NAME)) %>%
-            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "08-Jan-2016", EVENT_DATE))
+            mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("ER16-307|ICR", SUBJECT, ignore.case = TRUE), "08-Jan-2016", EVENT_DATE)) %>% 
+  #wholesale market
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("wholesale market", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("wholesale market", SUBJECT, ignore.case = TRUE), "2", CERTAINTY))
 
   
 ###TYPE 1 (lower level) 
@@ -665,7 +686,6 @@ data %<>%
           mutate(EVENT_DATE = ifelse(!grepl("[0-9]", EVENT_DATE) & grepl("RM06-4", SUBJECT, ignore.case = TRUE), "20-Jul-2006", EVENT_DATE))
   
 
-
 #Place_District
 ###############
 
@@ -687,19 +707,6 @@ data %<>%
   mutate(EVENT_NAME = ifelse(!grepl("[0-9]", EVENT_NAME) & grepl("slamming the federal", SUBJECT, ignore.case = TRUE), "Hurricane Katrina", EVENT_NAME))
 
 
-
-#code to test which have no Place State but have a Place District
-    #continue checking this
-fixingDistrict <- data %>% 
-select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
-filter(is.na(Place_State), str_detect(Place_District, "yes"))
-      
-#all of the "yes" place district without states that have an attached project
-fixingDistrict1 <- data %>% 
-select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
-filter(is.na(Place_State), str_detect(Place_District, "yes"), str_detect(ProProject, "."))
-
-
 #Other
 ############
 
@@ -717,8 +724,6 @@ data %<>%
   mutate(AntiBusiness = ifelse (grepl("20170324-0041", ID, ignore.case = TRUE), "PennEast Pipeline Company", AntiBusiness))
 
 
-
-
   return(data)
 
 } ## END CLEAN FUNCTION
@@ -731,9 +736,16 @@ data %<>%
 
 
 
-#Useful Search Tools
-######################
 
+
+
+
+
+
+## NOT RUN UNLESS TESTING
+if(F){
+#Useful Tools
+###################################################################################################
 
 #Used to check through misnamed members
 #looking at members count
@@ -743,61 +755,41 @@ countMembers <- data %>%
   count(FROM2) %>% 
   arrange(-n)
 
-##Used to check through whole dataset to find trends for TYPE
+##used to check through whole dataset to find trends for TYPE
 showme <- data %>% 
   select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
   filter( grepl("environmental impact statement", SUBJECT, ignore.case = TRUE)) 
 
+#used to find counts of ID repeats to find more trends 
+countSearch <- data %>% 
+  select(ID, TYPE, SUBJECT, url, text_clean) %>% 
+  filter(is.na(TYPE)) %>% 
+  count(ID) %>% 
+  arrange(-n)
+
 #duplicates, where they don't join
 anti_join(FERC_letters, data) 
-  
 
+#check the variables 
+unique(data$Place_District)
 
-#Testing
-######################################################################################################################
+#run to show the problems
+#filter(data, ID%in%problemIDs)
 
+#TO DO:
+###################################################################################################
 
-#Fixing Docket Variable
-############################
-
-#check if these are miscoded and if not add the docket number 
-docket1 <- data %>% 
-  select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, POLICY_EVENT, docket, text_clean, url) %>% 
-  filter(POLICY_EVENT == "rule", !grepl("rulemaking", SUBJECT, ignore.case = TRUE))
-
-docket2 <- data %>% 
+#To Do: still need to make sure there aren't miscoded rules, and add order numbers
+docket <- data %>% 
   select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, POLICY_EVENT, docket, text_clean, url) %>% 
   filter(POLICY_EVENT == "rule", is.na(docket))
 
-##checking percentage missed in propoject
-
-
-fixprojectLUCY <- data %>% 
+#To Do: still need to go through missing projects and find anti projects and pro projects
+fixproject <- data %>% 
   select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, url, Freelancer) %>% 
   filter(grepl("project", SUBJECT, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject))
 
-
-antiproject <- data %>% 
-  select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, url) %>% 
-  filter(grepl("concerns.*project", SUBJECT, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject))
-
-fixproject <- data %>% 
-  select(ID, SUBJECT, TYPE, ProProject, ProBusiness, AntiBusiness, AntiProject, url, Freelancer) %>% 
-  filter(!grepl("on behalf .* constituent", SUBJECT, ignore.case = TRUE), grepl("LNG project", SUBJECT, ignore.case = TRUE), is.na(ProProject), is.na(ProBusiness), is.na(AntiBusiness), is.na(AntiProject))
-
-
-
-  
-  
-  ###
-  membersCHECK <- data %>% 
-  select(ID, Summary, FROM2, first_name, last_name, SUBJECT, TYPE, ProBusiness, ProProject) %>% 
-  filter(is.na(first_name), is.na(last_name))
-
-
-
-#Forwarding
-###########
+#To Do: find pattern within forwarded letters...test code
 
 #forwarding with short text in the letter
 forwardSHORT <- data %>% 
@@ -810,106 +802,15 @@ forwardLONG <- data %>%
   filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350)
 
 
-#forwarding long letters Pro Business 
-#fewer than Anti
-forwardProBusiness <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, AntiProject, text_clean, url) %>% 
-  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350, grepl(".", ProBusiness))
+#code to test which have no Place State but have a Place District
+#continue checking this
+fixingDistrict <- data %>% 
+  select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
+  filter(is.na(Place_State), str_detect(Place_District, "yes"))
 
-#forwarding long letters Anti Business
-#more than Anti
-forwardAntiBusiness <- data %>% 
-  select(ID, SUBJECT, TYPE, AntiBusiness, AntiProject, text_clean, url) %>% 
-  filter(grepl("forwards|fwds|fwd", SUBJECT, ignore.case = TRUE), nchar(text_clean) >= 350, grepl(".", AntiBusiness))
-
-
-
-
-#Type 2 that aren't under probusiness or proproject
-###################################################
-#fix this
-#ID number, or company name
-#company name
-
-Type2 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
-  filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
-
-
-#AntiBusiness but not ProBusiness, notes
-#########################################
-
-#checking
-checkAntiBusiness <- data %>% 
-  select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, Notes, url) %>% 
-  filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
-
-#NOTES
-######################################################################################################################
-
-#run to show the problems
-#filter(data, ID%in%problemIDs)
-
-##constant working on 
-amountleft <- data %>% 
-  select(ID, SUBJECT, TYPE, url ,ProBusiness, ProProject, Constituent, AntiBusiness) %>% 
-  filter(is.na(TYPE))
-
-
-showme <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
-  filter( grepl("RM18-1", SUBJECT, ignore.case = TRUE)) 
-
-showme2 <- data %>% 
-  
-  select(ID, SUBJECT, TYPE, ProBusiness, text_clean, url) %>% 
-  filter(grepl("on behalf of", SUBJECT, ignore.case = TRUE), grepl("rulemaking", SUBJECT, ignore.case = TRUE))
-
-
-select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url, Freelancer) %>% 
-  filter( grepl("20050127-0025", ID, ignore.case = TRUE)) 
-
-select(ID, SUBJECT, TYPE, FROM2, first_name, last_name) %>% 
-  filter(grepl("Bob Graham", FROM2, ignore.case = TRUE)) 
-
-
-showme3 <- data %>% 
-  select(ID, SUBJECT, TYPE, text_clean,ProBusiness, ProProject, Constituent, AntiBusiness,url) %>% 
-  filter( grepl("rulemaking", SUBJECT, ignore.case = TRUE)) 
-
-
-#check the variables 
-unique(data$Place_District)
-
-#Useful to check through misnamed 
-#looking at members
-countMembers <- data %>% 
-  filter(is.na(last_name)) %>% 
-  count(FROM2) %>% 
-  arrange(-n)
-
-#PERCENT OF MISSED BUSINESS
-businesscheck <- data %>% 
-  select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, Notes, url, Freelancer) %>% 
-  filter(str_detect(SUBJECT, "corporation|Company|corp.|company"), !str_detect(SUBJECT, "constituent"), is.na(ProBusiness), is.na(ProProject), is.na(AntiBusiness))
-
-
-#Type 2 do they have an associated pro business or pro project?
-Type2 <- data %>% 
-  select(ID, SUBJECT, TYPE, ProBusiness, ProProject, text_clean, AntiBusiness,url) %>% 
-  filter(TYPE == "2", is.na(ProBusiness), is.na(ProProject))
-
-
-#checking "rulemaking" 
-rulemaking <- data %>% 
-  select(ID, SUBJECT, TYPE, EVENT_NAME, EVENT_DATE, text_clean, url) %>% 
-  filter(grepl("rulemaking",SUBJECT, is.na(EVENT_NAME)))
-
-#Checking for situation where antibusiness and not pro business 
-#why would they send in letter going against a business if they aren't for a consituent and they aren't supporting a project that is going against?
-checkAntiBusiness <- data %>% 
-  select(ID, SUBJECT, TYPE, Constituent, ProBusiness, ProProject, AntiBusiness, text_clean, url) %>% 
-  filter(Constituent == "no", is.na(ProBusiness), is.na(ProProject), grepl(".", AntiBusiness)) 
-
-
-######################################################################################################################end of notes 
+#To Do: finish checking Place_District
+#all of the "yes" place district without states that have an attached project
+fixingDistrict1 <- data %>% 
+  select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
+  filter(is.na(Place_State), str_detect(Place_District, "yes"), str_detect(ProProject, "."))
+}
