@@ -1,5 +1,6 @@
 
 # file.name <- "IRS" # for testing
+file.name <- "IRS"
 
 clean <- function(file.name) {
 data <- gs_title(file.name) %>% gs_read() # get data
@@ -19,6 +20,12 @@ data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
 data <- extractMemberName(data, members, 'SUBJECT')
+
+#sample <- data %>%
+#filter(is.na(DATE))  
+#View(sample)
+
+##checking code
 
 # arrange columns for hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())
