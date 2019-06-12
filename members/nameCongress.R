@@ -17,7 +17,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   group_by(chamber, party_code, congress) %>%
    mutate(party_size = n()) %>% 
    
-   ungroup() %>% 
+   ungroup()
+   
+   
+   members %<>%
     # mutate(state = as.character(state)) %>%
     # extract first, middle, last, and common names
     mutate(last_name = gsub(", .*", "", bioname)) %>%
@@ -311,9 +314,29 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Northern Mariana Islands at-large	Delegate	Gregorio Sablan	Independent	2008
   # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
+  
+  
+  # MOVE To nameCongress.R 
+  # change NA to blanks for pasting purposes
+  
+  
+  #create full name variables with different combinations of first, common, middle, middle initial, and last name
+  members$first_last <- paste(members$first_name, members$last_name, sep = " ")
+  members$common_last <- paste(members$common_name, members$last_name, sep = " ")
+  members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
+  members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
+  members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
+  members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
+  
+  
+## Replace NA names with "404error"
+  replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
+  
+  members %<>% mutate_all(replace404)
+  
 
   
-  members$congresses <- NA # this list format throughs errors in merge
+  members %<>% select(-congresses)
 
   members_106to109th <- filter(members, congress < 112)
   
