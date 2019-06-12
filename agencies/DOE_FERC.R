@@ -52,6 +52,7 @@ clean <- function(file.name) {
   
   #FIXME
   #Correcting major member name errors 
+  # SHOULD BE DONE IN nameCongress.R or nameMethods.R
  data %<>% 
     #Bob Graham 
     mutate(FROM = ifelse (grepl("Bob Graham", FROM, ignore.case = TRUE), "Daniel Graham", FROM)) %>% 
@@ -74,45 +75,28 @@ clean <- function(file.name) {
   ## extract member names from the letter texts (members is only for 110th - 118th)
   ## (NOTE: with purrr, extractMemberName shuold not break, the problem is that pasting to long a string breaks, but applying earlier names to other agencies will make things slow and get false matches. What we should do is trim down member list to congresses in the data being matched before running this function)
   #FIXME
- 
- ## incomplete function 
- # data %<>% filter(str_detect(members))
- 
+
   d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
   d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
-  
-  sum(!is.na(d2$last_name))
-  
-  sum(!is.na(d2$last_name)&d2$year==2001)
   
   data <- full_join(d1, d2)
   
   
-  
-look<-data %>% 
-    filter(is.na(last_name)) %>%
-    count(FROM,congress) %>%
-    arrange(-n)
-d1 <- look %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
-d2 <- look %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
+# # Testing 
+# look<-data %>% 
+#     filter(is.na(last_name)) %>%
+#     count(FROM,congress) %>%
+#     arrange(-n)
+# d1 <- look %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
+# d2 <- look %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
+# look <- full_join(d1, d2)
 
-data <- look %>% filter(congress<110) 
 
-
-sum(!is.na(d1$first_name))
-
-look <- full_join(d1, d2)
-
-  sum(!is.na(data$last_name))
-  
-  sum(!is.na(data$last_name)&data$year==2001)
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, SUBJECT, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
 
-  sum(!is.na(data$TYPE))
 
-  
   
 #Cleaning Up Columns     
 #################################
