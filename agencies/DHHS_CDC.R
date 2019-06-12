@@ -91,7 +91,7 @@ clean <- function(file.name) {
     filter( ! str_detect(FROM, "President, of the United States"))
   
    # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  data <- getFirstLast.Comma(data, col_name = "FROM")
   
   #Checks how many members are not captured
   FROMunamed <- data %>%
@@ -100,12 +100,12 @@ clean <- function(file.name) {
   #Create sample for all of the NA names and extract names from 'Title' into dataset
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members, 'Title')
+    extractMemberName(members = members, col_name = "Title")
   
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members, 'SUBJECT') %>%
+    extractMemberName(members = memebers, , col_name =  "SUBJECT") %>%
     drop_na(last_name)
   
   Unfoundnames %<>%
@@ -192,19 +192,5 @@ Nab6<- data %>%
   mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant Support"), 1, TYPE)) %>% 
   mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & str_detect(Affiliation, "Constituent"), 1, TYPE))
   
-  
-   
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 }
+

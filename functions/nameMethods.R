@@ -153,20 +153,10 @@ extractMemberName <- function(data, members, col_name){
   
   data$Summary <- data[[col_name]]
   
+  data %<>% mutate(Summary = data[[col_name]])
+
   
-# change NA to blanks for pasting purposes
-  members$common_name <- ifelse(is.na(members$common_name), "zq", members$common_name)
-  
-  #create full name variables with different combinations of first, common, middle, middle initial, and last name
-  members$first_last <- paste(members$first_name, members$last_name, sep = " ")
-  members$common_last <- paste(members$common_name, members$last_name, sep = " ")
-  members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
-  members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
-  members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
-  members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
-  
-  
-members$common_name <- ifelse(members$common_name == "zq", NA, members$common_name)
+
   
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
@@ -184,6 +174,9 @@ members$common_name <- ifelse(members$common_name == "zq", NA, members$common_na
   data$Summary <- gsub("Jime", "Jim", data$Summary)
   
   data$Summary <- ocr.errors(data$Summary)
+  
+  # FIXME 
+  # REWRITE WITH purrr
   
   # create FROM2 varible extracting name from data$Summary
   data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
@@ -463,6 +456,9 @@ data %>%
 # Function may need small add ons or adjustments for new/different datasets
 # Function will take comma separated names (e.g. Johnson, Ralph) from a specified column (usually FROM) 
 # and create first_name and last_name columns in the dataframe. Typical call: getFirstLast.Comma(data,'FROM')
+
+# THIS FUNCTION IS NOT PART OF extractMemberNames, so these corrections will not help that function all corrections should appear in the same place and be called by each method
+# this function should be able to take in different members (or we rewrite to be cogress-specific and use the full members list)
 getFirstLast.Comma <- function(data, col_name){
   
   data$FROM <- data[[col_name]]
@@ -712,7 +708,7 @@ getFirstLast.Comma <- function(data, col_name){
 # May need adjustments for different agencies/formats
 ocr.errors <- function(FROM){
   
-  # adds "ll" to last names
+  # adds deleted "ll" to last names
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("(^| )Dinge($| )", "\\1Dingell\\2", FROM)
   FROM <- gsub("Connoy", "Connolly", FROM)
