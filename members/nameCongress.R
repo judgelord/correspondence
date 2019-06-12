@@ -207,8 +207,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
     # middle initials
     mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "FRANKEN, AL", "S", middle_initial)) %>%
-    mutate(middle_initial = ifelse(bioname == "ESHOO, ANNA", "G", middle_initial)) %>%
+    mutate(middle_initial = ifelse(bioname == "FRANKEN, Al", "S", middle_initial)) %>%
+    mutate(middle_initial = ifelse(bioname == "ESHOO, Anna", "G", middle_initial)) %>%
     mutate(middle_initial = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", "E", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "BOND, Christopher Samuel (Kit)", "S", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "PENCE, Mike", "R", middle_initial)) %>% 
