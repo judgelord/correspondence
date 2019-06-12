@@ -171,7 +171,7 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("Shelly", "Shelley", data$Summary)
   data$Summary <- gsub("Ana", "Anna", data$Summary)
   data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-  
+  data$Summary <- gsub("Jime", "Jim", data$Summary)
   
   data$Summary <- ocr.errors(data$Summary)
   
