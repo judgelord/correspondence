@@ -181,7 +181,7 @@ members$common_name <- ifelse(members$common_name == "zq", NA, members$common_na
   data$Summary <- gsub("Shelly", "Shelley", data$Summary)
   data$Summary <- gsub("Ana", "Anna", data$Summary)
   data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-  
+  data$Summary <- gsub("Jime", "Jim", data$Summary)
   
   data$Summary <- ocr.errors(data$Summary)
   
