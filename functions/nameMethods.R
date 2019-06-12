@@ -23,6 +23,8 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("DESANTIS", replacement = "DeSANTIS", last_name)) %>% 
     mutate(last_name = gsub("MACARTHUR", replacement = "MacARTHUR", last_name)) %>% 
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
+    mutate(last_name = gsub("LANDRY", replacement = "Landry", last_name)) %>% 
+    
     # Spelling and specific corrections
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
     mutate(last_name = gsub("DUNCAN JOHN.*", replacement = "DUNCAN", last_name)) %>% 
@@ -30,10 +32,14 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("BONO MACK.*", replacement = "BONO", last_name)) %>% 
     mutate(last_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "ROCKEFELLER", last_name)) %>% 
     mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name)) %>% 
+
+   
+
+    
    # mutate(last_name = ifelse(grepl("Lujan", FROM,ignore.case=TRUE)&grepl("Ben", FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>% 
    # mutate(last_name = ifelse( grepl("Lujan",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>%
     
-     mutate(last_name = gsub("MOORE CAPITO.*", replacement = "CAPITO", last_name)) %>% 
+    mutate(last_name = gsub("MOORE CAPITO.*", replacement = "CAPITO", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Milkulski, Barbara", FROM), "MIKULSKI", last_name)) %>% 
     mutate(last_name = ifelse(grepl("GRESHAM BARRETT", last_name,ignore.case=TRUE), "BARRETT", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Shelley Moore", FROM,ignore.case=TRUE), "CAPITO", last_name)) %>% 
@@ -65,8 +71,9 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse(grepl("Stebenow", last_name,ignore.case=TRUE), "STABENOW", last_name)) %>% 
     mutate(last_name = ifelse(grepl("C.rdenas", last_name,ignore.case=TRUE), "CARDENAS", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Vel.zquez", last_name,ignore.case=TRUE), "VELAZQUEZ", last_name)) %>% 
+   
     
-    mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name))
+    mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) #does this need to have piping at the end?
   
   #data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
   
@@ -105,7 +112,7 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = ifelse( grepl("Butterfield",FROM,ignore.case=TRUE)&grepl("G",FROM,ignore.case=TRUE), "George", first_name)) %>%
     mutate(first_name = ifelse( grepl("G. K.",FROM,ignore.case=TRUE), "G.K.", first_name)) %>%
     mutate(first_name = ifelse( grepl("Nelson",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "Earl", first_name)) %>%
-    #mutate(first_name = ifelse( grepl("Carson",FROM,ignore.case=TRUE)&grepl("Andr",FROM,ignore.case=TRUE), "André", first_name)) %>%
+  #mutate(first_name = ifelse( grepl("Carson",FROM,ignore.case=TRUE)&grepl("Andr",FROM,ignore.case=TRUE), "André", first_name)) %>%
    #mutate(first_name = ifelse( grepl("Griv",FROM,ignore.case=TRUE)&grepl("Raul",FROM,ignore.case=TRUE), "Raúl", first_name)) %>%
     mutate(first_name = ifelse( grepl("Scott",FROM,ignore.case=TRUE)&grepl("Bobby",FROM,ignore.case=TRUE), "Bob", first_name)) %>%
     
@@ -126,6 +133,9 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = gsub("Eliott", replacement = "Eliot", first_name)) %>% 
     mutate(first_name = gsub("Brain", replacement = "Brian", first_name)) %>% 
     
+    
+    
+    
     mutate(first_name = gsub("Duncan John.*", replacement = "John", first_name)) %>% 
     mutate(first_name = gsub("Johnson Henry.*", replacement = "Henry", first_name))
   
@@ -143,7 +153,8 @@ extractMemberName <- function(data, members, col_name){
   
   data$Summary <- data[[col_name]]
   
-  # change NA to blanks for pasting purposes
+  
+# change NA to blanks for pasting purposes
   members$common_name <- ifelse(is.na(members$common_name), "zq", members$common_name)
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
@@ -154,17 +165,23 @@ extractMemberName <- function(data, members, col_name){
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   
-  members$common_name <- ifelse(members$common_name == "zq", NA, members$common_name)
+  
+members$common_name <- ifelse(members$common_name == "zq", NA, members$common_name)
   
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
   data$Summary <- gsub('\\+', "", data$Summary)
+  
   data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   data$Summary <- gsub("Courntey", "Courtney", data$Summary)
- 
+  data$Summary <- gsub("Phill", "Phil", data$Summary)
+  data$Summary <- gsub("Shelly", "Shelley", data$Summary)
+  data$Summary <- gsub("Ana", "Anna", data$Summary)
+  data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
+  
   
   data$Summary <- ocr.errors(data$Summary)
   
@@ -427,10 +444,11 @@ data %>%
    
    mutate(last_name = ifelse( grepl("(^| )Conaway( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
    mutate(first_name = ifelse( grepl("(^| )Conaway( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "Michael", first_name)) %>% 
-   mutate(first_name = ifelse( grepl("Anna A. ",Summary,ignore.case=TRUE),
-                               "Anna", first_name))
+   mutate(first_name = ifelse( grepl("Anna A. ",Summary,ignore.case=TRUE),"Anna", first_name))
  
- 
+  # i<- which(members$last_name == "GRAMM")[1] 
+    ## clean up in future
+  
   for (i in 1:length(members$id)) {
    data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
                                          members$first_name[i], data$first_name))
@@ -851,7 +869,6 @@ addFirst <- function(first_name, last_name){
   }
   return(first_name)
 }
-
 
 
 

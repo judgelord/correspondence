@@ -3,6 +3,8 @@
 
 #file.name <- "NARA" # for testing
 
+file.name <-"NARA"
+
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -34,7 +36,6 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(DATE, FROM, SUBJECT, everything())
-
 }
 
 
