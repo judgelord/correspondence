@@ -156,8 +156,8 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "Treasury_OCC") 
-# i <- which(data_list$agency == "Amtrak") 
+i <- which(data_list$agency == "USDA_RMA") 
+# i <- which(data_list$agency == "Treasury_OCC") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
                      coders = data_list[i, 3])
