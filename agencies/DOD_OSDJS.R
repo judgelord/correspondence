@@ -5,7 +5,7 @@
 
 #file.name <- "DOD_OSDJS" # for testing
 
-#file.name <- "DOD_OSDJS" ##testing 12 June
+#file.name <- "DOD_OSDJS" #for testing 12 June (no new data was added)
 
 
 clean <- function(file.name) {
