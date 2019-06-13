@@ -97,15 +97,15 @@ clean <- function(file.name) {
   FROMunamed <- data %>%
     filter(is.na(last_name))
   
-  #Create sample for all of the NA names and extract names from 'Title' into dataset
+  #Create sample for all of the NA names and extract names from 'Titles' into dataset
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members = members, col_name = "Title")
+    extractMemberName(members = members, col_name = "Titles")
   
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members = memebers, , col_name =  "SUBJECT") %>%
+    extractMemberName(members = members, col_name =  "SUBJECT") %>%
     drop_na(last_name)
   
   Unfoundnames %<>%
@@ -122,7 +122,7 @@ data %<>%
   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
   
   
-#Rejoin data that pulls authors from FROM, Title & SUBJECT
+#Rejoin data that pulls authors from FROM, Titles & SUBJECT
   data %<>%
     full_join(Unfoundnames)
   
@@ -158,9 +158,9 @@ Nab6<- data %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("BEHALF OF CONSTITUENT|BEHALF OF HIS CONSTITUENT|(6)", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("BEHALF OF CONSTITUENT|BEHALF OF HIS CONSTITUENT|(6)", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("BEHALF OF CONSTITUENT|BEHALF OF HIS CONSTITUENT|(6)", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HEPATITIS|INFECTIOUS DISEASE OUTBREAK", Title, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEPATITIS|INFECTIOUS DISEASE OUTBERAK", Title, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("HEPATITIS", Title, ignore.case = TRUE), "BUDGET ALLOCATION", POLICY_EVENT)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HEPATITIS|INFECTIOUS DISEASE OUTBREAK", Titles, ignore.case = TRUE), "5", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEPATITIS|INFECTIOUS DISEASE OUTBERAK", Titles, ignore.case = TRUE), "1", CERTAINTY)) %>%
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("HEPATITIS", Titles, ignore.case = TRUE), "BUDGET ALLOCATION", POLICY_EVENT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU NOTE|VIRUS ANTIBODY", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU NOTE|VIRUS ANTIBODY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NEW MEXICO'S NATIONAL", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
@@ -175,9 +175,9 @@ Nab6<- data %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NCEH-ATSDR", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NCEH-ATSDR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NCEH-ATSDR", SUBJECT, ignore.case = TRUE), "3", ALT_TYPE)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INAPPROPRIATE METHODOLOGIES", Title, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INAPPROPRIATE METHODOLOGIES ", Title, ignore.case = TRUE), "3", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("INAPPROPRIATE METHODOLOGIES", Title, ignore.case = TRUE), "3", ALT_TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INAPPROPRIATE METHODOLOGIES", Titles, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("INAPPROPRIATE METHODOLOGIES ", Titles, ignore.case = TRUE), "3", CERTAINTY)) %>%
+  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("INAPPROPRIATE METHODOLOGIES", Titles, ignore.case = TRUE), "3", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("WORLD TRADE CENTER NATIONAL RESPONDER PROGRAM", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("WORLD TRADE CENTER NATIONAL RESPONDER PROGRAM", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("WORLD TRADE CENTER NATIONAL RESPONDER PROGRAM", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) %>%
