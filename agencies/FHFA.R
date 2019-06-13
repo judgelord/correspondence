@@ -44,7 +44,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Reps. Hoyer, Davis, etal", "Reps. Hoyer; Davis, etal")) %>%
     mutate(FROM = str_replace(FROM, "Rep. Bachus, Bachmann, Blunt, Hensarling, Feeney, Garrett, Price, Pence, Biggert, Royce, Blackburn, Neugebauer, McHenry, Roskam, McCotter, Barrett, David, Marchant, Campbell, Walberg, Kline, Brown-White, Paul, Manzullo, Broun, Musgrave, Poe, etal",
                               "Rep. Bachus; Bachmann; Blunt; Hensarling; Feeney; Garrett; Price; Pence; Biggert; Royce; Blackburn; Neugebauer; McHenry; Roskam; McCotter; Barrett; David; Marchant; Campbell; Walberg; Kline; Brown-White; Paul; Manzullo; Broun; Musgrave; Poe, etal")) %>%
-    mutate(FROM = str_replace(FROm, "Goodlatte, Davis, Boucher etal", "Goodlatte; Davis; Boucher, etal"))
+    mutate(FROM = str_replace(FROM, "Goodlatte, Davis, Boucher etal", "Goodlatte; Davis; Boucher, etal"))
   ###############    
 #Splits Rows with multiple authors
   data %<>%
