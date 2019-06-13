@@ -4,6 +4,8 @@
 
 #file.name <- "USDA_RMA" # for testing
 
+#file.name <- "USDA_RMA" ##for testing 13 June
+
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -15,8 +17,11 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m-%d-%y")
-  data$DateSigned %<>% as.Date("%m-%d-%y")
+  data$DATE %<>% multidate(c("%m-%d-%y","%m/%d/%y"))  
+  data$DateSigned %<>% multidate(c("%m-%d-%y","%m/%d/%y"))##allow for different variations of dates for better matches
+  
+  
+
   
   
   #create year and congress columns
@@ -45,8 +50,8 @@ clean <- function(file.name) {
       
     }
   }
-  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
+  data <- data[-grep(",", data$FROM),] # removes original row with all data
+  data <- data[-grep("/", data$FROM),] # removes original row with all data
   ###     ###     ###
   
   data$FROM <- (gsub("& 12 Senators","",data$FROM)) # remove +
@@ -91,11 +96,17 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PRF|IOWA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FOIA", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FOIA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-    
   
   
+  data %<>% 
+    mutate(DATE = ifelse(is.na(DATE), DateSigned, DATE))  ##replacing NA dates with date signed
   
   
+  #sample <- data %>%
+  #filter(is.na(DATE))  
+  #View(sample) 
+  
+  ##testing code
   
   
 }
