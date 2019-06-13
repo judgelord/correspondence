@@ -88,12 +88,12 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Russell D. Feingold", "Feingold, Russell D."))
   
   #Filter while working, comment out
-  data %<>%
-    filter( ! FROM %in% c("Franks, Trent, Congressman of Arizona", "Lockhart, James, Director of FHFA",
-         "Pratt, Leonard", "DeMarco, Edward, Acting Director",
-        "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
-         "Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs",
-        "Lockhart, James", "Marshall, Donald (OFHEO Contractor)", "Lenoir, Simuel"))
+  #data %<>%
+    #filter( ! FROM %in% c("Franks, Trent, Congressman of Arizona", "Lockhart, James, Director of FHFA",
+         #"Pratt, Leonard", "DeMarco, Edward, Acting Director",
+        #"Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
+         #"Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs",
+        #"Lockhart, James", "Marshall, Donald (OFHEO Contractor)", "Lenoir, Simuel"))
 
   #Clean to run getFirstLast.Comma
   data %<>%
