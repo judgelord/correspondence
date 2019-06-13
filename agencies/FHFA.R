@@ -36,8 +36,15 @@ clean <- function(file.name) {
   #Chamber
   data %<>% 
     mutate(chamber = ifelse(grepl("Senate|SENATE|Senator|SENATOR|MAJORITY LEADER", FROM), "Senate", NA)) %>%
-    mutate(chamber = ifelse(grepl("House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |Congressman|Congresswoman", FROM), "House", chamber))
-  
+    mutate(chamber = ifelse(grepl("House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |Congressman|Congresswoman|Reps.", FROM), "House", chamber))
+ 
+#Inserting ";"
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Senators Hagel, Sununu, Dole & Martinez", "Senators Hagel; Sununu; Dole & Martinez")) %>%
+    mutate(FROM = str_replace(FROM, "Reps. Hoyer, Davis, etal", "Reps. Hoyer; Davis, etal")) %>%
+    mutate(FROM = str_replace(FROM, "Rep. Bachus, Bachmann, Blunt, Hensarling, Feeney, Garrett, Price, Pence, Biggert, Royce, Blackburn, Neugebauer, McHenry, Roskam, McCotter, Barrett, David, Marchant, Campbell, Walberg, Kline, Brown-White, Paul, Manzullo, Broun, Musgrave, Poe, etal",
+                              "Rep. Bachus; Bachmann; Blunt; Hensarling; Feeney; Garrett; Price; Pence; Biggert; Royce; Blackburn; Neugebauer; McHenry; Roskam; McCotter; Barrett; David; Marchant; Campbell; Walberg; Kline; Brown-White; Paul; Manzullo; Broun; Musgrave; Poe, etal")) %>%
+    mutate(FROM = str_replace(FROm, "Goodlatte, Davis, Boucher etal", "Goodlatte; Davis; Boucher, etal"))
   ###############    
 #Splits Rows with multiple authors
   data %<>%
@@ -77,7 +84,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Christopher J. Dodd", "Dodd J. Christopher")) %>%
     mutate(FROM = str_replace(FROM, "Charles E. Schumer", "Schumer E. Charles")) %>%
     mutate(FROM = str_replace(FROM, "Kanjorski", "KANJORSKI, Paul")) %>%
-    mutate(FROM = str_replace(FROM, "Bachman, Michele,", "BACHMANN, Michele"))
+    mutate(FROM = str_replace(FROM, "Bachman, Michele,", "BACHMANN, Michele")) %>%
+    mutate(FROM = str_replace(FROM, "Russell D. Feingold", "Feingold, Russell D."))
   
   #Filter while working, comment out
   data %<>%
@@ -86,10 +94,10 @@ clean <- function(file.name) {
         "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
          "Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs",
         "Lockhart, James", "Marshall, Donald (OFHEO Contractor)", "Lenoir, Simuel"))
-    
+
   #Clean to run getFirstLast.Comma
   data %<>%
-    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. ")))
+    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. |, US Senator|resenative")))
   
   ################
   
@@ -124,6 +132,7 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   #John, Cook could be John Cooksey; however Cooksey did not serve in 2011
   # Mike, Fitzgerald might be Mike, Fitzpatrick
+  
   Foundnames <- data %>%
     drop_na(last_name)
   
