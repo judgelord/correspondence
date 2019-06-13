@@ -156,7 +156,15 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
+<<<<<<< HEAD
+i <- which(data_list$agency == "VA_CEM") 
+=======
+
+i <- which(data_list$agency == "FHFA") 
+# i <- which(data_list$agency == "DOD_OSDJS") 
+
 i <- which(data_list$agency == "USDA_RMA") 
+>>>>>>> 66e2c7ddb629999040add00e8248da95b84bdde2
 # i <- which(data_list$agency == "Treasury_OCC") 
 d1 <- clean.agency(agency = data_list[i, 1],
                      status = data_list[i, 2],
@@ -740,6 +748,8 @@ df %<>% full_join(all_contacts)
 load("data/all_contacts_committees.Rdata")
 dcommittees %<>% full_join(all_contacts_committees)
 }
+
+data_list$agency[!data_list$agency %in% unique(df$agency)]
 
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
