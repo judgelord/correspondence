@@ -1,6 +1,7 @@
 
 # file.name <- "IRS" # for testing
-file.name <- "IRS"
+
+#file.name <- "IRS" #for testing 12 June
 
 clean <- function(file.name) {
 data <- gs_title(file.name) %>% gs_read() # get data
@@ -22,7 +23,7 @@ data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 10
 data <- extractMemberName(data, members, 'SUBJECT')
 
 #sample <- data %>%
-#filter(is.na(DATE))  
+#filter(is.na(first_name))  
 #View(sample)
 
 ##checking code

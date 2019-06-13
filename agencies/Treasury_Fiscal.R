@@ -5,6 +5,9 @@
 
 # file.name <- "Treasury_Fiscal" # for testing
 
+#file.name <- "Treasury_Fiscal" ##for testing after 12 June
+
+
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -43,7 +46,16 @@ clean <- function(file.name) {
   
   data <-  extractMemberName(data,members,"FROM")
   
-  ## Are we shure that we want to delete all of these observations?
+  
+  
+  #sample <- data %>%
+  #filter(is.na(DATE))  
+  #View(sample)
+  
+  ##checking code
+  
+  
+  ## Are we sure that we want to delete all of these observations?
   data %<>% filter(!str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))
   
   

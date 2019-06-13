@@ -27,13 +27,13 @@ clean <- function(file.name) {
   # # create variable for full name
   # data$FROM <- gsub("Tanko", "Tonko", data$FROM)
   # data <- extractMemberName(data, members,"FROM")
-  data %<>% 
-    rename(FROM = Status)
+  #data %<>% 
+    #rename(FROM = Status)
 
   # FIXME 
   # Is this right? Are there no other places where names appear where FROM is NA?
-  data %<>% 
-    drop_na(FROM)
+  unfoundnames <- data %<>%
+    filter(is.na(FROM))
   
   data2 %<>% 
     # FIXME
@@ -46,19 +46,26 @@ clean <- function(file.name) {
   # Creates duplicate rows for lines with multiple representatives
   # FIXME 
   # better done with str_split and unnest. See DOL_SOL and FDA
-  for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
+  
+  data %<>%
+    str_split(FROM, ";") %>%
+    unnest(FROM)
+  
+  #for(i in 1:nrow(data)){
+    #if(grepl(";", data$FROM[i])) {
       
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
+     # new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
+      #new$FROM <- unlist(str_split(data$FROM[i], ";"))
       
-      data <- rbind(data, new)
+      #data <- rbind(data, new)
       
-    }
-  }
+    #}
+  #}
+  
   # FIXME 
   # dropping these observations is risky and maybe not necessary if we use unnest(FROM) above
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  
+  #data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   
   # Remove extra white space...there is a function for this 
   data$FROM %<>% str_remove_all("^ |^  | $|  $", "")
