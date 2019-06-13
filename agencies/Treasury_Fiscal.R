@@ -5,16 +5,18 @@
 
 # file.name <- "Treasury_Fiscal" # for testing
 
-#file.name <- "Treasury_Fiscal" ##for testing after 12 June
-
+#file.name <- "Treasury_Fiscal" ##for testing 13 June 
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data %<>% 
+  
+data %<>% 
     mutate(ID = row_number())
   
   data$FROM <- paste(data$AUTHOR.FIRST.NAME, data$AUTHOR.LAST.NAME, sep = " ")
+  
+
   
   
   
@@ -44,12 +46,14 @@ clean <- function(file.name) {
   data %<>% distinct()
   ################
   
-  data <-  extractMemberName(data,members,"FROM")
+  #data <-  extractMemberName(data,members,"FROM") ##old version of extracting data
   
+  data <- getFirstLast.Comma(data, "FROM")
+  data$first_name <- formatFirstName(data, "first_name") #new version of extracting data 
   
   
   #sample <- data %>%
-  #filter(is.na(DATE))  
+  #filter(is.na(last_name))  
   #View(sample)
   
   ##checking code
