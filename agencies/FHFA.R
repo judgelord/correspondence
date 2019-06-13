@@ -23,6 +23,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Chamber
+  data %<>% 
+    mutate(chamber = ifelse(grepl("Senate|SENATE|Senator|SENATOR|MAJORITY LEADER", FROM), "Senate", NA)) %>%
+    mutate(chamber = ifelse(grepl("House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP ", FROM), "House", chamber))
   
   # # create variable for full name
   # data$FROM <- gsub("Tanko", "Tonko", data$FROM)
@@ -32,23 +36,22 @@ clean <- function(file.name) {
 
   # FIXME 
   # Is this right? Are there no other places where names appear where FROM is NA?
-  unfoundnames <- data %<>%
+  unfoundnames <- data %>%
     filter(is.na(FROM))
   
-  data2 %<>% 
+  #data2 %<>% 
     # FIXME
     # sometimes member names ended up in SUBJECT (where FROM is "Closed")
     # maybe it would be better to just coppy subject into FROM in these cases
-    filter(FROM == "Closed") %>%
-    extractMemberName(members, 'SUBJECT')
+    #filter(FROM == "Closed") %>%
+    #extractMemberName(members, 'SUBJECT')
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   # FIXME 
   # better done with str_split and unnest. See DOL_SOL and FDA
-  
   data %<>%
-    str_split(FROM, ";") %>%
+    mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM)
   
   #for(i in 1:nrow(data)){
@@ -62,15 +65,19 @@ clean <- function(file.name) {
     #}
   #}
   
+  #Clean to run getFirstLast.Comma
+  data %<>%
+    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative")))
+  
   # FIXME 
   # dropping these observations is risky and maybe not necessary if we use unnest(FROM) above
   
   #data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   
   # Remove extra white space...there is a function for this 
-  data$FROM %<>% str_remove_all("^ |^  | $|  $", "")
+  #data$FROM %<>% str_remove_all("^ |^  | $|  $", "")
   
-  data %<>% filter(!FROM == "") # removes blank observations
+  #data %<>% filter(!FROM == "") # removes blank observations
   ################
   
   
@@ -80,16 +87,16 @@ clean <- function(file.name) {
   # data2 <- data[data$FROM == "Closed",]
   
   # extract last name from the subject column
-  i <- 1
-  for (i in 1:length(members$id)) {
-    data2 %<>% 
-      mutate(last_name = ifelse(is.na(last_name) & grepl(paste("( |^)", members$last_name[i], "( |$|,)", sep = ""), SUBJECT, ignore.case = T), members$last_name[i], last_name))
-  }
+  #i <- 1
+  #for (i in 1:length(members$id)) {
+    #data2 %<>% 
+     # mutate(last_name = ifelse(is.na(last_name) & grepl(paste("( |^)", members$last_name[i], "( |$|,)", sep = ""), SUBJECT, ignore.case = T), members$last_name[i], last_name))
+ # }
   # add first name info based on last_name
-  data2$first_name <- addFirst(data2$first_name,data2$last_name)
+  #data2$first_name <- addFirst(data2$first_name,data2$last_name)
   
-  data <- full_join(data2, data)
-  data <- data[!(is.na(data$first_name)&is.na(data$last_name)&data$ID<88),]
+  #data <- full_join(data2, data)
+  #data <- data[!(is.na(data$first_name)&is.na(data$last_name)&data$ID<88),]
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())
