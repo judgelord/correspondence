@@ -3,10 +3,13 @@
 
 #file.name <- "NARA" # for testing
 
-file.name <-"NARA"
+#file.name <-"NARA" # for testing 12 June
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
+  
+
+
   
   # Make ID column. No duplicated or multi-member letters cases found
   data %<>% 
@@ -30,9 +33,25 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  
 
   # create first and last name variables
   data %<>% extractMemberName(members, 'FROM')
+  
+  
+  
+  #sample <- data %>%
+  #filter(is.na(DATE))  
+  #View(sample)
+  ##for testing date and names
+  
+  #filter(is.na(last_name)) %>%
+   # count(last_names,sample) %>%
+    #arrange(-n)
+##reference code
+  
+  
   
   # arrange columns for hand coding
   data %<>% select(DATE, FROM, SUBJECT, everything())

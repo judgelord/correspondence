@@ -165,11 +165,11 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   data$Summary <- gsub("Courntey", "Courtney", data$Summary)
-  data$Summary <- gsub("Phill", "Phil", data$Summary)
+  data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
   data$Summary <- gsub("Shelly", "Shelley", data$Summary)
-  data$Summary <- gsub("Ana", "Anna", data$Summary)
+  # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
   data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-  
+  data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
   
   data$Summary <- ocr.errors(data$Summary)
   
