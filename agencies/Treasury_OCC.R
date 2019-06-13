@@ -3,6 +3,8 @@
 
 #file.name <- "Treasury_OCC" # for testing
 
+#file.name <- "Treasury_OCC" #for testing 13 June
+
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -71,8 +73,11 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RISK MANAGEMENT|FINTECH|BANK OF TEXAS|BITCOIN", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
   
+  #sample <- data %>%
+  #filter(is.na(last_name))  
+  #View(sample) 
   
-  
+  ##testing code
   
   
   
