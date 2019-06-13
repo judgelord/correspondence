@@ -21,82 +21,103 @@ clean <- function(file.name) {
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   #Chamber
   data %<>% 
     mutate(chamber = ifelse(grepl("Senate|SENATE|Senator|SENATOR|MAJORITY LEADER", FROM), "Senate", NA)) %>%
-    mutate(chamber = ifelse(grepl("House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP ", FROM), "House", chamber))
-  
-  # # create variable for full name
-  # data$FROM <- gsub("Tanko", "Tonko", data$FROM)
-  # data <- extractMemberName(data, members,"FROM")
-  #data %<>% 
-    #rename(FROM = Status)
-
-  # FIXME 
-  # Is this right? Are there no other places where names appear where FROM is NA?
-  unfoundnames <- data %>%
-    filter(is.na(FROM))
-  
-  #data2 %<>% 
-    # FIXME
-    # sometimes member names ended up in SUBJECT (where FROM is "Closed")
-    # maybe it would be better to just coppy subject into FROM in these cases
-    #filter(FROM == "Closed") %>%
-    #extractMemberName(members, 'SUBJECT')
+    mutate(chamber = ifelse(grepl("House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |Congressman|Congresswoman", FROM), "House", chamber))
   
   ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  # FIXME 
-  # better done with str_split and unnest. See DOL_SOL and FDA
+#Splits Rows with multiple authors
   data %<>%
     mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM)
+ 
+  #Filters out headings 
+  data %<>%
+    filter( ! FROM %in% ("Sender"))
   
-  #for(i in 1:nrow(data)){
-    #if(grepl(";", data$FROM[i])) {
-      
-     # new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      #new$FROM <- unlist(str_split(data$FROM[i], ";"))
-      
-      #data <- rbind(data, new)
-      
-    #}
-  #}
+  #Comments errors for non members
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Lockhart, James, Director of FHFA"), "FHFA Director", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Pratt, Leonard"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "DeMarco, Edward, Acting Director"), "Acting Director", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist"), "Senior Strategic Planning & Management Specialist", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Kelley, Eric, Associate Director for Internal Audit"), "Associate Director for Internal Audit", ERROR)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Congressional Aide| Aide| aid"), "Congressional Aide", NOTES))
   
+  #Fixes some mispelled names
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Polls, Jared", "Polis, Jared")) %>%
+    mutate(FROM = str_replace(FROM, "Kyi, Jon", "Kyl, Jon")) %>%
+    mutate(FROM = str_replace(FROM, "Schultz,", "Schultz, Debbie")) %>%
+    mutate(FROM = str_replace(FROM, "Walters, Maxine", "Waters, Maxine")) %>%
+    mutate(FROM = str_replace(FROM, "Klien, Ron", "Klein, Ron")) %>%
+    mutate(FROM = str_replace(FROM, "Giffords, M.C.", "Giffords, Gabrielle")) %>%
+    mutate(FROM = str_replace(FROM, "Manzullo, Daniel", "Manzullo, Donald")) %>%
+    mutate(FROM = str_replace(FROM, "Velazques, Nydia", "Velazquez, Nydia")) %>%
+    mutate(FROM = str_replace(FROM, "Akerman, Gary", "Ackerman, Gary")) %>%
+    mutate(FROM = str_replace(FROM, "Perimutter, Ed", "Perlmutter, Ed")) %>%
+    mutate(FROM = str_replace(FROM, "DeFauro, Rosa", "DeLauro, Rosa")) %>%
+    mutate(FROM = str_replace(FROM, "Hirano, Mazie", "Hirono, Mazie")) %>%
+    mutate(FROM = str_replace(FROM, "Napolitano,", "Napolitano, Grace")) %>%
+    mutate(FROM = str_replace(FROM, "Buchson, Larry", "Bucshon, Larry")) %>%
+    mutate(FROM = str_replace(FROM, "Johnson, Bernice", "Johnson, Eddie")) %>%
+    mutate(FROM = str_replace(FROM, "Moran, lames", "Moran, James")) %>%
+    mutate(FROM = str_replace(FROM, "Christopher J. Dodd", "Dodd J. Christopher"))
+  
+  #Filter while working, comment out
+  data %<>%
+    filter( ! FROM %in% c("Franks, Trent, Congressman of Arizona", "Lockhart, James, Director of FHFA",
+         "Pratt, Leonard", "DeMarco, Edward, Acting Director",
+        "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
+         "Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs
+"))
+    
   #Clean to run getFirstLast.Comma
   data %<>%
-    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative")))
+    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator|, Senate.*|Congresswoman |Congressman|, Rep| etal|, Represenative")))
   
-  # FIXME 
-  # dropping these observations is risky and maybe not necessary if we use unnest(FROM) above
-  
-  #data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  
-  # Remove extra white space...there is a function for this 
-  #data$FROM %<>% str_remove_all("^ |^  | $|  $", "")
-  
-  #data %<>% filter(!FROM == "") # removes blank observations
   ################
   
-  
-  # FIXME 
-  # We should aim to run the extractMemberNames or getFirstLast.Comma or whatever name detection function we are using only once per column of names. 
+  #Matches to member data
   data <- getFirstLast.Comma(data, 'FROM')
-  # data2 <- data[data$FROM == "Closed",]
+
+  #Filters for all rows that still don't match
+  FROMunamed <- data %>%
+    filter(is.na(last_name))
   
-  # extract last name from the subject column
-  #i <- 1
-  #for (i in 1:length(members$id)) {
-    #data2 %<>% 
-     # mutate(last_name = ifelse(is.na(last_name) & grepl(paste("( |^)", members$last_name[i], "( |$|,)", sep = ""), SUBJECT, ignore.case = T), members$last_name[i], last_name))
- # }
-  # add first name info based on last_name
-  #data2$first_name <- addFirst(data2$first_name,data2$last_name)
+  FROMunamed %<>% select(ID, DATE, FROM, first_name, last_name, SUBJECT, everything())
   
-  #data <- full_join(data2, data)
-  #data <- data[!(is.na(data$first_name)&is.na(data$last_name)&data$ID<88),]
+  #Filters for names still unmatched
+  Unfoundnames <- data %>%
+    filter(is.na(last_name)) %>%
+    extractMemberName(members = members, col_name = "SUBJECT")
+
+  #Drops duplicate NAs when rejoined  
+  Unfoundnames %<>%
+    drop_na(last_name)
+  
+  #Rejoins data
+  data %<>%
+    full_join(Unfoundnames)
+  
+  data %<>% select(ID, DATE, FROM, first_name, last_name, SUBJECT, chamber, everything())
+  
+  data %<>% filter(!FROM == "") # removes blank observations
+  
+  #Unmatched
+  unmatched <- data %>%
+    filter(is.na(last_name))
+  #John, Cook could be John Cooksey; however Cooksey did not serve in 2011
+  # Mike, Fitzgerald might be Mike, Fitzpatrick
+  Foundnames <- data %>%
+    drop_na(last_name)
+  
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "32 more congressmen"), "Multiple unnamed Members", NOTES))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())
