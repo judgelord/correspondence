@@ -5,6 +5,8 @@
 
 #file.name <- "DOD_OSDJS" # for testing
 
+#file.name <- "DOD_OSDJS" ##testing 12 June
+
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -65,5 +67,14 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse(powellType == "Congressional Travel/ Movement", 6, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Not Enough Info", 0, TYPE)) 
  
+ 
+  #sample <- data %>%
+  #filter(is.na(first_initial))  
+  #View(sample)
+  
+  ##code for testing
+  
+  
   
 }
+
