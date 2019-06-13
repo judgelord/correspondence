@@ -6,6 +6,8 @@
 
 #file.name <- "PRC" # for testing
 
+#file.name <- "PRC" #testing 13 June
+
 clean <- function(file.name) {
   #  get data from google drive
   data <- gs_title(file.name) %>% gs_read()
@@ -71,8 +73,11 @@ clean <- function(file.name) {
   
     
     
-    
-    
+#sample <- data %>%
+#filter(is.na(first_name))  
+#View(sample)    
+
+##checking code
     
     
   
