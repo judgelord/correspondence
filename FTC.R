@@ -23,13 +23,7 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  #chamber
-  data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Sen "),"Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Rep "), "House", chamber))
-  
-NoChamber<- data %>%
-  filter(is.na(chamber))
+#No chamber variable in script because chambers may be wrong
 
   
   
