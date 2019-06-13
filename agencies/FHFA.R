@@ -14,8 +14,17 @@ clean <- function(file.name) {
   # create agency column
   data$agency <- file.name
   
+  #Filters out headings 
+  data %<>%
+    filter( ! FROM %in% c("Sender", "Originator")) %>%
+    filter( ! SUBJECT %in% ("Title"))
+  
   # Format date, year, Congress, member name etc. 
-  data$DATE <- data$`Modified O`
+  is.na(data$`Modified O`) <- data$`Modified O` == "N/A(NAR)"
+  is.na(data$`Modified O`) <- data$`Modified O` == "Sens. Schumer, Brown, Casey & Menendez"
+  data %<>%
+    mutate(DATE = ifelse(is.na(DATE), `Modified O`, DATE))
+  #data$DATE <- data$`Modified O`
   data$DATE %<>% as.Date("%m/%d/%Y")
   
   
@@ -32,13 +41,12 @@ clean <- function(file.name) {
   ###############    
 #Splits Rows with multiple authors
   data %<>%
-    mutate(FROM = str_split(FROM, ";")) %>%
+    mutate(FROM = str_split(FROM, ";|\\&| and ")) %>%
     unnest(FROM)
- 
-  #Filters out headings 
+
+  #Removes unneeded rows
   data %<>%
-    filter( ! FROM %in% ("Sender"))
-  
+    filter( ! FROM %in% ("etal"))
   #Comments errors for non members
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Lockhart, James, Director of FHFA"), "FHFA Director", ERROR)) %>%
@@ -66,19 +74,22 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Buchson, Larry", "Bucshon, Larry")) %>%
     mutate(FROM = str_replace(FROM, "Johnson, Bernice", "Johnson, Eddie")) %>%
     mutate(FROM = str_replace(FROM, "Moran, lames", "Moran, James")) %>%
-    mutate(FROM = str_replace(FROM, "Christopher J. Dodd", "Dodd J. Christopher"))
+    mutate(FROM = str_replace(FROM, "Christopher J. Dodd", "Dodd J. Christopher")) %>%
+    mutate(FROM = str_replace(FROM, "Charles E. Schumer", "Schumer E. Charles")) %>%
+    mutate(FROM = str_replace(FROM, "Kanjorski", "KANJORSKI, Paul")) %>%
+    mutate(FROM = str_replace(FROM, "Bachman, Michele,", "BACHMANN, Michele"))
   
   #Filter while working, comment out
   data %<>%
     filter( ! FROM %in% c("Franks, Trent, Congressman of Arizona", "Lockhart, James, Director of FHFA",
          "Pratt, Leonard", "DeMarco, Edward, Acting Director",
         "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
-         "Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs
-"))
+         "Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs",
+        "Lockhart, James", "Marshall, Donald (OFHEO Contractor)", "Lenoir, Simuel"))
     
   #Clean to run getFirstLast.Comma
   data %<>%
-    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator|, Senate.*|Congresswoman |Congressman|, Rep| etal|, Represenative")))
+    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. ")))
   
   ################
   
@@ -118,6 +129,9 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "32 more congressmen"), "Multiple unnamed Members", NOTES))
+  
+  data %<>%
+    mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())
