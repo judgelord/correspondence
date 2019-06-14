@@ -16,7 +16,7 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
-  #create column that is converted version of class DATE
+  #create column that is converted version of DATE, new column is NEWDATE
   
   data$NEWDATE <- data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y"))
   
