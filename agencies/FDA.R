@@ -10,8 +10,9 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data))
   
-  # remove NA rows
-  data <- data[-which(is.na(data$FROM)),]
+  # remove NA rows 
+  # ARE WE SURE WE WANT TO TO DROP ALL OF THESE ? 
+  data %<>% drop_na(FROM)
   
   # create agency column
   data$agency <- file.name
@@ -87,7 +88,8 @@ clean <- function(file.name) {
   
   #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
   
-data$FROM <- gsub("^ ","", data$FROM)
+  # trim extra white space before or after name
+  data$FROM %<>% trimws()
   
 
   ################
@@ -129,6 +131,11 @@ data %<>%
   unfoundnames %<>%
     select(ID, DATE, FROM, SUBJECT, last_name, everything())
   
+  # Dropping this for now because it is incomplete and we get more observations without it
+  # If we rewrite Clean.R, we may be able to add chamber back in
+  # FIXME
+  data %<>% select(-chamber)
   
   
   }
+

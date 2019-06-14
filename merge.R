@@ -26,9 +26,9 @@ send_message(mime(
 # coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 
-data_list <- as.data.frame(matrix(c(        
-  
-# Agency, c(coded, not coded, recoded), coders,
+data_list <- tribble(
+  ~agency, ~status, ~coders,   
+# Agency sheet name, status = c("coded", "not coded", "recoded"), coders = c("coder1", "coder2", ...),
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
@@ -127,7 +127,7 @@ data_list <- as.data.frame(matrix(c(
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
-# "Treasury_Mint", "not coded", NA, # rich and complete, but not on drive needs to be assembled
+# "Treasury_Mint", "not coded", NA, # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
 # USDA 
 "USDA", "not coded", NA,
@@ -142,8 +142,7 @@ data_list <- as.data.frame(matrix(c(
 # USPS
 "USPS", "not coded", NA,
 "VA_CEM", "not coded", NA 
-), ncol = 3, byrow = T))
-names(data_list) <- c("agency", "status", "coders")
+)
 data_list
 
 
@@ -156,19 +155,12 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-<<<<<<< HEAD
-i <- which(data_list$agency == "VA_CEM") 
-=======
-
-i <- which(data_list$agency == "FHFA") 
-# i <- which(data_list$agency == "DOD_OSDJS") 
-
-i <- which(data_list$agency == "USDA_RMA") 
->>>>>>> 66e2c7ddb629999040add00e8248da95b84bdde2
-# i <- which(data_list$agency == "Treasury_OCC") 
-d1 <- clean.agency(agency = data_list[i, 1],
-                     status = data_list[i, 2],
-                     coders = data_list[i, 3])
+i <- which(data_list$agency == "FDA")
+d1 <- clean.agency(
+  agency = as.character(data_list[i, 1]),
+  status = as.character(data_list[i, 2]),
+  coders = as.character(data_list[i, 3])
+)
 
 d1 %>% filter(!is.na(last_name)) %>% count(congress)
 
@@ -196,15 +188,16 @@ d %>% filter(!is.na(last_name)) %>% count(year)
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 head(data_list)
 
-i = 1
+i <- 1
 while(!is.na(data_list[i,1])) {
   
   print(data_list[i,1])
   
   d1 <- clean.agency(
-    agency = data_list[i, 1],
-    status = data_list[i, 2],
-    coders = data_list[i, 3]) 
+    agency = as.character(data_list[i, 1]),
+    status = as.character(data_list[i, 2]),
+    coders = as.character(data_list[i, 3]))
+  
   d1 %<>% 
     left_join(members) %>% 
     select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
