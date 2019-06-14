@@ -4,7 +4,7 @@
 
 #file.name <- "USDA_RMA" # for testing
 
-#file.name <- "USDA_RMA" ##for testing 13 June
+#file.name <- "USDA_RMA" ##for testing 14 June 
 
 
 clean <- function(file.name) {
@@ -16,9 +16,26 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
+  #create column that is converted version of class DATE
+  
+  data$NEWDATE <- data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y"))
+  
+  # figuring out class for NEWDATE column
+  # class(data$NEWDATE)
+  
+  
+  
+  #data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y"))
+  
+  #help(as.Date)
+  
+  data %<>% 
+    mutate(DATE = ifelse(is.na(NEWDATE), DateSigned, DATE))  ##replacing NA dates with date signed
+  
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% multidate(c("%m-%d-%y","%m/%d/%y"))  
-  data$DateSigned %<>% multidate(c("%m-%d-%y","%m/%d/%y"))##allow for different variations of dates for better matches
+  
+  ##allow for different variations of dates for better matches
   
   
 
@@ -73,6 +90,15 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl("Congress", data$FROM), "Not valid name info", ERROR))
   
+  
+  
+  #sample <- data %>%
+  #filter(is.na(DATE))  
+  #View(sample) 
+  
+  ##testing code
+  
+  
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CLAIM|LATE PAYMENT|PREMIUM|PREVENTED PLANTING|FRAUD|ITS|ROTAT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CLAIM|LATE PAYMENT|PREMIUM|PREVENTED PLANTING|FRAUD|ITS||ROTAT", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
@@ -98,15 +124,7 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FOIA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
   
-  data %<>% 
-    mutate(DATE = ifelse(is.na(DATE), DateSigned, DATE))  ##replacing NA dates with date signed
-  
-  
-  #sample <- data %>%
-  #filter(is.na(DATE))  
-  #View(sample) 
-  
-  ##testing code
-  
+
+
   
 }
