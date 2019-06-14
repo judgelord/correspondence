@@ -16,7 +16,7 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
-  #create column that is converted version of class DATE
+ #create column that is converted version of DATE, new column is NEWDATE
   
   data$NEWDATE <- data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y"))
   
@@ -29,7 +29,7 @@ clean <- function(file.name) {
   
   #help(as.Date)
   
-  data %<>% 
+ data %<>% 
     mutate(DATE = ifelse(is.na(NEWDATE), DateSigned, DATE))  ##replacing NA dates with date signed
   
   # Format date, year, Congress, member name etc. 
