@@ -101,6 +101,8 @@ data_list <- tribble(
  "FHFA", "not coded", NA, #
 # FMC
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress 
+#FTC
+"FTC", "not coded", NA,
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
 # HUD
@@ -156,6 +158,7 @@ data_list
 i <- 1
 # or choose one agency
 i <- which(data_list$agency == "DOE_FERC")
+
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
