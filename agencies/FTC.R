@@ -30,16 +30,29 @@ clean <- function(file.name) {
   #No chamber variable in script because chambers may be wrong
   
   data %<>%
-    mutate(FROM = str_remove(FROM, "Sen |Rep |!|\\}"))
+    mutate(ERROR = ifelse(str_detect(FROM, "Pre "), "President", ERROR)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Vic "), "Vice President", NOTES))
+  
+  #Filter while working
+  data %<>%
+    filter( ! str_detect(FROM, "Pre |Vic "))
   
   data %<>%
-    mutate(FROM = str_replace(FROM, "Charles E. Schumer", "Schumer, Charles E.")) %>%
-    mutate(FROM = str_replace(FROM, "David \"Phil\" Roe", "Roe, David")) %>%
-    mutate(FROM = str_replace(FROM, "William \"Mo\" Cowan", "Cowan, William"))
+    mutate(FROM = str_remove(FROM, "Sen |Rep |!|\\}"))
+  
+  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "David  \"Phil\" Roe", "Roe, David")) %>%
+    mutate(FROM = str_replace(FROM, "William  \"Mo\" Cowan", "Cowan, William"))
 
   data <- getFirstLast.Comma(data, col_name = "FROM")
   
   Unfoundnames <- data %>%
+    filter(is.na(last_name)) %>%
+    extractMemberName(members = members, col_name = "FROM")
+  
+  Unfoundnames2 <- data %>%
     filter(is.na(last_name))
+  
   
   }
