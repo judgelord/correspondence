@@ -903,14 +903,18 @@ tribble(
   "Matt", "Cartwright", NA, "Cartwrite",
   "Chris", "Gibson", "Cris", NA,
   "Barbara", "Boxer", "Barabara", NA,
-  "Jack", "Reed", NA, "Red"
+  "Jack", "Reed", NA, "Red",
+  "David", "Schweikert", NA, "Schweikerl"
   
 )  
   # COMMON FIRST, MIDDLE, AND LAST NAME TYPOS 
   tribble(
-    ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
-    "Patty", "Murray", NA, "Muray",
-    "Patty", "Murray", NA, "Muray"
+    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
+    "Shelley", "Moore", "Capito", "Shelly", NA, NA,
+    "Charles", "E.", "Schumer", Charls, NA, NA,
+    "Hillary", "Rodham", "Clinton", NA, "Redham", NA,
+    
+    
     
 )
 
