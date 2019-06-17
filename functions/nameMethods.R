@@ -903,26 +903,37 @@ tribble(
   "Matt", "Cartwright", NA, "Cartwrite",
   "Chris", "Gibson", "Cris", NA,
   "Barbara", "Boxer", "Barabara", NA,
-  "Jack", "Reed", NA, "Red"
+  "Jack", "Reed", NA, "Red",
+  "David", "Schweikert", NA, "Schweikerl"
   
 )  
   # COMMON FIRST, MIDDLE, AND LAST NAME TYPOS 
   tribble(
-    ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
-    "Patty", "Murray", NA, "Muray",
-    "Patty", "Murray", NA, "Muray"
+    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
+    "Shelley", "Moore", "Capito", "Shelly", NA, NA,
+    "Charles", "E.", "Schumer", Charls, NA, NA,
+    "Hillary", "Rodham", "Clinton", NA, "Redham", NA,
+    "Russell", "D", "Feingold", "Russel", NA, NA,
+    "Russell", "D", "Feingold", "Rusell", NA, NA,
+    "Robert", "C", "Byrd", "Robert", "C", "Bryd",
+    "Orrin", "G", "Hatch", "Orring", NA, NA,
+    "Olympia", "J", "Snowe", "Olymia", NA, NA,
+    "Olympia", "J", "Snowe", NA, NA, "Showe"
+    
+    
+    
     
 )
 
-#Fixes name typo (from DOL_SOL)
-data$FROM %<>%
-  str_replace("Davis, Arthur", "Davis, Artur") %>%
-  str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
-  str_replace("Leahy, Ted", "Leahy, Patrick") %>%
-  str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
-  str_replace("Obama, Brack", "Obama, Barack") %>%
-  str_replace("Hooley, Darene", "Hooley, Darlene")
-
-
-
+# #Fixes name typo (from DOL_SOL)
+# data$FROM %<>%
+#   str_replace("Davis, Arthur", "Davis, Artur") %>%
+#   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
+#   str_replace("Leahy, Ted", "Leahy, Patrick") %>%
+#   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
+#   str_replace("Obama, Brack", "Obama, Barack") %>%
+#   str_replace("Hooley, Darene", "Hooley, Darlene")
+# 
+# 
+# 
 
