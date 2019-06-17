@@ -875,7 +875,7 @@ addFirst <- function(first_name, last_name){
 # CORRECTIONS TO ADD TO ABOVE 
 
 
-# COMMON FIRST AND LAST NAME TYPOS 
+# COMMON FIRST AND LAST NAME TYPOS TEMPLATE
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
@@ -886,7 +886,43 @@ tribble(
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
-  "Patty", "Murray", NA, "Muray"
+  "Patrick", "Leahy", "Partrick", NA,
+  "Ralph", "Regula", "Raplh", NA,
+  "Lois", "Capps", NA, "Crapps",
+  "Rick", "Boucher", NA, "Bocuher",
+  "Ric", "Keller", "Rick", NA,
+  "Robert", "Andrews", NA, "Andrew",
+  "Rodney", "Frelinghuysen", NA, "Frelinhuysen",
+  "Shelly", "Berkley", NA, "Barkley",
+  "Steny", "Hoyer", NA, "Royer",
+  "Steven", "Lynch", "Stephen", NA,
+  "Zoe", "Lofgren", "Toe", NA,
+  "Vito", "Fossella", NA, "Fosella",
+  "John", "Barrasso", NA, "Barasso",
+  "Larry", "Bucshon", NA, "Bueston",
+  "Matt", "Cartwright", NA, "Cartwrite",
+  "Chris", "Gibson", "Cris", NA,
+  "Barbara", "Boxer", "Barabara", NA,
+  "Jack", "Reed", NA, "Red",
+  "David", "Schweikert", NA, "Schweikerl"
+  
+)  
+  # COMMON FIRST, MIDDLE, AND LAST NAME TYPOS 
+  tribble(
+    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
+    "Shelley", "Moore", "Capito", "Shelly", NA, NA,
+    "Charles", "E.", "Schumer", Charls, NA, NA,
+    "Hillary", "Rodham", "Clinton", NA, "Redham", NA,
+    "Russell", "D", "Feingold", "Russel", NA, NA,
+    "Russell", "D", "Feingold", "Rusell", NA, NA,
+    "Robert", "C", "Byrd", "Robert", "C", "Bryd",
+    "Orrin", "G", "Hatch", "Orring", NA, NA,
+    "Olympia", "J", "Snowe", "Olymia", NA, NA,
+    "Olympia", "J", "Snowe", NA, NA, "Showe"
+    
+    
+    
+    
 )
 
 # #Fixes name typo (from DOL_SOL)
