@@ -37,10 +37,20 @@ clean <- function(file.name) {
     unnest(FROM)
   
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Sen. "), "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Rep. "), "House", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Sen. |(S)|Sen "), "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rep. |(CW)|(CM)|Rep "), "House", chamber))
+  
+  data %<>%
+    mutate(FROM = str_remove(FROM, "Sen. ")) %>%
+    mutate(FROM = str_remove(FROM, "Rep. "))
   
   data %<>% select(ID, DATE, FROM, everything())  
+
+  
+  data <- getFirstLast.Comma(data, 'FROM')
+  
+  Unfoundnames <- data %>%
+    filter(is.na(last_name))
   
   return(data)
   
