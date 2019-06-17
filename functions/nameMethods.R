@@ -904,7 +904,8 @@ tribble(
   "Chris", "Gibson", "Cris", NA,
   "Barbara", "Boxer", "Barabara", NA,
   "Jack", "Reed", NA, "Red",
-  "David", "Schweikert", NA, "Schweikerl"
+  "David", "Schweikert", NA, "Schweikerl",
+  "Peter", "DeFazio", NA, "DiFazio"
   
 )  
   # COMMON FIRST, MIDDLE, AND LAST NAME TYPOS 
@@ -919,11 +920,10 @@ tribble(
     "Orrin", "G", "Hatch", "Orring", NA, NA,
     "Olympia", "J", "Snowe", "Olymia", NA, NA,
     "Olympia", "J", "Snowe", NA, NA, "Showe"
+  )
     
     
-    
-    
-)
+
 
 # #Fixes name typo (from DOL_SOL)
 # data$FROM %<>%
