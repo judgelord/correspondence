@@ -69,6 +69,8 @@ clean <- function(file.name) {
     #Max Cleland
     mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM))
     #Herb Barrett has 2 misnamed observations but deadend 
+    #Vermon J Ehlers
+    mutate(FROM = ifelse (grepl("Vermon J. Ehlers", FROM, ignore.case = TRUE), "Vermon J Ehlers", FROM)) %>% 
  
    
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
@@ -718,6 +720,9 @@ data %<>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20170324-0041", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   mutate(AntiBusiness = ifelse (grepl("20170324-0041", ID, ignore.case = TRUE), "PennEast Pipeline Company", AntiBusiness))
 
+#sample <- data %>%
+#filter(is.na(last_name))  
+#View(sample)
 
   return(data)
 
