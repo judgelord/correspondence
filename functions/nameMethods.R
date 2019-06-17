@@ -176,10 +176,27 @@ extractMemberName <- function(data, members, col_name){
   
   data$Summary <- ocr.errors(data$Summary)
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  #####################
+  # Match names in different formats
+  ###################
+  
   # FIXME 
   # REWRITE WITH purrr
   
   # create FROM2 varible extracting name from data$Summary
+  
+  # extract common_last name formats
   data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
                     replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[850:1700], collapse = '|'), ').*'), collapse = ""),
@@ -252,10 +269,17 @@ extractMemberName <- function(data, members, col_name){
        replacement = "\\1", data$Summary, ignore.case = TRUE) 
   
   
+  
+  
+  
+  
+  
+  # Assumer first name is first word and last name appears second? 
   data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
   data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM2)
   
   
+  # apply formating functions from above
   data$first_name <- formatFirstName(data, 'first_name')
   data$last_name <- formatLastName(data, 'last_name')
   
@@ -911,7 +935,7 @@ tribble(
   tribble(
     ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
     "Shelley", "Moore", "Capito", "Shelly", NA, NA,
-    "Charles", "E.", "Schumer", Charls, NA, NA,
+    "Charles", "E.", "Schumer", "Charls", NA, NA,
     "Hillary", "Rodham", "Clinton", NA, "Redham", NA,
     "Russell", "D", "Feingold", "Russel", NA, NA,
     "Russell", "D", "Feingold", "Rusell", NA, NA,
