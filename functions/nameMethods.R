@@ -146,7 +146,9 @@ formatFirstName <- function(data, col_name){
 }
 
 # function will extract names found in members dataset from data$Summary column 
-# typical call:   data <- extractMemberName(data, members, 'FROM') -- POSSIBLY REQUIRED THAT col_name ='From'
+# typical call:   
+# data <- extractMemberName(data, members, 'FROM') 
+# NOTE: POSSIBLY REQUIRED THAT col_name ='From'
 # MAY NOT HAVE VAR NAMED members IN DATA 
 
 extractMemberName <- function(data, members, col_name){
@@ -863,6 +865,31 @@ addFirst <- function(first_name, last_name){
   }
   return(first_name)
 }
+
+
+
+#########################
+# FIXME 
+
+# CORRECTIONS TO ADD TO ABOVE 
+
+
+# COMMON FIRST AND LAST NAME TYPOS 
+tribble(
+  ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
+  "Patty", "Murray", NA, "Muray",
+  "Patty", "Murray", NA, "Muray"
+)
+
+# COMMON FIRST AND LAST NAME TYPOS 
+tribble(
+  ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
+  "Patty", "Murray", NA, "Muray",
+  "Patty", "Murray", NA, "Muray"
+)
+
+
+
 
 
 
