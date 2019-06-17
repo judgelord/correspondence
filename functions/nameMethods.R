@@ -875,7 +875,7 @@ addFirst <- function(first_name, last_name){
 # CORRECTIONS TO ADD TO ABOVE 
 
 
-# COMMON FIRST AND LAST NAME TYPOS 
+# COMMON FIRST AND LAST NAME TYPOS TEMPLATE
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
@@ -886,7 +886,13 @@ tribble(
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
-  "Patty", "Murray", NA, "Muray"
+  "Patrick", "Leahy", "Partrick", NA
+)  
+  # COMMON FIRST AND LAST NAME TYPOS 
+  tribble(
+    ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
+    "Patty", "Murray", NA, "Muray",
+    "Patty", "Murray", NA, "Muray"
 )
 
 #Fixes name typo (from DOL_SOL)
