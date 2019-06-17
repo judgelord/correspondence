@@ -70,8 +70,8 @@ clean <- function(file.name) {
     drop_na(last_name)
   
   #Rejoins data
-  data %<>%
-    full_join(Unfoundnames)
+ # data %<>%
+    #full_join(Unfoundnames)
   
   #Checks for observations still NA
   notfound2 <- data %>%
