@@ -6,7 +6,7 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read()# get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
 
 #Create ID
   data %<>%
@@ -29,30 +29,54 @@ clean <- function(file.name) {
 
   #No chamber variable in script because chambers may be wrong
   
+  #Comments Errors for Pres and Vice Pres
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Pre "), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Vic "), "Vice President", NOTES))
   
   #Filter while working
+  #data %<>%
+    #filter( ! str_detect(FROM, "Pre |Vic "))
+  
+  #Removes in FROM to allow matches
   data %<>%
-    filter( ! str_detect(FROM, "Pre |Vic "))
+    mutate(FROM = str_remove(FROM, "Sen |Rep |!|\}"))
   
-  data %<>%
-    mutate(FROM = str_remove(FROM, "Sen |Rep |!|\\}"))
-  
-  
+  #Fixes problems with common name in quotes
   data %<>%
     mutate(FROM = str_replace(FROM, "David  \"Phil\" Roe", "Roe, David")) %>%
-    mutate(FROM = str_replace(FROM, "William  \"Mo\" Cowan", "Cowan, William"))
+    mutate(FROM = str_replace(FROM, "William  \"Mo\" Cowan", "Cowan, William")) %>%
+    mutate(FROM = str_replace(FROM, "Bonnie Watson Colem2", "Bonnie Watson Coleman"))
+  
 
   data <- getFirstLast.Comma(data, col_name = "FROM")
   
+  #Checks for NAs
+  notfound <- data %>%
+    filter(is.na(last_name))
+  
+  #Separates first and last name by comma
+  data %<>%
+    mutate(FROM = str_trim(FROM)) %>%
+    mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
+  
+  #Extracts member names from NAs in getfirstlast
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
     extractMemberName(members = members, col_name = "FROM")
+    
+  #Drops duplicate observations  
+  data %<>%
+    drop_na(last_name)
   
-  Unfoundnames2 <- data %>%
+  #Rejoins data
+  data %<>%
+    full_join(Unfoundnames)
+  
+  #Checks for observations still NA
+  notfound2 <- data %>%
     filter(is.na(last_name))
   
+  return(data)
   
   }
