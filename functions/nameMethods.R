@@ -906,7 +906,7 @@ tribble(
   "Patty", "Murray", NA, "Muray"
 )
 
-# COMMON FIRST AND LAST NAME TYPOS 
+# FREQUENT FIRST AND LAST NAME TYPOS 
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
@@ -932,15 +932,15 @@ tribble(
   "Peter", "DeFazio", NA, "DiFazio"
   
 )  
-  # COMMON FIRST, MIDDLE, AND LAST NAME TYPOS 
+  # FREQUENT MIDDLE NAME TYPOS 
   tribble(
     ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
-    "Shelley", "Moore", "Capito", "Shelly", NA, NA,
+    "Shelley", "Moore", "Capito", "Shelly", NA, NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
     "Charles", "E.", "Schumer", "Charls", NA, NA,
-    "Hillary", "Rodham", "Clinton", NA, "Redham", NA,
+    "Hillary", "Rodham", "Clinton", NA, "Redham", NA, # <- this is what I would expect to see here, not the rest.
     "Russell", "D", "Feingold", "Russel", NA, NA,
     "Russell", "D", "Feingold", "Rusell", NA, NA,
-    "Robert", "C", "Byrd", "Robert", "C", "Bryd",
+    "Robert", "C", "Byrd", "Robert", "C", "Bryd", # ? these seem the same 
     "Orrin", "G", "Hatch", "Orring", NA, NA,
     "Olympia", "J", "Snowe", "Olymia", NA, NA,
     "Olympia", "J", "Snowe", NA, NA, "Showe"

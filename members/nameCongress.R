@@ -370,9 +370,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% mutate_all(replace404)
   
 
-  
+  # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
 
+  # 2000-2007 congresses 
   members_106to109th <- filter(members, congress < 112)
   
   members %<>% filter(congress > 109)
