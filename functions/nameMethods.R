@@ -913,6 +913,13 @@ tribble(
     "Shelley", "Moore", "Capito", "Shelly", NA, NA,
     "Charles", "E.", "Schumer", Charls, NA, NA,
     "Hillary", "Rodham", "Clinton", NA, "Redham", NA,
+    "Russell", "D", "Feingold", "Russel", NA, NA,
+    "Russell", "D", "Feingold", "Rusell", NA, NA,
+    "Robert", "C", "Byrd", "Robert", "C", "Bryd",
+    "Orrin", "G", "Hatch", "Orring", NA, NA,
+    "Olympia", "J", "Snowe", "Olymia", NA, NA,
+    "Olympia", "J", "Snowe", NA, NA, "Showe"
+    
     
     
     
