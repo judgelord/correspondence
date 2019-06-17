@@ -35,18 +35,22 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "Vic "), "Vice President", NOTES))
   
   #Filter while working
-  #data %<>%
-    #filter( ! str_detect(FROM, "Pre |Vic "))
+ # data %<>%
+   # filter( ! str_detect(FROM, "Pre |Vic "))
   
   #Removes in FROM to allow matches
   data %<>%
-    mutate(FROM = str_remove(FROM, "Sen |Rep |!|\}"))
+    mutate(FROM = str_remove(FROM, "Sen |Rep "))
   
   #Fixes problems with common name in quotes
   data %<>%
     mutate(FROM = str_replace(FROM, "David  \"Phil\" Roe", "Roe, David")) %>%
-    mutate(FROM = str_replace(FROM, "William  \"Mo\" Cowan", "Cowan, William")) %>%
-    mutate(FROM = str_replace(FROM, "Bonnie Watson Colem2", "Bonnie Watson Coleman"))
+    mutate(FROM = str_replace(FROM, "William \"Mo\" Cowan", "Cowan, William")) %>%
+    mutate(FROM = str_replace(FROM, "Bonnie Watson Colem2", "Bonnie Watson Coleman")) %>%
+    mutate(FROM = str_replace(FROM, "Michelle Bachmann", "Bachmann, Michele")) %>%
+    mutate(FROM = str_replace(FROM, "James lnhofe", "Inhofe, James")) %>%
+    mutate(FROM = str_replace(FROM, "Scott Rigel!", "Scott Rigell")) %>%
+    mutate(FROM = str_replace(FROM, "Sean Patrick Malone\\}", "Sean Patrick Malone"))
   
 
   data <- getFirstLast.Comma(data, col_name = "FROM")
@@ -55,10 +59,6 @@ clean <- function(file.name) {
   notfound <- data %>%
     filter(is.na(last_name))
   
-  #Separates first and last name by comma
-  data %<>%
-    mutate(FROM = str_trim(FROM)) %>%
-    mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
   
   #Extracts member names from NAs in getfirstlast
   Unfoundnames <- data %>%
@@ -70,13 +70,14 @@ clean <- function(file.name) {
     drop_na(last_name)
   
   #Rejoins data
- # data %<>%
-    #full_join(Unfoundnames)
+  data %<>%
+    full_join(Unfoundnames)
   
   #Checks for observations still NA
   notfound2 <- data %>%
     filter(is.na(last_name))
-  
+ 
+
   return(data)
   
   }
