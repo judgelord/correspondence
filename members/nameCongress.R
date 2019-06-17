@@ -216,9 +216,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(grepl("PLATTS, Todd", bioname), "Russell", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("CARTER, Buddy", bioname), "Leroy", middle_name)) %>% 
      
-    mutate(middle_name = ifelse(grepl("HASSAN, Margaret", bioname), "Wood", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("Hassan, Margaret", bioname), "Wood", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("Morgan, H.", bioname), "Griffith", middle_name)) %>% 
-     
+    mutate(middle_name = ifelse(grepl("Harris, Kamala.", bioname), "Devi", middle_name)) %>% 
   
 
     # middle initials
@@ -311,6 +311,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "Lugar, Richard", "G", middle_initial)) %>%  
   mutate(middle_initial = ifelse(bioname == "Wolf, Frank", "R", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "Turner, Pamela", "J", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "Harris, Kamala", "D", middle_initial)) %>%   
   # first names
     mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
