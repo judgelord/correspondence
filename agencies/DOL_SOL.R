@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
  #file.name <- "DOL_SOL" # for testing
-
+file.name <- "DOL_SOL"
 
 
 clean <- function(file.name) {
@@ -117,6 +117,9 @@ data %<>%
 sample1<-data %>%
   filter(is.na(last_name))
 
+sample <- data %>%
+  filter(is.na(last_name))  
+View(sample)
 
   #arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
