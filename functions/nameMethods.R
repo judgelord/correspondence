@@ -925,15 +925,15 @@ tribble(
     
 )
 
-#Fixes name typo (from DOL_SOL)
-data$FROM %<>%
-  str_replace("Davis, Arthur", "Davis, Artur") %>%
-  str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
-  str_replace("Leahy, Ted", "Leahy, Patrick") %>%
-  str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
-  str_replace("Obama, Brack", "Obama, Barack") %>%
-  str_replace("Hooley, Darene", "Hooley, Darlene")
-
-
-
+# #Fixes name typo (from DOL_SOL)
+# data$FROM %<>%
+#   str_replace("Davis, Arthur", "Davis, Artur") %>%
+#   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
+#   str_replace("Leahy, Ted", "Leahy, Patrick") %>%
+#   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
+#   str_replace("Obama, Brack", "Obama, Barack") %>%
+#   str_replace("Hooley, Darene", "Hooley, Darlene")
+# 
+# 
+# 
 

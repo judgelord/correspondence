@@ -317,7 +317,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
     mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "CONAWAY, K. Michael", "Michael", first_name))
-    mutate(common_name = ifelse(bioname == "RUPPERSBERGER, C.", "Dutch", first_name)) %>% 
+    mutate(common_name = ifelse(bioname == "RUPPERSBERGER, C.", "Dutch", first_name)) 
   
   # make blank common names NA
   members %<>%

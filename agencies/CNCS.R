@@ -13,14 +13,17 @@ clean <- function(file.name) {
     mutate(ID = row_number())
   
 
+  
   data %<>%
     mutate(DATE = ifelse(is.na(DATE), Out, DATE))
+  
   # Format date, year, Congress, member name etc. 
   data$DATE <- gsub("/201", "/1", data$DATE) 
   data$DATE <- gsub("/200", "/0", data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
   
-  #Fix NA dates
+  
+
   #Checking for missing dates
   NAdate<-data %>%
     filter(is.na(DATE))
@@ -29,11 +32,15 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data %<>% select(ID, DATE, FROM, everything())  
-  
   data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
+  
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Sen. "), "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rep. "), "House", chamber))
+  
+  data %<>% select(ID, DATE, FROM, everything())  
   
   return(data)
   
