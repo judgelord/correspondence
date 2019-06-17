@@ -67,10 +67,10 @@ clean <- function(file.name) {
     #Margret Wood Hassan 
     mutate(FROM = ifelse (grepl("Margret Wood Hassan", FROM, ignore.case = TRUE), "Margaret Hassan", FROM)) %>% 
     #Max Cleland
-    mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM))
+    mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM)) %>% 
     #Herb Barrett has 2 misnamed observations but deadend 
     #Vermon J Ehlers
-    mutate(FROM = ifelse (grepl("Vermon J. Ehlers", FROM, ignore.case = TRUE), "Vermon J Ehlers", FROM)) %>% 
+    mutate(FROM = ifelse (grepl("Vermon J. Ehlers", FROM, ignore.case = TRUE), "Vermon J Ehlers", FROM)) 
  
    
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
@@ -99,6 +99,26 @@ clean <- function(file.name) {
   data %<>% select(ID, FROM, SUBJECT, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 #Cleaning Up Columns     
 #################################

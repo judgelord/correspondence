@@ -294,10 +294,13 @@ bad.names.1 <- d %>%
  
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
+  ungroup() %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
-bad.names.2 %>% group_by(agency) %>% summarise(n = n()) %>% arrange(-n)
+
+worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
+worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency) %>% arrange(-n)  %>% top_n(100)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -755,6 +758,8 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   
   save(bad.names.1, file = "data/bad.names.1.RData")
   save(bad.names.2, file = "data/bad.names.2.RData")
+  save(worst.agencies, file = "data/worst.agencies.Rdata")
+  save(worst.names, file = "data/worst.names.Rdata")
   save(bad.dates, file = "data/bad.dates.RData")
   save(bad.party, file = "data/bad.party.RData")
   # save(bad.committees.1, file = "data/bad.committees.1.RData")
