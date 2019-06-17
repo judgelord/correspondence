@@ -3,7 +3,7 @@
 
 #file.name <- "NARA" # for testing
 
-#file.name <-"NARA" # for testing 12 June
+#file.name <-"NARA"  #retested on 17 June for NA dates
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
