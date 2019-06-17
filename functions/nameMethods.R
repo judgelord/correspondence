@@ -886,13 +886,32 @@ tribble(
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
-  "Patrick", "Leahy", "Partrick", NA
+  "Patrick", "Leahy", "Partrick", NA,
+  "Ralph", "Regula", "Raplh", NA,
+  "Lois", "Capps", NA, "Crapps",
+  "Rick", "Boucher", NA, "Bocuher",
+  "Ric", "Keller", "Rick", NA,
+  "Robert", "Andrews", NA, "Andrew",
+  "Rodney", "Frelinghuysen", NA, "Frelinhuysen",
+  "Shelly", "Berkley", NA, "Barkley",
+  "Steny", "Hoyer", NA, "Royer",
+  "Steven", "Lynch", "Stephen", NA,
+  "Zoe", "Lofgren", "Toe", NA,
+  "Vito", "Fossella", NA, "Fosella",
+  "John", "Barrasso", NA, "Barasso",
+  "Larry", "Bucshon", NA, "Bueston",
+  "Matt", "Cartwright", NA, "Cartwrite",
+  "Chris", "Gibson", "Cris", NA,
+  "Barbara", "Boxer", "Barabara", NA,
+  "Jack", "Reed", NA, "Red"
+  
 )  
-  # COMMON FIRST AND LAST NAME TYPOS 
+  # COMMON FIRST, MIDDLE, AND LAST NAME TYPOS 
   tribble(
     ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
     "Patty", "Murray", NA, "Muray",
     "Patty", "Murray", NA, "Muray"
+    
 )
 
 #Fixes name typo (from DOL_SOL)
