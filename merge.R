@@ -155,7 +155,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "FDA")
+i <- which(data_list$agency == "DOE_FERC")
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
