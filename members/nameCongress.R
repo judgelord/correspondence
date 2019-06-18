@@ -213,13 +213,20 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # middle name
     mutate(middle_name = ifelse(grepl("PLATTS, Todd", bioname), "Russell", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("CARTER, Buddy", bioname), "Leroy", middle_name)) %>% 
-     
     mutate(middle_name = ifelse(grepl("HASSAN, Margaret (Maggie)", bioname), "Wood", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("GRIFFITH, H. Morgan", bioname), "Morgan", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("HARRIS, Kamala Devi", bioname), "Devi", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("CLARKE, Yvette", bioname), "Diane", middle_name)) %>% 
-  
-
+    mutate(middle_name = ifelse(grepl("CRAIG, Larry Edwin", bioname), "Edwin", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("GOODLATTE, Robert William", bioname), "William", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("WOLF, Frank Rudolph", bioname), "Rudolph", middle_name)) %>%
+    mutate(middle_name = ifelse(grepl("LUGAR, Richard Green", bioname), "Green", middle_name)) %>%
+    mutate(middle_name = ifelse(grepl("COLLINS, Susan Margaret", bioname), "Margaret", middle_name)) %>%
+    mutate(middle_name = ifelse(grepl("FEINGOLD, Russell Dana", bioname), "Dana", middle_name)) %>%
+    mutate(middle_name = ifelse(grepl("WARNER, John William", bioname), "William", middle_name)) %>%
+    mutate(middle_name = ifelse(grepl("GRASSLEY, Charles Ernest", bioname), "Ernest", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("MIKULSKI, Barbara Ann", bioname), "Ann", middle_name)) %>% 
+     
     # middle initials
     mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "FRANKEN, Al", "S", middle_initial)) %>%
@@ -289,30 +296,30 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "YOHO, Ted", "S", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CARTER, Buddy", "L", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "LIPINSKI, Daniel", "W", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Gosar, Paul", "A", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Rosen, Jacklyn", "S", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Snowe, Olympia", "J", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "WEBB, Jim", "H", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Scott, Robert", "C", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Rogers, Michael", "J", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "King, Peter", "T", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Craig, Larry", "E", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Goode, Virgil", "H", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Shelby, Richard", "C", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Goodlatte, Robert", "W", middle_initial)) %>%  
-  mutate(middle_initial = ifelse(bioname == "Feingold, Russell", "D", middle_initial)) %>%   
-  mutate(middle_initial = ifelse(bioname == "Landrieu, Mary", "L", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "RUPPERSBERGER, C.", "A", middle_initial)) %>%   
-  mutate(middle_initial = ifelse(bioname == "Mikulski, Barbara", "A", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Grassley, Charles", "E", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Warner, John", "W", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Collins, Susan", "M", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Lugar, Richard", "G", middle_initial)) %>%  
-  mutate(middle_initial = ifelse(bioname == "Wolf, Frank", "R", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "Turner, Pamela", "J", middle_initial)) %>%   
-  mutate(middle_initial = ifelse(bioname == "Harris, Kamala", "D", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "GOSAR, Paul", "A", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "ROSEN, Jacklyn Shery", "S", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "SNOWE, Olympia Jean", "J", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "WEBB, James H. (Jim)", "H.", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "SCOTT, Robert C.", "C.", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "ROGERS, Mike", "J", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "KING, Peter T.", "T.", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "CRAIG, Larry Edwin", "E", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "GOODE, Virgil H., Jr", "H.", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "SHELBY, Richard C.", "C.", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "FEINGOLD, Russell Dana", "D", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "LANDRIEU, Mary L.", "L.", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "RUPPERSBERGER, C. A. (Dutch)", "A", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "MIKULSKI, Barbara Ann", "A", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "GRASSLEY, Charles Ernest", "E", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "WARNER, John William", "W", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "COLLINS, Susan Margaret", "M", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "LUGAR, Richard Green", "G", middle_initial)) %>%  
+  mutate(middle_initial = ifelse(bioname == "WOLF, Frank Rudolph", "R", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "HARRIS, Kamala Devi", "D", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CLARKE, Yvette", "D", middle_initial)) %>%   
   mutate(middle_initial = ifelse(bioname == "BURR, Richard", "M", middle_initial)) %>%   
+     
+     
   # first names
     mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
