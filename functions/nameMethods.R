@@ -1,6 +1,7 @@
 
-# Formats col_name (usually last_name) to similiar format as members$last_name
+# Formats col_name (usually last_name) to be similiar format as members$last_name
 # Capitalizes letters and fixes common errors 
+# This is a helper function used by the main name methods (e.g. extractMemberNames() )
 formatLastName <- function(data, col_name){
   
   data$last_name <- data[[col_name]]
@@ -9,7 +10,7 @@ formatLastName <- function(data, col_name){
   
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
-    # correct capitalization
+    # correct capitalization to match bioname from voteview 
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -193,6 +194,29 @@ extractMemberName <- function(data, members, col_name){
   
   # FIXME 
   # REWRITE WITH purrr
+  # git one 
+  extractName <- function(data){
+    ifelse(str_detect(data, str_c(members$common_last, members$first_last, sep = "|")), 
+           members$bioname, 
+           NA)
+  }
+  
+  # data %>% mutate(FROM2 = map_chr(FROM,  extractName))
+  
+  # git all 
+  extractMembers <- function(data){
+    m <- members %>% filter(congress %in% data$congress)
+    
+    data %<>% 
+      mutate(names = map(m$pattern, str_extract_all, FROM))
+  }
+  
+  # extractMembers(data[1,])
+  
+  # Rewrite with join? 
+
+  
+  # data %>% mutate(FROM2 = map2(FROM, members, extractNames))
   
   # create FROM2 varible extracting name from data$Summary
   
