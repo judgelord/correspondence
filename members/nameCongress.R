@@ -192,10 +192,6 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "CARTER, Buddy", "Earl", common_name)) %>% 
     
     mutate(common_name = ifelse(bioname == "ROSEN, Jacklyn", "Jacky", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "Murray, Patty", "Pat", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "Goodlatte, Robert", "Bob", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "Schumer, Charles", "Chuck", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "Forbes, J. Randy", "Randy", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "BURR, Richard M.", "Rich", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "HURT, Robert", "Bob", common_name)) %>% 
     
@@ -218,9 +214,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(grepl("PLATTS, Todd", bioname), "Russell", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("CARTER, Buddy", bioname), "Leroy", middle_name)) %>% 
      
-    mutate(middle_name = ifelse(grepl("Hassan, Margaret", bioname), "Wood", middle_name)) %>% 
-    mutate(middle_name = ifelse(grepl("Morgan, H.", bioname), "Griffith", middle_name)) %>% 
-    mutate(middle_name = ifelse(grepl("Harris, Kamala", bioname), "Devi", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("HASSAN, Margaret (Maggie)", bioname), "Wood", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("GRIFFITH, H. Morgan", bioname), "Morgan", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("HARRIS, Kamala Devi", bioname), "Devi", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("CLARKE, Yvette", bioname), "Diane", middle_name)) %>% 
   
 
