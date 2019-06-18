@@ -89,6 +89,7 @@ data_list <- tribble(
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+"EOP_CEQ", "not coded", NA,
 #"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
@@ -158,7 +159,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "CNCS")
+i <- which(data_list$agency == "EOP_CEQ")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
