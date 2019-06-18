@@ -31,6 +31,7 @@ data_list <- tribble(
 # Agency sheet name, status = c("coded", "not coded", "recoded"), coders = c("coder1", "coder2", ...),
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
+"CNCS", "not coded", NA,
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
@@ -88,6 +89,7 @@ data_list <- tribble(
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+"EOP_CEQ", "not coded", NA,
 #"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
@@ -98,9 +100,10 @@ data_list <- tribble(
 # FDA
 "FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
 # FHFA
- "FHFA", "not coded", NA, #
+"FHFA", "not coded", NA, #
 # FMC
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress 
+#FTC
 "FTC", "not coded", NA,
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
@@ -156,7 +159,9 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
+
 i <- which(data_list$agency == "DOE_FERC")
+
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
@@ -244,6 +249,8 @@ d$icpsr %<>% as.numeric()
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 
 # party switchers etc
+# FIXME
+# Jeffords switched parties fix in MemberNameDateCorrections.R
 d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
 
 #######################
