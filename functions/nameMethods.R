@@ -930,7 +930,8 @@ tribble(
   "Barbara", "Boxer", "Barabara", NA,
   "Jack", "Reed", NA, "Red",
   "David", "Schweikert", NA, "Schweikerl",
-  "Peter", "DeFazio", NA, "DiFazio"
+  "Peter", "DeFazio", NA, "DiFazio",
+  "Zoe", "Lofgren", NA., "Lufgren"
   
 )  
   # FREQUENT MIDDLE NAME TYPOS 
