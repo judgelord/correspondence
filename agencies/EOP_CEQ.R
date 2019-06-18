@@ -43,8 +43,9 @@ clean <- function(file.name) {
                             "House", chamber))
   
 data %<>%
-  mutate(FROM = str_remove_all(FROM, "Coastal States Caucus|Arizona Delegation|Senate|SD|-Land Conservation Caucus|US|AK|NH|US of|United States|U.S. |et al.|WA|from|US of|IL|men|II|CA Congreesmen|AK Reps|Hispanic Caucus Institute|Arizona Delegation|Congresional Hispanic Caucus Inst|Sen\\.|Senator|Senate- |Senate Majority Leader|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives|Majority Leader |-|Reps | \\(White Referral\\)"))
- 
+  mutate(FROM = str_remove_all(FROM, "Coastal States Caucus|Arizona Delegation|Senate|SD|-Land Conservation Caucus|US|AK|NH|US of|United States|U.S. |et al.|WA|from|US of|IL|men|II|CA Congreesmen|AK Reps|Hispanic Caucus Institute|Arizona Delegation|Congresional Hispanic Caucus Inst|Sen\\.|Senator|Senate- |Senate Majority Leader|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives|Majority Leader |-|Reps | \\(White Referral\\)|Members of Coingress |Congres "))
+
+
 data <- getFirstLast.Comma(data, col_name = "FROM")
 
 
@@ -74,14 +75,25 @@ data %<>%
 
 data %<>% filter(! FROM == "")
 
+#Separates first and last name by comma
+data %<>%
+  mutate(FROM = str_trim(FROM)) %>%
+  mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
+
 
 datanotfound <- data %>%
   filter(is.na(last_name))
+
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other|"), "Multiple Unnamed Members", NOTES))
 
 
 data %<>%
   mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
   mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
+
+datanotfound2 <- data %>%
+  filter(is.na(last_name))
 
 return(data)  
 }
