@@ -36,11 +36,11 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman"),
                             "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States|Reps.") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
                             "House", chamber))
   
 data %<>%
-  mutate(FROM = str_remove(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader|\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. "))
+  mutate(FROM = str_remove_all(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader|\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives"))
  
 data <- getFirstLast.Comma(data, col_name = "FROM")
 
@@ -49,9 +49,35 @@ data <- getFirstLast.Comma(data, col_name = "FROM")
 data %<>% select(ID, DATE, FROM, everything())  
 
 Unfoundnames <- data %>%
-  filter(is.na(last_name)) %>%
+  extractMemberName(members = members, col_name = "SUBJECT")
+
+Unfoundnames2 <- data %>%
   extractMemberName(members = members, col_name = "FROM")
-  
+
+Unfoundnames2 %<>%
+  drop_na(last_name)
+
+notfound <- Unfoundnames2 %>%
+  filter(is.na(last_name))
+
+Unfoundnames %<>%
+drop_na(last_name)
+
+data %<>%
+  full_join(Unfoundnames)
+
+data %<>%
+  full_join(Unfoundnames2)
+
+data %<>% filter(!FROM == "")
+
+datanotfound <- data %>%
+  filter(is.na(last_name))
+
+
+data %<>%
+  mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
+  mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
 
 return(data)  
 }
