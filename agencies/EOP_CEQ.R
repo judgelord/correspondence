@@ -22,10 +22,36 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
 
+#chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen|Sen\\.|Senator|Sen |Senate- ") & ! str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman"),
+                            "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+                            "House", chamber))
+  #Split
+  data %<>%
+    mutate(FROM = str_split(FROM, "\\,| and|\\/")) %>%
+    unnest(FROM)
+  
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman"),
+                            "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+                            "House", chamber))
+  
+data %<>%
+  mutate(FROM = str_remove(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader|\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. "))
+ 
+data <- getFirstLast.Comma(data, col_name = "FROM")
 
+
+
+data %<>% select(ID, DATE, FROM, everything())  
+
+Unfoundnames <- data %>%
+  filter(is.na(last_name)) %>%
+  extractMemberName(members = members, col_name = "FROM")
   
-  
-  
-  
+
 return(data)  
 }
