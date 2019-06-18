@@ -24,23 +24,26 @@ clean <- function(file.name) {
 
 #chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen|Sen\\.|Senator|Sen |Senate- ") & ! str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman"),
+    mutate(chamber = ifelse(str_detect(FROM, "Sen\\.|Senator|Sen |Senate- ") & ! str_detect(FROM, "Member of Congress|Congressman"),
                             "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+    mutate(chamber = ifelse(str_detect(FROM, "Member of Congress|Congressman") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
                             "House", chamber))
+  
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee"), "Committee", NOTES))
   #Split
   data %<>%
     mutate(FROM = str_split(FROM, "\\,| and|\\/|\\&")) %>%
     unnest(FROM)
   
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman"),
+    mutate(chamber = ifelse(str_detect(FROM, "Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "Member of Congress|Congressman"),
                             "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States|Reps.") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+    mutate(chamber = ifelse(str_detect(FROM, "Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States|Reps.") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
                             "House", chamber))
   
 data %<>%
-  mutate(FROM = str_remove_all(FROM, "of|Coastal States Caucus|Arizona Delegation|Senate|SD|-Land Conservation Caucus|US|AK|NH|US of|United States|U.S. |et al.|WA|from|US of|IL|men|II|CA Congreesmen|AK Reps|Hispanic Caucus Institute|Arizona Delegation|Congresional Hispanic Caucus Inst|\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader|\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives"))
+  mutate(FROM = str_remove_all(FROM, "Coastal States Caucus|Arizona Delegation|Senate|SD|-Land Conservation Caucus|US|AK|NH|US of|United States|U.S. |et al.|WA|from|US of|IL|men|II|CA Congreesmen|AK Reps|Hispanic Caucus Institute|Arizona Delegation|Congresional Hispanic Caucus Inst|Sen\\.|Senator|Senate- |Senate Majority Leader|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives|Majority Leader |-|Reps | \\(White Referral\\)"))
  
 data <- getFirstLast.Comma(data, col_name = "FROM")
 
@@ -71,7 +74,6 @@ data %<>%
 
 data %<>% filter(! FROM == "")
 
-data %<>% filter(!FROM == " ")
 
 datanotfound <- data %>%
   filter(is.na(last_name))
