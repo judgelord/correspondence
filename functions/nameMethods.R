@@ -931,7 +931,8 @@ tribble(
   "Jack", "Reed", NA, "Red",
   "David", "Schweikert", NA, "Schweikerl",
   "Peter", "DeFazio", NA, "DiFazio",
-  "Zoe", "Lofgren", NA., "Lufgren"
+  "Zoe", "Lofgren", NA, "Lufgren",
+  "Thomas", "Holden", NA, "Holen"
   
 )  
   # FREQUENT MIDDLE NAME TYPOS 
