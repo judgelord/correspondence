@@ -25,6 +25,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
     mutate(last_name = gsub("LANDRY", replacement = "Landry", last_name)) %>% 
     mutate(last_name = gsub("WEBB", replacement = "Webb", last_name)) %>% 
+    mutate(last_name = gsub("OWENS", replacement = "Owens", last_name)) %>% 
     
     # Spelling and specific corrections
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
