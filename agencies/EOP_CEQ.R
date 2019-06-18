@@ -30,7 +30,7 @@ clean <- function(file.name) {
                             "House", chamber))
   #Split
   data %<>%
-    mutate(FROM = str_split(FROM, "\\,| and|\\/")) %>%
+    mutate(FROM = str_split(FROM, "\\,| and|\\/|\\&")) %>%
     unnest(FROM)
   
   data %<>%
@@ -40,7 +40,7 @@ clean <- function(file.name) {
                             "House", chamber))
   
 data %<>%
-  mutate(FROM = str_remove_all(FROM, "\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader|\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives"))
+  mutate(FROM = str_remove_all(FROM, "of|Coastal States Caucus|Arizona Delegation|Senate|SD|-Land Conservation Caucus|US|AK|NH|US of|United States|U.S. |et al.|WA|from|US of|IL|men|II|CA Congreesmen|AK Reps|Hispanic Caucus Institute|Arizona Delegation|Congresional Hispanic Caucus Inst|\\(Sen|Sen\\.|Senator|Senate- |Senate Majority Leader|\\(Cong| Cong$|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives"))
  
 data <- getFirstLast.Comma(data, col_name = "FROM")
 
@@ -69,7 +69,9 @@ data %<>%
 data %<>%
   full_join(Unfoundnames2)
 
-data %<>% filter(!FROM == "")
+data %<>% filter(! FROM == "")
+
+data %<>% filter(!FROM == " ")
 
 datanotfound <- data %>%
   filter(is.na(last_name))
