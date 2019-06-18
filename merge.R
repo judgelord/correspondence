@@ -31,6 +31,7 @@ data_list <- tribble(
 # Agency sheet name, status = c("coded", "not coded", "recoded"), coders = c("coder1", "coder2", ...),
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
+"CNCS", "not coded", NA,
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
@@ -157,7 +158,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "CNCS")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
