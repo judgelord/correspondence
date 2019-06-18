@@ -12,6 +12,10 @@ clean <- function(file.name) {
   data %<>%
     mutate(ID = row_number())
   
+  #create agency column
+  data$agency <- file.name
+  
+  #Format Date
   data$tempDATE<- data$DATE %>% as.Date("%m/%d/%y")
   data %<>%
     mutate(DATE = ifelse(is.na(tempDATE), Out, DATE))
