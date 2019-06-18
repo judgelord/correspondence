@@ -157,7 +157,7 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "VA_CEM")
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -245,6 +245,8 @@ d$icpsr %<>% as.numeric()
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 
 # party switchers etc
+# FIXME
+# Jeffords switched parties fix in MemberNameDateCorrections.R
 d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
 
 #######################
