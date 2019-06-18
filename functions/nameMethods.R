@@ -932,7 +932,8 @@ tribble(
   "David", "Schweikert", NA, "Schweikerl",
   "Peter", "DeFazio", NA, "DiFazio",
   "Zoe", "Lofgren", NA, "Lufgren",
-  "Thomas", "Holden", NA, "Holen"
+  "Thomas", "Holden", NA, "Holen",
+  "Renee", "Ellmers", "Renne", NA
   
 )  
   # FREQUENT MIDDLE NAME TYPOS 
