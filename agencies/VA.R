@@ -59,13 +59,12 @@ clean <- function(file.name) {
   
   #Format last name and put in last_name  
   sampledata %<>%
-    mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM)) %>%
-    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(sampledata, 'FROM'), last_name))
+    mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
    
-  
-  
-  dataNA <- sampledata %>%
-    filter(is.na(last_name))
+  sampledata %<>%
+       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(sampledata, 'FROM'), last_name))
+   
+
   
   
 
