@@ -350,9 +350,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
   
+  members %<>% mutate(middle_initial = ifelse(middle_initial=="", NA, middle_initial))
   
-  # MOVE To nameCongress.R 
-  # change NA to blanks for pasting purposes
+  members$middle_initial %<>% str_c(".")
   
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
