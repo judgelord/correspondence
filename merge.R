@@ -12,7 +12,6 @@ send_message(mime(
   From = "correspondenceresearch@gmail.com",
   Subject =  "Begin merge",
   body = ""))
-
 # note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
 # in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
@@ -145,7 +144,8 @@ data_list <- tribble(
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA,
-"VA_CEM", "not coded", NA 
+"VA_CEM", "not coded", NA,
+"VA", "not coded", NA
 )
 data_list
 
@@ -160,7 +160,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "VA")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
