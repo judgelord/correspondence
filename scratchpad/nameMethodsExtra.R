@@ -175,6 +175,8 @@ data %<>%
 #####################################################
 # THIS ONE WORKS
 
+data$Summary <- data$FROM
+
 # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
 str_detect_replace <- function(string, pattern){
   out <- ifelse(str_detect(string, pattern), pattern, "404error")
@@ -199,13 +201,12 @@ data %<>%
   ungroup() %>%
   #top_n(10) %>% 
   # map function to detect members over lower case version of FROM 
-  mutate(from = tolower(FROM),
+  mutate(from = tolower(Summary),
          pattern = map_chr(from, extractName) ) %>% # select(from,matches)
   # split out multiple members into separate rows 
   mutate(pattern = str_split(pattern, ";")  ) %>% 
   unnest() %>% 
   # join in members data by pattern 
   left_join(members %>% select(pattern, first_name, last_name, congress)) %>% 
-  select(-from) %>% 
-  select(FROM, pattern, first_name, last_name)
+  select(-from) # %>% select(FROM, pattern, first_name, last_name)
 
