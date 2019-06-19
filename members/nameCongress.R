@@ -201,6 +201,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "KENNEDY, Edward Moore (Ted)", "Ted", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CUNNINGHAM, Randall (Duke)", "Duke", common_name)) %>%
     mutate(common_name = ifelse(bioname == "HOUGHTON, Amory, Jr.", "Amo", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "RUPPERSBERGER, C.", "Dutch", common_name)) %>% 
      
   # remove accent marks
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -385,6 +386,22 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
   
   members %<>% mutate_all(replace404)
+  
+  members %<>% 
+    group_by(bioname) %>% 
+    mutate(pattern = c(first_last, 
+                       first_middle_last,
+                       first_initial_last,
+                       common_last,
+                       common_middle_last,
+                       common_initial_last
+    ) %>% 
+      unique() %>% 
+      str_subset("404error", negate = T) %>% 
+      str_c(collapse = "|") %>% 
+      tolower() ) %>% 
+    
+    ungroup()
   
 
   # causes problems, but should eventually be used for more targeted matching
