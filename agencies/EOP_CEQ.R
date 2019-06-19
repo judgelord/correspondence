@@ -6,7 +6,7 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
-  #Create ID  
+ #Create ID  
   data %<>%
     mutate(ID = row_number())
   

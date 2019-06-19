@@ -742,7 +742,7 @@ data %<>%
 
 #sample <- data %>%
 #filter(is.na(last_name))  
-# View(sample)
+#View(sample)
 
   return(data)
 
