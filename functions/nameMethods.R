@@ -145,11 +145,19 @@ formatFirstName <- function(data, col_name){
   
 }
 
-# function will extract names found in members dataset from data$Summary column 
+
+
+
+
+
+
+
+
+###########################################################################################################
+# This function will extract names found in members dataset from data$Summary column 
 # typical call:   
-# data <- extractMemberName(data, members, 'FROM') 
-# NOTE: POSSIBLY REQUIRED THAT col_name ='From'
-# MAY NOT HAVE VAR NAMED members IN DATA 
+# data %<>% extractMemberName(members, 'FROM') 
+# NOTE: A VAR NAMED "members" IN DATA can cause problems
 
 extractMemberName <- function(data, members, col_name){
   
@@ -157,22 +165,36 @@ extractMemberName <- function(data, members, col_name){
   
   data %<>% mutate(Summary = data[[col_name]])
 
-  
+  # clean up text
+  # remove periods 
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
+  # remove plus 
   data$Summary <- gsub('\\+', "", data$Summary)
   
+  # remove common names in quotes 
   data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
+  
+  # trim down extra spaces
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  
+  # drop paragraph breaks and trailing white space 
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   data$Summary <- gsub("Courntey", "Courtney", data$Summary)
+  
+  
+  
+  
+
+  # Common TYPOS 
   data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
   data$Summary <- gsub("Shelly", "Shelley", data$Summary)
   # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
   data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
   data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
   
+  # correct common OCR errors
   data$Summary <- ocr.errors(data$Summary)
   
   
@@ -273,7 +295,7 @@ extractMemberName <- function(data, members, col_name){
   
   
   
-  # Assumer first name is first word and last name appears second? 
+  # Assume first name is first word and last name appears second? 
   data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
   data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM2)
   
