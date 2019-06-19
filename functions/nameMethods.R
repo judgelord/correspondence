@@ -962,22 +962,32 @@ tribble(
   "Jack", "Reed", NA, "Red",
   "David", "Schweikert", NA, "Schweikerl",
   "Peter", "DeFazio", NA, "DiFazio",
+  "Jeanne", "Shaheen", "Teanne", NA,
+  "Steve", "Scalise", NA, "Scalise",
+  "Russ", "Carnahan", NA, "Camahan",
+  "Ron", "Wyden", "Roy", NA,
+  "Roy", "Blunt", NA, "Blur",
+  "Russell","Feingold", "Russel",NA,
+  "Russell","Feingold", "Rusell",NA,
+  "Robert","Byrd", NA,"Bryd",
+  "Orrin", "Hatch", "Orring",NA,
+  "Olympia","Snowe", "Olymia",NA,
+  "Olympia","Snowe", NA,"Showe",
+  "Shelley","Capito", "Shelly", NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
+  "Charles", "Schumer", "Charls", NA
   "Zoe", "Lofgren", NA, "Lufgren",
   "Thomas", "Holden", NA, "Holen"
+
   
 )  
   # FREQUENT MIDDLE NAME TYPOS 
   tribble(
     ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
-    "Shelley", "Moore", "Capito", "Shelly", NA, NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
-    "Charles", "E.", "Schumer", "Charls", NA, NA,
     "Hillary", "Rodham", "Clinton", NA, "Redham", NA, # <- this is what I would expect to see here, not the rest.
-    "Russell", "D", "Feingold", "Russel", NA, NA,
-    "Russell", "D", "Feingold", "Rusell", NA, NA,
-    "Robert", "C", "Byrd", "Robert", "C", "Bryd", # ? these seem the same 
-    "Orrin", "G", "Hatch", "Orring", NA, NA,
-    "Olympia", "J", "Snowe", "Olymia", NA, NA,
-    "Olympia", "J", "Snowe", NA, NA, "Showe"
+    "Benjamin", "Nighthorse", "Campbell", NA, "Nighhorse",NA,
+    "Richard", "G", "Lugar", NA, "D", NA,
+    "Roger", "F", "wicker", NA, "W", NA
+    
   )
     
     
