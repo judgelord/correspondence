@@ -371,6 +371,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% mutate(middle_initial = ifelse(middle_initial=="", NA, middle_initial))
   
   members$middle_initial %<>% str_c(".")
+  members$first_initial %<>% str_c(".")
   
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
@@ -380,6 +381,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
+  
+  members %<>% 
+    mutate(last_comma_first = paste0(last_name, ", ", first_name),
+           # last_comma_initial = paste0(last_name, ", ", first_initial),
+           last_comma_common = paste0(last_name, ", ", common_name) )
   
   
 ## Replace NA names with "404error"
@@ -394,7 +400,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
                        first_initial_last,
                        common_last,
                        common_middle_last,
-                       common_initial_last
+                       common_initial_last,
+                       last_comma_first,
+                       # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
+                       last_comma_common
+
     ) %>% 
       unique() %>% 
       str_subset("404error", negate = T) %>% 

@@ -1,6 +1,7 @@
 
 # Formats col_name (usually last_name) to similiar format as members$last_name
 # Capitalizes letters and fixes common errors 
+# e.g. data %<>% formatLastName("FROM")
 formatLastName <- function(data, col_name){
   
   data$last_name <- data[[col_name]]
@@ -25,7 +26,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
 
     
-    # Spelling and specific corrections
+    # Spelling and specific corrections (NOTE THESE WILL ONLY WORK WHERE FORMAT LAST NAME IS USED)
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
     mutate(last_name = gsub("DUNCAN JOHN.*", replacement = "DUNCAN", last_name)) %>% 
     mutate(last_name = gsub("JOHNSON HENRY.*", replacement = "JOHNSON", last_name)) %>% 
@@ -185,6 +186,17 @@ extractMemberName <- function(data, members, col_name){
   
   
   
+  data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+  data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                     replacement = ",", data$Summary)
+  data$Summary <- gsub(pattern = "Member, U.S", "U.S", data$Summary)
+  data$Summary <- gsub(pattern= "\\.\\.", replacement = ".", data$Summary)
+  data$Summary <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$Summary)
+  data$Summary <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$Summary)
+  data$Summary <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$Summary)
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   
 
   # Common TYPOS 
@@ -211,83 +223,7 @@ extractMemberName <- function(data, members, col_name){
   #####################
   # Match names in different formats
   ###################
-  
-  # FIXME 
-  # REWRITE WITH purrr
-  
-  # create FROM2 varible extracting name from data$Summary
-  
-  # extract common_last name formats
-  data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
-                    replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    
-    # extracts  first_last name formats
-    gsub(pattern = paste(c('.*(', paste(members$first_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    
-    # first_middle_last name formats
-    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_middle_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    
-    # first_initial_last name formats
-    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$first_initial_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    
-    # common_middle_last name formats
-    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_middle_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    
-    # common_initial_last name formats
-    gsub(pattern = paste(c('.*(', paste(members$common_initial_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_initial_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_initial_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-    gsub(pattern = paste(c('.*(', paste(members$common_initial_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
-  gsub(pattern = paste(c('.*(', paste(members$common_initial_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-       replacement = "\\1", data$Summary, ignore.case = TRUE) 
+
   
   
   
@@ -295,50 +231,11 @@ extractMemberName <- function(data, members, col_name){
   
   
   
-  # Assume first name is first word and last name appears second? 
-  data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
-  data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM2)
   
   
-  # apply formating functions from above
-  data$first_name <- formatFirstName(data, 'first_name')
-  data$last_name <- formatLastName(data, 'last_name')
-  
-  
-  data %<>%
-    mutate(first_name = ifelse(   grepl(paste(members$first_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE),
-                                  first_name, NA) ) 
-  data %<>% 
-    mutate(last_name = ifelse(
-      grepl(paste(members$first_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE), 
-      last_name, NA)) 
-  
-data %>% 
-    mutate(FROM2 = ifelse( is.na(first_name) & is.na(last_name), NA, FROM2))
-  
-  
+  ######################
+  # Typos 
+  # FIXME
  data %<>%
    mutate(last_name = ifelse(grepl("Matso|Masto", Summary,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% 
    mutate(first_name = ifelse(grepl("Matso|Masto", Summary,ignore.case = TRUE), "Catherine", first_name)) %>% 
@@ -491,114 +388,9 @@ data %>%
   for (i in 1:length(members$id)) {
    data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
                                          members$first_name[i], data$first_name))
-   
-    }
-  
- return(data)
- 
- 
-}
-
-# Function may need small add ons or adjustments for new/different datasets
-# Function will take comma separated names (e.g. Johnson, Ralph) from a specified column (usually FROM) 
-# and create first_name and last_name columns in the dataframe. Typical call: getFirstLast.Comma(data,'FROM')
-
-# THIS FUNCTION IS NOT PART OF extractMemberNames, so these corrections will not help that function all corrections should appear in the same place and be called by each method
-# this function should be able to take in different members (or we rewrite to be cogress-specific and use the full members list)
-getFirstLast.Comma <- function(data, col_name){
-  
-  data$FROM <- data[[col_name]]
-
-  #create full name variables with different combinations of first, common, middle, middle initial, and last name
-  members$first_last <- paste(members$first_name, members$last_name, sep = " ")
-  members$common_last <- paste(members$common_name, members$last_name, sep = " ")
-  members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
-  members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
-  members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
-  members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
-  
-  # create duplicate FROM column and preprocess
-  #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
-  data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
-  data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
-                     replacement = ",", data$FROM2)
-  data$FROM2 <- gsub(pattern = "Member, U.S", "U.S", data$FROM2)
-  data$FROM2 <- gsub(pattern= "\\.\\.", replacement = ".", data$FROM2)
-  data$FROM2 <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$FROM2)
-  data$FROM2 <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$FROM2)
-  data$FROM2 <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$FROM2)
-  data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
-  data$FROM2 <- gsub("  |   |    ", " ", data$FROM2)
-  data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
-  
-  
-  data$FROM2 <- ocr.errors(data$FROM2)
-  
-  
-  #create variable for last name of the Sen/Rep
-  data %<>%
-    mutate(last = gsub(pattern = "^(\\w+|\\w+ \\w+|\\w+-\\w+)( ,|,).*", 
-                       replacement = "\\1", x=FROM2)) %>% 
-    mutate(last = gsub(pattern= "^(\\w')(\\w+)-(\\w+)( ,|,).*", replacement = "\\1\\2-\\3", last)) %>% 
-    mutate(last = gsub(pattern= "^(\\w')(\\w+)( ,|,).*", replacement = "\\1\\2", last))
- 
-   # create variable for first name of Sen/Rep
-  data %<>%
-    mutate(first = gsub(pattern = ".*?(,|, |,  |,\\w |,\\w. |,, \\w |, \\w. |, \\w.|, \\w+|,\\w+)(\\w+)( |.|).*",
-                        replacement = "\\1\\2", x=FROM2)) %>% 
-    mutate(first = gsub("(,|, )", "", first))
-  
-  
-  # format first and last variables to the same convention as the members dataset
-  data$last <- formatLastName(data, 'last')
-  data$first <- formatFirstName(data, 'first')
-  
-  # create a variable for their full name by combining first and last
-  data %<>%
-    mutate(first_last = paste(first, last, sep = " "))
-  
-  # if their full name is in the members dataset, assign 'first' to new variable 'first_name'. Otherwise  assign NA
-  data %<>%
-    mutate(first_name = ifelse(  
-      grepl(paste(members$first_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE),
-      
-      first, NA) ) %>% 
-    
-    # if their full name is in the members dataset, assign 'last' to new variable 'last_name'. Otherwise assign NA
-    mutate(last_name = ifelse(
-      grepl(paste(members$first_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$first_last, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$first_last, ignore.case = TRUE), 
-      last, NA)) 
-  
-  
-  
-  
-  
-  data$first_name <- formatFirstName(data, 'first_name')
-  data$last_name <- formatLastName(data, 'last_name')
-  
-  # Fix specific common errors
+# Many, but perhaps not all of these are duplicates, need to clean 
+# FIXME
+  # Fix specific common errors where failed to match 
   data %<>%
     mutate(last_name = ifelse(grepl("HERSETH", FROM2, ignore.case = TRUE )|grepl('SANDLIN', FROM2, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% 
     mutate(first_name = ifelse(grepl("HERSETH", FROM2,ignore.case = TRUE)|grepl('SANDLIN', FROM2,ignore.case = TRUE), "Stephanie", first_name)) %>%
@@ -735,21 +527,32 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "Michael", first_name))
   
 
-    
-  for (i in 1:length(members$id)) {
-    data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
-                                          members$first_name[i], data$first_name))
+  #   
+  # for (i in 1:length(members$id)) {
+  #   data %<>% mutate(first_name = ifelse( !is.na(members$common_name[i]) & data$first_name == members$common_name[i] & data$last_name == members$last_name[i],
+  #                                         members$first_name[i], data$first_name))
+  # 
 
-  }
-  
-   #Remove colums. Comment out for debugging
- # data <- subset(data, select = -c(first, last, first_last, FROM2))
-  
   
   return(data)
 }
 
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 # Fixes common errors when names read in from OCR
 # May need adjustments for different agencies/formats
 ocr.errors <- function(FROM){
@@ -883,6 +686,9 @@ ocr.errors <- function(FROM){
   
   return(FROM)
 }
+
+
+
 
 # *** Use this function with caution. Will add first name information based on ONLY last names that are unique, has 
 #     potential to add a members first name to a non member creating false positives (e.g. If only last name 

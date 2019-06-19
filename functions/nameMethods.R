@@ -184,7 +184,18 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("Courntey", "Courtney", data$Summary)
   
   
-  
+  # remove extra stuff 
+  data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+  data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                       replacement = ",", data$Summary)
+  data$Summary <- gsub(pattern = "Member, U.S", "U.S", data$Summary)
+  data$Summary <- gsub(pattern= "\\.\\.", replacement = ".", data$Summary)
+  data$Summary <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$Summary)
+  data$Summary <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$Summary)
+  data$Summary <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$Summary)
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
   
 
   # Common TYPOS 
