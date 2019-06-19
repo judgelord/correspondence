@@ -76,12 +76,11 @@ clean <- function(file.name) {
   data %<>%
     full_join(Unfoundnames)
   
-
-  # #Checks for observations still NA
-  # notfound2 <- data %>%
-  #   filter(is.na(last_name))
+  #Checks for observations still NA
+  notfound2 <- data %>%
+    filter(is.na(last_name))
  
 
   return(data)
-
+  
   }

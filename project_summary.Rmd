@@ -29,6 +29,10 @@ knitr::opts_chunk$set(echo = TRUE,
 
 # Data  
 
+```{r}
+kable(read_csv(here("data/_FOIA_response_table.csv")) %>% select(-X1))
+```
+
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?  
 
 ```{r missing_data, fig.height=8}

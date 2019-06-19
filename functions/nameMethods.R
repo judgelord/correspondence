@@ -9,7 +9,7 @@ formatLastName <- function(data, col_name){
   
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
-    # correct capitalization
+    # correct capitalization to match last names in members data 
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -23,7 +23,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("DESANTIS", replacement = "DeSANTIS", last_name)) %>% 
     mutate(last_name = gsub("MACARTHUR", replacement = "MacARTHUR", last_name)) %>% 
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
-    mutate(last_name = gsub("LANDRY", replacement = "Landry", last_name)) %>% 
+
     
     # Spelling and specific corrections
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
@@ -175,10 +175,27 @@ extractMemberName <- function(data, members, col_name){
   
   data$Summary <- ocr.errors(data$Summary)
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  #####################
+  # Match names in different formats
+  ###################
+  
   # FIXME 
   # REWRITE WITH purrr
   
   # create FROM2 varible extracting name from data$Summary
+  
+  # extract common_last name formats
   data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
                     replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[850:1700], collapse = '|'), ').*'), collapse = ""),
@@ -251,10 +268,17 @@ extractMemberName <- function(data, members, col_name){
        replacement = "\\1", data$Summary, ignore.case = TRUE) 
   
   
+  
+  
+  
+  
+  
+  # Assumer first name is first word and last name appears second? 
   data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
   data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM2)
   
   
+  # apply formating functions from above
   data$first_name <- formatFirstName(data, 'first_name')
   data$last_name <- formatLastName(data, 'last_name')
   
@@ -874,22 +898,67 @@ addFirst <- function(first_name, last_name){
 # CORRECTIONS TO ADD TO ABOVE 
 
 
-# COMMON FIRST AND LAST NAME TYPOS 
+# COMMON FIRST AND LAST NAME TYPOS TEMPLATE
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
   "Patty", "Murray", NA, "Muray"
 )
 
-# COMMON FIRST AND LAST NAME TYPOS 
+# FREQUENT FIRST AND LAST NAME TYPOS 
 tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
-  "Patty", "Murray", NA, "Muray"
-)
+  "Patrick", "Leahy", "Partrick", NA,
+  "Ralph", "Regula", "Raplh", NA,
+  "Lois", "Capps", NA, "Crapps",
+  "Rick", "Boucher", NA, "Bocuher",
+  "Ric", "Keller", "Rick", NA,
+  "Robert", "Andrews", NA, "Andrew",
+  "Rodney", "Frelinghuysen", NA, "Frelinhuysen",
+  "Shelly", "Berkley", NA, "Barkley",
+  "Steny", "Hoyer", NA, "Royer",
+  "Steven", "Lynch", "Stephen", NA,
+  "Zoe", "Lofgren", "Toe", NA,
+  "Vito", "Fossella", NA, "Fosella",
+  "John", "Barrasso", NA, "Barasso",
+  "Larry", "Bucshon", NA, "Bueston",
+  "Matt", "Cartwright", NA, "Cartwrite",
+  "Chris", "Gibson", "Cris", NA,
+  "Barbara", "Boxer", "Barabara", NA,
+  "Jack", "Reed", NA, "Red",
+  "David", "Schweikert", NA, "Schweikerl",
+  "Peter", "DeFazio", NA, "DiFazio",
+  "Zoe", "Lofgren", NA, "Lufgren",
+  "Thomas", "Holden", NA, "Holen"
+  
+)  
+  # FREQUENT MIDDLE NAME TYPOS 
+  tribble(
+    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
+    "Shelley", "Moore", "Capito", "Shelly", NA, NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
+    "Charles", "E.", "Schumer", "Charls", NA, NA,
+    "Hillary", "Rodham", "Clinton", NA, "Redham", NA, # <- this is what I would expect to see here, not the rest.
+    "Russell", "D", "Feingold", "Russel", NA, NA,
+    "Russell", "D", "Feingold", "Rusell", NA, NA,
+    "Robert", "C", "Byrd", "Robert", "C", "Bryd", # ? these seem the same 
+    "Orrin", "G", "Hatch", "Orring", NA, NA,
+    "Olympia", "J", "Snowe", "Olymia", NA, NA,
+    "Olympia", "J", "Snowe", NA, NA, "Showe"
+  )
+    
+    
 
 
-
-
-
+# #Fixes name typo (from DOL_SOL)
+# data$FROM %<>%
+#   str_replace("Davis, Arthur", "Davis, Artur") %>%
+#   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
+#   str_replace("Leahy, Ted", "Leahy, Patrick") %>%
+#   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
+#   str_replace("Obama, Brack", "Obama, Barack") %>%
+#   str_replace("Hooley, Darene", "Hooley, Darlene")
+# 
+# 
+# 
 

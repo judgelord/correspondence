@@ -180,7 +180,7 @@ d <- d1 %>% # and merge with voteview data
   distinct()
 
 d %>% filter(!is.na(last_name)) %>% count(year)
-d %>% filter(!is.na(ICPSR)) %>% count(year)
+d %>% filter(!is.na(icpsr)) %>% count(year)
 ####################
 
 

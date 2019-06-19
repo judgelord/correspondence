@@ -4,7 +4,6 @@
  #file.name <- "DOL_SOL" # for testing
 
 
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -117,6 +116,11 @@ data %<>%
 sample1<-data %>%
   filter(is.na(last_name))
 
+#sample <- data %>%
+ # filter(is.na(last_name))  
+#View(sample)
+
+##code for testing
 
   #arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
