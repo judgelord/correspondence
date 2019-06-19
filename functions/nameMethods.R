@@ -191,32 +191,7 @@ extractMemberName <- function(data, members, col_name){
   #####################
   # Match names in different formats
   ###################
-  
-  # FIXME 
-  # REWRITE WITH purrr
-  # git one 
-  extractName <- function(data){
-    ifelse(str_detect(data, str_c(members$common_last, members$first_last, sep = "|")), 
-           members$bioname, 
-           NA)
-  }
-  
-  # data %>% mutate(FROM2 = map_chr(FROM,  extractName))
-  
-  # git all 
-  extractMembers <- function(data){
-    m <- members %>% filter(congress %in% data$congress)
-    
-    data %<>% 
-      mutate(names = map(m$pattern, str_extract_all, FROM))
-  }
-  
-  # extractMembers(data[1,])
-  
-  # Rewrite with join? 
 
-  
-  # data %>% mutate(FROM2 = map2(FROM, members, extractNames))
   
   # create FROM2 varible extracting name from data$Summary
   

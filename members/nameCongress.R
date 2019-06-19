@@ -380,7 +380,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
                        ) %>% 
              unique() %>% 
              str_subset("404error", negate = T) %>% 
-             str_c(collapse = "|") ) %>% 
+             str_c(collapse = "|") %>% 
+             tolower() ) %>% 
+    
     ungroup()
   
 
