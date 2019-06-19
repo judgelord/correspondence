@@ -1,7 +1,6 @@
 
-# Formats col_name (usually last_name) to be similiar format as members$last_name
+# Formats col_name (usually last_name) to similiar format as members$last_name
 # Capitalizes letters and fixes common errors 
-# This is a helper function used by the main name methods (e.g. extractMemberNames() )
 formatLastName <- function(data, col_name){
   
   data$last_name <- data[[col_name]]
@@ -10,7 +9,7 @@ formatLastName <- function(data, col_name){
   
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
-    # correct capitalization to match bioname from voteview 
+    # correct capitalization to match last names in members data 
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -24,8 +23,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("DESANTIS", replacement = "DeSANTIS", last_name)) %>% 
     mutate(last_name = gsub("MACARTHUR", replacement = "MacARTHUR", last_name)) %>% 
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
-    mutate(last_name = gsub("LANDRY", replacement = "Landry", last_name)) %>% 
-    mutate(last_name = gsub("WEBB", replacement = "Webb", last_name)) %>% 
+
     
     # Spelling and specific corrections
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
@@ -147,11 +145,19 @@ formatFirstName <- function(data, col_name){
   
 }
 
-# function will extract names found in members dataset from data$Summary column 
+
+
+
+
+
+
+
+
+###########################################################################################################
+# This function will extract names found in members dataset from data$Summary column 
 # typical call:   
-# data <- extractMemberName(data, members, 'FROM') 
-# NOTE: POSSIBLY REQUIRED THAT col_name ='From'
-# MAY NOT HAVE VAR NAMED members IN DATA 
+# data %<>% extractMemberName(members, 'FROM') 
+# NOTE: A VAR NAMED "members" IN DATA can cause problems
 
 extractMemberName <- function(data, members, col_name){
   
@@ -159,22 +165,47 @@ extractMemberName <- function(data, members, col_name){
   
   data %<>% mutate(Summary = data[[col_name]])
 
-  
+  # clean up text
+  # remove periods 
   data$Summary <- gsub('\\.','', data$Summary)
   data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
+  # remove plus 
   data$Summary <- gsub('\\+', "", data$Summary)
   
+  # remove common names in quotes 
   data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
+  
+  # trim down extra spaces
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  data$Summary <- gsub("  |   |    ", " ", data$Summary)
+  
+  # drop paragraph breaks and trailing white space 
+  data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
+  data$Summary <- gsub("Courntey", "Courtney", data$Summary)
+  
+  
+  # remove extra stuff 
+  data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+  data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                       replacement = ",", data$Summary)
+  data$Summary <- gsub(pattern = "Member, U.S", "U.S", data$Summary)
+  data$Summary <- gsub(pattern= "\\.\\.", replacement = ".", data$Summary)
+  data$Summary <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$Summary)
+  data$Summary <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$Summary)
+  data$Summary <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-  data$Summary <- gsub("Courntey", "Courtney", data$Summary)
+  
+
+  # Common TYPOS 
   data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
   data$Summary <- gsub("Shelly", "Shelley", data$Summary)
   # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
   data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
   data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
   
+  # correct common OCR errors
   data$Summary <- ocr.errors(data$Summary)
   
   
@@ -191,7 +222,9 @@ extractMemberName <- function(data, members, col_name){
   #####################
   # Match names in different formats
   ###################
-
+  
+  # FIXME 
+  # REWRITE WITH purrr
   
   # create FROM2 varible extracting name from data$Summary
   
@@ -273,7 +306,7 @@ extractMemberName <- function(data, members, col_name){
   
   
   
-  # Assumer first name is first word and last name appears second? 
+  # Assume first name is first word and last name appears second? 
   data$first_name <- gsub("^(\\w+) .*", replacement = "\\1", data$FROM2)
   data$last_name <- gsub(".* (\\w+)$", replacement = '\\1', data$FROM2)
   
@@ -942,7 +975,9 @@ tribble(
   "Olympia","Snowe", NA,"Showe",
   "Shelley","Capito", "Shelly", NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
   "Charles", "Schumer", "Charls", NA
-  
+  "Zoe", "Lofgren", NA, "Lufgren",
+  "Thomas", "Holden", NA, "Holen"
+
   
 )  
   # FREQUENT MIDDLE NAME TYPOS 
