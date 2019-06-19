@@ -36,16 +36,16 @@ clean <- function(file.name) {
     filter(! FROM == "N/a")
   
   #sample
-  sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
+  #sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
 
 
   #Trim White Space
-  sampledata %<>%
+  data %<>%
     mutate(FROM = str_trim(FROM))
   
 
   #Run extractMemberName on names with first initial
-  initial <- sampledata %>%
+  initial <- data %>%
     filter(str_detect(FROM, " ")) %>%
     extractMemberName(members = members, col_name = "FROM")
   
@@ -53,23 +53,23 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   
   #Filter for those without initial and run extract and rejoin to data
-  sampledata %<>%
+  data %<>%
     filter(! str_detect(FROM, " ")) %>%
     full_join(initial)
   
   #Format last name and put in last_name  
-  sampledata %<>%
+  data %<>%
     mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
    
-  sampledata %<>%
-       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(sampledata, 'FROM'), last_name))
+  data %<>%
+       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
    
 
   
   
 
   
- return(sampledata)
+ return(data)
   
 }
   
