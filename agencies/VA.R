@@ -7,6 +7,7 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
+
   #Create ID
   data %<>%
     mutate(ID = row_number())
@@ -28,16 +29,22 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+
   #Filter out rows without data
   data %<>% filter(!FROM == "")
- 
-  #Recode for NAs
-  is.na(data$FROM) <- data$FROM == "N/A"
+  data %<>% filter(!FROM == "N/A") %>%
+    filter(! FROM == "n/a") %>%
+    filter(! FROM == "N/a")
+  
+  #sample
+  sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
+
 
   #Trim White Space
-  data %<>%
+  sampledata %<>%
     mutate(FROM = str_trim(FROM))
   
+
   #Run extractMemberName on names with first initial
   initial <- sampledata %>%
     filter(str_detect(FROM, " ")) %>%
@@ -49,33 +56,20 @@ clean <- function(file.name) {
   #Filter for those without initial and run extract and rejoin to data
   sampledata %<>%
     filter(! str_detect(FROM, " ")) %>%
-    extractMemberName(members = members, col_name = "FROM") %>%
     full_join(initial)
-  
-  dataNA <- sampledata %>%
-    filter(is.na(last_name))
   
   #Format last name and put in last_name  
   sampledata %<>%
-    mutate(FROM = ifelse(str_detect(FROM, ", |. |.| ") & is.na(last_name), str_remove(FROM, " .*|,*|\\..*"), FROM)) %>%
-    mutate(FROM = ifelse(! str_detect(FROM, " ") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
-    mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
+    mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM)) %>%
+    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(sampledata, 'FROM'), last_name))
+   
+  
   
   dataNA <- sampledata %>%
     filter(is.na(last_name))
   
   
-#Sample for getfirstlast
- sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
- 
- samplenames<-sampledata %>%
-   extractMemberName(members = members, col_name = "FROM")
-  
-  
- sampledata <- getFirstLast.Comma(sampledata, 'FROM')
- 
- NAnames <- samplenames %>%
-   filter(is.na(last_name))
+
   
  return(data)
   
