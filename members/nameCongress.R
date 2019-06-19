@@ -339,6 +339,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "WEBER, Randy", "K", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "MEEHAN, Patrick", "L", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "HODES, Paul", "W", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "LEE, Mike", "S", middle_initial)) %>%
   
      
   # first names
@@ -398,21 +399,21 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% mutate_all(replace404)
   
-  members %<>% 
-    group_by(bioname) %>% 
-    mutate(pattern = c(first_last, 
-                       first_middle_last,
-                       first_initial_last,
-                       common_last,
-                       common_middle_last,
-                       common_initial_last
-    ) %>% 
-      unique() %>% 
-      str_subset("404error", negate = T) %>% 
-      str_c(collapse = "|") %>% 
-      tolower() ) %>% 
-    
-    ungroup()
+  # members %<>% 
+  #   group_by(bioname) %>% 
+  #   mutate(pattern = c(first_last, 
+  #                      first_middle_last,
+  #                      first_initial_last,
+  #                      common_last,
+  #                      common_middle_last,
+  #                      common_initial_last
+  #   ) %>% 
+  #     unique() %>% 
+  #     str_subset("404error", negate = T) %>% 
+  #     str_c(collapse = "|") %>% 
+  #     tolower() ) %>% 
+  #   
+  #   ungroup()
   
 
   # causes problems, but should eventually be used for more targeted matching
