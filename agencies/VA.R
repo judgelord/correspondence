@@ -63,8 +63,10 @@ clean <- function(file.name) {
    
   data %<>%
        mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
-   
-
+  
+   #Check after run through merge
+#Unfoundnames <- d %>%
+ # filter(is.na(bioname))
   
   
 
