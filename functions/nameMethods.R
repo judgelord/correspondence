@@ -980,20 +980,35 @@ tribble(
   "Julia", "Carson", "Julie", NA,
   "Tom", "Barrett", "Mark", NA,
   "Matt", "Cartwright", "Mark", NA,
-  "Katherine", "Clark", "Kathrine", NA
+  "Katherine", "Clark", "Kathrine", NA,
+  "Michael", "Bilirakis", NA, "Bilikaris",
+  "Michael", "Honda", NA, "Honds",
+  "Randy", "Weber", "Randay", NA,
+  "Nancy", "Pelosi", "Nanci", NA,
+  "Michael", "Honda", "Midlael", NA,
+  "Michael", "Honda", "Michaell", NA,
+  "Rosa", "DeLauro", NA, "De Lauro",
+  "Mike", "DeWine", NA, "De Wine"
+  
   
 
   
 )  
-  # FREQUENT MIDDLE NAME TYPOS 
+  # FREQUENT MIDDLE NAME/INITIAL TYPOS 
   tribble(
-    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.first, ~incorrect.middle, ~incorrect.last,
-    "Hillary", "Rodham", "Clinton", NA, "Redham", NA, # <- this is what I would expect to see here, not the rest.
-    "Benjamin", "Nighthorse", "Campbell", NA, "Nighhorse",NA,
-    "Richard", "G", "Lugar", NA, "D", NA,
-    "Roger", "F", "wicker", NA, "W", NA
+    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
+    "Hillary", "Rodham", "Clinton", "Redham",
+    "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+    "Richard", "G", "Lugar", "D", 
+    "Roger", "F", "wicker", "W", 
+    "Lindsey", "O", "Graham", "D", 
+    "Michael","E", "Capuano", "M", 
+    "Nita", "M", "Lowey","L", 
+    "Rosa", "L", "DeLauro", "I"
     
   )
+  
+
     
     
 
@@ -1010,28 +1025,7 @@ tribble(
 # 
 # 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   
   
   extractMemberName2 <- function(data, members, col_name){
