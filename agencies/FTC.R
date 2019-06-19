@@ -12,6 +12,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(ID = row_number())
   
+  #create agency column
+  data$agency <- file.name
+  
   # Format date, year, Congress, member name etc. 
   data$DATE <- gsub("/201", "/1", data$DATE) 
   data$DATE <- gsub("/200", "/0", data$DATE)
