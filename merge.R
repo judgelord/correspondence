@@ -159,7 +159,8 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "EOP_CEQ")
+
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -179,6 +180,7 @@ d <- d1 %>% # and merge with voteview data
   distinct()
 
 d %>% filter(!is.na(last_name)) %>% count(year)
+d %>% filter(!is.na(ICPSR)) %>% count(year)
 ####################
 
 
@@ -364,6 +366,9 @@ bad.party <- d %>%
 ###############################################
 
 d %<>% ungroup()
+# FIXME
+# This is where observations that failed to match in Voteview get dropped. 
+
 df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
 committees %<>% select(-party) # drop Stewart committee data party codes 
 

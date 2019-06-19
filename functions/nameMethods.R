@@ -1,6 +1,7 @@
 
-# Formats col_name (usually last_name) to similiar format as members$last_name
+# Formats col_name (usually last_name) to be similiar format as members$last_name
 # Capitalizes letters and fixes common errors 
+# This is a helper function used by the main name methods (e.g. extractMemberNames() )
 formatLastName <- function(data, col_name){
   
   data$last_name <- data[[col_name]]
@@ -9,7 +10,7 @@ formatLastName <- function(data, col_name){
   
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
-    # correct capitalization
+    # correct capitalization to match bioname from voteview 
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -25,7 +26,6 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
     mutate(last_name = gsub("LANDRY", replacement = "Landry", last_name)) %>% 
     mutate(last_name = gsub("WEBB", replacement = "Webb", last_name)) %>% 
-    mutate(last_name = gsub("OWENS", replacement = "Owens", last_name)) %>% 
     
     # Spelling and specific corrections
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
@@ -191,9 +191,7 @@ extractMemberName <- function(data, members, col_name){
   #####################
   # Match names in different formats
   ###################
-  
-  # FIXME 
-  # REWRITE WITH purrr
+
   
   # create FROM2 varible extracting name from data$Summary
   
@@ -930,9 +928,7 @@ tribble(
   "Barbara", "Boxer", "Barabara", NA,
   "Jack", "Reed", NA, "Red",
   "David", "Schweikert", NA, "Schweikerl",
-  "Peter", "DeFazio", NA, "DiFazio",
-  "Zoe", "Lofgren", NA, "Lufgren",
-  "Thomas", "Holden", NA, "Holen"
+  "Peter", "DeFazio", NA, "DiFazio"
   
 )  
   # FREQUENT MIDDLE NAME TYPOS 

@@ -174,25 +174,25 @@ df %>%
 
 
 ```{r ideology_density, fig.height=3, fig.width=3}
-  df %>% 
-    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
-  summarise(perYear = n()) %>% ungroup() %>%
-      group_by(nominate.dim1, nominate.dim2, chamber) %>% 
-  summarise(mean = mean(perYear)) %>% ungroup() %>%
-    ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE Scores",
-       x = "Ideology Score",
-       y = "Mean Number of Letters Per Year") + 
-  facet_grid(. ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
-          #axis.ticks = element_blank(),
-          #axis.text.y = element_blank(),
-          legend.title = element_blank())
-  
+  # df %>% 
+  #   group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
+  # summarise(perYear = n()) %>% ungroup() %>%
+  #     group_by(nominate.dim1, nominate.dim2, chamber) %>% 
+  # summarise(mean = mean(perYear)) %>% ungroup() %>%
+  #   ggplot() +
+  #   geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+  #     geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  # labs(title = "Average Number of Letters per Year by NOMINATE Scores",
+  #      x = "Ideology Score",
+  #      y = "Mean Number of Letters Per Year") + 
+  # facet_grid(. ~ chamber, scales = "free_y") + 
+  #   theme(#axis.title.x = element_blank(),
+  #         #axis.ticks = element_blank(),
+  #         #axis.text.y = element_blank(),
+  #         legend.title = element_blank())
+  # 
 
 
 df %>% 
@@ -236,27 +236,27 @@ df %>%
           #axis.text.y = element_blank(),
       strip.text.y = element_text(size = 5),
           legend.title = element_blank())
-  
-  df %>% 
-    filter(Type != "To be coded") %>% 
-    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type) %>% 
-  summarise(perYear = n()) %>% ungroup() %>%
-      group_by(nominate.dim1, nominate.dim2, chamber, Type) %>% 
-  summarise(mean = mean(perYear)) %>% ungroup() %>%
-    ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE Scores and Type",
-       x = "Ideology Score",
-       y = "Mean Number of Letters Per Year") + 
-  facet_grid(Type ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
-          #axis.ticks = element_blank(),
-          #axis.text.y = element_blank(),
-      strip.text.y = element_text(size = 5),
-          legend.title = element_blank())
+  # 
+  # df %>% 
+  #   filter(Type != "To be coded") %>% 
+  #   group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type) %>% 
+  # summarise(perYear = n()) %>% ungroup() %>%
+  #     group_by(nominate.dim1, nominate.dim2, chamber, Type) %>% 
+  # summarise(mean = mean(perYear)) %>% ungroup() %>%
+  #   ggplot() +
+  #   geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+  #     geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  # labs(title = "Average Number of Letters per Year by NOMINATE Scores and Type",
+  #      x = "Ideology Score",
+  #      y = "Mean Number of Letters Per Year") + 
+  # facet_grid(Type ~ chamber, scales = "free_y") + 
+  #   theme(#axis.title.x = element_blank(),
+  #         #axis.ticks = element_blank(),
+  #         #axis.text.y = element_blank(),
+  #     strip.text.y = element_text(size = 5),
+  #         legend.title = element_blank())
 ```
 
 # Core Model
