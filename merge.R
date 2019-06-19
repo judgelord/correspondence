@@ -31,6 +31,7 @@ data_list <- tribble(
 # Agency sheet name, status = c("coded", "not coded", "recoded"), coders = c("coder1", "coder2", ...),
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
+"CNCS", "not coded", NA,
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
@@ -88,6 +89,7 @@ data_list <- tribble(
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+"EOP_CEQ", "not coded", NA,
 #"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
@@ -157,7 +159,8 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-i <- which(data_list$agency == "HUD_HQ")
+
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -177,6 +180,7 @@ d <- d1 %>% # and merge with voteview data
   distinct()
 
 d %>% filter(!is.na(last_name)) %>% count(year)
+d %>% filter(!is.na(ICPSR)) %>% count(year)
 ####################
 
 
@@ -362,6 +366,9 @@ bad.party <- d %>%
 ###############################################
 
 d %<>% ungroup()
+# FIXME
+# This is where observations that failed to match in Voteview get dropped. 
+
 df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
 committees %<>% select(-party) # drop Stewart committee data party codes 
 
