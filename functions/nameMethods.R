@@ -974,7 +974,7 @@ tribble(
   "Olympia","Snowe", "Olymia",NA,
   "Olympia","Snowe", NA,"Showe",
   "Shelley","Capito", "Shelly", NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
-  "Charles", "Schumer", "Charls", NA
+  "Charles", "Schumer", "Charls", NA,
   "Zoe", "Lofgren", NA, "Lufgren",
   "Thomas", "Holden", NA, "Holen"
 
