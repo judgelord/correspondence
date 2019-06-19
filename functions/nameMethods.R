@@ -1010,3 +1010,112 @@ tribble(
 # 
 # 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  extractMemberName2 <- function(data, members, col_name){
+    
+    data$Summary <- data[[col_name]]
+    
+    data %<>% mutate(Summary = data[[col_name]])
+    
+    # clean up text
+    # remove periods 
+    data$Summary <- gsub('\\.','', data$Summary)
+    data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
+    # remove plus 
+    data$Summary <- gsub('\\+', "", data$Summary)
+    
+    # remove common names in quotes 
+    data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
+    
+    # trim down extra spaces
+    data$Summary <- gsub("  |   |    ", " ", data$Summary)
+    data$Summary <- gsub("  |   |    ", " ", data$Summary)
+    
+    # drop paragraph breaks and trailing white space 
+    data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
+    data$Summary <- gsub("Courntey", "Courtney", data$Summary)
+    
+    
+    
+    data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+    data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+                         replacement = ",", data$Summary)
+    data$Summary <- gsub(pattern = "Member, U.S", "U.S", data$Summary)
+    data$Summary <- gsub(pattern= "\\.\\.", replacement = ".", data$Summary)
+    data$Summary <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$Summary)
+    data$Summary <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$Summary)
+    data$Summary <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$Summary)
+    data$Summary <- gsub("  |   |    ", " ", data$Summary)
+    data$Summary <- gsub("  |   |    ", " ", data$Summary)
+    data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
+    
+    
+    # Common TYPOS 
+    data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
+    data$Summary <- gsub("Shelly", "Shelley", data$Summary)
+    # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
+    data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
+    data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
+    
+    # correct common OCR errors
+    data$Summary %<>% ocr.errors()
+    
+    
+    data %>% mutate(na = is.na(last_name)) %>% count(na)
+    
+    # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
+    str_detect_replace <- function(string, pattern){
+      out <- ifelse(str_detect(string, pattern), pattern, "404error")
+    }
+    
+    
+    
+    # A function to map over members 
+    # (assumes that memmbers object contains congress and pattern)
+    # (assumes that data data contains congress and from)
+    extractName <- function(from){
+      purrr::map(.x = members %>% filter(congress %in% data$congress) %>% select(pattern), 
+                 .f= str_detect_replace,
+                 string = from) %>% 
+        unlist() %>%
+        unique() %>% 
+        str_c(collapse = ";") %>%
+        str_remove(";404error|404error;")
+    }
+    
+    data %<>%
+      ungroup() %>%
+      # map function to detect members over lower case version of FROM 
+      mutate(from = tolower(Summary),
+             pattern = map_chr(from, extractName) ) %>% # select(from,matches)
+      # split out multiple members into separate rows 
+      mutate(pattern = str_split(pattern, ";")  ) %>% 
+      unnest() %>% 
+      # join in members data by pattern 
+      left_join(members %>% select(pattern, first_name, last_name, congress)) %>% 
+      select(-from) # %>% select(FROM, pattern, first_name, last_name)
+  }
+  
