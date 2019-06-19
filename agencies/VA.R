@@ -14,8 +14,7 @@ clean <- function(file.name) {
   
   #create agency column
   data$agency <- file.name 
-  
-  
+
   #Format Date
   data %<>%
     mutate(DATE = if_else(is.na(DATE), `Date Inquiry Assigned`, DATE))

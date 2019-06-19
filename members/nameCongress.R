@@ -201,6 +201,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "KENNEDY, Edward Moore (Ted)", "Ted", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CUNNINGHAM, Randall (Duke)", "Duke", common_name)) %>%
     mutate(common_name = ifelse(bioname == "HOUGHTON, Amory, Jr.", "Amo", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "GOODE, Virgil H., Jr", "Virgil", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "RUPPERSBERGER, C.", "Dutch", common_name)) %>% 
+
      
   # remove accent marks
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -233,6 +236,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(grepl("GRASSLEY, Charles Ernest", bioname), "Ernest", middle_name)) %>% 
     mutate(middle_name = ifelse(grepl("MIKULSKI, Barbara Ann", bioname), "Ann", middle_name)) %>%
     mutate(middle_name = ifelse(grepl("LYNCH, Stephen F.", bioname), "Francis", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("McCLINTOCK, Tom", bioname), "Miller", middle_name)) %>% 
+    mutate(middle_name = ifelse(grepl("PELOSI, Nancy", bioname), "Patricia", middle_name)) %>% 
      
     # middle initials
     mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
@@ -325,9 +330,17 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "HARRIS, Kamala Devi", "D", middle_initial)) %>% 
   mutate(middle_initial = ifelse(bioname == "CLARKE, Yvette", "D", middle_initial)) %>%   
   mutate(middle_initial = ifelse(bioname == "BURR, Richard", "M", middle_initial)) %>%   
-  mutate(middle_initial = ifelse(bioname == "ESTY, Elizabeth", "H.", middle_initial)) %>%   
-  mutate(middle_initial = ifelse(bioname == "MURPHY, Timothy", "F.", middle_initial)) %>%   
-  mutate(middle_initial = ifelse(bioname == "WILSON, Charlie", "A.", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "ESTY, Elizabeth", "H", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "MURPHY, Timothy", "F", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "WILSON, Charlie", "A", middle_initial)) %>%   
+  mutate(middle_initial = ifelse(bioname == "ROTHFUS, Keith", "J", middle_initial)) %>% 
+  mutate(middle_initial = ifelse(bioname == "KING, Steve", "A", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "RIBBLE, Reid", "J", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "WEBER, Randy", "K", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "MEEHAN, Patrick", "L", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "HODES, Paul", "W", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "LEE, Mike", "S", middle_initial)) %>%
+  
      
   # first names
     mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
@@ -367,9 +380,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
   
+  members %<>% mutate(middle_initial = ifelse(middle_initial=="", NA, middle_initial))
   
-  # MOVE To nameCongress.R 
-  # change NA to blanks for pasting purposes
+  members$middle_initial %<>% str_c(".")
   
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
@@ -385,6 +398,22 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
   
   members %<>% mutate_all(replace404)
+  
+  # members %<>% 
+  #   group_by(bioname) %>% 
+  #   mutate(pattern = c(first_last, 
+  #                      first_middle_last,
+  #                      first_initial_last,
+  #                      common_last,
+  #                      common_middle_last,
+  #                      common_initial_last
+  #   ) %>% 
+  #     unique() %>% 
+  #     str_subset("404error", negate = T) %>% 
+  #     str_c(collapse = "|") %>% 
+  #     tolower() ) %>% 
+  #   
+  #   ungroup()
   
 
   # causes problems, but should eventually be used for more targeted matching
