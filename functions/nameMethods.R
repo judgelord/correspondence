@@ -210,7 +210,7 @@ extractMemberName <- function(data, members, col_name){
   
   
   
-  
+  data$Summary %>% map_chr(typos_fix)
   
   
   
@@ -738,10 +738,6 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(first_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% 
     mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "GRIFFITH", last_name)) %>% 
     mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "Morgan", first_name)) %>% 
-  
-    
-    
-    
     mutate(last_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
     mutate(first_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "Michael", first_name))
   
@@ -926,13 +922,17 @@ addFirst <- function(first_name, last_name){
 
 
 #########################
-# FIXME 
 
-# CORRECTIONS TO ADD TO nameMethods
+# FREQUENT TYPOS WHERE WE CAN JUST REPLACE THEM REGARDLESS OF THE WORDS BEFORE AND AFTER (i.e. we are very confident that this is what they should be)
+typos <- tribble(
+  ~last_name, ~last_name_typos,
+  'Cummings', "Cwnmings",
+  "Inhofe", "Tnhofe",
+  "Ellmers", "Ellrners",
+  "TONKO", "TONKA")
+)
 
-
-
-# FREQUENT FIRST AND LAST NAME TYPOS 
+# FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
   "Patty", "Murray", "Muray",
@@ -961,7 +961,8 @@ typos_last <- tribble(
   "Robert","Byrd", "Bryd",
   "Michael", "Honda",  "Honds"
 ) %>% 
-  mutate(typos = paste(first_name, last_name_typo)) %>% 
+  mutate(typos = str_c(paste(first_name, last_name_typos), 
+                       str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
   select(first_name, last_name, typos)
 
 
@@ -972,7 +973,7 @@ typos_first <- tribble(
   "Zoe", "Lofgren", "Toe", 
   "Jeanne", "Shaheen", "Teanne", 
   "Ron", "Wyden", "Roy", 
-  "Russell","Feingold", "Russel|Rusell",
+  "Russell","Feingold", "(Russel|Rusell)",
   "Ric", "Keller", "Rick", 
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
@@ -984,13 +985,14 @@ typos_first <- tribble(
   "Katherine", "Clark", "Kathrine", 
   "Randy", "Weber", "Randay", 
   "Nancy", "Pelosi", "Nanci", 
-  "Michael", "Honda", "Midlael|Michaell", 
+  "Michael", "Honda", "(Midlael|Michaell)", 
   "Patrick", "Leahy", "Partrick", 
   "Ralph", "Regula", "Raplh", 
   "Chris", "Gibson", "Cris", 
   "Barbara", "Boxer", "Barabara"
 )   %>% 
-  mutate(typos = paste(first_name_typos, last_name)) %>% 
+  mutate(typos = str_c(paste(first_name_typos, last_name), 
+                       str_c(last_name, ", ", first_name_typos), sep = "|" ) ) %>% 
   select(first_name, last_name, typos)
 
   # FREQUENT MIDDLE NAME TYPOS 
@@ -999,31 +1001,45 @@ typos_middle <-  tribble(
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse"
   ) %>% 
-  mutate(typos = paste(first_name, middle_name_typos, last_name)) %>% 
+  mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
+                       str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
   select(first_name, last_name, typos)
   
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
-    "Richard", "G", "Lugar", "D", 
-    "Roger", "F", "wicker", "W", 
-    "Lindsey", "O", "Graham", "D", 
-    "Michael","E", "Capuano", "M", 
-    "Nita", "M", "Lowey","L", 
-    "Rosa", "L", "DeLauro", "I"
+    "Richard", "G.", "Lugar", "D.", 
+    "Roger", "F.", "wicker", "W.", 
+    "Lindsey", "O.", "Graham", "D.", 
+    "Michael","E.", "Capuano", "M.", 
+    "Nita", "M.", "Lowey","L.", 
+    "Rosa", "L.", "DeLauro", "I."
   )%>% 
-   mutate(typos = paste(first_name, middle_initial_typos, last_name)) %>% 
+   mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
+                        str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
    select(first_name, last_name, typos)
  
   
 # combine typos 
-typos <- full_join(typos_first,typos_last)%>% 
-  full_join( typos_middle) %>% 
+typos <- full_join(typos_first, typos_last) %>% 
+  full_join(typos_middle) %>% 
   full_join(typos_middle_initial) %>% 
   group_by(first_name, last_name) %>% 
-  nest(.key = "typos") %>% 
-  mutate(typos = str_c(typos, collapse = "|"))
+  summarise(typos = typos %>% str_c(collapse = "|")
+         ) %>% 
+  mutate(first_last = paste(first_name, last_name))
 
+str_detect_replace <- function(string, pattern){
+  out <- ifelse(str_detect(string, pattern), pattern, "404error")
+}
+
+typos_fix <- function(string){
+str_replace(string, typos$typos, typos$first_last) %>% unique()
+}
+
+
+
+         
 
 # #Fixes name typo (from DOL_SOL)
 # data$FROM %<>%
@@ -1088,6 +1104,10 @@ typos <- full_join(typos_first,typos_last)%>%
     
     # correct common OCR errors
     data$Summary %<>% ocr.errors()
+    
+    
+    # Fix name typos
+    data$FROM %>% map_chr(typos_fix)
     
     
     data %>% mutate(na = is.na(last_name)) %>% count(na)
