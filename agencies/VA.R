@@ -29,11 +29,18 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
 
+  
   #Filter out rows without data
   data %<>% filter(!FROM == "")
   data %<>% filter(!FROM == "N/A") %>%
     filter(! FROM == "n/a") %>%
-    filter(! FROM == "N/a")
+    filter(! FROM == "N/a") %>%
+    filter(! FROM == "n/a/") %>%
+    filter(! FROM == "m/a") %>%
+    filter(! FROM == "`N/A")
+  
+  data %<>%
+    mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
   #sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
@@ -43,7 +50,18 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_trim(FROM))
   
+  #filter for multiple authors
+  #data <- data %>%
+    #filter(str_detect(FROM, "\\/"))
+  
+  #string split on "\"
+  data %<>%
+    mutate(FROM = str_split(FROM, "\\/")) %>%
+    unnest(FROM)
 
+  data %<>%
+    mutate(FROM = str_remove(FROM, "\\/"))
+  
   #Run extractMemberName on names with first initial
   initial <- data %>%
     filter(str_detect(FROM, " ")) %>%
@@ -66,7 +84,7 @@ clean <- function(file.name) {
   
    #Check after run through merge
 #Unfoundnames <- d %>%
- # filter(is.na(bioname))
+ #filter(is.na(bioname))
   
   
 

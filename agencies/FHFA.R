@@ -97,7 +97,7 @@ clean <- function(file.name) {
 
   #Clean to run getFirstLast.Comma
   data %<>%
-    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. |, US Senator|resenative")))
+    mutate(FROM = trimws(str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. |, US Senator|resenative")))
   
   ################
   
@@ -119,9 +119,11 @@ clean <- function(file.name) {
   Unfoundnames %<>%
     drop_na(last_name)
   
-  #Rejoins data
+  #Rejoins data if there are unfound names 
+  if(nrow(Unfoundnames) > 0){
   data %<>%
     full_join(Unfoundnames)
+  }
   
   data %<>% select(ID, DATE, FROM, first_name, last_name, SUBJECT, chamber, everything())
   
