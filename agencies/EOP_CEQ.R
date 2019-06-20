@@ -87,13 +87,20 @@ datanotfound <- data %>%
 data %<>%
   mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other|"), "Multiple Unnamed Members", NOTES))
 
-
+#Format last name and put in last_name  
 data %<>%
-  mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
-  mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
+  mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+
+#data %<>%
+ # mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
+  #mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
 
 datanotfound2 <- data %>%
   filter(is.na(last_name))
+
+#Check after run through merge
+#Unfoundnames <- d %>%
+#filter(is.na(bioname))
 
 return(data)  
 }

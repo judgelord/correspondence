@@ -109,8 +109,13 @@ data %<>%
 
 
 #Puts all data without a comma into last name variable and 
+#Format last name and put in last_name  
+
 data %<>%
-  mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+  mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+
+#data %<>%
+ # mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
 
 #Creates a Sample from the NA's
 sample1<-data %>%
@@ -119,6 +124,10 @@ sample1<-data %>%
 #sample <- data %>%
  # filter(is.na(last_name))  
 #View(sample)
+
+#Check after run through merge
+#Unfoundnames <- d %>%
+#filter(is.na(bioname))
 
 ##code for testing
 
