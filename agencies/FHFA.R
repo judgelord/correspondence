@@ -130,11 +130,7 @@ clean <- function(file.name) {
     mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
     filter(! Blank)
   
-  #Unmatched
-  unmatched <- data %>%
-    filter(is.na(last_name))
-  #John, Cook could be John Cooksey; however Cooksey did not serve in 2011
-  # Mike, Fitzgerald might be Mike, Fitzpatrick
+ 
   
   Foundnames <- data %>%
     drop_na(last_name)
@@ -146,8 +142,11 @@ clean <- function(file.name) {
   data %<>%
     mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
-  #data %<>%
-   # mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+  #Unmatched
+  unmatched <- data %>%
+    filter(is.na(last_name))
+  #John, Cook could be John Cooksey; however Cooksey did not serve in 2011
+  # Mike, Fitzgerald might be Mike, Fitzpatrick
   
   #Check after run through merge
   #Unfoundnames <- d %>%
