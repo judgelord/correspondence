@@ -933,7 +933,7 @@ addFirst <- function(first_name, last_name){
 
 
 # FREQUENT FIRST AND LAST NAME TYPOS 
-tribble(
+typos_first_last <- tribble(
   ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
   "Patty", "Murray", NA, "Muray",
   "Patrick", "Leahy", "Partrick", NA,
@@ -985,14 +985,14 @@ tribble(
   "Mike", "DeWine", NA, "De Wine"
 )  
   # FREQUENT MIDDLE NAME TYPOS 
-  tribble(
+typos_middle <-  tribble(
     ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse"
   )
   
   # FREQUENT MIDDLE INITIAL TYPOS 
-  tribble(
+ typos_middle_initial <- tribble(
     ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
     "Richard", "G", "Lugar", "D", 
     "Roger", "F", "wicker", "W", 
@@ -1002,8 +1002,13 @@ tribble(
     "Rosa", "L", "DeLauro", "I"
   )
   
-
-    
+ 
+ # STARTING TO DEV FUNCTION 
+ if(F){
+data %<>% 
+  mutate(Summary = Summary %>% 
+           str_replace())
+ }
     
 
 

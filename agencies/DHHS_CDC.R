@@ -102,11 +102,15 @@ clean <- function(file.name) {
     filter(is.na(last_name)) %>%
     extractMemberName(members = members, col_name = "Titles")
   
+  Unfoundnames %>% mutate(found = !is.na(last_name)) %>% count(found)
+  
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
     extractMemberName(members = members, col_name =  "SUBJECT") %>%
     drop_na(last_name)
+  
+  Unfoundnames2 %>% mutate(found = !is.na(last_name)) %>% count(found)
   
   Unfoundnames %<>%
     drop_na(last_name)
@@ -122,12 +126,13 @@ data %<>%
   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
   
   
-#Rejoin data that pulls authors from FROM, Titles & SUBJECT
-  data %<>%
-    full_join(Unfoundnames)
-  
-  data %<>%
-    full_join(Unfoundnames2)
+# COMMENTED THIS OUT BECAUSE NO UNFOUND NAMES AND UNCERTIAN IF UNFOUND NAMES IS EXTRACTING NEW OBS OR ONES ALREADY CAPTURED (.e.g where FROM was split across rows, but subject and title will still be the same)
+# #Rejoin data that pulls authors from FROM, Titles & SUBJECT
+#   data %<>%
+#     full_join(Unfoundnames)
+#   
+#   data %<>%
+#     full_join(Unfoundnames2)
   
   
   #Filter for observations with un-named authors
