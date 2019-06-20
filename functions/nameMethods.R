@@ -1017,10 +1017,9 @@ typos_middle <-  tribble(
  
   
 # combine typos 
-typos <- full_join(typos_first,
-                   typos_last,
-                   typos_middle, 
-                   typos_middle_initial) %>% 
+typos <- full_join(typos_first,typos_last)%>% 
+  full_join( typos_middle) %>% 
+  full_join(typos_middle_initial) %>% 
   group_by(first_name, last_name) %>% 
   nest(.key = "typos") %>% 
   mutate(typos = str_c(typos, collapse = "|"))
