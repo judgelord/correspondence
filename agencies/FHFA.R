@@ -97,7 +97,7 @@ clean <- function(file.name) {
 
   #Clean to run getFirstLast.Comma
   data %<>%
-    mutate(FROM = trimws(str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. |, US Senator|resenative")))
+    mutate(FROM = (str_remove_all(FROM, ", Congresswoman|, Congressman|, Senator|, Representative|, Chairman|Senator |, Senate.*|Congresswoman |Congressman|, Rep|, etal|, Represenative|Senators |Rep. |Reps. |, US Senator|resenative")))
   
   ################
   
@@ -119,11 +119,9 @@ clean <- function(file.name) {
   Unfoundnames %<>%
     drop_na(last_name)
   
-  #Rejoins data if there are unfound names 
-  if(nrow(Unfoundnames) > 0){
+  #Rejoins data
   data %<>%
     full_join(Unfoundnames)
-  }
   
   data %<>% select(ID, DATE, FROM, first_name, last_name, SUBJECT, chamber, everything())
   
@@ -141,8 +139,16 @@ clean <- function(file.name) {
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "32 more congressmen"), "Multiple unnamed Members", NOTES))
   
+  #Format last name and put in last_name  
   data %<>%
-    mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+    mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  
+  #data %<>%
+   # mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+  
+  #Check after run through merge
+  #Unfoundnames <- d %>%
+  #filter(is.na(bioname))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())

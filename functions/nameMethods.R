@@ -923,8 +923,17 @@ addFirst <- function(first_name, last_name){
 
 #########################
 
+# FREQUENT TYPOS WHERE WE CAN JUST REPLACE THEM REGARDLESS OF THE WORDS BEFORE AND AFTER (i.e. we are very confident that this is what they should be)
+typos_clear <- tribble(
+  ~correct, ~typos,
+  'Cummings', "Cwnmings",
+  "Inhofe", "Tnhofe",
+  "Ellmers", "Ellrners",
+  "TONKO", "TONKA",
+  "Darrell Issa", "DarrellIssa"
+)
 
-# FREQUENT FIRST AND LAST NAME TYPOS 
+# FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
   "Patty", "Murray", "Muray",
@@ -953,7 +962,8 @@ typos_last <- tribble(
   "Robert","Byrd", "Bryd",
   "Michael", "Honda",  "Honds"
 ) %>% 
-  mutate(typos = paste(first_name, last_name_typos)) %>% 
+  mutate(typos = str_c(paste(first_name, last_name_typos), 
+                       str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
   select(first_name, last_name, typos)
 
 
@@ -982,7 +992,8 @@ typos_first <- tribble(
   "Chris", "Gibson", "Cris", 
   "Barbara", "Boxer", "Barabara"
 )   %>% 
-  mutate(typos = paste(first_name_typos, last_name)) %>% 
+  mutate(typos = str_c(paste(first_name_typos, last_name), 
+                       str_c(last_name, ", ", first_name_typos), sep = "|" ) ) %>% 
   select(first_name, last_name, typos)
 
   # FREQUENT MIDDLE NAME TYPOS 
@@ -991,55 +1002,59 @@ typos_middle <-  tribble(
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse"
   ) %>% 
-  mutate(typos = paste(first_name, middle_name_typos, last_name)) %>% 
+  mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
+                       str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
   select(first_name, last_name, typos)
   
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
-    "Richard", "G", "Lugar", "D", 
-    "Roger", "F", "wicker", "W", 
-    "Lindsey", "O", "Graham", "D", 
-    "Michael","E", "Capuano", "M", 
-    "Nita", "M", "Lowey","L", 
-    "Rosa", "L", "DeLauro", "I"
+    "Richard", "G.", "Lugar", "D.", 
+    "Roger", "F.", "wicker", "W.", 
+    "Lindsey", "O.", "Graham", "D.", 
+    "Michael","E.", "Capuano", "M.", 
+    "Nita", "M.", "Lowey","L.", 
+    "Rosa", "L.", "DeLauro", "I."
   )%>% 
-   mutate(typos = paste(first_name, middle_initial_typos, last_name)) %>% 
+   mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
+                        str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
    select(first_name, last_name, typos)
+ 
+ 
+ 
+ 
+ 
+ # #Fixes name typo (from DOL_SOL)
+ # data$FROM %<>%
+ #   str_replace("Davis, Arthur", "Davis, Artur") %>%
+ #   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
+ #   str_replace("Leahy, Ted", "Leahy, Patrick") %>%
+ #   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
+ #   str_replace("Obama, Brack", "Obama, Barack") %>%
+ #   str_replace("Hooley, Darene", "Hooley, Darlene")
+ # 
+ # 
+ # 
  
   
 # combine typos 
 typos <- full_join(typos_first, typos_last) %>% 
   full_join(typos_middle) %>% 
   full_join(typos_middle_initial) %>% 
-  group_by(first_name, last_name) %>% 
-  summarise(typos = typos %>% str_c(collapse = "|")
-         ) %>% 
-  mutate(first_last = paste(first_name, last_name))
+  mutate(correct = paste(first_name, last_name)) %>% 
+  group_by(correct) %>%
+  summarise(typos = typos %>% str_c(collapse = "|") ) %>%
+    full_join(typos_clear)
 
-str_detect_replace <- function(string, pattern){
-  out <- ifelse(str_detect(string, pattern), pattern, "404error")
-}
 
+# function to fix typos 
 typos_fix <- function(string){
 str_replace(string, typos$typos, typos$first_last) %>% unique()
 }
 
 
 
-         
 
-# #Fixes name typo (from DOL_SOL)
-# data$FROM %<>%
-#   str_replace("Davis, Arthur", "Davis, Artur") %>%
-#   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
-#   str_replace("Leahy, Ted", "Leahy, Patrick") %>%
-#   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
-#   str_replace("Obama, Brack", "Obama, Barack") %>%
-#   str_replace("Hooley, Darene", "Hooley, Darlene")
-# 
-# 
-# 
 
 
   

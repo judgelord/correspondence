@@ -82,6 +82,13 @@ clean <- function(file.name) {
   data %<>%
        mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
+  #Membership Errors
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "SVAC"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "non-cong"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR))
+  
    #Check after run through merge
 #Unfoundnames <- d %>%
  #filter(is.na(bioname))
