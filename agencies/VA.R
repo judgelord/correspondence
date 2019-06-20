@@ -51,19 +51,19 @@ clean <- function(file.name) {
     mutate(FROM = str_trim(FROM))
   
   #filter for multiple authors
-  multiauthors <- data %>%
-    filter(str_detect(FROM, "\\/"))
+  #data <- data %>%
+    #filter(str_detect(FROM, "\\/"))
   
   #string split on "\"
-  multiauthors %<>%
+  data %<>%
     mutate(FROM = str_split(FROM, "\\/")) %>%
     unnest(FROM)
 
-  multiauthors %<>%
+  data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
   
   #Run extractMemberName on names with first initial
-  initial <- multiauthors %>%
+  initial <- data %>%
     filter(str_detect(FROM, " ")) %>%
     extractMemberName(members = members, col_name = "FROM")
   
@@ -71,25 +71,25 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   
   #Filter for those without initial and run extract and rejoin to data
-  multiauthors %<>%
+  data %<>%
     filter(! str_detect(FROM, " ")) %>%
     full_join(initial)
   
   #Format last name and put in last_name  
-  multiauthors %<>%
+  data %<>%
     mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
    
-  multiauthors %<>%
-       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(multiauthors, 'FROM'), last_name))
+  data %<>%
+       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
    #Check after run through merge
 #Unfoundnames <- d %>%
- # filter(is.na(bioname))
+ #filter(is.na(bioname))
   
   
 
   
- return(multiauthors)
+ return(data)
   
 }
   
