@@ -248,6 +248,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(grepl("HARMAN, Jane L.", bioname), "Margaret Lakes", middle_name)) %>%
     mutate(middle_name = ifelse(grepl("BONNER, Jr., Josiah Robins (Jo).", bioname), "Robins", middle_name)) %>%
     mutate(middle_name = ifelse(grepl("ESHOO, Anna Georges", bioname), "A. Georges", middle_name)) %>%
+  
      
     # middle initials
     mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
@@ -355,9 +356,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "PETERSON, John", "E", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "MERKLEY, Jeff", "A", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "HARMAN, Jane L.", "ML", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "REID, Harry", "M", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "CARNEY, Chris", "P", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "KILDEE, Dan", "T", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "REID, Harry","M", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "CARNEY, Chris","P", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "KILDEE, Dan","T", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "GRUCCI, Jr., Felix J.","J", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "WARREN, Elizabeth","A", middle_initial)) %>%
   
      
   # first names
@@ -365,7 +368,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
     mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "CONAWAY, K. Michael", "Michael", first_name)) %>%
-    mutate(first_name = ifelse(bioname == "BONNER, Jr., Josiah Robins (Jo)", "Josiah", first_name))
+    mutate(first_name = ifelse(bioname == "BONNER, Jr., Josiah Robins (Jo)", "Josiah", first_name)) %>%
+    mutate(first_name = ifelse(bioname == "GRUCCI, Jr., Felix J.)", "Felix", first_name))
+     
   
   
   # make blank common names NA
