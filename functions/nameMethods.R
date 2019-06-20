@@ -923,8 +923,16 @@ addFirst <- function(first_name, last_name){
 
 #########################
 
+# FREQUENT TYPOS WHERE WE CAN JUST REPLACE THEM REGARDLESS OF THE WORDS BEFORE AND AFTER (i.e. we are very confident that this is what they should be)
+typos <- tribble(
+  ~last_name, ~last_name_typos,
+  'Cummings', "Cwnmings",
+  "Inhofe", "Tnhofe",
+  "Ellmers", "Ellrners",
+  "TONKO", "TONKA")
+)
 
-# FREQUENT FIRST AND LAST NAME TYPOS 
+# FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
   "Patty", "Murray", "Muray",
@@ -953,7 +961,8 @@ typos_last <- tribble(
   "Robert","Byrd", "Bryd",
   "Michael", "Honda",  "Honds"
 ) %>% 
-  mutate(typos = paste(first_name, last_name_typos)) %>% 
+  mutate(typos = str_c(paste(first_name, last_name_typos), 
+                       str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
   select(first_name, last_name, typos)
 
 
@@ -982,7 +991,8 @@ typos_first <- tribble(
   "Chris", "Gibson", "Cris", 
   "Barbara", "Boxer", "Barabara"
 )   %>% 
-  mutate(typos = paste(first_name_typos, last_name)) %>% 
+  mutate(typos = str_c(paste(first_name_typos, last_name), 
+                       str_c(last_name, ", ", first_name_typos), sep = "|" ) ) %>% 
   select(first_name, last_name, typos)
 
   # FREQUENT MIDDLE NAME TYPOS 
@@ -991,20 +1001,22 @@ typos_middle <-  tribble(
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse"
   ) %>% 
-  mutate(typos = paste(first_name, middle_name_typos, last_name)) %>% 
+  mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
+                       str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
   select(first_name, last_name, typos)
   
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
-    "Richard", "G", "Lugar", "D", 
-    "Roger", "F", "wicker", "W", 
-    "Lindsey", "O", "Graham", "D", 
-    "Michael","E", "Capuano", "M", 
-    "Nita", "M", "Lowey","L", 
-    "Rosa", "L", "DeLauro", "I"
+    "Richard", "G.", "Lugar", "D.", 
+    "Roger", "F.", "wicker", "W.", 
+    "Lindsey", "O.", "Graham", "D.", 
+    "Michael","E.", "Capuano", "M.", 
+    "Nita", "M.", "Lowey","L.", 
+    "Rosa", "L.", "DeLauro", "I."
   )%>% 
-   mutate(typos = paste(first_name, middle_initial_typos, last_name)) %>% 
+   mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
+                        str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
    select(first_name, last_name, typos)
  
   
