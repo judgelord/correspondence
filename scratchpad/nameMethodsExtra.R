@@ -212,3 +212,37 @@ data %<>%
   select(-from) # %>% select(FROM, pattern, first_name, last_name)
 
 data %>% mutate(na = is.na(last_name)) %>% count(na)
+
+
+
+
+
+
+
+
+if(F){ # Testing 
+  
+  
+  # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
+  str_detect_replace <- function(string, pattern){
+    out <- ifelse(str_detect(string, pattern), pattern, "404error")
+  }
+  
+  
+  findTypos <- function(from){
+    purrr::map(.x = typos$typos, 
+               .f= str_detect_replace,
+               string = from) %>% 
+      unlist() %>%
+      unique() %>% 
+      str_c(collapse = ";") %>%
+      str_remove(";404error|404error;")
+  }
+  
+  data %<>% 
+    mutate(typos = FROM %>% map_chr(findTypos)) %>% 
+    left_join(typos) %>% 
+    mutate(FROM = str_replace_all(FROM, regex(typos, ignore_case = T), correct))
+  
+  data %>% select(FROM, correct, typos) %>% .[18,]
+}
