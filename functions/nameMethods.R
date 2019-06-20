@@ -933,83 +933,97 @@ addFirst <- function(first_name, last_name){
 
 
 # FREQUENT FIRST AND LAST NAME TYPOS 
-typos_first_last <- tribble(
-  ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
-  "Patty", "Murray", NA, "Muray",
-  "Patrick", "Leahy", "Partrick", NA,
-  "Ralph", "Regula", "Raplh", NA,
-  "Lois", "Capps", NA, "Crapps",
-  "Rick", "Boucher", NA, "Bocuher",
-  "Ric", "Keller", "Rick", NA,
-  "Robert", "Andrews", NA, "Andrew",
-  "Rodney", "Frelinghuysen", NA, "Frelinhuysen",
-  "Shelly", "Berkley", NA, "Barkley",
-  "Steny", "Hoyer", NA, "Royer",
-  "Steven", "Lynch", "Stephen", NA,
-  "Zoe", "Lofgren", "Toe", NA,
-  "Vito", "Fossella", NA, "Fosella",
-  "John", "Barrasso", NA, "Barasso",
-  "Larry", "Bucshon", NA, "Bueston",
-  "Matt", "Cartwright", NA, "Cartwrite",
-  "Chris", "Gibson", "Cris", NA,
-  "Barbara", "Boxer", "Barabara", NA,
-  "Jack", "Reed", NA, "Red",
-  "David", "Schweikert", NA, "Schweikerl",
-  "Peter", "DeFazio", NA, "DiFazio",
-  "Jeanne", "Shaheen", "Teanne", NA,
-  "Steve", "Scalise", NA, "Scalise",
-  "Russ", "Carnahan", NA, "Camahan",
-  "Ron", "Wyden", "Roy", NA,
-  "Roy", "Blunt", NA, "Blur",
-  "Russell","Feingold", "Russel",NA,
-  "Russell","Feingold", "Rusell",NA,
-  "Robert","Byrd", NA,"Bryd",
-  "Orrin", "Hatch", "Orring",NA,
-  "Olympia","Snowe", "Olymia",NA,
-  "Olympia","Snowe", NA,"Showe",
-  "Shelley","Capito", "Shelly", NA,
-  "Charles", "Schumer", "Charls", NA,
-  "Zoe", "Lofgren", NA, "Lufgren",
-  "Thomas", "Holden", NA, "Holen",
-  "Julia", "Carson", "Julie", NA,
-  "Tom", "Barrett", "Mark", NA,
-  "Matt", "Cartwright", "Mark", NA,
-  "Katherine", "Clark", "Kathrine", NA,
-  "Michael", "Bilirakis", NA, "Bilikaris",
-  "Michael", "Honda", NA, "Honds",
-  "Randy", "Weber", "Randay", NA,
-  "Nancy", "Pelosi", "Nanci", NA,
-  "Michael", "Honda", "Midlael", NA,
-  "Michael", "Honda", "Michaell", NA,
-  "Rosa", "DeLauro", NA, "De Lauro",
-  "Mike", "DeWine", NA, "De Wine"
-)  
+typos_last <- tribble(
+  ~first_name, ~last_name, ~last_name_typos,
+  "Patty", "Murray", "Muray",
+  "Lois", "Capps", "Crapps",
+  "Rick", "Boucher", "Bocuher",
+  "Robert", "Andrews", "Andrew",
+  "Rodney", "Frelinghuysen", "Frelinhuysen",
+  "Shelly", "Berkley", "Barkley",
+  "Steny", "Hoyer", "Royer",
+  "Vito", "Fossella", "Fosella",
+  "John", "Barrasso", "Barasso",
+  "Larry", "Bucshon", "Bueston",
+  "Matt", "Cartwright", "Cartwrite",
+  "Rosa", "DeLauro", "De Lauro",
+  "Mike", "DeWine", "De Wine",
+  "Michael", "Bilirakis", "Bilikaris",
+  "Jack", "Reed", "Red",
+  "David", "Schweikert", "Schweikerl",
+  "Peter", "DeFazio", "DiFazio",
+  "Roy", "Blunt", "Blur",
+  "Steve", "Scalise", "Scalise",
+  "Russ", "Carnahan", "Camahan",
+  "Zoe", "Lofgren", "Lufgren",
+  "Thomas", "Holden", "Holen",
+  "Olympia","Snowe", "Showe",
+  "Robert","Byrd", "Bryd",
+  "Michael", "Honda",  "Honds"
+) %>% 
+  mutate(typos = paste(first_name, last_name_typo)) %>% 
+  select(first_name, last_name, typos)
+
+
+# FREQUENT FIRST NAME TYPOS 
+typos_first <- tribble(
+  ~first_name, ~last_name, ~first_name_typos,
+  "Steven", "Lynch", "Stephen", 
+  "Zoe", "Lofgren", "Toe", 
+  "Jeanne", "Shaheen", "Teanne", 
+  "Ron", "Wyden", "Roy", 
+  "Russell","Feingold", "Russel|Rusell",
+  "Ric", "Keller", "Rick", 
+  "Orrin", "Hatch", "Orring",
+  "Olympia","Snowe", "Olymia",
+  "Shelley","Capito", "Shelly", 
+  "Charles", "Schumer", "Charls", 
+  "Julia", "Carson", "Julie", 
+  "Tom", "Barrett", "Mark", 
+  "Matt", "Cartwright", "Mark", 
+  "Katherine", "Clark", "Kathrine", 
+  "Randy", "Weber", "Randay", 
+  "Nancy", "Pelosi", "Nanci", 
+  "Michael", "Honda", "Midlael|Michaell", 
+  "Patrick", "Leahy", "Partrick", 
+  "Ralph", "Regula", "Raplh", 
+  "Chris", "Gibson", "Cris", 
+  "Barbara", "Boxer", "Barabara"
+)   %>% 
+  mutate(typos = paste(first_name_typos, last_name)) %>% 
+  select(first_name, last_name, typos)
+
   # FREQUENT MIDDLE NAME TYPOS 
 typos_middle <-  tribble(
-    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
+    ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse"
-  )
+  ) %>% 
+  mutate(typos = paste(first_name, middle_name_typos, last_name)) %>% 
+  select(first_name, last_name, typos)
   
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
-    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
+    ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
     "Richard", "G", "Lugar", "D", 
     "Roger", "F", "wicker", "W", 
     "Lindsey", "O", "Graham", "D", 
     "Michael","E", "Capuano", "M", 
     "Nita", "M", "Lowey","L", 
     "Rosa", "L", "DeLauro", "I"
-  )
-  
+  )%>% 
+   mutate(typos = paste(first_name, middle_initial_typos, last_name)) %>% 
+   select(first_name, last_name, typos)
  
- # STARTING TO DEV FUNCTION 
- if(F){
-data %<>% 
-  mutate(Summary = Summary %>% 
-           str_replace())
- }
-    
+  
+# combine typos 
+typos <- full_join(typos_first,
+                   typos_last,
+                   typos_middle, 
+                   typos_middle_initial) %>% 
+  group_by(first_name, last_name) %>% 
+  nest(.key = "typos") %>% 
+  mutate(typos = str_c(typos, collapse = "|"))
 
 
 # #Fixes name typo (from DOL_SOL)
