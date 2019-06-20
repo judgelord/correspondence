@@ -928,15 +928,9 @@ addFirst <- function(first_name, last_name){
 #########################
 # FIXME 
 
-# CORRECTIONS TO ADD TO ABOVE 
+# CORRECTIONS TO ADD TO nameMethods
 
 
-# COMMON FIRST AND LAST NAME TYPOS TEMPLATE
-tribble(
-  ~correct.first, ~correct.last, ~incorrect.first, ~incorrect.last,
-  "Patty", "Murray", NA, "Muray",
-  "Patty", "Murray", NA, "Muray"
-)
 
 # FREQUENT FIRST AND LAST NAME TYPOS 
 tribble(
@@ -973,7 +967,7 @@ tribble(
   "Orrin", "Hatch", "Orring",NA,
   "Olympia","Snowe", "Olymia",NA,
   "Olympia","Snowe", NA,"Showe",
-  "Shelley","Capito", "Shelly", NA, # this and most of these seem to be last name typos, not middle name typos. Can we put these above? Are the middle initials necessary to match? 
+  "Shelley","Capito", "Shelly", NA,
   "Charles", "Schumer", "Charls", NA,
   "Zoe", "Lofgren", NA, "Lufgren",
   "Thomas", "Holden", NA, "Holen",
@@ -989,23 +983,23 @@ tribble(
   "Michael", "Honda", "Michaell", NA,
   "Rosa", "DeLauro", NA, "De Lauro",
   "Mike", "DeWine", NA, "De Wine"
-  
-  
-
-  
 )  
-  # FREQUENT MIDDLE NAME/INITIAL TYPOS 
+  # FREQUENT MIDDLE NAME TYPOS 
   tribble(
     ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
     "Hillary", "Rodham", "Clinton", "Redham",
-    "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+    "Benjamin", "Nighthorse", "Campbell", "Nighhorse"
+  )
+  
+  # FREQUENT MIDDLE INITIAL TYPOS 
+  tribble(
+    ~correct.first, ~correct.middle, ~correct.last, ~incorrect.middle, 
     "Richard", "G", "Lugar", "D", 
     "Roger", "F", "wicker", "W", 
     "Lindsey", "O", "Graham", "D", 
     "Michael","E", "Capuano", "M", 
     "Nita", "M", "Lowey","L", 
     "Rosa", "L", "DeLauro", "I"
-    
   )
   
 
