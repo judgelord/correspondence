@@ -209,8 +209,8 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- ocr.errors(data$Summary)
   
   
-  
-  data$Summary %<>% map_chr(typos_fix)
+  # FIXME
+  # data$Summary %<>% map_chr(typos_fix)
   
 
   
@@ -1048,12 +1048,18 @@ typos <- full_join(typos_first, typos_last) %>%
 
 # function to fix typos 
 typos_fix <- function(string){
-str_replace(string, typos$typos, typos$correct) %>% unique()
+str_replace(string, typos$typos, typos$correct) %>% trimws() %>% unique()
 }
 
 
+if(F){ # Testing 
+  
+str_replace(data$FROM[18], typos$typos, typos$correct) %>% unique()
 
 
+data$FROM[18] %>% map_chr(typos_fix)
+
+}
 
 
   
@@ -1109,7 +1115,8 @@ str_replace(string, typos$typos, typos$correct) %>% unique()
     
     
     # Fix name typos
-    data$Summary %<>% map_chr(typos_fix)
+    # FIXME
+    # data$Summary %<>% map_chr(typos_fix)
     
     
     data %>% mutate(na = is.na(last_name)) %>% count(na)
