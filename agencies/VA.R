@@ -29,11 +29,18 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
 
+  
   #Filter out rows without data
   data %<>% filter(!FROM == "")
   data %<>% filter(!FROM == "N/A") %>%
     filter(! FROM == "n/a") %>%
-    filter(! FROM == "N/a")
+    filter(! FROM == "N/a") %>%
+    filter(! FROM == "n/a/") %>%
+    filter(! FROM == "m/a") %>%
+    filter(! FROM == "`N/A")
+  
+  data %<>%
+    mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
   #sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
@@ -43,9 +50,20 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_trim(FROM))
   
+  #filter for multiple authors
+  multiauthors <- data %>%
+    filter(str_detect(FROM, "\\/"))
+  
+  #string split on "\"
+  multiauthors %<>%
+    mutate(FROM = str_split(FROM, "\\/")) %>%
+    unnest(FROM)
 
+  multiauthors %<>%
+    mutate(FROM = str_remove(FROM, "\\/"))
+  
   #Run extractMemberName on names with first initial
-  initial <- data %>%
+  initial <- multiauthors %>%
     filter(str_detect(FROM, " ")) %>%
     extractMemberName(members = members, col_name = "FROM")
   
@@ -53,16 +71,16 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   
   #Filter for those without initial and run extract and rejoin to data
-  data %<>%
+  multiauthors %<>%
     filter(! str_detect(FROM, " ")) %>%
     full_join(initial)
   
   #Format last name and put in last_name  
-  data %<>%
+  multiauthors %<>%
     mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
    
-  data %<>%
-       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  multiauthors %<>%
+       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(multiauthors, 'FROM'), last_name))
   
    #Check after run through merge
 #Unfoundnames <- d %>%
@@ -71,7 +89,7 @@ clean <- function(file.name) {
   
 
   
- return(data)
+ return(multiauthors)
   
 }
   
