@@ -969,7 +969,14 @@ typos_last <- tribble(
   "Juanita", "Millender-McDonald", "Millender-McDonal",
   "John", "Shimkus", "(Shimku|Slimkus)",
   "John", "Sullivan", "Sulivan",
-  "Jon", "Porter", "(Poster|Parter)"
+  "Jon", "Porter", "(Poster|Parter)",
+  "David", "Cicilline", "Cicillin",
+  "David", "Vitter", "Vilter",
+  "Debbie", "Stabenow", "Stabeno",
+  "Dianne", "Feinstein", "Feinsten",
+  "Don", "Nickles", "Nickels",
+  "Doug", "Lamborn", "(Lamborg|Lambon)",
+  'Edward', "Markey", "Marley"
 ) %>% 
   mutate(typos = str_c(paste(first_name, last_name_typos), 
                        str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
@@ -1000,7 +1007,9 @@ typos_first <- tribble(
   "Ralph", "Regula", "Raplh", 
   "Chris", "Gibson", "Cris", 
   "Barbara", "Boxer", "Barabara",
-  "Ron", "Estes", "(John|Jon)"
+  "Ron", "Estes", "(John|Jon)",
+  "Dean", "Heller", "Den",
+  "Dennis", "Cardoza", "Dinnes"
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
@@ -1015,24 +1024,26 @@ typos_middle <-  tribble(
   ) %>% 
   mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
-  select(first_name, last_name, typos)
+  select(first_name, middle_name, last_name, typos)
   
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
     "Richard", "G", "Lugar", "D", 
-    "Roger", "F", "wicker", "W", 
+    "Roger", "F", "Wicker", "W", 
     "Lindsey", "O", "Graham", "D", 
     "Michael","E", "Capuano", "M", 
     "Nita", "M", "Lowey","L", 
     "Rosa", "L", "DeLauro", "I",
     "Joseph", "I", "Lieberman", "(J|L)" ,
     "John", "F", "Kerry", "P",
-    "Jon", "S", "Corize", "C"
+    "Jon", "S", "Corize", "C",
+    "David", "N", "Cicilline", "(R|L|P)",
+    "David", "B", "McKinley", "P"
   )%>% 
    mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
                         str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
-   select(first_name, last_name, typos)
+   select(first_name, middle_initial, last_name, typos)
  
  
  
