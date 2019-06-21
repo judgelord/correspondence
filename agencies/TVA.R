@@ -60,6 +60,10 @@ clean <- function(file.name) {
   
   data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
   
+  #Check unmatching after merge
+  #Unfoundmerge <- d %>%
+    #filter(is.na(bioname))
+  
   return(data)
   
 }
