@@ -209,11 +209,13 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- ocr.errors(data$Summary)
   
   
-  # FIXME
-  # data$Summary %<>% map_chr(typos_fix)
-  
-
-  
+  data %<>% 
+    # find common typos
+    mutate(typos = Summary %>% map_chr(findTypos)) %>% 
+    # add in corrections
+    left_join(typos) %>%
+    # replace typos with corrections
+    mutate(Summary = str_replace_all(Summary, regex(typos, ignore_case = T), correct))
   
   
   
@@ -863,9 +865,9 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
   FROM <- ifelse(grepl("Diane", FROM)&grepl("(^| )Feinstein( |$|,)", FROM), gsub("Diane","Dianne", FROM), FROM)
  # FROM <- ifelse(grepl("Cliff", FROM)&grepl("Steams", FROM), gsub("Steams","Stearns", FROM), FROM)
-  FROM <- gsub("Cwnmings", 'Cummings', FROM)
-  FROM <- gsub("Tnhofe", "Inhofe", FROM)
-  FROM <- gsub("Ellrners","Ellmers", FROM)
+  FROM <- gsub("Cwnmings", 'Cummings', FROM) # fixed
+  FROM <- gsub("Tnhofe", "Inhofe", FROM) # fixed
+  FROM <- gsub("Ellrners","Ellmers", FROM) # fixed 
   FROM <- gsub("TONKA", "TONKO", FROM)
   FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Coryn( |$|,)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
@@ -923,6 +925,7 @@ addFirst <- function(first_name, last_name){
 #########################
 
 # FREQUENT TYPOS WHERE WE CAN JUST REPLACE THEM REGARDLESS OF THE WORDS BEFORE AND AFTER (i.e. we are very confident that this is what they should be)
+# THERE IS NOTHING ELSE IT COULD POSSIBLY BE
 typos_clear <- tribble(
   ~correct, ~typos,
   'Cummings', "Cwnmings",
@@ -1008,12 +1011,12 @@ typos_middle <-  tribble(
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
-    "Richard", "G.", "Lugar", "D.", 
-    "Roger", "F.", "wicker", "W.", 
-    "Lindsey", "O.", "Graham", "D.", 
-    "Michael","E.", "Capuano", "M.", 
-    "Nita", "M.", "Lowey","L.", 
-    "Rosa", "L.", "DeLauro", "I."
+    "Richard", "G", "Lugar", "D", 
+    "Roger", "F", "wicker", "W", 
+    "Lindsey", "O", "Graham", "D", 
+    "Michael","E", "Capuano", "M", 
+    "Nita", "M", "Lowey","L", 
+    "Rosa", "L", "DeLauro", "I"
   )%>% 
    mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
                         str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
@@ -1046,20 +1049,25 @@ typos <- full_join(typos_first, typos_last) %>%
     full_join(typos_clear)
 
 
-# function to fix typos 
-typos_fix <- function(string){
-str_replace(string, typos$typos, typos$correct) %>% trimws() %>% unique()
+# A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
+str_detect_replace <- function(string, pattern){
+  out <- ifelse(str_detect(string, pattern), pattern, "404error")
 }
 
 
-if(F){ # Testing 
-  
-str_replace(data$FROM[18], typos$typos, typos$correct) %>% unique()
-
-
-data$FROM[18] %>% map_chr(typos_fix)
-
+findTypos <- function(from){
+  purrr::map(.x = typos$typos, 
+             .f= str_detect_replace,
+             string = from) %>% 
+    unlist() %>%
+    unique() %>% 
+    str_c(collapse = ";") %>%
+    str_remove(";404error|404error;")
 }
+
+
+
+
 
 
   
@@ -1115,8 +1123,13 @@ data$FROM[18] %>% map_chr(typos_fix)
     
     
     # Fix name typos
-    # FIXME
-    # data$Summary %<>% map_chr(typos_fix)
+    data %<>% 
+      # find common typos
+      mutate(typos = Summary %>% map_chr(findTypos)) %>% 
+      # add in corrections
+      left_join(typos) %>%
+      # replace typos with corrections
+      mutate(Summary = str_replace_all(Summary, regex(typos, ignore_case = T), correct))
     
     
     data %>% mutate(na = is.na(last_name)) %>% count(na)
