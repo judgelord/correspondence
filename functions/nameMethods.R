@@ -1032,7 +1032,7 @@ typos_middle <-  tribble(
   )%>% 
    mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
                         str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
-   select(first_name, last_name, typos)
+   select(first_name, middle_initial, last_name, typos)
  
  
  
