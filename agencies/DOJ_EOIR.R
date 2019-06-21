@@ -28,7 +28,7 @@ clean <- function(file.name) {
   
   #Splits Rows with multiple authors
   data %<>%
-    mutate(FROM = str_split(FROM, " and |&")) %>%
+    mutate(FROM = str_split(FROM, " and |&|\\(")) %>%
     unnest(FROM)
 
   data %<>%
@@ -68,6 +68,9 @@ clean <- function(file.name) {
                                      Sen Leticia Van de Putte, R.PH., State of Texas, District 26|Amanda Aguirre, Senator, District 24, Arizona State Senate|Willie Simmons, State Senator of Mississpi|
                                      Daphne Campell, RN, State Representative of Fl, District 108|Sen Noreen Evans, California State Senate, Second Senate District"), "State Legislator", ERROR))
   
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "signers|other|others"), "Multiple unnamed members", NOTES))
+  
   #Filter while working Comment out
   #data %<>%
    # mutate((str_remove(FROM, "Don Tripp, State Representative of New Mexico|Daniel Dromm, New York City Council Member|Eva Galambos, Mayor of Sandy Springs, Georgia|John M. Kefalas, State Representative of Colorado|Elaine Nekritz, Illinois State Representative - 57th District|
@@ -79,7 +82,8 @@ clean <- function(file.name) {
   #  filter(is.na(last_name))
   
   
-  
+  #unfoundmerge <- d %>%
+    #filter(is.na(bioname))
   
   
   return(data)
