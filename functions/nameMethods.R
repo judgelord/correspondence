@@ -1059,6 +1059,19 @@ typos_middle <-  tribble(
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
   select(first_name, middle_name, last_name, typos)
   
+# FREQUENT COMMON NAME TYPOS 
+typos_common_name <-  tribble(
+  ~common_name, ~last_name, ~common_name_typos, 
+  "Jon", "Corize", "John",
+  "Joe", "Barton", "Joel",
+  "Ben", "Cardin", "Bin",
+  "Don", "Nickles", "Dob",
+  "Don", "Young", "Dob"
+) %>% 
+  mutate(typos = str_c(paste(common_name_typos, last_name),
+                       str_c(last_name, ", ", common_name_typos), sep = "|") ) %>% 
+  select(common_name, last_name, typos)
+
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
