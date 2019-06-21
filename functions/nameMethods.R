@@ -976,7 +976,28 @@ typos_last <- tribble(
   "Dianne", "Feinstein", "Feinsten",
   "Don", "Nickles", "Nickels",
   "Doug", "Lamborn", "(Lamborg|Lambon)",
-  'Edward', "Markey", "Marley"
+  'Edward', "Markey", "Marley",
+  "John", "Moolenaar", "Molinar",
+  "Jery", 'Costello', "Costelo",
+  "Jerry", "Kleczka", "Kyleczka",
+  "John", "Barrow", "Barroy",
+  "Jeff", "Merkley", "Merkly",
+  "James", "Jeffords", "(Jefford|Jeffers)",
+  "Jack", "Kingston", "Kington",
+  "Greg", "Walden", "Wilden",
+  "George","Radanovich", "Radavich",
+  "George", "Nethercutt", "Nethecutt",
+  "Frank", "Murkowski", "Mukowski",
+  "Marcy", "Kaptur", "Kaptor",
+  "Bob", "Goodlatte", "Goodlat",
+  "Blaine", "Luetkemeyer", "Leautkemeyer",
+  "Dutch", "Ruppersberger", "Rupperberger",
+  "Carolyn", "Maloney", "Malony",
+  "Catherine", "Cortez Masto", "Mastro",
+  "Charles", "Rangel", "Ranger",
+  "Christopher", "Van Hollen", "Van Kollen",
+  "Gary", "Ackerman", "Acherman"
+  
 ) %>% 
   mutate(typos = str_c(paste(first_name, last_name_typos), 
                        str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
@@ -1009,7 +1030,19 @@ typos_first <- tribble(
   "Barbara", "Boxer", "Barabara",
   "Ron", "Estes", "(John|Jon)",
   "Dean", "Heller", "Den",
-  "Dennis", "Cardoza", "Dinnes"
+  "Dennis", "Cardoza", "Dinnes",
+  "Jeffrey", "Merkley", "Jeflrey",
+  "Harry", "Reid", "Hary",
+  "George", "Voinovich", "Geaorge",
+  "Candice", "Miller", "Candance",
+  "Cedric", "Richmond", "Cedic",
+  "Christopher", "Smith", "Christoper",
+  "Christopher", "Bond", "(Chritoper|Christoper)",
+  "Chris", "Coons", "Cris",
+  "Chris", "Stewart", "Cris",
+  "Hillary", "Clinton", "Fillary",
+  "Filemon", "Vela", "Filimon",
+  "Elizabeth", "Esty", "Elezabeth"
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
@@ -1039,7 +1072,13 @@ typos_middle <-  tribble(
     "John", "F", "Kerry", "P",
     "Jon", "S", "Corize", "C",
     "David", "N", "Cicilline", "(R|L|P)",
-    "David", "B", "McKinley", "P"
+    "David", "B", "McKinley", "P",
+    "James", "R", "Lanegevin", "P",
+    "James", "M", "Inhofe", "N",
+    "Charles", "H", "Taylor", "F",
+    "Eliot", "L", "Engel", "E",
+    "Bobby", "L", "Rush", "E",
+    "Gary", "L", "Ackerman", "J"
   )%>% 
    mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
                         str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
