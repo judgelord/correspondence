@@ -1015,13 +1015,13 @@ typos_middle <-  tribble(
   ) %>% 
   mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
-  select(first_name, last_name, typos)
+  select(first_name, middle_name, last_name, typos)
   
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
     ~first_name, ~middle_initial, ~last_name, ~middle_initial_typos, 
     "Richard", "G", "Lugar", "D", 
-    "Roger", "F", "wicker", "W", 
+    "Roger", "F", "Wicker", "W", 
     "Lindsey", "O", "Graham", "D", 
     "Michael","E", "Capuano", "M", 
     "Nita", "M", "Lowey","L", 
