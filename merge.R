@@ -69,7 +69,8 @@ data_list <- tribble(
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
- "DOJ_CIV", "not coded", NA, 
+ "DOJ_CIV", "not coded", NA,
+"DOJ_EOIR", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_MSHA", "not coded", NA, 
@@ -161,7 +162,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "TVA")
+i <- which(data_list$agency == "DOJ_EOIR")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
