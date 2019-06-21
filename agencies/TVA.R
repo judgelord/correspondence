@@ -38,7 +38,7 @@ clean <- function(file.name) {
   
   #chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(SUBJECT, "Con.|Congressman|Rep."), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(SUBJECT, "Congressman|Rep.|Con. |con. "), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(SUBJECT, "Sen |Sen."), "Senate", chamber))
   
   #extracts member names
@@ -58,7 +58,7 @@ clean <- function(file.name) {
     mutate(FROM = str_trim(FROM)) %>%
     mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
-  data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
+  data %<>% select(ID, DATE,  FROM, chamber, SUBJECT, everything())
   
   return(data)
   
