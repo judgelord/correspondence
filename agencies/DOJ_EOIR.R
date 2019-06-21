@@ -31,9 +31,17 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "Con Jim Morgan", "Con Jim Moran"))
  
+
+  
+  data %<>%
+    mutate(FROM = (str_remove_all(FROM, "Con |Sen ")))
+  
   #Remove middle initials for now
+  data %<>%
+    mutate(FROM = (str_replace(FROM, " \\D. ", " ")))
   
-  
+  #Extract Member names
+    
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
   
