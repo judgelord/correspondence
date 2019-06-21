@@ -981,7 +981,12 @@ typos_last <- tribble(
   "Jery", 'Costello', "Costelo",
   "Jerry", "Kleczka", "Kyleczka",
   "John", "Barrow", "Barroy",
-  "Jeff", "Merkley", "Merkly"
+  "Jeff", "Merkley", "Merkly",
+  "James", "Jeffords", "(Jefford|Jeffers)",
+  "Jack", "Kingston", "Kington",
+  "Greg", "Walden", "Wilden",
+  "George","Radanovich", "Radavich",
+  "George", "Nethercutt", "Nethecutt"
 ) %>% 
   mutate(typos = str_c(paste(first_name, last_name_typos), 
                        str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
@@ -1045,7 +1050,9 @@ typos_middle <-  tribble(
     "John", "F", "Kerry", "P",
     "Jon", "S", "Corize", "C",
     "David", "N", "Cicilline", "(R|L|P)",
-    "David", "B", "McKinley", "P"
+    "David", "B", "McKinley", "P",
+    "James", "R", "Lanegevin", "P",
+    "James", "M", "Inhofe", "N"
   )%>% 
    mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
                         str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
