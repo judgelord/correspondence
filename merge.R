@@ -132,6 +132,7 @@ data_list <- tribble(
 "Treasury_Fiscal", "not coded", NA,
 # "Treasury_Mint", "not coded", NA, # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
+"TVA", "not coded", NA,
 # USDA 
 "USDA", "not coded", NA,
 # "USDA_ARS", "not coded", NA, # No script, data doesn't have dates
@@ -160,7 +161,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "VA")
+i <- which(data_list$agency == "TVA")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
