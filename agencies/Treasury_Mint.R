@@ -22,14 +22,27 @@ clean <- function(file.name) {
   NoDATE <- data %>%
     filter(is.na(DATE))
   
+  data %<>%
+    mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
+    filter(! Blank)
+  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(SUBJECT, "Congressman|Rep.|Con. |con. "), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(SUBJECT, "Sen |Sen."), "Senate", chamber))
+  
+  
   
   #Extract member names from SUBJECT
-  data %>%
+  data %<>%
     extractMemberName(members = members, col_name = "SUBJECT")
+  
+  Unfoundnames<- data %>%
+    filter(is.na(last_name))
   
 
   
