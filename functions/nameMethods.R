@@ -976,7 +976,12 @@ typos_last <- tribble(
   "Dianne", "Feinstein", "Feinsten",
   "Don", "Nickles", "Nickels",
   "Doug", "Lamborn", "(Lamborg|Lambon)",
-  'Edward', "Markey", "Marley"
+  'Edward', "Markey", "Marley",
+  "John", "Moolenaar", "Molinar",
+  "Jery", 'Costello', "Costelo",
+  "Jerry", "Kleczka", "Kyleczka",
+  "John", "Barrow", "Barroy",
+  "Jeff", "Merkley", "Merkly"
 ) %>% 
   mutate(typos = str_c(paste(first_name, last_name_typos), 
                        str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
@@ -1009,7 +1014,8 @@ typos_first <- tribble(
   "Barbara", "Boxer", "Barabara",
   "Ron", "Estes", "(John|Jon)",
   "Dean", "Heller", "Den",
-  "Dennis", "Cardoza", "Dinnes"
+  "Dennis", "Cardoza", "Dinnes",
+  "Jeffrey", "Merkley", "Jeflrey"
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
