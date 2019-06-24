@@ -4,12 +4,15 @@
 
 #file.name <- "DHS_HQ Anna" # for testing
 
+#file.name <- "DHS_HQ Anna"
+
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() # get data
   
   data %<>% select(-n)
   
-  data %<>% distinct() %>% 
+  
+data %<>% distinct() %>% 
     group_by(WF) %<>% mutate(nWF = n()) %>% ungroup() %>% 
     group_by(WF, TYPE) %<>% mutate(nTYPE = n()) %>% ungroup() %>% 
     filter(!(nWF>1 & nTYPE == 1 & is.na(TYPE))) # cut uncoded versions of duplicates
@@ -43,8 +46,7 @@ clean <- function(file.name) {
   
   data$ID <- seq(1:nrow(data))
   
-  #rename agency column
-  colnames(data)[colnames(data) == 'AGENCY'] <- 'subagency'
+  #rename subagency column
   data %<>%
     mutate(agency = ifelse(is.na(subagency), 'DHS_HQ', paste("DHS_", subagency)))
   
@@ -52,6 +54,9 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc.
 
   data$DATE[which(is.na(data$DATE))] <- as.Date(data$originalDATE[which(is.na(data$DATE))], "%m/%d/%Y") 
+  
+  
+
 
   #sum(is.na(data$DATE))
    
@@ -106,8 +111,15 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("Donald H. Kent", FROM), "Judge, not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Nelson Peacock", FROM), "President of Northwest Arkansas Council. Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Lee Morris", FROM), "Not in Congress", ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("Michael Chertoff", FROM), "Former United States Secretary of Homeland Security", ERROR))
-  
+    mutate(ERROR = ifelse(grepl("Michael Chertoff", FROM), "Former United States Secretary of Homeland Security", ERROR)) %>%
+    
+    mutate(ERROR = ifelse(grepl("Thomas S. Winkowski",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Donald H. Kent",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Chani Wiggins",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Pamela J. Turner",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Nelson Peacock",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Lee Morris",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Norman J. Rabkin",FROM),"Not in Congress", ERROR))
   
   
 
@@ -135,6 +147,19 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
     mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
+  
+  # # Testing 
+  # 
+  # look<-data %>%
+  #   filter(is.na(last_name)) %>%
+  #   count(FROM,congress) %>%
+  #   arrange(-n)
+  # 
+  # 
+  # 
+  # sample <- data %>%
+  # filter(is.na(last_name))  
+  # View(sample)
    
    
   # #create variable for first name of the Sen/Rep
