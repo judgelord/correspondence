@@ -14,8 +14,8 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # create LetterID variable
+  data$LetterID <- c(1:nrow(data))
   
   #create agency column
   data$agency <- file.name
@@ -41,6 +41,8 @@ clean <- function(file.name) {
   data$chamber <- ifelse(data$chamber == "HOUSE", 'House', data$chamber)
   data$chamber <- ifelse(data$chamber == "SENATE", "Senate", data$chamber)
   
+  #Create ID variable
+  data$ID <- c(1:nrow(data))
   
   # preprocess
   data %<>%
@@ -94,11 +96,11 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
-  data %<>%
-    mutate(replace_na(chamber,"HOUSE AND SENATE"))
   
-  
-  
+  #Making chamber NA for "HOUSE AND SENATE"
+  is.na(data$chamber) <- data$chamber == "HOUSE AND SENATE"
+
+#Check NAs after merge  
 #unmatched <- d %>%
  #filter(is.na(bioname))
   
