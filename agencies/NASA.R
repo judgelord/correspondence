@@ -7,8 +7,6 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data <- data[-which(is.na(data$FROM)),]
-  
   # format DATE to multiple formats
   data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
    
@@ -22,36 +20,66 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
 
+ 
+  
+  #Makes note for multiple authors
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(chamber, "HOUSE AND SENATE"), "Multiple members", NOTES))
+  ###############    
+  # Creates duplicate rows for lines with multiple representatives
+  
+  data %<>%
+    mutate(FROM = str_split(FROM, ",")) %>%
+    unnest(FROM)
+  
+
+  data$FROM <- gsub("House|Senate|Incoming", "", data$FROM, ignore.case = TRUE)
+  ################
+  
+  
   # chamber
   data$chamber <- ifelse(data$chamber == "HOUSE", 'House', data$chamber)
   data$chamber <- ifelse(data$chamber == "SENATE", "Senate", data$chamber)
- 
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(",", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ","))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("House|Senate|Incoming", "", data$FROM, ignore.case = TRUE)
-  data <- data[!data$FROM == "",] # removes blank observations
-  ################
+  
   
   # preprocess
+  data %<>%
+    mutate(FROM = str_remove(FROM, "INFORMATION "))
+  
   data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
   
+  Nomembers <- data %>%
+    filter(is.na(FROM)) %>%
+    extractMemberName(members = members, col_name = "SUBJECT") %>%
+    filter( ! str_detect(SUBJECT, " LETTER TO THE HONORABLE ANNA ESHOO ")) %>%
+    drop_na(last_name)
+  
   data <- extractMemberName(data, members, 'FROM')
+  
+  data %<>%
+    full_join(Nomembers)
+  
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
   
-  data$first_name <- addFirst(data$first_name,data$last_name)
-
+  NoChamber <- data %>%
+    filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
+  data %<>%
+    anti_join(NoChamber)
+   
+ NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
+ 
+ # arrange columns for hand coding
+ NoChamber %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
+  
+ data %<>%
+   full_join(NoChamber)
+ 
+  #data %<>%
+   # filter( !str_detect(chamber, "HOUSE AND SENATE")| ! is.na(first_name))
+  
+ 
+  
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
   
@@ -59,7 +87,11 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^(AND|STATE)$",FROM), 'Inspect', ERROR))
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, chamber,  FROM, everything())
+  data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
+  
+  
+# unmatched <- d %>%
+ #   filter(is.na(bioname))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|LAUNCH PASSES|EMPLOYEE SEEKS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
