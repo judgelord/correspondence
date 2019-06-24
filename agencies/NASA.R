@@ -7,10 +7,6 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  #Filters out NA FROM too early
-  #data <- data[-which(is.na(data$FROM)),]
-  
-  
   # format DATE to multiple formats
   data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
    
@@ -34,7 +30,6 @@ clean <- function(file.name) {
   
 
   data$FROM <- gsub("House|Senate|Incoming", "", data$FROM, ignore.case = TRUE)
-  #data <- data[!data$FROM == "",] # removes blank observations
   ################
   
   
