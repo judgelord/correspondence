@@ -4,7 +4,7 @@
 
 #file.name <- "DHS_HQ Anna" # for testing
 
-#file.name <- "DHS_HQ Anna"
+#file.name <- "DHS_HQ Anna" ##testing 24 June
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() # get data
@@ -119,9 +119,12 @@ data %<>% distinct() %>%
     mutate(ERROR = ifelse(grepl("Pamela J. Turner",FROM),"Not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Nelson Peacock",FROM),"Not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Lee Morris",FROM),"Not in Congress", ERROR)) %>%
-    mutate(ERROR = ifelse(grepl("Norman J. Rabkin",FROM),"Not in Congress", ERROR))
-  
-  
+    mutate(ERROR = ifelse(grepl("Norman J. Rabkin",FROM),"Not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Pedro Pierluisi",FROM),"Representative from Puerto Rico", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Peggy Sherry",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Madeleine Z. Bordallo",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Stewart Baker",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Jay M. Cohen",FROM),"Not in congress", ERROR)) %>%
 
   # fix FROM 
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
@@ -148,19 +151,19 @@ data %<>% distinct() %>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
     mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
   
-  # # Testing 
-  # 
-  # look<-data %>%
-  #   filter(is.na(last_name)) %>%
-  #   count(FROM,congress) %>%
-  #   arrange(-n)
-  # 
-  # 
-  # 
-  # sample <- data %>%
-  # filter(is.na(last_name))  
-  # View(sample)
-   
+  ## Testing
+# 
+#   look<-data %>%
+#     filter(is.na(last_name)) %>%
+#     count(FROM,congress) %>%
+#     arrange(-n)
+# 
+# 
+# 
+#   sample <- data %>%
+#   filter(is.na(last_name))
+#   View(sample)
+
    
   # #create variable for first name of the Sen/Rep
   # data %<>%
