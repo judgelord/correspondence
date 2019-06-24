@@ -48,37 +48,42 @@ clean <- function(file.name) {
   
   data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
   
+  #Extract members from SUBJECT
   Nomembers <- data %>%
     filter(is.na(FROM)) %>%
     extractMemberName(members = members, col_name = "SUBJECT") %>%
     filter( ! str_detect(SUBJECT, " LETTER TO THE HONORABLE ANNA ESHOO ")) %>%
     drop_na(last_name)
   
+  #Extract members in FROM
   data <- extractMemberName(data, members, 'FROM')
   
+  #Join both datasets
   data %<>%
     full_join(Nomembers)
   
+  #Format last_names
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
   
+  #Subset data for observations with no first name and no chamber
   NoChamber <- data %>%
     filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
-  data %<>%
+ 
+   data %<>%
     anti_join(NoChamber)
-   
+ 
+  #Add first name to observations without chamber  
  NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
  
  # arrange columns for hand coding
  NoChamber %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
+ 
+ #Rejoin datasets
  data %<>%
    full_join(NoChamber)
- 
-  #data %<>%
-   # filter( !str_detect(chamber, "HOUSE AND SENATE")| ! is.na(first_name))
   
- 
   
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
