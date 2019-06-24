@@ -210,9 +210,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "BERGMAN, John", "Jack", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "HOLLINGS, Ernest Frederick", "Fritz", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "THOMPSON, Glenn", "G.T.", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "HAYWORTH, John D., Jr", "J.D.", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "HAYWORTH, John D., Jr", "J. D.", common_name)) %>%
     mutate(common_name = ifelse(bioname == "COX, Charles Christopher", "Christopher", common_name)) %>%
     mutate(common_name = ifelse(bioname == "GRAHAM, Daniel Robert (Bob)", "Bob", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "SHAW, Eugene Clay, Jr.", "Clay", common_name)) %>%
     
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
@@ -431,30 +432,30 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            # last_comma_initial = paste0(last_name, ", ", first_initial),
            last_comma_common = paste0(last_name, ", ", common_name) )
   
-  
-# Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
-
-members %<>% mutate_all(replace404)
-
-members %<>%
-  group_by(bioname) %>%
-  mutate(pattern = c(first_last,
-                     first_middle_last,
-                     first_initial_last,
-                     common_last,
-                     common_middle_last,
-                     common_initial_last,
-                     last_comma_first,
-                     # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
-                     last_comma_common
-
-  ) %>%
-    unique() %>%
-    str_subset("404error", negate = T) %>%
-    str_c(collapse = "|") %>%
-    tolower() ) %>%
-  ungroup()
+#   
+# # Replace NA names with "404error"
+# replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
+# 
+# members %<>% mutate_all(replace404)
+# 
+# members %<>%
+#   group_by(bioname) %>%
+#   mutate(pattern = c(first_last,
+#                      first_middle_last,
+#                      first_initial_last,
+#                      common_last,
+#                      common_middle_last,
+#                      common_initial_last,
+#                      last_comma_first,
+#                      # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
+#                      last_comma_common
+# 
+#   ) %>%
+#     unique() %>%
+#     str_subset("404error", negate = T) %>%
+#     str_c(collapse = "|") %>%
+#     tolower() ) %>%
+#   ungroup()
 
 
 # add any missing middle initials
