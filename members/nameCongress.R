@@ -405,7 +405,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Puerto Rico at-large	Resident Commissioner	Jenniffer González	Republican/NPP	2016
   # U.S. Virgin Islands at-large	Delegate	Stacey Plaskett	Democratic	2014
   
-  members %<>% mutate(middle_initial = ifelse(middle_initial=="", NA, middle_initial))
+  # Replace blanks with NA 
+  members %<>% 
+    mutate(middle_initial = ifelse(middle_initial == "", NA, middle_initial)) %>% 
+    mutate(middle_name = ifelse(middle_name == "", NA, middle_name))
   
   # Periods
   members$middle_initial %<>% str_remove("\\.")
@@ -452,10 +455,14 @@ members %<>%
   ungroup()
 
 
-members %>% 
-  mutate(ifelse(is.na(middle_initial) & !is.na(middle_name), 
+# add any missing middle initials
+members %<>% 
+  mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name), 
                       str_sub(middle_name, 1),
                       middle_initial)  )
+
+# mismatches between middle name and middle initial? 
+suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initial) & !is.na(middle_name))
 
 
   # causes problems, but should eventually be used for more targeted matching
