@@ -39,6 +39,9 @@ clean <- function(file.name) {
   
   
   # preprocess
+  data %<>%
+    mutate(FROM = str_remove(FROM, "INFORMATION "))
+  
   data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
   
   Nomembers <- data %>%
@@ -75,8 +78,8 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
   
- #unmatched <- d %>%
-    #filter(is.na(bioname))
+# unmatched <- d %>%
+ #   filter(is.na(bioname))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|LAUNCH PASSES|EMPLOYEE SEEKS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
