@@ -406,8 +406,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% mutate(middle_initial = ifelse(middle_initial=="", NA, middle_initial))
   
-  #members$middle_initial %<>% str_c(".")
-  #members$first_initial %<>% str_c(".")
+  # Periods
+  members$middle_initial %<>% str_remove("\\.")
+  members$first_initial %<>% str_remove("\\.")
+  members$middle_name %<>% str_remove("\\.")
   
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
@@ -424,31 +426,31 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_common = paste0(last_name, ", ", common_name) )
   
   
-## Replace NA names with "404error"
-  # replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
-  # 
-  # members %<>% mutate_all(replace404)
-  # 
-  # members %<>% 
-  #   group_by(bioname) %>% 
-  #   mutate(pattern = c(first_last, 
-  #                      first_middle_last,
-  #                      first_initial_last,
-  #                      common_last,
-  #                      common_middle_last,
-  #                      common_initial_last,
-  #                      last_comma_first,
-  #                      # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
-  #                      last_comma_common
-  # 
-  #   ) %>% 
-  #     unique() %>% 
-  #     str_subset("404error", negate = T) %>% 
-  #     str_c(collapse = "|") %>% 
-  #     tolower() ) %>% 
-  #   
-  #   ungroup()
-  
+# Replace NA names with "404error"
+replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
+
+members %<>% mutate_all(replace404)
+
+members %<>%
+  group_by(bioname) %>%
+  mutate(pattern = c(first_last,
+                     first_middle_last,
+                     first_initial_last,
+                     common_last,
+                     common_middle_last,
+                     common_initial_last,
+                     last_comma_first,
+                     # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
+                     last_comma_common
+
+  ) %>%
+    unique() %>%
+    str_subset("404error", negate = T) %>%
+    str_c(collapse = "|") %>%
+    tolower() ) %>%
+
+  ungroup()
+
 
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
