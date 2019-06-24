@@ -7,7 +7,9 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data <- data[-which(is.na(data$FROM)),]
+  #Filters out NA FROM too early
+  #data <- data[-which(is.na(data$FROM)),]
+  
   
   # format DATE to multiple formats
   data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
@@ -22,31 +24,39 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
 
-  # chamber
-  data$chamber <- ifelse(data$chamber == "HOUSE", 'House', data$chamber)
-  data$chamber <- ifelse(data$chamber == "SENATE", "Senate", data$chamber)
  
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(",", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ","))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
+  
+  data %<>%
+    mutate(FROM = str_split(FROM, ",")) %>%
+    unnest(FROM)
+  
+
   data$FROM <- gsub("House|Senate|Incoming", "", data$FROM, ignore.case = TRUE)
-  data <- data[!data$FROM == "",] # removes blank observations
+  #data <- data[!data$FROM == "",] # removes blank observations
   ################
+  
+  
+  # chamber
+  data$chamber <- ifelse(data$chamber == "HOUSE", 'House', data$chamber)
+  data$chamber <- ifelse(data$chamber == "SENATE", "Senate", data$chamber)
+  
   
   # preprocess
   data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
   
+  Nomembers <- data %>%
+    filter(is.na(FROM)) %>%
+    extractMemberName(members = members, col_name = "SUBJECT") %>%
+    filter( ! str_detect(SUBJECT, " LETTER TO THE HONORABLE ANNA ESHOO ")) %>%
+    drop_na(last_name)
+  
   data <- extractMemberName(data, members, 'FROM')
+  
+  data %<>%
+    full_join(Nomembers)
+  
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
   
