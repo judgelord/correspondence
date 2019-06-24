@@ -397,7 +397,7 @@ all_contacts %>%
   summarise(n = n() ) %>%
   ungroup() %>%
   spread(key = "FERC", value = "n") %>% 
-  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>% 
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, chamber, total, ShareToFERC) %>% 

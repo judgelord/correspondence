@@ -161,8 +161,6 @@ formatFirstName <- function(data, col_name){
 
 extractMemberName <- function(data, members, col_name){
   
-  data$Summary <- data[[col_name]]
-  
   data %<>% mutate(Summary = data[[col_name]])
 
   # clean up text
