@@ -452,6 +452,10 @@ members %<>%
   ungroup()
 
 
+members %>% 
+  mutate(ifelse(is.na(middle_initial) & !is.na(middle_name), 
+                      str_sub(middle_name, 1),
+                      middle_initial)  )
 
 
   # causes problems, but should eventually be used for more targeted matching
