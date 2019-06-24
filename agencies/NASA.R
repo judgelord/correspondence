@@ -94,9 +94,13 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
+  data %<>%
+    mutate(replace_na(chamber,"HOUSE AND SENATE"))
   
-# unmatched <- d %>%
- #   filter(is.na(bioname))
+  
+  
+#unmatched <- d %>%
+ #filter(is.na(bioname))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|LAUNCH PASSES|EMPLOYEE SEEKS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
