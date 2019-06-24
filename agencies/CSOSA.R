@@ -48,7 +48,16 @@ clean <- function(file.name) {
     mutate(FROM = str_trim(FROM)) %>%
     mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
  
-  data %<>% filter( ! FROM == "")
+  #data %<>% filter( ! FROM == "")
+  
+  NoFirst <- data %>%
+    filter(is.na(first_name) & ! is.na(last_name))
+  
+  #Add first name 
+  data %<>%
+    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
+  
+
   
   data %<>%
     mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
