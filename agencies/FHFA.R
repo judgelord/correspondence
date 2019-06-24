@@ -4,7 +4,7 @@
 #file.name <- "FHFA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+   data <- gs_title(file.name) %>% gs_read() # get data
   
 
   # create ID variable
@@ -89,11 +89,11 @@ clean <- function(file.name) {
   
   #Filter while working, comment out
   #data %<>%
-    #filter( ! FROM %in% c("Franks, Trent, Congressman of Arizona", "Lockhart, James, Director of FHFA",
-         #"Pratt, Leonard", "DeMarco, Edward, Acting Director",
-        #"Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
-         #"Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs",
-        #"Lockhart, James", "Marshall, Donald (OFHEO Contractor)", "Lenoir, Simuel"))
+   # filter( ! FROM %in% c("Franks, Trent, Congressman of Arizona", "Lockhart, James, Director of FHFA",
+    #     "Pratt, Leonard", "DeMarco, Edward, Acting Director",
+     #   "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist",
+      #   "Kelley, Eric, Associate Director for Internal Audit", "Brereton, Peter, Associate Director for Congressional Affairs",
+      #  "Lockhart, James", "Marshall, Donald (OFHEO Contractor)", "Lenoir, Simuel"))
 
   #Clean to run getFirstLast.Comma
   data %<>%
@@ -113,7 +113,8 @@ clean <- function(file.name) {
   #Filters for names still unmatched
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members = members, col_name = "SUBJECT")
+    extractMemberName(members = members, col_name = "SUBJECT") %>% 
+    select(ID, DATE, FROM, first_name, last_name, SUBJECT, everything())
 
   #Drops duplicate NAs when rejoined  
   Unfoundnames %<>%
@@ -125,13 +126,11 @@ clean <- function(file.name) {
   
   data %<>% select(ID, DATE, FROM, first_name, last_name, SUBJECT, chamber, everything())
   
-  data %<>% filter(!FROM == "") # removes blank observations
+  data %<>%
+    mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
+    filter(! Blank)
   
-  #Unmatched
-  unmatched <- data %>%
-    filter(is.na(last_name))
-  #John, Cook could be John Cooksey; however Cooksey did not serve in 2011
-  # Mike, Fitzgerald might be Mike, Fitzpatrick
+ 
   
   Foundnames <- data %>%
     drop_na(last_name)
@@ -139,8 +138,19 @@ clean <- function(file.name) {
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "32 more congressmen"), "Multiple unnamed Members", NOTES))
   
+  #Format last name and put in last_name  
   data %<>%
-    mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+    mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  
+  #Unmatched
+  unmatched <- data %>%
+    filter(is.na(last_name))
+  #John, Cook could be John Cooksey; however Cooksey did not serve in 2011
+  # Mike, Fitzgerald might be Mike, Fitzpatrick
+  
+  #Check after run through merge
+  #Unfoundnames <- d %>%
+  #filter(is.na(bioname))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())

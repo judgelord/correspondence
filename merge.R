@@ -12,7 +12,6 @@ send_message(mime(
   From = "correspondenceresearch@gmail.com",
   Subject =  "Begin merge",
   body = ""))
-
 # note for MERGING: 
 # all columns in d are class character except DATE, year, and congress (see clean.R)
 # in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
@@ -26,11 +25,12 @@ send_message(mime(
 # coders = coder names that proceed the agency name in the title of their google sheet, e.g. c("Adam", "Avery") for "EPA Adam" and "EPA Avery" sheets
 
 
-data_list <- as.data.frame(matrix(c(        
-  
-# Agency, c(coded, not coded, recoded), coders,
+data_list <- tribble(
+  ~agency, ~status, ~coders,   
+# Agency sheet name, status = c("coded", "not coded", "recoded"), coders = c("coder1", "coder2", ...),
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
+"CNCS", "not coded", NA,
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
@@ -69,7 +69,8 @@ data_list <- as.data.frame(matrix(c(
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
- "DOJ_CIV", "not coded", NA, 
+ "DOJ_CIV", "not coded", NA,
+"DOJ_EOIR", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_MSHA", "not coded", NA, 
@@ -88,6 +89,7 @@ data_list <- as.data.frame(matrix(c(
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+"EOP_CEQ", "not coded", NA,
 #"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
@@ -98,9 +100,11 @@ data_list <- as.data.frame(matrix(c(
 # FDA
 "FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
 # FHFA
- "FHFA", "not coded", NA, #
+"FHFA", "not coded", NA, #
 # FMC
 # "FMC", "not coded", NA,   # no members contacts, just OMB and reports to congress 
+#FTC
+"FTC", "not coded", NA,
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
 # HUD
@@ -127,8 +131,9 @@ data_list <- as.data.frame(matrix(c(
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
-# "Treasury_Mint", "not coded", NA, # rich and complete, but not on drive needs to be assembled
+# "Treasury_Mint", "not coded", NA, # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
+"TVA", "not coded", NA,
 # USDA 
 "USDA", "not coded", NA,
 # "USDA_ARS", "not coded", NA, # No script, data doesn't have dates
@@ -141,9 +146,9 @@ data_list <- as.data.frame(matrix(c(
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA,
-"VA_CEM", "not coded", NA 
-), ncol = 3, byrow = T))
-names(data_list) <- c("agency", "status", "coders")
+"VA_CEM", "not coded", NA,
+"VA", "not coded", NA
+)
 data_list
 
 
@@ -156,19 +161,14 @@ data_list
 # initialize for full merge (default)
 i <- 1
 # or choose one agency
-<<<<<<< HEAD
-i <- which(data_list$agency == "VA_CEM") 
-=======
 
-i <- which(data_list$agency == "FHFA") 
-# i <- which(data_list$agency == "DOD_OSDJS") 
+i <- which(data_list$agency == "DOJ_EOIR")
 
-i <- which(data_list$agency == "USDA_RMA") 
->>>>>>> 66e2c7ddb629999040add00e8248da95b84bdde2
-# i <- which(data_list$agency == "Treasury_OCC") 
-d1 <- clean.agency(agency = data_list[i, 1],
-                     status = data_list[i, 2],
-                     coders = data_list[i, 3])
+d1 <- clean.agency(
+  agency = as.character(data_list[i, 1]),
+  status = as.character(data_list[i, 2]),
+  coders = as.character(data_list[i, 3])
+)
 
 d1 %>% filter(!is.na(last_name)) %>% count(congress)
 
@@ -182,6 +182,7 @@ d <- d1 %>% # and merge with voteview data
   distinct()
 
 d %>% filter(!is.na(last_name)) %>% count(year)
+d %>% filter(!is.na(icpsr)) %>% count(year)
 ####################
 
 
@@ -196,15 +197,16 @@ d %>% filter(!is.na(last_name)) %>% count(year)
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 head(data_list)
 
-i = 1
+i <- 1
 while(!is.na(data_list[i,1])) {
   
   print(data_list[i,1])
   
   d1 <- clean.agency(
-    agency = data_list[i, 1],
-    status = data_list[i, 2],
-    coders = data_list[i, 3]) 
+    agency = as.character(data_list[i, 1]),
+    status = as.character(data_list[i, 2]),
+    coders = as.character(data_list[i, 3]))
+  
   d1 %<>% 
     left_join(members) %>% 
     select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
@@ -249,6 +251,8 @@ d$icpsr %<>% as.numeric()
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 
 # party switchers etc
+# FIXME
+# Jeffords switched parties fix in MemberNameDateCorrections.R
 d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
 
 #######################
@@ -301,10 +305,13 @@ bad.names.1 <- d %>%
  
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
+  ungroup() %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
-bad.names.2 %>% group_by(agency) %>% summarise(n = n()) %>% arrange(-n)
+
+worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
+worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency) %>% arrange(-n)  %>% top_n(100)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -361,6 +368,9 @@ bad.party <- d %>%
 ###############################################
 
 d %<>% ungroup()
+# FIXME
+# This is where observations that failed to match in Voteview get dropped. 
+
 df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
 committees %<>% select(-party) # drop Stewart committee data party codes 
 
@@ -762,6 +772,8 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   
   save(bad.names.1, file = "data/bad.names.1.RData")
   save(bad.names.2, file = "data/bad.names.2.RData")
+  save(worst.agencies, file = "data/worst.agencies.Rdata")
+  save(worst.names, file = "data/worst.names.Rdata")
   save(bad.dates, file = "data/bad.dates.RData")
   save(bad.party, file = "data/bad.party.RData")
   # save(bad.committees.1, file = "data/bad.committees.1.RData")

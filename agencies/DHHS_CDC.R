@@ -1,7 +1,6 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
 # 1204 out of 1316 matches. I think all non-matches are non-members after checking, should be good. 
 # Complete
 
@@ -10,8 +9,6 @@
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
-  
-
   
   #Create LetterID
   data %<>%
@@ -102,11 +99,19 @@ clean <- function(file.name) {
     filter(is.na(last_name)) %>%
     extractMemberName(members = members, col_name = "Titles")
   
+  Unfoundnames %>% 
+    mutate(found = !is.na(last_name)) %>% 
+    count(found)
+  
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
     extractMemberName(members = members, col_name =  "SUBJECT") %>%
     drop_na(last_name)
+  
+  Unfoundnames2 %>% 
+    mutate(found = !is.na(last_name)) %>% 
+    count(found)
   
   Unfoundnames %<>%
     drop_na(last_name)
@@ -121,13 +126,12 @@ Unfoundnames2 %<>%
 data %<>%
   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
   
-  
-#Rejoin data that pulls authors from FROM, Titles & SUBJECT
+
   data %<>%
     full_join(Unfoundnames)
   
-  data %<>%
-    full_join(Unfoundnames2)
+   data %<>%
+     full_join(Unfoundnames2)
   
   
   #Filter for observations with un-named authors
