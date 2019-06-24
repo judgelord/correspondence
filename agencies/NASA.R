@@ -94,10 +94,10 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
-  data %<>%
-    mutate(replace_na(chamber,"HOUSE AND SENATE"))
   
-  
+  #Making chamber NA for "HOUSE AND SENATE"
+  is.na(data$chamber) <- data$chamber == "HOUSE AND SENATE"
+
   
 #unmatched <- d %>%
  #filter(is.na(bioname))
