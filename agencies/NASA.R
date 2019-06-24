@@ -55,8 +55,17 @@ clean <- function(file.name) {
   data %<>%
     mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
   
-  data$first_name <- addFirst(data$first_name,data$last_name)
-
+  NoChamber <- data %>%
+    filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
+   
+ NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
+  
+  data %<>%
+    filter( ! (str_detect(chamber, "HOUSE AND SENATE") &  is.na(first_name)))
+  
+  data %<>%
+    full_join(NoChamber)
+  
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
   
@@ -65,6 +74,9 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
+  
+ #unmatched <- d %>%
+    #filter(is.na(bioname))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|LAUNCH PASSES|EMPLOYEE SEEKS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
