@@ -21,6 +21,10 @@ clean <- function(file.name) {
   data$agency <- file.name
 
  
+  
+  #Makes note for multiple authors
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(chamber, "HOUSE AND SENATE"), "Multiple members", NOTES))
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   
@@ -60,14 +64,21 @@ clean <- function(file.name) {
   
   NoChamber <- data %>%
     filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
+  data %<>%
+    anti_join(NoChamber)
    
  NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
+ 
+ # arrange columns for hand coding
+ NoChamber %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
-  data %<>%
-    filter( ! (str_detect(chamber, "HOUSE AND SENATE") &  is.na(first_name)))
+ data %<>%
+   full_join(NoChamber)
+ 
+  #data %<>%
+   # filter( !str_detect(chamber, "HOUSE AND SENATE")| ! is.na(first_name))
   
-  data %<>%
-    full_join(NoChamber)
+ 
   
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
@@ -76,7 +87,8 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^(AND|STATE)$",FROM), 'Inspect', ERROR))
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, chamber,  FROM, everything())
+  data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
+  
   
 # unmatched <- d %>%
  #   filter(is.na(bioname))
