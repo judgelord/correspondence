@@ -31,6 +31,7 @@ data_list <- tribble(
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
+"CSOSA", "not coded", NA,
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
@@ -162,7 +163,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOJ_EOIR")
+i <- which(data_list$agency == "CSOSA")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
