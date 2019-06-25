@@ -76,6 +76,10 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Duncan") & is.na(first_name), "Multiple Duncan's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Markey") & is.na(first_name), "Multiple Markey's FOIA", NOTES))
+  
   data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
   
   #Check unmatching after merge
