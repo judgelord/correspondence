@@ -124,7 +124,7 @@ data %<>% distinct() %>%
     mutate(ERROR = ifelse(grepl("Peggy Sherry",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Madeleine Z. Bordallo",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Stewart Baker",FROM),"Not in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(grepl("Jay M. Cohen",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Jay M. Cohen",FROM),"Not in congress", ERROR))
 
   # fix FROM 
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
