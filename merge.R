@@ -664,7 +664,8 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before merging oversight data 
 
 # Add agency names by acronym from the FOIA List google sheet
-df %<>% left_join(read_csv("data/_FOIA_list.csv"))
+df %<>% left_join(
+  read_csv("data/_FOIA_list.csv") %>% mutate(agency = str_remove(agency, "_$")))
 
 
 
@@ -780,3 +781,4 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   save(bad.committees.2, file = "data/bad.committees.2.RData")
 }
 
+look <- df %>% count(agency, Department)

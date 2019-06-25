@@ -1238,5 +1238,7 @@ findTypos <- function(from){
       # join in members data by pattern 
       left_join(members %>% select(pattern, first_name, last_name, congress)) %>% 
       select(-from) # %>% select(FROM, pattern, first_name, last_name)
+    
+    return(data)
   }
   
