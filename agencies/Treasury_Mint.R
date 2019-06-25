@@ -35,11 +35,18 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(SUBJECT, "Congressman|Rep.|Con. |con. "), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(SUBJECT, "Sen |Sen."), "Senate", chamber))
   
-  
-  
+ lastnames <- str_c(members$last_name, collapse = "|")
+
+ memberlastnames <- data %>%
+   filter(str_detect(SUBJECT, lastnames))
+   
+ memberletters <- data %>%
+   filter(str_detect(SUBJECT, "entative|REPRESENTATIVE |SENATOR |CONGRESSMAN "))
+ 
   #Extract member names from SUBJECT
   data %<>%
     extractMemberName(members = members, col_name = "SUBJECT")
+
   
   Unfoundnames<- data %>%
     filter(is.na(last_name))

@@ -36,6 +36,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
     mutate(first_initial = gsub("^(\\w).*",  "\\1", first_name)) %>% 
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% 
+    mutate(maiden_name = NA) %>%
+    
+    # maiden names
+    mutate(maiden_name = ifelse(bioname == "HUTCHISON, Kathryn Ann Bailey (Kay)", "Bailey", maiden_name)) %>% 
+    mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
      
     # common names
     mutate(common_name = ifelse(first_name == "Daniel", "Dan", common_name)) %>%
@@ -233,7 +238,6 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # middle name
     mutate(middle_name = ifelse(bioname == "PLATTS, Todd", "Russell", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "CARTER, Buddy", "Leroy", middle_name)) %>% 
-    mutate(middle_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "GRIFFITH, H. Morgan", "Morgan", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "HARRIS, Kamala Devi", "Devi", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "CLARKE, Yvette", "Diane", middle_name)) %>% 
@@ -270,7 +274,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_initial = ifelse(bioname == "KUCINICH, Dennis", "J", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "SMITH, Adrian", "M", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "THUNE, John", "R", middle_initial)) %>% 
-    mutate(middle_initial = ifelse(bioname == "HUTCHISON, Kathryn Ann Bailey (Kay)", "B", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "HUTCHISON, Kathryn Ann Bailey (Kay)", "A", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "WALZ, Tim", "J", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "SARBANES, John", "P", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "SALAZAR, John", "T", middle_initial)) %>% 
@@ -365,8 +369,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "KILDEE, Dan","T", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "GRUCCI, Jr., Felix J.","J", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "WARREN, Elizabeth","A", middle_initial)) %>%
-  
-     
+  mutate(middle_initial = ifelse(bioname == "HASSAN, Margaret (Maggie)","C", middle_initial))
+   
+
+ members %<>%    
   # first names
     mutate(first_name = ifelse(bioname == "BARLETTA, Lou", "Louis", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "FORBES, J. Randy", "James", first_name)) %>%
@@ -411,7 +417,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Replace blanks with NA 
   members %<>% 
     mutate(middle_initial = ifelse(middle_initial == "", NA, middle_initial)) %>% 
-    mutate(middle_name = ifelse(middle_name == "", NA, middle_name))
+    mutate(middle_name = ifelse(middle_name == "", NA, middle_name)) #%>% 
+  # seo middle names don't get us anything, and this just ends up filling in middle names with last names 
+    #mutate(middle_name = ifelse(is.na(middle_initial), str_remove_all(seo_name, ".*?-|-.*"), middle_name))
   
   # Periods
   members$middle_initial %<>% str_remove("\\.")
@@ -428,34 +436,51 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   
   members %<>% 
+    ungroup() %>% 
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
            # last_comma_initial = paste0(last_name, ", ", first_initial),
-           last_comma_common = paste0(last_name, ", ", common_name) )
+           last_comma_common = paste0(last_name, ", ", common_name),
+           chamber_last = paste(chamber, last_name) %>% 
+             str_replace("Senate", "Senator") %>% 
+             str_replace("House", "Congressman"))
   
-#   
-# # Replace NA names with "404error"
-# replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
-# 
-# members %<>% mutate_all(replace404)
-# 
-# members %<>%
-#   group_by(bioname) %>%
-#   mutate(pattern = c(first_last,
-#                      first_middle_last,
-#                      first_initial_last,
-#                      common_last,
-#                      common_middle_last,
-#                      common_initial_last,
-#                      last_comma_first,
-#                      # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
-#                      last_comma_common
-# 
-#   ) %>%
-#     unique() %>%
-#     str_subset("404error", negate = T) %>%
-#     str_c(collapse = "|") %>%
-#     tolower() ) %>%
-#   ungroup()
+  # drop chamber_last when there are multiple members with the same last name in that chamber 
+  # FIXME -- may be able to do this by congress if matching by congress in the future
+  last_name_count <- members %>% 
+    select(last_name, chamber, bioname) %>%  
+    distinct() %>%     
+    count(last_name, chamber) %>% 
+    rename(last_name_count = n)
+  
+  members %<>% 
+    full_join(last_name_count) %>% 
+    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last))
+
+
+# Replace NA names with "404error"
+replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
+
+members %<>% mutate_all(replace404)
+
+members %<>%
+  group_by(bioname) %>%
+  mutate(pattern = c(first_last,
+                     first_middle_last,
+                     first_initial_last,
+                     common_last,
+                     common_middle_last,
+                     common_initial_last,
+                     last_comma_first,
+                     # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
+                     chamber_last, 
+                     last_comma_common
+
+  ) %>%
+    unique() %>%
+    str_subset("404error", negate = T) %>%
+    str_c(collapse = "|") %>%
+    tolower() ) %>%
+  ungroup()
 
 
 # add any missing middle initials

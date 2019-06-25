@@ -39,19 +39,24 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19"))
   
   data %<>%
-    mutate(str_replace(FROM, "Thompson Glen  \"GT\"", "Thompson Glen"))
+    mutate(FROM = str_replace(FROM, "Thompson Glen  \"GT\"", "Thompson Glenn"))
              
   
   data %<>% select(ID, DATE, FROM, everything())  
 
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  data %<>%
+    extractMemberName(members = members, col_name = "FROM")
   
   data %<>% filter(!FROM == "")
   
   #Format last name and put in last_name  
   data %<>%
-    mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+    mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.| ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  
+  #Add first name 
+  data %<>%
+    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
   #data %<>%
    # mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
@@ -65,7 +70,7 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   
   #Check after run through merge
-  #Unfoundnames <- d %>%
+ # Unfoundnames <- d %>%
   #filter(is.na(bioname))
   
   return(data)
