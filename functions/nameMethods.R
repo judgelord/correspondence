@@ -846,8 +846,11 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Wi( |$)", "\\1Will\\2", FROM)
   FROM <- gsub("(^| )Way( |$)", "\\1Wally\\2", FROM)
   FROM <- gsub("(^| )Key( |$)", "\\1Kelly\\2", FROM)
-  FROm <- gsub("([A-Z])(55)([A-Z])", "\\1SS\\2",FROM)
-  FROm <- gsub("([A-Z])(5)([A-Z])", "\\1S\\2",FROM)
+  FROM <- gsub("([A-Z])(55)([A-Z])", "\\1SS\\2",FROM)
+  FROM <- gsub("([A-Z])(5)([A-Z])", "\\1S\\2",FROM)
+  FROM <- gsub("A1 ", "Al ", FROM)
+  FROM <- gsub(" 1. ", " L. ", FROM)
+  FROM <- gsub("Hany", "Harry", FROM)
   
   
   # other errors
