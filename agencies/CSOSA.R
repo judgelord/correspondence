@@ -21,6 +21,9 @@ clean <- function(file.name) {
   
   #Make ??? NA
  #Format Date
+  data$DATE %<>% as.Date("%m/%d/%y")
+  data$`Date of Reply/Contact` %<>% as.Date("%m/%d/%y")
+  
   data %<>%
     mutate(DATE = if_else(is.na(DATE), `Date of Reply/Contact`, DATE))
   data$DATE %<>% as.Date("%d/%m/%y")
