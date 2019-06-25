@@ -6,9 +6,13 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
-  #Create ID
+  #Create LetterID
   data %<>%
-    mutate(ID = row_number())
+    mutate(LetterID = row_number())
+ 
+  data %<>%
+    mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
+    filter(! Blank)
   
   #create agency column
   data$agency <- file.name 
@@ -48,7 +52,7 @@ clean <- function(file.name) {
     mutate(FROM = str_trim(FROM)) %>%
     mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
  
-  #data %<>% filter( ! FROM == "")
+
   
   NoFirst <- data %>%
     filter(is.na(first_name) & ! is.na(last_name))
@@ -57,17 +61,18 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
-
-  
+  #Create ID
   data %<>%
-    mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
-    filter(! Blank)
+    mutate(ID = row_number())
+  
  
-
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Committee"), "Committee", NOTES))
   
    data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
+   
+   Unfound <- data %>%
+     filter(is.na(last_name))
   
    #Check after run through merge
    #Unfoundnames <- d %>%
