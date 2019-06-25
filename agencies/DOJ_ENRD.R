@@ -25,12 +25,23 @@ clean <- function(file.name) {
 
   #chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Congressman |Rep.|Con. |con. |Congresswoman "), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Congressman |Rep.|Con. |con. |Congresswoman |MCs "), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen |Sen.|Senator "), "Senate", chamber))  
   
+  data %<>%
+    mutate(FROM = str_replace(FROM, ", Jr.", " Jr.")) %>%
+    mutate(FROM = str_replace(FROM, ", II", " II")) %>%
+    mutate(FROM = str_replace(FROM, ", Jr", " Jr"))
   
+  data %<>%
+    mutate(FROM = str_split(FROM, ",")) %>%
+    unnest(FROM)
   
+  data %<>%
+    extractMemberName(members = members, col_name = "FROM")
   
+  unfoundnames <- data %>%
+    filter(is.na(last_name))
   
   
   
