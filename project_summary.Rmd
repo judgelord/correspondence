@@ -35,7 +35,7 @@ kable(read_csv(here("data/_FOIA_response_table.csv")) %>% select(-X1))
 
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?  
 
-```{r missing_data, fig.height=8}
+```{r missing_data, fig.height=10}
 df %>% 
   filter(!is.na(agency)) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
@@ -96,7 +96,7 @@ df %>%
 
 All time-series analysis below subsets to agencies with ten years of data.   
 
-```{r data_by_type}
+```{r data_by_type, fig.height=4, fig.width=6}
 df %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
@@ -163,6 +163,7 @@ df %>%
         axis.text.x.top = element_text())
 
 ```  
+
 #### Censoring 
 
 Unfortunately, much our data are censored around the 2008-2009 and 2016-2017 party transitions, some the most informative time periods in our study period. 
@@ -512,7 +513,7 @@ ggplot() + # plot
 
 ```  
 
-```{r member_distance_above_mean_by_agency}
+```{r member_distance_above_mean_by_agency, fig.height=6}
 # member-agency distance from the mean (cross-tab/tile)
 Chamber = "House"
 
@@ -558,7 +559,7 @@ Our data show limited support for the importance of formal oversight powers in d
 
 In the Senate, these high-contact committees align with those considered 'prestige' committees along with Aging, Agriculture, Banking, Health, and Judiciary committees. Prestige Senate committees are consistently on the high end of distribution of requests coming in to each agency.
 
-```{r committee_deptSenate}
+```{r committee_deptSenate, fig.height=6}
 Chamber <- "Senate"
 # zeros
 zeros <- data_frame(
@@ -596,7 +597,7 @@ data <- dcommittees %>%
 
 In the House, the Transportation, Energy, Financial Services, Armed Services, and Appropriations Committees are the most active. Notably, members of the Budget, Rules, and Ways and Means committees, often considered prestige appointments, are not as active. 
 
-```{r committee_deptHouse}
+```{r committee_deptHouse, fig.height=5}
 Chamber <- "House"
 # zeros
 zeros <- data_frame(
@@ -700,7 +701,7 @@ df %>%
         legend.title = element_blank())
 ```
 
-```{r party_mean_by_month_agency}
+```{r party_mean_by_month_agency, fig.height=6}
 df %>% 
   filter(DATE < as.Date("2017-01-01") ) %>% 
   mutate(month = as.Date(paste0(month, "-01"), "%Y-%m-%d")) %>% 
@@ -751,25 +752,25 @@ In the House, both parties average just slightly more letters per year while in 
 Not much. There are possible indications that more mainstream Republicans are more likely to write about policy, especially on behalf of businesses, than their far right colleagues. 
 
 ```{r ideology_density, fig.height=3, fig.width=3}
-  df %>% 
-    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
-  summarise(perYear = n()) %>% ungroup() %>%
-      group_by(nominate.dim1, nominate.dim2, chamber) %>% 
-  summarise(mean = mean(perYear)) %>% ungroup() %>%
-    ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE Scores",
-       x = "Ideology Score",
-       y = "Mean Number of Letters Per Year") + 
-  facet_grid(. ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
-          #axis.ticks = element_blank(),
-          #axis.text.y = element_blank(),
-          legend.title = element_blank())
-  
+  # df %>% 
+  #   group_by(nominate.dim1, nominate.dim2, member_state, year, chamber) %>% 
+  # summarise(perYear = n()) %>% ungroup() %>%
+  #     group_by(nominate.dim1, nominate.dim2, chamber) %>% 
+  # summarise(mean = mean(perYear)) %>% ungroup() %>%
+  #   ggplot() +
+  #   geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+  #     geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  # labs(title = "Average Number of Letters per Year by NOMINATE Scores",
+  #      x = "Ideology Score",
+  #      y = "Mean Number of Letters Per Year") + 
+  # facet_grid(. ~ chamber, scales = "free_y") + 
+  #   theme(#axis.title.x = element_blank(),
+  #         #axis.ticks = element_blank(),
+  #         #axis.text.y = element_blank(),
+  #         legend.title = element_blank())
+  # 
 
 
 df %>% 
@@ -814,26 +815,26 @@ df %>%
       strip.text.y = element_text(size = 5),
           legend.title = element_blank())
   
-  df %>% 
-    filter(Type != "To be coded") %>% 
-    group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type) %>% 
-  summarise(perYear = n()) %>% ungroup() %>%
-      group_by(nominate.dim1, nominate.dim2, chamber, Type) %>% 
-  summarise(mean = mean(perYear)) %>% ungroup() %>%
-    ggplot() +
-    geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
-      geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
-  geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
-  labs(title = "Average Number of Letters per Year by NOMINATE Scores and Type",
-       x = "Ideology Score",
-       y = "Mean Number of Letters Per Year") + 
-  facet_grid(Type ~ chamber, scales = "free_y") + 
-    theme(#axis.title.x = element_blank(),
-          #axis.ticks = element_blank(),
-          #axis.text.y = element_blank(),
-      strip.text.y = element_text(size = 5),
-          legend.title = element_blank())
+  # df %>% 
+  #   filter(Type != "To be coded") %>% 
+  #   group_by(nominate.dim1, nominate.dim2, member_state, year, chamber, Type) %>% 
+  # summarise(perYear = n()) %>% ungroup() %>%
+  #     group_by(nominate.dim1, nominate.dim2, chamber, Type) %>% 
+  # summarise(mean = mean(perYear)) %>% ungroup() %>%
+  #   ggplot() +
+  #   geom_point(aes(x = nominate.dim1, y = mean,color = "D1"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim1, y = mean, color = "D1") ) + 
+  #     geom_point(aes(x = nominate.dim2, y = mean, color = "D2"), alpha = .1) + 
+  # geom_smooth(aes(x = nominate.dim2, y = mean, color = "D2") ) + 
+  # labs(title = "Average Number of Letters per Year by NOMINATE Scores and Type",
+  #      x = "Ideology Score",
+  #      y = "Mean Number of Letters Per Year") + 
+  # facet_grid(Type ~ chamber, scales = "free_y") + 
+  #   theme(#axis.title.x = element_blank(),
+  #         #axis.ticks = element_blank(),
+  #         #axis.text.y = element_blank(),
+  #     strip.text.y = element_text(size = 5),
+  #         legend.title = element_blank())
 ```
 
 ## Institutional position: formal and informal power
