@@ -125,7 +125,7 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = ifelse( grepl("SERRANO",FROM,ignore.case=TRUE)&grepl("Jos",FROM,ignore.case=TRUE), "Jose", first_name)) %>%
     
     mutate(first_name = gsub(pattern = "Christoher", replacement = "Christopher", first_name,ignore.case=TRUE)) %>% 
-    mutate(first_name = gsub(pattern = "Hilllary|Hilary", replacement = "Hillary", first_name,ignore.case=TRUE)) %>% 
+    mutate(first_name = gsub(pattern = "Hilllary|Hilary|Fillary", replacement = "Hillary", first_name,ignore.case=TRUE)) %>% 
     mutate(first_name = gsub(pattern = "Babara", replacement = "Barbara", first_name,ignore.case=TRUE)) %>% 
     mutate(first_name = gsub(pattern = "Colin", replacement = "Collin", first_name,ignore.case=TRUE)) %>% 
     mutate(first_name = gsub(pattern = "Melisssa", replacement = "Melissa", first_name,ignore.case=TRUE)) %>% 
@@ -931,7 +931,8 @@ typos_clear <- tribble(
   "Inhofe", "Tnhofe",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
-  "Darrell Issa", "DarrellIssa"
+  "Darrell Issa", "DarrellIssa",
+  "Lujan", "Luj..n"
 )
 
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
@@ -1241,7 +1242,5 @@ findTypos <- function(from){
       # join in members data by pattern 
       left_join(members %>% select(pattern, first_name, last_name, congress)) %>% 
       select(-from) # %>% select(FROM, pattern, first_name, last_name)
-    
-    return(data)
   }
   
