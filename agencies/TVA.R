@@ -6,9 +6,9 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
-  #Create ID
+  #Create LetterID
   data %<>%
-    mutate(ID = row_number())
+    mutate(LetterID = row_number())
   
   #create agency column
   data$agency <- file.name 
@@ -47,7 +47,18 @@ clean <- function(file.name) {
   
   #Checks for NAs
   Unfoundnames <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name)) 
+  
+  Unfoundnames %<>%
+    extractMemberName(members = members, col_name = "SUBJECT") %>%
+    drop_na(last_name)
+
+  data %<>%
+    full_join(Unfoundnames)
+  
+  #Create ID
+  data %<>%
+    mutate(ID = row_number())
   
   #Error for state leg
   data %<>%
@@ -57,6 +68,17 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_trim(FROM)) %>%
     mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  
+  NoFirst <- data %>%
+    filter(is.na(first_name))
+  
+  #Add first name 
+  data %<>%
+    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
+  
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Duncan") & is.na(first_name), "Multiple Duncan's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Markey") & is.na(first_name), "Multiple Markey's FOIA", NOTES))
   
   data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
   

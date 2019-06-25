@@ -4,7 +4,7 @@
 
 #file.name <- "DHS_HQ Anna" # for testing
 
-#file.name <- "DHS_HQ Anna" ##testing 24 June
+# file.name <- "DHS_HQ Anna" ## testing 25 June
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() # get data
@@ -125,6 +125,20 @@ data %<>% distinct() %>%
     mutate(ERROR = ifelse(grepl("Madeleine Z. Bordallo",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Stewart Baker",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Jay M. Cohen",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Donna M. Christensen",FROM),"Not in congress", ERROR))
+  
+  #Delete common names inside quotes
+  data %<>%
+    mutate(FROM=str_remove(FROM,"\".*\"|'’.*\"|\".*”"))
+  
+  #Testing for fake quotes
+  
+  #str_remove("\"Butch\"","\"Butch\"")
+  
+  #data %>% filter(WF==175481) %>% select(FROM) 
+  
+  # data %>%
+    # filter(str_detect(FROM,"Thornberry")) %>% extractMemberName(members, 'FROM') %>% select(FROM) 
 
   # fix FROM 
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
@@ -151,15 +165,16 @@ data %<>% distinct() %>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
     mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
   
-  ## Testing
-# 
-#   look<-data %>%
-#     filter(is.na(last_name)) %>%
-#     count(FROM,congress) %>%
+# Testing 
+
+# look<-data %>%
+#     filter(is.na(last_name),is.na(ERROR)) %>%
+#     count(FROM) %>%
 #     arrange(-n)
 # 
 # 
-# 
+# # 
+# # 
 #   sample <- data %>%
 #   filter(is.na(last_name))
 #   View(sample)
