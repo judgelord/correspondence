@@ -43,6 +43,10 @@ clean <- function(file.name) {
   unfoundnames <- data %>%
     filter(is.na(last_name))
   
+ # data %<>%
+  #  mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis\\' FOIA", NOTES))
+    
+  
   
   
   return(data)
