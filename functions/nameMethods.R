@@ -931,7 +931,8 @@ typos_clear <- tribble(
   "Inhofe", "Tnhofe",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
-  "Darrell Issa", "DarrellIssa"
+  "Darrell Issa", "DarrellIssa",
+  "Lujan", "Luj..n"
 )
 
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
