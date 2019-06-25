@@ -394,8 +394,6 @@ data %>%
    mutate(first_name = ifelse(grepl("LARRICK", Summary,ignore.case = TRUE), "Rick", first_name)) %>% 
    mutate(last_name = ifelse(grepl("BOUSTANY", Summary,ignore.case = TRUE), "BOUSTANY", last_name)) %>% 
    mutate(first_name = ifelse(grepl("BOUSTANY", Summary,ignore.case = TRUE), "Charles", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("King", Summary,ignore.case = TRUE)&grepl("Jr", Summary,ignore.case = TRUE), "KING", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("King", Summary,ignore.case = TRUE)&grepl("jr", Summary,ignore.case = TRUE), "Angus", first_name)) %>% 
    mutate(last_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "HINOJOSA", last_name)) %>% 
    mutate(first_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "Ruben", first_name)) %>% 
    mutate(last_name = ifelse(grepl("Payne", Summary,ignore.case = TRUE)&grepl("Don", Summary,ignore.case = TRUE), "PAYNE", last_name)) %>% 
