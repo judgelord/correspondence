@@ -203,8 +203,8 @@ extractMemberName <- function(data, members, col_name){
 
   # Common TYPOS 
   data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-  data$Summary <- gsub("Shelly", "Shelley", data$Summary)
-  # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
+  # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #can't do this because some people may have name Shelly
+  # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is too common of a string 
   data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
   data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
   
@@ -1016,7 +1016,7 @@ typos_last <- tribble(
   "Blaine", "Luetkemeyer", "Leautkemeyer",
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
-  "Catherine", "Cortez Masto", "Mastro",
+  "Catherine", "Cortez Masto", "Cortez Mastro",
   "Charles", "Rangel", "Ranger",
   "Christopher", "Van Hollen", "Van Kollen",
   "Gary", "Ackerman", "Acherman",
@@ -1052,7 +1052,7 @@ typos_first <- tribble(
   "Ric", "Keller", "Rick", 
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
-  "Shelley","Capito", "Shelly", 
+  "Shelly","Capito", "Shelley", 
   "Charles", "Schumer", "Charls", 
   "Julia", "Carson", "Julie", 
   "Tom", "Barrett", "Mark", 
@@ -1210,7 +1210,7 @@ findTypos <- function(from){
     
     # drop paragraph breaks and trailing white space 
     data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-    data$Summary <- gsub("Courntey", "Courtney", data$Summary)
+    data$Summary <- gsub("Courntey", "Courtney", data$Summary) #fixed this in clear table
     
     
     
