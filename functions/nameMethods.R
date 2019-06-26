@@ -10,6 +10,9 @@ formatLastName <- function(data, col_name){
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
     # correct capitalization to match last names in members data 
+    
+    #case corrections, not touching at the moment
+    
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -932,7 +935,15 @@ typos_clear <- tribble(
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
-  "Lujan", "Luj..n"
+  "Lujan", "Luj..n",
+  "Phil", "Phill",
+  "LaMalfa", "LaMalfn",
+  "Courntey", "Courtney",
+  "Kirsten", "Kirstein",
+  "Gerlach", "Gerlah",
+  "Darlene", "Darene",
+  "Rodham", "Redham"
+
 )
 
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
@@ -956,7 +967,7 @@ typos_last <- tribble(
   "David", "Schweikert", "Schweikerl",
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
-  "Steve", "Scalise", "Scalise",
+  "Steve", "Scalise", "Scallise",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
@@ -981,7 +992,7 @@ typos_last <- tribble(
   "Jery", 'Costello', "Costelo",
   "Jerry", "Kleczka", "Kyleczka",
   "John", "Barrow", "Barroy",
-  "Jeff", "Merkley", "Merkly",
+  "Jeff", "Merkley", "(Merkly|Merkeley)",
   "James", "Jeffords", "(Jefford|Jeffers)",
   "Jack", "Kingston", "Kington",
   "Greg", "Walden", "Wilden",
@@ -1001,7 +1012,14 @@ typos_last <- tribble(
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
   "Raja", "KRISHNAMOORTHI", "Krishnamoothi",
-  "Barbara", "Mikulski", "Milkulski"
+  "Barbara", "Mikulski", "Milkulski",
+  "Raul", "GRIJALVA", "Grijalva",
+  "Ruben", "Hinojosa", "Hinohosa",
+  "George", "Lemieux", "Lemieuz",
+  "Tom", "Periello", "Perielo"
+  
+
+  
   
 ) %>% 
   mutate(typos = str_c(paste(first_name, last_name_typos), 
@@ -1047,7 +1065,9 @@ typos_first <- tribble(
   "Chris", "Stewart", "Cris",
   "Hillary", "Clinton", "Fillary",
   "Filemon", "Vela", "Filimon",
-  "Elizabeth", "Esty", "Elezabeth"
+  "Elizabeth", "Esty", "Elezabeth",
+  "Arthur", "Davis", "Arthur",
+  "Patrick", "Leahy", "Ted"
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
@@ -1091,7 +1111,7 @@ typos_common_name <-  tribble(
     "Jon", "S", "Corize", "C",
     "David", "N", "Cicilline", "(R|L|P)",
     "David", "B", "McKinley", "P",
-    "James", "R", "Lanegevin", "P",
+    "James", "R", "Langevin", "P",
     "James", "M", "Inhofe", "N",
     "Charles", "H", "Taylor", "F",
     "Eliot", "L", "Engel", "E",
@@ -1107,6 +1127,9 @@ typos_common_name <-  tribble(
  
  
  # #Fixes name typo (from DOL_SOL)
+ 
+ #added names into miscellaneous tables above
+ 
  # data$FROM %<>%
  #   str_replace("Davis, Arthur", "Davis, Artur") %>%
  #   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
@@ -1192,8 +1215,11 @@ findTypos <- function(from){
     
     
     # Common TYPOS 
+    
+    # added to new table of typos
+    
     data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-    data$Summary <- gsub("Shelly", "Shelley", data$Summary)
+    # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #we can't do this one either because some people may have Shelly as their name
     # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
     data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
     data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
