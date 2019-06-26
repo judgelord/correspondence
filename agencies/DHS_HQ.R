@@ -4,8 +4,6 @@
 
 #file.name <- "DHS_HQ Anna" # for testing
 
-# file.name <- "DHS_HQ Anna" ## testing 25 June
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() # get data
   
@@ -53,14 +51,11 @@ data %<>% distinct() %>%
   
   # Format date, year, Congress, member name etc.
 
+  #sum(is.na(data$DATE))
+  # Replace missing dates with "original date" column
   data$DATE[which(is.na(data$DATE))] <- as.Date(data$originalDATE[which(is.na(data$DATE))], "%m/%d/%Y") 
-  
-  
-
-
   #sum(is.na(data$DATE))
    
-  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
@@ -70,6 +65,7 @@ data %<>% distinct() %>%
   data %<>%
     mutate(chamber = ifelse (grepl("Senator", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("Congressman", FROM), "House", chamber)) %>% 
+    # fix incorrect or missing chamber
     mutate(chamber = ifelse(grepl("Ben Sasse", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Charles Grassley", FROM), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("Dianne Feinstein", FROM), "Senate", chamber)) %>% 
@@ -112,7 +108,6 @@ data %<>% distinct() %>%
     mutate(ERROR = ifelse(grepl("Nelson Peacock", FROM), "President of Northwest Arkansas Council. Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Lee Morris", FROM), "Not in Congress", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Michael Chertoff", FROM), "Former United States Secretary of Homeland Security", ERROR)) %>%
-    
     mutate(ERROR = ifelse(grepl("Thomas S. Winkowski",FROM),"Not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Donald H. Kent",FROM),"Not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Chani Wiggins",FROM),"Not in Congress", ERROR)) %>%
@@ -132,7 +127,6 @@ data %<>% distinct() %>%
     mutate(FROM=str_remove(FROM,"\".*\"|'’.*\"|\".*”"))
   
   #Testing for fake quotes
-  
   #str_remove("\"Butch\"","\"Butch\"")
   
   #data %>% filter(WF==175481) %>% select(FROM) 
@@ -140,9 +134,11 @@ data %<>% distinct() %>%
   # data %>%
     # filter(str_detect(FROM,"Thornberry")) %>% extractMemberName(members, 'FROM') %>% select(FROM) 
 
-  # fix FROM 
+  # fix FROM
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
   data$FROM <- gsub(",", ".", data$FROM)
+  
+  # typos which should now be corrected in nameMethods
   #data$FROM <- gsub("Ti m |Tim ", "", data$FROM)
   data$FROM <- gsub("Ti m ", "Tim ", data$FROM)
   #data$FROM <- gsub("l l|ll", "", data$FROM)
@@ -154,9 +150,14 @@ data %<>% distinct() %>%
   data$FROM <- gsub(" 1. ", " L. ", data$FROM)
   data$FROM <- gsub("Hany", "Harry", data$FROM)
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
-
-  # adds "ll" to names that were misread and other ocr errors
-  #data$FROM <- ocr.errors(data$FROM)
+  
+  data$FROM %<>% str_replace("Charles E„ Schumer", "Charles E. Schumer")
+  
+  
+  # TESTING MYSTERIOUS BAD NAMES 
+  # FIXME before committing
+  # data %<>% filter(str_detect(FROM, "Charles E. Schumer|Bill Nelson|Arlen Specter|Barbara A. Mikulski"))
+  
   
   # names 
   data <- extractMemberName(data, members, 'FROM')
