@@ -10,6 +10,9 @@ formatLastName <- function(data, col_name){
   data %<>%
     mutate(last_name = str_to_upper(last_name)) %>% 
     # correct capitalization to match last names in members data 
+    
+    #case corrections, not touching at the moment
+    
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -1004,7 +1007,9 @@ typos_last <- tribble(
   "Barbara", "Mikulski", "Milkulski",
   "Raul", "GRIJALVA", "Grijalva",
   "Ruben", "Hinojosa", "Hinohosa",
-  "George", "Lemieux", "Lemieuz"
+  "George", "Lemieux", "Lemieuz",
+  "Tom", "Periello", "Perielo"
+  
 
   
   
