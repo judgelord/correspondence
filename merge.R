@@ -499,25 +499,34 @@ df %<>%
                                   year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
                                 1, 0)) 
 
-# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN 
-#FIXME
-df$icpsr %<>% as.numeric()
 
-df %<>% left_join(
-  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr) %>% mutate(icpsr = as.numeric(icpsr))
-)
 
-# TOTALS
+# TOTALS PER YEAR 
 df %<>% 
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
 # clean up problems with party switchers etc. that may have come in with merge 
+df$icpsr %<>% as.numeric()
 df %<>% fix.member.date.coding()
 df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 
+# MEMBER DEMOGRAPHICS 
 
+# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN 
+df %<>% 
+  # merge LEP data into df 
+  left_join(
+    # read in the LEP data 
+    read_csv("members/LEP111to113.csv") %>% 
+      # just grabbing female variable for now
+      select(icpsr, female) %>% 
+      # distinct icpsr-gender combinations
+      distinct() %>% 
+      #make ICPSR numbers numeric to merge with df
+      mutate(icpsr = as.numeric(icpsr))
+  )
 
 
 
@@ -676,6 +685,9 @@ df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland 
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
+df %<>% mutate(Department = ifelse(agency == "USDA", "Department of Agriculture", Department))
+df %<>% mutate(Department = ifelse(agency == "HUD_HQ", "Department of Housing and Urban Development", Department))
+
 
 
 df %<>% left_join(
