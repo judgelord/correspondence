@@ -754,6 +754,9 @@ getFirstLast.Comma <- function(data, col_name){
    #Remove colums. Comment out for debugging
  # data <- subset(data, select = -c(first, last, first_last, FROM2))
   
+  #Drop first_last column
+  data %<>%
+    select(-first_last)
   
   return(data)
 }
