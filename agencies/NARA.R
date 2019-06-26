@@ -17,9 +17,10 @@ clean <- function(file.name) {
   
   # Rename to standard column names 
   data %<>% 
-    rename(SUBJECT = Description,
+    mutate(SUBJECT = Description,
            DATE = Date,
-           FROM = `Member of Congress`) 
+           FROM = `Member of Congress`)  %>%
+    select(DATE, FROM, SUBJECT, everything())
   
   # create agency column
   data %<>% 

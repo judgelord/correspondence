@@ -29,10 +29,12 @@ formatLastName <- function(data, col_name){
 
     
     # Spelling and specific corrections
+    #fixed and added names to correct tables
+    
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
     mutate(last_name = gsub("DUNCAN JOHN.*", replacement = "DUNCAN", last_name)) %>% 
     mutate(last_name = gsub("JOHNSON HENRY.*", replacement = "JOHNSON", last_name)) %>% 
-    mutate(last_name = gsub("BONO MACK.*", replacement = "BONO", last_name)) %>% 
+    mutate(last_name = gsub("BONO MACK.*", replacement = "BONO", last_name)) %>% #this should be Mary not Mack 
     mutate(last_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "ROCKEFELLER", last_name)) %>% 
     mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name)) %>% 
 
@@ -942,7 +944,17 @@ typos_clear <- tribble(
   "Kirsten", "Kirstein",
   "Gerlach", "Gerlah",
   "Darlene", "Darene",
-  "Rodham", "Redham"
+  "Rodham", "Redham",
+  "Elizabeth", "Elezabeth",
+  "Jeffrey", "Jeflrey",
+  "Barbara", "Barabara",
+  
+  ###############################
+  
+  # Changing first name and last name errors
+  "John Duncan", "Duncan John",
+  "Henry Johnson", "Johnson Henry",
+  "Mary Bono", "Bono Mary"
 
 )
 
@@ -1016,7 +1028,9 @@ typos_last <- tribble(
   "Raul", "GRIJALVA", "Grijalva",
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
-  "Tom", "Periello", "Perielo"
+  "Tom", "Periello", "Perielo",
+  "Stephanie", "(Herseth|Sandlin)", "Herseth Sandlin",
+  "John", "ROCKEFELLER", "ROCKFELLER"
   
 
   
@@ -1050,11 +1064,9 @@ typos_first <- tribble(
   "Patrick", "Leahy", "Partrick", 
   "Ralph", "Regula", "Raplh", 
   "Chris", "Gibson", "Cris", 
-  "Barbara", "Boxer", "Barabara",
   "Ron", "Estes", "(John|Jon)",
   "Dean", "Heller", "Den",
   "Dennis", "Cardoza", "Dinnes",
-  "Jeffrey", "Merkley", "Jeflrey",
   "Harry", "Reid", "Hary",
   "George", "Voinovich", "Geaorge",
   "Candice", "Miller", "Candance",
@@ -1065,9 +1077,10 @@ typos_first <- tribble(
   "Chris", "Stewart", "Cris",
   "Hillary", "Clinton", "Fillary",
   "Filemon", "Vela", "Filimon",
-  "Elizabeth", "Esty", "Elezabeth",
-  "Arthur", "Davis", "Arthur",
-  "Patrick", "Leahy", "Ted"
+  "Arthur", "Davis", "Artur",
+  "Patrick", "Leahy", "Ted",
+  "Mary", "Bono", "Mack"
+
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
