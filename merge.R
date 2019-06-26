@@ -86,12 +86,13 @@ data_list <- tribble(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
- "DOT_FTA", "not coded", NA, 
+"DOT_FTA", "not coded", NA, 
+# "DOT_PHSMA, "not coded", NA, # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
 "EOP_CEQ", "not coded", NA,
-#"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
+#"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
@@ -109,15 +110,15 @@ data_list <- tribble(
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
 # HUD
- "HUD_HQ", "not coded", NA,
+"HUD_HQ", "not coded", NA,
 # IRS 
- "IRS", "not coded", NA, # rolling release
+"IRS", "not coded", NA, # rolling release
 # NARA
-  "NARA", "not coded", NA,
+"NARA", "not coded", NA,
 # NASA
- "NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
+"NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
 # NCPC
- "NCPC", "not coded", NA,
+"NCPC", "not coded", NA,
 "NCUA", "not coded", NA, 
 "NLRB" , "not coded", NA,
 # OSMRE
@@ -163,7 +164,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "CSOSA")
+i <- which(data_list$agency == "DHS_HQ")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -684,6 +685,9 @@ df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland 
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
+df %<>% mutate(Department = ifelse(agency == "USDA", "Department of Agriculture", Department))
+df %<>% mutate(Department = ifelse(agency == "HUD_HQ", "Department of Housing and Urban Development", Department))
+
 
 
 df %<>% left_join(

@@ -8,12 +8,13 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
-  #Create ID
+  #Create LetterID
   data %<>%
-    mutate(ID = row_number())
+    mutate(LetterID = row_number())
   
   #create agency column
   data$agency <- file.name
+  
   
   #Format Date
   data$tempDATE<- data$DATE %>% as.Date("%m/%d/%y")
@@ -25,31 +26,73 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-
+#String Split for Multiple Members
   data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and|Rep. |Sen. |(S), |(CW), |(CM), ")) %>%
     unnest(FROM)
   
+  #Create Chamber Variable
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen. |\\(S\\)|Sen "), "Senate", NA)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Rep. |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. "), "House", chamber))
   
+  #Remove in FROM
   data %<>%
     mutate(FROM = str_remove(FROM, "Sen. |\\)")) %>%
-    mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19"))
+    mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19| CM"))
   
+  #Typos
   data %<>%
-    mutate(FROM = str_replace(FROM, "Thompson Glen  \"GT\"", "Thompson Glenn"))
-             
+   mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn")) %>%
+   mutate(FROM = str_replace(FROM, "Merkley letter", "Merkley")) %>%
+   mutate(FROM = str_replace(FROM, "Hall NY-19", "Hall")) %>%
+   mutate(FROM = str_replace(FROM, "Hodes CM", "Hodes"))
+ 
   
-  data %<>% select(ID, DATE, FROM, everything())  
+  data %<>% select(LetterID, DATE, FROM, everything())  
 
-  
+  #Extract Member names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
   
+  #Remove Blank Spaces
   data %<>% filter(!FROM == "")
   
+  #ERRORS Not members
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Gov |Gov.|Mayor"), "State Politician", ERROR))
+  
+  #Filter while working
+  #data %<>%
+    #filter( ! str_detect(FROM, "Gov |Gov.|Mayor"))
+  
+  
+  data %<>%
+    mutate(FROM = str_trim(FROM))
+  
+  #Filter for stil unnamed
+  Unfoundnames <- data %>%
+    filter(is.na(last_name) & str_detect(FROM, " ") & ! str_detect(FROM, ", "))
+  
+  #Split data
+  data %<>%
+    anti_join(Unfoundnames)   
+  
+  #Format Last First with comma
+  Unfoundnames %<>%
+    mutate(FROM = str_replace(FROM, " ", ", "))
+  
+  #Get member names
+  Unfoundnames <- getFirstLast.Comma(Unfoundnames, 'FROM')
+  
+  #Rejoin data
+  data %<>%
+    full_join(Unfoundnames)
+  
+  #Create ID
+  data %<>%
+    mutate(ID = row_number())
+      
   #Format last name and put in last_name  
   data %<>%
     mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.| ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
@@ -58,16 +101,14 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
-  #data %<>%
-   # mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
-    #mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
-  
+ 
+ #Notes for multiple unnamed members 
   data %<>%
-    mutate(NOTES = ifelse(str_detect(Title, "Multi"), "Multiple unnamed members", NOTES)) %>%
-    mutate(ERROR = ifelse(str_detect(Title, "Gov"), "State Governor", ERROR))
+    mutate(NOTES = ifelse(str_detect(Title, "Multi"), "Multiple unnamed members", NOTES))
   
   Unfound <- data %>%
     filter(is.na(last_name))
+  
   
   #Check after run through merge
  # Unfoundnames <- d %>%
