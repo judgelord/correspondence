@@ -33,8 +33,10 @@ clean <- function(file.name) {
   
   #Create Chamber Variable
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Sen. |\\(S\\)|Sen "), "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Rep. |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. "), "House", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Sen. |\\(S\\)|Sen |Sens. |"), "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rep. |\\(CW\\)|\\(CM\\)|Rep |Reps. "), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(Title, "CM|CW"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(Title, "S"), "Senate", chamber))
   
   #Remove in FROM
   data %<>%
@@ -46,7 +48,12 @@ clean <- function(file.name) {
    mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn")) %>%
    mutate(FROM = str_replace(FROM, "Merkley letter", "Merkley")) %>%
    mutate(FROM = str_replace(FROM, "Hall NY-19", "Hall")) %>%
-   mutate(FROM = str_replace(FROM, "Hodes CM", "Hodes"))
+   mutate(FROM = str_replace(FROM, "Hodes CM", "Hodes")) %>%
+   mutate(FROM = str_replace(FROM, "Markey", "MARKEY Edward")) %>%
+   mutate(FROM = str_replace(FROM, "Gillibrand", "GILLIBRAND Kirsten")) %>%
+   mutate(FROM = str_replace(FROM, "NH, Delegation Sens. Ayotte", "Senator Ayotte")) %>%
+   mutate(FROM = str_replace(FROM, "Ryan, P.", "RYAN Paul")) %>%
+   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH Christopher"))
  
   
   data %<>% select(LetterID, DATE, FROM, everything())  
@@ -64,7 +71,7 @@ clean <- function(file.name) {
   
   #Filter while working
   #data %<>%
-    #filter( ! str_detect(FROM, "Gov |Gov.|Mayor"))
+   # filter( ! str_detect(FROM, "Gov |Gov.|Mayor"))
   
   
   data %<>%
@@ -109,9 +116,21 @@ clean <- function(file.name) {
   Unfound <- data %>%
     filter(is.na(last_name))
   
+ 
+  #FOIA
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Udall|udall") & is.na(first_name), "Multiple Udall's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Levin") & is.na(first_name) & is.na(chamber), "Multiple Levin's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Bass") & is.na(first_name), "Multiple Bass' FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Brown") & is.na(first_name) & is.na(chamber), "Multiple Brown's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Alexander") & is.na(first_name) & is.na(chamber), "Multiple Alexander's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Reed") & is.na(first_name) & is.na(chamber), "Multiple Reed's FOIA", NOTES))
+  
+  nochamber <- data %>%
+    filter(is.na(first_name) & is.na(chamber) & is.na(NOTES))
   
   #Check after run through merge
- # Unfoundnames <- d %>%
+ #Unmatched <- d %>%
   #filter(is.na(bioname))
   
   return(data)
