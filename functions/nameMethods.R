@@ -936,15 +936,14 @@ typos_clear <- tribble(
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
   "Lujan", "Luj..n",
-  "Zoe", "Toe",
-  "Jim", "Jime",
   "Phil", "Phill",
   "LaMalfa", "LaMalfn",
   "Courntey", "Courtney",
   "Kirsten", "Kirstein",
   "Gerlach", "Gerlah",
-  "Barack", "Brack",
-  "Darlene", "Darene"
+  "Darlene", "Darene",
+  "Rodham", "Redham"
+
 )
 
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
@@ -1112,7 +1111,7 @@ typos_common_name <-  tribble(
     "Jon", "S", "Corize", "C",
     "David", "N", "Cicilline", "(R|L|P)",
     "David", "B", "McKinley", "P",
-    "James", "R", "Lanegevin", "P",
+    "James", "R", "Langevin", "P",
     "James", "M", "Inhofe", "N",
     "Charles", "H", "Taylor", "F",
     "Eliot", "L", "Engel", "E",
@@ -1128,6 +1127,8 @@ typos_common_name <-  tribble(
  
  
  # #Fixes name typo (from DOL_SOL)
+ 
+ #added names into miscellaneous tables above
  
  # data$FROM %<>%
  #   str_replace("Davis, Arthur", "Davis, Artur") %>%
@@ -1214,6 +1215,7 @@ findTypos <- function(from){
     
     
     # Common TYPOS 
+    
     # added to new table of typos
     
     data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
