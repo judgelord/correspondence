@@ -948,7 +948,7 @@ typos_clear <- tribble(
   "Lujan", "Luj..n",
   "Phil", "Phill",
   "LaMalfa", "LaMalfn",
-  "Courntey", "Courtney",
+  "Courtey", "Courntney",
   "Kirsten", "Kirstein",
   "Gerlach", "Gerlah",
   "Darlene", "Darene",
@@ -956,12 +956,13 @@ typos_clear <- tribble(
   "Elizabeth", "Elezabeth",
   "Jeffrey", "Jeflrey",
   "Barbara", "Barabara",
-  "Vel.zquez", "Velazquez",
-  "L.ncoln", "Lincoln",
-  "T.mothy", "Timothy",
+  "Velazquez", "Vel.zquez",
+  "Lincoln", "L.ncoln",
+  "Timothy", "T.mothy",
   "(Mcarthur|Mccarthur)", "MacArthur",
   "(Midlael|Michaell|Micahel)", "Michael",
   "Martrin", "Martin",
+  "Cardenas", "C.rdenas",
   
   ###############################
   
@@ -1054,7 +1055,10 @@ typos_last <- tribble(
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
   "Shelley", "Capito", "Moore Capito",
-  "James", "(Inholfe|Imhofe|Imholfe|Inhoffe)", "Inhofe"
+  "James", "(Inholfe|Imhofe|Imholfe|Inhoffe)", "Inhofe",
+  "Yvette", "Clarke", "Clark",
+  "Maurice", "Hinchey", "Henchey",
+  
   
   
 
