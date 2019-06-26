@@ -74,7 +74,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse(grepl("Inholfe|Imhofe|Imholfe|Inhoffe", last_name,ignore.case=TRUE), "INHOFE", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("Barrat|Barret", last_name,ignore.case=TRUE), "BARRETT", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Stebenow", last_name,ignore.case=TRUE), "STABENOW", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("C.rdenas", last_name,ignore.case=TRUE), "CARDENAS", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("C.rdenas", last_name,ignore.case=TRUE), "CARDENAS", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("Vel.zquez", last_name,ignore.case=TRUE), "VELAZQUEZ", last_name)) %>% #fixed
    
     #fixed
@@ -955,13 +955,13 @@ typos_clear <- tribble(
   "Rodham", "Redham",
   "Elizabeth", "Elezabeth",
   "Jeffrey", "Jeflrey",
-  "Barbara", "Barabara",
+  "Barbara", "(Babara|Barabara)",
   "Velazquez", "Vel.zquez",
   "Lincoln", "L.ncoln",
   "Timothy", "T.mothy",
-  "(Mcarthur|Mccarthur)", "MacArthur",
-  "(Midlael|Michaell|Micahel)", "Michael",
-  "Martrin", "Martin",
+  "MacArthur","(Mcarthur|Mccarthur)",
+  "Michael", "(Midlael|Michaell|Micahel)",
+  "Martin","Martrin", 
   "Cardenas", "C.rdenas",
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
@@ -1062,6 +1062,7 @@ typos_last <- tribble(
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka"
+  
   
   
 ) %>% 
