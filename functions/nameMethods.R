@@ -761,6 +761,8 @@ getFirstLast.Comma <- function(data, col_name){
 
 # Fixes common errors when names read in from OCR
 # May need adjustments for different agencies/formats
+
+
 ocr.errors <- function(FROM){
   
   # adds deleted "ll" to last names
@@ -855,7 +857,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("([A-Z])(5)([A-Z])", "\\1S\\2",FROM)
   FROM <- gsub("A1 ", "Al ", FROM)
   FROM <- gsub(" 1. ", " L. ", FROM)
-  FROM <- gsub("Hany", "Harry", FROM)
+  FROM <- gsub("Hany", "Harry", FROM) 
   
   
   # other errors
@@ -863,7 +865,7 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl(" Cha", FROM)&grepl("((^| )Ja)|(J a.son)", FROM)&grepl('etz', FROM), gsub("J.*?n","Jason", FROM), FROM)
   FROM <- ifelse(grepl(" Cha", FROM)&grepl("((^| )Ja)|(J a.son)", FROM)&grepl('etz', FROM), gsub("Ch.*?z","Chaffetz", FROM), FROM)
   FROM <- ifelse(grepl("Tom", FROM)&grepl("Cobum|Co bum", FROM), gsub("Cobum|Co bum", "Coburn", FROM), FROM)
-  FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM)
+  FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM) #fixed
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
   FROM <- ifelse(grepl("Comyn|Com yn|Cobum|Corvyn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn|Corvyn","Cornyn", FROM), FROM)
   FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
@@ -872,7 +874,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("Cwnmings", 'Cummings', FROM) # fixed
   FROM <- gsub("Tnhofe", "Inhofe", FROM) # fixed
   FROM <- gsub("Ellrners","Ellmers", FROM) # fixed 
-  FROM <- gsub("TONKA", "TONKO", FROM)
+  FROM <- gsub("TONKA", "TONKO", FROM) #fixed
   FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Coryn( |$|,)", "\\1Cornyn\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Connelly( |$|,)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
@@ -888,8 +890,8 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Marry( |$|,)", "\\1Mary\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )T MOTHY( |$|,)", "\\1Timothy\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )L NCOLN( |$|,)", "\\1Lincoln\\2", FROM, ignore.case = TRUE)
-  FROM <- gsub("(^| )Wydon( |$|,)", "\\1Wyden\\2", FROM, ignore.case = TRUE)
-  FROM <- gsub("(^| )Klobachur( |$|,)", "\\Klobuchar\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Wydon( |$|,)", "\\1Wyden\\2", FROM, ignore.case = TRUE) #fixed
+  FROM <- gsub("(^| )Klobachur( |$|,)", "\\Klobuchar\\2", FROM, ignore.case = TRUE) #fixed
   
   
   
@@ -948,6 +950,7 @@ typos_clear <- tribble(
   "Elizabeth", "Elezabeth",
   "Jeffrey", "Jeflrey",
   "Barbara", "Barabara",
+  "Vel.zquez", "Velazquez",
   
   ###############################
   
@@ -1030,7 +1033,10 @@ typos_last <- tribble(
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
   "Stephanie", "(Herseth|Sandlin)", "Herseth Sandlin",
-  "John", "ROCKEFELLER", "ROCKFELLER"
+  "John", "ROCKEFELLER", "ROCKFELLER",
+  "Ron", "Wyden", "Wydon",
+  
+
   
 
   
