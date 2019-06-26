@@ -981,7 +981,7 @@ typos_last <- tribble(
   "Jery", 'Costello', "Costelo",
   "Jerry", "Kleczka", "Kyleczka",
   "John", "Barrow", "Barroy",
-  "Jeff", "Merkley", "Merkly",
+  "Jeff", "Merkley", "(Merkly|Merkeley)",
   "James", "Jeffords", "(Jefford|Jeffers)",
   "Jack", "Kingston", "Kington",
   "Greg", "Walden", "Wilden",
@@ -1001,7 +1001,12 @@ typos_last <- tribble(
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
   "Raja", "KRISHNAMOORTHI", "Krishnamoothi",
-  "Barbara", "Mikulski", "Milkulski"
+  "Barbara", "Mikulski", "Milkulski",
+  "Raul", "GRIJALVA", "Grijalva",
+  "Ruben", "Hinojosa", "Hinohosa",
+  "George", "Lemieux", "Lemieuz"
+
+  
   
 ) %>% 
   mutate(typos = str_c(paste(first_name, last_name_typos), 
