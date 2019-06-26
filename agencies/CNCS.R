@@ -53,7 +53,8 @@ clean <- function(file.name) {
    mutate(FROM = str_replace(FROM, "Gillibrand", "GILLIBRAND Kirsten")) %>%
    mutate(FROM = str_replace(FROM, "NH, Delegation Sens. Ayotte", "Senator Ayotte")) %>%
    mutate(FROM = str_replace(FROM, "Ryan, P.", "RYAN Paul")) %>%
-   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH Christopher"))
+   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH Christopher")) %>%
+   mutate(FROM = str_replace(FROM, "Bass", "Charlie Bass"))  
  
   
   data %<>% select(LetterID, DATE, FROM, everything())  
@@ -121,7 +122,6 @@ clean <- function(file.name) {
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Udall|udall") & is.na(first_name), "Multiple Udall's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Levin") & is.na(first_name) & is.na(chamber), "Multiple Levin's FOIA", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Bass") & is.na(first_name), "Multiple Bass' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Brown") & is.na(first_name) & is.na(chamber), "Multiple Brown's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Alexander") & is.na(first_name) & is.na(chamber), "Multiple Alexander's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Reed") & is.na(first_name) & is.na(chamber), "Multiple Reed's FOIA", NOTES))
