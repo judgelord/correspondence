@@ -935,7 +935,16 @@ typos_clear <- tribble(
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
-  "Lujan", "Luj..n"
+  "Lujan", "Luj..n",
+  "Zoe", "Toe",
+  "Jim", "Jime",
+  "Phil", "Phill",
+  "LaMalfa", "LaMalfn",
+  "Courntey", "Courtney",
+  "Kirsten", "Kirstein",
+  "Gerlach", "Gerlah",
+  "Barack", "Brack",
+  "Darlene", "Darene"
 )
 
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
@@ -959,7 +968,7 @@ typos_last <- tribble(
   "David", "Schweikert", "Schweikerl",
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
-  "Steve", "Scalise", "Scalise",
+  "Steve", "Scalise", "Scallise",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
@@ -1057,7 +1066,9 @@ typos_first <- tribble(
   "Chris", "Stewart", "Cris",
   "Hillary", "Clinton", "Fillary",
   "Filemon", "Vela", "Filimon",
-  "Elizabeth", "Esty", "Elezabeth"
+  "Elizabeth", "Esty", "Elezabeth",
+  "Arthur", "Davis", "Arthur",
+  "Patrick", "Leahy", "Ted"
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
@@ -1117,6 +1128,7 @@ typos_common_name <-  tribble(
  
  
  # #Fixes name typo (from DOL_SOL)
+ 
  # data$FROM %<>%
  #   str_replace("Davis, Arthur", "Davis, Artur") %>%
  #   str_replace("Gillibrand, Kirstein", "Gillibrand, Kirsten") %>%
@@ -1202,8 +1214,10 @@ findTypos <- function(from){
     
     
     # Common TYPOS 
+    # added to new table of typos
+    
     data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-    data$Summary <- gsub("Shelly", "Shelley", data$Summary)
+    # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #we can't do this one either because some people may have Shelly as their name
     # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
     data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
     data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
