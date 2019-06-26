@@ -25,29 +25,52 @@ clean <- function(file.name) {
 
   #chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Congressman |Rep.|Con. |con. |Congresswoman |MCs "), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Congressman |Rep.|Con. |con. |Congresswoman |MCs |Cong. |congress |cong.|Reresentatives|Congressmen |Cong."), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen |Sen.|Senator "), "Senate", chamber))  
   
   data %<>%
     mutate(FROM = str_replace(FROM, ", Jr.", " Jr.")) %>%
     mutate(FROM = str_replace(FROM, ", II", " II")) %>%
-    mutate(FROM = str_replace(FROM, ", Jr", " Jr"))
+    mutate(FROM = str_replace(FROM, ", Jr", " Jr")) %>%
+    mutate(FROM = str_replace(FROM, "Cong. Timothy Ryan Cong. Betty Sutton", "Cong. Timothy Ryan, Cong. Betty Sutton"))
   
   data %<>%
-    mutate(FROM = str_split(FROM, ",")) %>%
+    mutate(FROM = str_remove(FROM, "Congressman |Rep.|Con. |con. |Congresswoman |MCs |Cong. |congress |cong.|Reresentatives|Congressmen |Cong.")) %>%
+    mutate(FROM = str_remove(FROM, "Sen |Sen.|Senator "))
+  
+  data %<>%
+    mutate(FROM = str_split(FROM, ",| and ")) %>%
     unnest(FROM)
   
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
   
-  unfoundnames <- data %>%
+  NoChamber <- data %>%
+    filter(is.na(chamber))
+  
+  Unfoundnames <- data %>%
     filter(is.na(last_name))
   
- # data %<>%
-  #  mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis\\' FOIA", NOTES))
+ 
+  #Format last name and put in last_name  
+  data %<>%
+    mutate(FROM = str_trim(FROM)) %>%
+    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  
+  NoFirst <- data %>%
+    filter(is.na(first_name))
+  
+  #Add first name 
+  data %<>%
+    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name)) 
+
+  
+  # data %<>%
+    # mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES))
     
-  
-  
+  #Filter to use after merge
+ # Unmatched <- d %>%
+   # filter(is.na(bioname))
   
   return(data)
   
