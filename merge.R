@@ -676,6 +676,9 @@ df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland 
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
+df %<>% mutate(Department = ifelse(agency == "USDA", "Department of Agriculture", Department))
+df %<>% mutate(Department = ifelse(agency == "HUD_HQ", "Department of Housing and Urban Development", Department))
+
 
 
 df %<>% left_join(
