@@ -68,12 +68,12 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse(grepl("Hollen", FROM,ignore.case=TRUE), "VAN HOLLEN", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Masto", FROM,ignore.case=TRUE), "CORTEZ MASTO", last_name)) %>% 
     
-    mutate(last_name = ifelse(grepl("Roybal", last_name,ignore.case=TRUE), "ROYBAL-ALLARD", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("RAHALL", last_name,ignore.case=TRUE), "RAHALL", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("BEUTLER", last_name,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Roybal", last_name,ignore.case=TRUE), "ROYBAL-ALLARD", last_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("RAHALL", last_name,ignore.case=TRUE), "RAHALL", last_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("BEUTLER", last_name,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("Inholfe|Imhofe|Imholfe|Inhoffe", last_name,ignore.case=TRUE), "INHOFE", last_name)) %>% #fixed
-    mutate(last_name = ifelse(grepl("Barrat|Barret", last_name,ignore.case=TRUE), "BARRETT", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("Stebenow", last_name,ignore.case=TRUE), "STABENOW", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("Barrat|Barret", last_name,ignore.case=TRUE), "BARRETT", last_name)) %>%  #fixed
+    mutate(last_name = ifelse(grepl("Stebenow", last_name,ignore.case=TRUE), "STABENOW", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("C.rdenas", last_name,ignore.case=TRUE), "CARDENAS", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("Vel.zquez", last_name,ignore.case=TRUE), "VELAZQUEZ", last_name)) %>% #fixed
    
@@ -965,13 +965,15 @@ typos_clear <- tribble(
   "Cardenas", "C.rdenas",
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
+
   
   ###############################
   
   # Changing first name and last name errors
   "John Duncan", "Duncan John",
   "Henry Johnson", "Johnson Henry",
-  "Mary Bono", "Bono Mary"
+  "Mary Bono", "Bono Mary",
+  "Nick Rahall", "Rahall Nick"
   
 
 )
@@ -1013,7 +1015,7 @@ typos_last <- tribble(
   "Jon", "Porter", "(Poster|Parter)",
   "David", "Cicilline", "Cicillin",
   "David", "Vitter", "Vilter",
-  "Debbie", "Stabenow", "Stabeno",
+  "Debbie", "Stabenow", "(Stebenow|Stabeno)",
   "Dianne", "Feinstein", "Feinsten",
   "Don", "Nickles", "Nickels",
   "Doug", "Lamborn", "(Lamborg|Lambon)",
@@ -1061,7 +1063,11 @@ typos_last <- tribble(
   "James", "(Inholfe|Imhofe|Imholfe|Inhoffe)", "Inhofe",
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
-  "Chaka", "Fattah", "Chakka"
+  "Chaka", "Fattah", "Chakka",
+  "Kirsten", "Gillibrand", "Gillbrand",
+  "James","Barrett", "(Barrat|Barret)",
+  "Jaime", "HERRERA BEUTLER", "BEUTLER",
+  "Lucille", "ROYBAL-ALLARD", "Roybal"
   
   
   
