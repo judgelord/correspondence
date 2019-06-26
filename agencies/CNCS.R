@@ -39,8 +39,9 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19"))
   
   data %<>%
-    mutate(FROM = str_replace(FROM, "Thompson Glen  \"GT\"", "Thompson Glenn"))
-             
+   mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn")) %>%
+   mutate(FROM = str_replace(FROM, "Merkley, letter", "Merkley"))
+ 
   
   data %<>% select(ID, DATE, FROM, everything())  
 
@@ -50,6 +51,29 @@ clean <- function(file.name) {
   
   data %<>% filter(!FROM == "")
   
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Gov |Gov.|Mayor"), "State Politician", ERROR))
+  
+  #data %<>%
+   # filter( ! str_detect(FROM, "Gov |Gov.|Mayor"))
+  
+  data %<>%
+    mutate(FROM = str_trim(FROM))
+  
+  Unfoundnames <- data %>%
+    filter(is.na(last_name) & str_detect(FROM, " "))
+  
+  data %<>%
+    anti_join(Unfoundnames)   
+  
+  Unfoundnames %<>%
+    mutate(FROM = str_replace(FROM, " ", ", "))
+  
+  Unfoundnames <- getFirstLast.Comma(Unfoundnames, 'FROM')
+  
+  data %<>%
+    full_join(Unfoundnames)
+      
   #Format last name and put in last_name  
   data %<>%
     mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.| ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
@@ -65,9 +89,15 @@ clean <- function(file.name) {
   data %<>%
     mutate(NOTES = ifelse(str_detect(Title, "Multi"), "Multiple unnamed members", NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(Title, "Gov"), "State Governor", ERROR))
+ 
   
   Unfound <- data %>%
     filter(is.na(last_name))
+  
+  data %>%
+    filter(ID == 355) %>%
+    select(FROM) %>%
+    mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn"))    
   
   #Check after run through merge
  # Unfoundnames <- d %>%
