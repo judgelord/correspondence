@@ -62,7 +62,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse(grepl("Wasserman", FROM,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% 
     mutate(last_name = ifelse(grepl("McMorris", FROM,ignore.case=TRUE), "McMORRIS RODGERS", last_name)) %>% 
     mutate(last_name = ifelse(grepl("ROS-LEHTINEN", FROM ,ignore.case=TRUE), "ROS-LEHTINEN", last_name)) %>% 
-    mutate(last_name = ifelse(grepl(".SCLOSKY", FROM,ignore.case=TRUE), "VISCLOSKY", last_name)) %>% 
+    mutate(last_name = ifelse(grepl(".SCLOSKY", FROM,ignore.case=TRUE), "VISCLOSKY", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("Guitierrez", FROM,ignore.case=TRUE), "GUTIERREZ", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Harmon", FROM,ignore.case=TRUE), "HARMAN", last_name)) %>% 
     mutate(last_name = ifelse(grepl("Hollen", FROM,ignore.case=TRUE), "VAN HOLLEN", last_name)) %>% 
@@ -963,6 +963,8 @@ typos_clear <- tribble(
   "(Midlael|Michaell|Micahel)", "Michael",
   "Martrin", "Martin",
   "Cardenas", "C.rdenas",
+  "VISCLOSKY", ".isclosky",
+  "Murphy", "Murhpy",
   
   ###############################
   
@@ -970,6 +972,7 @@ typos_clear <- tribble(
   "John Duncan", "Duncan John",
   "Henry Johnson", "Johnson Henry",
   "Mary Bono", "Bono Mary"
+  
 
 )
 
@@ -1057,13 +1060,8 @@ typos_last <- tribble(
   "Shelley", "Capito", "Moore Capito",
   "James", "(Inholfe|Imhofe|Imholfe|Inhoffe)", "Inhofe",
   "Yvette", "Clarke", "Clark",
-  "Maurice", "Hinchey", "Henchey"
-  
-  
-  
-
-  
-
+  "Maurice", "Hinchey", "Henchey",
+  "Chaka", "Fattah", "Chakka"
   
   
 ) %>% 
