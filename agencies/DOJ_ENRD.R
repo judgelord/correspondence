@@ -7,7 +7,7 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   
-  # create ID variable
+  # create LetterID variable
   data$LetterID <- c(1:nrow(data))
   
   
@@ -41,6 +41,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_split(FROM, ",| and ")) %>%
     unnest(FROM)
+  
+  #Create ID
+  data$ID <- c(1:nrow(data))
   
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
