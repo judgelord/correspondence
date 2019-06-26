@@ -10,6 +10,15 @@ clean <- function(file.name) {
   # create LetterID variable
   data$LetterID <- c(1:nrow(data))
   
+  #data %<>%
+   # group_by(FROM, SUBJECT, DATE) %>%
+    #mutate(n = n(),
+          # WF = str_c(WF, collapse = "; "))  
+           #arrange(-n) %>%
+            # select(- WF) %>%
+             #ungroup() %>%
+             #distinct()
+  
   
   # create agency column
   data$agency <- file.name
