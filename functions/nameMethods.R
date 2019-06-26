@@ -1073,7 +1073,7 @@ typos_last <- tribble(
 # FREQUENT FIRST NAME TYPOS 
 typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
-  "Steven", "Lynch", "Stephen", 
+  "Stephen", "Lynch", "Steven", 
   "Zoe", "Lofgren", "Toe", 
   "Jeanne", "Shaheen", "Teanne", 
   "Ron", "Wyden", "Roy", 
