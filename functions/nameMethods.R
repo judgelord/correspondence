@@ -1346,14 +1346,10 @@ findTypos <- function(from){
       mutate(Summary = str_replace_all(Summary, regex(typos, ignore_case = T), correct))
     
     
-    # data %>% mutate(na = is.na(last_name)) %>% count(na)
-    
     # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
     str_detect_replace <- function(string, pattern){
       out <- ifelse(str_detect(string, pattern), pattern, "404error")
     }
-    
-    
     
     # A function to map over members 
     # (assumes that memmbers object contains congress and pattern)
