@@ -43,7 +43,7 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  #sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
+  sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
 
 
   #Trim White Space
@@ -53,6 +53,15 @@ clean <- function(file.name) {
   #filter for multiple authors
   #data <- data %>%
     #filter(str_detect(FROM, "\\/"))
+ 
+data %<>%
+  mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
+  # mutate(FROM = str_replace(FROM , "Sullivan, J", "SULLIVAN, John")) %>%
+   #mutate(FROM = str_replace(FROM, "Sullivan, D.", "SULLIVAN, Daniel")) %>%
+   #mutate(FROM = str_replace(FROM, "Donovan, D", "DONOVAN, Daniel"))
+ 
+ #data <- data %>%
+  # filter(str_detect(FROM, "van|Van|VAN"))
   
   #string split on "\"
   data %<>%
@@ -62,18 +71,37 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
   
-  #Run extractMemberName on names with first initial
-  initial <- data %>%
-    filter(str_detect(FROM, " ")) %>%
-    extractMemberName(members = members, col_name = "FROM")
+  nochamber <- data %>%
+    filter(is.na(chamber)) 
   
-  initialNA <- initial %>%
+  
+  data %<>%
+    #filter(! str_detect(FROM, ", ")) %>%
+    extractMemberName2(members = members, col_name = "FROM")
+  
+  Unfoundnames %>%
     filter(is.na(last_name))
   
+ # fullnameNA <- fullname %>%
+  #  filter(! is.na(last_name))
+  
+  #comma <- data %>%
+   # filter(str_detect(FROM, ", "))
+  
+  #data %<>%
+   # mutate(FROM = str_remove(FROM, ", .*"))
+  #Run extractMemberName on names with first initial
+  #initial <- data %>%
+   # filter(str_detect(FROM, " ")) %>%
+    #extractMemberName2(members = members, col_name = "FROM")
+  
+  #initialNA <- initial %>%
+   # filter(is.na(last_name))
+  
   #Filter for those without initial and run extract and rejoin to data
-  data %<>%
-    filter(! str_detect(FROM, " ")) %>%
-    full_join(initial)
+  #data %<>%
+   # filter(str_detect(FROM, ", ")) %>%
+   # full_join(fullname)
   
   #Format last name and put in last_name  
   data %<>%
