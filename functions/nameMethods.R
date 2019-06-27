@@ -2,7 +2,6 @@
 
 
 
-
 # This function cleans up text from which member names will be extracted.
 # SUCH CODE SHOULD BE CONSOLIDATED HERE
 # It is used in extractMemberNames etc. to preprocess text.
@@ -251,14 +250,6 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-  
-
-  # Common TYPOS 
-  data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-  # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #can't do this because some people may have name Shelly
-  # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is too common of a string 
-  data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-  data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
   
   # correct common OCR errors
   data$Summary <- ocr.errors(data$Summary)
@@ -1234,7 +1225,7 @@ typos_common_name <-  tribble(
  
  # #Fixes name typo (from DOL_SOL)
  
- #added names into miscellaneous tables above
+ #FIXED and added names into miscellaneous tables above
  
  # data$FROM %<>%
  #   str_replace("Davis, Arthur", "Davis, Artur") %>%
@@ -1299,7 +1290,7 @@ findTypos <- function(from){
     data$Summary <- gsub("Courntey", "Courtney", data$Summary) #fixed this in clear table
     data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
     # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #we can't do this one either because some people may have Shelly as their name
-    # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
+    # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is too common of a string 
     data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
     data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
     
