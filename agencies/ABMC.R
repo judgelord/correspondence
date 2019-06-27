@@ -7,10 +7,11 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  data %<>% 
+    mutate(DATE = `Date Received`,
+           FROM = Source,
+           SUBJECT = Title)
   
-  names(data)[names(data) == 'Date Received'] <- 'DATE'
-  names(data)[names(data) == 'Source'] <- 'FROM'
-  names(data)[names(data) == 'Title'] <- 'SUBJECT'
   
   
   # create ID variable

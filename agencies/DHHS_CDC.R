@@ -118,13 +118,13 @@ clean <- function(file.name) {
  
  #Drops duplicate observations  
 Unfoundnames %<>%
-   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+   filter( ! str_detect(FROM, "^\\(b\\)\\(6\\)$"))
   
 Unfoundnames2 %<>%
-   filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+   filter(!str_detect(FROM, "^\\(b\\)\\(6\\)$"))
   
 data %<>%
-  filter( ! str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  filter(!str_detect(FROM, "^\\(b\\)\\(6\\)$"))
   
 
   data %<>%
@@ -149,7 +149,7 @@ data %<>%
 
 #Check (b)(6) removals are correct
 Nab6<- data %>%
-  filter(str_detect(first_last, "\\(B\\)\\(6\\) \\(B\\)\\(6\\)"))
+  filter(str_detect(FROM, "\\(b\\)\\(6\\)"))
 
 
   # arrange columns for hand coding
