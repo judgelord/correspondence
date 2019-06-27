@@ -170,7 +170,7 @@ d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
   coders = as.character(data_list[i, 3])
-)
+  ) %>% distinct()
 
 d1 %>% filter(!is.na(last_name)) %>% count(congress)
 

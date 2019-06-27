@@ -565,14 +565,6 @@ getFirstLast.Comma <- function(data, col_name){
   
   data$FROM <- data[[col_name]]
 
-  #create full name variables with different combinations of first, common, middle, middle initial, and last name
-  members$first_last <- paste(members$first_name, members$last_name, sep = " ")
-  members$common_last <- paste(members$common_name, members$last_name, sep = " ")
-  members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
-  members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
-  members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
-  members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
-  
   # create duplicate FROM column and preprocess
   #data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, Jr..|, III| III| II|, II| ll| IV|VI", "", data$FROM)
   data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
@@ -588,7 +580,7 @@ getFirstLast.Comma <- function(data, col_name){
   data$FROM2 <- gsub("(^ |^  |^   |\n)", "", data$FROM2)
   
   
-  data$FROM2 <- ocr.errors(data$FROM2)
+  data$FROM2 %<>% ocr.errors()
   
   
   #create variable for last name of the Sen/Rep

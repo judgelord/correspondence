@@ -12,16 +12,18 @@ clean <- function(file.name) {
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
   
   # create two different datasets for different name formats
-  data1 <-  filter(data,is.na(FROM))
+  data1 <- filter(data, is.na(FROM))
   data2 <- filter(data, !is.na(FROM))
   
-  data1$FROM <- ifelse(is.na(data1$'Member/Committee (HOR)')& is.na(data1$FROM),  data1$"Member/Committee (Senate)", 
-                      data1$'Member/Committee (HOR)')
+  data1 %<>% 
+    mutate(FROM = ifelse(is.na(`Member/Committee (HOR)`) & is.na(FROM),  
+                         `Member/Committee (Senate)`, 
+                         `Member/Committee (HOR)`) ) 
   
   # create variable for first and last name
-  data1 <- getFirstLast.Comma(data1, "FROM")
+  data1 %<>% getFirstLast.Comma("FROM")
   
-  data2 <- extractMemberName(data2,members,'FROM')
+  data2 %<>% extractMemberName(members, "FROM")
   
   data <- full_join(data2, data1)
   
