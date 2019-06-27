@@ -1351,7 +1351,7 @@ findTypos <- function(from){
     
     
     
-    data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+    data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$Summary)
     data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
                          replacement = ",", data$Summary)
     data$Summary <- gsub(pattern = "Member, U.S", "U.S", data$Summary)
