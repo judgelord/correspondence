@@ -43,8 +43,9 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  #sampledata <- data[sample(1:nrow(data), 10000, replace=FALSE),]
+  sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
 
+  data <- sampledata
 
   #Trim White Space
   data %<>%
@@ -53,6 +54,15 @@ clean <- function(file.name) {
   #filter for multiple authors
   #data <- data %>%
     #filter(str_detect(FROM, "\\/"))
+ 
+data %<>%
+  mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
+  # mutate(FROM = str_replace(FROM , "Sullivan, J", "SULLIVAN, John")) %>%
+   #mutate(FROM = str_replace(FROM, "Sullivan, D.", "SULLIVAN, Daniel")) %>%
+   #mutate(FROM = str_replace(FROM, "Donovan, D", "DONOVAN, Daniel"))
+ 
+ #data <- data %>%
+  # filter(str_detect(FROM, "van|Van|VAN"))
   
   #string split on "\"
   data %<>%
@@ -62,19 +72,35 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
   
-  #Run extractMemberName on names with first initial
-  initial <- data %>%
-    filter(str_detect(FROM, " ")) %>%
-    extractMemberName(members = members, col_name = "FROM")
+  #Check for observations without chamber
+  nochamber <- data %>%
+    filter(is.na(chamber)) 
   
-  initialNA <- initial %>%
+  
+  data %<>%
+    extractMemberName2(members = members, col_name = "FROM")
+  
+  #Check for duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "))
+  
+  #Filter for Unfoundnames
+  Unfoundnames <- data %>%
     filter(is.na(last_name))
   
-  #Filter for those without initial and run extract and rejoin to data
+  #Drop NAS fro dataset
   data %<>%
-    filter(! str_detect(FROM, " ")) %>%
-    full_join(initial)
-  
+    drop_na(last_name)
+ 
+  #Paste Chamber into FROM
+  Unfoundnames %<>%
+    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Congressperson", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+             
   #Format last name and put in last_name  
   data %<>%
     mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
