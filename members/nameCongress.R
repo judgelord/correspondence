@@ -222,6 +222,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "ANDREWS, Robert Ernest", "(Bob|Rob)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "LUGAR, Richard Green", "(Dick|Rich)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "SCOTT, Robert C.", "(Bob|Bobby)", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "VAN DREW, Jefferson", "Jeff", common_name)) %>%
     
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
@@ -441,7 +442,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% 
     ungroup() %>% 
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
-           # last_comma_initial = paste0(last_name, ", ", first_initial),
+           first_maiden_last = paste(first_name, maiden_name, last_name),
+           last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
            chamber_last = paste(chamber, last_name) %>% 
              str_replace("Senate", "Senator") %>% 
@@ -474,8 +476,9 @@ members %<>%
                      common_middle_last,
                      common_initial_last,
                      last_comma_first,
-                     # last_comma_initial,  # I worry about this over-matching, but we could test it # FIXME
+                     last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
                      chamber_last, 
+                     first_maiden_last,
                      last_comma_common
 
   ) %>%
