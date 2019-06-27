@@ -1331,46 +1331,8 @@ findTypos <- function(from){
     data %<>% mutate(Summary = data[[col_name]])
     
     # clean up text
-
-    # remove periods 
-    data$Summary <- gsub('\\.','', data$Summary)
-    data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
-    # remove plus 
-    data$Summary <- gsub('\\+', "", data$Summary)
-    
-    # remove common names in quotes 
-    data$Summary <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", data$Summary, ignore.case = TRUE)
-    
-    # trim down extra spaces
-    data$Summary <- gsub("  |   |    ", " ", data$Summary)
-    data$Summary <- gsub("  |   |    ", " ", data$Summary)
-    
-    # drop paragraph breaks and trailing white space 
-    data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-
-    
-    
-    
-    data$Summary <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$Summary)
-    data$Summary <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
-                         replacement = ",", data$Summary)
-    data$Summary <- gsub(pattern = "Member, U.S", "U.S", data$Summary)
-    data$Summary <- gsub(pattern= "\\.\\.", replacement = ".", data$Summary)
-    data$Summary <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", data$Summary)
-    data$Summary <- gsub("(^S(-| ))|Senator|Sen\\.", "", data$Summary)
-    data$Summary <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", data$Summary)
-    data$Summary <- gsub("  |   |    ", " ", data$Summary)
-    data$Summary <- gsub("  |   |    ", " ", data$Summary)
-    data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-    
-    
-    # Common TYPOS 
-    
-
     data$Summary %<>% cleanFROMcolumn()
 
-
-    
     # correct common OCR errors
     data$Summary %<>% ocr.errors()
     
