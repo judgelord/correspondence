@@ -223,6 +223,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "LUGAR, Richard Green", "(Dick|Rich)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "SCOTT, Robert C.", "(Bob|Bobby)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "VAN DREW, Jefferson", "Jeff", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "OWENS, William", "(Will|Bill)", common_name)) %>%
     
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
@@ -259,7 +260,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(bioname == "PELOSI, Nancy", "Patricia", middle_name)) %>%
     mutate(middle_name = ifelse(bioname == "HARMAN, Jane L.", "Margaret Lakes", middle_name)) %>%
     mutate(middle_name = ifelse(bioname == "BONNER, Jr., Josiah Robins (Jo).", "Robins", middle_name)) %>%
-    mutate(middle_name = ifelse(bioname == "ESHOO, Anna Georges", "Georges", middle_name)) %>% #FIXME is this right? 
+    mutate(middle_name = ifelse(bioname == "ESHOO, Anna Georges", "Georges", middle_name)) %>%  
   
      
     # middle initials
@@ -447,7 +448,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_common = paste0(last_name, ", ", common_name),
            chamber_last = paste(chamber, last_name) %>% 
              str_replace("Senate", "Senator") %>% 
-             str_replace("House", "Congressman"))
+             str_replace("House", "Congressperson"))
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future
