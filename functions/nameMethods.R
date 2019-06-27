@@ -770,21 +770,21 @@ getFirstLast.Comma <- function(data, col_name){
     mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Jaime", first_name)) %>% 
     mutate(last_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",FROM2,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Dianne", first_name)) %>% 
+    mutate(first_name = ifelse( grepl("Dian",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Jaime", first_name)) %>% 
     mutate(last_name = ifelse( grepl("Issa",FROM2,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",FROM2,ignore.case=TRUE), "ISSA", last_name)) %>% 
     mutate(first_name = ifelse( grepl("Issa",FROM2,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",FROM2,ignore.case=TRUE), "Darrell", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "WHITFIELD", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "Wayne", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Dana( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |,|$)",FROM2,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Dana( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |,|$)",FROM2,ignore.case=TRUE), "Dana", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "WOMACK", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "Steve", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "BONO", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "GRIFFITH", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "Morgan", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "CONAWAY", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "Michael", first_name))
+    mutate(last_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "WHITFIELD", last_name)) %>% #fixed 
+    mutate(first_name = ifelse( grepl("Whitfield|Whitefield",FROM2,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",FROM2,ignore.case=TRUE), "Wayne", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("(^| )Dana( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |,|$)",FROM2,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% #fixed but there may be errors that haven't been caught
+    mutate(first_name = ifelse( grepl("(^| )Dana( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )RO.*HER( |,|$)",FROM2,ignore.case=TRUE), "Dana", first_name)) %>% #fixed but there may be some errors still 
+    mutate(last_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "WOMACK", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("(^| )Womack( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )St",FROM2,ignore.case=TRUE), "Steve", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "BONO", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("(^| )Mary( |,|$)",FROM2,ignore.case=TRUE)&grepl("Mack|Bono",FROM2,ignore.case=TRUE), "Mary", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "GRIFFITH", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",FROM2,ignore.case=TRUE)&grepl("Morgan| H | H\\.",FROM2,ignore.case=TRUE), "Morgan", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "CONAWAY", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("(^| )Conaway( |,|$)",FROM2,ignore.case=TRUE)&grepl("(^| )Mi.",FROM2,ignore.case=TRUE), "Michael", first_name)) #fixed
   
 
     
@@ -1020,7 +1020,11 @@ typos_clear <- tribble(
   "Henry Johnson", "Johnson Henry",
   "Mary Bono", "Bono Mary",
   "Nick Rahall", "Rahall Nick",
-  "Jackson Lee", "Lee Jackson"
+  "Jackson Lee", "Lee Jackson",
+  "Michael Conaway", "Conaway Michael",
+  "Morgan Griffith", "Griffith Morgan",
+  "Steve Womack", "Womack Steve",
+  "Dana ROHRABACHER", "ROHRABACHER Dana"
   
 
 )
@@ -1113,14 +1117,15 @@ typos_last <- tribble(
   "Chaka", "Fattah", "Chakka",
   "Kirsten", "Gillibrand", "Gillbrand",
   "James","Barrett", "(Barrat|Barret)",
-  "Jaime", "HERRERA BEUTLER", "BEUTLER",
+  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
   "Lucille", "ROYBAL-ALLARD", "Roybal",
   "James", "Barrett", "GRESHAM BARRETT",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)",
   "Thomas","Coburn","(Cobum|Co bum)",
   "(Trent|Robin|Mike)", "Kelly", "Key",
   "Jon","Kyl", "Kyi",
-  "Cliff", "Stearns","Steams"
+  "Cliff", "Stearns","Steams",
+  "Wayne", "Whitfield", "Whitefield"
 
   
   
