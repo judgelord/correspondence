@@ -173,12 +173,12 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = ifelse( grepl("Scott",FROM,ignore.case=TRUE)&grepl("Bobby",FROM,ignore.case=TRUE), "Bob", first_name)) %>% #fixed
     
     
-    mutate(first_name = ifelse( grepl("Young",FROM,ignore.case=TRUE)&grepl("C.W|C. W|CW",FROM,ignore.case=TRUE), "Charles", first_name)) %>%
-    mutate(first_name = ifelse( grepl("Jackson",FROM,ignore.case=TRUE)&grepl("She",FROM)&grepl("Lee",FROM,ignore.case=TRUE), "Sheila", first_name)) %>%
-    mutate(first_name = ifelse( grepl("Gresham",FROM,ignore.case=TRUE)&grepl("Barret",FROM,ignore.case=TRUE), "James", first_name)) %>%
-    mutate(first_name = ifelse( grepl("Putnam",FROM,ignore.case=TRUE)&grepl("Ad",FROM,ignore.case=TRUE), "Adam", first_name)) %>%
-    mutate(first_name = ifelse( grepl("Lind",FROM,ignore.case=TRUE)&grepl("Graham",FROM,ignore.case=TRUE), "Lindsey", first_name)) %>%
-    mutate(first_name = ifelse( grepl("SERRANO",FROM,ignore.case=TRUE)&grepl("Jos",FROM,ignore.case=TRUE), "Jose", first_name)) %>%
+    mutate(first_name = ifelse( grepl("Young",FROM,ignore.case=TRUE)&grepl("C.W|C. W|CW",FROM,ignore.case=TRUE), "Charles", first_name)) %>%  #fixed
+    mutate(first_name = ifelse( grepl("Jackson",FROM,ignore.case=TRUE)&grepl("She",FROM)&grepl("Lee",FROM,ignore.case=TRUE), "Sheila", first_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Gresham",FROM,ignore.case=TRUE)&grepl("Barrett",FROM,ignore.case=TRUE), "James", first_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Putnam",FROM,ignore.case=TRUE)&grepl("Ad",FROM,ignore.case=TRUE), "Adam", first_name)) %>% #no error
+    mutate(first_name = ifelse( grepl("Lind",FROM,ignore.case=TRUE)&grepl("Graham",FROM,ignore.case=TRUE), "Lindsey", first_name)) %>% #no error
+    mutate(first_name = ifelse( grepl("SERRANO",FROM,ignore.case=TRUE)&grepl("Jos",FROM,ignore.case=TRUE), "Jose", first_name)) %>% #fixed
     
     mutate(first_name = gsub(pattern = "Christoher", replacement = "Christopher", first_name,ignore.case=TRUE)) %>% #fixed
     mutate(first_name = gsub(pattern = "Hilllary|Hilary|Fillary", replacement = "Hillary", first_name,ignore.case=TRUE)) %>% #fixed
@@ -1128,7 +1128,7 @@ typos_last <- tribble(
   "James","Barrett", "(Barrat|Barret)",
   "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
   "Lucille", "ROYBAL-ALLARD", "Roybal",
-  "James", "Barrett", "GRESHAM BARRETT",
+  "James", "Barrett", "(GRESHAM|BARRETT)",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)",
   "Thomas","Coburn","(Cobum|Co bum)",
   "(Trent|Robin|Mike)", "Kelly", "Key",
@@ -1139,7 +1139,8 @@ typos_last <- tribble(
   "Christopher", "Van Hollen", "(Van|Hollen)",
   "Luis", "GUTIERREZ", "Guitierrez",
   "Debbie", "WASSERMAN SCHULTZ", "(Wasserman|Schultz)",
-  "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)"
+  "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)",
+  "James", "Barrett", "(Baret|Barett|Barret)"
 
   
   
@@ -1200,7 +1201,9 @@ typos_first <- tribble(
   "Dennis", "Ross", "Denis",
   "Dennis", "Cardoza", "Denis",
   "Dennis", "Moore", "Denis",
-  "Dennis", "KUCINICH", "Denis"
+  "Dennis", "KUCINICH", "Denis",
+  "Sheila", "Jackson", "Shelee",
+  "Jose", "Serrano", "Jos."
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
