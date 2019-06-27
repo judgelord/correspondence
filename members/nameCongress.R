@@ -120,7 +120,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "WILSON, Charlie", "Charles", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "PENCE, Mike", "Michael", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "GAETZ, Matthew L. II", "Matt", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "STABENOW, Deborah Ann", "Debbie", common_name)) %>% 
+    mutate(common_name = ifelse(bioname == "STABENOW, Deborah Ann", "(Deb|Debbie)", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "VAN HOLLEN, Christopher", "Chris", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "ROSS, Michael Avery", "Mike", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "ASHFORD, John Bradley", "Brad", common_name)) %>% 
@@ -157,7 +157,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "BOREN, Daniel David", "Dan", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "PASCRELL, William J., Jr.", "Bill", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "MACK, Connie, IV", "Connie", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "HALVORSON, Deborah L.", "Debbie", common_name)) %>% 
+    mutate(common_name = ifelse(bioname == "HALVORSON, Deborah L.", "(Deb|Debbie)", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "COHEN, Stephen", "Steve", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "INGLIS, Robert Durden", "Bob", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "ETHERIDGE, Bobby R.", "Bob", common_name)) %>% 
