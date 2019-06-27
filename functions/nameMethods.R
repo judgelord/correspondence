@@ -950,7 +950,7 @@ typos_clear <- tribble(
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
-  "Lujan", "Luj..n",
+  "Lujan", "Luj.n",
   "Phil", "Phill",
   "LaMalfa", "LaMalfn",
   "Courtey", "Courntney",
@@ -1075,7 +1075,8 @@ typos_last <- tribble(
   "Jaime", "HERRERA BEUTLER", "BEUTLER",
   "Lucille", "ROYBAL-ALLARD", "Roybal",
   "James", "Barrett", "GRESHAM BARRETT",
-  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)"
+  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)",
+  "Anna","Eshoo", "Eschoo"
   
   
   
@@ -1187,7 +1188,7 @@ typos_common_name <-  tribble(
  
  # #Fixes name typo (from DOL_SOL)
  
- #added names into miscellaneous tables above
+ #FIXED and added names into miscellaneous tables above
  
  # data$FROM %<>%
  #   str_replace("Davis, Arthur", "Davis, Artur") %>%
@@ -1256,7 +1257,7 @@ findTypos <- function(from){
     
     # drop paragraph breaks and trailing white space 
     data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-    data$Summary <- gsub("Courntey", "Courtney", data$Summary) #fixed this in clear table
+
     
     
     
@@ -1275,13 +1276,6 @@ findTypos <- function(from){
     
     # Common TYPOS 
     
-    # added to new table of typos
-    
-    data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-    # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #we can't do this one either because some people may have Shelly as their name
-    # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is to common of a string 
-    data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-    data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
     
     # correct common OCR errors
     data$Summary %<>% ocr.errors()
