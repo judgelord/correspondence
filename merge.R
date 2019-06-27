@@ -164,7 +164,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "DHHS_CDC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -757,7 +757,7 @@ dcommittees %<>% full_join(
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n)
-rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, i, Chamber, oversight.committees)
+rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
 # rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
 
 #  # all agencies made it into d?
@@ -796,3 +796,4 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 }
 
 look <- df %>% count(agency, Department)
+paste("merge.R stopped at", data_list$agency[i])

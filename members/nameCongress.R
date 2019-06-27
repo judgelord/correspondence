@@ -446,7 +446,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_common = paste0(last_name, ", ", common_name),
            chamber_last = paste(chamber, last_name) %>% 
              str_replace("Senate", "Senator") %>% 
-             str_replace("House", "Congressman"))
+             str_replace("House", "Congressperson"))
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future
