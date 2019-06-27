@@ -86,12 +86,13 @@ data_list <- tribble(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
- "DOT_FTA", "not coded", NA, 
+"DOT_FTA", "not coded", NA, 
+# "DOT_PHSMA, "not coded", NA, # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
 "EOP_CEQ", "not coded", NA,
-#"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in
+#"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
@@ -109,15 +110,15 @@ data_list <- tribble(
 # GSA
 # "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
 # HUD
- "HUD_HQ", "not coded", NA,
+"HUD_HQ", "not coded", NA,
 # IRS 
- "IRS", "not coded", NA, # rolling release
+"IRS", "not coded", NA, # rolling release
 # NARA
-  "NARA", "not coded", NA,
+"NARA", "not coded", NA,
 # NASA
- "NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
+"NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
 # NCPC
- "NCPC", "not coded", NA,
+"NCPC", "not coded", NA,
 "NCUA", "not coded", NA, 
 "NLRB" , "not coded", NA,
 # OSMRE
@@ -163,7 +164,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "CSOSA")
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -312,7 +313,7 @@ bad.names.2 <- d %>%
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
-worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency) %>% arrange(-n)  %>% top_n(100)
+worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency, congress) %>% arrange(-n)  %>% top_n(100)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -498,25 +499,34 @@ df %<>%
                                   year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
                                 1, 0)) 
 
-# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN 
-#FIXME
-df$icpsr %<>% as.numeric()
 
-df %<>% left_join(
-  read.csv("members/LEP111to113.csv") %>% select(icpsr, female) %>% distinct() %>% filter(icpsr %in% df$icpsr) %>% mutate(icpsr = as.numeric(icpsr))
-)
 
-# TOTALS
+# TOTALS PER YEAR 
 df %<>% 
   group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
 # clean up problems with party switchers etc. that may have come in with merge 
+df$icpsr %<>% as.numeric()
 df %<>% fix.member.date.coding()
 df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 
 
+# MEMBER DEMOGRAPHICS 
 
+# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN 
+df %<>% 
+  # merge LEP data into df 
+  left_join(
+    # read in the LEP data 
+    read_csv("members/LEP111to113.csv") %>% 
+      # just grabbing female variable for now
+      select(icpsr, female) %>% 
+      # distinct icpsr-gender combinations
+      distinct() %>% 
+      #make ICPSR numbers numeric to merge with df
+      mutate(icpsr = as.numeric(icpsr))
+  )
 
 
 
@@ -675,6 +685,9 @@ df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland 
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
+df %<>% mutate(Department = ifelse(agency == "USDA", "Department of Agriculture", Department))
+df %<>% mutate(Department = ifelse(agency == "HUD_HQ", "Department of Housing and Urban Development", Department))
+
 
 
 df %<>% left_join(

@@ -8,9 +8,11 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  names(data)[names(data) == 'Date Received'] <- 'DATE'
-  names(data)[names(data) == 'Primary Person'] <- 'FROM'
-  names(data)[names(data) == 'Subject'] <- 'SUBJECT'
+  data %<>% 
+    mutate(DATE = `Date Received`,
+           FROM = `Primary Person`,
+           SUBJECT = Subject)
+  
   
   #create agency column
   data$agency <- file.name 

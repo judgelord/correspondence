@@ -107,7 +107,7 @@ clean.agency <- function(agency, status, coders) {
           )
         )
     }
-    
+    ## If last, first, chamber, and congress columns exist:
     if (sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4) {
       data %<>%
         # missing first name, but we do have chamber
@@ -179,7 +179,7 @@ clean.agency <- function(agency, status, coders) {
     
     
     
-    
+    # If columns last, first, and congress exist:
         if (sum(c("last_name", "first_name", "congress") %in% names(data)) == 3  ) {
           data %<>%
             # if first name is common name and missing chamber
