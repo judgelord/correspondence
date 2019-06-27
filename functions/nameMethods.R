@@ -1014,6 +1014,9 @@ typos_clear <- tribble(
   "Murphy", "Murhpy",
   "Sanchez", "S.nchez",
   "Gutierrez", "Gut.errez",
+  "Melissa", "Melisssa",
+  "Brian", "Brain",
+  "Christopher", "Christoher"
   
 
   
@@ -1189,7 +1192,8 @@ typos_first <- tribble(
   "Harry", "Reid", "Marry",
   "Anna A.", "Eshoo", "Anna",
   "Darrell", "Issa", "(Darryl|Daryl|Darrel|Darel)",
-  "Dianne", 'Feinstein', "Diane"
+  "Dianne", 'Feinstein', "Diane",
+  "Eliot", "Engel", "Eliott"
 
    
 )   %>% 
