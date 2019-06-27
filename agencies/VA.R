@@ -45,6 +45,7 @@ clean <- function(file.name) {
   #sample
   sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
 
+  data <- sampledata
 
   #Trim White Space
   data %<>%
@@ -71,38 +72,35 @@ data %<>%
   data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
   
+  #Check for observations without chamber
   nochamber <- data %>%
     filter(is.na(chamber)) 
   
   
   data %<>%
-    #filter(! str_detect(FROM, ", ")) %>%
     extractMemberName2(members = members, col_name = "FROM")
   
-  Unfoundnames %>%
+  #Check for duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "))
+  
+  #Filter for Unfoundnames
+  Unfoundnames <- data %>%
     filter(is.na(last_name))
   
- # fullnameNA <- fullname %>%
-  #  filter(! is.na(last_name))
-  
-  #comma <- data %>%
-   # filter(str_detect(FROM, ", "))
-  
-  #data %<>%
-   # mutate(FROM = str_remove(FROM, ", .*"))
-  #Run extractMemberName on names with first initial
-  #initial <- data %>%
-   # filter(str_detect(FROM, " ")) %>%
-    #extractMemberName2(members = members, col_name = "FROM")
-  
-  #initialNA <- initial %>%
-   # filter(is.na(last_name))
-  
-  #Filter for those without initial and run extract and rejoin to data
-  #data %<>%
-   # filter(str_detect(FROM, ", ")) %>%
-   # full_join(fullname)
-  
+  #Drop NAS fro dataset
+  data %<>%
+    drop_na(last_name)
+ 
+  #Paste Chamber into FROM
+  Unfoundnames %<>%
+    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Congressperson", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+             
   #Format last name and put in last_name  
   data %<>%
     mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
