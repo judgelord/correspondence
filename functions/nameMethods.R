@@ -812,6 +812,7 @@ getFirstLast.Comma <- function(data, col_name){
 ocr.errors <- function(FROM){
   
   # adds deleted "ll" to last names
+  #CAN EDIT HERE
   FROM <- gsub("Hiary", "Hillary", FROM)
   FROM <- gsub("(^| )Dinge($| )", "\\1Dingell\\2", FROM)
   FROM <- gsub("Connoy", "Connolly", FROM)
@@ -913,7 +914,7 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("Tom", FROM)&grepl("Cobum|Co bum", FROM), gsub("Cobum|Co bum", "Coburn", FROM), FROM)
   FROM <- ifelse(grepl("DarrellIssa", FROM), 'Darrell Issa', FROM) #fixed
   FROM <- ifelse(grepl("Trent|Robin|Mike", FROM)&grepl("Key", FROM), gsub("(Trent|Robin|Mike) Key", "\\1 Kelly",FROM), FROM)
-  FROM <- ifelse(grepl("Comyn|Com yn|Cobum|Corvyn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn|Corvyn","Cornyn", FROM), FROM)
+  FROM <- ifelse(grepl("Comyn|Com yn|Cobum|Corvyn", FROM)&grepl("John", FROM), gsub("Comyn|Com yn|Corvyn","Cornyn", FROM), FROM) #fixed
   FROM <- ifelse(grepl("Jon", FROM)&grepl("(^| )Kyi( |$)", FROM), gsub("Kyi","Kyl", FROM), FROM)
   FROM <- ifelse(grepl("Diane", FROM)&grepl("(^| )Feinstein( |$|,)", FROM), gsub("Diane","Dianne", FROM), FROM) #fixed
   
@@ -927,8 +928,8 @@ ocr.errors <- function(FROM){
   FROM <- gsub("TONKA", "TONKO", FROM) #fixed
   FROM <- gsub("Mcarthur|Mccarthur", "MacArthur", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Coryn( |$|,)", "\\1Cornyn\\2", FROM, ignore.case = TRUE) #fixed
-  FROM <- gsub("(^| )Connelly( |$|,)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
-  FROM <- gsub("(^| )Heitkmap( |$|,)", "\\1Heitkamp\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Connelly( |$|,)", "\\1Connolly\\2", FROM, ignore.case = TRUE) #fixed
+  FROM <- gsub("(^| )Heitkmap( |$|,)", "\\1Heitkamp\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Micahel( |$)", "\\1Michael\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Farenhold( |$|,)", "\\1Farenthold\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Eschoo( |$|,)", "\\1Eshoo\\2", FROM, ignore.case = TRUE) #fixed
@@ -1097,7 +1098,7 @@ typos_last <- tribble(
   "Stephanie", "(Herseth|Sandlin)", "Herseth Sandlin",
   "John", "ROCKEFELLER", "ROCKFELLER",
   "Ron", "Wyden", "Wydon",
-  "James", "Cornyn", "Coryn",
+  "James", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
   "Blake", "Farenthold", "Farenhold",
   "Anna", "Eshoo", "Eschoo",
@@ -1114,9 +1115,8 @@ typos_last <- tribble(
   "Jaime", "HERRERA BEUTLER", "BEUTLER",
   "Lucille", "ROYBAL-ALLARD", "Roybal",
   "James", "Barrett", "GRESHAM BARRETT",
-  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)",
-  "Anna","Eshoo", "Eschoo",
-  "Blake", "Farenthold", 'Farenhold'
+  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)"
+
   
   
   
