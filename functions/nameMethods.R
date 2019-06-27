@@ -918,7 +918,8 @@ ocr.errors <- function(FROM){
   FROM <- ifelse(grepl("Diane", FROM)&grepl("(^| )Feinstein( |$|,)", FROM), gsub("Diane","Dianne", FROM), FROM) #fixed
   
  # FROM <- ifelse(grepl("Cliff", FROM)&grepl("Steams", FROM), gsub("Steams","Stearns", FROM), FROM)
- #fixed
+  
+ #FIXED
   
   FROM <- gsub("Cwnmings", 'Cummings', FROM) # fixed
   FROM <- gsub("Tnhofe", "Inhofe", FROM) # fixed
@@ -929,8 +930,8 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Connelly( |$|,)", "\\1Connolly\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Heitkmap( |$|,)", "\\1Heitkamp\\2", FROM, ignore.case = TRUE)
   FROM <- gsub("(^| )Micahel( |$)", "\\1Michael\\2", FROM, ignore.case = TRUE) #fixed
-  FROM <- gsub("(^| )Farenhold( |$|,)", "\\1Farenthold\\2", FROM, ignore.case = TRUE)
-  FROM <- gsub("(^| )Eschoo( |$|,)", "\\1Eshoo\\2", FROM, ignore.case = TRUE)
+  FROM <- gsub("(^| )Farenhold( |$|,)", "\\1Farenthold\\2", FROM, ignore.case = TRUE) #fixed
+  FROM <- gsub("(^| )Eschoo( |$|,)", "\\1Eshoo\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Lary( |$)", "\\1Larry\\3", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("Christophers", "Christopher", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("Courntey", "Courtney", FROM, ignore.case = TRUE) #fixed
@@ -957,7 +958,7 @@ ocr.errors <- function(FROM){
 # data$first_name <- addFirst(data$first_name,data$last_name)
 
 #     *** last_name paramter must be in same all caps format of the members file
-#     This funtion call may be necessary:   data$last_name <- formatLastName(data, 'last_name')
+#     This function call may be necessary:   data$last_name <- formatLastName(data, 'last_name')
 
 # Useful code for creating last_name when only last name provided:
 #data %<>%
@@ -1114,7 +1115,8 @@ typos_last <- tribble(
   "Lucille", "ROYBAL-ALLARD", "Roybal",
   "James", "Barrett", "GRESHAM BARRETT",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO)",
-  "Anna","Eshoo", "Eschoo"
+  "Anna","Eshoo", "Eschoo",
+  "Blake", "Farenthold", 'Farenhold'
   
   
   
@@ -1321,15 +1323,6 @@ findTypos <- function(from){
 
     data$Summary %<>% cleanFROMcolumn()
 
-    # Common TYPOS 
-    
-    # FIXME, delete this if added to new table of typos
-    data$Summary <- gsub("Courntey", "Courtney", data$Summary) #fixed this in clear table
-    data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-    # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #we can't do this one either because some people may have Shelly as their name
-    # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is too common of a string 
-    data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-    data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
 
     
     # correct common OCR errors
