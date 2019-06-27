@@ -1,18 +1,61 @@
 
+
+
+
+# This function cleans up text from which member names will be extracted.
+# SUCH CODE SHOULD BE CONSOLIDATED HERE
+# It is used in extractMemberNames etc. to preprocess text.
+cleanFROMcolumn <- function(FROM){
+  # remove periods 
+  FROM <- gsub('\\.','', FROM)
+  FROM <- gsub('(.*)\\.(.*)', "\\1\\2", FROM)
+  
+  # remove plus signs 
+  FROM <- gsub('\\+', "", FROM)
+  
+  # remove common names in quotes 
+  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", FROM, ignore.case = TRUE)
+  
+  # trim down extra spaces
+  FROM <- gsub("  |   |    ", " ", FROM)
+  FROM <- gsub("  |   |    ", " ", FROM)
+  
+  # drop paragraph breaks and trailing white space 
+  FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
+  
+  
+  
+  FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
+  FROM <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\), Rep.",
+               replacement = ",", FROM)
+  FROM <- gsub(pattern = "Member, U.S", "U.S", FROM)
+  FROM <- gsub(pattern= "\\.\\.", replacement = ".", FROM)
+  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )", "", FROM)
+  FROM <- gsub("(^S(-| ))|Senator|Sen\\.", "", FROM)
+  FROM <- gsub("(^(R|C)(-| ))|Repres|Congress|Rep", "", FROM)
+  FROM <- gsub("  |   |    ", " ", FROM)
+  FROM <- gsub("  |   |    ", " ", FROM)
+  FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
+  
+  return(FROM)
+}
+
+
 # Formats col_name (usually last_name) to similiar format as members$last_name
 # Capitalizes letters and fixes common errors 
 formatLastName <- function(data, col_name){
   
   data$last_name <- data[[col_name]]
   
+  # trim white space and paragraph breaks
   data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
   
+  # THIS WILL STAY IN THE FUNCTION formatLastName
   data %<>%
+    # correct capitalization to match last names in voteview data 
+    # Last names in voteview are upper case
     mutate(last_name = str_to_upper(last_name)) %>% 
-    # correct capitalization to match last names in members data 
-    
     #case corrections, not touching at the moment
-    
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
     mutate(last_name = gsub("DEFAZIO", replacement = "DeFAZIO", last_name, ignore.case = TRUE)) %>% 
@@ -27,11 +70,18 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("MACARTHUR", replacement = "MacARTHUR", last_name)) %>% 
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
 
+    # Commented this out because we modified the members file instead, but maybe it would better to modify just the search pattern to be Luj.n as a typo
+    # FIXME
+    # mutate(last_name = ifelse(grepl("Lujan", FROM,ignore.case=TRUE)&grepl("Ben", FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>% 
+    # mutate(last_name = ifelse( grepl("Lujan",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>%
     
+
+    ##############################################################################################################################
+    # FIXME 
+    # All of the below should be corrected with the typos tables (if a typo) or in nameCongress.R (if a name that needs expanding)
     # Spelling and specific corrections
-    
-    #fixed and added names to correct tables
-    
+  
+    # fixed and added names to typo tables
     mutate(last_name = gsub("DENIS", replacement = "DENNIS", last_name)) %>% 
     mutate(last_name = gsub("DUNCAN JOHN.*", replacement = "DUNCAN", last_name)) %>% 
     mutate(last_name = gsub("JOHNSON HENRY.*", replacement = "JOHNSON", last_name)) %>% 
@@ -39,14 +89,7 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub(".*ROCKEFELLER.*|.*ROCKFELLER.*", replacement = "ROCKEFELLER", last_name)) %>% 
     mutate(last_name = gsub(".*SANDLIN.*", replacement = "HERSETH SANDLIN", last_name)) %>% 
 
-   
 
-    
-   # mutate(last_name = ifelse(grepl("Lujan", FROM,ignore.case=TRUE)&grepl("Ben", FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>% 
-   # mutate(last_name = ifelse( grepl("Lujan",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>%
-    
-    ### fix some more of these
-    
     mutate(last_name = gsub("MOORE CAPITO.*", replacement = "CAPITO", last_name)) %>% #fixed
     mutate(last_name = ifelse(grepl("Milkulski, Barbara", FROM), "MIKULSKI", last_name)) %>% #fixed 
     mutate(last_name = ifelse(grepl("GRESHAM BARRETT", last_name,ignore.case=TRUE), "BARRETT", last_name)) %>% #fixed
@@ -81,12 +124,8 @@ formatLastName <- function(data, col_name){
     mutate(last_name = ifelse(grepl("Vel.zquez", last_name,ignore.case=TRUE), "VELAZQUEZ", last_name)) %>% #fixed
    
     #fixed
-    mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) #does this need to have piping at the end?
-  
-  #data$last_name <- gsub("(^ |^  |^   |\n)", "", data$last_name)
-  
+    mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) 
 
-  
   return(data$last_name)
   
 }
@@ -101,7 +140,14 @@ formatFirstName <- function(data, col_name){
   #data %<>% mutate(FROM = ifelse("FROM2" %in% names(data), FROM2, FROM))
   
   data %<>%
-    mutate(first_name = stri_trans_totitle(first_name)) %>% 
+    # In voteview, first names are title case
+    mutate(first_name = stri_trans_totitle(first_name))
+    
+  ##############################################################################################################################
+  # FIXME 
+  # All of the below should be corrected with the typos tables (if a typo) or in nameCongress.R (if a name that needs expanding)
+  # Spelling and specific corrections
+  data %<>% 
     mutate(first_name = ifelse( grepl("Don",FROM,ignore.case=TRUE)&grepl("Young",FROM,ignore.case=TRUE), "Donald", first_name)) %>%
     #mutate(first_name = ifelse( grepl("Andr",FROM,ignore.case=TRUE)&grepl("Carson",FROM,ignore.case=TRUE), "André", first_name)) %>%
     mutate(first_name = ifelse( grepl("John",FROM,ignore.case=TRUE)&grepl("Thune",FROM,ignore.case=TRUE), "John", first_name)) %>%
@@ -204,14 +250,6 @@ extractMemberName <- function(data, members, col_name){
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("  |   |    ", " ", data$Summary)
   data$Summary <- gsub("(^ |^  |^   |\n)", "", data$Summary)
-  
-
-  # Common TYPOS 
-  data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
-  # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #can't do this because some people may have name Shelly
-  # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is too common of a string 
-  data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
-  data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
   
   # correct common OCR errors
   data$Summary <- ocr.errors(data$Summary)
@@ -1066,7 +1104,7 @@ typos_last <- tribble(
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
   "Shelley", "Capito", "Moore Capito",
-  "James", "Inhofe","(Inholfe|Imhofe|Imholfe|Inhoffe)",
+  "James", "Inhofe", "(Inholfe|Imhofe|Imholfe|Inhoffe)",
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka",
@@ -1098,7 +1136,7 @@ typos_first <- tribble(
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
   "Shelly","Capito", "Shelley", 
-  "Charles", "Schumer", "Charls", 
+  "Charles", "Schumer", "(Charls|Charls E)", # FIXME just adding middle initial for now, but eventually, it should be added to the typo pattern by merging with members data
   "Julia", "Carson", "Julie", 
   "Tom", "Barrett", "Mark", 
   "Matt", "Cartwright", "Mark", 
@@ -1234,14 +1272,18 @@ findTypos <- function(from){
 
 
   
-  
+  ######################################################################################
+# This function will replace extractMemberNames after it has been tested and vetted
+# It does not use format first and last name columns. 
+# It does correct ocr.errors and then corrects typos using the typos tables
+# It then uses the pattern variable in the members data to match names 
   extractMemberName2 <- function(data, members, col_name){
     
-    data$Summary <- data[[col_name]]
-    
+
     data %<>% mutate(Summary = data[[col_name]])
     
     # clean up text
+
     # remove periods 
     data$Summary <- gsub('\\.','', data$Summary)
     data$Summary <- gsub('(.*)\\.(.*)', "\\1\\2", data$Summary)
@@ -1276,10 +1318,22 @@ findTypos <- function(from){
     
     # Common TYPOS 
     
+
+    data$Summary %<>% cleanFROMcolumn()
+
+    # Common TYPOS 
+    
+    # FIXME, delete this if added to new table of typos
+    data$Summary <- gsub("Courntey", "Courtney", data$Summary) #fixed this in clear table
+    data$Summary <- gsub("Phill ", "Phil ", data$Summary) # added space after this one because some first or last name may begin with Phill...
+    # data$Summary <- gsub("Shelly", "Shelley", data$Summary) #we can't do this one either because some people may have Shelly as their name
+    # data$Summary <- gsub("Ana", "Anna", data$Summary) # we can't do this because other first or last names may begin with Ana, it is too common of a string 
+    data$Summary <- gsub("LaMalfn", "LaMalfa", data$Summary)
+    data$Summary <- gsub("Jime ", "Jim ", data$Summary) # added space after this one because some first or last name may begin with Jime...
+
     
     # correct common OCR errors
     data$Summary %<>% ocr.errors()
-    
     
     # Fix name typos
     data %<>% 
@@ -1291,7 +1345,7 @@ findTypos <- function(from){
       mutate(Summary = str_replace_all(Summary, regex(typos, ignore_case = T), correct))
     
     
-    data %>% mutate(na = is.na(last_name)) %>% count(na)
+    # data %>% mutate(na = is.na(last_name)) %>% count(na)
     
     # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
     str_detect_replace <- function(string, pattern){
@@ -1324,5 +1378,7 @@ findTypos <- function(from){
       # join in members data by pattern 
       left_join(members %>% select(pattern, first_name, last_name, congress)) %>% 
       select(-from) # %>% select(FROM, pattern, first_name, last_name)
+    
+    return(data)
   }
   

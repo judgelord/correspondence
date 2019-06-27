@@ -164,7 +164,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DHS_HQ")
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -313,7 +313,7 @@ bad.names.2 <- d %>%
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
-worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency) %>% arrange(-n)  %>% top_n(100)
+worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency, congress) %>% arrange(-n)  %>% top_n(100)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
