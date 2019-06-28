@@ -29,20 +29,22 @@ cleanFROMcolumn <- function(FROM){
   # remove 
   FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
   FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
-  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Senator|Sen\\.|(^(R|C)(-| ))|Repres|Congress|Rep |Sen ", "", FROM)
+  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Senator|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Repres|Congress|Rep |Sen ", "", FROM)
   
   # replace with comma
-  FROM <- gsub(pattern = ", CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\),Rep\\.|Sen\\.",
+  FROM <- gsub(pattern = ", CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
                replacement = ",", FROM)
   
   # replace with "U.S."
   FROM <- gsub(pattern = "Member, U.S", "U.S", FROM)
   
   # remove periods
-  #FROM <- gsub(pattern= "\\.*", replacement = " ", FROM) 
+  FROM <- gsub(pattern= "\\.\\.", replacement = " ", FROM) 
+  FROM <- gsub(pattern= "\\.", replacement = " ", FROM) 
 
   # replace spaces with a single space
-  #FROM <- gsub(" +", " ", FROM) # extra spaces
+  FROM <- gsub(" +", " ", FROM) # extra spaces
+  FROM <- trimws(FROM)
   
   return(FROM)
 }
@@ -1188,6 +1190,7 @@ typos_first <- tribble(
    
 )   %>% 
   mutate(typos = str_c(paste(first_name_typos, last_name), 
+                       paste(first_name_typos, "\\w+", last_name_typos), # any middle initial or middle name
                        str_c(last_name, ", ", first_name_typos), sep = "|" ) ) %>% 
   select(first_name, last_name, typos)
 
