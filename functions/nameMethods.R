@@ -29,7 +29,7 @@ cleanFROMcolumn <- function(FROM){
   # remove 
   FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
   FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
-  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Senator|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Repres|Congress|Rep |Sen ", "", FROM)
+  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Repres|Rep |Sen ", "", FROM)
   
   # replace with comma
   FROM <- gsub(pattern = ", CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
