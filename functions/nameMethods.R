@@ -1128,7 +1128,7 @@ typos_last <- tribble(
   
   
 ) %>% 
-  mutate(typos = str_c(paste(first_name, last_name_typos), 
+  mutate(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos), 
                        str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
   select(first_name, last_name, typos)
 
@@ -1217,7 +1217,7 @@ typos_common_name <-  tribble(
   "Dennis", "Heck", "Denis",
   "Dennis", "Rehberg", "Denis"
 ) %>% 
-  mutate(typos = str_c(paste(common_name_typos, last_name),
+  mutate(typos = str_c(str_c(common_name_typos, "( | [A-z]* )", last_name),
                        str_c(last_name, ", ", common_name_typos), sep = "|") ) %>% 
   select(common_name, last_name, typos)
 
