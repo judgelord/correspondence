@@ -1189,8 +1189,7 @@ typos_first <- tribble(
   "Lindsey", "Graham", "Lindsay"
    
 )   %>% 
-  mutate(typos = str_c(paste(first_name_typos, last_name), 
-                       paste(first_name_typos, "\\w+", last_name_typos), # any middle initial or middle name
+  mutate(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
                        str_c(last_name, ", ", first_name_typos), sep = "|" ) ) %>% 
   select(first_name, last_name, typos)
 
