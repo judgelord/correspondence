@@ -43,9 +43,9 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  #sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
+  sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
 
-  #data <- sampledata
+  data <- sampledata
 
   #Trim White Space
   data %<>%
@@ -56,7 +56,7 @@ clean <- function(file.name) {
     #filter(str_detect(FROM, "\\/"))
  
 data %<>%
-  mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
+  mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C"))
   # mutate(FROM = str_replace(FROM , "Sullivan, J", "SULLIVAN, John")) %>%
    #mutate(FROM = str_replace(FROM, "Sullivan, D.", "SULLIVAN, Daniel")) %>%
    #mutate(FROM = str_replace(FROM, "Donovan, D", "DONOVAN, Daniel"))
@@ -65,18 +65,14 @@ data %<>%
   # filter(str_detect(FROM, "van|Van|VAN"))
   
   #string split on "\"
-  #data %<>%
-   # mutate(FROM = str_split(FROM, "\\/")) %>%
-   # unnest(FROM)
+  data %<>%
+    mutate(FROM = str_split(FROM, "\\/")) %>%
+    unnest(FROM)
 
- # data %<>%
-    #mutate(FROM = str_remove(FROM, "\\/"))
+  data %<>%
+    mutate(FROM = str_remove(FROM, "\\/"))
   
-  #Check for observations without chamber
-  nochamber <- data %>%
-    filter(is.na(chamber)) 
-  
-  
+  #Extract Member Names
   data %<>%
     extractMemberName2(members = members, col_name = "FROM")
   
@@ -94,8 +90,12 @@ data %<>%
   
   data %<>%
     anti_join(Unfoundnames)
+  
+  #Remove first initial to match on chamber_lastname
+  Unfoundnames %<>%
+    mutate(FROM = str_remove(FROM, ",.*"))
  
-   #Drop NAS fro dataset
+   #Drop NAS from dataset
   data %<>%
     drop_na(last_name)
  

@@ -6,19 +6,17 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  data %<>%
+    group_by(SUBJECT, DATE, FROM) %>%
+    mutate(n = n(),
+           WFs = str_c(WF, collapse = "; ")) %>%
+    arrange(-n) %>%
+    select(-WF) %>%
+    ungroup() %>%
+    distinct()
   
   # create LetterID variable
   data$LetterID <- c(1:nrow(data))
-  
-  #data %<>%
-   # group_by(FROM, SUBJECT, DATE) %>%
-    #mutate(n = n(),
-          # WF = str_c(WF, collapse = "; "))  
-           #arrange(-n) %>%
-            # select(- WF) %>%
-             #ungroup() %>%
-             #distinct()
-  
   
   # create agency column
   data$agency <- file.name
