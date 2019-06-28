@@ -43,9 +43,9 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
+  #sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
 
-  data <- sampledata
+  #data <- sampledata
 
   #Trim White Space
   data %<>%
@@ -65,12 +65,12 @@ data %<>%
   # filter(str_detect(FROM, "van|Van|VAN"))
   
   #string split on "\"
-  data %<>%
-    mutate(FROM = str_split(FROM, "\\/")) %>%
-    unnest(FROM)
+  #data %<>%
+   # mutate(FROM = str_split(FROM, "\\/")) %>%
+   # unnest(FROM)
 
-  data %<>%
-    mutate(FROM = str_remove(FROM, "\\/"))
+ # data %<>%
+    #mutate(FROM = str_remove(FROM, "\\/"))
   
   #Check for observations without chamber
   nochamber <- data %>%
@@ -92,7 +92,10 @@ data %<>%
   Unfoundnames <- data %>%
     filter(is.na(last_name))
   
-  #Drop NAS fro dataset
+  data %<>%
+    anti_join(Unfoundnames)
+ 
+   #Drop NAS fro dataset
   data %<>%
     drop_na(last_name)
  
@@ -100,6 +103,14 @@ data %<>%
   Unfoundnames %<>%
     mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Congressperson", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+  
+  Unfoundnames %<>%
+    extractMemberName2(members = members, col_name = "FROM")
+  
+  data %<>%
+    full_join(Unfoundnames)
+  
+  
              
   #Format last name and put in last_name  
   data %<>%
@@ -114,6 +125,12 @@ data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "non-cong"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR))
+  
+  #FOIA NOTES
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Young, D."), "Multiple Young's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES))
   
    #Check after run through merge
 #Unfoundnames <- d %>%
