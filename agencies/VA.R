@@ -43,26 +43,17 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  sampledata <- data[sample(1:nrow(data), 1800, replace=FALSE),]
+  #sampledata <- data[sample(1:nrow(data), 3000, replace=FALSE),]
 
-  data <- sampledata
+  #data <- sampledata
 
   #Trim White Space
   data %<>%
     mutate(FROM = str_trim(FROM))
-  
-  #filter for multiple authors
-  #data <- data %>%
-    #filter(str_detect(FROM, "\\/"))
  
+#Typo  
 data %<>%
   mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C"))
-  # mutate(FROM = str_replace(FROM , "Sullivan, J", "SULLIVAN, John")) %>%
-   #mutate(FROM = str_replace(FROM, "Sullivan, D.", "SULLIVAN, Daniel")) %>%
-   #mutate(FROM = str_replace(FROM, "Donovan, D", "DONOVAN, Daniel"))
- 
- #data <- data %>%
-  # filter(str_detect(FROM, "van|Van|VAN"))
   
   #string split on "\"
   data %<>%
@@ -88,7 +79,8 @@ data %<>%
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
     select(-Summary, -last_name, -first_name)
-  
+ 
+  #Separate from data 
   data %<>%
     anti_join(Unfoundnames)
 
@@ -103,9 +95,11 @@ data %<>%
     mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Congressperson", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
   
+  #Extract Member Names
   Unfoundnames %<>%
     extractMemberName2(members = members, col_name = "FROM")
   
+  #Rejoin data
   data %<>%
     full_join(Unfoundnames)
   
