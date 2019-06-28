@@ -1181,7 +1181,7 @@ typos_first <- tribble(
   "Patrick", "Leahy", "Ted",
   "Mary", "Bono", "Mack",
   "Harry", "Reid", "Marry",
-  "Anna A.", "Eshoo", "Anna",
+  "Anna", "Eshoo", "Anna A.",
   "Darrell", "Issa", "(Darryl|Daryl|Darrel|Darel)",
   "Dianne", 'Feinstein', "Diane",
   "Eliot", "Engel", "Eliott",
