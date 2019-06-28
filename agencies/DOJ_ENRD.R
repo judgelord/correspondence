@@ -80,6 +80,7 @@ clean <- function(file.name) {
   
   data %<>%
      mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "22 other"), "Multiple unnamed members", NOTES)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee"), "Committee", NOTES))
   
@@ -91,8 +92,8 @@ clean <- function(file.name) {
     filter(is.na(last_name))
     
   #Filter to use after merge
- # Unmatched <- d %>%
-   # filter(is.na(bioname))
+ #Unmatched <- d %>%
+  # filter(is.na(bioname))
   
   return(data)
   
