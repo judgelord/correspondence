@@ -86,18 +86,17 @@ data %<>%
   
   #Filter for Unfoundnames
   Unfoundnames <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name)) %>%
+    select(-Summary, -last_name, -first_name)
   
   data %<>%
     anti_join(Unfoundnames)
+
   
   #Remove first initial to match on chamber_lastname
   Unfoundnames %<>%
     mutate(FROM = str_remove(FROM, ",.*"))
  
-   #Drop NAS from dataset
-  data %<>%
-    drop_na(last_name)
  
   #Paste Chamber into FROM
   Unfoundnames %<>%
@@ -110,14 +109,6 @@ data %<>%
   data %<>%
     full_join(Unfoundnames)
   
-  
-             
-  #Format last name and put in last_name  
-  data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, ", |. |.| |,") & is.na(last_name), str_remove(FROM, " .*|,.*|\\..*"), FROM))
-   
-  data %<>%
-       mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
   #Membership Errors
   data %<>%
