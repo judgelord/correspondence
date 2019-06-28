@@ -9,8 +9,34 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # ID variable
+  data$ID <- c(1:nrow(data))
+  
+  #create agency column
+  data$agency <- file.name
+  
+  # Format date, year, Congress, member name etc. 
+  data$DATE %<>% as.Date("%m/%d/%y")
+  
+  
+  #create year and congress columns
+  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  # create chamber variable
+  data$chamber <- ifelse(is.na(data$'Member/Committee (HOR)') & !is.na(data$'Member/Committee (Senate)'),
+                         "Senate", 
+                         NA )
+  data$chamber <- ifelse(is.na(data$'Member/Committee (Senate)') & !is.na(data$'Member/Committee (HOR)'),
+                         "House", 
+                         data$chamber )
+  
+
+  # make everything except DATE and congress character types 
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
   
+  
+  # NAMES 
   # create two different datasets for different name formats
   data1 <- filter(data, is.na(FROM))
   data2 <- filter(data, !is.na(FROM))
@@ -28,26 +54,10 @@ clean <- function(file.name) {
   data <- full_join(data2, data1)
   
   
-  # ID variable
-  data$ID <- c(1:nrow(data))
-  
-  #create agency column
-  data$agency <- file.name
-  
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%y")
 
   
-  #create year and congress columns
-  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-  
 
-  # create chamber variable
-  data$chamber <- ifelse(is.na(data$'Member/Committee (HOR)')& !is.na(data$'Member/Committee (Senate)'),
-                         "Senate", NA )
-  data$chamber <- ifelse(is.na(data$'Member/Committee (Senate)')& !is.na(data$'Member/Committee (HOR)'),
-                         "House", data$chamber )
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM,  chamber, everything())
