@@ -35,7 +35,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = gsub(" .*", "", first_name)) %>%
     mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
     mutate(first_initial = gsub("^(\\w).*",  "\\1", first_name)) %>% 
-    mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% 
+    mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
     mutate(maiden_name = NA) %>%
     
     # maiden names
@@ -43,7 +43,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
      
     # common names
-    mutate(common_name = ifelse(first_name == "Daniel", "Dan", common_name)) %>%
+     # NOTE, as written this will overwrite existing common names. 
+     # FIXME by adding "common_name == "" &" unless we want to overwrite 
+    mutate(common_name = ifelse( first_name == "Daniel", "Dan", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Andrew", "Andy", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Gregory", "Greg", common_name)) %>%
     mutate(common_name = ifelse(  (first_name == "Dan")&(common_name==""), "Daniel", common_name)) %>% 
@@ -451,7 +453,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
              str_replace("House", "Congressperson"))
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
-  # FIXME -- may be able to do this by congress if matching by congress in the future
+  # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
   last_name_count <- members %>% 
     select(last_name, chamber, bioname) %>%  
     distinct() %>%     
@@ -460,7 +462,21 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% 
     full_join(last_name_count) %>% 
-    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last))
+    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last)) %>% 
+    select(-last_name_count)
+  
+  # # drop common last when there are multiple members with the same name
+  # # commented out because I am option to over match and then drop people in merge, then fail to match people with the same name 
+  # last_name_count <- members %>% 
+  #   select(last_name, common_name, bioname) %>%  
+  #   distinct() %>%     
+  #   count(last_name, common_name) %>% 
+  #   rename(last_name_count = n)
+  # 
+  # members %<>% 
+  #   full_join(last_name_count) %>% 
+  #   mutate(common_last = ifelse(last_name_count > 1, NA, common_last))%>% 
+  #   select(-last_name_count)
 
 
 # Replace NA names with "404error"
