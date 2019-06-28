@@ -1086,14 +1086,14 @@ typos_last <- tribble(
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
-  "Stephanie", "(Herseth|Sandlin)", "Herseth Sandlin",
+  "Stephanie", "Herseth Sandlin", "(Herseth|Sandlin)",
   "John", "ROCKEFELLER", "ROCKFELLER",
   "Ron", "Wyden", "Wydon",
   "James", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
   "Blake", "Farenthold", "Farenhold",
   "Anna", "Eshoo", "Eschoo",
-  "Heidi", "Heitkamp", "Heitkmap",
+  "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap)",
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
   "Shelley", "Capito", "Moore Capito",
@@ -1132,7 +1132,12 @@ typos_last <- tribble(
   "Beto", "O'Rourke", "O.Rourke",
   "Beto", "O'Rourke", "Rourke",
   "Barbara", "Boxer", "Baxter",
-  "David", "Dreier", "Reier"
+  "David", "Dreier", "Reier",
+  "Kelly", "Ayotte", "Aytotte",
+  "Steve", "King", "Kiing",
+  "Peter", "King", "Kiing",
+  "Angus", "King", "Kiing",
+  "Claire", "McCaskill", "McCaskil"
 
   
   
