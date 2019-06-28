@@ -53,7 +53,7 @@ clean <- function(file.name) {
   data$ID <- c(1:nrow(data))
   
   data %<>%
-    extractMemberName(members = members, col_name = "FROM")
+    extractMemberName2(members = members, col_name = "FROM")
   
   NoChamber <- data %>%
     filter(is.na(chamber))
@@ -74,9 +74,21 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name)) 
 
+  #Non Member Errors
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "DC 20515|DC 20510|DC 20510-0001|DC 20515|DC 20515-0001|NY 10017-1502|DC 20510|DC 20515|D\\.C\\. 20515"), "Not Member", ERROR))
   
-  # data %<>%
-    # mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES))
+  data %<>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "22 other"), "Multiple unnamed members", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee"), "Committee", NOTES))
+  
+  #Filter while working
+  #data %<>%
+   # filter( ! str_detect(FROM, "DC 20515|DC 20510|DC 20510-0001|DC 20515|DC 20515-0001|NY 10017-1502|DC 20510|DC 20515|D\\.C\\. 20515"))
+  
+  Unfoundnames2 <- data %>%
+    filter(is.na(last_name))
     
   #Filter to use after merge
  # Unmatched <- d %>%
