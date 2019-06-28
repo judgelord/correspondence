@@ -452,14 +452,14 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_common = paste0(last_name, ", ", common_name),
            chamber_last = paste(chamber, last_name) %>% 
              str_replace("Senate", "Senator") %>% 
-             str_replace("House", "Congressperson"))
+             str_replace("House", "Representative"))
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
   last_name_count <- members %>% 
-    select(last_name, chamber, bioname) %>%  
+    select(last_name, chamber, bioname, congress) %>%  
     distinct() %>%     
-    count(last_name, chamber) %>% 
+    count(last_name, chamber, congress) %>% 
     rename(last_name_count = n)
   
   members %<>% 
