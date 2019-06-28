@@ -81,13 +81,13 @@ formatLastName <- function(data, col_name){
     mutate(last_name = gsub("LAMALFA", replacement = "LaMALFA", last_name)) %>% 
 
     # Commented this out because we modified the members file instead, but maybe it would better to modify just the search pattern to be Luj.n as a typo
-    # FIXME
+    # FIXED
     # mutate(last_name = ifelse(grepl("Lujan", FROM,ignore.case=TRUE)&grepl("Ben", FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>% 
     # mutate(last_name = ifelse( grepl("Lujan",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "LUJÁN", last_name)) %>%
     
 
     ##############################################################################################################################
-    # FIXME 
+    # FIXED
     # All of the below should be corrected with the typos tables (if a typo) or in nameCongress.R (if a name that needs expanding)
     # Spelling and specific corrections
   
@@ -157,12 +157,12 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = stri_trans_totitle(first_name))
     
   ##############################################################################################################################
-  # FIXME 
+  # FIXED
   # All of the below should be corrected with the typos tables (if a typo) or in nameCongress.R (if a name that needs expanding)
   # Spelling and specific corrections
   data %<>% 
     mutate(first_name = ifelse( grepl("Don",FROM,ignore.case=TRUE)&grepl("Young",FROM,ignore.case=TRUE), "Donald", first_name)) %>% #fixed in namecongress
-    #mutate(first_name = ifelse( grepl("Andr",FROM,ignore.case=TRUE)&grepl("Carson",FROM,ignore.case=TRUE), "André", first_name)) %>%
+    #mutate(first_name = ifelse( grepl("Andr",FROM,ignore.case=TRUE)&grepl("Carson",FROM,ignore.case=TRUE), "André", first_name)) %>% #fixed
     mutate(first_name = ifelse( grepl("John",FROM,ignore.case=TRUE)&grepl("Thune",FROM,ignore.case=TRUE), "John", first_name)) %>% #no error
     mutate(first_name = ifelse( grepl("John",FROM,ignore.case=TRUE)&grepl("Rockefeller",FROM,ignore.case=TRUE), "John", first_name)) %>%#no error
     mutate(first_name = ifelse( grepl("Harold",FROM,ignore.case=TRUE)&grepl("Rogers",FROM,ignore.case=TRUE), "Harold", first_name)) %>% #no error
@@ -181,7 +181,7 @@ formatFirstName <- function(data, col_name){
     mutate(first_name = ifelse( grepl("Butterfield",FROM,ignore.case=TRUE)&grepl("G",FROM,ignore.case=TRUE), "George", first_name)) %>% #fixed
     mutate(first_name = ifelse( grepl("G. K.",FROM,ignore.case=TRUE), "G.K.", first_name)) %>% #fixed
     mutate(first_name = ifelse( grepl("Nelson",FROM,ignore.case=TRUE)&grepl("Ben",FROM,ignore.case=TRUE), "Earl", first_name)) %>% #fixed in namecongress
-  #mutate(first_name = ifelse( grepl("Carson",FROM,ignore.case=TRUE)&grepl("Andr",FROM,ignore.case=TRUE), "André", first_name)) %>%
+  #mutate(first_name = ifelse( grepl("Carson",FROM,ignore.case=TRUE)&grepl("Andr",FROM,ignore.case=TRUE), "André", first_name)) %>% #fixed
    #mutate(first_name = ifelse( grepl("Griv",FROM,ignore.case=TRUE)&grepl("Raul",FROM,ignore.case=TRUE), "Raúl", first_name)) %>%
     mutate(first_name = ifelse( grepl("Scott",FROM,ignore.case=TRUE)&grepl("Bobby",FROM,ignore.case=TRUE), "Bob", first_name)) %>% #fixed
     
@@ -1186,7 +1186,8 @@ typos_first <- tribble(
   "Dennis", "KUCINICH", "Denis",
   "Sheila", "Jackson", "Shelee",
   "Jose", "Serrano", "Jos.",
-  "Lindsey", "Graham", "Lindsay"
+  "Lindsey", "Graham", "Lindsay",
+  "Andre", "Carson", "Andr."
    
 )   %>% 
   mutate(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
