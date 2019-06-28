@@ -982,7 +982,7 @@ typos_clear <- tribble(
   "Velazquez", "Vel.zquez",
   "Lincoln", "L.ncoln",
   "Timothy", "T.mothy",
-  "MacArthur","(Mcarthur|Mccarthur)", # we should make sure there is no McArthur
+  "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
   "Michael", "(Midlael|Michaell|Micahel)",
   "Martin","Martrin", 
   "Cardenas", "C.rdenas",
@@ -994,23 +994,24 @@ typos_clear <- tribble(
   "Brian", "Brain",
   "Christopher", "Christoher",
   "Lujan", "Luj.n",
+  "Raul", "R.ul",
   
 
   
   ###############################
   
   # Reversing order of first name and last name
-  # This extractMemberNames(), but it won't work for getFirstLast comma. It seems the better solution would be to add the missing commas so they match the last, first pattern
-  "John Duncan", "Duncan John",
-  "Henry Johnson", "Johnson Henry",
-  "Mary Bono", "Bono Mary",
-  "Nick Rahall", "Rahall Nick",
-  "Jackson Lee", "Lee Jackson",
-  "Michael Conaway", "Conaway Michael",
-  "Morgan Griffith", "Griffith Morgan",
-  "Steve Womack", "Womack Steve",
-  "Dana ROHRABACHER", "ROHRABACHER Dana",
-  "Ben Nelson", "Nelson Bill"
+  # Added the missing commas so they match the last, first pattern
+  "John Duncan", "Duncan, John",
+  "Henry Johnson", "Johnson, Henry",
+  "Mary Bono", "Bono, Mary",
+  "Nick Rahall", "Rahall, Nick",
+  "Jackson Lee", "Lee, Jackson",
+  "Michael Conaway", "Conaway, Michael",
+  "Morgan Griffith", "Griffith, Morgan",
+  "Steve Womack", "Womack, Steve",
+  "Dana ROHRABACHER", "ROHRABACHER, Dana",
+  "Ben Nelson", "Nelson, Ben"
   
 
 )
@@ -1080,9 +1081,8 @@ typos_last <- tribble(
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
-  #"Raja", "KRISHNAMOORTHI", "Krishnamoothi",
+  "Raja", "Krishnamoorthi", "Krishnamoothi",
   "Barbara", "Mikulski", "Milkulski",
-  #"Raul", "GRIJALVA", "Grijalva", # this was just making it upper case, right? The method is not case-sensitive.
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
