@@ -6,14 +6,14 @@
 # Many spelling errors need to be addressed
 
 # source("setup.R")
-# file.name <- "DOE_FERC Extended" # for testing
+ # file.name <- "DOE_FERC Extended" 
 
 clean <- function(file.name) {
   
   load("data/DOE_FERC-letters-coded.Rdata")
 
   data <- FERC_letters %>%
-    select(members,SUBJECT,everything())
+    select(members,SUBJECT,everything())# %>% top_n(1000)
   
   sum(!is.na(data$TYPE))
   
@@ -86,13 +86,12 @@ clean <- function(file.name) {
   
 # # Testing 
 # look<-data %>% 
-#     filter(is.na(last_name)) %>%
-#     count(FROM,congress) %>%
-#     arrange(-n)
-# d1 <- look %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
-# d2 <- look %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
-# look <- full_join(d1, d2)
-
+#      count(FROM,congress) %>%
+#      arrange(-n)
+#  d1 <- look %>% filter(congress>109) %>% extractMemberName2(members = members, col_name = "FROM")
+#  d2 <- look %>% filter(congress<110) %>% extractMemberName2(members = members_106to109th, col_name = "FROM")
+#  look <- full_join(d1, d2)%>%
+#  filter(is.na(last_name)) 
 
   
   # arrange columns for hand coding

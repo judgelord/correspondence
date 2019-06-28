@@ -71,6 +71,7 @@ data_list <- tribble(
 "DOI_USGS", "not coded", NA,
 # DOJ 
  "DOJ_CIV", "not coded", NA,
+"DOJ_ENRD", "not coded", NA,
 "DOJ_EOIR", "not coded", NA,
 # DOL 
 "DOL_EBSA", "not coded", NA,
@@ -164,7 +165,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DHHS_CDC")
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -172,7 +173,7 @@ d1 <- clean.agency(
   coders = as.character(data_list[i, 3])
   ) %>% distinct()
 
-d1 %>% filter(!is.na(last_name)) %>% count(congress)
+d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
 members2 <- full_join(members, members_106to109th) 
 
@@ -183,7 +184,8 @@ d <- d1 %>% # and merge with voteview data
   left_join(members2) %>% # merge on common variables (may differ)
   distinct()
 
-d %>% filter(!is.na(last_name)) %>% count(year)
+d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
+
 d %>% filter(!is.na(icpsr)) %>% count(year)
 ####################
 

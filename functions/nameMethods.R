@@ -29,7 +29,7 @@ cleanFROMcolumn <- function(FROM){
   # remove 
   FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
   FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
-  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Senator|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Repres|Congress|Rep |Sen ", "", FROM)
+  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Repres|Rep |Sen ", "", FROM)
   
   # replace with comma
   FROM <- gsub(pattern = ", CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
@@ -224,108 +224,108 @@ formatFirstName <- function(data, col_name){
 # This function will extract names found in the members dataset
 # typical call:   
 # data %<>% extractMemberName(members, 'FROM') 
-# NOTE: A VAR NAMED "members" IN DATA CAN CAUSE PROBLEMS AND A VAR NAMED SUMMARY WILL BE OVERWRITTEN 
+# NOTE: A VAR NAMED "members" IN DATA CAN CAUSE PROBLEMS AND A VAR NAMED string WILL BE OVERWRITTEN 
 
 extractMemberName <- function(data, members, col_name){
   
-  data %<>% mutate(Summary = data[[col_name]])
+  data %<>% mutate(string = data[[col_name]])
 
   # clean up text
-  data$Summary %<>% cleanFROMcolumn()
+  data$string %<>% cleanFROMcolumn()
   
   
   # correct common OCR errors
-  data$Summary <- ocr.errors(data$Summary)
+  data$string <- ocr.errors(data$string)
   
   
   data %<>% 
     # find common typos
-    mutate(typos = Summary %>% map_chr(findTypos)) %>% 
+    mutate(typos = string %>% map_chr(findTypos)) %>% 
     # add in corrections
     left_join(typos) %>%
     # replace typos with corrections
-    mutate(Summary = str_replace_all(Summary, regex(typos, ignore_case = T), correct))
+    mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct))
   
   
   #####################
   # Match names in different formats
   ###################
 
-  # create FROM2 varible extracting name from data$Summary
+  # create FROM2 varible extracting name from data$string
   
   # WARNING THIS OVERWRITES WITH THE MOST RECENT NAME MATCHED
   
   # extract common_last name formats
   data$FROM2 <- gsub(pattern = paste(c('.*(', paste(members$common_last[1:850], collapse = '|'), ').*'), collapse = ""),
-                    replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+                    replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     
     # extracts  first_last name formats
     gsub(pattern = paste(c('.*(', paste(members$first_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     
     # first_middle_last name formats
     gsub(pattern = paste(c('.*(', paste(members$first_middle_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_middle_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_middle_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_middle_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_middle_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     
     # first_initial_last name formats
     gsub(pattern = paste(c('.*(', paste(members$first_initial_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_initial_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_initial_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_initial_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$first_initial_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     
     # common_middle_last name formats
     gsub(pattern = paste(c('.*(', paste(members$common_middle_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_middle_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_middle_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_middle_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_middle_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     
     # common_initial_last name formats
     gsub(pattern = paste(c('.*(', paste(members$common_initial_last[1:850], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_initial_last[850:1700], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_initial_last[1700:2550], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
     gsub(pattern = paste(c('.*(', paste(members$common_initial_last[2550:3400], collapse = '|'), ').*'), collapse = ""),
-         replacement = "\\1", data$Summary, ignore.case = TRUE) %>% 
+         replacement = "\\1", data$string, ignore.case = TRUE) %>% 
   gsub(pattern = paste(c('.*(', paste(members$common_initial_last[3400:nrow(members)], collapse = '|'), ').*'), collapse = ""),
-       replacement = "\\1", data$Summary, ignore.case = TRUE) 
+       replacement = "\\1", data$string, ignore.case = TRUE) 
   
   
   
@@ -345,35 +345,35 @@ extractMemberName <- function(data, members, col_name){
   
   # keep if first name matches a first name in the members data, otherwise, NA
   data %<>%
-    mutate(first_name = ifelse(   grepl(paste(members$first_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-                                    grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE),
+    mutate(first_name = ifelse(   grepl(paste(members$first_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$common_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+                                    grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE),
                                   first_name, NA) ) 
   
   # keep if last name matches a last name in the members file, otherwise, NA
   data %<>% 
     mutate(last_name = ifelse(
-      grepl(paste(members$first_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$Summary, ignore.case = TRUE)|
-        grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$Summary, ignore.case = TRUE), 
+      grepl(paste(members$first_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+        grepl(paste(members$first_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+        grepl(paste(members$common_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+        grepl(paste(members$common_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+        grepl(paste(members$first_middle_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+        grepl(paste(members$first_middle_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+        grepl(paste(members$first_initial_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+        grepl(paste(members$first_initial_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+        grepl(paste(members$common_middle_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+        grepl(paste(members$common_middle_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE)|
+        grepl(paste(members$common_initial_last[1:1500], collapse = '|'), data$string, ignore.case = TRUE)|
+        grepl(paste(members$common_initial_last[1501:nrow(members)],collapse = "|"), data$string, ignore.case = TRUE), 
       last_name, NA)) 
   
   # if both first name and last name are NA, FROM2 is NA 
@@ -382,148 +382,148 @@ data %>%
   
   # corrections to first and last names 
  data %<>%
-   mutate(last_name = ifelse(grepl("Matso|Masto", Summary,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("Matso|Masto", Summary,ignore.case = TRUE), "Catherine", first_name)) %>% #fixed
-   mutate(last_name = ifelse(grepl("Luj.n", Summary,ignore.case = TRUE)&grepl("Grishman|Grisham", Summary,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("Luj.n", Summary,ignore.case = TRUE)&grepl("Grishman|Grisham", Summary,ignore.case=TRUE), "Michelle", first_name)) %>% #fixed
-   mutate(last_name = ifelse(grepl("Luj.n", Summary,ignore.case = TRUE)&grepl("Ben", Summary,ignore.case=TRUE), "LUJAN", last_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("Luj.n", Summary,ignore.case = TRUE)&grepl("Ben", Summary,ignore.case=TRUE), "Ben", first_name)) %>% #fixed
-   mutate(last_name = ifelse(grepl("Deb", Summary,ignore.case = TRUE)&grepl("Wasserman|Schultz", Summary,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("Deb",Summary,ignore.case=TRUE)&grepl("Wasserman|Schultz",Summary,ignore.case=TRUE), "Debbie", first_name)) %>% #fixed
-   mutate(last_name = ifelse(grepl("Mario|Lincoln", Summary,ignore.case = TRUE)&grepl("Diaz|Balart", Summary,ignore.case=TRUE), "DIAZ-BALART", last_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("Mario", Summary,ignore.case = TRUE)&grepl("Diaz|Balart", Summary,ignore.case=TRUE), "Mario", first_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("Lincoln", Summary,ignore.case = TRUE)&grepl("Diaz|Balart", Summary,ignore.case=TRUE), "Lincoln", first_name)) #fixed
+   mutate(last_name = ifelse(grepl("Matso|Masto", string,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Matso|Masto", string,ignore.case = TRUE), "Catherine", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Luj.n", string,ignore.case = TRUE)&grepl("Grishman|Grisham", string,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Luj.n", string,ignore.case = TRUE)&grepl("Grishman|Grisham", string,ignore.case=TRUE), "Michelle", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Luj.n", string,ignore.case = TRUE)&grepl("Ben", string,ignore.case=TRUE), "LUJAN", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Luj.n", string,ignore.case = TRUE)&grepl("Ben", string,ignore.case=TRUE), "Ben", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Deb", string,ignore.case = TRUE)&grepl("Wasserman|Schultz", string,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Deb",string,ignore.case=TRUE)&grepl("Wasserman|Schultz",string,ignore.case=TRUE), "Debbie", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Mario|Lincoln", string,ignore.case = TRUE)&grepl("Diaz|Balart", string,ignore.case=TRUE), "DIAZ-BALART", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Mario", string,ignore.case = TRUE)&grepl("Diaz|Balart", string,ignore.case=TRUE), "Mario", first_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Lincoln", string,ignore.case = TRUE)&grepl("Diaz|Balart", string,ignore.case=TRUE), "Lincoln", first_name)) #fixed
  
  # Fix specific common errors
  data %<>%
-   mutate(last_name = ifelse(grepl("HERSETH", Summary, ignore.case = TRUE )|grepl('SANDLIN', Summary, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("HERSETH", Summary,ignore.case = TRUE)|grepl('SANDLIN', Summary,ignore.case = TRUE), "Stephanie", first_name)) %>%
-   mutate(last_name = ifelse(grepl("PAULSEN", Summary, ignore.case = TRUE )&grepl('Erik', Summary, ignore.case = TRUE), "PAULSEN", last_name)) %>% #no error
-   mutate(first_name = ifelse(grepl("PAULSEN", Summary,ignore.case = TRUE)&grepl('Erik', Summary,ignore.case = TRUE), "Erik", first_name)) %>% #no error 
-   mutate(last_name = ifelse(grepl("CONYERS", Summary, ignore.case = TRUE )&grepl('John', Summary, ignore.case = TRUE), "CONYERS", last_name)) %>% #no error
-   mutate(first_name = ifelse(grepl("CONYERS", Summary,ignore.case = TRUE)&grepl('John', Summary,ignore.case = TRUE), "John", first_name)) %>% #no error
-   mutate(last_name = ifelse(grepl("Ben|E.B|E B", Summary,ignore.case = TRUE)& grepl('NELSON', Summary,ignore.case = TRUE), "NELSON", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Ben|E.B|E B", Summary,ignore.case = TRUE)& grepl('NELSON', Summary,ignore.case = TRUE), "Ben", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Casey", Summary,ignore.case = TRUE)& grepl('Rob|Bob|Jr', Summary,ignore.case = TRUE), "CASEY", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Casey", Summary,ignore.case = TRUE)& grepl('Rob|Bob|Jr', Summary,ignore.case = TRUE), "Robert", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("RUPPERSBERGER", Summary,ignore.case = TRUE), "RUPPERSBERGER", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("RUPPERSBERGER", Summary,ignore.case = TRUE), "Dutch", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("KRATOVIL", Summary,ignore.case = TRUE), "KRATOVIL", last_name)) %>% #no error
-   mutate(first_name = ifelse(grepl("KRATOVIL", Summary,ignore.case = TRUE), "Frank", first_name)) %>% #no error
-   mutate(last_name = ifelse(grepl("Sheila", Summary,ignore.case = TRUE)&grepl("JACKSON|Lee", Summary,ignore.case = TRUE), "JACKSON LEE", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Sheila", Summary,ignore.case = TRUE)&grepl("JACKSONLee", Summary,ignore.case = TRUE), "Sheila", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Paul", Summary,ignore.case = TRUE)&grepl("KIRK", Summary,ignore.case = TRUE), "KIRK", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Paul", Summary,ignore.case = TRUE)&grepl("KIRK", Summary,ignore.case = TRUE), "Paul", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Gresham", Summary,ignore.case = TRUE), "BARRETT", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Gresham", Summary,ignore.case = TRUE)&grepl("James|Barret", Summary,ignore.case = TRUE), "James", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("John", Summary,ignore.case = TRUE)&grepl("Hall", Summary,ignore.case = TRUE), "HALL", last_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("John", Summary,ignore.case = TRUE)&grepl("Hall", Summary,ignore.case = TRUE), "John", first_name)) %>% #fixed
-   mutate(last_name = ifelse(grepl("ENBRENNER", Summary,ignore.case = TRUE), "SENSENBRENNER", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("ENBRENNER", Summary,ignore.case = TRUE), "Frank", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("FRELINGHUY", Summary,ignore.case = TRUE), "FRELINGHUYSEN", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("FRELINGHUY", Summary,ignore.case = TRUE), "Rodney", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("LARRICK", Summary,ignore.case = TRUE), "LARSEN", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("LARRICK", Summary,ignore.case = TRUE), "Rick", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("BOUSTANY", Summary,ignore.case = TRUE), "BOUSTANY", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("BOUSTANY", Summary,ignore.case = TRUE), "Charles", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "HINOJOSA", last_name)) %>% #fixed
-   mutate(first_name = ifelse(grepl("HINOJOSA", Summary,ignore.case = TRUE), "Ruben", first_name)) %>% #fixed
-   mutate(last_name = ifelse(grepl("Payne", Summary,ignore.case = TRUE)&grepl("Don", Summary,ignore.case = TRUE), "PAYNE", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Payne", Summary,ignore.case = TRUE)&grepl("Don", Summary,ignore.case = TRUE), "Donald", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Pascrell", Summary,ignore.case = TRUE)&grepl("Bill", Summary,ignore.case = TRUE), "PASCRELL", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Pascrell", Summary,ignore.case = TRUE)&grepl("Bill", Summary,ignore.case = TRUE), "Bill", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Tony", Summary,ignore.case = TRUE)&grepl("C.rdenas", Summary,ignore.case = TRUE), "CARDENAS", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Tony", Summary,ignore.case = TRUE)&grepl("C.rdenas", Summary,ignore.case = TRUE), "Tony", first_name)) %>%  
-   mutate(last_name = ifelse(grepl("Kay", Summary,ignore.case = TRUE)&grepl("Hutch", Summary,ignore.case = TRUE), "HUTCHISON", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Kay", Summary,ignore.case = TRUE)&grepl("Hutch", Summary,ignore.case = TRUE), "Kay", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Mack|Mary", Summary,ignore.case = TRUE)&grepl("Bono", Summary,ignore.case = TRUE), "BONO", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Mack|mary", Summary,ignore.case = TRUE)&grepl("Bono", Summary,ignore.case = TRUE), "Mary", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Arlen", Summary,ignore.case = TRUE)&grepl("Spec", Summary,ignore.case = TRUE), "SPECTER", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Arlen", Summary,ignore.case = TRUE)&grepl("Spec", Summary,ignore.case = TRUE), "Arlen", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Chris", Summary,ignore.case = TRUE)&grepl("Van", Summary,ignore.case = TRUE)&grepl("Hollen", Summary,ignore.case = TRUE), "VAN HOLLEN", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Chris", Summary,ignore.case = TRUE)&grepl("Van", Summary,ignore.case = TRUE)&grepl("Hollen", Summary,ignore.case = TRUE), "Chris", first_name))  %>% 
-   mutate(last_name = ifelse(grepl("Bonnie", Summary,ignore.case = TRUE)&grepl("Coleman", Summary,ignore.case = TRUE), "WATSON COLEMAN", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Bonnie", Summary,ignore.case = TRUE)&grepl("Coleman", Summary,ignore.case = TRUE), "Bonnie", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Beto", Summary,ignore.case = TRUE)&grepl("ROURKE", Summary,ignore.case = TRUE), "O'ROURKE", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Beto", Summary,ignore.case = TRUE)&grepl("ROURKE", Summary,ignore.case = TRUE), "Beto", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Gloria", Summary,ignore.case = TRUE)&grepl("McLeod|Negrete", Summary,ignore.case = TRUE), "NEGRETE McLEOD", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Gloria", Summary,ignore.case = TRUE)&grepl("McLeod", Summary,ignore.case = TRUE), "Gloria", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Frank", Summary,ignore.case = TRUE)&grepl("Pallone", Summary,ignore.case = TRUE), "PALLONE", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Frank", Summary,ignore.case = TRUE)&grepl("Pallone", Summary,ignore.case = TRUE), "Frank", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Sanford", Summary,ignore.case = TRUE)&grepl("Bishop", Summary,ignore.case = TRUE), "BISHOP", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Sanford", Summary,ignore.case = TRUE)&grepl("Bishop", Summary,ignore.case = TRUE), "Sanford", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Matso|Masto", Summary,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Matso|Masto", Summary,ignore.case = TRUE), "Catherine", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Luj.n|Michelle", Summary,ignore.case = TRUE)&grepl("Grishman|Grisham", Summary,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Luj.n|Michelle", Summary,ignore.case = TRUE)&grepl("Grishman|Grisham", Summary,ignore.case=TRUE), "Michelle", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Donovan|Donavan", Summary,ignore.case = TRUE)&grepl("Dan", Summary,ignore.case=FALSE), "DONOVAN", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Donovan|Donavan", Summary,ignore.case = TRUE)&grepl("Dan", Summary,ignore.case=FALSE), "Daniel", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Randy| j.|james|j ", Summary,ignore.case = TRUE)&grepl("Forbes", Summary,ignore.case=TRUE), "FORBES", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Randy| j.|james|j ", Summary,ignore.case = TRUE)&grepl("Forbes", Summary,ignore.case=TRUE), "James", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Mario|Lincoln", Summary,ignore.case = TRUE)&grepl("Diaz|Balart", Summary,ignore.case=TRUE), "DIAZ-BALART", last_name)) %>% 
-   mutate(first_name = ifelse(grepl("Mario", Summary,ignore.case = TRUE)&grepl("Diaz|Balart", Summary,ignore.case=TRUE), "Mario", first_name)) %>% 
-   mutate(first_name = ifelse(grepl("Lincoln", Summary,ignore.case = TRUE)&grepl("Diaz|Balart", Summary,ignore.case=TRUE), "Lincoln", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Gresham", Summary,ignore.case = TRUE)&grepl("Bar", Summary,ignore.case=TRUE), "BARRETT", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Gresham",Summary,ignore.case=TRUE)&grepl("Barret",Summary,ignore.case=TRUE), "James", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Deb", Summary,ignore.case = TRUE)&grepl("Wasserman|Schultz", Summary,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Deb",Summary,ignore.case=TRUE)&grepl("Wasserman|Schultz",Summary,ignore.case=TRUE), "Debbie", first_name)) %>% 
-   mutate(last_name = ifelse(grepl("Kristen|Kirsten", Summary,ignore.case = TRUE)&grepl("Gil", Summary,ignore.case=TRUE), "GILLIBRAND", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Kristen|Kirsten",Summary,ignore.case=TRUE)&grepl("Gil",Summary,ignore.case=TRUE), "Kirsten", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("Jo ",Summary,ignore.case=TRUE)&grepl("Davis",Summary,ignore.case=TRUE), "DAVIS", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Jo ",Summary,ignore.case=TRUE)&grepl("Davis",Summary,ignore.case=TRUE), "Jo", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("Waite|Brown",Summary,ignore.case=TRUE)&grepl("Ginny|Virginia",Summary,ignore.case=TRUE), "BROWN-WAITE", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Waite|Brown",Summary,ignore.case=TRUE)&grepl("Ginny|Virginia",Summary,ignore.case=TRUE), "Virginia", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("Jo",Summary,ignore.case=TRUE)&grepl("Emerson",Summary,ignore.case=TRUE), "EMERSON", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Jo",Summary,ignore.case=TRUE)&grepl("Emerson",Summary,ignore.case=TRUE), "Jo", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("Shelley|Moore",Summary,ignore.case=TRUE)&grepl("Capito",Summary,ignore.case=TRUE), "CAPITO", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Shelley|Moore",Summary,ignore.case=TRUE)&grepl("Capito",Summary,ignore.case=TRUE), "Shelley", first_name))%>% 
-   mutate(last_name = ifelse( grepl("McMorris|Rodgers",Summary,ignore.case=TRUE)&grepl("Cathy|McMorris",Summary,ignore.case=TRUE), "McMORRIS RODGERS", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("McMorris|Rodgers",Summary,ignore.case=TRUE)&grepl("Cathy|McMorris",Summary,ignore.case=TRUE), "Cathy", first_name)) %>% 
+   mutate(last_name = ifelse(grepl("HERSETH", string, ignore.case = TRUE )|grepl('SANDLIN', string, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("HERSETH", string,ignore.case = TRUE)|grepl('SANDLIN', string,ignore.case = TRUE), "Stephanie", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("PAULSEN", string, ignore.case = TRUE )&grepl('Erik', string, ignore.case = TRUE), "PAULSEN", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("PAULSEN", string,ignore.case = TRUE)&grepl('Erik', string,ignore.case = TRUE), "Erik", first_name)) %>% #no error 
+   mutate(last_name = ifelse(grepl("CONYERS", string, ignore.case = TRUE )&grepl('John', string, ignore.case = TRUE), "CONYERS", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("CONYERS", string,ignore.case = TRUE)&grepl('John', string,ignore.case = TRUE), "John", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("Ben|E.B|E B", string,ignore.case = TRUE)& grepl('NELSON', string,ignore.case = TRUE), "NELSON", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Ben|E.B|E B", string,ignore.case = TRUE)& grepl('NELSON', string,ignore.case = TRUE), "Ben", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Casey", string,ignore.case = TRUE)& grepl('Rob|Bob|Jr', string,ignore.case = TRUE), "CASEY", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Casey", string,ignore.case = TRUE)& grepl('Rob|Bob|Jr', string,ignore.case = TRUE), "Robert", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("RUPPERSBERGER", string,ignore.case = TRUE), "RUPPERSBERGER", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("RUPPERSBERGER", string,ignore.case = TRUE), "Dutch", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("KRATOVIL", string,ignore.case = TRUE), "KRATOVIL", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("KRATOVIL", string,ignore.case = TRUE), "Frank", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("Sheila", string,ignore.case = TRUE)&grepl("JACKSON|Lee", string,ignore.case = TRUE), "JACKSON LEE", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Sheila", string,ignore.case = TRUE)&grepl("JACKSONLee", string,ignore.case = TRUE), "Sheila", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Paul", string,ignore.case = TRUE)&grepl("KIRK", string,ignore.case = TRUE), "KIRK", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Paul", string,ignore.case = TRUE)&grepl("KIRK", string,ignore.case = TRUE), "Paul", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Gresham", string,ignore.case = TRUE), "BARRETT", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Gresham", string,ignore.case = TRUE)&grepl("James|Barret", string,ignore.case = TRUE), "James", first_name)) %>% #may need to fix later
+   mutate(last_name = ifelse(grepl("John", string,ignore.case = TRUE)&grepl("Hall", string,ignore.case = TRUE), "HALL", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("John", string,ignore.case = TRUE)&grepl("Hall", string,ignore.case = TRUE), "John", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("ENBRENNER", string,ignore.case = TRUE), "SENSENBRENNER", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("ENBRENNER", string,ignore.case = TRUE), "Frank", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("FRELINGHUY", string,ignore.case = TRUE), "FRELINGHUYSEN", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("FRELINGHUY", string,ignore.case = TRUE), "Rodney", first_name)) %>% #no error 
+   mutate(last_name = ifelse(grepl("LARRICK", string,ignore.case = TRUE), "LARSEN", last_name)) %>% #may need to fix later
+   mutate(first_name = ifelse(grepl("LARRICK", string,ignore.case = TRUE), "Rick", first_name)) %>% #may need to fix later
+   mutate(last_name = ifelse(grepl("BOUSTANY", string,ignore.case = TRUE), "BOUSTANY", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("BOUSTANY", string,ignore.case = TRUE), "Charles", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("HINOJOSA", string,ignore.case = TRUE), "HINOJOSA", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("HINOJOSA", string,ignore.case = TRUE), "Ruben", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Payne", string,ignore.case = TRUE)&grepl("Don", string,ignore.case = TRUE), "PAYNE", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Payne", string,ignore.case = TRUE)&grepl("Don", string,ignore.case = TRUE), "Donald", first_name)) %>% #fixed 
+   mutate(last_name = ifelse(grepl("Pascrell", string,ignore.case = TRUE)&grepl("Bill", string,ignore.case = TRUE), "PASCRELL", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Pascrell", string,ignore.case = TRUE)&grepl("Bill", string,ignore.case = TRUE), "Bill", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Tony", string,ignore.case = TRUE)&grepl("C.rdenas", string,ignore.case = TRUE), "CARDENAS", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Tony", string,ignore.case = TRUE)&grepl("C.rdenas", string,ignore.case = TRUE), "Tony", first_name)) %>%  #fixed
+   mutate(last_name = ifelse(grepl("Kay", string,ignore.case = TRUE)&grepl("Hutch", string,ignore.case = TRUE), "HUTCHISON", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("Kay", string,ignore.case = TRUE)&grepl("Hutch", string,ignore.case = TRUE), "Kay", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("Mack|Mary", string,ignore.case = TRUE)&grepl("Bono", string,ignore.case = TRUE), "BONO", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Mack|mary", string,ignore.case = TRUE)&grepl("Bono", string,ignore.case = TRUE), "Mary", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Arlen", string,ignore.case = TRUE)&grepl("Spec", string,ignore.case = TRUE), "SPECTER", last_name)) %>% #no error
+   mutate(first_name = ifelse(grepl("Arlen", string,ignore.case = TRUE)&grepl("Spec", string,ignore.case = TRUE), "Arlen", first_name)) %>% #no error
+   mutate(last_name = ifelse(grepl("Chris", string,ignore.case = TRUE)&grepl("Van", string,ignore.case = TRUE)&grepl("Hollen", string,ignore.case = TRUE), "VAN HOLLEN", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Chris", string,ignore.case = TRUE)&grepl("Van", string,ignore.case = TRUE)&grepl("Hollen", string,ignore.case = TRUE), "Chris", first_name))  %>% #fixed
+   mutate(last_name = ifelse(grepl("Bonnie", string,ignore.case = TRUE)&grepl("Coleman", string,ignore.case = TRUE), "WATSON COLEMAN", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Bonnie", string,ignore.case = TRUE)&grepl("Coleman", string,ignore.case = TRUE), "Bonnie", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Beto", string,ignore.case = TRUE)&grepl("ROURKE", string,ignore.case = TRUE), "O'ROURKE", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Beto", string,ignore.case = TRUE)&grepl("ROURKE", string,ignore.case = TRUE), "Beto", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Gloria", string,ignore.case = TRUE)&grepl("McLeod|Negrete", string,ignore.case = TRUE), "NEGRETE McLEOD", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Gloria", string,ignore.case = TRUE)&grepl("McLeod", string,ignore.case = TRUE), "Gloria", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Frank", string,ignore.case = TRUE)&grepl("Pallone", string,ignore.case = TRUE), "PALLONE", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Frank", string,ignore.case = TRUE)&grepl("Pallone", string,ignore.case = TRUE), "Frank", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Sanford", string,ignore.case = TRUE)&grepl("Bishop", string,ignore.case = TRUE), "BISHOP", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Sanford", string,ignore.case = TRUE)&grepl("Bishop", string,ignore.case = TRUE), "Sanford", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Matso|Masto", string,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Matso|Masto", string,ignore.case = TRUE), "Catherine", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Luj.n|Michelle", string,ignore.case = TRUE)&grepl("Grishman|Grisham", string,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Luj.n|Michelle", string,ignore.case = TRUE)&grepl("Grishman|Grisham", string,ignore.case=TRUE), "Michelle", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Donovan|Donavan", string,ignore.case = TRUE)&grepl("Dan", string,ignore.case=FALSE), "DONOVAN", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Donovan|Donavan", string,ignore.case = TRUE)&grepl("Dan", string,ignore.case=FALSE), "Daniel", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Randy| j.|james|j ", string,ignore.case = TRUE)&grepl("Forbes", string,ignore.case=TRUE), "FORBES", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Randy| j.|james|j ", string,ignore.case = TRUE)&grepl("Forbes", string,ignore.case=TRUE), "James", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Mario|Lincoln", string,ignore.case = TRUE)&grepl("Diaz|Balart", string,ignore.case=TRUE), "DIAZ-BALART", last_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Mario", string,ignore.case = TRUE)&grepl("Diaz|Balart", string,ignore.case=TRUE), "Mario", first_name)) %>% #fixed
+   mutate(first_name = ifelse(grepl("Lincoln", string,ignore.case = TRUE)&grepl("Diaz|Balart", string,ignore.case=TRUE), "Lincoln", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Gresham", string,ignore.case = TRUE)&grepl("Bar", string,ignore.case=TRUE), "BARRETT", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Gresham",string,ignore.case=TRUE)&grepl("Barret",string,ignore.case=TRUE), "James", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Deb", string,ignore.case = TRUE)&grepl("Wasserman|Schultz", string,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Deb",string,ignore.case=TRUE)&grepl("Wasserman|Schultz",string,ignore.case=TRUE), "Debbie", first_name)) %>% #fixed
+   mutate(last_name = ifelse(grepl("Kristen|Kirsten", string,ignore.case = TRUE)&grepl("Gil", string,ignore.case=TRUE), "GILLIBRAND", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Kristen|Kirsten",string,ignore.case=TRUE)&grepl("Gil",string,ignore.case=TRUE), "Kirsten", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Jo ",string,ignore.case=TRUE)&grepl("Davis",string,ignore.case=TRUE), "DAVIS", last_name)) %>% #no error
+   mutate(first_name = ifelse( grepl("Jo ",string,ignore.case=TRUE)&grepl("Davis",string,ignore.case=TRUE), "Jo", first_name)) %>% #no error
+   mutate(last_name = ifelse( grepl("Waite|Brown",string,ignore.case=TRUE)&grepl("Ginny|Virginia",string,ignore.case=TRUE), "BROWN-WAITE", last_name)) %>% #no error
+   mutate(first_name = ifelse( grepl("Waite|Brown",string,ignore.case=TRUE)&grepl("Ginny|Virginia",string,ignore.case=TRUE), "Virginia", first_name)) %>% #no error
+   mutate(last_name = ifelse( grepl("Jo",string,ignore.case=TRUE)&grepl("Emerson",string,ignore.case=TRUE), "EMERSON", last_name)) %>% #no error
+   mutate(first_name = ifelse( grepl("Jo",string,ignore.case=TRUE)&grepl("Emerson",string,ignore.case=TRUE), "Jo", first_name)) %>% #no error
+   mutate(last_name = ifelse( grepl("Shelley|Moore",string,ignore.case=TRUE)&grepl("Capito",string,ignore.case=TRUE), "CAPITO", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Shelley|Moore",string,ignore.case=TRUE)&grepl("Capito",string,ignore.case=TRUE), "Shelley", first_name))%>% #fixed
+   mutate(last_name = ifelse( grepl("McMorris|Rodgers",string,ignore.case=TRUE)&grepl("Cathy|McMorris",string,ignore.case=TRUE), "McMORRIS RODGERS", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("McMorris|Rodgers",string,ignore.case=TRUE)&grepl("Cathy|McMorris",string,ignore.case=TRUE), "Cathy", first_name)) %>% #fixed
 
-   mutate(last_name = ifelse( grepl("Rounds",Summary,ignore.case=TRUE)&grepl("Marion|Mike|Michael",Summary,ignore.case=TRUE), "ROUNDS", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Rounds",Summary,ignore.case=TRUE)&grepl("Marion|Mike|Michael",Summary,ignore.case=TRUE), "Marion", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Panetta",Summary,ignore.case=TRUE)&grepl("Jim|James",Summary,ignore.case=TRUE), "PANETTA", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Panetta",Summary,ignore.case=TRUE)&grepl("Jim|James",Summary,ignore.case=TRUE), "James", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Roybal",Summary,ignore.case=TRUE)&grepl("Allard",Summary,ignore.case=TRUE), "ROYBAL-ALLARD", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Roybal",Summary,ignore.case=TRUE)&grepl("Allard",Summary,ignore.case=TRUE), "Lucille", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Clay",Summary,ignore.case=TRUE)&grepl("Lacy|William|Bill",Summary,ignore.case=TRUE), "CLAY", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Clay",Summary,ignore.case=TRUE)&grepl("Lacy|William|Bill",Summary,ignore.case=TRUE), "William", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Eleanor",Summary,ignore.case=TRUE)&grepl("Holmes|Norton",Summary,ignore.case=TRUE), "NORTON", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Eleanor",Summary,ignore.case=TRUE)&grepl("Holmes|Norton",Summary,ignore.case=TRUE), "Eleanor", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Gregorio",Summary,ignore.case=TRUE)&grepl("Sablan",Summary,ignore.case=TRUE), "SABLAN", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Gregorio",Summary,ignore.case=TRUE)&grepl("Sablan",Summary,ignore.case=TRUE), "Gregorio", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Shea",Summary,ignore.case=TRUE)&grepl("Porter",Summary,ignore.case=TRUE), "SHEA-PORTER", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Shea",Summary,ignore.case=TRUE)&grepl("Porter",Summary,ignore.case=TRUE), "Carol", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Jane",Summary,ignore.case=TRUE)&grepl("Harmon",Summary,ignore.case=TRUE), "HARMAN", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Jane",Summary,ignore.case=TRUE)&grepl("Harmon",Summary,ignore.case=TRUE), "Jane", first_name))%>% 
-   mutate(last_name = ifelse( grepl("Butterfield",Summary,ignore.case=TRUE)&grepl("G",Summary,ignore.case=TRUE), "BUTTERFIELD", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Butterfied",Summary,ignore.case=TRUE)&grepl("G",Summary,ignore.case=TRUE), "George", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("Jon",Summary,ignore.case=TRUE)&grepl("Kyi",Summary,ignore.case=TRUE), "KYL", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("Jon",Summary,ignore.case=TRUE)&grepl("Kyi",Summary,ignore.case=TRUE), "Jon", first_name)) %>% #fixed
-   mutate(last_name = ifelse( grepl("Lou",Summary,ignore.case=TRUE)&grepl("Gohmert",Summary,ignore.case=TRUE), "GOHMERT", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("Lou",Summary,ignore.case=TRUE)&grepl("Gohmert",Summary,ignore.case=TRUE), "Louie", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Jaime", first_name)) %>% #fixed
-   mutate(last_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",Summary,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% #fixed
-   #mutate(first_name = ifelse( grepl("Dian",Summary,ignore.case=TRUE)&grepl("Herrera|Beutler",Summary,ignore.case=TRUE), "Dianne", first_name)) %>% #incorrect name
-   mutate(last_name = ifelse( grepl("Issa",Summary,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",Summary,ignore.case=TRUE), "ISSA", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("Issa",Summary,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",Summary,ignore.case=TRUE), "Darrell", first_name)) %>% #fixed
-   mutate(last_name = ifelse( grepl("Whitfield|Whitefield",Summary,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",Summary,ignore.case=TRUE), "WHITFIELD", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("Whitfield|Whitefield",Summary,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",Summary,ignore.case=TRUE), "Wayne", first_name)) %>% #fixed
-   mutate(last_name = ifelse( grepl("(^| )Dana( |$)",Summary,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",Summary,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("(^| )Dana( |$)",Summary,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",Summary,ignore.case=TRUE), "Dana", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("(^| )Womack( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )St",Summary,ignore.case=TRUE), "WOMACK", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("(^| )Womack( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )St",Summary,ignore.case=TRUE), "Steve", first_name)) %>% #fixed
-   mutate(last_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "BONO", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("(^| )Mary( |$)",Summary,ignore.case=TRUE)&grepl("Mack|Bono",Summary,ignore.case=TRUE), "Mary", first_name)) %>% #fixed
-   mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",Summary,ignore.case=TRUE)&grepl("Morgan| H | H\\.",Summary,ignore.case=TRUE), "GRIFFITH", last_name)) %>% 
-   mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",Summary,ignore.case=TRUE)&grepl("Morgan| H | H\\.",Summary,ignore.case=TRUE), "Morgan", first_name)) %>% 
-   mutate(last_name = ifelse( grepl("(^| )Lindsay( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Graham",Summary,ignore.case=TRUE), "GRAHAM", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("(^| )Lindsay( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Graham",Summary,ignore.case=TRUE), "Lindsey", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Rounds",string,ignore.case=TRUE)&grepl("Marion|Mike|Michael",string,ignore.case=TRUE), "ROUNDS", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Rounds",string,ignore.case=TRUE)&grepl("Marion|Mike|Michael",string,ignore.case=TRUE), "Marion", first_name))%>% #fixed
+   mutate(last_name = ifelse( grepl("Panetta",string,ignore.case=TRUE)&grepl("Jim|James",string,ignore.case=TRUE), "PANETTA", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Panetta",string,ignore.case=TRUE)&grepl("Jim|James",string,ignore.case=TRUE), "James", first_name))%>% #fixed
+   mutate(last_name = ifelse( grepl("Roybal",string,ignore.case=TRUE)&grepl("Allard",string,ignore.case=TRUE), "ROYBAL-ALLARD", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Roybal",string,ignore.case=TRUE)&grepl("Allard",string,ignore.case=TRUE), "Lucille", first_name))%>% #fixed
+   mutate(last_name = ifelse( grepl("Clay",string,ignore.case=TRUE)&grepl("Lacy|William|Bill",string,ignore.case=TRUE), "CLAY", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Clay",string,ignore.case=TRUE)&grepl("Lacy|William|Bill",string,ignore.case=TRUE), "William", first_name))%>% #fixed
+   #mutate(last_name = ifelse( grepl("Eleanor",string,ignore.case=TRUE)&grepl("Holmes|Norton",string,ignore.case=TRUE), "NORTON", last_name)) %>% 
+   #mutate(first_name = ifelse( grepl("Eleanor",string,ignore.case=TRUE)&grepl("Holmes|Norton",string,ignore.case=TRUE), "Eleanor", first_name))%>% 
+   #mutate(last_name = ifelse( grepl("Gregorio",string,ignore.case=TRUE)&grepl("Sablan",string,ignore.case=TRUE), "SABLAN", last_name)) %>% 
+   #mutate(first_name = ifelse( grepl("Gregorio",string,ignore.case=TRUE)&grepl("Sablan",string,ignore.case=TRUE), "Gregorio", first_name))%>% 
+   mutate(last_name = ifelse( grepl("Shea",string,ignore.case=TRUE)&grepl("Porter",string,ignore.case=TRUE), "SHEA-PORTER", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Shea",string,ignore.case=TRUE)&grepl("Porter",string,ignore.case=TRUE), "Carol", first_name))%>% #fixed
+   mutate(last_name = ifelse( grepl("Jane",string,ignore.case=TRUE)&grepl("Harmon",string,ignore.case=TRUE), "HARMAN", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Jane",string,ignore.case=TRUE)&grepl("Harmon",string,ignore.case=TRUE), "Jane", first_name))%>% #fixed
+   mutate(last_name = ifelse( grepl("Butterfield",string,ignore.case=TRUE)&grepl("G",string,ignore.case=TRUE), "BUTTERFIELD", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Butterfied",string,ignore.case=TRUE)&grepl("G",string,ignore.case=TRUE), "George", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Jon",string,ignore.case=TRUE)&grepl("Kyi",string,ignore.case=TRUE), "KYL", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Jon",string,ignore.case=TRUE)&grepl("Kyi",string,ignore.case=TRUE), "Jon", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Lou",string,ignore.case=TRUE)&grepl("Gohmert",string,ignore.case=TRUE), "GOHMERT", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Lou",string,ignore.case=TRUE)&grepl("Gohmert",string,ignore.case=TRUE), "Louie", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",string,ignore.case=TRUE)&grepl("Herrera|Beutler",string,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",string,ignore.case=TRUE)&grepl("Herrera|Beutler",string,ignore.case=TRUE), "Jaime", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Dian",string,ignore.case=TRUE)&grepl("Feinstein|Feinstien|Fenstein",string,ignore.case=TRUE), "FEINSTEIN", last_name)) %>% #fixed
+   #mutate(first_name = ifelse( grepl("Dian",string,ignore.case=TRUE)&grepl("Herrera|Beutler",string,ignore.case=TRUE), "Dianne", first_name)) %>% #incorrect name
+   mutate(last_name = ifelse( grepl("Issa",string,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",string,ignore.case=TRUE), "ISSA", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Issa",string,ignore.case=TRUE)&grepl("Darryl|Daryl|Darrel|Darel",string,ignore.case=TRUE), "Darrell", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("Whitfield|Whitefield",string,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",string,ignore.case=TRUE), "WHITFIELD", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Whitfield|Whitefield",string,ignore.case=TRUE)&grepl("Edward|Ed|Wayne",string,ignore.case=TRUE), "Wayne", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("(^| )Dana( |$)",string,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",string,ignore.case=TRUE), "ROHRABACHER", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("(^| )Dana( |$)",string,ignore.case=TRUE)&grepl("(^| )RO.*HER( |$)",string,ignore.case=TRUE), "Dana", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("(^| )Womack( |$|,)",string,ignore.case=TRUE)&grepl("(^| )St",string,ignore.case=TRUE), "WOMACK", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("(^| )Womack( |$|,)",string,ignore.case=TRUE)&grepl("(^| )St",string,ignore.case=TRUE), "Steve", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("(^| )Mary( |$)",string,ignore.case=TRUE)&grepl("Mack|Bono",string,ignore.case=TRUE), "BONO", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("(^| )Mary( |$)",string,ignore.case=TRUE)&grepl("Mack|Bono",string,ignore.case=TRUE), "Mary", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",string,ignore.case=TRUE)&grepl("Morgan| H | H\\.",string,ignore.case=TRUE), "GRIFFITH", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("(^| )GRIFFITH( |$|,)",string,ignore.case=TRUE)&grepl("Morgan| H | H\\.",string,ignore.case=TRUE), "Morgan", first_name)) %>% #fixed
+   mutate(last_name = ifelse( grepl("(^| )Lindsay( |$|,)",string,ignore.case=TRUE)&grepl("(^| )Graham",string,ignore.case=TRUE), "GRAHAM", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("(^| )Lindsay( |$|,)",string,ignore.case=TRUE)&grepl("(^| )Graham",string,ignore.case=TRUE), "Lindsey", first_name)) %>% #fixed
    
-   mutate(last_name = ifelse( grepl("(^| )Conaway( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "CONAWAY", last_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("(^| )Conaway( |$|,)",Summary,ignore.case=TRUE)&grepl("(^| )Mi.",Summary,ignore.case=TRUE), "Michael", first_name)) %>% #fixed
-   mutate(first_name = ifelse( grepl("Anna A. ",Summary,ignore.case=TRUE),"Anna", first_name)) #fixed
+   mutate(last_name = ifelse( grepl("(^| )Conaway( |$|,)",string,ignore.case=TRUE)&grepl("(^| )Mi.",string,ignore.case=TRUE), "CONAWAY", last_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("(^| )Conaway( |$|,)",string,ignore.case=TRUE)&grepl("(^| )Mi.",string,ignore.case=TRUE), "Michael", first_name)) %>% #fixed
+   mutate(first_name = ifelse( grepl("Anna A. ",string,ignore.case=TRUE),"Anna", first_name)) #fixed
  
   # i<- which(members$last_name == "GRAMM")[1] 
     ## clean up in future
@@ -632,117 +632,117 @@ getFirstLast.Comma <- function(data, col_name){
   
   # Fix specific common errors
   data %<>%
-    mutate(last_name = ifelse(grepl("HERSETH", FROM2, ignore.case = TRUE )|grepl('SANDLIN', FROM2, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("HERSETH", FROM2,ignore.case = TRUE)|grepl('SANDLIN', FROM2,ignore.case = TRUE), "Stephanie", first_name)) %>%
-    mutate(last_name = ifelse(grepl("PAULSEN", FROM2, ignore.case = TRUE )&grepl('Erik', FROM2, ignore.case = TRUE), "PAULSEN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("PAULSEN", FROM2,ignore.case = TRUE)&grepl('Erik', FROM2,ignore.case = TRUE), "Erik", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("CONYERS", FROM2, ignore.case = TRUE )&grepl('John', FROM2, ignore.case = TRUE), "CONYERS", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("CONYERS", FROM2,ignore.case = TRUE)&grepl('John', FROM2,ignore.case = TRUE), "John", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Ben|E.B|E B", FROM2,ignore.case = TRUE)& grepl('NELSON', FROM2,ignore.case = TRUE), "NELSON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Ben|E.B|E B", first_last,ignore.case = TRUE)& grepl('NELSON', first_last,ignore.case = TRUE), "Ben", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Casey", FROM2,ignore.case = TRUE)& grepl('Rob|Bob|Jr', FROM2,ignore.case = TRUE), "CASEY", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Casey", FROM2,ignore.case = TRUE)& grepl('Rob|Bob|Jr', FROM2,ignore.case = TRUE), "Robert", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("RUPPERSBERGER", FROM2,ignore.case = TRUE), "RUPPERSBERGER", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("RUPPERSBERGER", FROM2,ignore.case = TRUE), "Dutch", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("KRATOVIL", FROM2,ignore.case = TRUE), "KRATOVIL", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("KRATOVIL", FROM2,ignore.case = TRUE), "Frank", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Sheila", FROM2,ignore.case = TRUE)&grepl("JACKSON|Lee", FROM2,ignore.case = TRUE), "JACKSON LEE", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Sheila", FROM2,ignore.case = TRUE)&grepl("JACKSON|Lee", FROM2,ignore.case = TRUE), "Sheila", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Paul", FROM2,ignore.case = TRUE)&grepl("KIRK", FROM2,ignore.case = TRUE), "KIRK", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Paul", FROM2,ignore.case = TRUE)&grepl("KIRK", FROM2,ignore.case = TRUE), "Paul", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Gresham", FROM2,ignore.case = TRUE), "GRESHAM", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Gresham", FROM2,ignore.case = TRUE)&grepl("James", FROM2,ignore.case = TRUE), "Paul", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("John", FROM2,ignore.case = TRUE)&grepl("Hall", FROM2,ignore.case = TRUE), "HALL", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("John", FROM2,ignore.case = TRUE)&grepl("Hall", FROM2,ignore.case = TRUE), "John", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("ENBRENNER", FROM2,ignore.case = TRUE), "SENSENBRENNER", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("ENBRENNER", FROM2,ignore.case = TRUE), "Frank", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("FRELINGHUY", FROM2,ignore.case = TRUE), "FRELINGHUYSEN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("FRELINGHUY", FROM2,ignore.case = TRUE), "Rodney", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("LARRICK", FROM2,ignore.case = TRUE), "LARSEN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("LARRICK", FROM2,ignore.case = TRUE), "Rick", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("BOUSTANY", FROM2,ignore.case = TRUE), "BOUSTANY", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("BOUSTANY", FROM2,ignore.case = TRUE), "Charles", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("King", FROM2,ignore.case = TRUE)&grepl("Jr", FROM2,ignore.case = TRUE), "KING", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("King", FROM2,ignore.case = TRUE)&grepl("jr", FROM2,ignore.case = TRUE), "Angus", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Andr", FROM2,ignore.case = TRUE)&grepl("Carson", FROM2,ignore.case = TRUE), "CARSON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Andr", FROM2,ignore.case = TRUE)&grepl("Carson", FROM2,ignore.case = TRUE), "Andre", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE),"SERRANO", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE), "Jose", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "HINOJOSA", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "Ruben", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Payne", FROM2,ignore.case = TRUE)&grepl("Don", FROM2,ignore.case = TRUE), "PAYNE", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Payne", FROM2,ignore.case = TRUE)&grepl("Don", FROM2,ignore.case = TRUE), "Donald", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Pascrell", FROM2,ignore.case = TRUE)&grepl("Bill", FROM2,ignore.case = TRUE), "PASCRELL", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Pascrell", FROM2,ignore.case = TRUE)&grepl("Bill", FROM2,ignore.case = TRUE), "Bill", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Kay", FROM2,ignore.case = TRUE)&grepl("Hutch", FROM2,ignore.case = TRUE), "HUTCHISON", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Kay", FROM2,ignore.case = TRUE)&grepl("Hutch", FROM2,ignore.case = TRUE), "Kay", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Mack|Mary", FROM2,ignore.case = TRUE)&grepl("Bono", FROM2,ignore.case = TRUE), "BONO", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Mack|Mary", FROM2,ignore.case = TRUE)&grepl("Bono", FROM2,ignore.case = TRUE), "Mary", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Arlen", FROM2,ignore.case = TRUE)&grepl("Spec", FROM2,ignore.case = TRUE), "SPECTER", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Arlen", FROM2,ignore.case = TRUE)&grepl("Spec", FROM2,ignore.case = TRUE), "Arlen", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Chris", FROM2,ignore.case = TRUE)&grepl("Van", FROM2,ignore.case = TRUE)&grepl("Hollen", FROM2,ignore.case = TRUE), "VAN HOLLEN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Chris", FROM2,ignore.case = TRUE)&grepl("Van", FROM2,ignore.case = TRUE)&grepl("Hollen", FROM2,ignore.case = TRUE), "Chris", first_name))  %>% 
-    mutate(last_name = ifelse(grepl("Bonnie", FROM2,ignore.case = TRUE)&grepl("Coleman", FROM2,ignore.case = TRUE), "WATSON COLEMAN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Bonnie", FROM2,ignore.case = TRUE)&grepl("Coleman", FROM2,ignore.case = TRUE), "Bonnie", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Beto", FROM2,ignore.case = TRUE)&grepl("ROURKE", FROM2,ignore.case = TRUE), "O'ROURKE", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Beto", FROM2,ignore.case = TRUE)&grepl("ROURKE", FROM2,ignore.case = TRUE), "Beto", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Gloria", FROM2,ignore.case = TRUE)&grepl("McLeod|Negrete", FROM2,ignore.case = TRUE), "NEGRETE McLEOD", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Gloria", FROM2,ignore.case = TRUE)&grepl("McLeod", FROM2,ignore.case = TRUE), "Gloria", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Frank", FROM2,ignore.case = TRUE)&grepl("Pallone", FROM2,ignore.case = TRUE), "PALLONE", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Frank", FROM2,ignore.case = TRUE)&grepl("Pallone", FROM2,ignore.case = TRUE), "Frank", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Sanford", FROM2,ignore.case = TRUE)&grepl("Bishop", FROM2,ignore.case = TRUE), "BISHOP", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Sanford", FROM2,ignore.case = TRUE)&grepl("Bishop", FROM2,ignore.case = TRUE), "Sanford", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Matso|Masto", FROM2,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Matso|Masto", FROM2,ignore.case = TRUE), "Catherine", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Luj.n|Michelle", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Luj.n|Michelle", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "Michelle", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Luj.n", FROM2,ignore.case = TRUE)&grepl("Ben", FROM2,ignore.case=TRUE), "LUJAN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Luj.n", FROM2,ignore.case = TRUE)&grepl("Ben", FROM2,ignore.case=TRUE), "Ben", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Donovan|Donavan", FROM2,ignore.case = TRUE)&grepl("Dan", FROM2,ignore.case=FALSE), "DONOVAN", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Donovan|Donavan", FROM2,ignore.case = TRUE)&grepl("Dan", FROM2,ignore.case=FALSE), "Daniel", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Randy| j.|james|j ", FROM2,ignore.case = TRUE)&grepl("Forbes", FROM2,ignore.case=TRUE), "FORBES", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Randy| j.|james|j ", FROM2,ignore.case = TRUE)&grepl("Forbes", FROM2,ignore.case=TRUE), "James", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Mario|Lincoln", FROM2,ignore.case = TRUE)&grepl("Diaz|Balart", FROM2,ignore.case=TRUE), "DIAZ-BALART", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Mario", FROM2,ignore.case = TRUE)&grepl("Diaz|Balart", FROM2,ignore.case=TRUE), "Mario", first_name)) %>% 
-    mutate(first_name = ifelse(grepl("Lincoln", FROM2,ignore.case = TRUE)&grepl("Diaz|Balart", FROM2,ignore.case=TRUE), "Lincoln", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Gresham", FROM2,ignore.case = TRUE)&grepl("Barret", FROM2,ignore.case=TRUE), "BARRETT", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Gresham",FROM2,ignore.case=TRUE)&grepl("Barret",FROM2,ignore.case=TRUE), "James", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Deb", FROM2,ignore.case = TRUE)&grepl("Wasserman|Schultz", FROM2,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Deb",FROM2,ignore.case=TRUE)&grepl("Wasserman|Schultz",FROM2,ignore.case=TRUE), "Debbie", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Kristen|Kirsten", FROM2,ignore.case = TRUE)&grepl("Gil", FROM2,ignore.case=TRUE), "GILLIBRAND", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Kristen|Kirsten",FROM2,ignore.case=TRUE)&grepl("Gil",FROM2,ignore.case=TRUE), "Kirsten", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Jo ",FROM2,ignore.case=TRUE)&grepl("Davis",FROM2,ignore.case=TRUE), "DAVIS", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Jo ",FROM2,ignore.case=TRUE)&grepl("Davis",FROM2,ignore.case=TRUE), "Jo", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Waite|Brown",FROM2,ignore.case=TRUE)&grepl("Ginny|Virginia",FROM2,ignore.case=TRUE), "BROWN-WAITE", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Waite|Brown",FROM2,ignore.case=TRUE)&grepl("Ginny|Virginia",FROM2,ignore.case=TRUE), "Virginia", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Jo",FROM2,ignore.case=TRUE)&grepl("Emerson",FROM2,ignore.case=TRUE), "EMERSON", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Jo",FROM2,ignore.case=TRUE)&grepl("Emerson",FROM2,ignore.case=TRUE), "Jo", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Shelley|Moore",FROM2,ignore.case=TRUE)&grepl("Capito",FROM2,ignore.case=TRUE), "CAPITO", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("HERSETH", FROM2, ignore.case = TRUE )|grepl('SANDLIN', FROM2, ignore.case = TRUE), "HERSETH SANDLIN", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("HERSETH", FROM2,ignore.case = TRUE)|grepl('SANDLIN', FROM2,ignore.case = TRUE), "Stephanie", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("PAULSEN", FROM2, ignore.case = TRUE )&grepl('Erik', FROM2, ignore.case = TRUE), "PAULSEN", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("PAULSEN", FROM2,ignore.case = TRUE)&grepl('Erik', FROM2,ignore.case = TRUE), "Erik", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("CONYERS", FROM2, ignore.case = TRUE )&grepl('John', FROM2, ignore.case = TRUE), "CONYERS", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("CONYERS", FROM2,ignore.case = TRUE)&grepl('John', FROM2,ignore.case = TRUE), "John", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Ben|E.B|E B", FROM2,ignore.case = TRUE)& grepl('NELSON', FROM2,ignore.case = TRUE), "NELSON", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Ben|E.B|E B", first_last,ignore.case = TRUE)& grepl('NELSON', first_last,ignore.case = TRUE), "Ben", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Casey", FROM2,ignore.case = TRUE)& grepl('Rob|Bob|Jr', FROM2,ignore.case = TRUE), "CASEY", last_name)) %>% #fixed in name congress
+    mutate(first_name = ifelse(grepl("Casey", FROM2,ignore.case = TRUE)& grepl('Rob|Bob|Jr', FROM2,ignore.case = TRUE), "Robert", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("RUPPERSBERGER", FROM2,ignore.case = TRUE), "RUPPERSBERGER", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("RUPPERSBERGER", FROM2,ignore.case = TRUE), "Dutch", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("KRATOVIL", FROM2,ignore.case = TRUE), "KRATOVIL", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("KRATOVIL", FROM2,ignore.case = TRUE), "Frank", first_name)) %>% # no error
+    mutate(last_name = ifelse(grepl("Sheila", FROM2,ignore.case = TRUE)&grepl("JACKSON|Lee", FROM2,ignore.case = TRUE), "JACKSON LEE", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Sheila", FROM2,ignore.case = TRUE)&grepl("JACKSON|Lee", FROM2,ignore.case = TRUE), "Sheila", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Paul", FROM2,ignore.case = TRUE)&grepl("KIRK", FROM2,ignore.case = TRUE), "KIRK", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("Paul", FROM2,ignore.case = TRUE)&grepl("KIRK", FROM2,ignore.case = TRUE), "Paul", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Gresham", FROM2,ignore.case = TRUE), "GRESHAM", last_name)) %>% #no error
+    #mutate(first_name = ifelse(grepl("Gresham", FROM2,ignore.case = TRUE)&grepl("James", FROM2,ignore.case = TRUE), "Paul", first_name)) %>% #incorrect error
+    mutate(last_name = ifelse(grepl("John", FROM2,ignore.case = TRUE)&grepl("Hall", FROM2,ignore.case = TRUE), "HALL", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("John", FROM2,ignore.case = TRUE)&grepl("Hall", FROM2,ignore.case = TRUE), "John", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("ENBRENNER", FROM2,ignore.case = TRUE), "SENSENBRENNER", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("ENBRENNER", FROM2,ignore.case = TRUE), "Frank", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("FRELINGHUY", FROM2,ignore.case = TRUE), "FRELINGHUYSEN", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("FRELINGHUY", FROM2,ignore.case = TRUE), "Rodney", first_name)) %>% #no error
+    #mutate(last_name = ifelse(grepl("LARRICK", FROM2,ignore.case = TRUE), "LARSEN", last_name)) %>% #may need to fix later
+    #mutate(first_name = ifelse(grepl("LARRICK", FROM2,ignore.case = TRUE), "Rick", first_name)) %>% 
+    mutate(last_name = ifelse(grepl("BOUSTANY", FROM2,ignore.case = TRUE), "BOUSTANY", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("BOUSTANY", FROM2,ignore.case = TRUE), "Charles", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("King", FROM2,ignore.case = TRUE)&grepl("Jr", FROM2,ignore.case = TRUE), "KING", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("King", FROM2,ignore.case = TRUE)&grepl("jr", FROM2,ignore.case = TRUE), "Angus", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Andr", FROM2,ignore.case = TRUE)&grepl("Carson", FROM2,ignore.case = TRUE), "CARSON", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Andr", FROM2,ignore.case = TRUE)&grepl("Carson", FROM2,ignore.case = TRUE), "Andre", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE),"SERRANO", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Jos", FROM2,ignore.case = TRUE)&grepl("Serrano", FROM2,ignore.case = TRUE), "Jose", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "HINOJOSA", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("HINOJOSA", FROM2,ignore.case = TRUE), "Ruben", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Payne", FROM2,ignore.case = TRUE)&grepl("Don", FROM2,ignore.case = TRUE), "PAYNE", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("Payne", FROM2,ignore.case = TRUE)&grepl("Don", FROM2,ignore.case = TRUE), "Donald", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Pascrell", FROM2,ignore.case = TRUE)&grepl("Bill", FROM2,ignore.case = TRUE), "PASCRELL", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("Pascrell", FROM2,ignore.case = TRUE)&grepl("Bill", FROM2,ignore.case = TRUE), "Bill", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Kay", FROM2,ignore.case = TRUE)&grepl("Hutch", FROM2,ignore.case = TRUE), "HUTCHISON", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("Kay", FROM2,ignore.case = TRUE)&grepl("Hutch", FROM2,ignore.case = TRUE), "Kay", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Mack|Mary", FROM2,ignore.case = TRUE)&grepl("Bono", FROM2,ignore.case = TRUE), "BONO", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Mack|Mary", FROM2,ignore.case = TRUE)&grepl("Bono", FROM2,ignore.case = TRUE), "Mary", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Arlen", FROM2,ignore.case = TRUE)&grepl("Spec", FROM2,ignore.case = TRUE), "SPECTER", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("Arlen", FROM2,ignore.case = TRUE)&grepl("Spec", FROM2,ignore.case = TRUE), "Arlen", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Chris", FROM2,ignore.case = TRUE)&grepl("Van", FROM2,ignore.case = TRUE)&grepl("Hollen", FROM2,ignore.case = TRUE), "VAN HOLLEN", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Chris", FROM2,ignore.case = TRUE)&grepl("Van", FROM2,ignore.case = TRUE)&grepl("Hollen", FROM2,ignore.case = TRUE), "Chris", first_name))  %>% #fixed
+    mutate(last_name = ifelse(grepl("Bonnie", FROM2,ignore.case = TRUE)&grepl("Coleman", FROM2,ignore.case = TRUE), "WATSON COLEMAN", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Bonnie", FROM2,ignore.case = TRUE)&grepl("Coleman", FROM2,ignore.case = TRUE), "Bonnie", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Beto", FROM2,ignore.case = TRUE)&grepl("ROURKE", FROM2,ignore.case = TRUE), "O'ROURKE", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Beto", FROM2,ignore.case = TRUE)&grepl("ROURKE", FROM2,ignore.case = TRUE), "Beto", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Gloria", FROM2,ignore.case = TRUE)&grepl("McLeod|Negrete", FROM2,ignore.case = TRUE), "NEGRETE McLEOD", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Gloria", FROM2,ignore.case = TRUE)&grepl("McLeod", FROM2,ignore.case = TRUE), "Gloria", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Frank", FROM2,ignore.case = TRUE)&grepl("Pallone", FROM2,ignore.case = TRUE), "PALLONE", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Frank", FROM2,ignore.case = TRUE)&grepl("Pallone", FROM2,ignore.case = TRUE), "Frank", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Sanford", FROM2,ignore.case = TRUE)&grepl("Bishop", FROM2,ignore.case = TRUE), "BISHOP", last_name)) %>% #no error
+    mutate(first_name = ifelse(grepl("Sanford", FROM2,ignore.case = TRUE)&grepl("Bishop", FROM2,ignore.case = TRUE), "Sanford", first_name)) %>% #no error
+    mutate(last_name = ifelse(grepl("Matso|Masto", FROM2,ignore.case = TRUE), "CORTEZ MASTO", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Matso|Masto", FROM2,ignore.case = TRUE), "Catherine", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Luj.n|Michelle", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "LUJAN GRISHAM", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Luj.n|Michelle", FROM2,ignore.case = TRUE)&grepl("Grishman|Grisham", FROM2,ignore.case=TRUE), "Michelle", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Luj.n", FROM2,ignore.case = TRUE)&grepl("Ben", FROM2,ignore.case=TRUE), "LUJAN", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Luj.n", FROM2,ignore.case = TRUE)&grepl("Ben", FROM2,ignore.case=TRUE), "Ben", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Donovan|Donavan", FROM2,ignore.case = TRUE)&grepl("Dan", FROM2,ignore.case=FALSE), "DONOVAN", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Donovan|Donavan", FROM2,ignore.case = TRUE)&grepl("Dan", FROM2,ignore.case=FALSE), "Daniel", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Randy| j.|james|j ", FROM2,ignore.case = TRUE)&grepl("Forbes", FROM2,ignore.case=TRUE), "FORBES", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Randy| j.|james|j ", FROM2,ignore.case = TRUE)&grepl("Forbes", FROM2,ignore.case=TRUE), "James", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Mario|Lincoln", FROM2,ignore.case = TRUE)&grepl("Diaz|Balart", FROM2,ignore.case=TRUE), "DIAZ-BALART", last_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Mario", FROM2,ignore.case = TRUE)&grepl("Diaz|Balart", FROM2,ignore.case=TRUE), "Mario", first_name)) %>% #fixed
+    mutate(first_name = ifelse(grepl("Lincoln", FROM2,ignore.case = TRUE)&grepl("Diaz|Balart", FROM2,ignore.case=TRUE), "Lincoln", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Gresham", FROM2,ignore.case = TRUE)&grepl("Barret", FROM2,ignore.case=TRUE), "BARRETT", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Gresham",FROM2,ignore.case=TRUE)&grepl("Barret",FROM2,ignore.case=TRUE), "James", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Deb", FROM2,ignore.case = TRUE)&grepl("Wasserman|Schultz", FROM2,ignore.case=TRUE), "WASSERMAN SCHULTZ", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Deb",FROM2,ignore.case=TRUE)&grepl("Wasserman|Schultz",FROM2,ignore.case=TRUE), "Debbie", first_name)) %>% #fixed
+    mutate(last_name = ifelse(grepl("Kristen|Kirsten", FROM2,ignore.case = TRUE)&grepl("Gil", FROM2,ignore.case=TRUE), "GILLIBRAND", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Kristen|Kirsten",FROM2,ignore.case=TRUE)&grepl("Gil",FROM2,ignore.case=TRUE), "Kirsten", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("Jo ",FROM2,ignore.case=TRUE)&grepl("Davis",FROM2,ignore.case=TRUE), "DAVIS", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Jo ",FROM2,ignore.case=TRUE)&grepl("Davis",FROM2,ignore.case=TRUE), "Jo", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("Waite|Brown",FROM2,ignore.case=TRUE)&grepl("Ginny|Virginia",FROM2,ignore.case=TRUE), "BROWN-WAITE", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Waite|Brown",FROM2,ignore.case=TRUE)&grepl("Ginny|Virginia",FROM2,ignore.case=TRUE), "Virginia", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("Jo",FROM2,ignore.case=TRUE)&grepl("Emerson",FROM2,ignore.case=TRUE), "EMERSON", last_name)) %>% #no error
+    mutate(first_name = ifelse( grepl("Jo",FROM2,ignore.case=TRUE)&grepl("Emerson",FROM2,ignore.case=TRUE), "Jo", first_name)) %>% #no error
+    mutate(last_name = ifelse( grepl("Shelley|Moore",FROM2,ignore.case=TRUE)&grepl("Capito",FROM2,ignore.case=TRUE), "CAPITO", last_name)) %>% #fixed
 
-    mutate(last_name = ifelse( grepl("McMorris|Rodgers",FROM2,ignore.case=TRUE)&grepl("Cathy|McMorris",FROM2,ignore.case=TRUE), "McMORRIS RODGERS", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("McMorris|Rodgers",FROM2,ignore.case=TRUE)&grepl("Cathy|McMorris",FROM2,ignore.case=TRUE), "Cathy", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Rounds",FROM2,ignore.case=TRUE)&grepl("Marion|Mike|Michael",FROM2,ignore.case=TRUE), "ROUNDS", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Rounds",FROM2,ignore.case=TRUE)&grepl("Marion|Mike|Michael",FROM2,ignore.case=TRUE), "Marion", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Panetta",FROM2,ignore.case=TRUE)&grepl("Jim|James",FROM2,ignore.case=TRUE), "PANETTA", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Panetta",FROM2,ignore.case=TRUE)&grepl("Jim|James",FROM2,ignore.case=TRUE), "James", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Roybal",FROM2,ignore.case=TRUE)&grepl("Allard",FROM2,ignore.case=TRUE), "ROYBAL-ALLARD", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Roybal",FROM2,ignore.case=TRUE)&grepl("Allard",FROM2,ignore.case=TRUE), "Lucille", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Clay",FROM2,ignore.case=TRUE)&grepl("Lacy|William|Bill",FROM2,ignore.case=TRUE), "CLAY", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Clay",FROM2,ignore.case=TRUE)&grepl("Lacy|William|Bill",FROM2,ignore.case=TRUE), "William", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Todd",FROM2,ignore.case=TRUE)&grepl("Akin",FROM2,ignore.case=TRUE), "AKIN", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Todd",FROM2,ignore.case=TRUE)&grepl("Akin",FROM2,ignore.case=TRUE), "Todd", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Eleanor",FROM2,ignore.case=TRUE)&grepl("Holmes|Norton",FROM2,ignore.case=TRUE), "NORTON", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Eleanor",FROM2,ignore.case=TRUE)&grepl("Holmes|Norton",FROM2,ignore.case=TRUE), "Eleanor", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Gregorio",FROM2,ignore.case=TRUE)&grepl("Sablan",FROM2,ignore.case=TRUE), "SABLAN", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Gregorio",FROM2,ignore.case=TRUE)&grepl("Sablan",FROM2,ignore.case=TRUE), "Gregorio", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Shea",FROM2,ignore.case=TRUE)&grepl("Porter",FROM2,ignore.case=TRUE), "SHEA-PORTER", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Shea",FROM2,ignore.case=TRUE)&grepl("Porter",FROM2,ignore.case=TRUE), "Carol", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Jane",FROM2,ignore.case=TRUE)&grepl("Harmon",FROM2,ignore.case=TRUE), "HARMAN", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Jane",FROM2,ignore.case=TRUE)&grepl("Harmon",FROM2,ignore.case=TRUE), "Jane", first_name))%>% 
-    mutate(last_name = ifelse( grepl("Butterfield",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "BUTTERFIELD", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Butterfied",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "George", first_name)) %>% 
-    mutate(last_name = ifelse( grepl("Lou",FROM2,ignore.case=TRUE)&grepl("Gohmert",FROM2,ignore.case=TRUE), "GOHMERT", last_name)) %>% 
-    mutate(first_name = ifelse( grepl("Lou",FROM2,ignore.case=TRUE)&grepl("Gohmert",FROM2,ignore.case=TRUE), "Louie", first_name)) %>% 
+    mutate(last_name = ifelse( grepl("McMorris|Rodgers",FROM2,ignore.case=TRUE)&grepl("Cathy|McMorris",FROM2,ignore.case=TRUE), "McMORRIS RODGERS", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("McMorris|Rodgers",FROM2,ignore.case=TRUE)&grepl("Cathy|McMorris",FROM2,ignore.case=TRUE), "Cathy", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("Rounds",FROM2,ignore.case=TRUE)&grepl("Marion|Mike|Michael",FROM2,ignore.case=TRUE), "ROUNDS", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Rounds",FROM2,ignore.case=TRUE)&grepl("Marion|Mike|Michael",FROM2,ignore.case=TRUE), "Marion", first_name))%>% #fixed
+    mutate(last_name = ifelse( grepl("Panetta",FROM2,ignore.case=TRUE)&grepl("Jim|James",FROM2,ignore.case=TRUE), "PANETTA", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Panetta",FROM2,ignore.case=TRUE)&grepl("Jim|James",FROM2,ignore.case=TRUE), "James", first_name))%>% #fixed
+    mutate(last_name = ifelse( grepl("Roybal",FROM2,ignore.case=TRUE)&grepl("Allard",FROM2,ignore.case=TRUE), "ROYBAL-ALLARD", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Roybal",FROM2,ignore.case=TRUE)&grepl("Allard",FROM2,ignore.case=TRUE), "Lucille", first_name))%>% #fixed
+    mutate(last_name = ifelse( grepl("Clay",FROM2,ignore.case=TRUE)&grepl("Lacy|William|Bill",FROM2,ignore.case=TRUE), "CLAY", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Clay",FROM2,ignore.case=TRUE)&grepl("Lacy|William|Bill",FROM2,ignore.case=TRUE), "William", first_name))%>% #fixed
+    mutate(last_name = ifelse( grepl("Todd",FROM2,ignore.case=TRUE)&grepl("Akin",FROM2,ignore.case=TRUE), "AKIN", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Todd",FROM2,ignore.case=TRUE)&grepl("Akin",FROM2,ignore.case=TRUE), "Todd", first_name))%>% #fixed
+    #mutate(last_name = ifelse( grepl("Eleanor",FROM2,ignore.case=TRUE)&grepl("Holmes|Norton",FROM2,ignore.case=TRUE), "NORTON", last_name)) %>% 
+    #mutate(first_name = ifelse( grepl("Eleanor",FROM2,ignore.case=TRUE)&grepl("Holmes|Norton",FROM2,ignore.case=TRUE), "Eleanor", first_name))%>% 
+    #mutate(last_name = ifelse( grepl("Gregorio",FROM2,ignore.case=TRUE)&grepl("Sablan",FROM2,ignore.case=TRUE), "SABLAN", last_name)) %>% 
+    #mutate(first_name = ifelse( grepl("Gregorio",FROM2,ignore.case=TRUE)&grepl("Sablan",FROM2,ignore.case=TRUE), "Gregorio", first_name))%>% 
+    mutate(last_name = ifelse( grepl("Shea",FROM2,ignore.case=TRUE)&grepl("Porter",FROM2,ignore.case=TRUE), "SHEA-PORTER", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Shea",FROM2,ignore.case=TRUE)&grepl("Porter",FROM2,ignore.case=TRUE), "Carol", first_name))%>% #fixed
+    mutate(last_name = ifelse( grepl("Jane",FROM2,ignore.case=TRUE)&grepl("Harmon",FROM2,ignore.case=TRUE), "HARMAN", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Jane",FROM2,ignore.case=TRUE)&grepl("Harmon",FROM2,ignore.case=TRUE), "Jane", first_name))%>% #fixed
+    mutate(last_name = ifelse( grepl("Butterfield",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "BUTTERFIELD", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Butterfied",FROM2,ignore.case=TRUE)&grepl("G",FROM2,ignore.case=TRUE), "George", first_name)) %>% #fixed
+    mutate(last_name = ifelse( grepl("Lou",FROM2,ignore.case=TRUE)&grepl("Gohmert",FROM2,ignore.case=TRUE), "GOHMERT", last_name)) %>% #fixed
+    mutate(first_name = ifelse( grepl("Lou",FROM2,ignore.case=TRUE)&grepl("Gohmert",FROM2,ignore.case=TRUE), "Louie", first_name)) %>% #fixed
     
     mutate(last_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "HERRERA BEUTLER", last_name)) %>% #fixed
     mutate(first_name = ifelse( grepl("Jaime|Jamie|Jaimie",FROM2,ignore.case=TRUE)&grepl("Herrera|Beutler",FROM2,ignore.case=TRUE), "Jaime", first_name)) %>% #fixed
@@ -982,7 +982,7 @@ typos_clear <- tribble(
   "Velazquez", "Vel.zquez",
   "Lincoln", "L.ncoln",
   "Timothy", "T.mothy",
-  "MacArthur","(Mcarthur|Mccarthur)", # we should make sure there is no McArthur
+  "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
   "Michael", "(Midlael|Michaell|Micahel)",
   "Martin","Martrin", 
   "Cardenas", "C.rdenas",
@@ -994,23 +994,24 @@ typos_clear <- tribble(
   "Brian", "Brain",
   "Christopher", "Christoher",
   "Lujan", "Luj.n",
+  "Raul", "R.ul",
   
 
   
   ###############################
   
   # Reversing order of first name and last name
-  # This extractMemberNames(), but it won't work for getFirstLast comma. It seems the better solution would be to add the missing commas so they match the last, first pattern
-  "John Duncan", "Duncan John",
-  "Henry Johnson", "Johnson Henry",
-  "Mary Bono", "Bono Mary",
-  "Nick Rahall", "Rahall Nick",
-  "Jackson Lee", "Lee Jackson",
-  "Michael Conaway", "Conaway Michael",
-  "Morgan Griffith", "Griffith Morgan",
-  "Steve Womack", "Womack Steve",
-  "Dana ROHRABACHER", "ROHRABACHER Dana",
-  "Ben Nelson", "Nelson Bill"
+  # Added the missing commas so they match the last, first pattern
+  "John Duncan", "Duncan, John",
+  "Henry Johnson", "Johnson, Henry",
+  "Mary Bono", "Bono, Mary",
+  "Nick Rahall", "Rahall, Nick",
+  "Jackson Lee", "Lee, Jackson",
+  "Michael Conaway", "Conaway, Michael",
+  "Morgan Griffith", "Griffith, Morgan",
+  "Steve Womack", "Womack, Steve",
+  "Dana ROHRABACHER", "ROHRABACHER, Dana",
+  "Ben Nelson", "Nelson, Ben"
   
 
 )
@@ -1080,20 +1081,19 @@ typos_last <- tribble(
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
-  #"Raja", "KRISHNAMOORTHI", "Krishnamoothi",
+  "Raja", "Krishnamoorthi", "Krishnamoothi",
   "Barbara", "Mikulski", "Milkulski",
-  #"Raul", "GRIJALVA", "Grijalva", # this was just making it upper case, right? The method is not case-sensitive.
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
-  "Stephanie", "(Herseth|Sandlin)", "Herseth Sandlin",
+  "Stephanie", "Herseth Sandlin", "(Herseth|Sandlin)",
   "John", "ROCKEFELLER", "ROCKFELLER",
   "Ron", "Wyden", "Wydon",
   "James", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
   "Blake", "Farenthold", "Farenhold",
   "Anna", "Eshoo", "Eschoo",
-  "Heidi", "Heitkamp", "Heitkmap",
+  "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap)",
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
   "Shelley", "Capito", "Moore Capito",
@@ -1104,7 +1104,7 @@ typos_last <- tribble(
   "Kirsten", "Gillibrand", "Gillbrand",
   "James","Barrett", "(Barrat|Barret)",
   "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
-  "Lucille", "ROYBAL-ALLARD", "Roybal",
+  "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO)",
   "Thomas","Coburn","(Cobum|Co bum)",
@@ -1122,7 +1122,23 @@ typos_last <- tribble(
   "James", "Barrett", "(Baret|Barett|Barret)",
   "Mario", "Diaz-Balart", "(Diaz|Balart)",
   "Lincoln", "Diaz-Balart", "(Diaz|Balart)",
-  "Stephanie", "LUJAN GRISHAM", "Luj.n Grishman" # is this more than capitalization? 
+  "Stephanie", "Lujan Grishman", "Luj.n Grishman",
+  "Carol", "Shea-Porter", "Shea|Porter",
+  "Daniel", "Donovan", "Donavan",
+  "Gloria", "Negrete McLeod", "(Negrete|McLeod)",
+  "Sheila", "Jackson Lee", "(Jackson|Lee)",
+  "Virginia", "Brown-Waite", "(Brown|Waite)",
+  "Bonnie", "Watson Coleman", "(Watson|Coleman)",
+  "Beto", "O'Rourke", "O.Rourke",
+  "Beto", "O'Rourke", "Rourke",
+  "Barbara", "Boxer", "Baxter",
+  "David", "Dreier", "Reier",
+  "Kelly", "Ayotte", "Aytotte",
+  "Steve", "King", "Kiing",
+  "Peter", "King", "Kiing",
+  "Angus", "King", "Kiing",
+  "Claire", "McCaskill", "McCaskil",
+  "Martin", "Heinrich", "(Hienrich|Heinriech)"
 
   
   
@@ -1173,7 +1189,7 @@ typos_first <- tribble(
   "Patrick", "Leahy", "Ted",
   "Mary", "Bono", "Mack",
   "Harry", "Reid", "Marry",
-  "Anna A.", "Eshoo", "Anna",
+  "Anna", "Eshoo", "Anna A.",
   "Darrell", "Issa", "(Darryl|Daryl|Darrel|Darel)",
   "Dianne", 'Feinstein', "Diane",
   "Eliot", "Engel", "Eliott",
@@ -1184,10 +1200,13 @@ typos_first <- tribble(
   "Dennis", "Cardoza", "Denis",
   "Dennis", "Moore", "Denis",
   "Dennis", "KUCINICH", "Denis",
-  "Sheila", "Jackson", "Shelee",
+  "Sheila", "Jackson Lee", "Shelee",
   "Jose", "Serrano", "Jos.",
   "Lindsey", "Graham", "Lindsay",
-  "Andre", "Carson", "Andr."
+  "Andre", "Carson", "Andr.",
+  "Corrine", "Brown", "Corinne",
+  "Anna", "Eshoo", "Ana",
+  "Vernon", "Ehlers", "Vermon"
    
 )   %>% 
   mutate(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
@@ -1306,24 +1325,31 @@ findTypos <- function(from){
 # It does not use format first and last name columns. 
 # It does correct ocr.errors and then corrects typos using the typos tables
 # It then uses the pattern variable in the members data to match names 
-  extractMemberName2 <- function(data, members, col_name){
+# FIXME need to reverse members and col name in ALL SCRIPTS to make this tidy 
+  extractMemberName <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
+    
+    # FIXME (when we transition to this function, members can be full member list)
+    members %<>% full_join(members_106to109th) 
 
-    data %<>% mutate(Summary = data[[col_name]])
+    data %<>% mutate(string = data[[col_name]])
     
     # clean up text
-    data$Summary %<>% cleanFROMcolumn()
+    data$string %<>% cleanFROMcolumn()
 
     # correct common OCR errors
-    data$Summary %<>% ocr.errors()
+    data$string %<>% ocr.errors()
+    
+    # lower case 
+    data$string %<>% tolower()
     
     # Fix name typos
     data %<>% 
       # find common typos
-      mutate(typos = Summary %>% map_chr(findTypos)) %>% 
+      mutate(typos = string %>% map_chr(findTypos)) %>% 
       # add in corrections
       left_join(typos) %>%
       # replace typos with corrections
-      mutate(Summary = str_replace_all(Summary, regex(typos, ignore_case = T), correct)) %>% 
+      mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct)) %>% 
       mutate(typos = str_replace(typos, "404error", "none"))
     
     
@@ -1345,19 +1371,34 @@ findTypos <- function(from){
         str_remove(";404error|404error;")
     }
     
-    
-    # match patters from members file and merge with member names
+  # A function to map over congresses 
+    # one congress at a time
+    extractNamesPerCongress <- function(congress_i){
+      
+      print( str_c("Searching the ", congress_i, "th"))
+      
+      # subset to one congress
+      data %<>% filter(congress == congress_i)
+      members %<>% filter(congress == congress_i)
+      
+    # match patterns from the members data and merge with member names
     data %<>%
       ungroup() %>%
       # map function to detect members over lower case version of FROM 
-      mutate(from = tolower(Summary),
-             pattern = map_chr(from, extractName) ) %>% # select(from,matches)
+      mutate(pattern = map_chr(string, extractName) ) %>% # select(from,matches)
       # split out multiple members into separate rows 
       mutate(pattern = str_split(pattern, ";")  ) %>% 
       unnest() %>% 
       # join in members data by pattern 
-      left_join(members %>% select(pattern, first_name, last_name, congress)) %>% 
-      select(-from) # %>% select(FROM, pattern, first_name, last_name)
+      left_join(members %>% select(pattern, first_name, last_name, congress)) 
+    
+    return(data)
+    }
+    
+    # loop over congresses in data 
+    data <- map_dfr(congresses, extractNamesPerCongress)
+    
+    data %<>% select(FROM, typos, correct, string, pattern, congress, everything())
     
     return(data)
   }
