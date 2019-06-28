@@ -13,7 +13,7 @@ clean <- function(file.name) {
   load("data/DOE_FERC-letters-coded.Rdata")
 
   data <- FERC_letters %>%
-    select(members,SUBJECT,everything())
+    select(members,SUBJECT,everything())# %>% top_n(1000)
   
   sum(!is.na(data$TYPE))
   
