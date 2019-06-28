@@ -1306,7 +1306,7 @@ findTypos <- function(from){
 # It does not use format first and last name columns. 
 # It does correct ocr.errors and then corrects typos using the typos tables
 # It then uses the pattern variable in the members data to match names 
-  extractMemberName <- function(data, members, col_name){
+  extractMemberName2 <- function(data, members, col_name){
 
     data %<>% mutate(Summary = data[[col_name]])
     
