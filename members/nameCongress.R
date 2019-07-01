@@ -228,7 +228,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "OWENS, William", "(Will|Bill)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "NELSON, Earl Benjamin (Ben)", "(Ben|E.B.)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "(Rob|Bob)", common_name)) %>%
-    
+    mutate(common_name = ifelse(bioname == "WHITFIELD, Wayne Edward (Ed)", "(Ed|Edward)", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "CLELAND, Joseph Maxwell (Max)", "(Max|Joe)", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "EHLERS, Vernon James", "Vern", common_name)) %>%
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -378,7 +380,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "KILDEE, Dan","T", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "GRUCCI, Jr., Felix J.","J", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "WARREN, Elizabeth","A", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "HASSAN, Margaret (Maggie)","C", middle_initial))
+  mutate(middle_initial = ifelse(bioname == "HASSAN, Margaret (Maggie)","C", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "ARCURI, Michael","A", middle_initial))
    
 
  members %<>%    
@@ -452,14 +455,14 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_common = paste0(last_name, ", ", common_name),
            chamber_last = paste(chamber, last_name) %>% 
              str_replace("Senate", "Senator") %>% 
-             str_replace("House", "Congressperson"))
+             str_replace("House", "Representative"))
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
   last_name_count <- members %>% 
-    select(last_name, chamber, bioname) %>%  
+    select(last_name, chamber, bioname, congress) %>%  
     distinct() %>%     
-    count(last_name, chamber) %>% 
+    count(last_name, chamber, congress) %>% 
     rename(last_name_count = n)
   
   members %<>% 
@@ -521,11 +524,18 @@ suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initi
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
 
+  
+  
+  # FIXME 
+  # Until purrr version of extractMemberNames is done, we need to split up members
+  # The new purrr solution will use members2 for now
+  members2 <- members
+    
   # 2000-2007 congresses 
   members_106to109th <- filter(members, congress < 112)
   
   members %<>% filter(congress > 109)
   
-  save(members, members_106to109th, file = "members/nameCongress.Rdata")
+  save(members, members_106to109th, members2, file = "members/nameCongress.Rdata")
   
   

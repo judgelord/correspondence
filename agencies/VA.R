@@ -92,7 +92,7 @@ data %<>%
  
   #Paste Chamber into FROM
   Unfoundnames %<>%
-    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Congressperson", FROM, sep = " "), FROM)) %>%
+    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
   
   #Extract Member Names

@@ -165,7 +165,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOJ_ENRD")
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -173,18 +173,19 @@ d1 <- clean.agency(
   coders = as.character(data_list[i, 3])
   ) %>% distinct()
 
-d1 %>% filter(!is.na(last_name)) %>% count(congress)
+# check result 
+d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
-members2 <- full_join(members, members_106to109th) 
-
-d <- d1 %>% # and merge with voteview data
+# merge with voteview data to initiate d (unfiltered data)
+d <- d1 %>%
   left_join(members2) %>% # merge on common variables (may differ)
   select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members2) %>% # merge on common variables (may differ)
   distinct()
 
-d %>% filter(!is.na(last_name)) %>% count(year)
+d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
+
 d %>% filter(!is.na(icpsr)) %>% count(year)
 ####################
 
@@ -203,7 +204,7 @@ head(data_list)
 i <- 1
 while(!is.na(data_list[i,1])) {
   
-  print(data_list[i,1])
+  print(data_list$agency[i])
   
   d1 <- clean.agency(
     agency = as.character(data_list[i, 1]),
@@ -218,7 +219,7 @@ while(!is.na(data_list[i,1])) {
   
   d %<>% full_join(d1)
   
-  i <- i+1
+  i <- i + 1
 }
 
 ## Missing any agencies? 
