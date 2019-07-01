@@ -117,6 +117,8 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES))
   
+  Unfoundnames2 <- data %>%
+    filter(is.na(last_name))
    #Check after run through merge
 #Unfoundnames <- d %>%
  #filter(is.na(bioname))
