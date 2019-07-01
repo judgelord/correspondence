@@ -1066,7 +1066,7 @@ typos_last <- tribble(
   "James", "Jeffords", "(Jefford|Jeffers)",
   "Jack", "Kingston", "Kington",
   "Greg", "Walden", "Wilden",
-  "George","Radanovich", "Radavich",
+  "George","Radanovich", "(Radanovich|Radavich)",
   "George", "Nethercutt", "Nethecutt",
   "Frank", "Murkowski", "Mukowski",
   "Marcy", "Kaptur", "Kaptor",
@@ -1139,7 +1139,9 @@ typos_last <- tribble(
   "Angus", "King", "Kiing",
   "Claire", "McCaskill", "McCaskil",
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
-  "Ellen", "Tauscher", "Ianscher"
+  "Ellen", "Tauscher", "Ianscher",
+  "Jeff", "Bingaman", "Bingamen"
+
 
 
 ) %>% 
@@ -1205,7 +1207,8 @@ typos_first <- tribble(
   "Andre", "Carson", "Andr.",
   "Corrine", "Brown", "Corinne",
   "Anna", "Eshoo", "Ana",
-  "Vernon", "Ehlers", "Vermon"
+  "Vernon", "Ehlers", "Vermon",
+  "Margaret", "Hassan", "Margret"
    
 )   %>% 
   mutate(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
