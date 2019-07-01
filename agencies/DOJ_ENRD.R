@@ -51,7 +51,8 @@ clean <- function(file.name) {
     unnest(FROM)
   
   data %<>%
-    mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN"))
+    mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN")) %>%
+    mutate(FROM = str_replace(FROM, "essman j gresham barrett", "Representative BARRETT"))
   
   #Create ID
   data$ID <- c(1:nrow(data))
