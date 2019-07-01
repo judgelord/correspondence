@@ -46,17 +46,24 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, "Sen |Sen.|Senator |Senators ")) %>%
     mutate(FROM = str_remove_all(FROM, ", DC.*|, WA.*|, TN.*|, CT.*|, NY.*|, D.C..*"))
   
+  #Separate Multiple Authors
   data %<>%
     mutate(FROM = str_split(FROM, ",| and ")) %>%
     unnest(FROM)
-  
+ 
+  #Typos 
   data %<>%
     mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN")) %>%
-    mutate(FROM = str_replace(FROM, "essman j gresham barrett", "Representative BARRETT"))
+    mutate(FROM = str_replace(FROM, "essman j gresham barrett", "Representative BARRETT")) %>%
+    mutate(FROM = str_replace(FROM, "McCain", "Senator McCAIN")) %>%
+    mutate(FROM = str_replace(FROM, "essman J. Gresham Barrett", "Representative BARRETT")) %>%
+    mutate(FROM = str_replace(FROM, "E. Benjamin Nelson", "Earl B NELSON")) %>%
+    mutate(FROM = str_replace(FROM, "Hon. Mary LANDRIEU United States te Washington", "Mary LANDRIEU"))
   
   #Create ID
   data$ID <- c(1:nrow(data))
   
+  #Extract Member names
   data %<>%
     extractMemberName2(members = members, col_name = "FROM")
  
@@ -89,17 +96,20 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name)) 
 
-  
+  #FOIA and State politicians
    data %<>%
      mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
-     mutate(ERROR = ifelse(str_detect(FROM, "Governor"), "State Govermor", ERROR))
+     mutat(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Governor"), "State Governor", ERROR)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee|Cmte|Comte"), "Committee", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "other Members of Congress"), "Multiple unnamed members", NOTES))
     
    unfoundnames2 <- data %>%
      filter(is.na(last_name))
    
   #Filter to use after merge
  # Unmatched <- d %>%
-   # filter(is.na(bioname))
+  #  filter(is.na(bioname))
   
   return(data)
   
