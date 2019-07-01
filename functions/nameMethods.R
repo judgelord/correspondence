@@ -995,6 +995,8 @@ typos_clear <- tribble(
   "Christopher", "Christoher",
   "Lujan", "Luj.n",
   "Raul", "R.ul",
+  "Charles", "Charkes",
+  "Benjamin", "Bemjamin",
   
 
   
@@ -1002,16 +1004,16 @@ typos_clear <- tribble(
   
   # Reversing order of first name and last name
   # Added the missing commas so they match the last, first pattern
-  "John Duncan", "Duncan, John",
-  "Henry Johnson", "Johnson, Henry",
-  "Mary Bono", "Bono, Mary",
-  "Nick Rahall", "Rahall, Nick",
-  "Jackson Lee", "Lee, Jackson",
-  "Michael Conaway", "Conaway, Michael",
-  "Morgan Griffith", "Griffith, Morgan",
-  "Steve Womack", "Womack, Steve",
-  "Dana ROHRABACHER", "ROHRABACHER, Dana",
-  "Ben Nelson", "Nelson, Ben"
+  "Duncan, John", "Duncan John",
+  "Johnson, Henry", "Johnson Henry",
+  "Bono, Mary", "Bono Mary",
+  "Rahall, Nick", "Rahall Nick",
+  "Lee, Jackson", "Lee Jackson",
+  "Conaway, Michael", "Conaway Michael",
+  "Griffith, Morgan", "Griffith Morgan",
+  "Womack, Steve", "Womack Steve",
+  "ROHRABACHER, Dana", "ROHRABACHER Dana",
+  "Nelson, Ben", "Nelson Ben"
   
 
 )
@@ -1019,7 +1021,7 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
-  "Patty", "Murray", "Muray",
+  "Patty", "Murray", "(Murrary|Muray)",
   "Lois", "Capps", "Crapps",
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
@@ -1037,7 +1039,7 @@ typos_last <- tribble(
   "David", "Schweikert", "Schweikerl",
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
-  "Steve", "Scalise", "Scallise",
+  "Steve", "Scalise", "(Scalisse|Scallise)",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
@@ -1082,7 +1084,7 @@ typos_last <- tribble(
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
   "Raja", "Krishnamoorthi", "Krishnamoothi",
-  "Barbara", "Mikulski", "Milkulski",
+  "Barbara", "Mikulski", "(Mukulski|Milkulski)",
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
@@ -1140,7 +1142,8 @@ typos_last <- tribble(
   "Claire", "McCaskill", "McCaskil",
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
   "Ellen", "Tauscher", "Ianscher",
-  "Jeff", "Bingaman", "Bingamen"
+  "Jeff", "Bingaman", "Bingamen",
+  "Elizabeth", "Warren", "Varren"
 
 
 
@@ -1220,6 +1223,7 @@ typos_middle <-  tribble(
     ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+    "Ben", "Nighthorse", "Ben", "Nighhorse",
     "Shelley", "Moore", 'Capito', "Moore Capito",
     "John", "Dennis", "Hastert", "Denis",
     "Mike", "Dennis", "Rehberg", "Denis",
