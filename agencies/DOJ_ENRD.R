@@ -99,6 +99,7 @@ clean <- function(file.name) {
   #FOIA and State politicians
    data %<>%
      mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
+     mutat(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Governor"), "State Governor", ERROR)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee|Cmte|Comte"), "Committee", NOTES)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "other Members of Congress"), "Multiple unnamed members", NOTES))
@@ -108,7 +109,7 @@ clean <- function(file.name) {
    
   #Filter to use after merge
  # Unmatched <- d %>%
-   # filter(is.na(bioname))
+  #  filter(is.na(bioname))
   
   return(data)
   
