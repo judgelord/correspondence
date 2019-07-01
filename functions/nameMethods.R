@@ -1002,16 +1002,16 @@ typos_clear <- tribble(
   
   # Reversing order of first name and last name
   # Added the missing commas so they match the last, first pattern
-  "John Duncan", "Duncan, John",
-  "Henry Johnson", "Johnson, Henry",
-  "Mary Bono", "Bono, Mary",
-  "Nick Rahall", "Rahall, Nick",
-  "Jackson Lee", "Lee, Jackson",
-  "Michael Conaway", "Conaway, Michael",
-  "Morgan Griffith", "Griffith, Morgan",
-  "Steve Womack", "Womack, Steve",
-  "Dana ROHRABACHER", "ROHRABACHER, Dana",
-  "Ben Nelson", "Nelson, Ben"
+  "Duncan, John", "Duncan John",
+  "Johnson, Henry", "Johnson Henry",
+  "Bono, Mary", "Bono Mary",
+  "Rahall, Nick", "Rahall Nick",
+  "Lee, Jackson", "Lee Jackson",
+  "Conaway, Michael", "Conaway Michael",
+  "Griffith, Morgan", "Griffith Morgan",
+  "Womack, Steve", "Womack Steve",
+  "ROHRABACHER, Dana", "ROHRABACHER Dana",
+  "Nelson, Ben", "Nelson Ben"
   
 
 )
