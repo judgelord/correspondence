@@ -1138,7 +1138,9 @@ typos_last <- tribble(
   "Peter", "King", "Kiing",
   "Angus", "King", "Kiing",
   "Claire", "McCaskill", "McCaskil",
-  "Martin", "Heinrich", "(Hienrich|Heinriech)"
+  "Martin", "Heinrich", "(Hienrich|Heinriech)",
+  "Ellen", "Tauscher", "Ellen", "Ianscher",
+  "George","Radnovich","George","RADANOVICH"
 
   
   
