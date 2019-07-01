@@ -1220,7 +1220,8 @@ typos_middle <-  tribble(
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
     "Shelley", "Moore", 'Capito', "Moore Capito",
     "John", "Dennis", "Hastert", "Denis",
-    "Mike", "Dennis", "Rehberg", "Denis"
+    "Mike", "Dennis", "Rehberg", "Denis",
+    "James", "Strom", "Thurmond", "Stom"
   ) %>% 
   mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
@@ -1326,7 +1327,7 @@ findTypos <- function(from){
 # It does correct ocr.errors and then corrects typos using the typos tables
 # It then uses the pattern variable in the members data to match names 
 # FIXME need to reverse members and col name in ALL SCRIPTS to make this tidy 
-  extractMemberName <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
+  extractMemberName2 <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 
