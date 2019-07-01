@@ -1375,7 +1375,7 @@ findTypos <- function(from){
     # one congress at a time
     extractNamesPerCongress <- function(congress_i){
       
-      print( str_c("Searching the ", congress_i, "th"))
+      print( str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th"))
       
       # subset to one congress
       data %<>% filter(congress == congress_i)
