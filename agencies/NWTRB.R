@@ -29,3 +29,15 @@ clean <- function(file.name) {
   #Extract Member Names
   data %<>%
     extractMemberName2(members = members, col_name = "FROM")
+  
+  #Captured names
+  #data %<>%
+   # filter(! is.na(last_name))
+  
+  
+  
+  
+  return(data)
+  
+  
+}
