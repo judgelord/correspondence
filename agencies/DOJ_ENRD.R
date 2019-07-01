@@ -99,7 +99,8 @@ clean <- function(file.name) {
   #FOIA and State politicians
    data %<>%
      mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
-     mutat(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Emanuel") & is.na(last_name), "Multiple Emanuel's FOIA", NOTES)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Governor"), "State Governor", ERROR)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee|Cmte|Comte"), "Committee", NOTES)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "other Members of Congress"), "Multiple unnamed members", NOTES))
