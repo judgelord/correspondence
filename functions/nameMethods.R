@@ -996,6 +996,7 @@ typos_clear <- tribble(
   "Lujan", "Luj.n",
   "Raul", "R.ul",
   "Charles", "Charkes",
+  "Benjamin", "Bemjamin",
   
 
   
@@ -1083,7 +1084,7 @@ typos_last <- tribble(
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
   "Raja", "Krishnamoorthi", "Krishnamoothi",
-  "Barbara", "Mikulski", "Milkulski",
+  "Barbara", "Mikulski", "(Mukulski|Milkulski)",
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
