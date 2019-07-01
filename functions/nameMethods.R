@@ -1002,16 +1002,16 @@ typos_clear <- tribble(
   
   # Reversing order of first name and last name
   # Added the missing commas so they match the last, first pattern
-  "John Duncan", "Duncan, John",
-  "Henry Johnson", "Johnson, Henry",
-  "Mary Bono", "Bono, Mary",
-  "Nick Rahall", "Rahall, Nick",
-  "Jackson Lee", "Lee, Jackson",
-  "Michael Conaway", "Conaway, Michael",
-  "Morgan Griffith", "Griffith, Morgan",
-  "Steve Womack", "Womack, Steve",
-  "Dana ROHRABACHER", "ROHRABACHER, Dana",
-  "Ben Nelson", "Nelson, Ben"
+  "Duncan, John", "Duncan John",
+  "Johnson, Henry", "Johnson Henry",
+  "Bono, Mary", "Bono Mary",
+  "Rahall, Nick", "Rahall Nick",
+  "Lee, Jackson", "Lee Jackson",
+  "Conaway, Michael", "Conaway Michael",
+  "Griffith, Morgan", "Griffith Morgan",
+  "Womack, Steve", "Womack Steve",
+  "ROHRABACHER, Dana", "ROHRABACHER Dana",
+  "Nelson, Ben", "Nelson Ben"
   
 
 )
@@ -1296,7 +1296,9 @@ typos <- full_join(typos_first, typos_last) %>%
   mutate(correct = paste(first_name, last_name)) %>% 
   group_by(correct) %>%
   summarise(typos = typos %>% str_c(collapse = "|") ) %>%
-    full_join(typos_clear)
+  full_join(typos_clear) %>% 
+  mutate(typos = tolower(typos),
+         correct = tolower(correct))
 
 
 # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
@@ -1305,10 +1307,10 @@ str_detect_replace <- function(string, pattern){
 }
 
 
-findTypos <- function(from){
+findTypos <- function(string){
   purrr::map(.x = typos$typos, 
              .f= str_detect_replace,
-             string = from) %>% 
+             string = string) %>% 
     unlist() %>%
     unique() %>% 
     # seperate pattrns found with OR 
@@ -1329,7 +1331,10 @@ findTypos <- function(from){
 # It does correct ocr.errors and then corrects typos using the typos tables
 # It then uses the pattern variable in the members data to match names 
 # FIXME need to reverse members and col name in ALL SCRIPTS to make this tidy 
-  extractMemberName2 <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
+#  extractMemberName2 <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
+    
+    extractMemberName2 <- function(data, members, col_name, congresses = unique(data$congress)){
+      
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 
@@ -1359,15 +1364,16 @@ findTypos <- function(from){
     # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
     str_detect_replace <- function(string, pattern){
       out <- ifelse(str_detect(string, pattern), pattern, "404error")
+      return(out)
     }
     
     # A function to map over members 
     # (assumes that memmbers object contains congress and pattern)
     # (assumes that data data contains congress and from)
-    extractName <- function(from){
+    extractName <- function(string){
       purrr::map(.x = members %>% filter(congress %in% data$congress) %>% select(pattern), 
                  .f= str_detect_replace,
-                 string = from) %>% 
+                 string = string) %>% 
         unlist() %>%
         unique() %>% 
         str_c(collapse = ";") %>%
