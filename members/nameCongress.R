@@ -217,7 +217,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "BERGMAN, John", "Jack", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "HOLLINGS, Ernest Frederick", "Fritz", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "THOMPSON, Glenn", "G.T.", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "HAYWORTH, John D., Jr", "J. D.", common_name)) %>%
+    
     mutate(common_name = ifelse(bioname == "COX, Charles Christopher", "Christopher", common_name)) %>%
     mutate(common_name = ifelse(bioname == "GRAHAM, Daniel Robert (Bob)", "Bob", common_name)) %>%
     mutate(common_name = ifelse(bioname == "SHAW, Eugene Clay, Jr.", "Clay", common_name)) %>%
@@ -231,6 +231,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "WHITFIELD, Wayne Edward (Ed)", "(Ed|Edward)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CLELAND, Joseph Maxwell (Max)", "(Max|Joe)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "EHLERS, Vernon James", "Vern", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "HAYWORTH, John D., Jr.", "J.D.", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "MARKEY, Edward John", "(Ed|EJ)", common_name)) %>%
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
