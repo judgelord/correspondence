@@ -1220,7 +1220,8 @@ typos_middle <-  tribble(
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
     "Shelley", "Moore", 'Capito', "Moore Capito",
     "John", "Dennis", "Hastert", "Denis",
-    "Mike", "Dennis", "Rehberg", "Denis"
+    "Mike", "Dennis", "Rehberg", "Denis",
+    "James", "Strom", "Thurmond", "Stom"
   ) %>% 
   mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 

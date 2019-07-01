@@ -33,7 +33,7 @@ clean <- function(file.name) {
   #chamber
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Congressman |Rep.|Con. |con. |Congresswoman |MCs |Cong. |congress |cong.|Reresentatives|Congressmen |Cong."), "House", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Sen |Sen.|Senator "), "Senate", chamber))  
+    mutate(chamber = ifelse(str_detect(FROM, "Sen |Sen.|Senator |Senators "), "Senate", chamber))  
   
   data %<>%
     mutate(FROM = str_replace(FROM, ", Jr.", " Jr.")) %>%
@@ -43,17 +43,31 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(FROM = str_remove(FROM, "Congressman |Rep.|Con. |con. |Congresswoman |MCs |Cong. |congress |cong.|Reresentatives|Congressmen |Cong.")) %>%
-    mutate(FROM = str_remove(FROM, "Sen |Sen.|Senator "))
+    mutate(FROM = str_remove(FROM, "Sen |Sen.|Senator |Senators ")) %>%
+    mutate(FROM = str_remove_all(FROM, ", DC.*|, WA.*|, TN.*|, CT.*|, NY.*|, D.C..*"))
   
   data %<>%
     mutate(FROM = str_split(FROM, ",| and ")) %>%
     unnest(FROM)
+  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN"))
   
   #Create ID
   data$ID <- c(1:nrow(data))
   
   data %<>%
     extractMemberName2(members = members, col_name = "FROM")
+ 
+   #Check for duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; ")) %>%
+    distinct()
+  
   
   NoChamber <- data %>%
     filter(is.na(chamber))
@@ -74,26 +88,17 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name)) 
 
-  #Non Member Errors
-  data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "DC 20515|DC 20510|DC 20510-0001|DC 20515|DC 20515-0001|NY 10017-1502|DC 20510|DC 20515|D\\.C\\. 20515"), "Not Member", ERROR))
   
-  data %<>%
+   data %<>%
      mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
-     mutate(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
-     mutate(NOTES = ifelse(str_detect(FROM, "22 other"), "Multiple unnamed members", NOTES)) %>%
-     mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee"), "Committee", NOTES))
-  
-  #Filter while working
-  #data %<>%
-   # filter( ! str_detect(FROM, "DC 20515|DC 20510|DC 20510-0001|DC 20515|DC 20515-0001|NY 10017-1502|DC 20510|DC 20515|D\\.C\\. 20515"))
-  
-  Unfoundnames2 <- data %>%
-    filter(is.na(last_name))
+     mutate(ERROR = ifelse(str_detect(FROM, "Governor"), "State Govermor", ERROR))
     
+   unfoundnames2 <- data %>%
+     filter(is.na(last_name))
+   
   #Filter to use after merge
- #Unmatched <- d %>%
-  # filter(is.na(bioname))
+ # Unmatched <- d %>%
+   # filter(is.na(bioname))
   
   return(data)
   
