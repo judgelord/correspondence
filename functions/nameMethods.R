@@ -1021,7 +1021,7 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
-  "Patty", "Murray", "Muray",
+  "Patty", "Murray", "(Murrary|Muray)",
   "Lois", "Capps", "Crapps",
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
@@ -1039,7 +1039,7 @@ typos_last <- tribble(
   "David", "Schweikert", "Schweikerl",
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
-  "Steve", "Scalise", "Scallise",
+  "Steve", "Scalise", "(Scalisse|Scallise)",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
