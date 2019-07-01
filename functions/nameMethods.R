@@ -995,6 +995,7 @@ typos_clear <- tribble(
   "Christopher", "Christoher",
   "Lujan", "Luj.n",
   "Raul", "R.ul",
+  "Charles", "Charkes",
   
 
   
@@ -1140,7 +1141,8 @@ typos_last <- tribble(
   "Claire", "McCaskill", "McCaskil",
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
   "Ellen", "Tauscher", "Ianscher",
-  "Jeff", "Bingaman", "Bingamen"
+  "Jeff", "Bingaman", "Bingamen",
+  "Elizabeth", "Warren", "Varren"
 
 
 
@@ -1220,6 +1222,7 @@ typos_middle <-  tribble(
     ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+    "Ben", "Nighthorse", "Ben", "Nighhorse",
     "Shelley", "Moore", 'Capito', "Moore Capito",
     "John", "Dennis", "Hastert", "Denis",
     "Mike", "Dennis", "Rehberg", "Denis",
