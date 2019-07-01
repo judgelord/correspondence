@@ -1066,7 +1066,7 @@ typos_last <- tribble(
   "James", "Jeffords", "(Jefford|Jeffers)",
   "Jack", "Kingston", "Kington",
   "Greg", "Walden", "Wilden",
-  "George","Radanovich", "Radavich",
+  "George","Radanovich", "(Radanovich|Radavich)",
   "George", "Nethercutt", "Nethecutt",
   "Frank", "Murkowski", "Mukowski",
   "Marcy", "Kaptur", "Kaptor",
@@ -1138,11 +1138,12 @@ typos_last <- tribble(
   "Peter", "King", "Kiing",
   "Angus", "King", "Kiing",
   "Claire", "McCaskill", "McCaskil",
-  "Martin", "Heinrich", "(Hienrich|Heinriech)"
+  "Martin", "Heinrich", "(Hienrich|Heinriech)",
+  "Ellen", "Tauscher", "Ianscher",
+  "Jeff", "Bingaman", "Bingamen"
 
-  
-  
-  
+
+
 ) %>% 
   mutate(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos), 
                        str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
@@ -1206,7 +1207,8 @@ typos_first <- tribble(
   "Andre", "Carson", "Andr.",
   "Corrine", "Brown", "Corinne",
   "Anna", "Eshoo", "Ana",
-  "Vernon", "Ehlers", "Vermon"
+  "Vernon", "Ehlers", "Vermon",
+  "Margaret", "Hassan", "Margret"
    
 )   %>% 
   mutate(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
@@ -1220,7 +1222,8 @@ typos_middle <-  tribble(
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
     "Shelley", "Moore", 'Capito', "Moore Capito",
     "John", "Dennis", "Hastert", "Denis",
-    "Mike", "Dennis", "Rehberg", "Denis"
+    "Mike", "Dennis", "Rehberg", "Denis",
+    "James", "Strom", "Thurmond", "Stom"
   ) %>% 
   mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
@@ -1326,7 +1329,7 @@ findTypos <- function(from){
 # It does correct ocr.errors and then corrects typos using the typos tables
 # It then uses the pattern variable in the members data to match names 
 # FIXME need to reverse members and col name in ALL SCRIPTS to make this tidy 
-  extractMemberName <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
+  extractMemberName2 <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 

@@ -1,0 +1,43 @@
+# This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
+# It may also auto-code variables like TYPE based on agency-specific information
+
+
+#file.name <- "NWTRB" # for testing
+
+
+clean <- function(file.name) {
+  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
+  
+  #Create ID
+  data %<>%
+    mutate(ID = row_number())
+  
+  #create agency column
+  data$agency <- file.name
+ 
+  #Format year and congress 
+  data$DATE %<>% as.Date("%m/%d/%y")
+  
+  #Check for NA Dates
+  NoDATE <- data %>%
+    filter(is.na(DATE))
+  
+  #create year and congress columns
+  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  #Extract Member Names
+  data %<>%
+    extractMemberName2(members = members, col_name = "FROM")
+  
+  #Captured names
+  #data %<>%
+   # filter(! is.na(last_name))
+  
+  
+  
+  
+  return(data)
+  
+  
+}

@@ -122,6 +122,7 @@ data_list <- tribble(
 "NCPC", "not coded", NA,
 "NCUA", "not coded", NA, 
 "NLRB" , "not coded", NA,
+"NWTRB", "not coded", NA,
 # OSMRE
 "OSMRE","not coded", NA, # no observatoins are people from congress, adds no new data
 # PRC
@@ -165,7 +166,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "NWTRB")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
