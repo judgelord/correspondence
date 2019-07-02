@@ -54,7 +54,7 @@ clean <- function(file.name) {
   
   #Recode to match chamber_last
   data %<>%
-    mutate(Summary = str_replace_all(Summary, "Congressman|Rep.|rep |cong | congressman |Cong. |Congresswoman", "Representative")) %>%
+    mutate(Summary = str_replace_all(Summary, "Congressman|Rep.|rep |cong | congressman |Cong. |Congresswoman", "Representative ")) %>%
     mutate(Summary = str_replace_all(Summary, "Senators|senators", "Senator"))
   
   #Extract Member names
@@ -62,6 +62,9 @@ clean <- function(file.name) {
     extractMemberName2(members = members, col_name = "Summary")
   
  
+  #Add first name 
+  data %<>%
+    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
   
   Unfoundnames <- data %>%
