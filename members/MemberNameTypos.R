@@ -133,7 +133,7 @@ typos_last <- tribble(
   "Stephanie", "Herseth Sandlin", "(Herseth|Sandlin)",
   "John", "ROCKEFELLER", "ROCKFELLER",
   "Ron", "Wyden", "Wydon",
-  "James", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
+  "John", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
   "Blake", "Farenthold", "Farenhold",
   "Anna", "Eshoo", "Eschoo",
@@ -269,7 +269,8 @@ typos_first <- tribble(
   "Jane", "Harman", "James",
   "Byron", "Dorgan", "Bayron",
   "Ann", "Kuster", "Anne",
-  "Maxine", "Waters", "Martina"
+  "Maxine", "Waters", "Martina",
+  "John", "Cornyn", "Jon"
  
   
   
