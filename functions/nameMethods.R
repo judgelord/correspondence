@@ -1068,7 +1068,7 @@ typos_last <- tribble(
   "James", "Jeffords", "(Jefford|Jeffers)",
   "Jack", "Kingston", "Kington",
   "Greg", "Walden", "Wilden",
-  "George","Radanovich", "(Radanovich|Radavich)",
+  "George","Radanovich", "(Radanovich|Radavich|Radnovich)",
   "George", "Nethercutt", "Nethecutt",
   "Frank", "Murkowski", "Mukowski",
   "Marcy", "Kaptur", "Kaptor",
