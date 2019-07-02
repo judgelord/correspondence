@@ -299,7 +299,7 @@ typos_common_name <-  tribble(
   "Joe", "Barton", "Joel",
   "Ben", "Cardin", "Bin",
   "Don", "Nickles", "Dob",
-  "Don", "Young", "Dob",
+  "Don", "Young", "(Dong|Dob)",
   "Dennis", "Heck", "Denis",
   "Dennis", "Rehberg", "Denis"
 ) %>% 
