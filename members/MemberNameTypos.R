@@ -186,7 +186,8 @@ typos_last <- tribble(
   "Elizabeth", "Warren", "Varren",
   "Adam", "Schiff", "Sdxiff",
   "Robert", "TORRICELLI", "Toricelli",
-  "Kay", "Hutchison", "Hutchinson"
+  "Kay", "Hutchison", "Hutchinson",
+  "Ann", "Kuster", "McLane"
   
   
   
@@ -232,7 +233,7 @@ typos_first <- tribble(
   "Chris", "Stewart", "Cris",
   "Hillary", "Clinton", "(Hilllary|Hilary|Fillary)",
   "Filemon", "Vela", "Filimon",
-  "Arthur", "Davis", "Artur",
+  "Artur", "Davis", "Arthur",
   "Patrick", "Leahy", "Ted",
   "Mary", "Bono", "Mack",
   "Harry", "Reid", "Marry",
@@ -262,7 +263,9 @@ typos_first <- tribble(
   "Bart", "Stupak", "Bark",
   "Jane", "Harman", "James",
   "Byron", "Dorgan", "Bayron",
-  "Ann", "Kuster", "McLane"
+  "Ann", "Kuster", "Anne",
+  "Maxine", "Waters", "Martina"
+ 
   
   
 )   %>% 
@@ -275,7 +278,7 @@ typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
   "Hillary", "Rodham", "Clinton", "Redham",
   "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
-  "Ben", "Nighthorse", "Ben", "Nighhorse",
+  "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "Shelley", "Moore", 'Capito', "Moore Capito",
   "John", "Dennis", "Hastert", "Denis",
   "Mike", "Dennis", "Rehberg", "Denis",
