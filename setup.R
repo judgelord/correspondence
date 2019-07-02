@@ -48,6 +48,7 @@
   #source(here("members/nameCongress.R")) # augments voteview member names
   ## Load augmented member names 
   load(here("members/nameCongress.Rdata"))
+  source(here("members/MemberNameTypos.R"))
   source(here("members/MemberNameDateCorrections.R"))
   
   source(here("committees/committees.R"))
