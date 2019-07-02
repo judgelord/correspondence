@@ -1151,7 +1151,7 @@ typos_last <- tribble(
 
 ) %>% 
   transmute(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos),
-                          str_c(last_name_typos, ", ", first_name, "\b"), sep = "|"),
+                          str_c(last_name_typos, ", ", first_name), sep = "|"),
             correct = paste(first_name, last_name)) 
 
 
@@ -1217,7 +1217,7 @@ typos_first <- tribble(
   "Angus", "King", "Argus"
    
 )   %>% 
-  transmute(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name, "\b"), # match any middle initial
+  transmute(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
                        str_c(last_name, ", ", first_name_typos), sep = "|" ), 
             correct = paste(first_name, last_name))
 
@@ -1232,7 +1232,7 @@ typos_middle <-  tribble(
     "Mike", "Dennis", "Rehberg", "Denis",
     "James", "Strom", "Thurmond", "Stom"
   ) %>% 
-  transmute(typos = str_c(paste(first_name, " ", middle_name_typos, " ", last_name, "\b"),
+  transmute(typos = str_c(paste(first_name, " ", middle_name_typos, " ", last_name),
                        str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|"),
             correct = paste(first_name, middle_name, last_name))
 
@@ -1247,7 +1247,7 @@ typos_common_name <-  tribble(
   "Dennis", "Heck", "Denis",
   "Dennis", "Rehberg", "Denis"
 ) %>% 
-  transmute(typos = str_c(str_c(common_name_typos, "( | [A-z]* )", last_name, "\b"),
+  transmute(typos = str_c(str_c(common_name_typos, "( | [A-z]* )", last_name),
                        str_c(last_name, ", ", common_name_typos), sep = "|"),
             correct = paste(common_name, last_name)) 
 
@@ -1272,7 +1272,7 @@ typos_common_name <-  tribble(
     "Bobby", "L", "Rush", "E",
     "Gary", "L", "Ackerman", "J"
   )%>% 
-   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name, "\b"),
+   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name),
                         str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|"),
              correct = paste(first_name, middle_initial, last_name )) 
  
