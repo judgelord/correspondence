@@ -5,7 +5,7 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() %>% top_n(1000, DATE) # get data
   
 
   #Create ID
@@ -78,7 +78,7 @@ data %<>%
   #Filter for Unfoundnames
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    select(-Summary, -last_name, -first_name)
+    select(-last_name, -first_name)
  
   #Separate from data 
   data %<>%
@@ -118,7 +118,8 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES))
   
   Unfoundnames2 <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name),
+           is.na(ERROR))
    #Check after run through merge
 #Unfoundnames <- d %>%
  #filter(is.na(bioname))
