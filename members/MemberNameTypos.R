@@ -112,8 +112,8 @@ typos_last <- tribble(
   "George", "Nethercutt", "Nethecutt",
   "Frank", "Murkowski", "(Murkowsk|Mukowski)",
   "Marcy", "Kaptur", "Kaptor",
-  "Bob", "Goodlatte", "Goodlat",
-  "Blaine", "Luetkemeyer", "Leautkemeyer",
+  "Bob", "Goodlatte", "(Godlatte|Goodlat)",
+  "Blaine", "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
   "Catherine", "Cortez Masto", "Cortez Mastro", 
@@ -189,7 +189,8 @@ typos_last <- tribble(
   "Kay", "Hutchison", "Hutchinson",
   "Ann", "Kuster", "McLane",
   "Charles", "Grassley", "Grassly",
-  "Slade", "Gorton", "Gordon"
+  "Slade", "Gorton", "Gordon",
+  "Bob", "Franks", "Francks"
   
   
   
