@@ -263,6 +263,7 @@ typos_first <- tribble(
   "Jane", "Harman", "James",
   "Byron", "Dorgan", "Bayron"
   
+  
 )   %>% 
   transmute(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
                           str_c(last_name, ", ", first_name_typos), sep = "|" ), 
