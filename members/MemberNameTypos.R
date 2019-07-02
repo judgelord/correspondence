@@ -191,7 +191,10 @@ typos_last <- tribble(
   "Ann", "Kuster", "McLane",
   "Charles", "Grassley", "Grassly",
   "Slade", "Gorton", "Gordon",
-  "Bob", "Franks", "Francks"
+  "Bob", "Franks", "Francks",
+  "Mary", "Bono", "Bone",
+  "Nancy", "Johnson", "Jonhson",
+  "Paul", "COVERDELL", "Cordovell"
   
   
   
