@@ -38,6 +38,7 @@ typos_clear <- tribble(
   "Charles", "Charkes",
   "Benjamin", "Bemjamin",
   "McCaskill", "McCaskil",
+  "Diaz-Balart", "(Diaz|Balart)",
   
   
   
