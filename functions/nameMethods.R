@@ -1143,7 +1143,9 @@ typos_last <- tribble(
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
   "Ellen", "Tauscher", "Ianscher",
   "Jeff", "Bingaman", "Bingamen",
-  "Elizabeth", "Warren", "Varren"
+  "Elizabeth", "Warren", "Varren",
+  "Adam", "Schiff", "Sdxiff",
+  "Robert", "TORRICELLI", "Toricelli"
 
 
 
@@ -1211,7 +1213,8 @@ typos_first <- tribble(
   "Corrine", "Brown", "Corinne",
   "Anna", "Eshoo", "Ana",
   "Vernon", "Ehlers", "Vermon",
-  "Margaret", "Hassan", "Margret"
+  "Margaret", "Hassan", "Margret",
+  "Angus", "King", "Argus"
    
 )   %>% 
   transmute(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name, "\b"), # match any middle initial
