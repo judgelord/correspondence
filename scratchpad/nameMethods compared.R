@@ -1,8 +1,9 @@
-look1 <- data %>% top_n(100, DATE) %>% extractMemberName(members, "FROM") %>% mutate(method = 1)
-look2 <- data %>% top_n(100, DATE) %>% extractMemberName2(members, "FROM") %>% mutate(method = 2)
+look1 <- data %>% top_n(100, DATE) %>% extractMemberName(members, "FROM") %>% mutate(method = 1, ID = as.numeric(ID))
+look2 <- data %>% top_n(100, DATE) %>% extractMemberName2(members, "FROM") %>% mutate(method = 2, ID = as.numeric(ID))
 
-problems <- full_join(look1,
-                      look2) %>% 
+look <- full_join(look1, look2)
+
+problems <- look %>% 
   select(ID, FROM, typos, correct, first_name, last_name, string, pattern, congress) %>% 
   # drop observations that matched or did not match in both methods
   distinct() %>% 
@@ -11,14 +12,16 @@ problems <- full_join(look1,
   # subset to observations that were distinct
   filter(n >1) %>% 
   # join back in data 
-  left_join(look1) %>% 
-  left_join(look2) %>% 
-  arrange(FROM)
+  left_join(look)%>% 
+  arrange(FROM) %>% 
+  select(FROM, string, pattern, first_name, last_name, method,  congress) 
 
-p <- problems %>% # and merge with voteview data
+should_be_matching <- problems %>% 
+  filter(is.na(last_name), 
+         pattern != "404error") %>% 
+  drop_na(pattern) %>% 
+  select(FROM, string, pattern, congress) %>% 
   left_join(members2) %>% # merge on common variables (may differ)
-  select(congress, FROM, bioname, method) %>% 
-  #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
-  left_join(members2) %>% # merge on common variables (may differ)
+  select(FROM, string, pattern, bioname, congress) %>% 
   distinct()
 
