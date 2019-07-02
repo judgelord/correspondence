@@ -29,7 +29,7 @@ cleanFROMcolumn <- function(FROM){
   # remove 
   FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
   FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
-  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Repres|Rep |Sen ", "", FROM)
+  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Rep |Sen ", "", FROM)
   
   # replace with comma
   FROM <- gsub(pattern = ", CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
@@ -995,6 +995,8 @@ typos_clear <- tribble(
   "Christopher", "Christoher",
   "Lujan", "Luj.n",
   "Raul", "R.ul",
+  "Charles", "Charkes",
+  "Benjamin", "Bemjamin",
   
 
   
@@ -1002,16 +1004,16 @@ typos_clear <- tribble(
   
   # Reversing order of first name and last name
   # Added the missing commas so they match the last, first pattern
-  "John Duncan", "Duncan, John",
-  "Henry Johnson", "Johnson, Henry",
-  "Mary Bono", "Bono, Mary",
-  "Nick Rahall", "Rahall, Nick",
-  "Jackson Lee", "Lee, Jackson",
-  "Michael Conaway", "Conaway, Michael",
-  "Morgan Griffith", "Griffith, Morgan",
-  "Steve Womack", "Womack, Steve",
-  "Dana ROHRABACHER", "ROHRABACHER, Dana",
-  "Ben Nelson", "Nelson, Ben"
+  "Duncan, John", "Duncan John",
+  "Johnson, Henry", "Johnson Henry",
+  "Bono, Mary", "Bono Mary",
+  "Rahall, Nick", "Rahall Nick",
+  "Lee, Jackson", "Lee Jackson",
+  "Conaway, Michael", "Conaway Michael",
+  "Griffith, Morgan", "Griffith Morgan",
+  "Womack, Steve", "Womack Steve",
+  "ROHRABACHER, Dana", "ROHRABACHER Dana",
+  "Nelson, Ben", "Nelson Ben"
   
 
 )
@@ -1019,7 +1021,7 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
-  "Patty", "Murray", "Muray",
+  "Patty", "Murray", "(Murrary|Muray)",
   "Lois", "Capps", "Crapps",
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
@@ -1037,7 +1039,7 @@ typos_last <- tribble(
   "David", "Schweikert", "Schweikerl",
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
-  "Steve", "Scalise", "Scallise",
+  "Steve", "Scalise", "(Scalisse|Scallise)",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
@@ -1066,9 +1068,9 @@ typos_last <- tribble(
   "James", "Jeffords", "(Jefford|Jeffers)",
   "Jack", "Kingston", "Kington",
   "Greg", "Walden", "Wilden",
-  "George","Radanovich", "(Radanovich|Radavich)",
+  "George","Radanovich", "(Radanovich|Radavich|Radnovich)",
   "George", "Nethercutt", "Nethecutt",
-  "Frank", "Murkowski", "Mukowski",
+  "Frank", "Murkowski", "(Murkowsk|Mukowski)",
   "Marcy", "Kaptur", "Kaptor",
   "Bob", "Goodlatte", "Goodlat",
   "Blaine", "Luetkemeyer", "Leautkemeyer",
@@ -1082,7 +1084,7 @@ typos_last <- tribble(
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
   "Raja", "Krishnamoorthi", "Krishnamoothi",
-  "Barbara", "Mikulski", "Milkulski",
+  "Barbara", "Mikulski", "(Mukulski|Milkulski)",
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
   "Tom", "Periello", "Perielo",
@@ -1140,14 +1142,17 @@ typos_last <- tribble(
   "Claire", "McCaskill", "McCaskil",
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
   "Ellen", "Tauscher", "Ianscher",
-  "Jeff", "Bingaman", "Bingamen"
+  "Jeff", "Bingaman", "Bingamen",
+  "Elizabeth", "Warren", "Varren",
+  "Adam", "Schiff", "Sdxiff",
+  "Robert", "TORRICELLI", "Toricelli"
 
 
 
 ) %>% 
-  mutate(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos), 
-                       str_c(last_name_typos, ", ", first_name), sep = "|") ) %>% 
-  select(first_name, last_name, typos)
+  transmute(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos),
+                          str_c(last_name_typos, ", ", first_name), sep = "|"),
+            correct = paste(first_name, last_name)) 
 
 
 # FREQUENT FIRST NAME TYPOS 
@@ -1208,27 +1213,31 @@ typos_first <- tribble(
   "Corrine", "Brown", "Corinne",
   "Anna", "Eshoo", "Ana",
   "Vernon", "Ehlers", "Vermon",
-  "Margaret", "Hassan", "Margret"
+  "Margaret", "Hassan", "Margret",
+  "Angus", "King", "Argus",
+  "Gary", "Ackerman", "Garry",
+  "Jon", "Corzine", "John"
    
 )   %>% 
-  mutate(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
-                       str_c(last_name, ", ", first_name_typos), sep = "|" ) ) %>% 
-  select(first_name, last_name, typos)
+  transmute(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
+                       str_c(last_name, ", ", first_name_typos), sep = "|" ), 
+            correct = paste(first_name, last_name))
 
   # FREQUENT MIDDLE NAME TYPOS 
 typos_middle <-  tribble(
     ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
     "Hillary", "Rodham", "Clinton", "Redham",
     "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+    "Ben", "Nighthorse", "Ben", "Nighhorse",
     "Shelley", "Moore", 'Capito', "Moore Capito",
     "John", "Dennis", "Hastert", "Denis",
     "Mike", "Dennis", "Rehberg", "Denis",
     "James", "Strom", "Thurmond", "Stom"
   ) %>% 
-  mutate(typos = str_c(paste(first_name, middle_name_typos, last_name),
-                       str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|") ) %>% 
-  select(first_name, middle_name, last_name, typos)
-  
+  transmute(typos = str_c(paste(first_name, " ", middle_name_typos, " ", last_name),
+                       str_c(last_name, ", ", first_name, " ", middle_name_typos), sep = "|"),
+            correct = paste(first_name, middle_name, last_name))
+
 # FREQUENT COMMON NAME TYPOS 
 typos_common_name <-  tribble(
   ~common_name, ~last_name, ~common_name_typos, 
@@ -1240,9 +1249,9 @@ typos_common_name <-  tribble(
   "Dennis", "Heck", "Denis",
   "Dennis", "Rehberg", "Denis"
 ) %>% 
-  mutate(typos = str_c(str_c(common_name_typos, "( | [A-z]* )", last_name),
-                       str_c(last_name, ", ", common_name_typos), sep = "|") ) %>% 
-  select(common_name, last_name, typos)
+  transmute(typos = str_c(str_c(common_name_typos, "( | [A-z]* )", last_name),
+                       str_c(last_name, ", ", common_name_typos), sep = "|"),
+            correct = paste(common_name, last_name)) 
 
   # FREQUENT MIDDLE INITIAL TYPOS 
  typos_middle_initial <- tribble(
@@ -1255,7 +1264,7 @@ typos_common_name <-  tribble(
     "Rosa", "L", "DeLauro", "I",
     "Joseph", "I", "Lieberman", "(J|L)" ,
     "John", "F", "Kerry", "P",
-    "Jon", "S", "Corize", "C",
+    "Jon", "S", "Corzine", "C",
     "David", "N", "Cicilline", "(R|L|P)",
     "David", "B", "McKinley", "P",
     "James", "R", "Langevin", "P",
@@ -1265,9 +1274,9 @@ typos_common_name <-  tribble(
     "Bobby", "L", "Rush", "E",
     "Gary", "L", "Ackerman", "J"
   )%>% 
-   mutate(typos = str_c(paste(first_name, middle_initial_typos, last_name),
-                        str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|") ) %>% 
-   select(first_name, middle_initial, last_name, typos)
+   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name),
+                        str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|"),
+             correct = paste(first_name, middle_initial, last_name )) 
  
  
  
@@ -1293,7 +1302,7 @@ typos_common_name <-  tribble(
 typos <- full_join(typos_first, typos_last) %>% 
   full_join(typos_middle) %>% 
   full_join(typos_middle_initial) %>% 
-  mutate(correct = paste(first_name, last_name)) %>% 
+  # mutate(correct = paste(first_name, last_name)) %>% 
   group_by(correct) %>%
   summarise(typos = typos %>% str_c(collapse = "|") ) %>%
   full_join(typos_clear) %>% 
