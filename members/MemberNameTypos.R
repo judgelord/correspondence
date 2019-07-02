@@ -37,6 +37,7 @@ typos_clear <- tribble(
   "Raul", "R.ul",
   "Charles", "Charkes",
   "Benjamin", "Bemjamin",
+  "McCaskill", "McCaskil",
   
   
   
@@ -179,7 +180,6 @@ typos_last <- tribble(
   "Steve", "King", "Kiing",
   "Peter", "King", "Kiing",
   "Angus", "King", "Kiing",
-  "Claire", "McCaskill", "McCaskil",
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
   "Ellen", "Tauscher", "Ianscher",
   "Jeff", "Bingaman", "Bingamen",
