@@ -1215,7 +1215,8 @@ typos_first <- tribble(
   "Vernon", "Ehlers", "Vermon",
   "Margaret", "Hassan", "Margret",
   "Angus", "King", "Argus",
-  "Gary", "Ackerman", "Garry"
+  "Gary", "Ackerman", "Garry",
+  "Jon", "Corzine", "John"
    
 )   %>% 
   transmute(typos = str_c(str_c(first_name_typos, "( | [A-z]* )", last_name), # match any middle initial
@@ -1263,7 +1264,7 @@ typos_common_name <-  tribble(
     "Rosa", "L", "DeLauro", "I",
     "Joseph", "I", "Lieberman", "(J|L)" ,
     "John", "F", "Kerry", "P",
-    "Jon", "S", "Corize", "C",
+    "Jon", "S", "Corzine", "C",
     "David", "N", "Cicilline", "(R|L|P)",
     "David", "B", "McKinley", "P",
     "James", "R", "Langevin", "P",
