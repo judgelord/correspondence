@@ -1,5 +1,5 @@
-look1 <- data %>% extractMemberName(members, "FROM") %>% mutate(method = 1)
-look2 <- data %>% extractMemberName2(members, "FROM") %>% mutate(method = 2)
+look1 <- data %>% top_n(100) %>% extractMemberName(members, "FROM") %>% mutate(method = 1)
+look2 <- data %>% top_n(100) %>% extractMemberName2(members, "FROM") %>% mutate(method = 2)
 
 problems <- full_join(look1,
                       look2) %>% 
