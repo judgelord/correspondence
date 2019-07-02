@@ -165,7 +165,7 @@ typos_last <- tribble(
   "Mario", "Diaz-Balart", "(Diaz|Balart)",
   "Lincoln", "Diaz-Balart", "(Diaz|Balart)",
   "Stephanie", "Lujan Grishman", "Luj.n Grishman",
-  "Carol", "Shea-Porter", "Shea|Porter",
+  "Carol", "Shea-Porter", "(Shea|Porter)",
   "Daniel", "Donovan", "Donavan",
   "Gloria", "Negrete McLeod", "(Negrete|McLeod)",
   "Sheila", "Jackson Lee", "(Jackson|Lee|Jackson-Lee)",
