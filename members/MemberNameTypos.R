@@ -37,9 +37,8 @@ typos_clear <- tribble(
   "Raul", "R.ul",
   "Charles", "Charkes",
   "Benjamin", "Bemjamin",
-  "McCaskill", "McCaskil",
-  "Diaz-Balart", "(Diaz|Balart)",
-  
+  "McCaskill", "McCaskil($| |,)",
+  "Diaz-Balart", "(Diaz($|,)|Balart($|,))", 
   
   
   ###############################
@@ -191,7 +190,10 @@ typos_last <- tribble(
   "Ann", "Kuster", "McLane",
   "Charles", "Grassley", "Grassly",
   "Slade", "Gorton", "Gordon",
-  "Bob", "Franks", "Francks"
+  "Bob", "Franks", "Francks",
+  "Mary", "Bono", "Bone",
+  "Nancy", "Johnson", "Jonhson",
+  "Paul", "COVERDELL", "Cordovell"
   
   
   
