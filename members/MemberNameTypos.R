@@ -184,7 +184,7 @@ typos_last <- tribble(
   "Ellen", "Tauscher", "Ianscher",
   "Jeff", "Bingaman", "Bingamen",
   "Elizabeth", "Warren", "Varren",
-  "Adam", "Schiff", "Sdxiff",
+  "Adam", "Schiff", "(Schif|Sdxiff)",
   "Robert", "TORRICELLI", "Toricelli",
   "Kay", "Hutchison", "Hutchinson",
   "Ann", "Kuster", "McLane",
