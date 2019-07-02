@@ -194,6 +194,7 @@ typos_last <- tribble(
   
   
   
+  
 ) %>% 
   transmute(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos),
                           str_c(last_name_typos, ", ", first_name), sep = "|"),
