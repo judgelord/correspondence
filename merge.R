@@ -4,9 +4,9 @@
 
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 
+gs_ls() # log in to google drive
 
 ## make sure gmailr is set up 
-library(gmailr)
 send_message(mime(
   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
   From = "correspondenceresearch@gmail.com",
