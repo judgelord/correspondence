@@ -12,7 +12,7 @@ typos_clear <- tribble(
   "Phil ", "Phill ", # I added a space because it seems risky to match Phill...
   "LaMalfa", "LaMalfn",
   "Courtey", "Courntney",
-  "Kirsten", "Kirstein",
+  "Kirsten", "(Kirstine|Kirstein)",
   "Gerlach", "Gerlah",
   "Darlene", "Darene",
   "Rodham", "Redham",
@@ -23,13 +23,12 @@ typos_clear <- tribble(
   "Lincoln", "L.ncoln",
   "Timothy", "T.mothy",
   "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
-  "Michael", "(Midlael|Michaell|Micahel)",
   "Martin","Martrin", 
   "Cardenas", "C.rdenas",
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
   "Sanchez", "S.nchez",
-  "Gutierrez", "Gut.errez",
+  "Gutierrez", "(Guitierrez|GUTI.RREZ|Gut.errez)",
   "Melissa", "Melisssa",
   "Brian", "Brain",
   "Christopher", "Christoher",
@@ -40,6 +39,10 @@ typos_clear <- tribble(
   "McCaskill", "McCaskil$",
   "McCaskill,", "McCaskil,",
   "McCaskill ", "McCaskil ",
+  "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
+  "HERRERA BEUTLER", "Herrera-Beutler",
+  "WASSERMAN SCHULTZ", "WASSERMAN-SCHULTZ",
+  "Michael", "(Midlael|Michaell|Micahel)",
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -70,7 +73,7 @@ typos_last <- tribble(
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
   "Rodney", "Frelinghuysen", "Frelinhuysen",
-  "Shelly", "Berkley", "Barkley",
+  "Shelly", "Barkley", "Berkley",
   "Steny", "Hoyer", "Royer",
   "Vito", "Fossella", "Fosella",
   "John", "Barrasso", "Barasso",
@@ -117,10 +120,8 @@ typos_last <- tribble(
   "Frank", "Murkowski", "(Murkowsk|Mukowski)",
   "Marcy", "Kaptur", "Kaptor",
   "Bob", "Goodlatte", "(Godlatte|Goodlat)",
-  "Blaine", "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
-  "Catherine", "Cortez Masto", "Cortez Mastro", 
   "Charles", "Rangel", "Ranger",
   "Christopher", "Van Hollen", "Van Kollen", 
   "Gary", "Ackerman", "Acherman",
@@ -142,7 +143,6 @@ typos_last <- tribble(
   "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap)",
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
-  "Shelley", "Capito", "Moore Capito",
   "James", "Inhofe", "(Inholfe|Imhofe|Imholfe|Inhoffe)",
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
@@ -152,7 +152,7 @@ typos_last <- tribble(
   "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
-  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO)",
+  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO|Cortez Mastro)",
   "Thomas","Coburn","(Cobum|Co bum)",
   "Trent", "Kelly", "Key",
   "Robin", "Kelly", "Key",
@@ -162,7 +162,6 @@ typos_last <- tribble(
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
   "Christopher", "Van Hollen", "(Van|Hollen)",
-  "Luis", "GUTIERREZ", "(Guitierrez|GUTI.RREZ)",
   "Debbie", "WASSERMAN SCHULTZ", "(Wasserman|Schultz|Wasserman-Schultz)",
   "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)",
   "James", "Barrett", "(Baret|Barett|Barret)",
@@ -196,13 +195,25 @@ typos_last <- tribble(
   "Bob", "Franks", "Francks",
   "Mary", "Bono", "Bone",
   "Nancy", "Johnson", "Jonhson",
-  "Paul", "COVERDELL", "Cordovell"
+  "Paul", "COVERDELL", "Cordovell",
+  "Tom", "DeLay", "De Lay",
+  "Steve", "Pearce", "Peace",
+  "Charlie", "Crist", "Christ",
+  "Rick", "Crawford", "Crawfrod",
+  "Mikie", "SHERRILL", "Sheril",
+  "Robert", "BENNETT", "Bernnett",
+  "Peter","DeFazio","De Fazio",
+  "Paul", "Sarbanes", "Sabanes",
+  "Mike", "McIntyre", "McLntyre",
+  "Margaret", "Hassan", "Hassen",
+  "Michael", "Capuano", "Capuno",
+  "Max","BAUCUS","Baucuz"
   
   
   
   
 ) %>% 
-  transmute(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos),
+  transmute(typos = str_c(str_c(first_name, "( | [A-z]* )", last_name_typos, "($| |,|;)"),
                           str_c(last_name_typos, ", ", first_name), sep = "|"),
             correct = paste(first_name, last_name)) 
 
@@ -218,7 +229,7 @@ typos_first <- tribble(
   "Ric", "Keller", "Rick", 
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
-  "Shelly","Capito", "Shelley", 
+  "Shelley","Moore Capito", "(Shelby|Shelly)", 
   "Charles", "Schumer", "(Charls|Charls E)", # FIXME just adding middle initial for now, but eventually, it should be added to the typo pattern by merging with members data
   "Julia", "Carson", "Julie", 
   "Tom", "Barrett", "Mark", 
@@ -226,7 +237,6 @@ typos_first <- tribble(
   "Katherine", "Clark", "Kathrine", 
   "Randy", "Weber", "Randay", 
   "Nancy", "Pelosi", "Nanci", 
-  "Michael", "Honda", "(Midlael|Michaell)", 
   "Patrick", "Leahy", "Partrick", 
   "Ralph", "Regula", "Raplh", 
   "Chris", "Gibson", "Cris", 
@@ -247,7 +257,7 @@ typos_first <- tribble(
   "Patrick", "Leahy", "Ted",
   "Mary", "Bono", "Mack",
   "Harry", "Reid", "Marry",
-  "Anna", "Eshoo", "Anna A.",
+  "Anna", "Eshoo", "(Ana|Anna A.)",
   "Darrell", "Issa", "(Darryl|Daryl|Darrel|Darel)",
   "Dianne", 'Feinstein', "Diane",
   "Eliot", "Engel", "Eliott",
@@ -275,7 +285,9 @@ typos_first <- tribble(
   "Byron", "Dorgan", "Bayron",
   "Ann", "Kuster", "Anne",
   "Maxine", "Waters", "Martina",
-  "John", "Cornyn", "Jon"
+  "John", "Cornyn", "Jon",
+  "William", "Clay", "(Wim|Wm.)",
+  "William", "Tauzin", "WJ"
  
   
   
@@ -287,10 +299,9 @@ typos_first <- tribble(
 # FREQUENT MIDDLE NAME TYPOS 
 typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
-  "Hillary", "Rodham", "Clinton", "Redham",
+  "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",
   "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
-  "Shelley", "Moore", 'Capito', "Moore Capito",
   "John", "Dennis", "Hastert", "Denis",
   "Mike", "Dennis", "Rehberg", "Denis",
   "James", "Strom", "Thurmond", "Stom"
@@ -334,7 +345,8 @@ typos_middle_initial <- tribble(
   "Eliot", "L", "Engel", "E",
   "Bobby", "L", "Rush", "E",
   "Gary", "L", "Ackerman", "J",
-  "Anthony", "G", "Brown", "J"
+  "Anthony", "G", "Brown", "J",
+  "Peter", "G", "Fitzgerald", "B"
 )%>% 
   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name),
                           str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|"),

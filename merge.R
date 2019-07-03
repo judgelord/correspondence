@@ -3,6 +3,9 @@
 # load required functions
 
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+# FIXME 
+extractMemberName <- extractMemberName2
+
 
 gs_ls() # log in to google drive
 
@@ -316,7 +319,9 @@ bad.names.2 <- d %>%
   select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
-worst.names <- bad.names.2  %>% ungroup() %>% drop_na(FROM) %>% count(FROM, agency, congress) %>% arrange(-n)  %>% top_n(100)
+worst.names <- bad.names.2 %>% 
+  # filter(agency != "DHS_HQ")  %>% 
+  ungroup() %>% drop_na(FROM) %>% count(FROM, agency, congress) %>% arrange(-n)  %>% top_n(100)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 

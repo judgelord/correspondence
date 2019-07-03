@@ -17,7 +17,7 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub('\\+', "", FROM)
   
   # remove common names in quotes 
-  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick)\\"', "", FROM, ignore.case = TRUE)
+  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick|Duke)\\"', "", FROM, ignore.case = TRUE)
   
   # remove paragraph breaks and trailing white space 
   FROM <- gsub("\n", " ", FROM)
@@ -961,15 +961,15 @@ addFirst <- function(first_name, last_name){
 
 
 # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
-str_detect_replace <- function(string, pattern){
-  out <- ifelse(str_detect(string, pattern), pattern, "404error")
+str_detect_replace <- function(string_to_search, pattern){
+  out <- ifelse(str_detect(string_to_search, pattern), pattern, "404error")
 }
 
 
 findTypos <- function(string){
   purrr::map(.x = typos$typos, 
              .f= str_detect_replace,
-             string = string) %>% 
+             string_to_search = string) %>% 
     unlist() %>%
     unique() %>% 
     # seperate pattrns found with OR 
@@ -994,6 +994,8 @@ findTypos <- function(string){
     
     extractMemberName2 <- function(data, members, col_name, congresses = unique(data$congress)){
       
+      # FOR TESTING 
+      # col_name <- "FROM"
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 
@@ -1019,12 +1021,12 @@ findTypos <- function(string){
       mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct)) %>% 
       mutate(typos = str_replace(typos, "404error", "none"))
     
+
+    # FOR TESTING 
+    # look <- data %>% drop_na(typos) %>% filter(typos != "none", typos != "404error") %>% distinct() %>% filter(is.na(string))
     
-    # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
-    str_detect_replace <- function(string, pattern){
-      out <- ifelse(str_detect(string, pattern), pattern, "404error")
-      return(out)
-    }
+    
+    
     
     # A function to map over members 
     # (assumes that memmbers object contains congress and pattern)
@@ -1032,7 +1034,7 @@ findTypos <- function(string){
     extractName <- function(string){
       purrr::map(.x = members %>% filter(congress %in% data$congress) %>% select(pattern), 
                  .f= str_detect_replace,
-                 string = string) %>% 
+                 string_to_search = string) %>% 
         unlist() %>%
         unique() %>% 
         str_c(collapse = ";") %>%

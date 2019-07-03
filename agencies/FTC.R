@@ -56,11 +56,11 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Sean Patrick Malone\\}", "Sean Patrick Malone"))
   
 
-  data <- extractMemberName(members, "FROM")
+  data %<>% extractMemberName(members, "FROM")
   
   #Checks for observations still NA
-  notfound2 <- data %>%
-    filter(is.na(last_name))
+  # notfound2 <- data %>%
+  #   filter(is.na(last_name))
  
 
   return(data)

@@ -43,6 +43,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "KUSTER, Ann McLane", "McLane", maiden_name)) %>% 
      
+    # last names
+    mutate(last_name = ifelse(bioname == "CAPITO, Shelley Moore", "Moore Capito", last_name)) %>%  
+     
     # common names
      # NOTE, as written this will overwrite existing common names. 
      # FIXME by adding "common_name == "" &" unless we want to overwrite 
@@ -208,7 +211,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "HOLDEN, Thomas Timothy (Tim)", "Tim", common_name)) %>%
     mutate(common_name = ifelse(bioname == "TSONGAS, Nicola S. (Niki)", "Niki", common_name)) %>%
     mutate(common_name = ifelse(bioname == "KENNEDY, Edward Moore (Ted)", "Ted", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "CUNNINGHAM, Randall (Duke)", "Duke", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "CUNNINGHAM, Randall (Duke)", "(Randy|Duke)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "HOUGHTON, Amory, Jr.", "Amo", common_name)) %>%
     mutate(common_name = ifelse(bioname == "GOODE, Virgil H., Jr", "Virgil", common_name)) %>%
     mutate(common_name = ifelse(bioname == "RUPPERSBERGER, C.", "Dutch", common_name)) %>% 
@@ -237,7 +240,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "ROSEN, Jacklyn Sheryl", "Jacky", common_name)) %>%
     mutate(common_name = ifelse(bioname == "KUSTER, Ann McLane", "Annie", common_name)) %>%
     mutate(common_name = ifelse(bioname == "BISHOP, Robert (Rob)", "(Rob|Bob)", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "DOOLEY, Calvin M", "Cal", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "DOOLEY, Calvin M.", "Cal", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "SHOWS, Clifford Ronald", "Ronnie", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "PACKARD, Ronald C", "Ron", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "MURRAY, Patty", "Pat", common_name)) %>%
+
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -276,6 +283,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(bioname == "ESHOO, Anna Georges", "Georges", middle_name)) %>%  
     mutate(middle_name = ifelse(bioname == "FRANKEN, Al", "Stuart", middle_name)) %>%  
     mutate(middle_name = ifelse(bioname == "SCHIFF, Adam", "Bennett", middle_name)) %>%  
+    mutate(middle_name = ifelse(bioname == "CAPITO, Shelley Moore", "Wellons", middle_name)) %>%  
+     
   
      
     # middle initials
@@ -394,7 +403,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "HALL, John","J", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "TIPTON, Scott","R", middle_initial)) %>%  
   mutate(middle_initial = ifelse(bioname == "KUSTER, Ann McLane","L", middle_initial)) %>%  
-  mutate(middle_initial = ifelse(bioname == "COVERDELL, Paul","D", middle_initial)) 
+  mutate(middle_initial = ifelse(bioname == "COVERDELL, Paul","D", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "CAPITO, Shelley Moore","W", middle_initial))   
 
  members %<>%    
   # first names
