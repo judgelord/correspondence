@@ -70,7 +70,7 @@ typos_last <- tribble(
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
   "Rodney", "Frelinghuysen", "Frelinhuysen",
-  "Shelly", "Berkley", "Barkley",
+  "Shelly", "Barkley", "Berkley",
   "Steny", "Hoyer", "Royer",
   "Vito", "Fossella", "Fosella",
   "John", "Barrasso", "Barasso",
@@ -86,7 +86,7 @@ typos_last <- tribble(
   "Steve", "Scalise", "(Scalisse|Scallise)",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
-  "Thomas", "Holden", "Holen",
+  "Thomas", "Holen", "Holden",
   "Olympia","Snowe", "Showe",
   "Robert","Byrd", "Bryd",
   "Michael", "Honda",  "Honds",
@@ -196,7 +196,9 @@ typos_last <- tribble(
   "Bob", "Franks", "Francks",
   "Mary", "Bono", "Bone",
   "Nancy", "Johnson", "Jonhson",
-  "Paul", "COVERDELL", "Cordovell"
+  "Paul", "COVERDELL", "Cordovell",
+  "Tom", "DeLay", "De Lay",
+  "Steve", "Pearce", "Peace"
   
   
   
@@ -218,7 +220,7 @@ typos_first <- tribble(
   "Ric", "Keller", "Rick", 
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
-  "Shelly","Capito", "Shelley", 
+  "Shelly","Capito", "(Shelby|Shelley)", 
   "Charles", "Schumer", "(Charls|Charls E)", # FIXME just adding middle initial for now, but eventually, it should be added to the typo pattern by merging with members data
   "Julia", "Carson", "Julie", 
   "Tom", "Barrett", "Mark", 
@@ -275,7 +277,9 @@ typos_first <- tribble(
   "Byron", "Dorgan", "Bayron",
   "Ann", "Kuster", "Anne",
   "Maxine", "Waters", "Martina",
-  "John", "Cornyn", "Jon"
+  "John", "Cornyn", "Jon",
+  "William", "Clay", "(Wim|Wm.)",
+  "William", "Tauzin", "WJ"
  
   
   
