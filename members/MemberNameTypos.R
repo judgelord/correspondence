@@ -42,6 +42,7 @@ typos_clear <- tribble(
   "McCaskill ", "McCaskil ",
   "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "HERRERA BEUTLER", "Herrera-Beutler",
+  "WASSERMAN SCHULTZ", "WASSERMAN-SCHULTZ",
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -88,7 +89,7 @@ typos_last <- tribble(
   "Steve", "Scalise", "(Scalisse|Scallise)",
   "Russ", "Carnahan", "Camahan",
   "Zoe", "Lofgren", "Lufgren",
-  "Thomas", "Holen", "Holden",
+  "Thomas", "Holden", "Holen",
   "Olympia","Snowe", "Showe",
   "Robert","Byrd", "Bryd",
   "Michael", "Honda",  "Honds",
@@ -148,7 +149,7 @@ typos_last <- tribble(
   "Chaka", "Fattah", "Chakka",
   "Kirsten", "Gillibrand", "Gillbrand",
   "James","Barrett", "(Barrat|Barret)",
-  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER|Herrera-Beutler)",
+  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO|Cortez Mastro)",
@@ -198,7 +199,10 @@ typos_last <- tribble(
   "Paul", "COVERDELL", "Cordovell",
   "Tom", "DeLay", "De Lay",
   "Steve", "Pearce", "Peace",
-  "Charlie", "Crist", "Christ"
+  "Charlie", "Crist", "Christ",
+  "Rick", "Crawford", "Crawfrod",
+  "Mikie", "SHERRILL", "Sheril",
+  "Robert", "BENNETT", "Bernnett"
   
   
   
@@ -291,7 +295,7 @@ typos_first <- tribble(
 # FREQUENT MIDDLE NAME TYPOS 
 typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
-  "Hillary", "Rodham", "Clinton", "Redham",
+  "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",
   "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "John", "Dennis", "Hastert", "Denis",
