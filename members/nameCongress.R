@@ -243,6 +243,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "DOOLEY, Calvin M.", "Cal", common_name)) %>%
     mutate(common_name = ifelse(bioname == "SHOWS, Clifford Ronald", "Ronnie", common_name)) %>%
     mutate(common_name = ifelse(bioname == "PACKARD, Ronald C", "Ron", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "MURRAY, Patty", "Pat", common_name)) %>%
 
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
