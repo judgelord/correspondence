@@ -40,6 +40,8 @@ typos_clear <- tribble(
   "McCaskill", "McCaskil$",
   "McCaskill,", "McCaskil,",
   "McCaskill ", "McCaskil ",
+  "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
+  "HERRERA BEUTLER", "Herrera-Beutler",
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -117,7 +119,6 @@ typos_last <- tribble(
   "Frank", "Murkowski", "(Murkowsk|Mukowski)",
   "Marcy", "Kaptur", "Kaptor",
   "Bob", "Goodlatte", "(Godlatte|Goodlat)",
-  "Blaine", "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
   "Charles", "Rangel", "Ranger",
