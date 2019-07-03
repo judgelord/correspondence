@@ -166,7 +166,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "NWTRB")
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -800,3 +800,4 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 
 look <- df %>% count(agency, Department)
 paste("merge.R stopped at", data_list$agency[i])
+
