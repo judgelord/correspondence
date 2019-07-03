@@ -148,7 +148,7 @@ typos_last <- tribble(
   "Chaka", "Fattah", "Chakka",
   "Kirsten", "Gillibrand", "Gillbrand",
   "James","Barrett", "(Barrat|Barret)",
-  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
+  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER|Herrera-Beutler)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO)",
