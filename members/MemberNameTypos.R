@@ -29,7 +29,7 @@ typos_clear <- tribble(
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
   "Sanchez", "S.nchez",
-  "Gutierrez", "Gut.errez",
+  "Gutierrez", "(Guitierrez|GUTI.RREZ|Gut.errez)",
   "Melissa", "Melisssa",
   "Brian", "Brain",
   "Christopher", "Christoher",
@@ -40,6 +40,8 @@ typos_clear <- tribble(
   "McCaskill", "McCaskil$",
   "McCaskill,", "McCaskil,",
   "McCaskill ", "McCaskil ",
+  "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
+  "HERRERA BEUTLER", "Herrera-Beutler",
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -117,10 +119,8 @@ typos_last <- tribble(
   "Frank", "Murkowski", "(Murkowsk|Mukowski)",
   "Marcy", "Kaptur", "Kaptor",
   "Bob", "Goodlatte", "(Godlatte|Goodlat)",
-  "Blaine", "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
-  "Catherine", "Cortez Masto", "Cortez Mastro", 
   "Charles", "Rangel", "Ranger",
   "Christopher", "Van Hollen", "Van Kollen", 
   "Gary", "Ackerman", "Acherman",
@@ -142,17 +142,16 @@ typos_last <- tribble(
   "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap)",
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
-  "Shelley", "Capito", "Moore Capito",
   "James", "Inhofe", "(Inholfe|Imhofe|Imholfe|Inhoffe)",
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka",
   "Kirsten", "Gillibrand", "Gillbrand",
   "James","Barrett", "(Barrat|Barret)",
-  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
+  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER|Herrera-Beutler)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
-  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO)",
+  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO|Cortez Mastro)",
   "Thomas","Coburn","(Cobum|Co bum)",
   "Trent", "Kelly", "Key",
   "Robin", "Kelly", "Key",
@@ -162,7 +161,7 @@ typos_last <- tribble(
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
   "Christopher", "Van Hollen", "(Van|Hollen)",
-  "Luis", "GUTIERREZ", "(Guitierrez|GUTI.RREZ)",
+  
   "Debbie", "WASSERMAN SCHULTZ", "(Wasserman|Schultz|Wasserman-Schultz)",
   "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)",
   "James", "Barrett", "(Baret|Barett|Barret)",
@@ -198,7 +197,8 @@ typos_last <- tribble(
   "Nancy", "Johnson", "Jonhson",
   "Paul", "COVERDELL", "Cordovell",
   "Tom", "DeLay", "De Lay",
-  "Steve", "Pearce", "Peace"
+  "Steve", "Pearce", "Peace",
+  "Charlie", "Crist", "Christ"
   
   
   
@@ -220,7 +220,7 @@ typos_first <- tribble(
   "Ric", "Keller", "Rick", 
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
-  "Shelly","Capito", "(Shelby|Shelley)", 
+  "Shelley","Moore Capito", "(Shelby|Shelly)", 
   "Charles", "Schumer", "(Charls|Charls E)", # FIXME just adding middle initial for now, but eventually, it should be added to the typo pattern by merging with members data
   "Julia", "Carson", "Julie", 
   "Tom", "Barrett", "Mark", 
@@ -249,7 +249,7 @@ typos_first <- tribble(
   "Patrick", "Leahy", "Ted",
   "Mary", "Bono", "Mack",
   "Harry", "Reid", "Marry",
-  "Anna", "Eshoo", "Anna A.",
+  "Anna", "Eshoo", "(Ana|Anna A.)",
   "Darrell", "Issa", "(Darryl|Daryl|Darrel|Darel)",
   "Dianne", 'Feinstein', "Diane",
   "Eliot", "Engel", "Eliott",
@@ -294,7 +294,6 @@ typos_middle <-  tribble(
   "Hillary", "Rodham", "Clinton", "Redham",
   "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
-  "Shelley", "Moore", 'Capito', "Moore Capito",
   "John", "Dennis", "Hastert", "Denis",
   "Mike", "Dennis", "Rehberg", "Denis",
   "James", "Strom", "Thurmond", "Stom"
