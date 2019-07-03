@@ -5,7 +5,7 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() %>% top_n(1000, DATE) # get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
 
   #Create ID
@@ -43,7 +43,8 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  #sampledata <- data[sample(1:nrow(data), 3000, replace=FALSE),]
+  #sampledata <- data %>%
+   #filter(str_detect(FROM, "Balart|McCaskil"))
 
   #data <- sampledata
 
@@ -53,7 +54,10 @@ clean <- function(file.name) {
  
 #Typo  
 data %<>%
-  mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C"))
+  mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
+  mutate(FROM = str_replace(FROM, "^Balart, M.", "Diaz-Balart, M.")) %>%
+  mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M."))
+  
   
   #string split on "\"
   data %<>%
@@ -83,11 +87,6 @@ data %<>%
   #Separate from data 
   data %<>%
     anti_join(Unfoundnames)
-
-  
-  #Remove first initial to match on chamber_lastname
-  Unfoundnames %<>%
-    mutate(FROM = str_remove(FROM, ",.*"))
  
  
   #Paste Chamber into FROM
@@ -109,7 +108,8 @@ data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "SVAC"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "non-cong"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Representative non Congressional|Representative Non-Congressional"), "Not Member", ERROR))
   
   #FOIA NOTES
   data %<>%
@@ -117,9 +117,16 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES))
   
+  #Filter non-members while working
+  #data %<>%
+    #filter( ! str_detect(FROM, "Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative non Congressional|
+                         #Representative Non-Congressional"))
+  
+ 
   Unfoundnames2 <- data %>%
     filter(is.na(last_name),
            is.na(ERROR))
+  
    #Check after run through merge
 #Unfoundnames <- d %>%
  #filter(is.na(bioname))
@@ -130,4 +137,5 @@ data %<>%
  return(data)
   
 }
+
   

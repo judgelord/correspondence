@@ -56,25 +56,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Sean Patrick Malone\\}", "Sean Patrick Malone"))
   
 
-  data <- getFirstLast.Comma(data, col_name = "FROM")
-  
-  #Checks for NAs
-  notfound <- data %>%
-    filter(is.na(last_name))
-  
-  
-  #Extracts member names from NAs in getfirstlast
-  Unfoundnames <- data %>%
-    filter(is.na(last_name)) %>%
-    extractMemberName(members = members, col_name = "FROM")
-    
-  #Drops duplicate observations  
-  data %<>%
-    drop_na(last_name)
-  
-  #Rejoins data
-  data %<>%
-    full_join(Unfoundnames)
+  data <- extractMemberName(members, "FROM")
   
   #Checks for observations still NA
   notfound2 <- data %>%

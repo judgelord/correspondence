@@ -26,6 +26,7 @@
   library(magrittr)
   library(googlesheets)
   library(googledrive)
+  library(gmailr)
   library(stringi)
   library(pdftools)
   library(here)
@@ -39,6 +40,7 @@
   library(knitr)
   library(broom)
   library(dotwhisker)
+  library(tidyverse)
   
   source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
   source(here("functions/stateFromLower.R")) # format state names
@@ -46,10 +48,14 @@
   source(here("functions/nameMethods.R")) # functions for cleaning member names to match the augmented member file
   
   #source(here("members/nameCongress.R")) # augments voteview member names
-  ## Load augmented member names 
+  ## Load augmented member names without having to load voteview 
   load(here("members/nameCongress.Rdata"))
+  
+  ## Load typos and date corrections
+  source(here("members/MemberNameTypos.R"))
   source(here("members/MemberNameDateCorrections.R"))
   
+  ## Load committee data
   source(here("committees/committees.R"))
   
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
@@ -60,5 +66,4 @@
                         fig.height = 3,
                         fig.width = 3)
   
-# gs_ls() # log in to google
 
