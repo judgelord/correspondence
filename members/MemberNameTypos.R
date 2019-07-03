@@ -235,7 +235,7 @@ typos_first <- tribble(
   "Dennis", "Cardoza", "Dinnes",
   "Harry", "Reid", "Hary",
   "George", "Voinovich", "Geaorge",
-  "Candice", "Miller", "Candance",
+  "Candice", "Miller", "(Candace|Candance)",
   "Cedric", "Richmond", "Cedic",
   "Christopher", "Smith", "Christoper",
   "Christopher", "Bond", "(Chritoper|Christoper)",
