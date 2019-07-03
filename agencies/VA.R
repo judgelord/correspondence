@@ -56,7 +56,11 @@ clean <- function(file.name) {
 data %<>%
   mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
   mutate(FROM = str_replace(FROM, "^Balart, M.", "Diaz-Balart, M.")) %>%
-  mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M."))
+  mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M.")) %>%
+  mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "Senate"), chamber)) %>%
+  mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
+  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
   
   
   #string split on "\"
@@ -109,23 +113,31 @@ data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "non-cong"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Representative non Congressional|Representative Non-Congressional"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Representative non Congressional|Representative Non-Congressional|Representative NonCongressional|Representative NY-25"), "Not Member", ERROR))
   
   #FOIA NOTES
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Young, D."), "Multiple Young's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Davis"), "Multiple Davis' FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Rose"), "Multiple Rose's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Smith"), "Multiple Smith's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Johnson"), "Multiple Johnson's FOIA", NOTES))
   
   #Filter non-members while working
-  #data %<>%
-    #filter( ! str_detect(FROM, "Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative non Congressional|
-                         #Representative Non-Congressional"))
+  data %<>%
+    filter( ! str_detect(FROM, "Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative non Congressional|
+                         Representative Non-Congressional|Representative NonCongressional|Representative NY-25"))
   
  
   Unfoundnames2 <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR))
+           is.na(ERROR), 
+           is.na(NOTES),
+           str_detect(pattern, "404error"))
+  
+
   
    #Check after run through merge
 #Unfoundnames <- d %>%
