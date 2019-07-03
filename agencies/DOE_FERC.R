@@ -69,8 +69,9 @@ clean <- function(file.name) {
     mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM)) %>% 
     #Herb Barrett has 2 misnamed observations but deadend 
     #Vernon J Ehlers
-    mutate(FROM = ifelse (grepl("Vernon J. Ehlers", FROM, ignore.case = TRUE), "Vernon J Ehlers", FROM)) 
- 
+    mutate(FROM = ifelse (grepl("Vernon J. Ehlers", FROM, ignore.case = TRUE), "Vernon J Ehlers", FROM)) %>%
+   #Russell D Feingold
+    mutate(FROM = ifelse (grepl("Russel D, Feingold", FROM, ignore.case = TRUE), "Russell D Feingold", FROM))
    
 # SPLIT DATA IN TWO TO EXTRACT MEMBER NAMES
   ## extract member names from the letter texts (members is only for 110th - 118th)
@@ -82,15 +83,15 @@ clean <- function(file.name) {
   
   data <- full_join(d1, d2)
   
-  
-# # Testing 
- # look<-data %>% 
- #      count(FROM,congress) %>%
- #      arrange(-n)
- #  d1 <- look %>% filter(congress>109) %>% extractMemberName2(members = members, col_name = "FROM")
- #  d2 <- look %>% filter(congress<110) %>% extractMemberName2(members = members_106to109th, col_name = "FROM")
- #  look <- full_join(d1, d2)%>%
- #  filter(is.na(last_name)) 
+#   
+# # # Testing 
+#   look<-data %>% 
+#        count(FROM,congress) %>%
+#        arrange(-n) #%>% filter(str_detect(FROM, "Cunningham"))
+#    d1 <- look %>% filter(congress>109) %>% extractMemberName2(members = members, col_name = "FROM")
+#    d2 <- look %>% filter(congress<110) %>% extractMemberName2(members = members_106to109th, col_name = "FROM")
+#    look <- full_join(d1, d2)%>%
+#    filter(is.na(last_name)) 
 
   
   # arrange columns for hand coding
