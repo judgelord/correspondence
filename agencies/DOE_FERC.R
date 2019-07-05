@@ -84,14 +84,14 @@ clean <- function(file.name) {
   data <- full_join(d1, d2)
   
 #   
-# # # Testing 
-#   look<-data %>% 
+# # # # Testing 
+#   look<-data %>%
 #        count(FROM,congress) %>%
 #        arrange(-n) #%>% filter(str_detect(FROM, "Cunningham"))
 #    d1 <- look %>% filter(congress>109) %>% extractMemberName2(members = members, col_name = "FROM")
 #    d2 <- look %>% filter(congress<110) %>% extractMemberName2(members = members_106to109th, col_name = "FROM")
 #    look <- full_join(d1, d2)%>%
-#    filter(is.na(last_name)) 
+#    filter(is.na(last_name))
 
   
   # arrange columns for hand coding
