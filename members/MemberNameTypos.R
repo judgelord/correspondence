@@ -12,7 +12,6 @@ typos_clear <- tribble(
   "Phil ", "Phill ", # I added a space because it seems risky to match Phill...
   "LaMalfa", "LaMalfn",
   "Courtey", "Courntney",
-  "Kirsten", "(Kirstine|Kirstein)",
   "Gerlach", "Gerlah",
   "Darlene", "Darene",
   "Rodham", "Redham",
@@ -287,7 +286,8 @@ typos_first <- tribble(
   "Maxine", "Waters", "Martina",
   "John", "Cornyn", "Jon",
   "William", "Clay", "(Wim|Wm.)",
-  "William", "Tauzin", "WJ"
+  "William", "Tauzin", "WJ",
+  "Kirsten", "Gillibrand", "(Kristen|Kirstine|Kirstein)"
  
   
   
