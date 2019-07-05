@@ -204,7 +204,7 @@ typos_last <- tribble(
   "Robert", "BENNETT", "Bernnett",
   "Peter","DeFazio","De Fazio",
   "Paul", "Sarbanes", "Sabanes",
-  "Mike", "McIntyre", "McLntyre",
+  "Mike", "McIntyre", "(McEntire|McLntyre)",
   "Margaret", "Hassan", "Hassen",
   "Michael", "Capuano", "Capuno",
   "Max","BAUCUS","Baucuz"
