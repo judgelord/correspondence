@@ -14,7 +14,6 @@ typos_clear <- tribble(
   "Courtey", "Courntney",
   "Gerlach", "Gerlah",
   "Darlene", "Darene",
-  "Rodham", "Redham",
   "Elizabeth", "Elezabeth",
   "Jeffrey", "Jeflrey",
   "Barbara", "(Babara|Barabara)",
@@ -301,7 +300,7 @@ typos_first <- tribble(
 # FREQUENT MIDDLE NAME TYPOS 
 typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
-  "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",
+  "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",  
   "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "John", "Dennis", "Hastert", "Denis",
