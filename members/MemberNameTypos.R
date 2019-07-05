@@ -346,7 +346,8 @@ typos_middle_initial <- tribble(
   "Bobby", "L", "Rush", "E",
   "Gary", "L", "Ackerman", "J",
   "Anthony", "G", "Brown", "J",
-  "Peter", "G", "Fitzgerald", "B"
+  "Peter", "G", "Fitzgerald", "B",
+  "John", "J", "Faso", "S"
 )%>% 
   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name),
                           str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|"),
