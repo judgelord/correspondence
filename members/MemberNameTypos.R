@@ -287,7 +287,8 @@ typos_first <- tribble(
   "John", "Cornyn", "Jon",
   "William", "Clay", "(Wim|Wm.)",
   "William", "Tauzin", "WJ",
-  "Kirsten", "Gillibrand", "(Kristen|Kirstine|Kirstein)"
+  "Kirsten", "Gillibrand", "(Kristen|Kirstine|Kirstein)",
+  "Joe", "Barton", "Joel"
  
   
   
