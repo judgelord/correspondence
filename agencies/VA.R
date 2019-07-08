@@ -58,7 +58,7 @@ data %<>%
   mutate(FROM = str_replace(FROM, "^Balart, M.", "Diaz-Balart, M.")) %>%
   mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M.")) %>%
   mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
-  mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
   mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
   
@@ -113,6 +113,8 @@ data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "non-cong"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Representative Pellito, John"), "House Staff", ERROR)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G"), "Not voting member", NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative non Congressional|Representative Non-Congressional|Representative NonCongressional|Representative NY-25"), "Not Member", ERROR))
   
   #FOIA NOTES

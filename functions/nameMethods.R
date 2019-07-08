@@ -26,6 +26,9 @@ cleanFROMcolumn <- function(FROM){
   # trim down extra spaces
   #FROM <- gsub(" +", " ", FROM) # extra spaces
   
+  #remove specials
+  FROM <- gsub("[[:punct:]]", FROM)
+  
   # remove 
   FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
   FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
