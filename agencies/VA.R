@@ -60,7 +60,8 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
-  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
+  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl")) %>%
+  mutate(FROM = str_replace(FROM, "Capito, S.M.", "Moore Capito, S."))
   
   
   #string split on "\"
