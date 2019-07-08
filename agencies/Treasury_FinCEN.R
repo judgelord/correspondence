@@ -19,9 +19,8 @@ clean <- function(file.name) {
   data %<>%
     mutate(DATE = ifelse(is.na(tempDATE), `Due Date`, DATE))
   
-  data %<>%
-    mutate(DATE = str_replace(DATE, "200", "0")) %>%
-    mutate(DATE = str_replace(DATE, "201", "1"))
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
  
   data$DATE %<>% as.Date("%m/%d/%y")
   
