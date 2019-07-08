@@ -41,6 +41,9 @@ typos_clear <- tribble(
   "HERRERA BEUTLER", "Herrera-Beutler",
   "WASSERMAN SCHULTZ", "WASSERMAN-SCHULTZ",
   "Michael", "(Midlael|Michaell|Micahel)",
+  "SHERRILL", "Sheril",
+  "Moolenaar", "(Molinar|Moolenar)",
+  "Moore Capito", "(Moore|Capito)",
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -106,7 +109,6 @@ typos_last <- tribble(
   "Don", "Nickles", "Nickels",
   "Doug", "Lamborn", "(Lamborg|Lambon)",
   'Edward', "Markey", "Marley",
-  "John", "Moolenaar", "Molinar",
   "Jery", 'Costello', "Costelo",
   "Jerry", "Kleczka", "Kyleczka",
   "John", "Barrow", "Barroy",
@@ -199,7 +201,6 @@ typos_last <- tribble(
   "Steve", "Pearce", "Peace",
   "Charlie", "Crist", "Christ",
   "Rick", "Crawford", "Crawfrod",
-  "Mikie", "SHERRILL", "Sheril",
   "Robert", "BENNETT", "Bernnett",
   "Peter","DeFazio","De Fazio",
   "Paul", "Sarbanes", "Sabanes",
@@ -209,7 +210,7 @@ typos_last <- tribble(
   "Max","BAUCUS","Baucuz",
   "Jerry","Costello", "Costelo",
   "James", "Hansen", "Hansch",
-  "Shelley", "Moore Capito", "(Moore|Capito)"
+
   
   
   
