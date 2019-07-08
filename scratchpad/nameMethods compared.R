@@ -23,7 +23,7 @@ method_problems <- methods_compared %>%
   select(FROM, string, pattern, first_name, last_name, method,  congress) 
 
 # is extractMemberName2 better? 
-nrow(method_problems %>% filter(method == 1, is.na(last_name))) > nrow(method_problems %>% filter(method == 1), is.na(last_name)) 
+nrow(method_problems %>% filter(method == 1, is.na(last_name))) > nrow(method_problems %>% filter(method == 2, is.na(last_name))) 
 
 method_2_should_be_matching <- method_problems %>% 
   filter(is.na(last_name), 
