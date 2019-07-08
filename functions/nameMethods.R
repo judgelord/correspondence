@@ -244,7 +244,8 @@ extractMemberName <- function(data, members, col_name){
     # add in corrections
     left_join(typos) %>%
     # replace typos with corrections
-    mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct))
+    mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct)) %>%
+    mutate(typos = str_replace(typos, "404error", "none"))
   
   
   #####################
@@ -533,7 +534,7 @@ data %>%
                                          members$first_name[i], data$first_name))
    
     }
-  
+
  return(data)
  
  
