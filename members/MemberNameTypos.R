@@ -58,7 +58,8 @@ typos_clear <- tribble(
   "Griffith, Morgan", "Griffith Morgan",
   "Womack, Steve", "Womack Steve",
   "ROHRABACHER, Dana", "ROHRABACHER Dana",
-  "Nelson, Ben", "Nelson Ben"
+  "Nelson, Ben", "Nelson Ben",
+  "Ryan, Paul", "Ryan Paul"
   
   
 )
@@ -289,7 +290,8 @@ typos_first <- tribble(
   "William", "Clay", "(Wim|Wm.)",
   "William", "Tauzin", "WJ",
   "Kirsten", "Gillibrand", "(Kristen|Kirstine|Kirstein)",
-  "Joe", "Barton", "Joel"
+  "Joe", "Barton", "Joel",
+  "Christopher","Smith","C. NJ"
  
   
   
