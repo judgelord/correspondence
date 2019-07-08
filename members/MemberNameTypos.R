@@ -4,7 +4,6 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "Cummings", "Cwnmings",
-  "Inhofe", "Tnhofe",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
@@ -142,7 +141,7 @@ typos_last <- tribble(
   "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap)",
   "Gerry", "Connolly", "Connelly",
   "Anthony", "Gonzalez", "Gonzales",
-  "James", "Inhofe", "(Inholfe|Imhofe|Imholfe|Inhoffe)",
+  "James", "Inhofe", "(Inholfe|Imhofe|Imholfe|Inhoffe|Lnhofe|Tnhofe)",  
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka",
