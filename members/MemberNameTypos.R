@@ -39,7 +39,7 @@ typos_clear <- tribble(
   "McCaskill ", "McCaskil ",
   "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Herrera Beutler", "(Herrera|Beutler|Herrera-Beutler)",
-  "Wasserman Schultz", "(Wasserman Shultz|Wasserman|Schultz|Wasserman-Schultz|Wasserman-S|Wasserman-)",
+  "Wasserman Schultz", "(Wasserman Shultz|Schultz|Wasserman-Schultz|Wasserman-S|Wasserman-)",
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
