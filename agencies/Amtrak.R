@@ -46,7 +46,7 @@ clean <- function(file.name) {
   ###     ###     ###
   
   
-  # creat variable for first and last name
+  # create variable for first and last name
   data$last_name <- formatLastName(data, 'FROM')
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name,
