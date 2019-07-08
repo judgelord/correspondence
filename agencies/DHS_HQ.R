@@ -50,11 +50,20 @@ data %<>% distinct() %>%
   
   
   # Format date, year, Congress, member name etc.
-
-  #sum(is.na(data$DATE))
-  # Replace missing dates with "original date" column
-  data$DATE[which(is.na(data$DATE))] <- as.Date(data$originalDATE[which(is.na(data$DATE))], "%m/%d/%Y") 
-  #sum(is.na(data$DATE))
+  
+  # Replace missing dates with "DATE" column
+  data$DATE2[which(is.na(data$DATE2))] <- as.Date(data$DATE[which(is.na(data$DATE2))], "%Y/%m/%d") 
+  
+  # Create uniform format
+  data$originalDATE <- gsub("/201", "/1", data$originalDATE) 
+  data$originalDATE <- gsub("/200", "/0", data$originalDATE)
+  
+  
+  #Replace missing dates with "originalDATE" column
+  data$DATE2[which(is.na(data$DATE2))] <- multidate(data$originalDATE[which(is.na(data$DATE2))], c("%m/%d/%y", "%d-%b-%y")) 
+  
+  NOdate3 <- data %>%
+    filter(is.na(DATE2))
    
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -63,40 +72,14 @@ data %<>% distinct() %>%
   
   # chamber
   data %<>%
-    mutate(chamber = ifelse (grepl("Senator", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Congressman", FROM), "House", chamber)) %>% 
-    # fix incorrect or missing chamber
-    mutate(chamber = ifelse(grepl("Ben Sasse", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Charles Grassley", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Dianne Feinstein", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Jim Webb", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ron Johnson", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Voinovich", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Richard G Lugar", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Robert C. Byrd", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Charles Schumer", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Scott P. Brown", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Feingold", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Bingamen", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("John W. Warner", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Olympia J. Snowe", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Daniel K. Akaka", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Edward M. Kennedy", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Kay Bailey Hutchison", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Barack H. Obama", FROM)& (congress < 111), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Herb Kohl", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Evan Bayh", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Dan Burton", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Daniel E. Lungren", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Jim DeMint", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Claire McCaskill", FROM), "Senate", chamber)) %>% 
-    mutate(chamber = ifelse(grepl("Ted Stevens", FROM), "Senate", chamber)) 
-    
+    mutate(chamber = ifelse (str_detect(FROM2, "Senator"), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(str_detect(FROM2, "Congressman|Congressinan"), "House", chamber)) %>% 
+    mutate(chamber = ifelse(is.na(chamber) & str_detect(FROM, "Senator"), "Senate", chamber)) %>%
+    mutate(chamber = ifelse(is.na(chamber) & str_detect(FROM, "Congressman|Congressinan"), "House", chamber))
   
   
-  
-  
+  Nochamber <- data %>%
+    filter(is.na(chamber))
   
   
   # Non members
@@ -125,14 +108,6 @@ data %<>% distinct() %>%
   #Delete common names inside quotes
   data %<>%
     mutate(FROM=str_remove(FROM,"\".*\"|'’.*\"|\".*”"))
-  
-  #Testing for fake quotes
-  #str_remove("\"Butch\"","\"Butch\"")
-  
-  #data %>% filter(WF==175481) %>% select(FROM) 
-  
-  # data %>%
-    # filter(str_detect(FROM,"Thornberry")) %>% extractMemberName(members, 'FROM') %>% select(FROM) 
 
   # fix FROM
   data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
@@ -158,9 +133,16 @@ data %<>% distinct() %>%
   # FIXME before committing
   # data %<>% filter(str_detect(FROM, "Charles E. Schumer|Bill Nelson|Arlen Specter|Barbara A. Mikulski"))
   
+  #sample
+  #sampledata <- data[sample(1:nrow(data), 1200, replace=FALSE),]
+  
+  #data <- sampledata
   
   # names 
-  data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName2(data, members, 'FROM2')
+  
+  Unfoundnames <- data %>%
+    filter(is.na(last_name))
    
   data %<>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
