@@ -44,6 +44,7 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19| CM"))
   
   #Typos
+  #added misspellings of names into nameMethods
   data %<>%
    mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn")) %>%
    mutate(FROM = str_replace(FROM, "Merkley letter", "Merkley")) %>%
