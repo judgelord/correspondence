@@ -12,10 +12,8 @@ typos_clear <- tribble(
   "Phil ", "Phill ", # I added a space because it seems risky to match Phill...
   "LaMalfa", "LaMalfn",
   "Courtey", "Courntney",
-  "Kirsten", "(Kirstine|Kirstein)",
   "Gerlach", "Gerlah",
   "Darlene", "Darene",
-  "Rodham", "Redham",
   "Elizabeth", "Elezabeth",
   "Jeffrey", "Jeflrey",
   "Barbara", "(Babara|Barabara)",
@@ -204,10 +202,12 @@ typos_last <- tribble(
   "Robert", "BENNETT", "Bernnett",
   "Peter","DeFazio","De Fazio",
   "Paul", "Sarbanes", "Sabanes",
-  "Mike", "McIntyre", "McLntyre",
+  "Mike", "McIntyre", "(McEntire|McLntyre)",
   "Margaret", "Hassan", "Hassen",
   "Michael", "Capuano", "Capuno",
-  "Max","BAUCUS","Baucuz"
+  "Max","BAUCUS","Baucuz",
+  "Jerry","Costello", "Costelo",
+  "James", "Hansen", "Hansch"
   
   
   
@@ -287,7 +287,9 @@ typos_first <- tribble(
   "Maxine", "Waters", "Martina",
   "John", "Cornyn", "Jon",
   "William", "Clay", "(Wim|Wm.)",
-  "William", "Tauzin", "WJ"
+  "William", "Tauzin", "WJ",
+  "Kirsten", "Gillibrand", "(Kristen|Kirstine|Kirstein)",
+  "Joe", "Barton", "Joel"
  
   
   
@@ -299,7 +301,7 @@ typos_first <- tribble(
 # FREQUENT MIDDLE NAME TYPOS 
 typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
-  "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",
+  "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",  
   "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "John", "Dennis", "Hastert", "Denis",
@@ -346,7 +348,8 @@ typos_middle_initial <- tribble(
   "Bobby", "L", "Rush", "E",
   "Gary", "L", "Ackerman", "J",
   "Anthony", "G", "Brown", "J",
-  "Peter", "G", "Fitzgerald", "B"
+  "Peter", "G", "Fitzgerald", "B",
+  "John", "J", "Faso", "S"
 )%>% 
   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name),
                           str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|"),

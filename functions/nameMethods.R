@@ -17,7 +17,7 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub('\\+', "", FROM)
   
   # remove common names in quotes 
-  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick|Duke)\\"', "", FROM, ignore.case = TRUE)
+  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
   
   # remove paragraph breaks and trailing white space 
   FROM <- gsub("\n", " ", FROM)
