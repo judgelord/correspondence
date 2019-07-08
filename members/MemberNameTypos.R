@@ -8,7 +8,6 @@ typos_clear <- tribble(
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
-  "Lujan", "Luj.n",
   "Phil ", "Phill ", # I added a space because it seems risky to match Phill...
   "LaMalfa", "LaMalfn",
   "Courtey", "Courntney",
@@ -30,7 +29,6 @@ typos_clear <- tribble(
   "Melissa", "Melisssa",
   "Brian", "Brain",
   "Christopher", "Christoher",
-  "Lujan", "Luj.n",
   "Raul", "R.ul",
   "Charles", "Charkes",
   "Benjamin", "Bemjamin",
@@ -38,9 +36,12 @@ typos_clear <- tribble(
   "McCaskill,", "McCaskil,",
   "McCaskill ", "McCaskil ",
   "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
-  "HERRERA BEUTLER", "Herrera-Beutler",
-  "WASSERMAN SCHULTZ", "WASSERMAN-SCHULTZ",
+  "Herrera Beutler", "(Herrera|Beutler|Herrera-Beutler)",
+  "Wasserman Schultz", "(Wasserman Shultz|Schultz|Wasserman-Schultz|Wasserman-S|Wasserman-)",
   "Michael", "(Midlael|Michaell|Micahel)",
+  "SHERRILL", "Sheril",
+  "Moolenaar", "(Molinar|Moolenar)",
+  "Moore Capito", "(Moore|Capito)",
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -71,7 +72,7 @@ typos_last <- tribble(
   "Lois", "Capps", "Crapps",
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
-  "Rodney", "Frelinghuysen", "Frelinhuysen",
+  "Rodney", "Frelinghuysen", "(Frelinghuyser|Frelinhuysen)",
   "Shelly", "Barkley", "Berkley",
   "Steny", "Hoyer", "Royer",
   "Vito", "Fossella", "Fosella",
@@ -106,7 +107,6 @@ typos_last <- tribble(
   "Don", "Nickles", "Nickels",
   "Doug", "Lamborn", "(Lamborg|Lambon)",
   'Edward', "Markey", "Marley",
-  "John", "Moolenaar", "Molinar",
   "Jery", 'Costello', "Costelo",
   "Jerry", "Kleczka", "Kyleczka",
   "John", "Barrow", "Barroy",
@@ -148,7 +148,6 @@ typos_last <- tribble(
   "Chaka", "Fattah", "Chakka",
   "Kirsten", "Gillibrand", "Gillbrand",
   "James","Barrett", "(Barrat|Barret)",
-  "Jaime", "HERRERA BEUTLER", "(HERRERA|BEUTLER)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
   "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO|Cortez Mastro)",
@@ -161,12 +160,11 @@ typos_last <- tribble(
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
   "Christopher", "Van Hollen", "(Van|Hollen)",
-  "Debbie", "WASSERMAN SCHULTZ", "(Wasserman|Schultz|Wasserman-Schultz)",
   "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)",
   "James", "Barrett", "(Baret|Barett|Barret)",
   "Mario", "Diaz-Balart", "(Diaz|Balart)",
   "Lincoln", "Diaz-Balart", "(Diaz|Balart)",
-  "Stephanie", "Lujan Grishman", "Luj.n Grishman",
+  "Michelle", "Lujan Grisham", "(Grisham|Lujan|Luj.n Grishman|Lujan Grishar|Lujan Grish,|Grishar|Grish)",
   "Carol", "Shea-Porter", "(Shea|Porter)",
   "Daniel", "Donovan", "Donavan",
   "Gloria", "Negrete McLeod", "(Negrete|McLeod)",
@@ -199,7 +197,6 @@ typos_last <- tribble(
   "Steve", "Pearce", "Peace",
   "Charlie", "Crist", "Christ",
   "Rick", "Crawford", "Crawfrod",
-  "Mikie", "SHERRILL", "Sheril",
   "Robert", "BENNETT", "Bernnett",
   "Peter","DeFazio","De Fazio",
   "Paul", "Sarbanes", "Sabanes",
@@ -208,8 +205,8 @@ typos_last <- tribble(
   "Michael", "Capuano", "Capuno",
   "Max","BAUCUS","Baucuz",
   "Jerry","Costello", "Costelo",
-  "James", "Hansen", "Hansch",
-  "Shelley", "Moore Capito", "(Moore|Capito)"
+  "James", "Hansen", "Hansch"
+
   
   
   

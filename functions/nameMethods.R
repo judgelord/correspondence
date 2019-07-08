@@ -27,7 +27,7 @@ cleanFROMcolumn <- function(FROM){
   #FROM <- gsub(" +", " ", FROM) # extra spaces
   
   #remove specials
-  FROM <- gsub("[[:punct:]]", FROM)
+  #FROM <- gsub("[[:punct:]]", "", FROM)
   
   # remove 
   FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
@@ -915,7 +915,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )Micahel( |$)", "\\1Michael\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Farenhold( |$|,)", "\\1Farenthold\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Eschoo( |$|,)", "\\1Eshoo\\2", FROM, ignore.case = TRUE) #fixed
-  FROM <- gsub("(^| )Lary( |$)", "\\1Larry\\3", FROM, ignore.case = TRUE) #fixed
+  FROM <- gsub("(^| )Lary( |$)", "\\1Larry\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("Christophers", "Christopher", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("Courntey", "Courtney", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )Martrin( |$)", "\\1Martin\\2", FROM, ignore.case = TRUE) #fixed
@@ -924,7 +924,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("(^| )T MOTHY( |$|,)", "\\1Timothy\\2", FROM, ignore.case = TRUE) #fixed
   FROM <- gsub("(^| )L NCOLN( |$|,)", "\\1Lincoln\\2", FROM, ignore.case = TRUE) #fixed 
   FROM <- gsub("(^| )Wydon( |$|,)", "\\1Wyden\\2", FROM, ignore.case = TRUE) #fixed
-  FROM <- gsub("(^| )Klobachur( |$|,)", "\\Klobuchar\\2", FROM, ignore.case = TRUE) #fixed
+  FROM <- gsub("(^| )Klobachur( |$|,)", "\\1Klobuchar\\2", FROM, ignore.case = TRUE) #fixed
   
   
   
