@@ -208,7 +208,8 @@ typos_last <- tribble(
   "Michael", "Capuano", "Capuno",
   "Max","BAUCUS","Baucuz",
   "Jerry","Costello", "Costelo",
-  "James", "Hansen", "Hansch"
+  "James", "Hansen", "Hansch",
+  "Shelley", "Moore Capito", "(Moore|Capito)"
   
   
   
