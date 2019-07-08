@@ -40,7 +40,7 @@ typos_clear <- tribble(
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
-  "Moore Capito", "(Moore|Capito)",
+
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
@@ -204,7 +204,8 @@ typos_last <- tribble(
   "Michael", "Capuano", "Capuno",
   "Max","BAUCUS","Baucuz",
   "Jerry","Costello", "Costelo",
-  "James", "Hansen", "Hansch"
+  "James", "Hansen", "Hansch",
+  "Shelley", "Moore Capito", "Moore|Capito"
 
   
   
