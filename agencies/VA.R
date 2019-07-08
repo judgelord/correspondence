@@ -44,9 +44,9 @@ clean <- function(file.name) {
   
   #sample
   #sampledata <- data %>%
-   #filter(str_detect(FROM, "Balart|McCaskil"))
+   #filter(str_detect(FROM, "Capito"))
 
-  #data <- sampledata
+ # data <- sampledata
 
   #Trim White Space
   data %<>%
@@ -60,8 +60,7 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
-  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl")) %>%
-  mutate(FROM = str_replace(FROM, "Capito, S.M.", "Moore Capito, S."))
+  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
   
   
   #string split on "\"
