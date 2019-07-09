@@ -210,7 +210,8 @@ typos_last <- tribble(
   "Mac", "Thornberry", "Thomberry",
   "Michael", "Turner", "Tuner",
   "Doug", "Lamborn", "Lambom",
-  "Bill", "Posey", "Posev"
+  "Bill", "Posey", "Posev",
+  "Ed", "Perlmutter", "Perimutter"
 
   
   
