@@ -122,7 +122,7 @@ sample1<-data %>%
   filter(is.na(last_name))
 
 #sample <- data %>%
- # filter(is.na(last_name))  
+#filter(is.na(last_name))  
 #View(sample)
 
 #Check after run through merge
