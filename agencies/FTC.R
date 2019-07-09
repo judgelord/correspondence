@@ -16,13 +16,11 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE <- gsub("/201", "/1", data$DATE) 
-  data$DATE <- gsub("/200", "/0", data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
   
   #Checking for missing dates
-  NAdate<-data %>%
-    filter(is.na(DATE))
+ # NAdate<-data %>%
+   # filter(is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -51,16 +49,22 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "William \"Mo\" Cowan", "Cowan, William")) %>%
     mutate(FROM = str_replace(FROM, "Bonnie Watson Colem2", "Bonnie Watson Coleman")) %>%
     mutate(FROM = str_replace(FROM, "Michelle Bachmann", "Bachmann, Michele")) %>%
-    mutate(FROM = str_replace(FROM, "James lnhofe", "Inhofe, James")) %>%
     mutate(FROM = str_replace(FROM, "Scott Rigel!", "Scott Rigell")) %>%
-    mutate(FROM = str_replace(FROM, "Sean Patrick Malone\\}", "Sean Patrick Malone"))
+    mutate(FROM = str_replace(FROM, "Sean Patrick Malone\\}", "Sean Patrick Malone")) %>%
+    mutate(FROM = str_replace(FROM, "Wasserman-S<", "Wasserman Schultz")) %>%
+    mutate(FROM = str_replace(FROM, "Neil Shaabercrombie", "Neil Abercrombie"))
   
 
-  data %<>% extractMemberName(members, "FROM")
+  data %<>% extractMemberName2(members, "FROM")
+  
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Duncan Hunter") & is.na(last_name) & ! str_detect(congress, "110"), "Wrong Duncan, Duplicate", ERROR))
   
   #Checks for observations still NA
-  # notfound2 <- data %>%
-  #   filter(is.na(last_name))
+  notfound2 <- data %>%
+   filter(is.na(last_name), 
+   is.na(ERROR),
+   ! str_detect(FROM, "Kay Bailey Hutchison"))
  
 
   return(data)

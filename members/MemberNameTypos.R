@@ -205,7 +205,14 @@ typos_last <- tribble(
   "Max","BAUCUS","Baucuz",
   "Jerry","Costello", "Costelo",
   "James", "Hansen", "Hansch",
-  "Shelley", "Moore Capito", "Moore|Capito"
+  "Shelley", "Moore Capito", "(Moore|Capito)",
+  "Jim", "Bacchus", "Baccus",
+  "Mac", "Thornberry", "Thomberry",
+  "Michael", "Turner", "Tuner",
+  "Doug", "Lamborn", "Lambom",
+  "Bill", "Posey", "Posev",
+  "Ed", "Perlmutter", "Perimutter",
+  "Carl", "Levin", "Levine"
 
   
   
@@ -289,7 +296,8 @@ typos_first <- tribble(
   "William", "Tauzin", "WJ",
   "Kirsten", "Gillibrand", "(Kristen|Kirstine|Kirstein)",
   "Joe", "Barton", "Joel",
-  "Christopher","Smith","C. NJ"
+  "Christopher","Smith","C. NJ",
+  "Richard", "Durbin", "Richad"
  
   
   
