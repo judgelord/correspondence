@@ -66,7 +66,8 @@ clean <- function(file.name) {
   #Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Steve, Ted.", "Stevens, Ted")) %>%
-    mutate(FROM = str_replace(FROM, "Langevin, Janies", "Langevin, James"))
+    mutate(FROM = str_replace(FROM, "Langevin, Janies", "Langevin, James")) %>%
+    mutate(FROM = str_replace(FROM, "Brown, SheiTod.", "BROWN, Sherrod"))
   
   #Format Typos
   data %<>%
@@ -75,16 +76,19 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Youn, , Don.", "Don E YOUNG")) %>%
     mutate(FROM = str_replace(FROM, "John, Shimkus", "John Shimkus")) %>%
     mutate(FROM = str_replace(FROM, "Rya, , Paul.", "Ryan, Paul")) %>%
-    mutate(FROM = str_replace(FROM, "Collin, , Susan M.", "Collins, Susan"))
+    mutate(FROM = str_replace(FROM, "Collin, , Susan M.", "Collins, Susan")) %>%
+    mutate(FROM = str_replace(FROM, "Rockefeller, VI, John", "Rockefeller, John")) %>%
+    mutate(FROM = str_replace(FROM, "Casey, Jr. , Robert P.", "Casey, Robert")) %>%
+    mutate(FROM = str_replace(FROM, "Cantwel, , Maria.", "CANTWELL, Maria"))
   
   #Extract member names
   data %<>% extractMemberName2(members, "FROM")
   
   #Not members
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Klinger, Patricia|Estes, Mark|Willke, Theodore.|Pappas, Sherri.|Bettinelli, Andrew. |Quarterman, Cynthia. |Barill, Anthony|Szabo, Joseph C. |Wiese, Jeffrey D.|Keller, John.|Norton, James.|Poyer, Scott"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Wheeler, Jim.|Fiore, Michele.|Klinger, Patricia|Estes, Mark|Willke, Theodore.|Pappas, Sherri.|Bettinelli, Andrew. |Quarterman, Cynthia. |Barill, Anthony|Szabo, Joseph C. |Wiese, Jeffrey D.|Keller, John.|Norton, James.|Poyer, Scott"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Rosenker, Mark V."), "Acting Federal Agencies Chairman", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "State|Sypolt, Dave.|Merrill, John."), "State politician", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Talbot, Kirk.|Guillory, Elbert L. |Clark-Reed, Gwyndolen.|Shumake, Lindell F.|Sypolt, Dave.|Merrill, John."), "State politician", ERROR))
   
   
   data %<>%
@@ -92,8 +96,7 @@ clean <- function(file.name) {
   
            Unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR),
-           ! str_detect(FROM, "State"))
+           is.na(ERROR))
   
   
   
