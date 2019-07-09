@@ -62,8 +62,11 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
   mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
   
+data %<>%
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & str_detect(congress, "115") & str_detect(chamber, "Senate"), str_replace(FROM, "Kennedy, J.", "John Neely KENNEDY"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & str_detect(congress, "115") & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY")))
   
-  #string split on "\"
+#string split on "\"
   data %<>%
     mutate(FROM = str_split(FROM, "\\/")) %>%
     unnest(FROM)
@@ -142,8 +145,8 @@ data %<>%
 
   
    #Check after run through merge
-#Unfoundnames <- d %>%
- #filter(is.na(bioname))
+Unmatched <- d %>%
+ filter(is.na(bioname))
   
   
 
