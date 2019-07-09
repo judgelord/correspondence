@@ -52,7 +52,10 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Scott Rigel!", "Scott Rigell")) %>%
     mutate(FROM = str_replace(FROM, "Sean Patrick Malone\\}", "Sean Patrick Malone")) %>%
     mutate(FROM = str_replace(FROM, "Wasserman-S<", "Wasserman Schultz")) %>%
-    mutate(FROM = str_replace(FROM, "Neil Shaabercrombie", "Neil Abercrombie"))
+    mutate(FROM = str_replace(FROM, "Neil Shaabercrombie", "Neil Abercrombie")) %>%
+    mutate(FROM = str_replace(FROM, "ChristopherBond", "Christopher Bond")) %>%
+    mutate(FROM = str_replace(FROM, "ChristopherSmith", "Christopher Smith")) %>%
+    mutate(FROM = str_replace(FROM, "ChristopherDodd", "Christopher Dodd"))
   
 
   data %<>% extractMemberName2(members, "FROM")
@@ -65,6 +68,10 @@ clean <- function(file.name) {
    filter(is.na(last_name), 
    is.na(ERROR),
    ! str_detect(FROM, "Kay Bailey Hutchison"))
+  
+  
+ # Unmatched <- d %>%
+   # filter(is.na(bioname))
  
 
   return(data)
