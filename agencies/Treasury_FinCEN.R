@@ -140,9 +140,13 @@ clean <- function(file.name) {
   Unfoundnames %<>%
     filter( ! str_detect(pattern, "404error"))
   
+  ##testing code
   
   
-  
+  # sample <- data %>%
+  # filter(is.na(last_name))  
+  # View(sample) 
+  # 
   
   
   return(data)
