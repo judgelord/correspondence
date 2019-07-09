@@ -84,6 +84,7 @@ data %<>%
   mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
 
 #Switches the order so last name comes first
+#added names into nameMethods
 data$FROM %<>% 
   str_replace("Elaine, Chao", "Chao, Elaine") %>%
   str_replace("George, Miller", "Miller, George")
