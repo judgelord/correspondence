@@ -98,7 +98,7 @@ clean <- function(file.name) {
     mutate(Summary = str_replace(Summary, " Mack", "MACK, Connie")) %>%
     mutate(Summary = str_replace(Summary, "Sherman", "Representative Sherman")) %>%
     mutate(Summary = str_replace(Summary, "Feinstein", "Senator Feinstein")) %>%
-    mutate(Summary = str_replace(Summary, "Ed Perimutter", "Ed PERLMUTTER "))
+    mutate(Summary = str_replace(Summary, "Ed Perimutter", "Ed PERLMUTTER ")) #added to nameMethods
   
   #Trim White Space
   data %<>%
@@ -146,7 +146,7 @@ clean <- function(file.name) {
   # sample <- data %>%
   # filter(is.na(last_name))  
   # View(sample) 
-  # 
+  
   
   
   return(data)
