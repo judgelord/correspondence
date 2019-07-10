@@ -150,9 +150,9 @@ clean <- function(file.name) {
   ##testing code
   
   
-  # sample <- data %>%
-  # filter(is.na(last_name))  
-  # View(sample) 
+   # sample <- data %>%
+   # filter(is.na(last_name))  
+   # View(sample) 
   
   
   
