@@ -14,9 +14,6 @@ clean <- function(file.name) {
 
   data <- FERC_letters %>%
     select(members,SUBJECT,everything())# %>% top_n(1000)
-  
-  sum(!is.na(data$TYPE))
-  
  
   data <- ungroup(FERC_letters)
 
@@ -47,7 +44,7 @@ clean <- function(file.name) {
                 # is.na(chamber)  & !is.na(members) & members != "NA") %>% select(members)
   
   # FROM = members (drops old FROM)
-  data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.|")) %>% 
+  data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.")) %>% 
     select(-members)
   
   #FIXED AND ADDED TO nameCongress AND nameMethods

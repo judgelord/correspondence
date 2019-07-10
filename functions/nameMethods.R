@@ -238,7 +238,7 @@ extractMemberName <- function(data, members, col_name){
   
   
   # correct common OCR errors
-  data$string <- ocr.errors(data$string)
+  data$string <- data$string %>% ocr.errors() %>% tolower()
   
   
   data %<>% 
