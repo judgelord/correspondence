@@ -106,8 +106,8 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR))
   
-  Unmatched <- d %>%
-    filter(is.na(bioname))
+  #Unmatched <- d %>%
+    #filter(is.na(bioname))
   
 
   
