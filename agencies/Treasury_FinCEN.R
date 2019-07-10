@@ -19,6 +19,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(DATE = ifelse(is.na(tempDATE), `Due Date`, DATE))
   
+  data %<>%
+    mutate(DATE = str_remove(DATE, "Orig. "))
+  
   data$DATE <- gsub("/201", "/1", data$DATE) 
   data$DATE <- gsub("/200", "/0", data$DATE)
  
@@ -26,6 +29,8 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(DATE = str_replace(DATE, "2030-03-04", "2015-03-04"))
+  
+ 
   
   #Check for DATE NAs
   NoDATE <- data %>%
@@ -71,7 +76,7 @@ clean <- function(file.name) {
   
   #chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(Summary, "Congressman|Rep.|Con. |con. |cong |congs |cong. |rep| congressman  | Congresswoman |House |house |CONGRESSMAN |Congressmen |Representative"), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(Summary, "Congressman|Rep.|Con. |con. |cong |congs |cong. |rep| congressman  | Congresswoman |House |house |CONGRESSMAN |Congressmen |Representative|Representative "), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(Summary, "Sen |Sen.|Senators"), "Senate", chamber))
 
   #String split for multiple members
@@ -129,6 +134,8 @@ clean <- function(file.name) {
     ungroup() %>%
     distinct()
   
+  data %<>%
+    mutate(ERROR = )
   #Add first name 
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
