@@ -63,8 +63,8 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
   
 data %<>%
-  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & str_detect(congress, "115") & str_detect(chamber, "Senate"), str_replace(FROM, "Kennedy, J.", "John Neely KENNEDY"), FROM)) %>%
-  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & str_detect(congress, "115") & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY")))
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "Senate"), str_replace(FROM, "Kennedy, J.", "John Neely KENNEDY"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY"), FROM))
   
 #string split on "\"
   data %<>%
@@ -145,8 +145,8 @@ data %<>%
 
   
    #Check after run through merge
-Unmatched <- d %>%
- filter(is.na(bioname))
+#Unmatched <- d %>%
+ #filter(is.na(bioname))
   
   
 
