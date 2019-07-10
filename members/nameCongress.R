@@ -487,7 +487,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
-           chamber_last = paste(chamber, last_name) %>% 
+           chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
   
