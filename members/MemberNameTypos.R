@@ -40,7 +40,6 @@ typos_clear <- tribble(
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
-  "Moore Capito", "(Moore|Capito)",
   "Perlmutter", "Perimutter",
 
 
@@ -149,7 +148,7 @@ typos_last <- tribble(
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka",
-  "Kirsten", "Gillibrand", "Gillbrand",
+  "Kirsten", "Gillibrand", "(Gillebrand|Gillbrand)",
   "James","Barrett", "(Barrat|Barret)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
@@ -214,7 +213,8 @@ typos_last <- tribble(
   "Doug", "Lamborn", "Lambom",
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
-  "Mark", "Bennet", "Bennett"
+  "Mark", "Bennet", "Bennett",
+  "Shelley", "Moore Capito", "(Moore|Capito)"
 
 
   
