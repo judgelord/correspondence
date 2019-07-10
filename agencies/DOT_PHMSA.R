@@ -65,7 +65,8 @@ clean <- function(file.name) {
   
   #chamber typos
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), "Senate", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), "Senate", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
   
   #Typos
   data %<>%
@@ -84,6 +85,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Rockefeller, VI, John", "Rockefeller, John")) %>%
     mutate(FROM = str_replace(FROM, "Casey, Jr. , Robert P.", "Casey, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Cantwel, , Maria.", "CANTWELL, Maria"))
+  
+
   
   #Extract member names
   data %<>% extractMemberName2(members, "FROM")
