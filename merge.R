@@ -91,7 +91,7 @@ data_list <- tribble(
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
 "DOT_FTA", "not coded", NA, 
-# "DOT_PHSMA, "not coded", NA, # need a clean script when on drive. 
+"DOT_PHMSA", "not coded", NA,  
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
@@ -169,7 +169,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DOT_PHMSA")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
