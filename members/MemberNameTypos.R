@@ -3,7 +3,7 @@
 # THERE IS NOTHING ELSE IT COULD POSSIBLY BE
 typos_clear <- tribble(
   ~correct, ~typos,
-  "Cummings", "Cwnmings",
+  "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
@@ -40,6 +40,7 @@ typos_clear <- tribble(
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
+  "Perlmutter", "Perimutter",
 
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
@@ -147,7 +148,7 @@ typos_last <- tribble(
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka",
-  "Kirsten", "Gillibrand", "Gillbrand",
+  "Kirsten", "Gillibrand", "(Gillebrand|Gillbrand)",
   "James","Barrett", "(Barrat|Barret)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
@@ -207,14 +208,14 @@ typos_last <- tribble(
   "Max","BAUCUS","Baucuz",
   "Jerry","Costello", "Costelo",
   "James", "Hansen", "Hansch",
-  "Shelley", "Moore Capito", "(Moore|Capito)",
-  "Jim", "Bacchus", "Baccus",
   "Mac", "Thornberry", "Thomberry",
   "Michael", "Turner", "Tuner",
   "Doug", "Lamborn", "Lambom",
   "Bill", "Posey", "Posev",
-  "Ed", "Perlmutter", "Perimutter",
-  "Carl", "Levin", "Levine"
+  "Carl", "Levin", "Levine",
+  "Mark", "Bennet", "Bennett",
+  "Shelley", "Moore Capito", "(Moore|Capito)"
+
 
   
   

@@ -134,7 +134,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "MCEACHIN, Aston Donald", "Donald", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "WITTMAN, Robert J.", "Rob", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "ALLARD, A. Wayne", "Wayne", common_name)) %>% 
-    mutate(common_name = ifelse(bioname == "GRASSLEY, Charles Ernest", "(CE|Chuck)", common_name)) %>% 
+    mutate(common_name = ifelse(bioname == "GRASSLEY, Charles Ernest", "Chuck", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "GOHMERT, Louie", "(Lou|Louis)", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "WALKER, Bradley Mark", "Mark", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "DEMINGS, Valdez Butler", "Val", common_name)) %>% 
@@ -236,7 +236,6 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "WHITFIELD, Wayne Edward (Ed)", "(Ed|Edward)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CLELAND, Joseph Maxwell (Max)", "(Max|Joe)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "EHLERS, Vernon James", "Vern", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "HAYWORTH, John D., Jr.", "J.D.", common_name)) %>%
     mutate(common_name = ifelse(bioname == "MARKEY, Edward John", "(Ed|EJ)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "ROSEN, Jacklyn Sheryl", "Jacky", common_name)) %>%
     mutate(common_name = ifelse(bioname == "KUSTER, Ann McLane", "Annie", common_name)) %>%
@@ -478,14 +477,17 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
+  #members$firstinitial_middleinitial_last <- paste(members$first_initial, members$middle_initial, members$last_name, sep = " ")
   
   members %<>% 
     ungroup() %>% 
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
+           common_maiden_last = paste(common_name, maiden_name, last_name),
+           firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
-           chamber_last = paste(chamber, last_name) %>% 
+           chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
   
@@ -533,7 +535,9 @@ members %<>%
                      last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
                      chamber_last, 
                      first_maiden_last,
-                     last_comma_common
+                     common_maiden_last,
+                     last_comma_common,
+                     firstinitial_middleinitial_last
 
   ) %>%
     unique() %>%
