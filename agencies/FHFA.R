@@ -102,7 +102,9 @@ clean <- function(file.name) {
   ################
   
   #Matches to member data
-  data <- getFirstLast.Comma(data, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
+  data %>%
+    filter(is.na(last_name))
 
   #Filters for all rows that still don't match
   FROMunamed <- data %>%
@@ -128,7 +130,7 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(Blank = is.na(FROM) & is.na(SUBJECT)) %>%
-    filter(! Blank)
+    filter(!Blank)
   
  
   
@@ -140,7 +142,7 @@ clean <- function(file.name) {
   
   #Format last name and put in last_name  
   data %<>%
-    mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+    mutate(last_name = ifelse(!str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
   #Unmatched
   unmatched <- data %>%
@@ -154,6 +156,10 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, everything())
+  
+  
+  
+  ############################
   
   # apply codebook to type 
   data %<>%
@@ -190,21 +196,8 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EVERBANK|BANK OF AMERICA", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EVERBANK|BANK OF AMERICA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
     
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   return(data)
-  
-  
 }
 
 

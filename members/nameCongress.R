@@ -484,9 +484,10 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
            common_maiden_last = paste(common_name, maiden_name, last_name),
+           firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
-           chamber_last = paste(chamber, last_name) %>% 
+           chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
   
@@ -535,8 +536,8 @@ members %<>%
                      chamber_last, 
                      first_maiden_last,
                      common_maiden_last,
-                     last_comma_common
-                     #firstinitial_middleinitial_last
+                     last_comma_common,
+                     firstinitial_middleinitial_last
 
   ) %>%
     unique() %>%

@@ -6,10 +6,11 @@ output:
     code_folding: hide
 ---
 
-```{r setup, include=FALSE}
-# TO DO, make setup not depend on being online unless running for first time (e.g. pulling from rvoteview)
+```{r setup}
+# load required packages, functions, and external data
 source("setup.R")
 
+# load data
 load(here("data/all_contacts.RData"))
 df <- all_contacts
 load(here("data/all_contacts_committees.RData"))

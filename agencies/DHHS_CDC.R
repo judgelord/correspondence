@@ -87,8 +87,8 @@ clean <- function(file.name) {
     filter ( ! str_detect(FROM, "HHS, Secretary")) %<>%
     filter( ! str_detect(FROM, "President, of the United States"))
   
-   # create variable for first and last name
-  data <- getFirstLast.Comma(data, col_name = "FROM")
+   # extract member names from FROM
+  data %<>% extractMemberName(members, col_name = "FROM")
   
   #Checks how many members are not captured
   FROMunamed <- data %>%
