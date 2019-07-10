@@ -75,7 +75,7 @@ clean <- function(file.name) {
     mutate(Summary = str_remove(Summary, "CONGRESSIONAL CORRESPONDENCE:"))
   
   data %<>%
-    mutate(str_replace(Summary, "CONGRESSIONAL: HOMELAND SECURITY & GOVERNMENTAL AFFAIRS COMMITTEE-Feb. 16 Letter from Lieberman / Collins to Secretary Geithner re FinCEN's SV Rule AWAITI", "CONGRESSIONAL: HOMELAND SECURITY & GOVERNMENTAL AFFAIRS COMMITTEE-Feb. 16 Letter from Lieberman , Collins to Secretary Geithner re FinCEN's SV Rule AWAITI"))
+    mutate(Summary = str_replace(Summary, "CONGRESSIONAL: HOMELAND SECURITY & GOVERNMENTAL AFFAIRS COMMITTEE-Feb. 16 Letter from Lieberman / Collins to Secretary Geithner re FinCEN's SV Rule AWAITI", "CONGRESSIONAL: HOMELAND SECURITY & GOVERNMENTAL AFFAIRS COMMITTEE-Feb. 16 Letter from Lieberman , Collins to Secretary Geithner re FinCEN's SV Rule AWAITI"))
   
 
   #String split for multiple members
