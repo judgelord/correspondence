@@ -41,6 +41,7 @@ typos_clear <- tribble(
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
   "Moore Capito", "(Moore|Capito)",
+  "Perlmutter", "Perimutter",
 
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
@@ -212,7 +213,6 @@ typos_last <- tribble(
   "Michael", "Turner", "Tuner",
   "Doug", "Lamborn", "Lambom",
   "Bill", "Posey", "Posev",
-  "Ed", "Perlmutter", "Perimutter",
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett"
 
