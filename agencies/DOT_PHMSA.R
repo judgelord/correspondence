@@ -63,12 +63,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, ". ", ", "))
   
-  #chamber typos
-  data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), str_replace(chamber, "House", "Senate"), chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
-
-  
+ 
   #Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Steve, Ted.", "Stevens, Ted")) %>%
@@ -97,6 +92,11 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Wheeler, Jim.|Fiore, Michele.|Klinger, Patricia|Estes, Mark|Willke, Theodore.|Pappas, Sherri.|Bettinelli, Andrew. |Quarterman, Cynthia. |Barill, Anthony|Szabo, Joseph C. |Wiese, Jeffrey D.|Keller, John.|Norton, James.|Poyer, Scott"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Rosenker, Mark V."), "Acting Federal Agencies Chairman", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Talbot, Kirk.|Guillory, Elbert L. |Clark-Reed, Gwyndolen.|Shumake, Lindell F.|Sypolt, Dave.|Merrill, John."), "State politician", ERROR))
+  
+  #chamber typos
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
   
   
   data %<>%
