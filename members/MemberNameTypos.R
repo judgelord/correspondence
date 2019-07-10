@@ -3,7 +3,7 @@
 # THERE IS NOTHING ELSE IT COULD POSSIBLY BE
 typos_clear <- tribble(
   ~correct, ~typos,
-  "Cummings", "Cwnmings",
+  "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
@@ -214,9 +214,8 @@ typos_last <- tribble(
   "Doug", "Lamborn", "Lambom",
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
-  "Mark", "Bennet", "Bennett",
-  "Edward", "Royce", "Roy",
-  "Charles", "Roy", "Royce"
+  "Mark", "Bennet", "Bennett"
+
 
   
   
