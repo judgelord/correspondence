@@ -148,7 +148,7 @@ typos_last <- tribble(
   "Yvette", "Clarke", "Clark",
   "Maurice", "Hinchey", "Henchey",
   "Chaka", "Fattah", "Chakka",
-  "Kirsten", "Gillibrand", "Gillbrand",
+  "Kirsten", "Gillibrand", "(Gillebrand|Gillbrand)",
   "James","Barrett", "(Barrat|Barret)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
