@@ -74,15 +74,19 @@ clean <- function(file.name) {
   data %<>%
     mutate(Summary = str_remove(Summary, "CONGRESSIONAL CORRESPONDENCE:"))
   
-  #chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(Summary, "Congressman|Rep.|Con. |con. |cong |congs |cong. |rep| congressman  | Congresswoman |House |house |CONGRESSMAN |Congressmen |Representative|Representative "), "House", NA)) %>%
-    mutate(chamber = ifelse(str_detect(Summary, "Sen |Sen.|Senators"), "Senate", chamber))
+    mutate(Summary = str_replace(Summary, "CONGRESSIONAL: HOMELAND SECURITY & GOVERNMENTAL AFFAIRS COMMITTEE-Feb. 16 Letter from Lieberman / Collins to Secretary Geithner re FinCEN's SV Rule AWAITI", "CONGRESSIONAL: HOMELAND SECURITY & GOVERNMENTAL AFFAIRS COMMITTEE-Feb. 16 Letter from Lieberman , Collins to Secretary Geithner re FinCEN's SV Rule AWAITI"))
+  
 
   #String split for multiple members
   data %<>%
     mutate(Summary = str_split(Summary, ",| and ")) %>%
     unnest(Summary)
+  
+  #chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(Summary, "Congressman|Rep.|Con. |con. |cong |congs |cong. |rep| congressman  | Congresswoman |House |house |CONGRESSMAN |Congressmen |Representative|Representative "), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(Summary, "Sen |Sen.|Senators"), "Senate", chamber))
   
   #ID
   data %<>%
@@ -103,7 +107,20 @@ clean <- function(file.name) {
     mutate(Summary = str_replace(Summary, " Mack", "MACK, Connie")) %>%
     mutate(Summary = str_replace(Summary, "Sherman", "Representative Sherman")) %>%
     mutate(Summary = str_replace(Summary, "Feinstein", "Senator Feinstein")) %>%
-    mutate(Summary = str_replace(Summary, "Ed Perimutter", "Ed PERLMUTTER")) #added to nameMethods
+    mutate(Summary = str_replace(Summary, " Kyi", " Kyl")) %>%
+    mutate(Summary = str_replace(Summary, "Renee L. Ellmers", "Renee Ellmers")) %>%
+    mutate(Summary = str_replace(Summary, "Senator Waxman", "Henry WAXMAN")) %>%
+    mutate(Summary = str_replace(Summary, "McCaskill ", "Claire McCASKILL")) %>%
+    mutate(Summary = str_replace(Summary, "Whitehouse", "Sheldon WHITEHOUSE")) %>%
+    mutate(Summary = str_replace(Summary, "Lieberman", "Joseph LIEBERMAN")) %>%
+    mutate(Summary = ifelse(str_detect(Summary, "Collins") & congress == 111, str_replace(Summary, "Collins", "Susan COLLINS"), Summary)) %>%
+    mutate(Summary = str_replace(Summary, "Waters", "WATERS, Maxine")) %>%
+    mutate(Summary = str_replace(Summary, "Cohen", "Stephen COHEN")) %>%
+    mutate(Summary = str_replace(Summary, "Coburn", "Thomas COBURN"))
+  
+  #Fix chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(Summary, "Henry WAXMAN"), str_replace(chamber, "Senate", "House"), chamber))
   
   #Trim White Space
   data %<>%
@@ -113,8 +130,8 @@ clean <- function(file.name) {
   data %<>%
     mutate(Summary =ifelse(str_detect(chamber, "House") & ! str_detect(Summary, " "), paste("Representative", Summary, sep = " "), Summary)) %>%
     mutate(Summary = ifelse(str_detect(chamber, "Senate") & ! str_detect(Summary, " "), paste("Senator", Summary, sep = " "), Summary))
-  
-  
+
+
   #Extract Member names
   data %<>%
     extractMemberName2(members = members, col_name = "Summary")
@@ -134,19 +151,30 @@ clean <- function(file.name) {
     ungroup() %>%
     distinct()
   
+  
+  #FOIA
   data %<>%
-    mutate(ERROR = )
+    mutate(NOTES = ifelse(str_detect(Summary, "Letter from Representative  Kennedy") & congress == 109, "FOIA Multiple Representative Kennedys", NOTES)) 
+  
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(Summary, "Representative Dingell") & is.na(last_name), "Wrong Dingell, Duplicate", ERROR))
+  
   #Add first name 
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
-  
+ 
   Unfoundnames <- data %>%
     filter(is.na(last_name))
   
   Unfoundnames %<>%
     filter( ! str_detect(pattern, "404error"))
+ 
+  data %>%
+    filter(ID == 424) %>%
+    select(Summary)
   
+
   ##testing code
   
   
