@@ -58,14 +58,17 @@ data %<>%
   mutate(FROM = str_replace(FROM, "^Balart, M.", "Diaz-Balart, M.")) %>%
   mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M.")) %>%
   mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
-  mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
   mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
   
+#Wrong chambers
 data %<>%
   mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "Senate"), str_replace(FROM, "Kennedy, J.", "John Neely KENNEDY"), FROM)) %>%
-  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY"), FROM))
-  
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY"), FROM)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Carter, Earl"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress == 112|113 & str_detect(chamber, "Senate"), str_replace(FROM, "Moran, J.", "MORAN, Jerry"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress == 112|113 & str_detect(chamber, "House"), str_replace(FROM, "Moran, J.", "MORAN, James"), FROM))
 #string split on "\"
   data %<>%
     mutate(FROM = str_split(FROM, "\\/")) %>%
