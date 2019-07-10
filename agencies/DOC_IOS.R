@@ -50,5 +50,5 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl('Alexia Galbraith', data$FROM), 'Alexia Galbraith is not a congress member', ERROR))
   
-  
+  return(data)
 }

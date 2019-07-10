@@ -3,7 +3,8 @@
 # load required functions
 
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
-# FIXME 
+Yes
+# FIXME
 extractMemberName <- extractMemberName2
 
 

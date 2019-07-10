@@ -73,7 +73,7 @@ clean <- function(file.name) {
   
   
   
-  
+  return(data)
 }
 
 
