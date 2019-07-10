@@ -67,6 +67,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), "Senate", chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
+
   
   #Typos
   data %<>%
@@ -105,8 +106,8 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR))
   
-  Unmatched <- d %>%
-    filter(is.na(bioname))
+  #Unmatched <- d %>%
+    #filter(is.na(bioname))
   
 
   
