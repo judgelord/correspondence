@@ -63,6 +63,10 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, ". ", ", "))
   
+  #chamber typos
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), "Senate", chamber))
+  
   #Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Steve, Ted.", "Stevens, Ted")) %>%
@@ -98,7 +102,8 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR))
   
-  
+  Unmatched <- d %>%
+    filter(is.na(bioname))
   
 
   
