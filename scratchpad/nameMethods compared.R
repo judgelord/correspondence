@@ -3,8 +3,8 @@
 sample <- sample_frac(data, .05)
 
 # run both methods
-method_1 <- sample %>% extractMemberName(members, "FROM") %>% mutate(method = 1, ID = as.numeric(ID))
-method_2 <- sample %>% extractMemberName2(members, "FROM") %>% mutate(method = 2, ID = as.numeric(ID))
+method_1 <- sample %>% extractMemberNameOld(members, "FROM") %>% mutate(method = 1, ID = as.numeric(ID))
+method_2 <- sample %>% extractMemberName(members, "FROM") %>% mutate(method = 2, ID = as.numeric(ID))
 
 # combine results
 methods_compared <- full_join(method_1, method_2) %>% arrange(FROM)

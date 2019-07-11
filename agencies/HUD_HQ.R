@@ -22,8 +22,26 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Check for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   data$FROM <- data$Correspondent
+  
+  #Sample Test code
+  #sample <- data[sample(1:nrow(data), 3000, replace=FALSE),]
+  
+  #data <- sample
+ 
+  #Matching on congress to prevent duplicates 
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Duncan Hunter") & congress == 114|111|116|115|113|112, str_replace(FROM, "Duncan Hunter", "Duncan Duane HUNTER"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Duncan Hunter") & congress == 110, str_replace(FROM, "Duncan Hunter", "Duncan Lee HUNTER"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Mike Rogers") & congress == 114|115|116, str_replace(FROM, "Mike Rogers", "Mike Dennis ROGERS"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Donald Payne") & congress == 111|110, str_replace(FROM, "Donald Payne", "Donald Milford PAYNE"), FROM)) %>%
+   # mutate(FROM = ifelse(str_detect(FROM, "Donald Payne") & congress == 116|115|114|113, str_replace(FROM, "Donald Payne", "Donald Payne, Jr."), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Tim Johnson") & congress == 113, str_replace(FROM, "Tim Johnson", "Timothy Peter JOHNSON"), FROM))
+  
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
@@ -33,5 +51,13 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, everything())
+  
+  #Filter for Unfoundnames
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           ! str_detect(pattern, "404error"))
+  
+  
+  return(data)
   
 }

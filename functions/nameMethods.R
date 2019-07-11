@@ -229,7 +229,7 @@ formatFirstName <- function(data, col_name){
 # data %<>% extractMemberName(members, 'FROM') 
 # NOTE: A VAR NAMED "members" IN DATA CAN CAUSE PROBLEMS AND A VAR NAMED string WILL BE OVERWRITTEN 
 
-extractMemberName <- function(data, members, col_name){
+extractMemberNameOld <- function(data, members, col_name){
   
   data %<>% mutate(string = data[[col_name]])
 
@@ -996,10 +996,13 @@ findTypos <- function(string){
 # FIXME need to reverse members and col name in ALL SCRIPTS to make this tidy 
 #  extractMemberName2 <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
     
-    extractMemberName2 <- function(data, members, col_name, congresses = unique(data$congress)){
+    extractMemberName <- function(data, members, col_name, congresses = unique(data$congress)){
       
       # FOR TESTING 
       # col_name <- "FROM"
+      
+      # FIXME # some scripts still use the old name
+      extractMemberName2 <- extractMemberName
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 
