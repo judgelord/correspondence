@@ -28,23 +28,39 @@ clean <- function(file.name) {
 
 
   # Format date, year, Congress, member name etc.
-  data$DATE %<>% multidate( c("%m-%d-%y", "%m/%d/%Y"))
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
 
 
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  
+  #test for unmatched dates
+  #data %<>% filter(congress<0)
 
   # create first and last name variables
   data %<>% extractMemberName(members, 'FROM')
   
   
   
-  #sample <- data %>%
-  #filter(is.na(DATE))  
-  #View(sample)
+  #Check for duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE, FROM) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "),
+           first_name = str_c(first_name, collapse = "; ")) 
+  
+
+  
+  # sample <- data %>%
+  # filter(is.na(DATE))
+  # View(sample)
   ##for testing date and names
   
   #filter(is.na(last_name)) %>%
