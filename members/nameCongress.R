@@ -43,6 +43,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "KUSTER, Ann McLane", "McLane", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "WASSERMAN SCHULTZ, Debbie", "Wasserman", maiden_name)) %>% 
+    mutate(maiden_name = ifelse(bioname == "SMITH, Tina", "Flint", maiden_name)) %>% 
      
     # last names
     mutate(last_name = ifelse(bioname == "CAPITO, Shelley Moore", "Moore Capito", last_name)) %>%  
@@ -247,8 +248,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "SCARBOROUGH, Charles Joseph", "(Charlie|Joe)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "SPACE, Zack", "Zachary", common_name)) %>%
     mutate(common_name = ifelse(bioname == "RICE, Tom", "Hugh", common_name)) %>%
-
-    
+    mutate(common_name = ifelse(bioname == "SMITH, Tina", "Christine", common_name)) %>% 
      
   # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -292,6 +292,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(bioname == "THOMPSON, Glenn", "William", middle_name)) %>%  
     mutate(middle_name = ifelse(bioname == "PRICE, Tom", "Edmunds", middle_name)) %>%  
     mutate(middle_name = ifelse(bioname == "RICE, Tom", "Thompson", middle_name)) %>%  
+    mutate(middle_name = ifelse(bioname == "SMITH, Tina", "Elizabeth", middle_name)) %>%  
      
     # middle initials
     mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
@@ -549,10 +550,12 @@ members %<>%
 
 
 # add any missing middle initials
-members %<>% 
-  mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name), 
-                      str_sub(middle_name, 1),
-                      middle_initial)  )
+
+#FIX SINCE CODE IS NOT WORKING
+ # members %<>%
+ #   mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name),
+ #                       str_sub(middle_name, 1),
+ #                       middle_initial))
 
 # mismatches between middle name and middle initial? 
 suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initial) & !is.na(middle_name))

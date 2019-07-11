@@ -4,12 +4,11 @@
 #file.name <- "FHFA" # for testing
 
 clean <- function(file.name) {
-   data <- gs_title(file.name) %>% gs_read() # get data
+    data <- gs_title(file.name) %>% gs_read() # get data
   
 
   # create ID variable
   data$ID <- c(1:nrow(data))
-  
   
   # create agency column
   data$agency <- file.name
@@ -22,11 +21,21 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   is.na(data$`Modified O`) <- data$`Modified O` == "N/A(NAR)"
   is.na(data$`Modified O`) <- data$`Modified O` == "Sens. Schumer, Brown, Casey & Menendez"
-  data %<>%
-    mutate(DATE = ifelse(is.na(DATE), `Modified O`, DATE))
-  #data$DATE <- data$`Modified O`
-  data$DATE %<>% as.Date("%m/%d/%Y")
   
+  
+  #Format Date
+  data$`Modified O` <- gsub("/201", "/1", data$`Modified O`) 
+  data$`Modified O` <- gsub("/200", "/0", data$`Modified O`)
+  
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+
+
+  data$tempDATE<- data$DATE %>% as.Date("%m/%d/%y")
+  data %<>%
+    mutate(DATE = ifelse(is.na(tempDATE), `Modified O`, DATE))
+  data$DATE %<>% as.Date("%m/%d/%y")
+
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
