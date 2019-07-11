@@ -6,7 +6,7 @@ output:
     code_folding: hide
 ---
 
-```{r setup}
+```{r setup, echo=FALSE}
 # load required packages, functions, and external data
 source("setup.R")
 

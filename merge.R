@@ -203,7 +203,7 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
 
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
 head(data_list)
 
 i <- 1
