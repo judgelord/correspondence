@@ -59,7 +59,8 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M.")) %>%
   mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
-  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl"))
+  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl")) %>%
+  mutate(FROM = str_replace(FROM, "Capito, S.M.", "Moore Capito, Shelley"))
   
 #Wrong chambers
 data %<>%
