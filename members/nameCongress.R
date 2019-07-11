@@ -550,10 +550,11 @@ members %<>%
 
 
 # add any missing middle initials
-members %<>% 
-  mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name), 
-                      str_sub(middle_name, 1),
-                      middle_initial)  )
+#FIX SINCE CODE IS NOT WORKING
+ # members %<>%
+ #   mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name),
+ #                       str_sub(middle_name, 1),
+ #                       middle_initial))
 
 # mismatches between middle name and middle initial? 
 suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initial) & !is.na(middle_name))
