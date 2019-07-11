@@ -524,7 +524,8 @@ replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
 members %<>% mutate_all(replace404)
 
 members %<>%
-  group_by(bioname) %>%
+  # FIXME # ? is it ok to group by congress? 
+  group_by(bioname, congress) %>%
   mutate(pattern = c(first_last,
                      first_middle_last,
                      first_initial_last,
