@@ -2,15 +2,14 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# Duplicate members in some rows needs to be addressed (a few are comma separated)
-# Many spelling errors need to be addressed
-
-# source("setup.R")
- # file.name <- "DOE_FERC Extended" 
-
 clean <- function(file.name) {
   
+  # unlike other clean scripts, we load FERC data from Rdata rather than google drive
+  # FIXME # FERC data should be put on google drive
   load("data/DOE_FERC-letters-coded.Rdata")
+  
+  # create agency column
+  data$agency <- "DOE_FERC"
 
   data <- FERC_letters %>%
     select(members,SUBJECT,everything())# %>% top_n(1000)
@@ -19,8 +18,7 @@ clean <- function(file.name) {
 
 
   
-  # create agency column
-  data$agency <- "DOE_FERC"
+
   
   
   # Format date, year, Congress, member name etc. 
