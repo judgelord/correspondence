@@ -42,7 +42,7 @@ clean <- function(file.name) {
    # mutate(FROM = ifelse(str_detect(FROM, "Donald Payne") & congress == 116|115|114|113, str_replace(FROM, "Donald Payne", "Donald Payne, Jr."), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Tim Johnson") & congress == 113, str_replace(FROM, "Tim Johnson", "Timothy Peter JOHNSON"), FROM))
   
-  data <- extractMemberName2(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^Richard Hillman$',FROM), 'Richard Hillman is not a member of Congress', ERROR)) %>% 
