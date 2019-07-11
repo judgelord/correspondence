@@ -45,6 +45,15 @@ clean <- function(file.name) {
   data %<>% extractMemberName(members, 'FROM')
   
   
+  
+  #Check for duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; ")) 
+  
 
   
   # sample <- data %>%
