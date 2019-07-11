@@ -10,15 +10,13 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  
+ #Create ID 
 data %<>% 
     mutate(ID = row_number())
-  
+ 
+  #Create FROM column 
   data$FROM <- paste(data$AUTHOR.FIRST.NAME, data$AUTHOR.LAST.NAME, sep = " ")
-  
 
-  
-  
   
   #create agency column
   data$agency <- file.name
@@ -28,39 +26,38 @@ data %<>%
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # ###############    
-  # # Creates duplicate rows for lines with multiple representatives
-  # FIXME 
-  # This cane be done better with str_split(FROM) %>% unnest(FROM)
-  # for(i in 1:nrow(data)){
-  #   if(grepl(" AND ", data$FROM[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " AND ") + 1))
-  #     new$FROM <- unlist(str_split(data$FROM[i], " AND "))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep(" AND ", data$FROM),] # removes orginal row with all data
-  data %<>% distinct()
-  ################
   
-  #data <-  extractMemberName(data,members,"FROM") ##old version of extracting data
+ #Sample Test code
+    sample <- data[sample(1:nrow(data), 3000, replace=FALSE),]
+    
+    data <- sample
+    
+    #Format Typo
+    data %<>%
+      mutate(FROM = str_replace(FROM, "FEINSTEIN DIANNE", "FEINSTEIN, DIANNE"))
+    
+  #Extract Member names
+  data <-  extractMemberName(data,members,"FROM") 
   
-  data <- getFirstLast.Comma(data, "FROM")
-  data$first_name <- formatFirstName(data, "first_name") #new version of extracting data 
+  #Check for Duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "))
   
   
-  #sample <- data %>%
-  #filter(is.na(last_name))  
-  #View(sample)
-  
-  ##checking code
+  #Failing observations
+  Unfoundnames <- data %>%
+  filter(is.na(last_name),
+         ! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))  
+ 
   
   
   ## Are we sure that we want to delete all of these observations?
-  data %<>% filter(!str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))
+  data %<>% 
+    filter(! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))
   
   
   # arrange columns for hand coding
