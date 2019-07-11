@@ -51,9 +51,10 @@ clean <- function(file.name) {
   sample2data<- data
   
   sample2data %<>%
-    group_by(ID, SUBJECT, DATE) %>%
+    group_by(ID, SUBJECT, DATE, FROM) %>%
     mutate(n = n(),
-           last_name = str_c(last_name, collapse = "; ")) 
+           last_name = str_c(last_name, collapse = "; "),
+           first_name = str_c(first_name, collapse = "; ")) 
   
 
   
