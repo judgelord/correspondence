@@ -4,8 +4,6 @@
 
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 Yes
-# FIXME
-extractMemberName <- extractMemberName2
 
 
 gs_ls() # log in to google drive
@@ -767,13 +765,7 @@ dcommittees %<>% full_join(
 ###########################
 df %<>% dplyr::select(-n)
 rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
-# rm(bad.committees.2, bad.dates, bad.names.1, bad.names.2, bad.party)
 
-#  # all agencies made it into d?
-length(unique(d$agency)) == length(unique(data_list$agency))
-
-# all agencies made it through merge into df?
-length(unique(df$agency)) == length(unique(d$agency)) 
 
 # merge new data with old? 
 if(F){
@@ -783,7 +775,6 @@ load("data/all_contacts_committees.Rdata")
 dcommittees %<>% full_join(all_contacts_committees)
 }
 
-data_list$agency[!data_list$agency %in% unique(df$agency)]
 
 # save if all data merged 
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
@@ -804,6 +795,11 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   save(bad.committees.2, file = "data/bad.committees.2.RData")
 }
 
+# counts per agency - check if this matches google sheet 
 look <- df %>% count(agency, Department)
+
+paste("missing from d:", data_list$agency[!data_list$agency %in% unique(d$agency)])
+paste("missing from df:", data_list$agency[!data_list$agency %in% unique(df$agency)])
+
 paste("merge.R stopped at", data_list$agency[i])
 
