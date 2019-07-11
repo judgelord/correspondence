@@ -10,7 +10,6 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data))
   
-  
   # create agency column
   data$agency <- file.name
   
@@ -22,8 +21,11 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   is.na(data$`Modified O`) <- data$`Modified O` == "N/A(NAR)"
   is.na(data$`Modified O`) <- data$`Modified O` == "Sens. Schumer, Brown, Casey & Menendez"
+  
+  data$`Modified O` %<>% as.Date("%m/%d/%y")
+  
   data %<>%
-    mutate(DATE = ifelse(is.na(DATE), `Modified O`, DATE))
+    mutate(DATE = if_else(is.na(DATE), `Modified O`, DATE))
   #data$DATE <- data$`Modified O`
   data$DATE %<>% as.Date("%m/%d/%Y")
   
