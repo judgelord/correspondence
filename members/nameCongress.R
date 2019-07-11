@@ -472,6 +472,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
   members$first_last <- paste(members$first_name, members$last_name, sep = " ")
+  members$first_maiden <- paste(members$first_name, members$maiden_name, sep = " ")
   members$common_last <- paste(members$common_name, members$last_name, sep = " ")
   members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
   members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
@@ -527,6 +528,7 @@ members %<>%
   # FIXME # ? is it ok to group by congress? 
   group_by(bioname, congress) %>%
   mutate(pattern = c(first_last,
+                     first_maiden,
                      first_middle_last,
                      first_initial_last,
                      common_last,
