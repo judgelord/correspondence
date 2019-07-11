@@ -550,6 +550,7 @@ members %<>%
 
 
 # add any missing middle initials
+
 #FIX SINCE CODE IS NOT WORKING
  # members %<>%
  #   mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name),
