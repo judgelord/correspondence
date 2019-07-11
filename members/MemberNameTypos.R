@@ -36,7 +36,9 @@ typos_clear <- tribble(
   "McCaskill ", "McCaskil ",
   "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Herrera Beutler", "(Herrera|Beutler|Herrera-Beutler)",
-  "Wasserman Schultz", "(Wasserman Shultz|Schultz|Wasserman-Schultz|Wasserman-S|Wasserman-)",
+  # FIXME #  last names hypenation can be a clear typo, but we can't just replace "Schultz"--that needs to be a last name typo (otherwise "Debbie Wasserman Schultz" will be replaced with "Debbie Wasserman Wasserman Schultz" and fail to match)
+  # I deleted "Schultz" and moved it to a last name typos, but we may still have problems replacing "Wasserman-" like this (for example, "Wasserman-Schultz, Debbie" would be replaced with "Wasserman SchultzSchultz, Debbie and thus fail to match)
+  "Wasserman Schultz", "(Wasserman Shultz|Wasserman-Schultz|Wasserman-S|Wasserman-)",
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
@@ -215,7 +217,8 @@ typos_last <- tribble(
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
   "Shelley", "Moore Capito", "(Moore|Capito)",
-  "Jeanne", "Shaheen", "Shahenn"
+  "Jeanne", "Shaheen", "Shahenn",
+  "Debbie", "Schultz", "Wasserman Schultz"
 
 
   
