@@ -228,7 +228,8 @@ typos_last <- tribble(
   "Adrian", "Espaillat", "Espaillet",
   "Tony", "O'Holleran", "O'Halleran",
   "Anthony", "BRINDISI", "Brindis",
-  "Lisa", "BLUNT ROCHESTER", "BLUNT-ROCHESTER"
+  "Lisa", "BLUNT ROCHESTER", "BLUNT-ROCHESTER",
+  "Bruce", "Braley", "Braly"
   
 
 
