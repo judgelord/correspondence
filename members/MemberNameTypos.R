@@ -175,7 +175,7 @@ typos_last <- tribble(
   "Sheila", "Jackson Lee", "(Jackson|Lee|Jackson-Lee)",
   "Virginia", "Brown-Waite", "(Brown|Waite)",
   "Bonnie", "Watson Coleman", "(Watson|Coleman)",
-  "Beto", "O'Rourke", "O.Rourke",
+  "Beto", "O'Rourke", "(o Rourke|O.Rourke)",
   "Beto", "O'Rourke", "Rourke",
   "Barbara", "Boxer", "Baxter",
   "David", "Dreier", "Reier",
