@@ -37,11 +37,24 @@ data %<>%
       mutate(FROM = str_replace(FROM, "FEINSTEIN DIANNE", "FEINSTEIN, DIANNE")) %>%
       mutate(FROM = str_replace(FROM, "WM. LACY CLAY", "William Lacy CLAY")) %>%
       mutate(FROM = str_replace(FROM, "BENJAMIN NELSON", "Earl Benjamin NELSON")) %>%
-      mutate(FROM = str_replace(FROM, "JGRESHAM BARRETT", "James Gresham BARRETT")) %>%
+      mutate(FROM = str_replace(FROM, "JGRESHAM BARRETT|GRESHAM BARRETT", "James Gresham BARRETT")) %>%
       mutate(FROM = str_replace(FROM, "CORTEZ MASTO", "Catherine CORTEZ MASTO")) %>%
-      mutate(FROM = str_replace(FROM, "RAJA KRISHNAMOORTNI", "RAJA KRISHNAMOORTI")) %>%
+      mutate(FROM = str_replace(FROM, "RAJA KRISHNAMOORTNI", "RAJA KRISHNAMOORTHI")) %>%
       mutate(FROM = str_replace(FROM, "JAMES SENSEBRENNER", "JAMES SENSENBRENNER")) %>%
-      mutate(FROM = str_replace(FROM, "J. LUIS CORREA", "Jose Luis CORREA"))
+      mutate(FROM = str_replace(FROM, "J. LUIS CORREA", "Jose Luis CORREA")) %>%
+      mutate(FROM = str_replace(FROM, "GK BUTTERFIELD", "George Kenneth BUTTERFIELD")) %>%
+      mutate(FROM = str_replace(FROM, "STEPHEN WOMACK", "Steve WOMACK")) %>%
+      mutate(FROM = str_replace(FROM, "CHRIS MUROHY", "Chris MURPHY")) %>%
+      mutate(FROM = str_replace(FROM, "JOB HENSARLING", "JEB HENSARLING")) %>%
+      mutate(FROM = str_replace(FROM, "MARK ARMODEI", "Mark AMODEI")) %>%
+      mutate(FROM = str_replace(FROM, "STEVEN COHEN", "Stephen COHEN")) %>%
+      mutate(FROM = str_replace(FROM, "LOUE GOHMERT", "LOUIE GOHMERT")) %>%
+      mutate(FROM = str_replace(FROM, "JOHN RUTHEFORD", "JOHN RUTHERFORD")) %>%
+      mutate(FROM = str_replace(FROM, "COHEN STEVE", "COHEN, STEVE")) %>%
+      mutate(FROM = str_replace(FROM, "T.J. COX", "TJ COX")) %>%
+      mutate(FROM = str_replace(FROM, "H. MORGAN GRIFFIN", "H. Morgan GRIFFITH")) %>%
+      mutate(FROM = str_replace(FROM, "KAMALA DAVIS", "Kamala HARRIS")) %>%
+      mutate(FROM = str_replace(FROM, "MIKE BROWN", "Michael BRAUN"))
      
     data %<>%
       mutate(FROM = ifelse(str_detect(FROM, "J FORBES") & str_detect(chamber, "House"), str_replace(FROM, "J FORBES", "James FORBES"), FROM)) %>%
@@ -61,14 +74,16 @@ data %<>%
   
   #ERRORs
   data %<>%
-    mutate(ERROR = ifelse(FROM == "FRANK PADAVAN" & congress == 110 & str_detect(chamber, "Senate"), "State Politican", ERROR))
+    mutate(ERROR = ifelse(FROM == "FRANK PADAVAN" & congress == 110 & str_detect(chamber, "Senate"), "State Politican", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "KEVIN FROMER|AIMEE SNYDER"), "Not Member", ERROR))
   
   
   #Failing observations
   Unfoundnames <- data %>%
   filter(is.na(last_name),
          ! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"),
-         str_detect(pattern, "404error"))  
+         str_detect(pattern, "404error"),
+         is.na(ERROR))  
  
   
   
