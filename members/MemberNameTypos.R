@@ -131,7 +131,7 @@ typos_last <- tribble(
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
   "Amy", "Klobuchar", "Klobachur",
-  "Raja", "Krishnamoorthi", "Krishnamoothi",
+  "Raja", "Krishnamoorthi", "(Krishnamoortni|Krishnamoothi)",
   "Barbara", "Mikulski", "(Mukulski|Milkulski)",
   "Ruben", "Hinojosa", "Hinohosa",
   "George", "Lemieux", "Lemieuz",
