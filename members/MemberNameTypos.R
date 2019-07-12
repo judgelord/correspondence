@@ -314,7 +314,8 @@ typos_first <- tribble(
   "Conor", "Lamb", "Connor",
   "Rob", "Woodall", "Rod",
   "John", "Thune", "Jon",
-  "Vincente", "Gonzalez", "Vicente"
+  "Vincente", "Gonzalez", "Vicente",
+  "Emanuel", "Cleaver", "Emmanuel"
   
  
   
