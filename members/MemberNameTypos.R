@@ -126,7 +126,7 @@ typos_last <- tribble(
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
   "Charles", "Rangel", "Ranger",
-  "Christopher", "Van Hollen", "Van Kollen", 
+  "Christopher", "Van Hollen", "(VanHollen|Van Kollen|Van Hollen|Van|Hollen)", 
   "Gary", "Ackerman", "Acherman",
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
@@ -163,7 +163,6 @@ typos_last <- tribble(
   "Cliff", "Stearns","Steams",
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
-  "Christopher", "Van Hollen", "(Van|Hollen)",
   "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)",
   "James", "Barrett", "(Baret|Barett|Barret)",
   "Mario", "Diaz-Balart", "(Diaz|Balart)",
@@ -227,7 +226,7 @@ typos_last <- tribble(
   "Ginny", "Brown-Waite", "Brown Waite",
   "Adrian", "Espaillat", "Espaillet",
   "Tony", "O'Holleran", "O'Halleran",
-  "Christopher", "Van Hollen", "VanHollen"
+  
 
 
   
