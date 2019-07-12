@@ -57,10 +57,10 @@ clean <- function(file.name) {
            first_name = str_c(first_name, collapse = "; ")) 
   
 
-  
-  # sample <- data %>%
-  # filter(is.na(DATE))
-  # View(sample)
+   # 
+   # sample <- data %>%
+   # filter(is.na(last_name))
+   # View(sample)
   ##for testing date and names
   
   #filter(is.na(last_name)) %>%
