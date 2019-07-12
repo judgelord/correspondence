@@ -216,7 +216,7 @@ typos_last <- tribble(
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
   "Shelley", "Moore Capito", "(Moore|Capito)",
-  "Jeanne", "Shaheen", "Shahenn",
+  "Jeanne", "Shaheen", "(Shaneen|Shahenn)",
   "Debbie", "Schultz", "Wasserman Schultz",
   "William", "Keating", "Keeting",
   "Mike", "Crapo", "Carpo",
@@ -225,7 +225,7 @@ typos_last <- tribble(
   "Bonnie", "Watson Coleman", "Watson-Coleman",
   "Ginny", "Brown-Waite", "Brown Waite",
   "Adrian", "Espaillat", "Espaillet",
-  "Tony", "O'Holleran", "O'Halleran",
+  "Tony", "O'Holleran", "O'Halleran"
   
 
 
