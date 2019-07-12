@@ -28,13 +28,25 @@ data %<>%
   
   
  #Sample Test code
-    sample <- data[sample(1:nrow(data), 3000, replace=FALSE),]
+    #sample <- data[sample(1:nrow(data), 3000, replace=FALSE),]
     
-    data <- sample
+    #data <- sample
     
     #Format Typo
     data %<>%
-      mutate(FROM = str_replace(FROM, "FEINSTEIN DIANNE", "FEINSTEIN, DIANNE"))
+      mutate(FROM = str_replace(FROM, "FEINSTEIN DIANNE", "FEINSTEIN, DIANNE")) %>%
+      mutate(FROM = str_replace(FROM, "WM. LACY CLAY", "William Lacy CLAY")) %>%
+      mutate(FROM = str_replace(FROM, "BENJAMIN NELSON", "Earl Benjamin NELSON")) %>%
+      mutate(FROM = str_replace(FROM, "JGRESHAM BARRETT", "James Gresham BARRETT")) %>%
+      mutate(FROM = str_replace(FROM, "CORTEZ MASTO", "Catherine CORTEZ MASTO")) %>%
+      mutate(FROM = str_replace(FROM, "RAJA KRISHNAMOORTNI", "RAJA KRISHNAMOORTI")) %>%
+      mutate(FROM = str_replace(FROM, "JAMES SENSEBRENNER", "JAMES SENSENBRENNER")) %>%
+      mutate(FROM = str_replace(FROM, "J. LUIS CORREA", "Jose Luis CORREA"))
+     
+    data %<>%
+      mutate(FROM = ifelse(str_detect(FROM, "J FORBES") & str_detect(chamber, "House"), str_replace(FROM, "J FORBES", "James FORBES"), FROM)) %>%
+      mutate(FROM = ifelse(FROM == "LUJAN GRISHAM", str_replace(FROM, "LUJAN GRISHAM", "Michelle LUJAN GRISHAM"), FROM)) %>%
+      mutate(FROM = ifelse(FROM == "X PETERSON" & str_detect(congress, "115") & str_detect(chamber, "House"), str_replace(FROM, "X PETERSON", "Collin PETERSON"), FROM))
     
   #Extract Member names
   data <-  extractMemberName(data,members,"FROM") 
@@ -47,11 +59,16 @@ data %<>%
     mutate(n = n(),
            last_name = str_c(last_name, collapse = "; "))
   
+  #ERRORs
+  data %<>%
+    mutate(ERROR = ifelse(FROM == "FRANK PADAVAN" & congress == 110 & str_detect(chamber, "Senate"), "State Politican", ERROR))
+  
   
   #Failing observations
   Unfoundnames <- data %>%
   filter(is.na(last_name),
-         ! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))  
+         ! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"),
+         str_detect(pattern, "404error"))  
  
   
   
