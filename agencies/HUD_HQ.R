@@ -46,8 +46,8 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^Richard Hillman$',FROM), 'Richard Hillman is not a member of Congress', ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl('^Aaron Leong$',FROM), 'Aaron Leong is not a member of Congress', ERROR))
-  
+    mutate(ERROR = ifelse(grepl('^Aaron Leong$',FROM), 'Aaron Leong is not a member of Congress', ERROR)) %>%
+    mutate(ERROR = ifelse(grepl('^Orice Brown$',FROM), 'Orice Brown is not a member of Congress', ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, everything())
