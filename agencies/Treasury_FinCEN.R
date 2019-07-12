@@ -134,7 +134,7 @@ clean <- function(file.name) {
 
   #Extract Member names
   data %<>%
-    extractMemberName2(members = members, col_name = "Summary")
+    extractMemberName(members = members, col_name = "Summary")
   
   data %<>% select(ID, DATE, LetterID, chamber, congress, Summary, first_name, last_name, everything())
   
