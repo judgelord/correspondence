@@ -218,7 +218,8 @@ typos_last <- tribble(
   "Mark", "Bennet", "Bennett",
   "Shelley", "Moore Capito", "(Moore|Capito)",
   "Jeanne", "Shaheen", "Shahenn",
-  "Debbie", "Schultz", "Wasserman Schultz"
+  "Debbie", "Schultz", "Wasserman Schultz",
+  "William", "Keating", "Keeting"
 
 
   
@@ -305,7 +306,11 @@ typos_first <- tribble(
   "Joe", "Barton", "Joel",
   "Christopher","Smith","C. NJ",
   "Richard", "Durbin", "Richad",
-  "Debbie", "Schultz", "Debbies"
+  "Debbie", "Schultz", "Debbies",
+  "David", "Kustoff", "Davis",
+  "Conor", "Lamb", "Connor",
+  "Rob", "Woodall", "Rod"
+  
  
   
   

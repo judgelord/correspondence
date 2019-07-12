@@ -58,7 +58,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "ChristopherDodd", "Christopher Dodd"))
   
 
-  data %<>% extractMemberName2(members, "FROM")
+  data %<>% extractMemberName(members, "FROM")
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Duncan Hunter") & is.na(last_name) & ! str_detect(congress, "110"), "Wrong Duncan, Duplicate", ERROR))

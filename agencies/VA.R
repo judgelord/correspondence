@@ -80,7 +80,7 @@ data %<>%
   
   #Extract Member Names
   data %<>%
-    extractMemberName2(members = members, col_name = "FROM")
+    extractMemberName(members = members, col_name = "FROM")
   
   #Check for duplicates
   sample2data<- data
@@ -107,7 +107,7 @@ data %<>%
   
   #Extract Member Names
   Unfoundnames %<>%
-    extractMemberName2(members = members, col_name = "FROM")
+    extractMemberName(members = members, col_name = "FROM")
   
   #Rejoin data
   data %<>%

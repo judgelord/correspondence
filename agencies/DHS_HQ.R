@@ -139,7 +139,7 @@ data %<>% distinct() %>%
   #data <- sampledata
   
   # names 
-  data <- extractMemberName2(data, members, 'FROM2')
+  data <- extractMemberName(data, members, 'FROM2')
   
   Unfoundnames <- data %>%
     filter(is.na(last_name))

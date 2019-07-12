@@ -85,7 +85,7 @@ clean <- function(file.name) {
 
   
   #Extract member names
-  data %<>% extractMemberName2(members, "FROM")
+  data %<>% extractMemberName(members, "FROM")
   
   #Not members
   data %<>%

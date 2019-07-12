@@ -65,7 +65,7 @@ clean <- function(file.name) {
   
   #Extract Member names
   data %<>%
-    extractMemberName2(members = members, col_name = "FROM")
+    extractMemberName(members = members, col_name = "FROM")
  
    #Check for duplicates
   sample2data<- data
