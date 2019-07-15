@@ -35,9 +35,9 @@ clean <- function(file.name) {
   data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
   
   
-  #Format Typo
-  data %<>%
-    mutate(FROM = str_replace(FROM, "Neugebauer", "Randy Neugebauer")) %>%
+  # #Format Typo
+  # data %<>%
+  #   mutate(FROM = str_replace(FROM, "Neugebauer", "Randy Neugebauer")) %>%
 
 
   #create year and congress columns
