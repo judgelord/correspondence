@@ -77,7 +77,7 @@ data %<>%
   #ERRORS
   data %<>%
     mutate(ERROR = ifelse(FROM == "FRANK PADAVAN" & congress == 110 & str_detect(chamber, "Senate"), "State Politican", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "KEVIN FROMER|AMIEE SNYDER|AIMEE SNYDER|ELEANOR HOLMES-NORTON|PATRICIA LARKE|MADELEINE BORDALLO|MATT HUTCHINSON|CAROLYN PRICE"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "KEVIN FROMER|AMIEE SNYDER|AIMEE SNYDER|ELEANOR HOLMES-NORTON|PATRICIA LARKE|MADELEINE BORDALLO|MATT HUTCHINSON|CAROLYN PRICE|MATT HUTCHISON"), "Not Member", ERROR))
   
   
   #Failing observations
