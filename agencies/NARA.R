@@ -56,6 +56,10 @@ clean <- function(file.name) {
            last_name = str_c(last_name, collapse = "; "),
            first_name = str_c(first_name, collapse = "; ")) 
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))  
 
    # 
    # sample <- data %>%
