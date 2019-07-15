@@ -33,6 +33,11 @@ clean <- function(file.name) {
   data$DATE <- gsub("-201", "-1", data$DATE) 
   data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+  
+  
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Neugebauer", "Randy Neugebauer")) %>%
 
 
   #create year and congress columns
