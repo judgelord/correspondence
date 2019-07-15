@@ -173,7 +173,7 @@ typos_last <- tribble(
   "Daniel", "Donovan", "Donavan",
   "Gloria", "Negrete McLeod", "(Negrete|McLeod)",
   "Sheila", "Jackson Lee", "(Jackson|Lee|Jackson-Lee)",
-  "(Virginia)", "Brown-Waite", "(Brown|Waite|Brown Waite|BrownWaite)",
+  "Ginny", "Brown-Waite", "(Brown|Waite|Brown Waite|BrownWaite)",
   "Bonnie", "Watson Coleman", "(Watson|Coleman)",
   "Beto", "O'Rourke", "(O Rourke|O.Rourke|Rourke|Orourke)",
   "Barbara", "Boxer", "Baxter",
