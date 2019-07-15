@@ -164,7 +164,7 @@ typos_last <- tribble(
   "Cliff", "Stearns","Steams",
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
-  "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers)",
+  "Cathy", "McMORRIS RODGERS", "(McMorris|Rodgers|McMORRIS-RODGERS)",
   "James", "Barrett", "(Baret|Barett|Barret)",
   "Mario", "Diaz-Balart", "(Diaz|Balart)",
   "Lincoln", "Diaz-Balart", "(Diaz|Balart)",
