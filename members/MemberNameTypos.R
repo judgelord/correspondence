@@ -224,7 +224,7 @@ typos_last <- tribble(
   "Mark", "Desaulnier", "Desauliner",
   "Nanette", "Diaz Barragan", "Diaz-Barragan",
   "Bonnie", "Watson Coleman", "Watson-Coleman",
-  "Adrian", "Espaillat", "Espaillet",
+  "Adrian", "Espaillet", "Espaillat",
   "Tony", "O'Halleran", "O'Holleran",
   "Anthony", "BRINDISI", "Brindis",
   "Lisa", "BLUNT ROCHESTER", "BLUNT-ROCHESTER",
@@ -323,7 +323,7 @@ typos_first <- tribble(
   "John", "Thune", "Jon",
   "Vicente", "Gonzalez", "Vincente",
   "Emanuel", "Cleaver", "(EMAUNEL|Emmanuel)",
-  "Adrian", "Espaillat", "Adriano",
+  "Adriano", "Espaillat", "Adrian",
   "Cory", "Gardner", "Corey",
   "Maria", "Cantwell", "Marie"
 
