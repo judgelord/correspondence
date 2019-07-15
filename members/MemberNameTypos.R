@@ -127,7 +127,7 @@ typos_last <- tribble(
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
   "Charles", "Rangel", "Ranger",
-  "Christopher", "Van Hollen", "(VanHollen|Van Kollen|Van Hollen|Van|Hollen)", 
+  "Christopher", "Van Hollen", "(VANHOLLEN|Van Kollen|Van Hollen|Van|Hollen)", 
   "Gary", "Ackerman", "Acherman",
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
