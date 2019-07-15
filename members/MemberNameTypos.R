@@ -155,7 +155,7 @@ typos_last <- tribble(
   "James","Barrett", "(Barrat|Barret)",
   "Lucille", "ROYBAL-ALLARD", "(Allard|Roybal)",
   "James", "Barrett", "(GRESHAM|BARRETT)",
-  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO|Cortez Mastro|Cortez Nasto)",
+  "Catherine", "CORTEZ MASTO", "(CORTEZ|MASTO|MATSO|Cortez Mastro|Cortez Nasto|Cortez-Masto)",
   "Thomas","Coburn","(Cobum|Co bum)",
   "Trent", "Kelly", "Key",
   "Robin", "Kelly", "Key",
