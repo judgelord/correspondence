@@ -56,7 +56,8 @@ data %<>%
       mutate(FROM = str_replace(FROM, "KAMALA DAVIS", "Kamala HARRIS")) %>%
       mutate(FROM = str_replace(FROM, "MIKE BROWN", "Michael BRAUN")) %>% 
       mutate(FROM = str_replace(FROM, "J. FORBES", "J. Randy FORBES")) %>%
-      mutate(FROM = str_replace(FROM, "BONO MACK MARY", "MARY MACK BONO"))
+      mutate(FROM = str_replace(FROM, "BONO MACK MARY", "MARY MACK BONO")) %>%
+      mutate(FROM = str_replace(FROM, "ADRIAN ESPAILLET", "Adriano Espaillat"))
      
     data %<>%
       mutate(FROM = ifelse(str_detect(FROM, "J FORBES") & str_detect(chamber, "House"), str_replace(FROM, "J FORBES", "James FORBES"), FROM)) %>%
