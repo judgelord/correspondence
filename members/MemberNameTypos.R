@@ -36,9 +36,6 @@ typos_clear <- tribble(
   "McCaskill ", "McCaskil ",
   "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
   "Herrera Beutler", "(Herrera|Beutler|Herrera-Beutler|Harrera Beutler)", 
-  # FIXME #  last names hypenation can be a clear typo, but we can't just replace "Schultz"--that needs to be a last name typo (otherwise "Debbie Wasserman Schultz" will be replaced with "Debbie Wasserman Wasserman Schultz" and fail to match)
-  # I deleted "Schultz" and moved it to a last name typos, but we may still have problems replacing "Wasserman-" like this (for example, "Wasserman-Schultz, Debbie" would be replaced with "Wasserman SchultzSchultz, Debbie and thus fail to match)
-  "Wasserman Schultz", "(Wasserman Shultz|Wasserman-Schultz|Wasserman-S|Wasserman-)",
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
@@ -217,7 +214,9 @@ typos_last <- tribble(
   "Mark", "Bennet", "Bennett",
   "Shelley", "Moore Capito", "(Moore|Capito)",
   "Jeanne", "Shaheen", "(Shaneen|Shahenn)",
-  "Debbie", "Schultz", "Wasserman Schultz",
+  "Debbie", "Wasserman Schultz", "(Schultz|Wasserman Shultz|Wasserman-Schultz|Wasserman-S|Wasserman-|Wasserman)",   
+  # FIXME #  last names hypenation can be a clear typo, but we can't just replace "Schultz"--that needs to be a last name typo (otherwise "Debbie Wasserman Schultz" will be replaced with "Debbie Wasserman Wasserman Schultz" and fail to match)
+  # I deleted "Schultz" and moved it to a last name typos, but we may still have problems replacing "Wasserman-" like this (for example, "Wasserman-Schultz, Debbie" would be replaced with "Wasserman SchultzSchultz, Debbie and thus fail to match)
   "William", "Keating", "Keeting",
   "Mike", "Crapo", "Carpo",
   "Mark", "Desaulnier", "Desauliner",
@@ -315,7 +314,7 @@ typos_first <- tribble(
   "Joe", "Barton", "Joel",
   "Christopher","Smith","C. NJ",
   "Richard", "Durbin", "Richad",
-  "Debbie", "Schultz", "Debbies",
+  "Debbie", "Wasserman Schultz", "Debbies",
   "David", "Kustoff", "Davis",
   "Conor", "Lamb", "Connor",
   "Rob", "Woodall", "Rod",
