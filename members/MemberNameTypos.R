@@ -323,7 +323,8 @@ typos_first <- tribble(
   "Emanuel", "Cleaver", "(EMAUNEL|Emmanuel)",
   "Adriano", "Espaillat", "Adrian",
   "Cory", "Gardner", "Corey",
-  "Maria", "Cantwell", "Marie"
+  "Maria", "Cantwell", "Marie",
+  "Jim", "Himes", "Jim"
 
  
   
