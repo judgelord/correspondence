@@ -102,7 +102,11 @@ data$FROM %<>%
 
   ################
   
-  data <- getFirstLast.Comma(data, 'FROM')
+data <- getFirstLast.Comma(data, 'FROM')
+
+
+#Extract Member names #causing about 4000 errors
+#data <-  extractMemberName(data,members,"FROM")
 
 #Membership Errors
 data %<>%
