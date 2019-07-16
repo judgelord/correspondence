@@ -212,7 +212,7 @@ typos_last <- tribble(
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
-  "Shelley", "Moore Capito", "(Moore|Capito)",
+  "Shelley", "Moore Capito", "(Moore|Capito|MooreCapito|Moore-Capito)",
   "Jeanne", "Shaheen", "(Shaneen|Shahenn)",
   "Debbie", "Wasserman Schultz", "(Schultz|Wasserman Shultz|Wasserman-Schultz|Wasserman-S|Wasserman-|Wasserman)",   
   # FIXME #  last names hypenation can be a clear typo, but we can't just replace "Schultz"--that needs to be a last name typo (otherwise "Debbie Wasserman Schultz" will be replaced with "Debbie Wasserman Wasserman Schultz" and fail to match)
