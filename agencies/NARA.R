@@ -55,7 +55,8 @@ clean <- function(file.name) {
     mutate(FROM = ifelse(FROM == "Sen. Steve Daines", str_replace(FROM, "Sen. Steve Daines", "Senator DAINES"), FROM)) %>%
     mutate(FROM = ifelse(FROM == "Rep. Kyrsten Sinema", str_replace(FROM, "Rep. Kyrsten Sinema", "Representative SINEMA"), FROM)) %>%
     mutate(FROM = ifelse(FROM == "Sen. Kyrsten Sinema", str_replace(FROM, "Sen. Kyrsten Sinema", "Senator SINEMA"), FROM)) %>%
-    mutate(FROM = ifelse(FROM == "Sen. Todd Young", str_replace(FROM, "Sen. Todd Young", "Senator YOUNG"), FROM))
+    mutate(FROM = ifelse(FROM == "Sen. Todd Young", str_replace(FROM, "Sen. Todd Young", "Senator YOUNG"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "Sen. Cory Gardner", str_replace(FROM, "Sen. Cory Gardner", "Senator GARDNER"), FROM))
     
     
 
