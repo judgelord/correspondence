@@ -51,40 +51,62 @@ clean <- function(file.name) {
   data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
   
   #Extract members from SUBJECT
-  Nomembers <- data %>%
-    filter(is.na(FROM)) %>%
-    extractMemberName(members = members, col_name = "SUBJECT") %>%
-    filter( ! str_detect(SUBJECT, " LETTER TO THE HONORABLE ANNA ESHOO ")) %>%
-    drop_na(last_name)
+  #Nomembers <- data %>%
+   # filter(is.na(FROM)) %>%
+    #extractMemberName(members = members, col_name = "SUBJECT") %>%
+    #filter( ! str_detect(SUBJECT, " LETTER TO THE HONORABLE ANNA ESHOO ")) %>%
+    #drop_na(last_name)
+  
+  #Making chamber NA for "HOUSE AND SENATE"
+  is.na(data$chamber) <- data$chamber == "HOUSE AND SENATE"
   
   #Extract members in FROM
   data <- extractMemberName(data, members, 'FROM')
   
-  #Join both datasets
   data %<>%
-    full_join(Nomembers)
+    mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", FROM))
+  
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(first_name),
+           is.na(NOTES))
+  
+  data %<>%
+    mutate(FROM = ifelse(! str_detect(FROM, " ") & is.na(last_name) & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM )) %>%
+    mutate(FROM = ifelse(! str_detect(FROM, " ") & is.na(last_name) & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM ))
+ 
+  #Extract members in FROM
+  data <- extractMemberName(data, members, 'FROM')
+  
+   #Join both datasets
+  #data %<>%
+   # full_join(Nomembers)
+  
+  #Filter for unfoundnames
+  #Unmatchednames <- data %>%
+   # filter(is.na(last_name))
   
   #Format last_names
-  data %<>%
-    mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
+  #data %<>%
+   # mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
   
   #Subset data for observations with no first name and no chamber
-  NoChamber <- data %>%
-    filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
+  #NoChamber <- data %>%
+   # filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
  
-   data %<>%
-    anti_join(NoChamber)
+   #data %<>%
+    #anti_join(NoChamber)
  
   #Add first name to observations without chamber  
- NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
+ #NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
  
  # arrange columns for hand coding
- NoChamber %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
+ #NoChamber %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
  
  #Rejoin datasets
- data %<>%
-   full_join(NoChamber)
+ #data %<>%
+  # full_join(NoChamber)
   
   
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
@@ -97,8 +119,9 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
   
-  #Making chamber NA for "HOUSE AND SENATE"
-  is.na(data$chamber) <- data$chamber == "HOUSE AND SENATE"
+  
+  unmatched2 <- data %>%
+    filter(is.na(last_name))
 
 #Check NAs after merge  
 #unmatched <- d %>%
