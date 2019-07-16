@@ -19,7 +19,12 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE  <- gsub(" .*", "", data$DATE)
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% multidate(c("%m-%d-%y","%m/%d/%y"))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -96,9 +101,20 @@ clean <- function(file.name) {
   
   
 
-  # extract member names
+  #extract member names
   data %<>%
-    getFirstLast.Comma("FROM")
+   getFirstLast.Comma("FROM")
+  
+  #Extract Member names, created more errors than getFirstLast
+  #data <-  extractMemberName(data,members,"FROM") 
+  
+  #Check for Duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "))
 
  
 data %<>%
