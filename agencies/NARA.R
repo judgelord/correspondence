@@ -36,8 +36,8 @@ clean <- function(file.name) {
   
   
   # #Format Typo
-  # data %<>%
-  #   mutate(FROM = str_replace(FROM, "Neugebauer", "Randy Neugebauer")) %>%
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Neugebauer", "Randy Neugebauer"))
 
 
   #create year and congress columns
@@ -68,7 +68,7 @@ clean <- function(file.name) {
 
    # 
    # sample <- data %>%
-   # filter(is.na(last_name))
+   # filter(is.na(DATE))
    # View(sample)
   ##for testing date and names
   
