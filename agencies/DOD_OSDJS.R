@@ -29,13 +29,24 @@ clean <- function(file.name) {
   data$FROM <- gsub("\\\\1", "VI", data$FROM)
   
   data$last_name <-  gsub("(.*)(,|\\.)(.*)", "\\1", data$FROM)
-  data$last_name <- formatLastName(data, 'last_name')
+  
+  #data$last_name <- formatLastName(data, 'last_name')
+  
+  #Extract Member names (New edit from formatLastName)
+  data <-  extractMemberName(data,members,"FROM") 
   
   data$first_initial <- gsub("(.*)(,|\\.)(.*)", "\\3", data$FROM)
   
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, 
                               gsub("^(\\w+)(\\w| \\w)$", '\\1', last_name)))
+  
+  #checking for names that are NA
+  unfoundnames<- data %>%
+    filter(is.na(last_name))
+  
+  unfoundnames %<>%
+    select(ID, DATE, FROM, SUBJECT, last_name, everything())
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())

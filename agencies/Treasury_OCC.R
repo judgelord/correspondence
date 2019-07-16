@@ -49,6 +49,13 @@ clean <- function(file.name) {
   # create variable for first and last name
  data <- getFirstLast.Comma(data, "FROM")
  data$first_name <- formatFirstName(data, "first_name")
+ 
+ #finding unfound names
+ unfoundnames<- data %>%
+   filter(is.na(last_name))
+ 
+ unfoundnames %<>%
+   select(ID, DATE, FROM, SUBJECT, last_name, everything())
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
