@@ -7,14 +7,11 @@ clean <- function(file.name) {
   # unlike other clean scripts, we load FERC data from Rdata rather than google drive
   # FIXME # FERC data should be put on google drive
   load("data/DOE_FERC-letters-coded.Rdata")
-  
-  # create agency column
-  data$agency <- "DOE_FERC"
-
-  data <- FERC_letters %>%
-    select(members,SUBJECT,everything())# %>% top_n(1000)
  
   data <- ungroup(FERC_letters)
+ 
+   # create agency column
+  data$agency <- "DOE_FERC"
 
 
   
