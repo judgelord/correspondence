@@ -78,36 +78,6 @@ clean <- function(file.name) {
   #Extract members in FROM
   data <- extractMemberName(data, members, 'FROM')
   
-   #Join both datasets
-  #data %<>%
-   # full_join(Nomembers)
-  
-  #Filter for unfoundnames
-  #Unmatchednames <- data %>%
-   # filter(is.na(last_name))
-  
-  #Format last_names
-  #data %<>%
-   # mutate(last_name = ifelse(is.na(data$last_name), formatLastName(data, 'FROM'), last_name))
-  
-  #Subset data for observations with no first name and no chamber
-  #NoChamber <- data %>%
-   # filter(str_detect(chamber, "HOUSE AND SENATE") & is.na(first_name))
- 
-   #data %<>%
-    #anti_join(NoChamber)
- 
-  #Add first name to observations without chamber  
- #NoChamber$first_name <- addFirst(NoChamber$first_name,NoChamber$last_name)
- 
- # arrange columns for hand coding
- #NoChamber %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
-  
- 
- #Rejoin datasets
- #data %<>%
-  # full_join(NoChamber)
-  
   
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
