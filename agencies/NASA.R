@@ -50,12 +50,6 @@ clean <- function(file.name) {
   
   data$FROM <- gsub("(^| )(EB|E\\.B\\.) ", "Eddie ", data$FROM)
   
-  #Extract members from SUBJECT
-  #Nomembers <- data %>%
-   # filter(is.na(FROM)) %>%
-    #extractMemberName(members = members, col_name = "SUBJECT") %>%
-    #filter( ! str_detect(SUBJECT, " LETTER TO THE HONORABLE ANNA ESHOO ")) %>%
-    #drop_na(last_name)
   
   #Making chamber NA for "HOUSE AND SENATE"
   is.na(data$chamber) <- data$chamber == "HOUSE AND SENATE"
@@ -88,31 +82,7 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", NOTES))
-  
-  Unfoundnames <- data %>%
-    filter(is.na(last_name))
-  
-  #data %<>%
-   # drop_na(last_name)
-  
-  #data %<>%
-  #anti_join(Unfoundnames)
-  
-  #Extract members in FROM
-  #Unfoundnames <- extractMemberName(Unfoundnames, members, 'SUBJECT')
-  
-  #Unfoundnames2 <- Unfoundnames %>%
-   # filter(is.na(last_name))
-  
-  #Unfoundnames %<>%
-    #drop_na(last_name)
-  
-  #data %<>%
-   # full_join(Unfoundnames)
-  
-  unnamed <- data %>%
-    filter(is.na(last_name))
-  
+
 
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
@@ -124,13 +94,12 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, first_name, last_name, everything())
   
   
-  
-  unmatched2 <- data %>%
+  Unfoundnames <- data %>%
     filter(is.na(last_name))
 
 #Check NAs after merge  
-unmatched <- d %>%
- filter(is.na(bioname))
+#unmatched <- d %>%
+# filter(is.na(bioname))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|LAUNCH PASSES|EMPLOYEE SEEKS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
