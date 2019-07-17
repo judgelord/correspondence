@@ -94,7 +94,7 @@ clean <- function(file.name) {
            is.na(first_name),
            is.na(NOTES))
   
-  #data %<>%
+  data %<>%
   anti_join(Unfoundnames)
   
   #Extract members in FROM
