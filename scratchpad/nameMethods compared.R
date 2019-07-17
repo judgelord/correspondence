@@ -1,6 +1,6 @@
 
 # a 5% sample 
-sample <- sample_frac(data, .05)
+sample <- sample_frac(data, .01)
 
 # run both methods
 method_1 <- sample %>% extractMemberNameOld(members, "FROM") %>% mutate(method = 1, ID = as.numeric(ID))
