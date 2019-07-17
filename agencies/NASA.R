@@ -60,11 +60,34 @@ clean <- function(file.name) {
   #Making chamber NA for "HOUSE AND SENATE"
   is.na(data$chamber) <- data$chamber == "HOUSE AND SENATE"
   
+  #Trim White Space
+  data %<>%
+    mutate(FROM = str_trim(FROM))
+  
+  #Paste chamber into FROM column
+  data %<>%
+    mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM )) %>%
+    mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM ))
+  
+  #Typos
+  data %<>%
+    mutate(FROM = str_replace(FROM, "LUHAN", "LUJAN"))
+  
+  #Format Typos
+  data %<>%
+    mutate(FROM = ifelse(FROM == "JACKSON LEE", str_replace(FROM, "JACKSON LEE", "Sheila JACKSON LEE"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "VAN HOLLEN", str_replace(FROM, "VAN HOLLEN", "Christopher VAN HOLLEN"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "WATSON COLEMAN", str_replace(FROM, "WATSON COLEMAN","Bonnie WATSON COLEMAN"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "WASSERMAN SCHULTZ", str_replace(FROM, "WASSERMAN SCHULTZ", "Debbie WASSERMAN SCHULTZ"), FROM))
+  
+  NOChamber <- data %>%
+    filter(is.na(chamber))
+  
   #Extract members in FROM
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
-    mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", FROM))
+    mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", NOTES))
   
   Unfoundnames <- data %>%
     filter(is.na(last_name),
@@ -72,13 +95,21 @@ clean <- function(file.name) {
            is.na(NOTES))
   
   data %<>%
-    mutate(FROM = ifelse(! str_detect(FROM, " ") & is.na(last_name) & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM )) %>%
-    mutate(FROM = ifelse(! str_detect(FROM, " ") & is.na(last_name) & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM ))
- 
+  anti_join(Unfoundnames)
+  
   #Extract members in FROM
-  data <- extractMemberName(data, members, 'FROM')
+  Unfoundnames <- extractMemberName(data, members, 'SUBJECT')
   
+  Unfoundnames2 <- data %<>%
+    filter(is.na(last_name))
   
+  data %<>%
+    full_join(Unfoundnames)
+  
+  unnamed <- data %>%
+    filter(is.na(last_name))
+  
+
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
   data <- data[!data$last_name == "",] # removes blank observations
   
