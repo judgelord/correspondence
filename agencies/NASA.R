@@ -90,24 +90,25 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", NOTES))
   
   Unfoundnames <- data %>%
-    filter(is.na(last_name),
-           is.na(first_name),
-           is.na(NOTES))
+    filter(is.na(last_name))
   
-  data %<>%
-  anti_join(Unfoundnames)
+  #data %<>%
+   # drop_na(last_name)
+  
+  #data %<>%
+  #anti_join(Unfoundnames)
   
   #Extract members in FROM
-  Unfoundnames <- extractMemberName(data, members, 'SUBJECT')
+  #Unfoundnames <- extractMemberName(Unfoundnames, members, 'SUBJECT')
   
-  Unfoundnames2 <- Unfoundnames %>%
-    filter(is.na(last_name))
+  #Unfoundnames2 <- Unfoundnames %>%
+   # filter(is.na(last_name))
   
   #Unfoundnames %<>%
     #drop_na(last_name)
   
-  data %<>%
-    full_join(Unfoundnames)
+  #data %<>%
+   # full_join(Unfoundnames)
   
   unnamed <- data %>%
     filter(is.na(last_name))
@@ -128,8 +129,8 @@ clean <- function(file.name) {
     filter(is.na(last_name))
 
 #Check NAs after merge  
-#unmatched <- d %>%
- #filter(is.na(bioname))
+unmatched <- d %>%
+ filter(is.na(bioname))
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT|LAUNCH PASSES|EMPLOYEE SEEKS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
