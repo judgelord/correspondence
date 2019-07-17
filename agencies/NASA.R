@@ -94,14 +94,17 @@ clean <- function(file.name) {
            is.na(first_name),
            is.na(NOTES))
   
-  data %<>%
+  #data %<>%
   anti_join(Unfoundnames)
   
   #Extract members in FROM
   Unfoundnames <- extractMemberName(data, members, 'SUBJECT')
   
-  Unfoundnames2 <- data %<>%
+  Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name))
+  
+  #Unfoundnames %<>%
+    #drop_na(last_name)
   
   data %<>%
     full_join(Unfoundnames)
