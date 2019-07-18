@@ -27,6 +27,7 @@ clean <- function(file.name) {
   # create variable for first and last name
   #data <- getFirstLast.Comma(data, "FROM")
   
+  #extractmemberName works better than getFirstLast
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
