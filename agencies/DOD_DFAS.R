@@ -25,13 +25,22 @@ clean <- function(file.name) {
 
   
   # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  #data <- getFirstLast.Comma(data, "FROM")
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^None$',FROM, ignore.case = T), 'None provided in FROM column', ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber,  everything())
+  
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MILITARY PAY|CIVILIAN PAY|TRAVEL PAY", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
