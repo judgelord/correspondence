@@ -5,6 +5,7 @@ typos_clear <- tribble(
   ~correct, ~typos,
   "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
+  "Lujan", "Luj.n",
   "TONKO", "TONKA",
   "Darrell Issa", "DarrellIssa",
   "Phil ", "Phill ", # I added a space because it seems risky to match Phill...
