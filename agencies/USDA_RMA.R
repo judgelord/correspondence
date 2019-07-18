@@ -83,12 +83,19 @@ clean <- function(file.name) {
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
   
+  #data <- extractMemberName(data, members, 'FROM')
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
   
   # add ERROR notes
   data %<>%
     mutate(ERROR = ifelse(grepl("Congress", data$FROM), "Not valid name info", ERROR))
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   
   
