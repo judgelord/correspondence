@@ -48,12 +48,20 @@ clean <- function(file.name) {
   
   # create variable for first and last name
   data$last_name <- formatLastName(data, 'FROM')
+  
+  #data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name,
                               gsub("(^\\w+) .*", replacement = "\\1", last_name )))
   
   
   data$state <- stateFromLower(data$State)
+  
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
