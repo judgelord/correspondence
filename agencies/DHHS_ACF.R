@@ -44,10 +44,18 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, "FROM")
   
+  #Comparing getFirstLast and extractMemberName
+  #data <- extractMemberName(data, members, 'FROM')
+  
   data %<>% mutate(SUBJECT = paste(SUBJECT, `Refd. To`, `Action Required`))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   
   data %<>%

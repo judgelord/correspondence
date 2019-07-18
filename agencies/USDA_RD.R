@@ -43,6 +43,10 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
+  #comparison between getFirstLast and extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
   
 
     
@@ -128,6 +132,12 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl("^White House Referral$",data$FROM), "White House Referral", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^National Office Referral$",data$FROM), "National Office Referral", ERROR))
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   
   
   
