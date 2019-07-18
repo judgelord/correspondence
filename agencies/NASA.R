@@ -72,7 +72,10 @@ clean <- function(file.name) {
     mutate(FROM = ifelse(FROM == "JACKSON LEE", str_replace(FROM, "JACKSON LEE", "Sheila JACKSON LEE"), FROM)) %>%
     mutate(FROM = ifelse(FROM == "VAN HOLLEN", str_replace(FROM, "VAN HOLLEN", "Christopher VAN HOLLEN"), FROM)) %>%
     mutate(FROM = ifelse(FROM == "WATSON COLEMAN", str_replace(FROM, "WATSON COLEMAN","Bonnie WATSON COLEMAN"), FROM)) %>%
-    mutate(FROM = ifelse(FROM == "WASSERMAN SCHULTZ", str_replace(FROM, "WASSERMAN SCHULTZ", "Debbie WASSERMAN SCHULTZ"), FROM))
+    mutate(FROM = ifelse(FROM == "WASSERMAN SCHULTZ", str_replace(FROM, "WASSERMAN SCHULTZ", "Debbie WASSERMAN SCHULTZ"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "MOORE CAPITO", str_replace(FROM, "MOORE CAPITO", "Shelley Moore Capito"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "LUJAN. GRISHAM|LUJ��N GRISHAM", str_replace(FROM, "LUJAN. GRISHAM|LUJ��N GRISHAM","Michelle LUJAN"), FROM))
+   # mutate(FROM = ifelse(FROM == "Representative COBURN", ))
   
   NOChamber <- data %>%
     filter(is.na(chamber))
@@ -95,7 +98,16 @@ clean <- function(file.name) {
   
   
   Unfoundnames <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name),
+           str_detect(pattern, "404error"),
+           is.na(NOTES))
+  
+  #FOIA
+data %<>%
+  mutate(NOTES = ifelse(FROM == "Representative ROGERS", "Multiple Rogers FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(FROM == "JAMES PAUL", "FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(FROM == "Representative MARTINEZ", "FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(FROM == "Representative THOMPSON", "Multiple Thompson's FOIA", NOTES))
 
 #Check NAs after merge  
 #unmatched <- d %>%
