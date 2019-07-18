@@ -85,7 +85,7 @@ clean <- function(file.name) {
 
 
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
-  data <- data[!data$last_name == "",] # removes blank observations
+  #data <- data[!data$last_name == "",] # removes blank observations
   
   data %<>%
     mutate(ERROR = ifelse(grepl("^(AND|STATE)$",FROM), 'Inspect', ERROR))
