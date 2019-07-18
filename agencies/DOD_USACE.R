@@ -37,6 +37,11 @@ clean <- function(file.name) {
   data$first_name <- NA
   data$first_name <- addFirst(data$first_name,data$last_name)
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
 
 data %<>% select(DATE, originalDATE, SUBJECT, last_name, chamber, everything())  
   
