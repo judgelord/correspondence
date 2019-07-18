@@ -26,6 +26,15 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
+  #getfirstlast runs better than extractmembername
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   # format state variable
   data$state <- stateFromLower(gsub(".*\\(.-|\\)","", data$FROM))
   
