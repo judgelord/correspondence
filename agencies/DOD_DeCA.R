@@ -28,6 +28,15 @@ clean <- function(file.name) {
   # create variable for  last name
   data$last_name <- formatLastName(data, 'FROM')
   
+  #getfirstlast runs better than extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM') 
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
   
