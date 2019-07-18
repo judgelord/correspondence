@@ -20,6 +20,19 @@ clean <- function(file.name) {
 
   data <- getFirstLast.Comma(data, 'FROM')
   
+  #Possibly change to extractMemberName
+  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Check for duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE, FROM) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "),
+           first_name = str_c(first_name, collapse = "; ")) 
+  
+  
   data %<>%
   mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^(Miscellaneous|MICELLANIOUS)$", FROM, ignore.case=T), "Miscellaneous", ERROR))
@@ -27,6 +40,11 @@ clean <- function(file.name) {
 
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("INJURY COMPENSATION|LOST MAIL REPORTS|EMPLOYEE|RETIREMENT ISSUES|DELAYED MAIL|ACCESSIBILITY|FOIA|FORWARDING|ZIPCODES|INDEMNITY|PRIORITY MAIL|LOBBY SERVICE|COLLECTION|FRAUD|REASSIGNMENT|REINSTATEMENT|SPECIAL SERVICES|HARDSHIP DELIVERY|PERIODICALS|MAIL DELIVERY TIME|LEGAL ISSUES|SELECT|POST OFFICE BOXES|MAILABILITY|EEO|PHILATELIC|MISC", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
