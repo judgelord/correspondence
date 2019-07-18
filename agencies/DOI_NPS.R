@@ -55,6 +55,15 @@ clean <- function(file.name) {
   # names 
   data <- getFirstLast.Comma(data, 'FROM')
   
+  #Getfirstlast runs better than extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   # data$last_name <- ifelse(grepl("^^(\\w+)$", data$FROM), formatLastName(data, 'FROM'), data$last_name)  # THIS DOES NOT LOOK RIGHT, TAKING IT OUT
   
   data %<>%
