@@ -25,13 +25,19 @@ clean <- function(file.name) {
   
   
   # create variable for full name
-  data$FROM <- data$X3
+  
+  #data$FROM <- data$X3
   data <- getFirstLast.Comma(data, "FROM")
   
   
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,`Refd. To`)) %>% 
