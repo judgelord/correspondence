@@ -62,6 +62,11 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM,  chamber, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
+  
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,Category)) %>% 
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|NATURALIZATION ISSUE|GREEN CARD|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|CONSTITUENT COMPLAINT|);|DENIED|REIMBURSEMENT|TIP|CASEWORK",SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
