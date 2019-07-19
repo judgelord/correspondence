@@ -90,7 +90,10 @@ clean <- function(file.name) {
   # merge the two separated datasets
   data <- full_join(data,data2)
   
-  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   
   # arrange columns for hand coding

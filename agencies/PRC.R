@@ -48,6 +48,11 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   data %<>% 
   mutate(SUBJECT = paste(SUBJECT,Sub_Issue)) %>%
   mutate(SUBJECT = paste(SUBJECT,Issue)) %>%

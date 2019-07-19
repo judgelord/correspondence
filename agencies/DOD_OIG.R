@@ -47,6 +47,16 @@ clean <- function(file.name) {
   data$first_name <- addFirst(data$first_name,data$last_name)
   
   
+  #formatlastname works way better than extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
+  
   
   data$SUBJECT <- data$SUBJECT
   

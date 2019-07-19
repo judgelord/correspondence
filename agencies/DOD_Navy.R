@@ -32,13 +32,20 @@ clean <- function(file.name) {
   # create variable for first and last name
   data <- getFirstLast.Comma(data, "FROM")
   
+  #getFirstLast runs better than extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
   
   data %<>%
     mutate(last_name = ifelse(grepl('^(\\w+)$',FROM2), FROM, last_name))
   
   data$first_name <- addFirst(data$first_name,data$last_name)
   
-  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())

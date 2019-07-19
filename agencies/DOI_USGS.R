@@ -30,6 +30,15 @@ clean <- function(file.name) {
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
   
+  #formatLast_name works better than extractmembername
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(`Last Name`),
+           is.na(ERROR))  
+  
   #create variable for chamber
   data %<>%
     mutate(chamber = ifelse (grepl("Senator|Senate", Salutation), "Senate", NA)) %>% 

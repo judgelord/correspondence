@@ -50,6 +50,10 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
 
+  #getfirstlast works better than extractmembername
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
@@ -57,6 +61,11 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))  
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMPLAINT|WRONGFUL|HARASS|TERMINATION|UNFAIR|DISCRIMINATION|REQUEST|IBM|AFFIRMATIVE ACTION|DISABLED|VIOLATION|ASSISTANCE|LAID OFF|TERMINATED|DENIED|DISABILITY|COVERED PENSION|EMPLOYER CONTRIBUTIONS|SUBSIDY|NEED JOB|FIRED|PAY CHECK|INSURANCE|ISSUE WITH|INJURED|HIRING PRACTICES", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
