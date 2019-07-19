@@ -76,6 +76,9 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
+  ##extractmemberName takes longer and is worse than getFirstLast
+  #data <- extractMemberName(data, members, 'FROM')
+  
   # #Create variable for chamber position  (Senator or Representative)
   # data %<>%
   #   mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
@@ -97,7 +100,10 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
 
-  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
 }
 
