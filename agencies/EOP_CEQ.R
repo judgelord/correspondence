@@ -40,7 +40,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "Member of Congress|Congressman"),
                             "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States|Reps.") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
+    mutate(chamber = ifelse(str_detect(FROM, "Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House- | - House|Representative |Congress of the United States|Reps.|Congres") & ! str_detect(FROM, "\\(Sen|Sen\\.|Senator"),
                             "House", chamber))
   
 data %<>%
@@ -63,7 +63,9 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Tom Coburm", "Tom Coburn")) %>%
   mutate(FROM = str_replace(FROM, "Feinsteinn", "Feinstein")) %>%
   mutate(FROM = str_replace(FROM, "Bluauer", "BLUMENAUER")) %>%
-  mutate(FROM = str_replace(FROM, "Fleischmann \\(White Referral\\)", "Fleischmann"))
+  mutate(FROM = str_replace(FROM, "Fleischmann \\(White Referral\\)", "Fleischmann")) %>%
+  mutate(FROM = str_replace(FROM, "Congres Stivers", "Steve STIVERS")) %>%
+  mutate(FROM = str_replace(FROM, "Garadi", "GARAMENDI"))
 
 #Match on Chamber
 data %<>%
@@ -88,7 +90,8 @@ data %<>%
   mutate(NOTES = ifelse(str_detect(FROM, "Representative DIAZ-BALART"), "Multiple Diaz-Balart's FOIA", NOTES)) %>%
   mutate(NOTES = ifelse(str_detect(FROM, "Representative McCarthy"), "Multiple McCarthy's FOIA", NOTES)) %>%
   mutate(NOTES = ifelse(str_detect(FROM, "Representative Price"), "Multiple Price's FOIA", NOTES)) %>%
-  mutate(NOTES = ifelse(str_detect(FROM, "Senator Nelson"), "Multiple Nelson's FOIA", NOTES))
+  mutate(NOTES = ifelse(str_detect(FROM, "Senator Nelson"), "Multiple Nelson's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative Young"), "Multiple Young's FOIA", NOTES))
 
 #Duplicate List
 data %<>%
@@ -104,18 +107,15 @@ data %<>%
 data %<>% 
   filter(! FROM == "" & ! SUBJECT == "")
 
+#Multiple unnamed members
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other||12 Members|17 Other Members|Seventeen \\(17\\) other Members"), "Multiple Unnamed Members", NOTES))
+
 #Unfoundnames
 Unfoundnames <- data %>%
   filter(is.na(last_name),
          is.na(NOTES),
          is.na(ERROR))
-
-
-
-data %<>%
-  mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other|"), "Multiple Unnamed Members", NOTES))
-
-
 
 #Check after run through merge
 #Unfoundnames <- d %>%
