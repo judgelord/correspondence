@@ -106,7 +106,9 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "SHERROD BROWN") & is.na(last_name), "Sherrod Brown Duplcate", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "RON JOHNSON") & is.na(last_name), "Ron Johnson Duplicate", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Christopher VAN HOLLEN") & is.na(last_name), "Van Hollen", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Christopher VAN HOLLEN") & is.na(last_name), "Van Hollen Duplicate", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Senator WARNER") & is.na(last_name), "Warner Duplicate", NOTES)) %>%
+    mutate(NOTES = ifelse(FROM == "Representative GONZALEZ" & is.na(last_name), "Gonzalez Duplicate", NOTES))
 
 
   data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
@@ -125,7 +127,9 @@ data %<>%
   mutate(NOTES = ifelse(FROM == "JAMES PAUL", "FOIA", NOTES)) %>%
   mutate(NOTES = ifelse(FROM == "Representative MARTINEZ", "FOIA", NOTES)) %>%
   mutate(NOTES = ifelse(FROM == "Representative THOMPSON", "Multiple Thompson's FOIA", NOTES)) %>%
-  mutate(NOTES = ifelse(FROM == "Representative BROOKS" & ! str_detect(congress, "112"), "Multiple Brooks FOIA", NOTES))
+  mutate(NOTES = ifelse(FROM == "Representative BROOKS" & ! str_detect(congress, "112"), "Multiple Brooks FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(FROM == "Representative HALL" &  str_detect(congress, "110|111"), "Multiple Hall's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(FROM == "Representative KELLY" &  ! str_detect(congress, "112"), "Multiple Kelly's FOIA", NOTES))
   
 
 
