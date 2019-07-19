@@ -41,6 +41,10 @@ clean <- function(file.name) {
   
   
   data <- getFirstLast.Comma(data, 'FROM')
+  
+  #getFirstLast runs better than extractmembername
+  
+  #data <- extractMemberName(data, members, 'FROM')
  
   
   #Create variable for chamber position  (Senator or Representative)
@@ -51,7 +55,12 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, everything())
   
- 
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   
   
   
