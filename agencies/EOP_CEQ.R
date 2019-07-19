@@ -31,7 +31,8 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee"), "Committee", NOTES))
-  #Split
+ 
+   #Split
   data %<>%
     mutate(FROM = str_split(FROM, "\\,| and|\\/|\\&")) %>%
     unnest(FROM)
@@ -45,58 +46,76 @@ clean <- function(file.name) {
 data %<>%
   mutate(FROM = str_remove_all(FROM, "Coastal States Caucus|Arizona Delegation|Senate|SD|-Land Conservation Caucus|US|AK|NH|US of|United States|U.S. |et al.|WA|from|US of|IL|men|II|CA Congreesmen|AK Reps|Hispanic Caucus Institute|Arizona Delegation|Congresional Hispanic Caucus Inst|Sen\\.|Senator|Senate- |Senate Majority Leader|Member of Congress|Congressman|House |Congresswoman |Rep\\. |Rep |SoH: |House-| - House|Representative |Congress of the United States|Hon. |\\'s Office|Sen |United States Senate|US Senate|the Hon |Reps.|Congressional|Congress|of Reps|Representative |Representatives|Majority Leader |-|Reps | \\(White Referral\\)|Members of Coingress |Congres "))
 
+#Trim White Space
+data %<>%
+  mutate(FROM = str_trim(FROM))
 
-data <- getFirstLast.Comma(data, col_name = "FROM")
+#Chamber errors
+data %<>%
+  mutate(chamber = ifelse(str_detect(FROM, "Capps|Welch"), str_replace(chamber, "Senate", "House"), chamber))
 
+#Name Typos
+data %<>%
+  mutate(FROM = str_replace(FROM, "Henry Reid", "Harry REID")) %>%
+  mutate(FROM = str_replace(FROM, "Don You", "Don YOUNG")) %>%
+  mutate(FROM = str_replace(FROM, "DiazBalart", "DIAZ-BALART")) %>%
+  mutate(FROM = ifelse(FROM == "Capp", str_replace(FROM, "Capp", "CAPPS"), FROM)) %>%
+  mutate(FROM = str_replace(FROM, "Tom Coburm", "Tom Coburn")) %>%
+  mutate(FROM = str_replace(FROM, "Feinsteinn", "Feinstein")) %>%
+  mutate(FROM = str_replace(FROM, "Bluauer", "BLUMENAUER")) %>%
+  mutate(FROM = str_replace(FROM, "Fleischmann \\(White Referral\\)", "Fleischmann"))
+
+#Match on Chamber
+data %<>%
+  mutate(FROM = ifelse(str_detect(FROM, "Timothy Johnson") & congress == 112, str_replace(FROM, "Timothy Johnson", "Tim V JOHNSON"), FROM))
+
+#Paste chamber into FROM
+data %<>%
+  mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM )) %>%
+  mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM ))
+
+#Extract members in FROM
+data <- extractMemberName(data, members, 'FROM')
 
 
 data %<>% select(ID, DATE, FROM, everything())  
 
+#FOIA List
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative Miller"), "Multiple Miller's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Senator Kirk"), "Multiple Kirk's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative Thompson"), "Multiple Thompson's FOIA", NOTES)) %>% #Members of ocean policy task force may not need to FOIA
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative DIAZ-BALART"), "Multiple Diaz-Balart's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative McCarthy"), "Multiple McCarthy's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative Price"), "Multiple Price's FOIA", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Senator Nelson"), "Multiple Nelson's FOIA", NOTES))
+
+#Duplicate List
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Donna Edwards") & is.na(last_name), "Donna Edwards Duplicate", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Edward J Markey") & is.na(last_name), "Markey Duplicate", NOTES))
+
+#Not members
+data %<>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Darrell Steinberg|Peter Umhofer"), "Not Member", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Kim Carr"), "Australian Politician", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Representative Granholm|Dale Zorn|Kevin Ranker"), "State Politician", ERROR))
+
+data %<>% 
+  filter(! FROM == "" & ! SUBJECT == "")
+
+#Unfoundnames
 Unfoundnames <- data %>%
-  extractMemberName(members = members, col_name = "SUBJECT")
-
-Unfoundnames2 <- data %>%
-  extractMemberName(members = members, col_name = "FROM")
-
-Unfoundnames2 %<>%
-  drop_na(last_name)
-
-notfound <- Unfoundnames2 %>%
-  filter(is.na(last_name))
-
-Unfoundnames %<>%
-drop_na(last_name)
-
-data %<>%
-  full_join(Unfoundnames)
-
-data %<>%
-  full_join(Unfoundnames2)
-
-data %<>% filter(! FROM == "")
-
-#Separates first and last name by comma
-data %<>%
-  mutate(FROM = str_trim(FROM)) %>%
-  mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
+  filter(is.na(last_name),
+         is.na(NOTES),
+         is.na(ERROR))
 
 
-datanotfound <- data %>%
-  filter(is.na(last_name))
 
 data %<>%
   mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other|"), "Multiple Unnamed Members", NOTES))
 
-#Format last name and put in last_name  
-data %<>%
-  mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
 
-#data %<>%
- # mutate(FROM = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), casefold(FROM, upper = TRUE), FROM)) %>%
-  #mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.") & is.na(last_name), FROM, last_name))
-
-datanotfound2 <- data %>%
-  filter(is.na(last_name))
 
 #Check after run through merge
 #Unfoundnames <- d %>%
