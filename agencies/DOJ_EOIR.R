@@ -75,18 +75,22 @@ clean <- function(file.name) {
   
   #Filter while working Comment out
   #data %<>%
-   # mutate((str_remove(FROM, "Don Tripp, State Representative of New Mexico|Daniel Dromm, New York City Council Member|Eva Galambos, Mayor of Sandy Springs, Georgia|John M. Kefalas, State Representative of Colorado|Elaine Nekritz, Illinois State Representative - 57th District|
+   # mutate(FROM = (str_remove(FROM, "Don Tripp, State Representative of New Mexico|Daniel Dromm, New York City Council Member|Eva Galambos, Mayor of Sandy Springs, Georgia|John M. Kefalas, State Representative of Colorado|Elaine Nekritz, Illinois State Representative - 57th District|
     #                                 John J. Gleason, State Senator of Michigan, 27th District|Rashida H. Tlaib, State Representative of Michigan|
      #                              Sen Leticia Van de Putte, R.PH., State of Texas, District 26|Amanda Aguirre, Senator, District 24, Arizona State Senate|Willie Simmons, State Senator of Mississpi|
       #                               Daphne Campell, RN, State Representative of Fl, District 108|Sen Noreen Evans, California State Senate, Second Senate District")))
  
   
   #FOIA List
-  data %<>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Jim Moran") & is.na(last_name), "James Moran Duplicate", NOTES))
   
- umatched <- data %>%
-   filter(is.na(last_name), is.na(ERROR))
+  #Duplicates
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Jim Moran") & is.na(last_name), "James Moran Duplicate", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Chris Van Hollen") & is.na(last_name), "Van Hollen Duplicate", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Sherrod Brown") & is.na(last_name), "Sherrod Brown Duplicate", NOTES))
+  
+ unmatched <- data %>%
+   filter(is.na(last_name), is.na(ERROR), is.na(NOTES))
   
   
   # unfoundmerge <- d %>%
