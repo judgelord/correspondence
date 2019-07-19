@@ -6,9 +6,9 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
-  #Create ID  
+  #Create LetterID  
   data %<>%
-    mutate(ID = row_number())
+    mutate(LetterID = row_number())
   
   #create agency column
   data$agency <- file.name
@@ -37,6 +37,11 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "\\,| and|\\/|\\&")) %>%
     unnest(FROM)
   
+  #Create ID  
+  data %<>%
+    mutate(ID = row_number())
+  
+  #chamber
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "Member of Congress|Congressman"),
                             "Senate", NA)) %>%
@@ -108,14 +113,18 @@ data %<>%
   filter(! FROM == "" & ! SUBJECT == "")
 
 #Multiple unnamed members
-data %<>%
-  mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other||12 Members|17 Other Members|Seventeen \\(17\\) other Members"), "Multiple Unnamed Members", NOTES))
+#data %<>%
+  #mutate(NOTES = ifelse(str_detect(FROM, "Various| Others| Other||12 Members|17 Other Members|Seventeen \\(17\\) other Members"), "Multiple Unnamed Members", NOTES))
 
 #Unfoundnames
 Unfoundnames <- data %>%
   filter(is.na(last_name),
          is.na(NOTES),
          is.na(ERROR))
+
+#Filter for FOIA
+FOIA <- data %>%
+  filter( ! is.na(NOTES))
 
 #Check after run through merge
 #Unfoundnames <- d %>%
