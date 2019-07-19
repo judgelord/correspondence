@@ -44,6 +44,10 @@ clean <- function(file.name) {
   
   data <- getFirstLast.Comma(data, 'FROM')
   
+  #getFirstLast works better than extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
   data$FROM2 <- gsub("^\\w+\\. (\\w)( |. )(\\w+)", '\\1 \\3', data$FROM2)
   
   data %<>%
@@ -64,6 +68,10 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("VETERAN NEEDS ASSISTANCE|WRONGFUL|TERMINATE|USERRA VIOLATION|COMPLAINT|ASSISTANCE|UNFAIR|DISCRIMINATION|REEMPLOYMENT|REINSTATEMENT|PENSION|TREATMENT|APPLICATION|ACTIVE DUTY|HIS|REQUEST|USERRA QUESTIONS|VIOLATIONS|VIOLATED|USERRA RIGHTS|SEEKING EMPLOYMENT|SEEKS EMPLOYMENT|EMPLOYER|BENEFITS|QUESTIONS REGARDING|USERRA|TERMINATION|DENIED EMPLOYMENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VETERAN NEEDS ASSISTANCE|WRONGFUL|TERMINATE|USERRA VIOLATION|COMPLAINT|ASSISTANCE|UNFAIR|DISCRIMINATION|REEMPLOYMENT|REINSTATEMENT|PENSION|TREATMENT|APPLICATION|ACTIVE DUTY|HIS|REQUEST|USERRA QUESTIONS|VIOLATIONS|VIOLATED|USERRA RIGHTS|SEEKING EMPLOYMENT|SEEKS EMPLOYMENT|EMPLOYER|BENEFITS|QUESTIONS REGARDING|USERRA|TERMINATION|DENIED EMPLOYMENT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))  %>%
