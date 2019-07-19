@@ -35,10 +35,10 @@ clean <- function(file.name) {
     mutate(SUBJECT = paste(Constituent, Organization, SUBJECT)) 
   
   # extract member names
-  #data %<>%
-    #getFirstLast.Comma("FROM")
+  data %<>%
+    getFirstLast.Comma("FROM")
   
-  data <- extractMemberName(data, members, 'FROM')
+  #data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
