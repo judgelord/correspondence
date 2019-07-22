@@ -34,8 +34,16 @@ clean <- function(file.name) {
   #Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Con Jim Morgan", "Con Jim Moran")) %>%
-    mutate(FROM = str_replace(FROM, "Eric J.J. Massa", "Eric Massa"))
+    mutate(FROM = str_replace(FROM, "Eric J.J. Massa", "Eric Massa")) %>%
+    mutate(FROM = str_replace(FROM, "Henry C. \"Hank\" Johnson, Jr.", "Henry Johnson")) %>%
+    mutate(FROM = str_replace(FROM, "J. Gresham Barrett", "James Gresham BARRETT")) %>%
+    mutate(FROM = str_replace(FROM, "Robert B. Anderholt", "Robert B ADERHOLT"))
+  
  
+  #Chamber typos
+  data %<>%
+    mutate(chamber = ifelse(FROM == "Joseph Pitts" & str_detect(congress, "Senate"), str_replace(congress, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(FROM == "Steve Driehaus" & str_detect(congress, "Senate"), str_replace(congress, "Senate", "House"), chamber))
 
   
   data %<>%
@@ -82,6 +90,9 @@ Willie Simmons, State Senator of Mississpi|Daphne Campell, RN, State Representat
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "signers|other|others"), "Multiple unnamed members", NOTES))
   
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "John T. Morton, ICE"), "Director of ICE", ERROR))
+  
   #Filter while working Comment out
   #data %<>%
    # mutate(FROM = (str_remove(FROM, "Don Tripp, State Representative of New Mexico|Daniel Dromm, New York City Council Member|Eva Galambos, Mayor of Sandy Springs, Georgia|John M. Kefalas, State Representative of Colorado|Elaine Nekritz, Illinois State Representative - 57th District|
@@ -91,6 +102,9 @@ Willie Simmons, State Senator of Mississpi|Daphne Campell, RN, State Representat
  
   
   #FOIA List
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Jim Bates") & is.na(last_name), "Jim Bates FOIA", NOTES)) #Could be Jim Bates from 103rd congress (Former Members of Congress for Common Ground), or James B. Renacci or Cheif Counsel Jim Bates
+  
   
   #Duplicates
   data %<>%
@@ -104,6 +118,9 @@ Willie Simmons, State Senator of Mississpi|Daphne Campell, RN, State Representat
    filter(is.na(last_name), 
           is.na(ERROR), 
           is.na(NOTES))
+ 
+ Noted <- data %>%
+   filter(! is.na(NOTES))
   
   
   # unfoundmerge <- d %>%
