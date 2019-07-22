@@ -1000,9 +1000,7 @@ findTypos <- function(string){
       
       # FOR TESTING 
       # col_name <- "FROM"
-      
-      # FIXME # some scripts still use the old name
-      extractMemberName2 <- extractMemberName
+
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 
@@ -1080,3 +1078,8 @@ findTypos <- function(string){
     return(data)
   }
   
+
+
+      
+      # FIXME # some scripts still use the old name
+      extractMemberName2 <- extractMemberName
