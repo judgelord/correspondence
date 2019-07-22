@@ -55,10 +55,16 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN")) %>%
     mutate(FROM = str_replace(FROM, "essman j gresham barrett", "Representative BARRETT")) %>%
-    mutate(FROM = str_replace(FROM, "McCain", "Senator McCAIN")) %>%
+    mutate(FROM = str_replace(FROM, " . McCain", " John McCAIN")) %>%
     mutate(FROM = str_replace(FROM, "essman J. Gresham Barrett", "Representative BARRETT")) %>%
     mutate(FROM = str_replace(FROM, "E. Benjamin Nelson", "Earl B NELSON")) %>%
-    mutate(FROM = str_replace(FROM, "Hon. Mary LANDRIEU United States te Washington", "Mary LANDRIEU"))
+    mutate(FROM = str_replace(FROM, "Hon. Mary LANDRIEU United States te Washington", "Mary LANDRIEU")) %>%
+    mutate(FROM = str_replace(FROM, "Cong. Carolyn Kilpatrick", "Carolyn KILPATRICK")) %>%
+    mutate(FROM = str_replace_all(FROM, "Honorable John McCain United States te Washington|Hon. John McCain United States te Washington|John McCain United States Senate Washington", "John McCAIN")) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
   
   #Create ID
   data$ID <- c(1:nrow(data))
@@ -80,21 +86,43 @@ clean <- function(file.name) {
   NoChamber <- data %>%
     filter(is.na(chamber))
   
+  #Filter for Unfoundnames
   Unfoundnames <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name)) %>%
+    select(-last_name, -first_name)
   
+  #Separate from data 
+  data %<>%
+    anti_join(Unfoundnames)
+  
+  #Paste Chamber into FROM
+  Unfoundnames %<>%
+    mutate(FROM = str_trim(FROM)) %>%
+    mutate(FROM =ifelse(! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+  
+  #Extract Member Names
+  Unfoundnames %<>%
+    extractMemberName(members = members, col_name = "FROM")
+  
+ # unfoundnames2 <- Unfoundnames %>%
+  #  filter(is.na(last_name))
+  
+  #Rejoin data
+  data %<>%
+    full_join(Unfoundnames)
  
   #Format last name and put in last_name  
-  data %<>%
-    mutate(FROM = str_trim(FROM)) %>%
-    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  #data %<>%
+   # mutate(FROM = str_trim(FROM)) %>%
+    #mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
-  NoFirst <- data %>%
-    filter(is.na(first_name))
+  #NoFirst <- data %>%
+   # filter(is.na(first_name))
   
   #Add first name 
-  data %<>%
-    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name)) 
+ # data %<>%
+  #  mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name)) 
 
   #FOIA and State politicians
    data %<>%
