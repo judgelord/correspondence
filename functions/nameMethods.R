@@ -994,9 +994,55 @@ findTypos <- function(string){
 # It does correct ocr.errors and then corrects typos using the typos tables
 # It then uses the pattern variable in the members data to match names 
 # FIXME need to reverse members and col name in ALL SCRIPTS to make this tidy 
+
+## FIRST A FEW HELPER FUNCTIONS: 
+
+# A function to map over members 
+# (assumes that memmbers object contains congress and pattern)
+# (assumes that data contains congress and string)
+extractName <- function(string, data, members){
+  pattern <- purrr::map(.x = members %>% filter(congress %in% data$congress) %>% select(pattern), 
+             .f = str_detect_replace,
+             string_to_search = string) %>% 
+    unlist() %>%
+    unique() %>% 
+    str_c(collapse = ";") %>%
+    str_remove(";404error|404error;")
+  
+  return(pattern)
+}
+
+# A function to map over congresses 
+# one congress at a time
+extractNamesPerCongress <- function(congress_i, data, members){
+  
+  # subset to one congress
+  data %<>% filter(congress == congress_i)
+  members %<>% filter(congress == congress_i)
+  
+  print( str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th, n = ", nrow(data), ". ", length(unique(data$string)), " unique strings.",
+         " Most common string: ", count(data, string) %>% top_n(1, n) %>% .[1,1]))
+  
+  # match patterns from the members data and merge with member names
+  data %<>%
+    ungroup() %>%
+    # map function to detect members over lower case version of FROM 
+    mutate(pattern = string %>% purrr::map_chr(extractName,
+                                               data = data,
+                                               members = members) ) %>% # select(from,matches)
+    # split out multiple members into separate rows 
+    mutate(pattern = str_split(pattern, ";")  ) %>% 
+    unnest() %>% 
+    # join in members data by pattern 
+    left_join(members %>% select(pattern, first_name, last_name, congress)) 
+  
+  return(data)
+}
+
 #  extractMemberName2 <- function(data = data, members = members, col_name = "FROM", congresses = unique(data$congress)){
     
-    extractMemberName <- function(data, members, col_name, congresses = unique(data$congress)){
+
+extractMemberName <- function(data, members, col_name, congresses = unique(data$congress)){
       
       # FOR TESTING 
       # col_name <- "FROM"
@@ -1030,56 +1076,18 @@ findTypos <- function(string){
     # FOR TESTING 
     # look <- data %>% drop_na(typos) %>% filter(typos != "none", typos != "404error") %>% distinct() %>% filter(is.na(string))
     
-    
-    
-    
-    # A function to map over members 
-    # (assumes that memmbers object contains congress and pattern)
-    # (assumes that data data contains congress and from)
-    extractName <- function(string){
-      purrr::map(.x = members %>% filter(congress %in% data$congress) %>% select(pattern), 
-                 .f= str_detect_replace,
-                 string_to_search = string) %>% 
-        unlist() %>%
-        unique() %>% 
-        str_c(collapse = ";") %>%
-        str_remove(";404error|404error;")
-    }
-    
-  # A function to map over congresses 
-    # one congress at a time
-    extractNamesPerCongress <- function(congress_i){
-      
-      print( str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th"))
-      
-      # subset to one congress
-      data %<>% filter(congress == congress_i)
-      members %<>% filter(congress == congress_i)
-      
-    # match patterns from the members data and merge with member names
-    data %<>%
-      ungroup() %>%
-      # map function to detect members over lower case version of FROM 
-      mutate(pattern = map_chr(string, extractName) ) %>% # select(from,matches)
-      # split out multiple members into separate rows 
-      mutate(pattern = str_split(pattern, ";")  ) %>% 
-      unnest() %>% 
-      # join in members data by pattern 
-      left_join(members %>% select(pattern, first_name, last_name, congress)) 
-    
-    return(data)
-    }
-    
     # loop over congresses in data 
-    data <- map_dfr(congresses, extractNamesPerCongress)
+    data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members)
     
     data %<>% select(FROM, typos, correct, string, pattern, congress, everything())
     
     return(data)
-  }
+}
   
 
 
       
       # FIXME # some scripts still use the old name
       extractMemberName2 <- extractMemberName
+
+      
