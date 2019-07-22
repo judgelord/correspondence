@@ -31,8 +31,10 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, " and |&|\\(")) %>%
     unnest(FROM)
 
+  #Typos
   data %<>%
-    mutate(FROM = str_replace(FROM, "Con Jim Morgan", "Con Jim Moran"))
+    mutate(FROM = str_replace(FROM, "Con Jim Morgan", "Con Jim Moran")) %>%
+    mutate(FROM = str_replace(FROM, "Eric J.J. Massa", "Eric Massa"))
  
 
   
@@ -43,10 +45,12 @@ clean <- function(file.name) {
   # data %<>%
   #   mutate(FROM = (str_replace(FROM, " \\D. ", " ")))
   
+  
   #Extract Member names
     
   data %<>%
-    extractMemberName(members = members, col_name = "FROM")
+    extractMemberName(members = members, col_name = "FROM") %>%
+    distinct()
   
   
   #Unmatched
@@ -63,10 +67,15 @@ clean <- function(file.name) {
   
   
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Don Tripp, State Representative of New Mexico|Daniel Dromm, New York City Council Member|Eva Galambos, Mayor of Sandy Springs, Georgia|John M. Kefalas, State Representative of Colorado|Elaine Nekritz, Illinois State Representative - 57th District|John J. Gleason, State Senator of Michigan, 27th District|Rashida H. Tlaib, State Representative of Michigan|Sen Leticia Van de Putte, R.PH., State of Texas, District 26|Amanda Aguirre, Senator, District 24, Arizona State Senate|Willie Simmons, State Senator of Mississpi|Daphne Campell, RN, State Representative of Fl, District 108|Sen Noreen Evans, California State Senate, Second Senate District"), 
+    mutate(ERROR = ifelse(str_detect(FROM, "Don Tripp, State Representative of New Mexico|Daniel Dromm, New York City Council Member|Eva Galambos, Mayor of Sandy Springs, Georgia|
+John M. Kefalas, State Representative of Colorado|Elaine Nekritz, Illinois State Representative - 57th District|John J. Gleason, State Senator of Michigan, 27th District|
+Rashida H. Tlaib, State Representative of Michigan|Sen Leticia Van de Putte, R.PH., State of Texas, District 26|Amanda Aguirre, Senator, District 24, Arizona State Senate|
+Willie Simmons, State Senator of Mississpi|Daphne Campell, RN, State Representative of Fl, District 108|Sen Noreen Evans, California State Senate, Second Senate District|
+                                     Robert W. Singer, Senator, District 30|Roberto G. Lebron, AAG, State of New York|Rashida H. Tlaib, State Representative of Michigan"), 
                           "State Legislator", 
                           ERROR)) %>% 
-    mutate(ERROR = ifelse(str_detect(FROM, "Judith A Neugent, City Clerk of Pembroke Pines"),
+    mutate(ERROR = ifelse(str_detect(FROM, "Judith A Neugent, City Clerk of Pembroke Pines|amie W. Curtis, Chairperson, Genessee County Board of Commissioners|
+                                     Daniel Dromm, New York City Council Member"),
                           "From Local Gov", 
                           ERROR))
   
@@ -87,10 +96,14 @@ clean <- function(file.name) {
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Jim Moran") & is.na(last_name), "James Moran Duplicate", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Chris Van Hollen") & is.na(last_name), "Van Hollen Duplicate", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Sherrod Brown") & is.na(last_name), "Sherrod Brown Duplicate", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Sherrod Brown") & is.na(last_name), "Sherrod Brown Duplicate", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Barack Obama") & is.na(last_name), "Obama Duplicate", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Carolyn B. Maloney") & is.na(last_name), "Maloney Duplicate", NOTES))
   
  unmatched <- data %>%
-   filter(is.na(last_name), is.na(ERROR), is.na(NOTES))
+   filter(is.na(last_name), 
+          is.na(ERROR), 
+          is.na(NOTES))
   
   
   # unfoundmerge <- d %>%
