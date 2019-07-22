@@ -1001,7 +1001,7 @@ findTypos <- function(string){
 # (assumes that memmbers object contains congress and pattern)
 # (assumes that data contains congress and string)
 extractName <- function(string, data, members){
-  pattern <- purrr::map(.x = members %>% filter(congress %in% data$congress) %>% select(pattern), 
+  pattern <- purrr::map(.x = members %>% select(pattern), 
              .f = str_detect_replace,
              string_to_search = string) %>% 
     unlist() %>%
@@ -1018,7 +1018,11 @@ extractNamesPerCongress <- function(congress_i, data, members){
   
   # subset to one congress
   data %<>% filter(congress == congress_i)
+  # only if that congress exists in data, otherswise use all members to avoid 0-length errors
+  # FIXME with purrr error handeling
+  if(congress_i %in% members$congress){
   members %<>% filter(congress == congress_i)
+  }
   
   print( str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th, n = ", nrow(data), ". ", length(unique(data$string)), " unique strings.",
          " Most common string: ", count(data, string) %>% top_n(1, n) %>% .[1,1]))
