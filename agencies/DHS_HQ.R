@@ -57,10 +57,16 @@ data %<>% distinct() %>%
   # Create uniform format
   data$originalDATE <- gsub("/201", "/1", data$originalDATE) 
   data$originalDATE <- gsub("/200", "/0", data$originalDATE)
+  data$originalDATE <- gsub("-201", "-1", data$originalDATE) 
+  data$originalDATE <- gsub("-200", "-0", data$originalDATE)
+
   
   
   #Replace missing dates with "originalDATE" column
   data$DATE2[which(is.na(data$DATE2))] <- multidate(data$originalDATE[which(is.na(data$DATE2))], c("%m/%d/%y", "%d-%b-%y")) 
+  
+
+  
   
   NOdate3 <- data %>%
     filter(is.na(DATE2))
@@ -103,7 +109,13 @@ data %<>% distinct() %>%
     mutate(ERROR = ifelse(grepl("Madeleine Z. Bordallo",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Stewart Baker",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Jay M. Cohen",FROM),"Not in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(grepl("Donna M. Christensen",FROM),"Not in congress", ERROR))
+    mutate(ERROR = ifelse(grepl("Donna M. Christensen",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Brian De Vallance",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Larbi Semiani",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Rudy Bautista Santos",FROM),"Not in congress", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Anh T. Betancourt",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Thomas S. Winkowski",FROM),"Former Deputy Assistant Secretary for ICE", ERROR)) %>% 
+    mutate(ERROR = ifelse(grepl("Alexandra Korshunova",FROM),"Not in congress", ERROR))
   
   #Delete common names inside quotes
   data %<>%
@@ -127,6 +139,7 @@ data %<>% distinct() %>%
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
   
   data$FROM %<>% str_replace("Charles E„ Schumer", "Charles E. Schumer")
+  data$FROM %<>% str_replace("Tom A, Coburn", "Tom A. Coburn")
   
   
   # TESTING MYSTERIOUS BAD NAMES 
