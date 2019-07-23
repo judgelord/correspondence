@@ -74,10 +74,24 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Royball-Allard, L.", "ROYBAL-ALLARD, Lucille")) %>%
     mutate(FROM = str_replace(FROM, "Caster, Kathy", "CASTOR, Kathy")) %>%
     mutate(FROM = str_replace(FROM, "Bra ley, Bruce", "BRALEY, Bruce")) %>%
-    mutate(FROM = str_replace(FROM, "Westmorelan d, Lynn", "WESTMORELAND, Lynn"))
+    mutate(FROM = str_replace(FROM, "Westmorelan d, Lynn|WestmoreIan d, Lynn A.", "WESTMORELAND, Lynn")) %>%
+    mutate(FROM = str_replace(FROM, "Lamar, Alexander", "Alexander, Lamar")) %>%
+    mutate(FROM = str_replace(FROM, "Baird. Brian", "BAIRD, Brian")) %>%
+    mutate(FROM = str_replace(FROM, "Blumenthal\n , Richard", "Blumenthal, Richard")) %>%
+    mutate(FROM = str_replace(FROM, "Boehne r, John A.", "BOEHNER, John")) %>%
+    mutate(FROM = str_replace(FROM, "Bonne r, Jo", "BONNER, Josiah")) %>%
+    mutate(FROM = str_replace(FROM, "Bro wn, Sherrod", "Brown, Sherrod")) %>%
+    mutate(FROM = str_replace(FROM, "Frelinghuyse n, Rodney P.|Frelinghuyse\n n, Rodney P.", "FRELINGHUYSEN, Rodney")) %>%
+    mutate(FROM = str_replace(FROM, "Davis, Linco ln", "DAVIS, Lincoln")) %>%
+    mutate(FROM = str_replace(FROM, "Collins\n , Susan M.", "COLLINS, Susan")) %>%
+    mutate(FROM = str_replace(FROM, "Schumer , Charles E.", "SCHUMER, Charles")) %>%
+    mutate(FROM = str_replace(FROM, "Graham , Lindsey 0.", "GRAHAM, Lindsey")) %>%
+    mutate(FROM = str_replace(FROM, "Mikulski , Barbara", "MIKULSKI, Barbara")) %>%
+    mutate(FROM = str_replace(FROM, "Lugar , Richard", "LUGAR, Richard")) 
+    
   
   data %>%
-    filter(ID == 1245) %>%
+    filter(ID == 1601) %>%
     select(FROM)
   
   # extract member names
