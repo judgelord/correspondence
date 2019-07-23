@@ -69,7 +69,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Snow, Olympia J.", "SNOWE, Olympia")) %>%
     mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "BARRETT, James")) %>%
     mutate(FROM = str_replace(FROM, "Cassey, Robert P., Jr.", "CASEY, Robert")) %>%
-    mutate(FROM = str_replace(FROM, "Hagan,Kay R.|Hagan,Kay R.|Hagan.Kay R.", "HAGAN, Kay")) %>%
+    mutate(FROM = str_replace(FROM, "Hagan,Kay\n R.|Hagan.Kay\n R.", "HAGAN, Kay")) %>%
     mutate(FROM = str_replace(FROM, "Barton,Joe|Barton. Joe|Barton.Joe", "BARTON, Joseph")) %>%
     mutate(FROM = str_replace(FROM, "Royball-Allard, L.", "ROYBAL-ALLARD, Lucille")) %>%
     mutate(FROM = str_replace(FROM, "Caster, Kathy", "CASTOR, Kathy")) %>%
@@ -77,7 +77,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Westmorelan d, Lynn", "WESTMORELAND, Lynn"))
   
   data %>%
-    filter(ID == 160) %>%
+    filter(ID == 1245) %>%
     select(FROM)
   
   # extract member names
@@ -95,6 +95,6 @@ clean <- function(file.name) {
   
   
   
-  
+  return(data)
   
 }
