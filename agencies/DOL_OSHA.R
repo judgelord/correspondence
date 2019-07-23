@@ -47,6 +47,10 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_trim(FROM))
   
+  #String split
+  data %<>%
+    mutate(FROM == str_split(FROM, ";|&"))
+  
   #Format typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Young, C.W. \\(Bill\\)", "YOUNG, Charles")) %>%
@@ -63,7 +67,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Lautenberg. Frank R", "LAUTENBERG, Frank")) %>%
     mutate(FROM = str_replace(FROM, "Snow, Olympia J.", "SNOWE, Olympia")) %>%
     mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "BARRETT, James")) %>%
-    mutate(FROM = str_replace(FROM, "Cassey, Robert P., Jr.", "CASEY, Robert"))
+    mutate(FROM = str_replace(FROM, "Cassey, Robert P., Jr.", "CASEY, Robert")) %>%
+    mutate(FROM = str_replace(FROM, "Hagan,Kay R.", "HAGAN, Kay")) %>%
+    mutate(FROM = str_replace(FROM, "Barton,Joe|Barton. Joe|Barton.Joe", "BARTON, Joseph"))
   
   data %>%
     filter(ID == 160) %>%
