@@ -132,6 +132,7 @@ data %<>% distinct() %>%
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
   
   data$FROM %<>% str_replace("Charles E„ Schumer", "Charles E. Schumer")
+  data$FROM %<>% str_replace("Tom A, Coburn", "Tom A. Coburn")
   
   
   # TESTING MYSTERIOUS BAD NAMES 
