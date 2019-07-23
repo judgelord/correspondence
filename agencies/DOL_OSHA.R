@@ -32,12 +32,12 @@ clean <- function(file.name) {
   
   #Create chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong\\)") & ! str_detect(FROM, "\\(Sen\\)"), "House", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen\\)") & ! str_detect(FROM, "\\(Cong\\)"), "Senate", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong\\)") & ! str_detect(FROM, "\\(Sen\\)|\\(Sen \\)"), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen\\)|\\(Sen \\)") & ! str_detect(FROM, "\\(Cong\\)"), "Senate", chamber))
   
   #Remove Sen and Cong
   data %<>%
-    mutate(FROM = str_remove_all(FROM, "\\(Cong\\)|\\(Sen\\)"))
+    mutate(FROM = str_remove_all(FROM, "\\(Cong\\)|\\(Sen\\)|\\(Sen \\)"))
   
   # paste all relevent info into subject col
   data %<>% 
@@ -52,6 +52,10 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, ";|&")) %>%
     unnest(FROM)
   
+  #Delete extra space
+  data %<>%
+    mutate(FROM = str_replace(FROM, " , | ,", ", "))
+  
   #Format typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Young, C.W. \\(Bill\\)", "YOUNG, Charles")) %>%
@@ -63,7 +67,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM , "Shaw, E. Clay Jr.", "SHAW, Eugene")) %>%
     mutate(FROM = str_replace(FROM, "Ftzpatrick, Michael G.", "FITZPATRICK, Michael")) %>%
     mutate(FROM = str_replace(FROM, "Visdosky, Peter J.", "VISCLOSKY, Peter")) %>%
-    mutate(FROM = str_replace(FROM, "Specter, Arien", "SPECTER, Arlen")) %>%
+    mutate(FROM = str_replace(FROM, "Specter, Arien|Specte r, Arlen", "SPECTER, Arlen")) %>%
     mutate(FROM = str_replace(FROM, "Forbes, J. Randy", "FORBES, James")) %>%
     mutate(FROM = str_replace(FROM, "Lautenberg. Frank R", "LAUTENBERG, Frank")) %>%
     mutate(FROM = str_replace(FROM, "Snow, Olympia J.", "SNOWE, Olympia")) %>%
@@ -77,21 +81,22 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Westmorelan d, Lynn|WestmoreIan d, Lynn A.", "WESTMORELAND, Lynn")) %>%
     mutate(FROM = str_replace(FROM, "Lamar, Alexander", "Alexander, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "Baird. Brian", "BAIRD, Brian")) %>%
-    mutate(FROM = str_replace(FROM, "Blumenthal\n , Richard", "Blumenthal, Richard")) %>%
+    mutate(FROM = str_replace(FROM, "Blumenthal\n, Richard", "Blumenthal, Richard")) %>%
     mutate(FROM = str_replace(FROM, "Boehne r, John A.", "BOEHNER, John")) %>%
     mutate(FROM = str_replace(FROM, "Bonne r, Jo", "BONNER, Josiah")) %>%
     mutate(FROM = str_replace(FROM, "Bro wn, Sherrod", "Brown, Sherrod")) %>%
     mutate(FROM = str_replace(FROM, "Frelinghuyse n, Rodney P.|Frelinghuyse\n n, Rodney P.", "FRELINGHUYSEN, Rodney")) %>%
     mutate(FROM = str_replace(FROM, "Davis, Linco ln", "DAVIS, Lincoln")) %>%
-    mutate(FROM = str_replace(FROM, "Collins\n , Susan M.", "COLLINS, Susan")) %>%
-    mutate(FROM = str_replace(FROM, "Schumer , Charles E.", "SCHUMER, Charles")) %>%
-    mutate(FROM = str_replace(FROM, "Graham , Lindsey 0.", "GRAHAM, Lindsey")) %>%
-    mutate(FROM = str_replace(FROM, "Mikulski , Barbara", "MIKULSKI, Barbara")) %>%
-    mutate(FROM = str_replace(FROM, "Lugar , Richard", "LUGAR, Richard")) 
+    mutate(FROM = str_replace(FROM, "Collins\n, Susan M.", "COLLINS, Susan")) %>%
+    mutate(FROM = str_replace(FROM, "Lugren,\n Daniel E.", "LUNGREN, Daniel")) %>%
+    mutate(FROM = str_replace(FROM, "Davis, Geo ff", "DAVIS, Geoffrey")) %>%
+    mutate(FROM = str_replace(FROM, "lnslee, Jay", "INSLEE, Jay")) %>%
+    mutate(FROM = str_replace(FROM, "Warne r, Mark R.", "Warner, Mark")) %>%
+    mutate(FROM = str_replace(FROM, "Mikulski, Barba ra A.", "Mikulski, Barbara"))
     
   
   data %>%
-    filter(ID == 1601) %>%
+    filter(ID == 1338) %>%
     select(FROM)
   
   # extract member names
@@ -100,10 +105,14 @@ clean <- function(file.name) {
   
   data <- extractMemberName(data, members, 'FROM')
   
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Others|Other"), "Multiple Unnamed Members", NOTES))
+  
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR)) 
+           is.na(ERROR),
+           is.na(NOTES)) 
   
   data %<>% arrange(DATE)
   
