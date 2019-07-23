@@ -35,7 +35,7 @@ typos_clear <- tribble(
   "McCaskill", "McCaskil$",
   "McCaskill,", "McCaskil,",
   "McCaskill ", "McCaskil ",
-  "Luetkemeyer", "(Leutkemeyer|Leautkemeyer)",
+  "Luetkemeyer", "(Leutkemeyer|Leautkemeyer|Luektemeyer)",
   "Herrera Beutler", "(Herrera|Beutler|Herrera-Beutler|Harrera Beutler)", 
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
@@ -342,7 +342,8 @@ typos_first <- tribble(
   "Collin", "Peterson", "Colin",
   "Ron", "Barber", "Rob",
   "Michael", "Michaud", "Micha",
-  "Nanette", "BARRAGAN", "Nannette"
+  "Nanette", "BARRAGAN", "Nannette",
+  "Sanford", "Bishop", "Sandford"
 
  
   
