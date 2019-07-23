@@ -342,7 +342,8 @@ typos_first <- tribble(
   "Collin", "Peterson", "Colin",
   "Ron", "Barber", "Rob",
   "Michael", "Michaud", "Micha",
-  "Nanette", "BARRAGAN", "Nannette"
+  "Nanette", "BARRAGAN", "Nannette",
+  "Sanford", "Bishop", "Sandford"
 
  
   
