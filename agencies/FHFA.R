@@ -98,7 +98,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Charles E. Schumer", "Schumer E. Charles")) %>%
     mutate(FROM = str_replace(FROM, "Kanjorski", "KANJORSKI, Paul")) %>%
     mutate(FROM = str_replace(FROM, "Bachman, Michele,", "BACHMANN, Michele")) %>%
-    mutate(FROM = str_replace(FROM, "Russell D. Feingold", "Feingold, Russell D."))
+    mutate(FROM = str_replace(FROM, "Russell D. Feingold", "Feingold, Russell D.")) %>%
+    mutate(FROM = str_replace(FROM, "Bono Mack, Mary", "Bono, Mary")) 
   
   #Filter while working, comment out
   #data %<>%
