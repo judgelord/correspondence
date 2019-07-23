@@ -30,15 +30,50 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Create chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong\\)") & ! str_detect(FROM, "\\(Sen\\)"), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Sen\\)") & ! str_detect(FROM, "\\(Cong\\)"), "Senate", chamber))
+  
+  #Remove Sen and Cong
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, "\\(Cong\\)|\\(Sen\\)"))
+  
   # paste all relevent info into subject col
   data %<>% 
     mutate(SUBJECT = paste(Constituent, Organization, SUBJECT)) 
   
-  # extract member names
+  #Trim White Space
   data %<>%
-    getFirstLast.Comma("FROM")
+    mutate(FROM = str_trim(FROM))
   
-  #data <- extractMemberName(data, members, 'FROM')
+  #Format typos
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Young, C.W. \\(Bill\\)", "YOUNG, Charles")) %>%
+    mutate(FROM = str_replace(FROM, "Butterfield, G. K.", "BUTTERFIELD, George")) %>%
+    mutate(FROM = str_replace(FROM, "Butterfield, G.K.", "BUTTERFIELD, George")) %>%
+    mutate(FROM = str_replace(FROM, "Brown-Wa te, Ginny", "BROWN-WAITE, Virginia")) %>%
+    mutate(FROM = str_replace(FROM, "Conaway, K. Michael", "CONAWAY, Kenneth")) %>%
+    mutate(FROM = str_replace(FROM, "Marco, Rubio", "Rubio, Marco")) %>%
+    mutate(FROM = str_replace(FROM , "Shaw, E. Clay Jr.", "SHAW, Eugene")) %>%
+    mutate(FROM = str_replace(FROM, "Ftzpatrick, Michael G.", "FITZPATRICK, Michael")) %>%
+    mutate(FROM = str_replace(FROM, "Visdosky, Peter J.", "VISCLOSKY, Peter")) %>%
+    mutate(FROM = str_replace(FROM, "Specter, Arien", "SPECTER, Arlen")) %>%
+    mutate(FROM = str_replace(FROM, "Forbes, J. Randy", "FORBES, James")) %>%
+    mutate(FROM = str_replace(FROM, "Lautenberg. Frank R", "LAUTENBERG, Frank")) %>%
+    mutate(FROM = str_replace(FROM, "Snow, Olympia J.", "SNOWE, Olympia")) %>%
+    mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "BARRETT, James")) %>%
+    mutate(FROM = str_replace(FROM, "Cassey, Robert P., Jr.", "CASEY, Robert"))
+  
+  data %>%
+    filter(ID == 160) %>%
+    select(FROM)
+  
+  # extract member names
+  #data %<>%
+   # getFirstLast.Comma("FROM")
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
