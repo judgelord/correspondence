@@ -107,7 +107,8 @@ data %<>% distinct() %>%
     mutate(ERROR = ifelse(grepl("Brian De Vallance",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Larbi Semiani",FROM),"Not in congress", ERROR)) %>%
     mutate(ERROR = ifelse(grepl("Rudy Bautista Santos",FROM),"Not in congress", ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("Anh T. Betancourt",FROM),"Not in congress", ERROR)) 
+    mutate(ERROR = ifelse(grepl("Anh T. Betancourt",FROM),"Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Thomas S. Winkowski",FROM),"Former Deputy Assistant Secretary for ICE", ERROR)) 
   
   #Delete common names inside quotes
   data %<>%
