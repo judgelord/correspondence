@@ -237,7 +237,8 @@ typos_last <- tribble(
   "Randy", "Neugebauer","NEUGBAUER",
   "Johnny", "Isakson", "Isaakson",
   "Deb", "FISCHER", "Fisher",
-  "Ami", "Bera", "Gera"
+  "Ami", "Bera", "Gera",
+  "Lynn", "WOOLSEY", "Woosley"
  
   
 
