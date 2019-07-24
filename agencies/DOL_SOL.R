@@ -123,8 +123,8 @@ data %<>%
   mutate(ERROR = ifelse(str_detect(FROM, "Ackerman, Joyce L."), "Not a member of congress", ERROR)) %>%
   mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony"), "New York State Senate Member", ERROR)) %>%
   mutate(ERROR = ifelse(str_detect(FROM, "Zawacki, Thomas O."), "Not a member of Congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Young, Catharine M."), "New York State Senator", ERROR))
-
+  mutate(ERROR = ifelse(str_detect(FROM, "Young, Catharine M."), "New York State Senator", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Wu, Portia"), "Not a member of Congress", ERROR)) 
 
 #Puts all data without a comma into last name variable and 
 #Format last name and put in last_name  
