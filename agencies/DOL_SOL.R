@@ -101,8 +101,8 @@ data$FROM %<>%
   str_replace("Leahy, Ted", "Leahy, Patrick") %>%
   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
   str_replace("Obama, Brack", "Obama, Barack") %>%
-  str_replace("Hooley, Darene", "Hooley, Darlene")
-
+  str_replace("Hooley, Darene", "Hooley, Darlene") %>%
+  str_replace("Young, C.W. Bill", "Young, C.W.")
 
 
   ################
