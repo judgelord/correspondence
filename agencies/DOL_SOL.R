@@ -114,12 +114,12 @@ data$FROM %<>%
 data <- extractMemberName(data, members, 'FROM')
 
 
-#Extract Member names #causing about 4000 errors
-#data <-  extractMemberName(data,members,"FROM")
 
 #Membership Errors
 data %<>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Fortuno, Luis"), "Puerto Rico Legislator", ERROR))
+  mutate(ERROR = ifelse(str_detect(FROM, "Fortuno, Luis"), "Puerto Rico Legislator", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes"), "Puerto Rico Legislator", ERROR)) 
+  
 
 
 #Puts all data without a comma into last name variable and 
@@ -131,9 +131,11 @@ data %<>%
 #data %<>%
  # mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
 
-#Creates a Sample from the NA's
-sample1<-data %>%
-  filter(is.na(last_name))
+#Failing observations
+Unfoundnames <- data %>%
+  filter(is.na(last_name),
+         str_detect(pattern, "404error"),
+         is.na(ERROR))  
 
 #sample <- data %>%
 #filter(is.na(last_name))  
