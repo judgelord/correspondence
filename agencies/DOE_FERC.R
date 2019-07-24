@@ -91,9 +91,14 @@ clean <- function(file.name) {
 
   
   
+  #Check for NA Dates
+  NoDATE <- data %>%
+    filter(is.na(DATE))
   
   
-  
+  #Unmatched
+  unmatched <- data %>%
+    filter(is.na(last_name))
   
   
   
