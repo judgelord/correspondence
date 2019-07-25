@@ -239,7 +239,9 @@ typos_last <- tribble(
   "Deb", "FISCHER", "Fisher",
   "Ami", "Bera", "Gera",
   "Lynn", "WOOLSEY", "Woosley",
-  "Roger", "Wicker", "Wickler"
+  "Roger", "Wicker", "Wickler",
+  "David", "CICILLINE", "Cicillinc",
+  "David", "Roe", "Roc"
  
   
 
