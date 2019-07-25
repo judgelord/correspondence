@@ -367,7 +367,7 @@ typos_first <- tribble(
 typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
   "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",  
-  "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+  "Benjamin", "Nighthorse", "Campbell", "(Nigbthorse|Nighhorse)",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "John", "Dennis", "Hastert", "Denis",
   "Mike", "Dennis", "Rehberg", "Denis",
