@@ -87,16 +87,27 @@ data$FROM %<>%
   ################
   
 #sample
-sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
+#sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
 
- data <- sampledata
+ #data <- sampledata
 
+ #Format Typos
+ data %<>%
+   mutate(FROM = str_replace(FROM, "Forbes, J. Randy", "FORBES, James")) %>%
+   mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "BARRETT, James")) %>%
+   mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
+   mutate(FROM = str_replace(FROM, "Sensenbrenner, F. James Jr.", "Sensenbrenner, James")) %>%
+   mutate(FROM = ifelse(FROM == "Woolsey", str_replace(FROM, "Woolsey", "WOOLSEY, Lynn"), FROM)) %>%
+   mutate(FROM = str_replace(FROM, "Young, C. W.|Young, C. W. Bill", "YOUNG, Charles"))
 
 #data <- getFirstLast.Comma(data, 'FROM')
 
 #changed to extractMemberName because it is capturing more observations
 
 data <- extractMemberName(data, members, 'FROM')
+
+Nochamber <- data %>%
+  filter(is.na(chamber))
 
 
 
@@ -132,6 +143,9 @@ Unfoundnames <- data %>%
          is.na(ERROR),
          is.na(NOTES))  
 
+data %>%
+  filter(ID == 655431) %>%
+  select(FROM)
 #sample <- data %>%
 #filter(is.na(last_name))  
 #View(sample)
