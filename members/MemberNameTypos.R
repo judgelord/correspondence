@@ -237,12 +237,13 @@ typos_last <- tribble(
   "Randy", "Neugebauer","NEUGBAUER",
   "Johnny", "Isakson", "Isaakson",
   "Deb", "FISCHER", "Fisher",
-  "Ami", "Bera", "Gera",
+  "Ami", "Bera", "(Beta|Gera)",
   "Lynn", "WOOLSEY", "Woosley",
   "Roger", "Wicker", "Wickler",
   "David", "CICILLINE", "Cicillinc",
   "David", "Roe", "Roc",
-  "Al", "Franken", "Fianken"
+  "Al", "Franken", "Fianken",
+  "Arlen","Specter","Speeter"
  
   
 
@@ -348,7 +349,11 @@ typos_first <- tribble(
   "Ron", "Barber", "Rob",
   "Michael", "Michaud", "Micha",
   "Nanette", "BARRAGAN", "Nannette",
-  "Sanford", "Bishop", "Sandford"
+  "Sanford", "Bishop", "Sandford",
+  "Alcee", "Hastings", "(Alccc|Ateee)",
+  "Arlen", "Specter", "Alien",
+  "Bart", "Gordon", "Art",
+  "Barney", "Frank", "Bamey"
 
  
   
@@ -362,7 +367,7 @@ typos_first <- tribble(
 typos_middle <-  tribble(
   ~first_name, ~middle_name, ~last_name, ~middle_name_typos, 
   "Hillary", "Rodham", "Clinton", "(Rodman|Redham)",  
-  "Benjamin", "Nighthorse", "Campbell", "Nighhorse",
+  "Benjamin", "Nighthorse", "Campbell", "(Nigbthorse|Nighhorse)",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "John", "Dennis", "Hastert", "Denis",
   "Mike", "Dennis", "Rehberg", "Denis",
