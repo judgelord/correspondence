@@ -30,6 +30,11 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #String split
+  data %<>%
+    mutate(FROM = str_split(FROM, ";|&")) %>%
+    unnest(FROM)
+  
   #Create chamber
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "\\(Cong\\)| \\(Rep\\)") & ! str_detect(FROM, "\\(Sen\\)|\\(Sen \\)"), "House", NA)) %>%
@@ -46,11 +51,7 @@ clean <- function(file.name) {
   #Trim White Space
   data %<>%
     mutate(FROM = str_trim(FROM))
-  
-  #String split
-  data %<>%
-    mutate(FROM = str_split(FROM, ";|&")) %>%
-    unnest(FROM)
+
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -82,7 +83,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Caster, Kathy", "CASTOR, Kathy")) %>%
     mutate(FROM = str_replace(FROM, "Bra ley, Bruce", "BRALEY, Bruce")) %>%
     mutate(FROM = str_replace(FROM, "Westmorelan d, Lynn|WestmoreIan d, Lynn A.", "WESTMORELAND, Lynn")) %>%
-    mutate(FROM = str_replace(FROM, "Lamar, Alexander|Lamar,\n Alexander  ", "Alexander, Lamar")) %>%
+    mutate(FROM = str_replace(FROM, "Lamar, Alexander|Lamar,\n Alexander", "Alexander, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "Baird. Brian", "BAIRD, Brian")) %>%
     mutate(FROM = str_replace(FROM, "Blumenthal\n, Richard", "Blumenthal, Richard")) %>%
     mutate(FROM = str_replace(FROM, "Boehne r, John A.", "BOEHNER, John")) %>%
@@ -114,17 +115,19 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Des antis, Ron", "DeSANTIS, Ron")) %>%
     mutate(FROM = str_replace(FROM, "Hurt. Robert", "HURT, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Sa rbanes, John P.", "SARBANES, John")) %>%
-    mutate(FROM = ifelse(FROM == " Diaz-Balart," & congress == 115, str_replace(FROM, "Diaz-Balart,", "DIAZ-BALART, Mario"), FROM))
+    mutate(FROM = ifelse(FROM == "Diaz-Balart," & congress == 115, str_replace(FROM, "Diaz-Balart,", "DIAZ-BALART, Mario"), FROM)) %>%
+    mutate(FROM = str_replace(FROM, "Diaz-Balart, Lincoln", "DIAZ-BALART, Lincoln"))
   
   #chamber typos
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Miller, George") & congress == 109, str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "McGovern, James") & congress == 109, "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Udall, Tom") & congress == 109, "House", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Udall, Tom") & congress == 109, "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Kennedy, Edward") & congress == 109, "Senate", chamber))
     
   
   data %>%
-    filter(LetterID == 2024) %>%
+    filter(LetterID == 1678) %>%
     select(FROM)
   
   # extract member names
