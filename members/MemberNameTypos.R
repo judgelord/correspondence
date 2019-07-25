@@ -243,7 +243,8 @@ typos_last <- tribble(
   "David", "CICILLINE", "Cicillinc",
   "David", "Roe", "Roc",
   "Al", "Franken", "Fianken",
-  "Arlen","Specter","Speeter"
+  "Arlen","Specter","Speeter",
+  "Dana", "ROHRABACHER", "Rohrabaeher"
  
   
 
@@ -353,7 +354,8 @@ typos_first <- tribble(
   "Alcee", "Hastings", "(Alccc|Ateee)",
   "Arlen", "Specter", "Alien",
   "Bart", "Gordon", "Art",
-  "Barney", "Frank", "Bamey"
+  "Barney", "Frank", "Bamey",
+ 
 
  
   
