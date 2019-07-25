@@ -28,7 +28,7 @@ clean <- function(file.name) {
   
 #String Split for Multiple Members
   data %<>%
-    mutate(FROM = str_split(FROM, "\\/|&|;| and|Rep. |Sen. |(S), |(CW), |(CM), ")) %>%
+    mutate(FROM = str_split(FROM, "\\/|&|;| and|Rep. |Sen. |(S), |(CW), |(CM), |AK-2")) %>%
     unnest(FROM)
   
   #Create Chamber Variable
