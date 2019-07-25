@@ -137,6 +137,7 @@ data %<>% distinct() %>%
   data$FROM <- gsub(" 1. ", " L. ", data$FROM)
   data$FROM <- gsub("Hany", "Harry", data$FROM)
   data$FROM <- gsub("John Abney Culberson", "John Culberson", data$FROM)
+  data$FROM <- gsub(".Ion Tester", "Jon Tester", data$FROM)
   
   data$FROM %<>% str_replace("Charles E„ Schumer", "Charles E. Schumer")
   data$FROM %<>% str_replace("Tom A, Coburn", "Tom A. Coburn")
