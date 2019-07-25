@@ -74,7 +74,8 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "DeMarco, Edward, Acting Director"), "Acting Director", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Schroeder, Jeannine, Senior Strategic Planning & Management Specialist"), "Senior Strategic Planning & Management Specialist", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Kelley, Eric, Associate Director for Internal Audit"), "Associate Director for Internal Audit", ERROR)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Congressional Aide| Aide| aid"), "Congressional Aide", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Congressional Aide| Aide| aid"), "Congressional Aide", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Norton, Eleanor Holmes"), "Delegate", NOTES)) 
   
   #Fixes some mispelled names
   data %<>%
