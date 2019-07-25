@@ -25,26 +25,6 @@ clean <- function(file.name) {
 
  
   ############### 
-  
-#Filter FROM to find only the data that includes "\\/|&" and has multiple authors
-#sampledata1<- data %>% 
-#  filter(str_detect(FROM, "\\/|&|;"))
-
-#Creates new variable chamber 
- # sampledata1 %<>%
-  #  mutate(chamber = ifelse(str_detect(FROM, "\\(Sen") & ! str_detect(FROM, "\\(Cong"),
-   #                         "Senate", NA))
-  #sampledata1 %<>%
-   # mutate(chamber = ifelse(str_detect(FROM, "\\(Cong") & ! str_detect(FROM, "\\(Sen"),
-    #                        "House", chamber)) 
-
-   #Filter FROM for / , & looking for observations with multiple authors 
-   
-   #Creates duplicate rows for line with multiple representatives to check code and to compare to original col
-   #sampledata1 %<>% 
-    # mutate(FROM = str_split(FROM, "\\/|&|;")) %>%
-     #unnest(FROM) 
-   
 
 #Creates new variable chamber in full dataset
   data %<>%
@@ -85,8 +65,7 @@ data %<>%
 
 #Separates first and last name by comma
 data %<>%
-  mutate(FROM = str_trim(FROM)) %>%
-  mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, " ", "\\, "), FROM))
+  mutate(FROM = str_trim(FROM)) 
 
 #Switches the order so last name comes first
 #added names into nameMethods
@@ -107,6 +86,12 @@ data$FROM %<>%
 
   ################
   
+#sample
+sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
+
+ data <- sampledata
+
+
 #data <- getFirstLast.Comma(data, 'FROM')
 
 #changed to extractMemberName because it is capturing more observations
@@ -136,14 +121,16 @@ data %<>%
 data %<>%
   mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
 
-#data %<>%
- # mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), FROM, last_name))
+#Multiple unnamed members
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Other|Others"), "Multiple Unnamed Members, FOIA", NOTES))
 
 #Failing observations
 Unfoundnames <- data %>%
   filter(is.na(last_name),
          str_detect(pattern, "404error"),
-         is.na(ERROR))  
+         is.na(ERROR),
+         is.na(NOTES))  
 
 #sample <- data %>%
 #filter(is.na(last_name))  
@@ -157,4 +144,7 @@ Unfoundnames <- data %>%
 
   #arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
+  
+  
+  return(data)
 }
