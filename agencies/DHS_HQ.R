@@ -66,6 +66,7 @@ data %<>% distinct() %>%
   data$DATE2[which(is.na(data$DATE2))] <- multidate(data$originalDATE[which(is.na(data$DATE2))], c("%m/%d/%y", "%d-%b-%y")) 
   
 
+
   
   
   NOdate3 <- data %>%
@@ -143,6 +144,9 @@ data %<>% distinct() %>%
   data$FROM %<>% str_replace("Charles E„ Schumer", "Charles E. Schumer")
   data$FROM %<>% str_replace("Tom A, Coburn", "Tom A. Coburn")
   
+ 
+  #test for unmatched dates
+  #data %<>% filter(congress>116)
   
   # TESTING MYSTERIOUS BAD NAMES 
   # FIXME before committing
@@ -166,6 +170,8 @@ data %<>% distinct() %>%
   data %<>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
     mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
+  
+ 
   
 # Testing 
 
