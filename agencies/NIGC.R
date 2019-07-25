@@ -39,6 +39,24 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  # #String Split for Multiple Members
+  # data %<>%
+  #   mutate(FROM = str_split(FROM, "\\/|&|;| and|Rep. |Sen. |(S), |(CW), |(CM), ")) %>%
+  #   unnest(FROM)
+  # 
+  # #Create Chamber Variable
+  # data %<>%
+  #   mutate(chamber = ifelse(str_detect(FROM, "Sen. |\\(S\\)|Sen |Sens. |"), "Senate", NA)) %>%
+  #   mutate(chamber = ifelse(str_detect(FROM, "Rep. |\\(CW\\)|\\(CM\\)|Rep |Reps. "), "House", chamber)) %>%
+  #   mutate(chamber = ifelse(str_detect(Title, "CM|CW"), "House", chamber)) %>%
+  #   mutate(chamber = ifelse(str_detect(Title, "S"), "Senate", chamber))
+  
+  #Remove in FROM
+  data %<>%
+    mutate(FROM = str_remove(FROM, "Sen. |\\)")) %>%
+    mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19| CM"))
+  
+  
   #test for unmatched dates
   #data %<>% filter(congress<0)
 
