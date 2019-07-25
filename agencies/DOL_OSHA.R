@@ -115,6 +115,12 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Hurt. Robert", "HURT, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Sa rbanes, John P.", "SARBANES, John")) %>%
     mutate(FROM = ifelse(FROM == " Diaz-Balart," & congress == 115, str_replace(FROM, "Diaz-Balart,", "DIAZ-BALART, Mario"), FROM))
+  
+  #chamber typos
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Miller, George") & congress == 109, str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "McGovern, James") & congress == 109, "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Udall, Tom") & congress == 109, "House", chamber))
     
   
   data %>%
@@ -140,7 +146,7 @@ clean <- function(file.name) {
   
   data %<>% arrange(DATE)
   
-  
+                                   
   
   return(data)
   
