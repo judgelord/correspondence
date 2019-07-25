@@ -7,8 +7,8 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # create LetterID variable
+  data$LetterID <- c(1:nrow(data))
   
   # create agency column
   data$agency <- file.name
@@ -32,12 +32,12 @@ clean <- function(file.name) {
   
   #Create chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong\\)") & ! str_detect(FROM, "\\(Sen\\)|\\(Sen \\)"), "House", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "\\(Cong\\)| \\(Rep\\)") & ! str_detect(FROM, "\\(Sen\\)|\\(Sen \\)"), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "\\(Sen\\)|\\(Sen \\)") & ! str_detect(FROM, "\\(Cong\\)"), "Senate", chamber))
   
   #Remove Sen and Cong
   data %<>%
-    mutate(FROM = str_remove_all(FROM, "\\(Cong\\)|\\(Sen\\)|\\(Sen \\)"))
+    mutate(FROM = str_remove_all(FROM, "\\(Cong\\)|\\(Sen\\)|\\(Sen \\)| \\(Rep\\)"))
   
   # paste all relevent info into subject col
   data %<>% 
@@ -51,6 +51,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_split(FROM, ";|&")) %>%
     unnest(FROM)
+  
+  # create ID variable
+  data$ID <- c(1:nrow(data))
   
   #Delete extra space
   data %<>%
@@ -79,7 +82,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Caster, Kathy", "CASTOR, Kathy")) %>%
     mutate(FROM = str_replace(FROM, "Bra ley, Bruce", "BRALEY, Bruce")) %>%
     mutate(FROM = str_replace(FROM, "Westmorelan d, Lynn|WestmoreIan d, Lynn A.", "WESTMORELAND, Lynn")) %>%
-    mutate(FROM = str_replace(FROM, "Lamar, Alexander", "Alexander, Lamar")) %>%
+    mutate(FROM = str_replace(FROM, "Lamar, Alexander|Lamar,\n Alexander  ", "Alexander, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "Baird. Brian", "BAIRD, Brian")) %>%
     mutate(FROM = str_replace(FROM, "Blumenthal\n, Richard", "Blumenthal, Richard")) %>%
     mutate(FROM = str_replace(FROM, "Boehne r, John A.", "BOEHNER, John")) %>%
@@ -92,11 +95,30 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Davis, Geo ff", "DAVIS, Geoffrey")) %>%
     mutate(FROM = str_replace(FROM, "lnslee, Jay", "INSLEE, Jay")) %>%
     mutate(FROM = str_replace(FROM, "Warne r, Mark R.", "Warner, Mark")) %>%
-    mutate(FROM = str_replace(FROM, "Mikulski, Barba ra A.", "Mikulski, Barbara"))
+    mutate(FROM = str_replace(FROM, "Mikulski, Barba ra A.", "Mikulski, Barbara")) %>%
+    mutate(FROM = str_replace(FROM, "Sensenbrenn er, F. James", "SENSENBRENNER, Frank")) %>%
+    mutate(FROM = str_replace(FROM, "Rehberg, Danny", "REHBERG, Dennis")) %>%
+    mutate(FROM = str_replace(FROM, "Jorda n, Jim", "JORDAN, James")) %>%
+    mutate(FROM = str_replace(FROM, "Israe l, Steve", "ISRAEL, Steven")) %>%
+    mutate(FROM = str_replace(FROM, "Ros - Lehtinen, Ileana|Ros- Lehtinen, Ileana|Ros- Lehtinen,", "ROS-LEHTINEN, Ileana")) %>%
+    mutate(FROM = str_replace(FROM, "Stutzma n, Marlin", "STUTZMAN, Marlin")) %>%
+    mutate(FROM = str_replace(FROM, "Owens, W illiam L.", "OWENS, William")) %>%
+    mutate(FROM = str_replace(FROM, "Burton.Dan", "BURTON, Danny")) %>%
+    mutate(FROM = str_replace(FROM, "Lummis, Cyntha M.", "LUMMIS, Cynthia")) %>%
+    mutate(FROM = str_replace(FROM, "Schume,r Charles E.", "SCHUMER, Charles")) %>%
+    mutate(FROM = str_replace(FROM, "McEachin,\n A. Donald", "MCEACHIN, Aston")) %>%
+    mutate(FROM = str_replace(FROM, "Risc h, James E.", "RISCH, James")) %>%
+    mutate(FROM = str_replace(FROM, "Cuellar, Hery", "Cuellar, Henry")) %>%
+    mutate(FROM = str_replace(FROM, "Ruppersberg er,C.A.\n Dutch|Ruppersberg er, C. A.\n Dutch", "RUPPERSBERGER, C.")) %>%
+    mutate(FROM = str_replace(FROM, "lskaon, Johnny", "ISAKSON, Johnny")) %>%
+    mutate(FROM = str_replace(FROM, "Des antis, Ron", "DeSANTIS, Ron")) %>%
+    mutate(FROM = str_replace(FROM, "Hurt. Robert", "HURT, Robert")) %>%
+    mutate(FROM = str_replace(FROM, "Sa rbanes, John P.", "SARBANES, John")) %>%
+    mutate(FROM = ifelse(FROM == " Diaz-Balart," & congress == 115, str_replace(FROM, "Diaz-Balart,", "DIAZ-BALART, Mario"), FROM))
     
   
   data %>%
-    filter(ID == 1338) %>%
+    filter(LetterID == 2024) %>%
     select(FROM)
   
   # extract member names
@@ -106,7 +128,9 @@ clean <- function(file.name) {
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Others|Other"), "Multiple Unnamed Members", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Others|Other"), "Multiple Unnamed Members", NOTES)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Whelan, Jim|Wisniewski, John "), "State Politician", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Mau-Shimizu, Patricia|Sunning, Jim|Carlton, Maggie"), "Non Member", ERROR))
   
   #Failing observations
   Unfoundnames <- data %>%
