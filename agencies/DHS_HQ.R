@@ -156,8 +156,12 @@ data %<>% distinct() %>%
   # names 
   data <- extractMemberName(data, members, 'FROM2')
   
-  Unfoundnames <- data %>%
-    filter(is.na(last_name))
+  Unfoundnames2 <- data %>%
+  filter(is.na(last_name),
+         is.na(ERROR), 
+         is.na(NOTES),
+         str_detect(pattern, "404error"))
+  
    
   data %<>%
     mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
