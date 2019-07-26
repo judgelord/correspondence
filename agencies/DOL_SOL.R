@@ -49,13 +49,16 @@ clean <- function(file.name) {
     
 
   #Final Version with full data splits data on "/", "&", and ";" to account for multiple authors
+ data %<>%
+   mutate(FROM = str_replace(FROM, "Warner, Kaine, Manchin, Bennet,", "Warner; Kaine; Manchin; Bennet,"))
+ 
 data %<>%
     mutate(FROM = str_split(FROM, "\\/|&|;| and")) %>%
     unnest(FROM)
 
 #Removes the word "and" from the variable FROM
 data %<>%
-  mutate(FROM = str_remove(FROM, " and")) 
+  mutate(FROM = str_remove(FROM, " and|;")) 
 
 #Replaces "." with "," where they separate a first from a last name
 data %<>%
@@ -81,26 +84,41 @@ data$FROM %<>%
   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
   str_replace("Obama, Brack", "Obama, Barack") %>%
   str_replace("Hooley, Darene", "Hooley, Darlene") %>%
-  str_replace("Young, C.W. Bill", "Young, C.W.")
+  str_replace("Rubio, Mario", "Rubio, Marco") %>%
+  str_replace("Alexander, Larmar", "Alexander, Lamar") %>%
+  str_replace("Dingel, John D.", "DINGELL, John") %>%
+  str_replace("Cuellar, Hery", "Cuellar, Henry") %>%
+  str_replace("Kuchinich, Dennis J.", "KUCINICH, Dennis")
 
 
   ################
-  
-#sample
-#sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
-
- #data <- sampledata
 
  #Format Typos
- data %<>%
-   mutate(FROM = str_replace(FROM, "Forbes, J. Randy", "FORBES, James")) %>%
-   mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "BARRETT, James")) %>%
-   mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
-   mutate(FROM = str_replace(FROM, "Sensenbrenner, F. James Jr.", "Sensenbrenner, James")) %>%
-   mutate(FROM = ifelse(FROM == "Woolsey", str_replace(FROM, "Woolsey", "WOOLSEY, Lynn"), FROM)) %>%
-   mutate(FROM = str_replace(FROM, "Young, C. W.|Young, C. W. Bill", "YOUNG, Charles"))
+ data$FROM %<>%
+   str_replace("Forbes, J. Randy", "FORBES, James") %>%
+   str_replace("Barrett, J. Gresham", "BARRETT, James") %>%
+   str_replace("Sensenbrenner, F. James Jr.", "Sensenbrenner, James") %>%
+   str_replace("Young, C.W. Bill|Young, C. W. Bill", "YOUNG, Charles") %>%
+   str_replace("Butterfield, G.K.|Butterfield, G. K.", "BUTTERFIELD, George") %>%
+   str_replace("Sensenbrenner, F. James", "SENSENBRENNER, Frank") %>%
+   str_replace("McEachin, A. Donald", "MCEACHIN, Aston") %>%
+   str_replace("Wilson,Joe", "Wilson, Joe") %>%
+   str_replace("McIntyre,, Mike", "McINTYRE, Mike") %>%
+   str_replace("Conaway, K. Michael", "CONAWAY, Kenneth") %>%
+   str_replace("Cassey, Robert P., Jr.", "CASEY, Robert")
 
-#data <- getFirstLast.Comma(data, 'FROM')
+ data %<>%
+ mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
+ mutate(FROM = ifelse(FROM == "Woolsey", str_replace(FROM, "Woolsey", "WOOLSEY, Lynn"), FROM))
+ 
+ 
+ #sample
+ sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
+ 
+ data <- sampledata
+ 
+
+ #data <- getFirstLast.Comma(data, 'FROM')
 
 #changed to extractMemberName because it is capturing more observations
 
@@ -112,19 +130,23 @@ Nochamber <- data %>%
 
 
 #Membership Errors
+NonMembers <- data$FROM %>%
+  str_detect("Norton, Eleanor Holmes|Ackerman, Greg T.|Ackerman, Joyce L.|Zawacki, Thomas O.|Wu, Portia|Winglass, Robert J.|
+             Williams, Doug|Weprin, David I.|Washington, Pauletta D.|Washington, Willie C.")
+
+StatePoliticians <- data$FROM %>%
+  str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold")
+
+NonVotingMember <- data$FROM %>%
+  str_detect("Pierluisi, Pedro R.|Fortuno, Luis")
+
 data %<>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Fortuno, Luis"), "Puerto Rico Legislator", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes"), "Not a member of congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Ackerman, Greg T."), "Not a member of congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Ackerman, Joyce L."), "Not a member of congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony"), "New York State Senate Member", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Zawacki, Thomas O."), "Not a member of Congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Young, Catharine M."), "New York State Senator", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Wu, Portia"), "Not a member of Congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Winglass, Robert J."), "Not a member of Congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Williams, Doug"), "Not a member of Congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Weprin, David I."), "Not a member of Congress", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Washington, Pauletta D."), "Not a member of Congress", ERROR))
+  mutate(ERROR = ifelse(str_detect(FROM, "Trumka, Richard L."), "AFL-CIO President", ERROR)) %>%
+  mutate(ERROR = ifelse(NonMembers, "Non Member", ERROR)) %>%
+  mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
+  mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR))
+
+
 
 #Puts all data without a comma into last name variable and 
 #Format last name and put in last_name  
@@ -143,8 +165,12 @@ Unfoundnames <- data %>%
          is.na(ERROR),
          is.na(NOTES))  
 
+#nonMembers
+nonmem <- data %>%
+  filter(! is.na(ERROR))
+
 data %>%
-  filter(ID == 655431) %>%
+  filter(ID == 828391) %>%
   select(FROM)
 #sample <- data %>%
 #filter(is.na(last_name))  
