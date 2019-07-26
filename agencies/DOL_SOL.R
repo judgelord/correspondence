@@ -95,7 +95,8 @@ data$FROM %<>%
   str_replace("Harris, Cathy", "HARRIS, Katherine") %>%
   str_replace("Brown, Sherod", "Brown, Sherrod") %>%
   str_replace("Visclosky, Petr J.", "VISCLOSKY, Peter") %>%
-  str_replace("Caster, Kathy", "CASTOR, Kathy")
+  str_replace("Caster, Kathy", "CASTOR, Kathy") %>%
+  str_replace("Hultgreeen, Randy|Hultgren|Hultgreen, Randy", "HULTGREN, Randy")
 
 
   ################
@@ -115,7 +116,8 @@ data$FROM %<>%
    str_replace("Cassey, Robert P., Jr.", "CASEY, Robert") %>%
    str_replace("Pete V, Domenici", "DOMENICI, Pete") %>%
    str_replace("Lynch, S. F", "LYNCH, Stephen") %>%
-   str_replace("Grisham, Michelle Lujan", "LUJAN, Michelle")
+   str_replace("Grisham, Michelle Lujan", "LUJAN, Michelle") %>%
+   str_replace("Hill, J. French", "Hill, French")
 
  data %<>%
  mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
