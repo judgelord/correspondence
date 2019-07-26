@@ -88,7 +88,12 @@ data$FROM %<>%
   str_replace("Alexander, Larmar", "Alexander, Lamar") %>%
   str_replace("Dingel, John D.", "DINGELL, John") %>%
   str_replace("Cuellar, Hery", "Cuellar, Henry") %>%
-  str_replace("Kuchinich, Dennis J.", "KUCINICH, Dennis")
+  str_replace("Kuchinich, Dennis J.", "KUCINICH, Dennis") %>%
+  str_replace("Dent, Chares W.", "DENT, Charles") %>%
+  str_replace("Snowe, Olympha J.", "SNOWE, Olympia") %>%
+  str_replace("Specter, Alan", "SPECTER, Arlen") %>%
+  str_replace("Harris, Cathy", "HARRIS, Katherine") %>%
+  str_replace("Brown, Sherod", "Brown, Sherrod")
 
 
   ################
@@ -98,14 +103,16 @@ data$FROM %<>%
    str_replace("Forbes, J. Randy", "FORBES, James") %>%
    str_replace("Barrett, J. Gresham", "BARRETT, James") %>%
    str_replace("Sensenbrenner, F. James Jr.", "Sensenbrenner, James") %>%
-   str_replace("Young, C.W. Bill|Young, C. W. Bill", "YOUNG, Charles") %>%
+   str_replace("Young, C.W. Bill|Young, C. W. Bill|Young, C. W.|Young, C.W.", "YOUNG, Charles") %>%
    str_replace("Butterfield, G.K.|Butterfield, G. K.", "BUTTERFIELD, George") %>%
    str_replace("Sensenbrenner, F. James", "SENSENBRENNER, Frank") %>%
    str_replace("McEachin, A. Donald", "MCEACHIN, Aston") %>%
    str_replace("Wilson,Joe", "Wilson, Joe") %>%
    str_replace("McIntyre,, Mike", "McINTYRE, Mike") %>%
    str_replace("Conaway, K. Michael", "CONAWAY, Kenneth") %>%
-   str_replace("Cassey, Robert P., Jr.", "CASEY, Robert")
+   str_replace("Cassey, Robert P., Jr.", "CASEY, Robert") %>%
+   str_replace("Pete V, Domenici", "DOMENICI, Pete") %>%
+   str_replace("Lynch, S. F", "LYNCH, Stephen")
 
  data %<>%
  mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
@@ -113,9 +120,9 @@ data$FROM %<>%
  
  
  #sample
- sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
+ #sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
  
- data <- sampledata
+ #data <- sampledata
  
 
  #data <- getFirstLast.Comma(data, 'FROM')
@@ -132,13 +139,16 @@ Nochamber <- data %>%
 #Membership Errors
 NonMembers <- data$FROM %>%
   str_detect("Norton, Eleanor Holmes|Ackerman, Greg T.|Ackerman, Joyce L.|Zawacki, Thomas O.|Wu, Portia|Winglass, Robert J.|
-             Williams, Doug|Weprin, David I.|Washington, Pauletta D.|Washington, Willie C.")
+             Williams, Doug|Weprin, David I.|Washington, Pauletta D.|Washington, Willie C.|Alvarez, Robert|Cummings, Claude Jr.|
+             Fuentes, Nathan D.|Cresci, Peter J.|Deloach, Lawrence E.|Muirhead, James D.|Drago, Tom|Pizzella, Patrick|
+             Chao, Secretary|McCarthy, Devin|McNally, Cheryl L.|Chao, Secretary|Ching, Darwin L.D.|Chao, Elaine L.")
 
 StatePoliticians <- data$FROM %>%
-  str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold")
+  str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold|Cunningham, Don|
+             Spitzer, Eliot|Lynch, John H.|Rell, M. Jodi")
 
 NonVotingMember <- data$FROM %>%
-  str_detect("Pierluisi, Pedro R.|Fortuno, Luis")
+  str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.")
 
 data %<>%
   mutate(ERROR = ifelse(str_detect(FROM, "Trumka, Richard L."), "AFL-CIO President", ERROR)) %>%
