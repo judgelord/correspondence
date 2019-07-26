@@ -93,7 +93,9 @@ data$FROM %<>%
   str_replace("Snowe, Olympha J.", "SNOWE, Olympia") %>%
   str_replace("Specter, Alan", "SPECTER, Arlen") %>%
   str_replace("Harris, Cathy", "HARRIS, Katherine") %>%
-  str_replace("Brown, Sherod", "Brown, Sherrod")
+  str_replace("Brown, Sherod", "Brown, Sherrod") %>%
+  str_replace("Visclosky, Petr J.", "VISCLOSKY, Peter") %>%
+  str_replace("Caster, Kathy", "CASTOR, Kathy")
 
 
   ################
@@ -112,12 +114,22 @@ data$FROM %<>%
    str_replace("Conaway, K. Michael", "CONAWAY, Kenneth") %>%
    str_replace("Cassey, Robert P., Jr.", "CASEY, Robert") %>%
    str_replace("Pete V, Domenici", "DOMENICI, Pete") %>%
-   str_replace("Lynch, S. F", "LYNCH, Stephen")
+   str_replace("Lynch, S. F", "LYNCH, Stephen") %>%
+   str_replace("Grisham, Michelle Lujan", "LUJAN, Michelle")
 
  data %<>%
  mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
  mutate(FROM = ifelse(FROM == "Woolsey", str_replace(FROM, "Woolsey", "WOOLSEY, Lynn"), FROM))
  
+ #Match on Chamber
+ data %<>%
+   mutate(FROM = ifelse(FROM == "Kennedy" & chamber == "Senate" & congress == 110, str_replace(FROM, "Kennedy", "KENNEDY, Edward"), FROM)) %>%
+   mutate(FROM = ifelse(FROM == "Kennedy" & chamber == "House" & congress == 110, str_replace(FROM, "Kennedy", "KENNEDY, Patrick"), FROM))
+ 
+ #Match on Chamber_Last
+ data %<>%
+   mutate(FROM =ifelse( ! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
+   mutate(FROM = ifelse( ! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
  
  #sample
  #sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
@@ -141,7 +153,8 @@ NonMembers <- data$FROM %>%
   str_detect("Norton, Eleanor Holmes|Ackerman, Greg T.|Ackerman, Joyce L.|Zawacki, Thomas O.|Wu, Portia|Winglass, Robert J.|
              Williams, Doug|Weprin, David I.|Washington, Pauletta D.|Washington, Willie C.|Alvarez, Robert|Cummings, Claude Jr.|
              Fuentes, Nathan D.|Cresci, Peter J.|Deloach, Lawrence E.|Muirhead, James D.|Drago, Tom|Pizzella, Patrick|
-             Chao, Secretary|McCarthy, Devin|McNally, Cheryl L.|Chao, Secretary|Ching, Darwin L.D.|Chao, Elaine L.")
+             Chao, Secretary|McCarthy, Devin|McNally, Cheryl L.|Chao, Secretary|Ching, Darwin L.D.|Chao, Elaine L.|
+             Aumiller, Aaron B.|Williams, Doug|Stinson, Tamara|Hulse, Trevor M.")
 
 StatePoliticians <- data$FROM %>%
   str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold|Cunningham, Don|
