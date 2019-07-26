@@ -96,7 +96,9 @@ data$FROM %<>%
   str_replace("Brown, Sherod", "Brown, Sherrod") %>%
   str_replace("Visclosky, Petr J.", "VISCLOSKY, Peter") %>%
   str_replace("Caster, Kathy", "CASTOR, Kathy") %>%
-  str_replace("Hultgreeen, Randy|Hultgren|Hultgreen, Randy", "HULTGREN, Randy")
+  str_replace("Hultgreeen, Randy|Hultgren|Hultgreen, Randy", "HULTGREN, Randy") %>%
+  str_replace("Buchanan, Veern", "BUCHANAN, Vernon") %>%
+  str_replace("Gillibrand, Kirstern E.", "Gillibrand, Kirsten")
 
 
   ################
@@ -116,12 +118,25 @@ data$FROM %<>%
    str_replace("Cassey, Robert P., Jr.", "CASEY, Robert") %>%
    str_replace("Pete V, Domenici", "DOMENICI, Pete") %>%
    str_replace("Lynch, S. F|Lynch,\nS. F", "LYNCH, Stephen") %>%
-   str_replace("Grisham, Michelle Lujan", "LUJAN, Michelle") %>%
-   str_replace("Hill, J. French", "Hill, French")
+   str_replace("Grisham, Michelle Lujan", "Michelle LUJAN") %>%
+   str_replace("Hill, J. French", "Hill, French") %>%
+   str_replace("Filemon, Vela", "VELA, Filemon")
 
  data %<>%
  mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
  mutate(FROM = ifelse(FROM == "Woolsey", str_replace(FROM, "Woolsey", "WOOLSEY, Lynn"), FROM))
+ 
+ #Chamber typo
+ data %<>%
+   mutate(chamber = ifelse(str_detect(FROM, "Alexander, Lamar") & chamber == "House", str_replace(chamber,"House", "Senate"), chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Dent, Charles W.") & chamber == "Senate", str_replace(chamber, "Senate", "House"), chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Gillibrand, Kirsten E.") & congress == 112, "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Miller, George"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Scott, Tim") & congress == 113, "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "McGovern") & congress == 110, "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Michaud") & congress == 110|111, "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Udall") & congress == 110, "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Udall") & congress == 111, "Senate", chamber))
  
  #Match on Chamber
  data %<>%
@@ -156,11 +171,14 @@ NonMembers <- data$FROM %>%
              Williams, Doug|Weprin, David I.|Washington, Pauletta D.|Washington, Willie C.|Alvarez, Robert|Cummings, Claude Jr.|
              Fuentes, Nathan D.|Cresci, Peter J.|Deloach, Lawrence E.|Muirhead, James D.|Drago, Tom|Pizzella, Patrick|
              Chao, Secretary|McCarthy, Devin|McNally, Cheryl L.|Chao, Secretary|Ching, Darwin L.D.|Chao, Elaine L.|
-             Aumiller, Aaron B.|Williams, Doug|Stinson, Tamara|Hulse, Trevor M.")
+             Aumiller, Aaron B.|Williams, Doug|Stinson, Tamara|Hulse, Trevor M.|Smalls, Eugene C.|Simpson, James|
+             North, Lynn Fraley|DeBruin, David W.|Coleman, Wayne A.|Miller, Lorraine C.|Friedel, Laura|
+             Gonzalez-Colon, Jenniffer|Haley, Nikki R.|Hunt, Robert|Inos, Eloy S.|Knox, Wayne|McLaren, Ellen C.")
 
 StatePoliticians <- data$FROM %>%
   str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold|Cunningham, Don|
-             Spitzer, Eliot|Lynch, John H.|Rell, M. Jodi")
+             Spitzer, Eliot|Lynch, John H.|Rell, M. Jodi|Lingle, Linda|Pawlenty, Tim|Goode, Virgil H. Jr.|Dayton, Mark|
+             Brown, Edmund G. Jr.|De Leon, Kevin|Stack, Brian P.")
 
 NonVotingMember <- data$FROM %>%
   str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
@@ -172,6 +190,9 @@ data %<>%
   mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
   mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR))
 
+#Notes
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Pellito, John"), "Liason for Congresswoman Louise Slaughter", NOTES))
 
 
 #Puts all data without a comma into last name variable and 
