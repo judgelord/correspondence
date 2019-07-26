@@ -111,11 +111,11 @@ data$FROM %<>%
    str_replace("Sensenbrenner, F. James", "SENSENBRENNER, Frank") %>%
    str_replace("McEachin, A. Donald", "MCEACHIN, Aston") %>%
    str_replace("Wilson,Joe", "Wilson, Joe") %>%
-   str_replace("McIntyre,, Mike", "McINTYRE, Mike") %>%
+   str_replace("McIntyre,, Mike|McIntyre, Mile", "McINTYRE, Mike") %>%
    str_replace("Conaway, K. Michael", "CONAWAY, Kenneth") %>%
    str_replace("Cassey, Robert P., Jr.", "CASEY, Robert") %>%
    str_replace("Pete V, Domenici", "DOMENICI, Pete") %>%
-   str_replace("Lynch, S. F", "LYNCH, Stephen") %>%
+   str_replace("Lynch, S. F|Lynch,\nS. F", "LYNCH, Stephen") %>%
    str_replace("Grisham, Michelle Lujan", "LUJAN, Michelle") %>%
    str_replace("Hill, J. French", "Hill, French")
 
@@ -163,7 +163,8 @@ StatePoliticians <- data$FROM %>%
              Spitzer, Eliot|Lynch, John H.|Rell, M. Jodi")
 
 NonVotingMember <- data$FROM %>%
-  str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.")
+  str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
+             Christensen, Donna M.|Sablan, Gregorio Kilili Camacho")
 
 data %<>%
   mutate(ERROR = ifelse(str_detect(FROM, "Trumka, Richard L."), "AFL-CIO President", ERROR)) %>%
@@ -195,7 +196,7 @@ nonmem <- data %>%
   filter(! is.na(ERROR))
 
 data %>%
-  filter(ID == 828391) %>%
+  filter(ID == 506371) %>%
   select(FROM)
 #sample <- data %>%
 #filter(is.na(last_name))  
