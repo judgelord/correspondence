@@ -142,7 +142,7 @@ typos_last <- tribble(
   "Ron", "Wyden", "Wydon",
   "John", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
-  "Blake", "Farenthold", "Farenhold",
+  "Blake", "Farenthold", "Farenhold|Farenthod",
   "Anna", "Eshoo", "Eschoo",
   "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap)",
   "Gerry", "Connolly", "Connelly",
@@ -211,7 +211,7 @@ typos_last <- tribble(
   "James", "Hansen", "Hansch",
   "Mac", "Thornberry", "Thomberry",
   "Michael", "Turner", "Tuner",
-  "Doug", "Lamborn", "Lambom",
+  "Doug", "Lamborn", "Lambom|Lanborn",
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
@@ -244,7 +244,10 @@ typos_last <- tribble(
   "David", "Roe", "Roc",
   "Al", "Franken", "Fianken",
   "Arlen","Specter","Speeter",
-  "Dana", "ROHRABACHER", "Rohrabaeher"
+  "Dana", "ROHRABACHER", "Rohrabaeher",
+  "Mark", "Souder", "Sounder",
+  "Maria", "Cantwell", "Catwell"
+  
  
   
 
