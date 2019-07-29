@@ -31,6 +31,7 @@ clean <- function(file.name) {
   data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
   
+  #finding unfound dates 
   NOdate <- data %>%
     filter(is.na(DATE))
   
