@@ -138,7 +138,9 @@ data$FROM %<>%
    mutate(chamber = ifelse(str_detect(FROM, "Udall") & str_detect(congress, "110"), "House", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "Udall") & str_detect(congress, "111"), "Senate", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "KENNEDY, Edward|Kennedy, Edward") & str_detect(congress, "110"), "Senate", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Kennedy, Patrick") & str_detect(congress, "110"), "House", chamber))
+   mutate(chamber = ifelse(str_detect(FROM, "Kennedy, Patrick") & str_detect(congress, "110"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "110"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "112|113|114|115|116"), "Senate", chamber))
  
  #Match on Chamber
  data %<>%
