@@ -70,6 +70,7 @@ data %<>%
   mutate(chamber = ifelse(str_detect(FROM, "Carter, Earl"), str_replace(chamber, "Senate", "House"), chamber)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress == 112|113 & str_detect(chamber, "Senate"), str_replace(FROM, "Moran, J.", "MORAN, Jerry"), FROM)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress == 112|113 & str_detect(chamber, "House"), str_replace(FROM, "Moran, J.", "MORAN, James"), FROM))
+
 #string split on "\"
   data %<>%
     mutate(FROM = str_split(FROM, "\\/")) %>%
