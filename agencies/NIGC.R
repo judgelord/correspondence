@@ -13,9 +13,9 @@ clean <- function(file.name) {
   
   # Rename to standard column names 
   data %<>% 
-    mutate(SUBJECT = Description,
-           DATE = Date,
-           FROM = `Member of Congress`)  %>%
+    mutate(SUBJECT = SUBJECT,
+           DATE = DATE,
+           FROM = FROM)  %>%
     select(DATE, FROM, SUBJECT, everything())
   
   
