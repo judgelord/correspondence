@@ -180,7 +180,7 @@ NonMembers <- data$FROM %>%
 StatePoliticians <- data$FROM %>%
   str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold|Cunningham, Don|
              Spitzer, Eliot|Lynch, John H.|Rell, M. Jodi|Lingle, Linda|Pawlenty, Tim|Goode, Virgil H. Jr.|Dayton, Mark|
-             Brown, Edmund G. Jr.|De Leon, Kevin|Stack, Brian P.")
+             Brown, Edmund G. Jr.|De Leon, Kevin|Stack, Brian P.|Snyder, Rick")
 
 NonVotingMember <- data$FROM %>%
   str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
