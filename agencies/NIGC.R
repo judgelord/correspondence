@@ -57,7 +57,8 @@ clean <- function(file.name) {
     unnest(FROM)
   
   data %<>%
-    mutate(FROM = str_remove(FROM, "\\/"))
+    mutate(FROM = str_remove(FROM, "\\/")) %>%
+    unnest(FROM)
   
   
   #Removes unneeded characters

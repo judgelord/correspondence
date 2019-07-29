@@ -41,6 +41,11 @@ clean <- function(file.name) {
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, 
                               gsub("^(\\w+)(\\w| \\w)$", '\\1', last_name)))
   
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
+  
   #checking for names that are NA
   unfoundnames<- data %>%
     filter(is.na(last_name))
