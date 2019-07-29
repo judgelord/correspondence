@@ -46,15 +46,25 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Sen. |\\(S\\)|Sen |Sens. |"), "Senate", NA)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Rep. |\\(CW\\)|\\(CM\\)|Rep |Reps. "), "House", chamber)) 
   
-  #String Split for Multiple Members
+  #String split on ',' & 'and' between multiple members
   data %<>%
-    mutate(FROM = str_split(FROM, "\\/|&|;| and|Rep. |Sen. |(S), |(CW), |(CM), ")) %>%
+    mutate(FROM = str_split(FROM, "\\,| and")) %>%
     unnest(FROM)
   
+  #string split on "\"
+  data %<>%
+    mutate(FROM = str_split(FROM, "\\/")) %>%
+    unnest(FROM)
+  
+  data %<>%
+    mutate(FROM = str_remove(FROM, "\\/"))
   
   
-
-
+  #Removes unneeded characters
+  data %<>%
+    mutate(FROM = str_remove(FROM, "\\,| and"))
+  
+  
   #Remove in FROM
   data %<>%
     mutate(FROM = str_remove(FROM, "Sen. |\\)")) %>%
@@ -68,6 +78,16 @@ clean <- function(file.name) {
   
   # create first and last name variables
   data %<>% extractMemberName(members, 'FROM')
+  
+  #Format last name and put in last_name  
+  data %<>%
+    mutate(FROM = str_trim(FROM)) %>%
+    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  
+  #Add first name 
+  data %<>%
+    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
+  
   
   #Failing observations
   Unfoundnames <- data %>%
