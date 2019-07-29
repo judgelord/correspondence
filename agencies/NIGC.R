@@ -67,8 +67,13 @@ clean <- function(file.name) {
   
   # create first and last name variables
   data %<>% extractMemberName(members, 'FROM')
-
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           is.na(NOTES))
+
   
   # arrange columns for hand coding
   data %<>% select(DATE, FROM, SUBJECT, everything())
