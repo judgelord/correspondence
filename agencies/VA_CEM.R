@@ -21,6 +21,10 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
 
   # created chamber variable
   data %<>%
@@ -30,6 +34,12 @@ clean <- function(file.name) {
   data %<>% mutate(ERROR = ifelse(grepl("Randy Reeves", FROM), "Under Secretary", ERROR))
   
   data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           is.na(NOTES))
   
   
   # arrange columns for hand coding
