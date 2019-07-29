@@ -35,7 +35,10 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% multidate(c("%m-%d-%y","%m/%d/%y"))  
   
-  ##allow for different variations of dates for better matches
+
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
 
