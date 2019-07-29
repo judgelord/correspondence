@@ -1,10 +1,10 @@
 
-# file.name <- "IRS" # for testing
+#file.name <- "IRS" # for testing
 
-#file.name <- "IRS" #for testing 12 June
+
 
 clean <- function(file.name) {
-data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() # get data
 
 # create ID variable
 data$ID <- c(1:nrow(data))
@@ -16,11 +16,22 @@ data$agency <- file.name
 data$DATE <- data$`Received Date`
 data$DATE %<>% as.Date("%m/%d/%y")
 
+#checking for NA dates
+NOdate <- data %>%
+  filter(is.na(DATE))
+
+
 #create year and congress columns
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
 data <- extractMemberName(data, members, 'SUBJECT')
+
+#Failing observations
+Unfoundnames <- data %>%
+  filter(is.na(last_name),
+         is.na(ERROR),
+         is.na(NOTES))
 
 #sample <- data %>%
 #filter(is.na(first_name))  

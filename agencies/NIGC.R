@@ -13,9 +13,9 @@ clean <- function(file.name) {
   
   # Rename to standard column names 
   data %<>% 
-    mutate(SUBJECT = Description,
-           DATE = Date,
-           FROM = `Member of Congress`)  %>%
+    mutate(SUBJECT = SUBJECT,
+           DATE = DATE,
+           FROM = FROM)  %>%
     select(DATE, FROM, SUBJECT, everything())
   
   
@@ -68,7 +68,7 @@ clean <- function(file.name) {
   #Remove in FROM
   data %<>%
     mutate(FROM = str_remove(FROM, "Sen. |\\)")) %>%
-    mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19| CM"))
+    mutate(FROM = str_remove_all(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19| CM|\\(|AK-2|AK-4"))
   
   
   #test for unmatched dates

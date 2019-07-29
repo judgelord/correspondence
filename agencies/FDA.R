@@ -130,6 +130,7 @@ data %<>%
                                       "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U. S. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
     mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike"), "State Legislator", ERROR))
+    
   
 #Filter while working (Comment out) 
   #data %<>%

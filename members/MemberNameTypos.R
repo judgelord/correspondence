@@ -44,6 +44,8 @@ typos_clear <- tribble(
   "Manzullo", "Manzulo",
   "NEUGEBAUER", "BEUGEBAUER",
 
+  
+
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
   
