@@ -7,7 +7,7 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  names(data)[names(data) == 'SIMS ID'] <- 'ID'
+  names(data)[names(data) == 'SIMS ID'] <- 'LetterID'
   
   
    #create agency column
@@ -60,13 +60,15 @@ data %<>%
 data %<>%
   mutate(FROM = str_remove(FROM, " and|;")) 
 
+#Create ID
+data %<>%
+  mutate(ID = row_number())
+
+
 #Replaces "." with "," where they separate a first from a last name
 data %<>%
   mutate(FROM = ifelse(! str_detect(FROM, "\\,"), str_replace(FROM, "\\.", "\\,"), FROM))
 
-
-
-#Separates first and last name by comma
 data %<>%
   mutate(FROM = str_trim(FROM)) 
 
@@ -140,7 +142,8 @@ data$FROM %<>%
    mutate(chamber = ifelse(str_detect(FROM, "KENNEDY, Edward|Kennedy, Edward") & str_detect(congress, "110"), "Senate", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "Kennedy, Patrick") & str_detect(congress, "110"), "House", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "110"), "House", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "112|113|114|115|116"), "Senate", chamber))
+   mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "112|113|114|115|116"), "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Kline, John"), "House", chamber))
  
  #Match on Chamber
  data %<>%
@@ -158,14 +161,9 @@ data$FROM %<>%
  #data <- sampledata
  
 
- #data <- getFirstLast.Comma(data, 'FROM')
-
-#changed to extractMemberName because it is capturing more observations
+#extractMemberName
 
 data <- extractMemberName(data, members, 'FROM')
-
-Nochamber <- data %>%
-  filter(is.na(chamber))
 
 
 
@@ -203,7 +201,7 @@ data %<>%
 #Format last name and put in last_name  
 
 data %<>%
-  mutate(last_name = ifelse(! str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
 
 #Multiple unnamed members
 data %<>%
@@ -223,13 +221,21 @@ nonmem <- data %>%
 data %>%
   filter(ID == 712737) %>%
   select(FROM, chamber)
+
+#Filter FOIA
+FOIA <- data %>%
+  filter(str_detect(FROM, "Representative Udall|Senator Udall"))
+
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Representative Udall|Senator Udall") & is.na(last_name), "Multiple Udall's FOIA", NOTES))
+
 #sample <- data %>%
 #filter(is.na(last_name))  
 #View(sample)
 
 #Check after run through merge
-#Unfoundnames <- d %>%
-#filter(is.na(bioname))
+#Unfoundnames2 <- d %>%
+#filter(is.na(pattern))
 
 ##code for testing
 
