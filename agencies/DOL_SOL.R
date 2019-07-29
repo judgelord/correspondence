@@ -128,20 +128,22 @@ data$FROM %<>%
  
  #Chamber typo
  data %<>%
-   mutate(chamber = ifelse(str_detect(FROM, "Alexander, Lamar") & chamber == "House", str_replace(chamber,"House", "Senate"), chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Dent, Charles W.") & chamber == "Senate", str_replace(chamber, "Senate", "House"), chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Gillibrand, Kirsten E.") & congress == 112, "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Alexander, Lamar") & str_detect(chamber,"House"), str_replace(chamber,"House", "Senate"), chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Dent, Charles W.") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Gillibrand, Kirsten") & ! str_detect(congress, "110|111"), "Senate", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "Miller, George"), "House", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Scott, Tim") & congress == 113, "Senate", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "McGovern") & congress == 110, "House", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Michaud") & congress == 110|111, "House", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Udall") & congress == 110, "House", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Udall") & congress == 111, "Senate", chamber))
+   mutate(chamber = ifelse(str_detect(FROM, "Scott, Tim") & str_detect(congress, "113"), "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "McGovern") & str_detect(congress, "110"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Michaud") & str_detect(congress, "110|111"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Udall") & str_detect(congress, "110"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Udall") & str_detect(congress, "111"), "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "KENNEDY, Edward|Kennedy, Edward") & str_detect(congress, "110"), "Senate", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Kennedy, Patrick") & str_detect(congress, "110"), "House", chamber))
  
  #Match on Chamber
  data %<>%
-   mutate(FROM = ifelse(FROM == "Kennedy" & chamber == "Senate" & congress == 110, str_replace(FROM, "Kennedy", "KENNEDY, Edward"), FROM)) %>%
-   mutate(FROM = ifelse(FROM == "Kennedy" & chamber == "House" & congress == 110, str_replace(FROM, "Kennedy", "KENNEDY, Patrick"), FROM))
+  mutate(FROM = ifelse(FROM == "Kennedy" & str_detect(chamber, "Senate") & str_detect(congress, "110"), str_replace(FROM, "Kennedy", "KENNEDY, Edward"), FROM)) %>%
+  mutate(FROM = ifelse(FROM == "Kennedy" & str_detect(chamber, "House") & str_detect(congress, "110"), str_replace(FROM, "Kennedy", "KENNEDY, Patrick"), FROM))
  
  #Match on Chamber_Last
  data %<>%
@@ -217,8 +219,8 @@ nonmem <- data %>%
   filter(! is.na(ERROR))
 
 data %>%
-  filter(ID == 506371) %>%
-  select(FROM)
+  filter(ID == 712737) %>%
+  select(FROM, chamber)
 #sample <- data %>%
 #filter(is.na(last_name))  
 #View(sample)
