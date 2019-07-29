@@ -88,6 +88,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
+  #Error for nonmembers
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Ken Rooney|Michon Johnson"), "Non members of Congress", ERROR))
   
   #Failing observations
   Unfoundnames <- data %>%
