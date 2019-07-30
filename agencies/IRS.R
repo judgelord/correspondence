@@ -28,7 +28,8 @@ data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 10
 data %<>%
   mutate(SUBJECT = str_remove_all(SUBJECT, "\\'s")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Patrick McHenrv", "Patrick McHenry")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Nancv Pelosi", "Nancy Pelosi"))
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Nancv Pelosi", "Nancy Pelosi")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Garv Peter", "Gary Peter"))
 
 #extracting members from Subject
 data <- extractMemberName(data, members, 'SUBJECT')
