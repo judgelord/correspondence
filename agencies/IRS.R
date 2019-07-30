@@ -29,7 +29,8 @@ data %<>%
   mutate(SUBJECT = str_remove_all(SUBJECT, "\\'s")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Patrick McHenrv", "Patrick McHenry")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Nancv Pelosi", "Nancy Pelosi")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Garv Peter", "Gary Peter"))
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Garv Peter", "Gary Peter")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Justine Amash", "Justin Amash"))
 
 #extracting members from Subject
 data <- extractMemberName(data, members, 'SUBJECT')
