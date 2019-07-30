@@ -492,6 +492,13 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$first_initial %<>% str_remove("\\.")
   members$middle_name %<>% str_remove("\\.")
   
+  # add any missing middle initials
+  
+  members %<>%
+    mutate(middle_initial = ifelse(is.na(middle_initial) & ! is.na(middle_name),
+                                   str_sub(middle_name, 1,1),
+                                   middle_initial))
+  
   
   #create full name variables with different combinations of first, common, middle, middle initial, and last name
   members$first_last <- paste(members$first_name, members$last_name, sep = " ")
@@ -574,12 +581,6 @@ members %<>%
   ungroup()
 
 
-# add any missing middle initials
-
- members %<>%
-   mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name),
-                       str_sub(middle_name, 1,1),
-                       middle_initial))
 
 # mismatches between middle name and middle initial? 
 suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initial) & !is.na(middle_name))
