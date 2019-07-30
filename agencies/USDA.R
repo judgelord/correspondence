@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# 573 non matches out of 4748
+
 
 
 #file.name <- "USDA" #for testing
@@ -15,10 +15,17 @@ clean <- function(file.name){
   # create agency column 
   data$agency <- file.name
   
-  # First, format date, year, Congress, member name etc. (things found in all logs)
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  # Format date, year, Congress, member name etc. 
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE %<>% as.Date("%m/%d/%y")
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001  
+  
+  #Check bad dates
+  data %>%
+    filter(ID == 8312667) %>%
+    select(DATE)
 
 # Next, clean up SUBJECT for auto-coding (notice if TYPE has been hand coded)  
 unique(data$SUBJECT) # view SUBJECT strings
@@ -45,6 +52,9 @@ data %<>%
 data$FROM <- ifelse( grepl("Ben|E. B",data$FROM)&grepl("Nelson",data$FROM), "Earl Nelson", data$FROM)
 
 data <- extractMemberName(data, members, 'FROM')
+
+Unfoundnames <- data %>%
+  filter(is.na(last_name))
 
 
 # # create variable for first name
