@@ -2,10 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "USDA_RMA" # for testing
-
-#file.name <- "USDA_RMA" ##for testing 14 June 
-
+#file.name <- "USDA_RMA" # for testing # 0 unfound dates and names
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
