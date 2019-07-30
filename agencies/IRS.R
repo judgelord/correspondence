@@ -42,10 +42,21 @@ data %<>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "John Cornvn", "John Cornyn")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Vicente Gonxalez", "Vicente Gonzalez")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Llovd Doaaett", "Lloyd Doggett")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Cortex Masto", "Catherine Cortez Masto")
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Cortex Masto", "Catherine Cortez Masto"))
+         
 
 #extracting members from Subject
 data <- extractMemberName(data, members, 'SUBJECT')
+
+#FOIA NOTES
+data %<>%
+  mutate(NOTES = ifelse(ID==137, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==94, "Unnamed members of congress",  NOTES))%>%
+  mutate(NOTES = ifelse(ID==919, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==882, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==873, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==868, "Unnamed members of congress", NOTES)) 
+  
 
 ##checking for special characters
 #data %>% filter(ID==574) %>% select('SUBJECT')
