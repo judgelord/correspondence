@@ -435,7 +435,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "ROSKAM, Peter","J", middle_initial)) %>%  
   mutate(middle_initial = ifelse(bioname == "NUGENT, Richard","B", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "WOMACK, Steve","A", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "HARRIS, Andy","P", middle_initial))
+  mutate(middle_initial = ifelse(bioname == "HARRIS, Andy","P", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "CRAMER, Kevin","J", middle_initial)) 
 
  members %<>%    
   # first names
@@ -507,6 +508,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
            common_maiden_last = paste(common_name, maiden_name, last_name),
+           #first_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
