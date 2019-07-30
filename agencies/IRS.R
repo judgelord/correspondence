@@ -15,6 +15,7 @@ data$agency <- file.name
 data$DATE <- data$`Received Date`
 data$DATE %<>% as.Date("%m/%d/%y")
 
+
 #checking for NA dates
 NOdate <- data %>%
   filter(is.na(DATE))
