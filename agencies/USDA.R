@@ -52,9 +52,14 @@ data %<>%
 #Format typos
 data %<>%
   mutate(FROM = str_replace(FROM, "Kay B. Hutchison", "Kathryn HUTCHISON")) %>%
-  mutate(FROM = str_replace(FROM, "E. Benjamin Nelson|Ben Nelson", "Earl Nelson"))
+  mutate(FROM = str_replace(FROM, "E. Benjamin Nelson|Ben Nelson", "Earl Nelson")) %>%
+  mutate(FROM = str_replace(FROM, "C \"Bill\" W. Young", "Charles YOUNG"))
 
 data <- extractMemberName(data, members, 'FROM')
+
+data %>%
+  filter(ID == 6397183) %>%
+  select(FROM)
 
 Unfoundnames <- data %>%
   filter(is.na(last_name))
