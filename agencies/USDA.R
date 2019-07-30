@@ -22,11 +22,6 @@ clean <- function(file.name){
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001  
   
-  #Check bad dates
-  data %>%
-    filter(ID == 8312667) %>%
-    select(DATE)
-
 # Next, clean up SUBJECT for auto-coding (notice if TYPE has been hand coded)  
 unique(data$SUBJECT) # view SUBJECT strings
 log <- data %>% group_by(SUBJECT) %>% count() %>% arrange(desc(n))
@@ -50,6 +45,14 @@ data %<>%
 # major.subjects <- c("Appropriations", "Nutrition", "Forestry", "Environment","Farms", "Research", "Price Support", "Government", "Food and Drug Saftey")
 
 data$FROM <- ifelse( grepl("Ben|E. B",data$FROM)&grepl("Nelson",data$FROM), "Earl Nelson", data$FROM)
+
+data %<>%
+  mutate(FROM = str_replace(FROM, "\\.\\. ", ". "))
+
+#Format typos
+data %<>%
+  mutate(FROM = str_replace(FROM, "Kay B. Hutchison", "Kathryn HUTCHISON")) %>%
+  mutate(FROM = str_replace(FROM, "E. Benjamin Nelson|Ben Nelson", "Earl Nelson"))
 
 data <- extractMemberName(data, members, 'FROM')
 
