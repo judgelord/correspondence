@@ -24,8 +24,15 @@ NOdate <- data %>%
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
+#Format Typo
+data %<>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Nancv Pelosi\\'s ", "Nancy Pelosi"))
+
 #extracting members from Subject
 data <- extractMemberName(data, members, 'SUBJECT')
+
+##checking for special characters
+#data %>% filter(ID==574) %>% select('SUBJECT')
 
 #Failing observations
 Unfoundnames <- data %>%
