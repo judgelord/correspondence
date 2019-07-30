@@ -53,7 +53,8 @@ data %<>%
 data %<>%
   mutate(FROM = str_replace(FROM, "Kay B. Hutchison", "Kathryn HUTCHISON")) %>%
   mutate(FROM = str_replace(FROM, "E. Benjamin Nelson|Ben Nelson", "Earl Nelson")) %>%
-  mutate(FROM = str_replace(FROM, "C \"Bill\" W. Young", "Charles YOUNG"))
+  mutate(FROM = str_replace(FROM, "C \"Bill\" W. Young", "Charles YOUNG")) %>%
+  mutate(FROM = str_replace(FROM, "M. Michael Rounds", "Marion ROUNDS"))
 
 data <- extractMemberName(data, members, 'FROM')
 
@@ -61,42 +62,29 @@ data %>%
   filter(ID == 6397183) %>%
   select(FROM)
 
+
+#Membership Errors
+NonMembers <- data$FROM %>%
+  str_detect("Gregg Engles|Gregg L. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue")
+
+
+StatePoliticians <- data$FROM %>%
+  str_detect("Roger Allbee|Scott Walker")
+
+
+NonVotingMember <- data$FROM %>%
+  str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
+             Christensen, Donna M.|Sablan, Gregorio Kilili Camacho")
+
+data %<>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Trumka, Richard L."), "AFL-CIO President", ERROR)) %>%
+  mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
+  mutate(ERROR = ifelse(NonMembers, "Non Member", ERROR)) %>%
+  mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR))
+
 Unfoundnames <- data %>%
-  filter(is.na(last_name))
-
-
-# # create variable for first name
-# data %<>%
-#   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-#   mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
-# data$first_name <- formatFirstName(data, 'first_name')
-# 
-# 
-# 
-# 
-# 
-# data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV", "", data$FROM)
-# 
-# # create variable for last name
-# data %<>%
-#   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM2)) %>% 
-#   mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
-#   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-#   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
-#   mutate(last_name = gsub(pattern = ".* (\\w+, Jr.|\\w+ Jr.)", replacement = "\\1", last_name)) %>% 
-#   mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
-#   mutate(last_name = gsub(pattern = ".* (\\w+, ..)", replacement = "\\1", last_name))  %>% 
-#   mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM2), gsub(pattern=".* (\\w+, ..)", 
-#                                                                replacement = "\\1", FROM2), last_name)) %>% 
-#   mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM2), gsub(pattern=".* (\\w+ ..)", 
-#                                                                replacement = "\\1", FROM2), last_name))
-# data$last_name <- formatLastName(data, 'last_name')
-# 
-#   
-#  
-#  
-# 
-# data <- data[,!(names(data) %in% "FROM2")]
+  filter(is.na(last_name),
+         is.na(ERROR))
 
   
 data %<>%
