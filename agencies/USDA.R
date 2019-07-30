@@ -65,11 +65,13 @@ data %>%
 
 #Membership Errors
 NonMembers <- data$FROM %>%
-  str_detect("Gregg Engles|Gregg L. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue")
+  str_detect("Gregg Engles|Gregg L. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue|Calvin Covington|
+             David M. Gibbons|David M. Pomerantz|Doug Maddox|Alicia Molt|Alyssa Kennedy|Andrew Zabel|Bill Northey|
+             Charles W. Bryant|Cheyenne Clements|Conae Black|Thyen|Daniel Wunderlich|Dave Chapman|DeLisa Lay")
 
 
 StatePoliticians <- data$FROM %>%
-  str_detect("Roger Allbee|Scott Walker")
+  str_detect("Roger Allbee|Scott Walker|C. W. Van Arsdale|Charles M. Brunner|Daniel Snarr|Dave Heinman")
 
 
 NonVotingMember <- data$FROM %>%
