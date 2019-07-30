@@ -83,6 +83,7 @@ clean <- function(file.name) {
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
   
+  #extractmembername captures same amount of observations but is less efficient
   #data <- extractMemberName(data, members, 'FROM')
   
   # arrange columns for hand coding
