@@ -250,7 +250,10 @@ typos_last <- tribble(
   "Earl", "Blumenauer", "Blumeanuer",
   "Jeff", "Fortenberry", "Fortenbery",
   "Neil", "Abercrombie", "Abercombie",
-  "Robert", "Menendez", "Mendez|Menedez"
+  "Robert", "Menendez", "Mendez|Menedez",
+  "Earl", "Carter", "Cater"
+
+
   
  
   
