@@ -62,7 +62,7 @@ data %<>%
   mutate(FROM = str_replace(FROM, "M. Michael Rounds", "Marion ROUNDS")) %>%
   mutate(FROM = str_replace(FROM, "Margaret W. Hassan", "Margaret Wood HASSAN")) %>%
   mutate(FROM = str_replace(FROM, "Earl \\(Buddy\\) L. Carter", "Earl CARTER")) %>%
-  mutate(FROM = ifelse(str_replace(FROM, "Donald M. Payne") & str_detect(congress, "114"), str_replace(FROM, "Donald M. Payne", "Donald PAYNE"), FROM))
+  mutate(FROM = ifelse(str_detect(FROM, "Donald M. Payne") & str_detect(congress, "114"), str_replace(FROM, "Donald M. Payne", "Donald PAYNE"), FROM))
 
 data <- extractMemberName(data, members, 'FROM')
 
