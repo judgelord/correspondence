@@ -247,7 +247,8 @@ typos_last <- tribble(
   "Dana", "ROHRABACHER", "Rohrabaeher",
   "Mark", "Souder", "Sounder",
   "Maria", "Cantwell", "Catwell",
-  "Earl", "Blumenauer", "Blumeanuer"
+  "Earl", "Blumenauer", "Blumeanuer",
+  "Jeff", "Fortenberry", "Fortenbery"
   
  
   
