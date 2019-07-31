@@ -51,8 +51,8 @@ data %<>%
 
 #From Member staff
 data %<>%
-  mutate(FROM = str_replace(FROM, "Whitney Verett", "Office of Mike Rogers, Legislative Director Whitney Verett")) %>%
-  mutate(NOTES = ifelse(str_detect(FROM, "Office of Mike Dennis ROGERS, Legislative Director Whitney Verett"), "From Member Staff", NOTES))
+  mutate(FROM = str_replace(FROM, "Whitney Verett", "Office of Mike Dennis Rogers, Legislative Director Whitney Verett")) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Office of Mike Dennis Rogers, Legislative Director Whitney Verett"), "From Member Staff", NOTES))
 
 #Format typos
 data %<>%
@@ -62,6 +62,17 @@ data %<>%
   mutate(FROM = str_replace(FROM, "M. Michael Rounds", "Marion ROUNDS"))
 
 data <- extractMemberName(data, members, 'FROM')
+
+
+#Check for duplicates
+sample2data<- data
+
+sample2data %<>%
+  group_by(ID, SUBJECT, DATE) %>%
+  mutate(n = n(),
+         last_name = str_c(last_name, collapse = "; ")) %>%
+  distinct()
+
 
 data %>%
   filter(ID == 6397183) %>%
@@ -73,11 +84,13 @@ NonMembers <- data$FROM %>%
   str_detect("Gregg Engles|Gregg L. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue|Calvin Covington|
              David M. Gibbons|David M. Pomerantz|Doug Maddox|Alicia Molt|Alyssa Kennedy|Andrew Zabel|Bill Northey|
              Charles W. Bryant|Cheyenne Clements|Conae Black|Thyen|Daniel Wunderlich|Dave Chapman|DeLisa Lay|
-             William H. Wigton|Wayne Palla|Tim Nisly|Thomas Mumey|Stephen P. Ashkin|Stephen Pearce|Shelley Hearne")
+             William H. Wigton|Wayne Palla|Tim Nisly|Thomas Mumey|Stephen P. Ashkin|Stephen Pearce|Shelley Hearne|
+             Ron McCormick|Rreginald Kerns|Rudolph C. Cane|Sam Casella|Scott Simon|Shawna Johnson")
 
 
 StatePoliticians <- data$FROM %>%
-  str_detect("Roger Allbee|Scott Walker|C. W. Van Arsdale|Charles M. Brunner|Daniel Snarr|Dave Heinman|Luis G. Fortuno")
+  str_detect("Roger Allbee|Scott Walker|C. W. Van Arsdale|Charles M. Brunner|Daniel Snarr|Dave Heinman|
+             Luis G. Fortuno|Russell C. Redding|Sandra B. Cunningham")
 
 
 NonVotingMember <- data$FROM %>%
