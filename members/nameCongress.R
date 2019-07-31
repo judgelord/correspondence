@@ -565,6 +565,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
+  
 replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
 
 members %<>% mutate_all(replace404)
