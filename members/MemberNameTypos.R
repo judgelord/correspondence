@@ -16,7 +16,6 @@ typos_clear <- tribble(
   "Jeffrey", "Jeflrey",
   "Barbara", "(Babara|Barabara)",
   "Velazquez", "Vel.zquez",
-  "Lincoln", "L.ncoln",
   "Timothy", "T.mothy",
   "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
   "Martin","Martrin", 
