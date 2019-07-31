@@ -86,8 +86,8 @@ data %<>%
   mutate(NOTES = ifelse(ID==568, "Unnamed members of congress", NOTES)) %>%
   mutate(NOTES = ifelse(ID==658, "Unnamed members of congress", NOTES)) %>%
   mutate(NOTES = ifelse(ID==666, "Unnamed members of congress", NOTES)) %>%
-  mutate(NOTES = ifelse(ID==37, "Unnamed members of congress", NOTES)) 
-
+  mutate(NOTES = ifelse(ID==37, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==524, "Unnamed members of congress", NOTES))
 
 
 ##checking for special characters
