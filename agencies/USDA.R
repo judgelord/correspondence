@@ -59,7 +59,10 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Kay B. Hutchison", "Kathryn HUTCHISON")) %>%
   mutate(FROM = str_replace(FROM, "E. Benjamin Nelson|Ben Nelson", "Earl Nelson")) %>%
   mutate(FROM = str_replace(FROM, "C \"Bill\" W. Young", "Charles YOUNG")) %>%
-  mutate(FROM = str_replace(FROM, "M. Michael Rounds", "Marion ROUNDS"))
+  mutate(FROM = str_replace(FROM, "M. Michael Rounds", "Marion ROUNDS")) %>%
+  mutate(FROM = str_replace(FROM, "Margaret W. Hassan", "Margaret Wood HASSAN")) %>%
+  mutate(FROM = str_replace(FROM, "Earl \\(Buddy\\) L. Carter", "Earl CARTER")) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Donald M. Payne") & str_detect(congress, "114"), str_replace(FROM, "Donald M. Payne", "Donald PAYNE"), FROM))
 
 data <- extractMemberName(data, members, 'FROM')
 
@@ -85,12 +88,13 @@ NonMembers <- data$FROM %>%
              David M. Gibbons|David M. Pomerantz|Doug Maddox|Alicia Molt|Alyssa Kennedy|Andrew Zabel|Bill Northey|
              Charles W. Bryant|Cheyenne Clements|Conae Black|Thyen|Daniel Wunderlich|Dave Chapman|DeLisa Lay|
              William H. Wigton|Wayne Palla|Tim Nisly|Thomas Mumey|Stephen P. Ashkin|Stephen Pearce|Shelley Hearne|
-             Ron McCormick|Rreginald Kerns|Rudolph C. Cane|Sam Casella|Scott Simon|Shawna Johnson")
+             Ron McCormick|Rreginald Kerns|Rudolph C. Cane|Sam Casella|Scott Simon|Shawna Johnson|Dennis Fife|
+             Dennis Webb|DuBoise White|Errol Rice|Eunice Beal")
 
 
 StatePoliticians <- data$FROM %>%
   str_detect("Roger Allbee|Scott Walker|C. W. Van Arsdale|Charles M. Brunner|Daniel Snarr|Dave Heinman|
-             Luis G. Fortuno|Russell C. Redding|Sandra B. Cunningham")
+             Luis G. Fortuno|Russell C. Redding|Sandra B. Cunningham|Luis G. Fortuno")
 
 
 NonVotingMember <- data$FROM %>%
