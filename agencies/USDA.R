@@ -102,13 +102,14 @@ NonMembers <- data$FROM %>%
              Robert Starr|Roger L. Richardson|Peter Sorenson|Nancy Sutley|Michael L. Bruhn|Mary Dean. Eckrote|
              Marc Brinkmeyer|Lyle Peterson|John W. Oliver|John M. Meyer|Jodi Kuhn|Jerry Nelson|Jerry C. Washburn|
              James Dain|James D. Wilson|James D. Wilson|Michael J. Schewel|Michael Lewis|Michael P. Botticelli|
-             Robert Manchin|Lance Price|Kimberly Pitts|Julie Decker|John E. Townsend|Gregory Mignon|John Triune|Michael L. Young")
+             Robert Manchin|Lance Price|Kimberly Pitts|Julie Decker|John E. Townsend|Gregory Mignon|John Triune|
+             Michael L. Young|Glenn Simon|Mike Strain|Parks Shackelford")
 
 
 StatePoliticians <- data$FROM %>%
   str_detect("Roger Allbee|Scott Walker|C. W. Van Arsdale|Charles M. Brunner|Daniel Snarr|Dave Heinman|
              Luis G. Fortuno|Russell C. Redding|Sandra B. Cunningham|Luis G. Fortuno|Jim Lykam|Ned Norris|
-             JoAnn B. Seghini|John Laird|Jennifer Gonzalez-Colon|Kate Brown|Kenneth F. Lowe, Jr.")
+             JoAnn B. Seghini|John Laird|Jennifer Gonzalez-Colon|Kate Brown|Kenneth F. Lowe, Jr.|Mike Brubaker")
 
 
 NonVotingMember <- data$FROM %>%
