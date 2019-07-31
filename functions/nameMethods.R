@@ -886,6 +886,7 @@ ocr.errors <- function(FROM){
   FROM <- gsub("A1 ", "Al ", FROM)
   FROM <- gsub(" 1. ", " L. ", FROM)
   FROM <- gsub("Hany", "Harry", FROM) 
+  FROM <- gsub("Lincoln", "L.ncoln",FROM) 
   
   
   # other errors
