@@ -448,9 +448,7 @@ typos_middle_initial <- tribble(
 #   str_replace("Gerlah, Jim", "Gerlach, Jim") %>%
 #   str_replace("Obama, Brack", "Obama, Barack") %>%
 #   str_replace("Hooley, Darene", "Hooley, Darlene")
-# 
-# 
-# 
+
 
 
 # combine typos 
