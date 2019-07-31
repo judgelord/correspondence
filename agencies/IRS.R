@@ -49,7 +49,8 @@ data %<>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Thom Tlllis", "Thom Tillis")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Dana Rohrbacher", "Dana ROHRABACHER")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Pattv Murray", "Patty Murray")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Robert Whittman", "Robert Wittman"))
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Robert Whittman", "Robert Wittman")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Warren", "Mark Warner")) 
          
 
 #extracting members from Subject
@@ -58,12 +59,27 @@ data <- extractMemberName(data, members, 'SUBJECT')
 #FOIA NOTES
 data %<>%
   mutate(NOTES = ifelse(ID==137, "Unnamed members of congress", NOTES)) %>%
-  mutate(NOTES = ifelse(ID==94, "Unnamed members of congress",  NOTES))%>%
+  mutate(NOTES = ifelse(ID==94, "Unnamed members of congress",  NOTES)) %>%
   mutate(NOTES = ifelse(ID==919, "Unnamed members of congress", NOTES)) %>%
   mutate(NOTES = ifelse(ID==882, "Unnamed members of congress", NOTES)) %>%
   mutate(NOTES = ifelse(ID==873, "Unnamed members of congress", NOTES)) %>%
-  mutate(NOTES = ifelse(ID==868, "Unnamed members of congress", NOTES)) 
-  
+  mutate(NOTES = ifelse(ID==868, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==831, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==802, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==709, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==572, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==753, "Unnamed members of congress", NOTES)) %>%  
+  mutate(NOTES = ifelse(ID==752, "Unnamed members of congress", NOTES)) %>%  
+  mutate(NOTES = ifelse(ID==676, "Unnamed members of congress", NOTES)) %>%  
+  mutate(NOTES = ifelse(ID==601, "Unnamed members of congress", NOTES)) %>%  
+  mutate(NOTES = ifelse(ID==673, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==540, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==568, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==658, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==666, "Unnamed members of congress", NOTES)) %>%
+  mutate(NOTES = ifelse(ID==37, "Unnamed members of congress", NOTES)) 
+
+
 
 ##checking for special characters
 #data %>% filter(ID==574) %>% select('SUBJECT')
