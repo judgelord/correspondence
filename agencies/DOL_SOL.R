@@ -122,7 +122,8 @@ data$FROM %<>%
    str_replace("Lynch, S. F|Lynch,\nS. F", "LYNCH, Stephen") %>%
    str_replace("Grisham, Michelle Lujan", "Michelle LUJAN") %>%
    str_replace("Hill, J. French", "Hill, French") %>%
-   str_replace("Filemon, Vela", "VELA, Filemon")
+   str_replace("Filemon, Vela", "VELA, Filemon") %>%
+   str_replace("Rounds, M. Michael", "Rounds, Mike")
 
  data %<>%
  mutate(FROM = ifelse(FROM == "DeLauro", str_replace(FROM, "DeLauro", "DeLauro, Rosa L."), FROM)) %>%
@@ -143,7 +144,10 @@ data$FROM %<>%
    mutate(chamber = ifelse(str_detect(FROM, "Kennedy, Patrick") & str_detect(congress, "110"), "House", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "110"), "House", chamber)) %>%
    mutate(chamber = ifelse(str_detect(FROM, "Blunt, Roy") & str_detect(congress, "112|113|114|115|116"), "Senate", chamber)) %>%
-   mutate(chamber = ifelse(str_detect(FROM, "Kline, John"), "House", chamber))
+   mutate(chamber = ifelse(str_detect(FROM, "Kline, John"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Berry"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Snyder"), "House", chamber)) %>%
+   mutate(chamber = ifelse(str_detect(FROM, "Boozman"), "House", chamber))
  
  #Match on Chamber
  data %<>%
