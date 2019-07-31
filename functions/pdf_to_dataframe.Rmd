@@ -1,5 +1,5 @@
 ---
-title: "pdf_to_dataframe"
+title: "How to convert a pdf to a data frame"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -7,18 +7,26 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(here)
-source(here("setup.R"))
+                      #fig.path = "data")
+source(here::here("setup.R"))
 ```
 
+This example uses the `stringr`, `purrr`, `here` and `magrittr` packages. 
 
+- [`stringr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#stringr)
+
+- [RegEx cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)  
+
+- [`purrr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr)
 
 ```{libraries, echo = FALSE}
-
+library(here)
 library(tidyverse) # includes stringr and dplyr
 library(magrittr)
 library(pdftools)
 ```
+
+Our pdf looks like [this](https://github.com/judgelord/correspondence/blob/master/data/Congressional%20logs%20Dec%202017-May%202019.pdf). It has over 200 pages, so this would be a lot to re-arange by hand. 
 
 
 ```{r}
@@ -66,5 +74,11 @@ Trim white space at the beginning and end of each cell with `trimws()`. Apply to
 d %<>% mutate_all(trimws)
 
 d %>% select(Title, Subject, DATE)
+```
+
+
+Trim white space at the beginning and end of each cell with `trimws()`. Apply to all columns with `mutate_all()`.
+```{r}
+d %<>% write_csv(path = "DOE Dec 2017-May 2019.csv")
 ```
 
