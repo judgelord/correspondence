@@ -155,6 +155,11 @@ data$FROM %<>%
    mutate(FROM =ifelse( ! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
    mutate(FROM = ifelse( ! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
  
+ #From Members Staff
+ data %<>%
+   mutate(FROM = str_replace(FROM, "Pellito, John", "Office of Louise Slaughter, Community Liaison Pellito, John")) %>%
+   mutate(NOTES = ifelse(str_detect(FROM, "Office of Louise Slaughter, Community Liaison Pellito, John"), "FROM", NOTES))
+ 
  #sample
  #sampledata <- data[sample(1:nrow(data), 8000, replace=FALSE),]
  
@@ -191,10 +196,6 @@ data %<>%
   mutate(ERROR = ifelse(NonMembers, "Non Member", ERROR)) %>%
   mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
   mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR))
-
-#Notes
-data %<>%
-  mutate(NOTES = ifelse(str_detect(FROM, "Pellito, John"), "Liason for Congresswoman Louise Slaughter", NOTES))
 
 
 #Puts all data without a comma into last name variable and 
