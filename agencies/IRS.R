@@ -59,7 +59,15 @@ data %<>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Sanders", "Mark Sanford")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Grassley", "Chuck Grassley")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Maxine Water", "Maxine Waters")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Martha Me Sally", "Martha McSally"))
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Martha Me Sally", "Martha McSally")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Sanford", "Mark Sanford")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Schiff", "Adam Schiff")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Schumer", "Chuck Schumer")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Rubio", "Marco Rubio")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Sandford", "Mark Sanford")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Sanford", "Mark Sanford"))
+  
+
       
 
 #extracting members from Subject
