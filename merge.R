@@ -1,12 +1,11 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
 # load required functions
-
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 Yes
 
-
-gs_ls() # log in to google drive
+# log in to google drive
+gs_ls() 
 
 ## make sure gmailr is set up 
 send_message(mime(
@@ -40,7 +39,6 @@ data_list <- tribble(
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "not coded", NA, #
 # "DHHS_SAMHSA", "not coded", NA, # No dates, need better data
-# "DHS_ECT", "not coded", NA, # No script, data is missing from google sheet
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
@@ -63,7 +61,7 @@ data_list <- tribble(
 "DOD_OIG", "not coded", NA, # waiting for records back from Joe    # only last name info --> 600+ non matches
 "DOD_OSDJS", "not coded", NA, # waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
-# "DOD_USMC", "not coded", NA, # waiting on foia DON-USMC-2018-004141
+# "DOD_USMC", "not coded", NA, #  DON-USMC-2018-004141 needs to be converted from pdf and added to drive
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI # we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
@@ -82,7 +80,7 @@ data_list <- tribble(
 "DOL_OFCCP", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
 "DOL_OWCP", "not coded", NA,
-"DOL_SOL", "not coded", NA, #  ~1500 bad.names.2 from misspellings and noncongressman. Needs manual checking
+"DOL_SOL", "not coded", NA, 
 "DOL_VETS", "not coded", NA,
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
@@ -90,12 +88,12 @@ data_list <- tribble(
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
 "DOT_FTA", "not coded", NA, 
-# "DOT_PHSMA, "not coded", NA, # need a clean script when on drive. 
+"DOT_PHSMA", "not coded", NA, # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
 "EOP_CEQ", "not coded", NA,
-#"EOP_USTR", "not coded", NA, # Script needs work: data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
+#"EOP_USTR", "not coded", NA, # Script needs work after new data merged in #64 data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
@@ -111,7 +109,7 @@ data_list <- tribble(
 #FTC
 "FTC", "not coded", NA,
 # GSA
-# "GSA", "not coded", NA, # 6k entries 2007-2017, but only some member names in subject, filed for others july 2018 
+# "GSA", "not coded", NA, # 6k entries 2007-2017 on drive, but only some member names in subject, filed for others july 2018 
 # HUD
 "HUD_HQ", "not coded", NA,
 # IRS 
@@ -168,7 +166,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -239,8 +237,8 @@ send_message(mime(
 ##############################
 #########################################################################################
 
-
-
+# archive raw version of merged data 
+draw <- d
 
 
 
@@ -297,7 +295,9 @@ d %<>%
 # date typos 
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
-  filter(year > 2018 | year < 1999) %>% 
+  filter(year > 2019 | year < 1999) %>% 
+  filter(!(year < 1999 & agency == "DOE_FERC")) %>% 
+  arrange(DATE) %>% 
   select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
 
 # select  timeframe
@@ -797,10 +797,10 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 }
 
 # counts per agency - check if this matches google sheet 
-look <- df %>% count(agency, Department)
+look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
 
-paste("missing from d:", data_list$agency[!data_list$agency %in% unique(d$agency)])
-paste("missing from df:", data_list$agency[!data_list$agency %in% unique(df$agency)])
+paste("missing from d:", paste(data_list$agency[!data_list$agency %in% unique(d$agency)], collapse = ", "))
+paste("missing from df:", paste(data_list$agency[!data_list$agency %in% unique(df$agency)], collapse = ", "))
 
 paste("merge.R stopped at", data_list$agency[i])
 

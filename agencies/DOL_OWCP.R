@@ -38,13 +38,8 @@ clean <- function(file.name) {
   data <- data[!data$FROM == "",] # removes blank observations
   ################
   
-  
-  
-  data <- getFirstLast.Comma(data, 'FROM')
-  
-  #getFirstLast runs better than extractmembername
-  
-  #data <- extractMemberName(data, members, 'FROM')
+
+  data <- extractMemberName(data, members, 'FROM')
  
   
   #Create variable for chamber position  (Senator or Representative)
