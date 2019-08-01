@@ -13,15 +13,21 @@ clean <- function(file.name) {
 
   # Format date, year, Congress, member name etc.
   data$DATE %<>% as.Date("%Y-%m-%d")
+  
+  #checking for noDATE
+  NOdate <- data %>%
+    filter(is.na(DATE))
 
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  data <- getFirstLast.Comma(data, 'FROM')
+  #Formerly used getFirstLast
+  #data <- getFirstLast.Comma(data, 'FROM')
   
-  #Possibly change to extractMemberName
-  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Changing from getFirstLast to extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   #Check for duplicates
   sample2data<- data
