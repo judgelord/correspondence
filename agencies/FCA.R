@@ -11,6 +11,9 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # only SUBJECT contains useful data
+  data %<>% select(SUBJECT) %>% distinct() 
+  
   # create ID variable
   data$ID <- c(1:nrow(data))
   
@@ -18,25 +21,52 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name 
   
-  data <- data[-which(is.na(data$SUBJECT)),]
-  data$DATE <-  gsub("(..\\/..\\/....) .*", "\\1", data$SUBJECT)
-  data$DATE %<>% as.Date("%m/%d/%Y")
 
-  
+
   # Format date, year, Congress
+  data$DATE <-  str_extract(data$SUBJECT, "[0-9][0-9]\\/[0-2][0-9]\\/[1-2][0,9][0,1,2,9][0-9]")
   data$DATE %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
- # data$FROM <- gsub("^.*\\/.... .*(Senator|Sen\\.|Congressman|Rep|Rep\\.|Cong|Cong\\.|Congress) (\\w{+}) .*$", '\\2', data$SUBJECT)
-   data$FROM <- gsub("^.*(Senator|Sen\\.|Congressman|Rep|Rep\\.|Cong|Cong\\.|Congress) (\\w{+}) .*$", '\\2', data$SUBJECT)
+ # # data$FROM <- gsub("^.*\\/.... .*(Senator|Sen\\.|Congressman|Rep|Rep\\.|Cong|Cong\\.|Congress) (\\w{+}) .*$", '\\2', data$SUBJECT)
+ #   data$FROM <- gsub("^.*(Senator|Sen\\.|Congressman|Rep|Rep\\.|Cong|Cong\\.|Congress) (\\w{+}) .*$", '\\2', data$SUBJECT)
+ #  
+ #  data$FROM <- gsub("'s", "", data$FROM)
+ #  
+ #  
+ #  # a few cases only have last names, so we correct
+ #  data$last <- formatLastName(data, 'FROM')
+ #  data$first <- addFirst(first_name = NA, last_name = data$last)
+ # 
+ #  data %<>% 
+ #    mutate(FROM = ifelse(str_detect(FROM, "^[A-z][a-z]*$"), str_c(last, first, sep = ", "), FROM))
   
-  data$FROM <- gsub("'s", "", data$FROM)
-  # creat variable for first and last name
-  data <- extractMemberName(data, members, 'SUBJECT')
+  # format subject to match patterns for senator ____, (must end in comma)
+  data %<>% 
+    mutate(SUBJECT = str_replace_all(SUBJECT, "Sen\\.", "Senator")) %>% 
+    mutate(SUBJECT = str_replace_all(SUBJECT, "Cong\\.", "Representative")) %>% 
+    # remove possessive
+    mutate(SUBJECT = str_replace_all(SUBJECT, "'s", ",")) 
+
+    
   
-  data$last_name <- ifelse(grepl("^[A-Za-z]+$", data$FROM), formatLastName(data, 'FROM'), data$last_name)
-  data$first_name <- data$first_name <- addFirst(data$first_name,data$last_name)
+  # create variable for first and last name
+  data %<>%  extractMemberName(members, 'SUBJECT')
+  
+
+  unfoundnames <- data %>% 
+    filter(is.na(last_name)) %>% 
+    select(-first_name, -last_name) %>% 
+    # add commas after member last names so pattern matches 
+    mutate(SUBJECT = str_replace_all(SUBJECT, "(Senator|Representative) (\\w+)", "\\1 \\2,")) %>% 
+    extractMemberName(members, 'SUBJECT') 
+  
+  data %<>% 
+    # remove found names
+    anti_join(unfoundnames %>% filter(!is.na(last_name)) %>% select(ID)) %>% 
+    # merge in found names 
+    full_join(unfoundnames)
   
   
   #Create variable for chamber position  (Senator or Representative)
@@ -45,7 +75,7 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Congress|Cong |Cong\\.|Rep |Rep\\.|Represe|House", SUBJECT), "House", chamber)) 
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM,  everything())
+  data %<>% select(ID, DATE,  SUBJECT,  everything())
   
   
 }

@@ -1068,6 +1068,9 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     
     # FIXME (when we transition to this function, members can be full member list)
     members %<>% full_join(members_106to109th) 
+  
+  # Make missing congress 0 so that it will not be dropped 
+  data$congress %<>% replace_na(0)
 
     data %<>% mutate(string = data[[col_name]])
     
@@ -1097,7 +1100,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     # loop over congresses in data 
     data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members)
     
-    data %<>% select(FROM, typos, correct, string, pattern, congress, everything())
+    data %<>% select(typos, correct, string, pattern, congress, everything())
     
     return(data)
 }
