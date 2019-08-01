@@ -110,7 +110,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(  (first_name == "Don")&(common_name==""), "Donald", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "HURD, William Ballard", "Will", common_name)) %>%
     mutate(common_name = ifelse(bioname == "BUNNING, James Paul David", "Jim", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "FORBES, J. Randy", "Randy", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "FORBES, J. Randy", "(J|Randy)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "GRIFFITH, H. Morgan", "Morgan", common_name)) %>%
     mutate(common_name = ifelse(bioname == "DURBIN, Richard Joseph", "Dick", common_name)) %>% 
     mutate(common_name = ifelse(bioname == "BARLETTA, Lou", "Lou", common_name)) %>% 
