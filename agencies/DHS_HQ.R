@@ -5,7 +5,7 @@
 #file.name <- "DHS_HQ Anna" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% as.data.frame() %>% distinct() # get data
   
   data %<>% select(-n)
   
@@ -13,31 +13,37 @@ clean <- function(file.name) {
 data %<>% distinct() %>% 
     group_by(WF) %<>% mutate(nWF = n()) %>% ungroup() %>% 
     group_by(WF, TYPE) %<>% mutate(nTYPE = n()) %>% ungroup() %>% 
-    filter(!(nWF>1 & nTYPE == 1 & is.na(TYPE))) # cut uncoded versions of duplicates
+    filter(!(nWF>1 & nTYPE > 0 & is.na(TYPE))) %>% # drop uncoded versions of duplicates
+  ungroup()
   
   data %<>% distinct() %>% 
     group_by(WF) %<>% mutate(nWF = n()) %>% ungroup() %>% 
     group_by(WF, POLICY_EVENT) %<>% mutate(nPE = n()) %>% ungroup() %>% 
-    filter(!(nWF>1 & nPE == 1 & is.na(POLICY_EVENT))) # cut uncoded versions of duplicates
+    filter(!(nWF>1 & nPE == 1 & is.na(POLICY_EVENT))) %>% # drop uncoded versions of duplicates
+    ungroup()
   
   data %<>% distinct() %>% 
     group_by(WF) %<>% mutate(nWF = n()) %>% ungroup() %>% 
     group_by(WF, NOTES) %<>% mutate(nNOTES = n()) %>% ungroup() %>% 
-    filter(!(nWF>1 & nNOTES == 1 & is.na(NOTES))) # cut uncoded versions of duplicates
+    filter(!(nWF>1 & nNOTES == 1 & is.na(NOTES))) %>% # drop uncoded versions of duplicates
+    ungroup()
   
   data %<>% distinct() %>% 
     group_by(WF) %<>% mutate(nWF = n()) %>% ungroup() %>% 
     group_by(WF, ALT_TYPE) %<>% mutate(nALT_TYPE = n()) %>% ungroup() %>% 
-    filter(!(nWF>1 & nALT_TYPE == 1 & is.na(ALT_TYPE))) # cut uncoded versions of duplicates
+    filter(!(nWF>1 & nALT_TYPE == 1 & is.na(ALT_TYPE))) %>% # drop uncoded versions of duplicates
+    ungroup()
+  
   
   data %<>% distinct() %>% 
     group_by(WF) %<>% mutate(nWF = n()) %>% ungroup() %>% 
     group_by(WF, CERTAINTY) %<>% mutate(nCERT = n()) %>% ungroup() %>% 
-    filter(!(nWF>1 & nCERT == 1 & is.na(CERTAINTY))) # cut uncoded versions of duplicates
+    filter(!(nWF>1 & nCERT == 1 & is.na(CERTAINTY))) %>% # drop uncoded versions of duplicates
+    ungroup()
   
   data %<>% distinct()
   
-  # potential_duplicates <- data %>% group_by(WF) %<>% mutate(n = n()) %<>% filter(n >1, !is.na(WF)) %>% arrange(WF) %>% distinct()
+  potential_duplicates <- data %>% group_by(WF) %<>% mutate(n = n()) %<>% filter(n >1, !is.na(WF)) %>% arrange(WF) %>% distinct()
   
   # create agency column
   data$agency <- file.name

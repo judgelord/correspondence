@@ -1019,11 +1019,24 @@ extractNamesPerCongress <- function(congress_i, data, members){
   
   # subset to one congress
   data %<>% filter(congress == congress_i)
-  # only if that congress exists in data, otherswise use all members to avoid 0-length errors
-  # FIXME with purrr error handeling
+  
+  # search only if that congress exists in data
+  # FIXME with purrr error handeling?
+  
+  # if congress not in members file 
+  if(!congress_i %in% members$congress){
+    print( str_c("BAD DATES? ", unique(data$agency), " data for the ", congress_i, "th? n = ", nrow(data), ". ", length(unique(data$string)), " unique strings.",
+                 " Most common string: ", count(data, string) %>% top_n(1, n) %>% .[1,1]))
+    
+    data %<>% 
+      mutate(pattern = "Date out of range", 
+             first_name = NA,
+             last_name = NA)
+    }
+  
+  # if congress in members file
   if(congress_i %in% members$congress){
   members %<>% filter(congress == congress_i)
-  }
   
   print( str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th, n = ", nrow(data), ". ", length(unique(data$string)), " unique strings.",
          " Most common string: ", count(data, string) %>% top_n(1, n) %>% .[1,1]))
@@ -1040,7 +1053,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
     unnest() %>% 
     # join in members data by pattern 
     left_join(members %>% select(pattern, first_name, last_name, congress)) 
-  
+  }
   return(data)
 }
 

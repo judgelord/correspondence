@@ -3,10 +3,7 @@
 
 # 84 out of 1992 not matching
 
-#file.name <- "DOD_OSDJS" # for testing
-
-#file.name <- "DOD_OSDJS" #for testing 12 June (no new data was added)
-
+# file.name <- "DOD_OSDJS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -35,8 +32,7 @@ clean <- function(file.name) {
   #Extract Member names (New edit from formatLastName)
   data <-  extractMemberName(data,members,"FROM") 
   
-  data$first_initial <- gsub("(.*)(,|\\.)(.*)", "\\3", data$FROM)
-  
+
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, 
                               gsub("^(\\w+)(\\w| \\w)$", '\\1', last_name)))
@@ -82,15 +78,6 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse(powellType == "Contracting", 2, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Congressional Travel/ Movement", 6, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Not Enough Info", 0, TYPE)) 
- 
- 
-  #sample <- data %>%
-  #filter(is.na(first_initial))  
-  #View(sample)
-  
-  ##code for testing
-  
-  
-  
+
 }
 
