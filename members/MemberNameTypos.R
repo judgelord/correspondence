@@ -65,7 +65,7 @@ typos_clear <- tribble(
   "Ryan, Paul", "Ryan Paul",
   "Chao, Elaine", "Chao Elaine",
   "Miller, George", "Miller George",
-  "Herrera Beutler, Jaime", "Herrera Beutler, Jaime"
+  "Herrera Beutler, Jaime", "Herrera Beutler Jaime"
   
   
 )
