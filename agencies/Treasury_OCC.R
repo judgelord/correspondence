@@ -8,8 +8,8 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <-  c(1:nrow(data))
+  # create Letter ID variable
+  data$LetterID <-  c(1:nrow(data))
   
   #create agency column
   data$agency <- file.name
@@ -40,7 +40,13 @@ clean <- function(file.name) {
       
     }
   }
-  data <- data[-grep(";#\\d{+};", data$FROM),] # removes orginal row with all data
+  
+ 
+  data <- data[-grep(";#\\d{+};", data$FROM),] # removes original row with all data
+  
+  # create Letter ID variable
+  data$LetterID <-  c(1:nrow(data))
+  
   ################
   
   
@@ -49,6 +55,8 @@ clean <- function(file.name) {
   # create variable for first and last name
  data <- getFirstLast.Comma(data, "FROM")
  data$first_name <- formatFirstName(data, "first_name")
+ 
+ #data <- extractMemberName(data, members, 'FROM')
  
  #finding unfound names
  unfoundnames<- data %>%
