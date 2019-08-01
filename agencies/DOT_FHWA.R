@@ -64,7 +64,7 @@ clean <- function(file.name) {
   
   
 # SECOND DATA SOURCE IS FORMATTED DIFFERENTLY
-  data3 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() # get data
+  data3 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() %>% distinct() # get data
   
   # create ID variable
   data3$ID <- c((nrow(data)+1):(nrow(data)+nrow(data3)))
@@ -72,42 +72,60 @@ clean <- function(file.name) {
   #create agency column
   data3$agency <- file.name
   
-  # Format date, year, Congress
-  data3$DATE <- data3$DATE %>% as.Date("%Y/%m/%d")
+   # Format date, year, Congress
+  data3$DATE %<>% multidate( c("%m/%d/%y","%Y-%m-%d"))
+  
+  data3 %<>%
+    mutate(tempDATE = str_extract(X7, "[0-9][0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9]/[0-9][0-9]|[0-9][0-9]/[0-9]/[0-9][0-9]")) 
+  data3$tempDATE %<>% as.Date("%m/%d/%y")
+  
+  data3 %<>%
+       mutate(DATE = if_else(is.na(DATE), tempDATE, DATE))
+  
+  NoDate <- data3 %>%
+     filter(is.na(DATE))
+  
   data3 %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data3 %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  
   data3$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data3$FROM)
-  data3 <- data3[-which(data3$FROM==""),]
+  #data3 <- data3[-which(data3$FROM==""),]
   
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data3)){
-    if(grepl("\\w{3,}\\.", data3$FROM[i])) {
-      
-      data3$FROM <- gsub("( )(\\w)\\.", "\\1\\2", data3$FROM)
-      new <- data3 %>% dplyr::slice(rep(i, each = str_count(data3$FROM[i], pattern = "\\.") + 1))
-      new$FROM <- unlist(str_split(data3$FROM[i], "\\."))
-      
-      data3 <- rbind(data3, new)
-      
-    }
-  }
-  data3 <- data3[-grep("\\w{3,}\\.", data3$FROM),] # removes orginal row with all data
-  data3$FROM <- gsub("^ |^  | $|  $", "", data3$FROM)
-  data3 <- data3[!data3$FROM == "",] # removes blank observations
   
-  ################
-  data$FROM <- gsub("([a-z]{3})[A-Z]", '\\1', data$FROM)
+   data3 %<>%
+     mutate(FROM = str_replace(FROM, "( )(\\w)\\.", "\\1\\2")) %>%
+     mutate(FROM = str_split(FROM, "\\.")) %>%
+     unnest(FROM) %>%
+    distinct()
+  
+  #Rewrote with tidy
+  #  for(i in 1:nrow(data3)){
+  #    if(grepl("\\w{3,}\\.", data3$FROM[i])) {
+  #      
+  #      data3$FROM <- gsub("( )(\\w)\\.", "\\1\\2", data3$FROM)
+  #      new <- data3 %>% dplyr::slice(rep(i, each = str_count(data3$FROM[i], pattern = "\\.") + 1))
+  #      new$FROM <- unlist(str_split(data3$FROM[i], "\\."))
+  #      
+  #      data3 <- rbind(data3, new)
+  #      
+  #    }
+  #  }
+  #  data3 <- data3[-grep("\\w{3,}\\.", data3$FROM),] # removes orginal row with all data
+  #  data3$FROM <- gsub("^ |^  | $|  $", "", data3$FROM)
+  #  data3 <- data3[!data3$FROM == "",] # removes blank observations
+  #  
+  # ################
+  # data$FROM <- gsub("([a-z]{3})[A-Z]", '\\1', data$FROM)
   
   data3 %<>% getFirstLast.Comma('FROM')
-  # data3 <- extractMemberName(data3, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
+  
+  #data3 <- extractMemberName(data3, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
   
  
-  
-  
-  
   
   
   
@@ -136,6 +154,10 @@ clean <- function(file.name) {
   # add errors
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR))
+  
+  Unfoundnames <- data3 %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   
   # apply coding rules
