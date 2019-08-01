@@ -89,7 +89,7 @@ clean <- function(file.name) {
            is.na(NOTES))  
   
 
-   # 
+   
    # sample <- data %>%
    # filter(is.na(DATE))
    # View(sample)
