@@ -1,9 +1,9 @@
 
 # a 5% sample 
-sample <- sample_frac(data, .01)
+sample <- sample_frac(data, 0.05)
 
 # run both methods
-method_1 <- sample %>% extractMemberNameOld(members, "FROM") %>% mutate(method = 1, ID = as.numeric(ID))
+method_1 <- sample %>% getFirstLast.Comma("FROM") %>% mutate(method = 1, ID = as.numeric(ID))
 method_2 <- sample %>% extractMemberName(members, "FROM") %>% mutate(method = 2, ID = as.numeric(ID))
 
 # combine results
