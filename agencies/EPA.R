@@ -19,7 +19,10 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
   # create first and last name variables
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
+  
+  #changing from getfirstlast to extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   
   # create variable for chamber position  (Senator or Representative)
