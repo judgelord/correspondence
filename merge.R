@@ -86,7 +86,7 @@ data_list <- tribble(
 # "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
-"DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
+#"DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
 "DOT_FTA", "not coded", NA, 
 "DOT_PHSMA", "not coded", NA, # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
