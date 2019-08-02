@@ -253,7 +253,8 @@ typos_last <- tribble(
   "Robert", "Menendez", "Mendez|Menedez",
   "Earl", "Carter", "Cater",
   "Greg", "Gianforte", "Gianfote",
-  "Lisa", "Murkowski", "Murkowsi"
+  "Lisa", "Murkowski", "Murkowsi",
+  "Marco", "Rubio", "Robio"
  
 
 
