@@ -4,7 +4,7 @@
 # Lots of errors, needs fixing
 # down to 264 errors, lots of spelling
 
-#  file.name <- "ED" # for testing
+#file.name <- "ED" # for testing
 
 
 clean <- function(file.name) {
@@ -21,6 +21,10 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
   # preprocess FROM column
