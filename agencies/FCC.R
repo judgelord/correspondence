@@ -5,11 +5,14 @@
 #file.name <- "FCC Devin" # for testing
 
 clean <- function(file.name) {
-  
-data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() # get data
 
   # create ID variable
-  colnames(data)[colnames(data) == 'X1'] <- 'ID'
+  #colnames(data)[colnames(data) == 'X1'] <- 'ID'
+
+# Making ID column
+data %<>% 
+  rowid_to_column("ID")
   
   # create agency column
   data$agency <- file.name
