@@ -41,11 +41,10 @@ clean <- function(file.name) {
   
   
   # create variable for full name
+  #data <- getFirstLast.Comma(data, "FROM")
   
-  data <- getFirstLast.Comma(data, "FROM")
-  
-  #Comparing getFirstLast and extractMemberName
-  #data <- extractMemberName(data, members, 'FROM')
+  #Change from getFirstLast to extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   data %<>% mutate(SUBJECT = paste(SUBJECT, `Refd. To`, `Action Required`))
   
