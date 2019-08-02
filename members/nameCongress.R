@@ -43,7 +43,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "KUSTER, Ann McLane", "McLane", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "SMITH, Tina", "Flint", maiden_name)) %>% 
-    #mutate(maiden_name = ifelse(bioname == "BONO, Mary", "Mack", maiden_name)) %>% #Mack really isn't her maiden name
+    mutate(maiden_name = ifelse(bioname == "BONO, Mary", "(Mack Bono|Bono Mack|Mack)", maiden_name)) %>% #Mack really isn't her maiden name
      
     # last names
     mutate(last_name = ifelse(bioname == "CAPITO, Shelley Moore", "Moore Capito", last_name)) %>%  
