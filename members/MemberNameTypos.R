@@ -254,6 +254,7 @@ typos_last <- tribble(
   "Earl", "Carter", "Cater",
   "Greg", "Gianforte", "Gianfote",
   "Lisa", "Murkowski", "Murkowsi"
+ 
 
 
   
