@@ -41,11 +41,11 @@ data %<>%
     mutate(party = ifelse(party == "GOP", "Republican",party)) %>% 
     mutate(party = ifelse(party == "DEM", "Democrat", party))
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
   
-  #getfirstlast runs better than extractmembername
+  #change from getfirstlast to extractmembername
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
