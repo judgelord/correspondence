@@ -106,7 +106,7 @@ typos_last <- tribble(
   "John", "Sullivan", "Sulivan",
   "Jon", "Porter", "(Poster|Parter)",
   "David", "Cicilline", "Cicillin",
-  "David", "Vitter", "Vilter",
+  "David", "Vitter", "(Vitters|Vilter)",
   "Debbie", "Stabenow", "(Stebenow|Stabeno|Stavenow)",
   "Dianne", "Feinstein", "(Feinsten|Feinstein|Feinstien|Fenstein)",
   "Don", "Nickles", "Nickels",
