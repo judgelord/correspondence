@@ -1,6 +1,6 @@
 
 # a 5% sample 
-sample <- sample_frac(data, 0.05)
+sample <- sample_frac(data, 1)
 
 # run both methods
 method_1 <- sample %>% getFirstLast.Comma("FROM") %>% mutate(method = 1, ID = as.numeric(ID))
