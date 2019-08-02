@@ -41,11 +41,10 @@ clean <- function(file.name) {
   #   mutate(first_name = stri_trans_totitle(first_name)) %>% 
   #   select(FROM, first_name, common_name, middle_name, middle_initial, last_name, everything()) 
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
   
   #comparison between getFirstLast and extractMemberName
-  
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   
 
