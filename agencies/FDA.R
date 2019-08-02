@@ -101,12 +101,12 @@ clean <- function(file.name) {
   
   
 
-  #extract member names
-  data %<>%
-   getFirstLast.Comma("FROM")
+  # #extract member names
+  # data %<>%
+  #  getFirstLast.Comma("FROM")
   
   #Extract Member names, created more errors than getFirstLast
-  #data <-  extractMemberName(data,members,"FROM") 
+  data <-  extractMemberName(data,members,"FROM") 
   
   #Check for Duplicates
   sample2data<- data
