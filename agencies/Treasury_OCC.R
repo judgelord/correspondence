@@ -3,8 +3,6 @@
 
 #file.name <- "Treasury_OCC" # for testing
 
-#file.name <- "Treasury_OCC" #for testing 13 June
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
@@ -52,9 +50,10 @@ clean <- function(file.name) {
   
   data$FROM <- gsub(", Jr.", ",", data$FROM)
   
-  # create variable for first and last name
- data <- getFirstLast.Comma(data, "FROM")
- data$first_name <- formatFirstName(data, "first_name")
+ #  # create variable for first and last name
+  
+  data <- getFirstLast.Comma(data, "FROM")
+  data$first_name <- formatFirstName(data, "first_name")
  
  #data <- extractMemberName(data, members, 'FROM')
  
