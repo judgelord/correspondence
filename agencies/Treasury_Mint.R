@@ -45,7 +45,7 @@ clean <- function(file.name) {
  
   #Extract member names from SUBJECT
   data %<>%
-    extractMemberName2(members = members, col_name = "SUBJECT")
+    extractMemberName(members = members, col_name = "SUBJECT")
 
   
   Unfoundnames<- data %>%
