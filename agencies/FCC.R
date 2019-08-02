@@ -2,25 +2,28 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
- #file.name <- "FCC Devin" # for testing
+#file.name <- "FCC Devin" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
+data <- gs_title(file.name) %>% gs_read() # get data
+
   # create ID variable
   colnames(data)[colnames(data) == 'X1'] <- 'ID'
   
   # create agency column
   data$agency <- file.name
   
+  data$date <- data$DATE
   # Format date, year, Congress, member name etc. 
   data$DATE <- gsub("/201", "/1", data$DATE)
   data$DATE <- gsub("/200", "/0", data$DATE)
   data$DATE <- gsub("-201", "-1", data$DATE)
   data$DATE <- gsub("-200", "-0", data$DATE)
   #data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+
   
-  data$DATE %<>% multidate(c("%Y-%m-%d","%Y/%m/%d"))
+  data$DATE %<>% multidate(c("%Y-%m-%d","%m/%d/%y"))
   
   #checking for dates that are NA
   
