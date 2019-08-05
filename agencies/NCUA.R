@@ -38,7 +38,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   
-  
+  return(data)  
   
 }
 
