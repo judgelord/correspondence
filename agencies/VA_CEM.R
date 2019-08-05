@@ -49,4 +49,6 @@ clean <- function(file.name) {
   #filter(is.na(first_name))  
   #View(sample) 
   ## code for testing
+  
+  return(data)
 }

@@ -61,6 +61,5 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   
-  
-  
+  return(data)
 }
