@@ -43,6 +43,10 @@ clean <- function(file.name) {
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
+  #Remove Jr.
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, " Jr.| JR."))
+  
   
   #String split for multiple member
   data %<>%
@@ -67,7 +71,7 @@ data <- extractMemberName(data, members, 'FROM')
 
 
   
-  unfoundnames3 <- data %>%
+  unfoundnames <- data %>%
     filter(is.na(last_name))
   
 
