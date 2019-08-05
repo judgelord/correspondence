@@ -16,6 +16,10 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$DATE <- multidate(data$DATE, c("%d-%b-%y","%B %d, %Y"))
   
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
