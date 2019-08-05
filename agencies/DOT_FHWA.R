@@ -43,9 +43,17 @@ clean <- function(file.name) {
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
-  #Remove Jr.
+  #Format Typos
   data %<>%
-    mutate(FROM = str_remove_all(FROM, " Jr.| JR."))
+    mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
+    mutate(FROM = str_replace(FROM, ",, ", ", "))
+  
+  #Name Format Typos
+  data %<>%
+    mutate(FROM = str_replace(FROM, "YOUNG, C. W. BILL", "Charles YOUNG")) %>%
+    mutate(FROM = str_replace(FROM, "Schoch, P.E., Barry J", "Schoch, Barry")) %>%
+    mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth"))
+    
   
   
   #String split for multiple member
