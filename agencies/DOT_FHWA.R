@@ -51,9 +51,11 @@ clean <- function(file.name) {
     unnest(FROM) %>%
     distinct()
   
+  data %<>% getFirstLast.Comma('FROM')
   
-  #Extract members
-  #data <- extractMemberName(data, members, 'FROM')
+ 
+#data <- extractMemberName(data, members, 'FROM')
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
@@ -63,9 +65,9 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR))
   
 
-   data %<>% getFirstLast.Comma('FROM')
+
   
-  unfoundnames2 <- data %>%
+  unfoundnames3 <- data %>%
     filter(is.na(last_name))
   
 
