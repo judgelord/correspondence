@@ -77,7 +77,8 @@ clean <- function(file.name) {
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
-  
+
+  return(data)
 }
 
 
