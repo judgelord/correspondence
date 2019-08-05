@@ -26,6 +26,10 @@ data %<>%
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
   
  #Sample Test code
     #sample <- data[sample(1:nrow(data), 3000, replace=FALSE),]
