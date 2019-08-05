@@ -44,30 +44,42 @@ clean <- function(file.name) {
   
   #FIXED AND ADDED TO nameCongress AND nameMethods
 
- data %<>% 
-    #Bob Graham 
-    mutate(FROM = ifelse (grepl("Bob Graham", FROM, ignore.case = TRUE), "Daniel Graham", FROM)) %>% 
-    #Strom Thurmond
-    mutate(FROM = ifelse (grepl("Strom Thurmond|Stom Thurmond", FROM, ignore.case = TRUE), "James Thurmond", FROM)) %>% 
-    #Michael A Arcuri
-    mutate(FROM = ifelse (grepl("Michael A. Arcuri", FROM, ignore.case = TRUE), "Michael Arcuri", FROM)) %>% 
-    #WJ "Billy" Tauzin
-    mutate(FROM = ifelse (grepl("W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", FROM, ignore.case = TRUE), "Wilbert Tauzin", FROM)) %>% 
-    #Patty Muray 
-    mutate(FROM = ifelse (grepl("Patty Muray", FROM, ignore.case = TRUE), "Patty Murray", FROM)) %>% 
-    #Margret Wood Hassan 
-    mutate(FROM = ifelse (grepl("Margret Wood Hassan", FROM, ignore.case = TRUE), "Margaret Hassan", FROM)) %>% 
-    #Max Cleland
-    mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM)) %>% 
-    #Herb Barrett has 2 misnamed observations but deadend 
-    #Vernon J Ehlers
-    mutate(FROM = ifelse (grepl("Vernon J. Ehlers", FROM, ignore.case = TRUE), "Vernon J Ehlers", FROM)) %>%
-   #Russell D Feingold
-    mutate(FROM = ifelse (grepl("Russel D, Feingold", FROM, ignore.case = TRUE), "Russell D Feingold", FROM))
+ # data %<>% 
+ #    #Bob Graham 
+ #    mutate(FROM = ifelse (grepl("Bob Graham", FROM, ignore.case = TRUE), "Daniel Graham", FROM)) %>% 
+ #    #Strom Thurmond
+ #    mutate(FROM = ifelse (grepl("Strom Thurmond|Stom Thurmond", FROM, ignore.case = TRUE), "James Thurmond", FROM)) %>% 
+ #    #Michael A Arcuri
+ #    mutate(FROM = ifelse (grepl("Michael A. Arcuri", FROM, ignore.case = TRUE), "Michael Arcuri", FROM)) %>% 
+ #    #WJ "Billy" Tauzin
+ #    mutate(FROM = ifelse (grepl("W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", FROM, ignore.case = TRUE), "Wilbert Tauzin", FROM)) %>% 
+ #    #Patty Muray 
+ #    mutate(FROM = ifelse (grepl("Patty Muray", FROM, ignore.case = TRUE), "Patty Murray", FROM)) %>% 
+ #    #Margret Wood Hassan 
+ #    mutate(FROM = ifelse (grepl("Margret Wood Hassan", FROM, ignore.case = TRUE), "Margaret Hassan", FROM)) %>% 
+ #    #Max Cleland
+ #    mutate(FROM = ifelse (grepl("Max Cleland", FROM, ignore.case = TRUE), "Joseph Cleland", FROM)) %>% 
+ #    #Herb Barrett has 2 misnamed observations but deadend 
+ #    #Vernon J Ehlers
+ #    mutate(FROM = ifelse (grepl("Vernon J. Ehlers", FROM, ignore.case = TRUE), "Vernon J Ehlers", FROM)) %>%
+ #   #Russell D Feingold
+ #    mutate(FROM = ifelse (grepl("Russel D, Feingold", FROM, ignore.case = TRUE), "Russell D Feingold", FROM))
+  
+  
  
  #Typos
  data %<>%
-   mutate(FROM = str_replace(FROM, "E. Benjamin Nelson", "Earl NELSON"))
+   mutate(FROM = str_replace(FROM, "E. Benjamin Nelson", "Earl NELSON")) %>%
+   mutate(FROM = str_replace(FROM, "G. T. Thompson", "Glenn THOMPSON"))
+ 
+ #chamber typos
+ data %<>%
+   mutate(chamber = ifelse(str_detect(FROM, "Gordon H. Smith"), "Senate", chamber ))
+ 
+ #Congress Match
+ data %<>%
+   mutate(FROM = ifelse(str_detect(FROM, "Tim Johnson") & str_detect(chamber, "House") & str_detect(congress, "108"), str_replace(FROM, "Tim Johnson", "JOHNSON, Timothy V."), FROM)) %>%
+   mutate(FROM = ifelse(str_detect(FROM, "Tim Johnson") & str_detect(chamber, "Senate") & str_detect(congress, "108"), str_replace(FROM, "Tim Johnson", "JOHNSON, Timothy Peter"), FROM))
    
 
  
@@ -90,7 +102,7 @@ clean <- function(file.name) {
 
   
   # arrange columns for hand coding
-  data %<>% select(ID, FROM, SUBJECT, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
+  data %<>% select(ID, FROM, SUBJECT, last_name, congress, chamber, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
 
 
   
