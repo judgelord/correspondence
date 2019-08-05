@@ -51,10 +51,10 @@ clean <- function(file.name) {
     unnest(FROM) %>%
     distinct()
   
-  data %<>% getFirstLast.Comma('FROM')
+  #data %<>% getFirstLast.Comma('FROM')
   
  
-#data <- extractMemberName(data, members, 'FROM')
+data <- extractMemberName(data, members, 'FROM')
 
   
   # arrange columns for hand coding
