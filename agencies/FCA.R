@@ -12,7 +12,7 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # only SUBJECT contains useful data
-  data %<>% select(SUBJECT) %>% distinct() 
+  data %<>% select(FROM, SUBJECT, DATE, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% distinct() 
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -77,5 +77,5 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  SUBJECT,  everything())
   
-  
+  return(data)
 }

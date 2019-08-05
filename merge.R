@@ -2,20 +2,20 @@
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
-Yes
+Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
 gs_ls() 
 
-## make sure gmailr is set up 
-send_message(mime(
-  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
-  From = "correspondenceresearch@gmail.com",
-  Subject =  "Begin merge",
-  body = ""))
-# note for MERGING: 
-# all columns in d are class character except DATE, year, and congress (see clean.R)
-# in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
+# ## make sure gmailr is set up 
+# send_message(mime(
+#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
+#   From = "correspondenceresearch@gmail.com",
+#   Subject =  "Begin merge",
+#   body = ""))
+# # note for MERGING: 
+# # all columns in d are class character except DATE, year, and congress (see clean.R)
+# # in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
 ########################
 # Master list of data: #
@@ -88,7 +88,7 @@ data_list <- tribble(
 "DOT_FAA", "coded", "Sam",
 #"DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
 "DOT_FTA", "not coded", NA, 
-"DOT_PHSMA", "not coded", NA, # need a clean script when on drive. 
+"DOT_PHMSA", "not coded", NA, # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
@@ -226,13 +226,15 @@ while(!is.na(data_list[i,1])) {
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 
-## Text Devin 
-library(gmailr)
-send_message(mime(
-  To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
-  From = "correspondenceresearch@gmail.com",
-  Subject =  paste("merge.R stopped at", data_list$agency[i]),
- body = paste("merge.R stopped at", data_list$agency[i])))
+message("merge.R stopped at", data_list$agency[i])
+
+# ## Text Devin 
+# library(gmailr)
+# send_message(mime(
+#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
+#   From = "correspondenceresearch@gmail.com",
+#   Subject =  paste("merge.R stopped at", data_list$agency[i]),
+#  body = paste("merge.R stopped at", data_list$agency[i])))
 
 ##############################
 #########################################################################################
@@ -707,9 +709,11 @@ df %<>% left_join(
 df$oversight_committee <- 0
 
 for(i in 1:nrow(df)){
-  if(!is.na(df$chair_of[i]) & 
-     !is.na(df$Reporting.Committees[i]) & 
+  if(!is.na(df$committees[i]) & 
+     !is.na(df$Reporting.Committees[i]) &  
+     # if the agency reports to their committee
      grepl(df$committees[i], df$Reporting.Committees[i], ignore.case = T) ) {
+    # then oversight committee = 1, otherwise 0
     df$oversight_committee[i] <- 1
   } } 
 sum(df$oversight_committee)
@@ -718,8 +722,9 @@ sum(df$oversight_committee)
 df$oversight_committee_chair <- 0
 
 for(i in 1:nrow(df)){
-  if(!is.na(df$chair_of[i]) & 
+  if(!is.na(df$chair_of[i]) & # if member is a chair
      !is.na(df$Reporting.Committees[i]) & 
+     # and the agency reports to the committee they chair 
      grepl(df$chair_of[i], df$Reporting.Committees[i], ignore.case = T) ) {
     df$oversight_committee_chair[i] <- 1
   } } 
