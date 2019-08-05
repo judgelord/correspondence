@@ -51,7 +51,11 @@ clean <- function(file.name) {
   data <- data[!data$FROM == "",] # removes blank observations
   ################
   
-  
+  #Format Typo
+  data %<>%
+    mutate(SUBJECT = str_replace_all(SUBJECT, " ,", ",")) %>%
+    mutate(SUBJECT = str_replace_all(SUBJECT, ", ", ","))
+    
   # data <- getFirstLast.Comma(data, 'FROM')
   
   ##extractmemberName takes longer and is worse than getFirstLast
