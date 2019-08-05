@@ -4,12 +4,9 @@
 
 #file.name <- "DOT_FHWA" # for testing
 
-
-# Duplicates need to be addressed
-
 clean <- function(file.name) {
-  # DOT_FHWA 
   data <- gs_title(file.name) %>% gs_read() # get data
+  
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -17,137 +14,60 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
-  
   # Format date, year, Congress
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE %<>% multidate( c("%m/%d/%y","%Y-%m-%d"))
+  
+  data %<>%
+    mutate(tempDATE = str_extract(X7, "[0-9][0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9]/[0-9][0-9]|[0-9][0-9]/[0-9]/[0-9][0-9]")) 
+  data$tempDATE %<>% as.Date("%m/%d/%y")
+  
+  data %<>%
+    mutate(DATE = if_else(is.na(DATE), tempDATE, DATE))
+  
+  NoDate <- data %>%
+    filter(is.na(DATE))
+  
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data$FROM <- paste(data$FName, " ", data$LName )
   data$FROM <- gsub("e'", "e" ,data$FROM)
-  
-  
-  # is this not what is done with data3?
-  #data2 <- data[grepl("Writer",data$FROM),]
-  #data <- data[!grepl("Writer",data$FROM),]
-  
-  data <- extractMemberName(data, members, 'FROM')
-  
-  #data2$FName <- gsub("Writer\\(s\\): |Writers\\):","",data2$FName)
-  #data2 <- getFirstLast.Comma(data2, "FName")
-  
-  #data %<>% full_join(data2)
   
   
   #create variable for chamber
   data %<>%
     mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) %>% 
-    mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) #%>% 
+  #mutate(chamber = ifelse(is.na(last_name), NA, chamber))
   
   
+  #Remove non members from dataset
+  data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
+  
+  #Format Typos
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
+    mutate(FROM = str_replace(FROM, ",, ", ", "))
+  
+  #Name Format Typos
+  data %<>%
+    mutate(FROM = str_replace(FROM, "YOUNG, C. W. BILL", "Charles YOUNG")) %>%
+    mutate(FROM = str_replace(FROM, "Schoch, P.E., Barry J", "Schoch, Barry")) %>%
+    mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth"))
+    
   
   
-  
-  
-  
-  
-  
-  
-  #################################################################################
-  
-  
-  
-  
-  
-  
-  
-  
-  
-# SECOND DATA SOURCE IS FORMATTED DIFFERENTLY
-  data3 <- gs_title(paste(file.name, "2007-14")) %>% gs_read() %>% distinct() # get data
-  
-  # create ID variable
-  data3$ID <- c((nrow(data)+1):(nrow(data)+nrow(data3)))
-  
-  #create agency column
-  data3$agency <- file.name
-  
-   # Format date, year, Congress
-  data3$DATE %<>% multidate( c("%m/%d/%y","%Y-%m-%d"))
-  
-  data3 %<>%
-    mutate(tempDATE = str_extract(X7, "[0-9][0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9]/[0-9][0-9]|[0-9][0-9]/[0-9]/[0-9][0-9]")) 
-  data3$tempDATE %<>% as.Date("%m/%d/%y")
-  
-  data3 %<>%
-       mutate(DATE = if_else(is.na(DATE), tempDATE, DATE))
-  
-  NoDate <- data3 %>%
-     filter(is.na(DATE))
-  
-  data3 %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-  data3 %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-  
-  
-  data3$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data3$FROM)
-  #data3 <- data3[-which(data3$FROM==""),]
-  
-  
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  
-   data3 %<>%
-     mutate(FROM = str_replace(FROM, "( )(\\w)\\.", "\\1\\2")) %>%
-     mutate(FROM = str_split(FROM, "\\.")) %>%
-     unnest(FROM) %>%
+  #String split for multiple member
+  data %<>%
+    mutate(FROM = str_replace(FROM, "( )(\\w)\\.", "\\1\\2")) %>%
+    mutate(FROM = str_split(FROM, "\\.")) %>%
+    unnest(FROM) %>%
     distinct()
   
-  #Rewrote with tidy
-  #  for(i in 1:nrow(data3)){
-  #    if(grepl("\\w{3,}\\.", data3$FROM[i])) {
-  #      
-  #      data3$FROM <- gsub("( )(\\w)\\.", "\\1\\2", data3$FROM)
-  #      new <- data3 %>% dplyr::slice(rep(i, each = str_count(data3$FROM[i], pattern = "\\.") + 1))
-  #      new$FROM <- unlist(str_split(data3$FROM[i], "\\."))
-  #      
-  #      data3 <- rbind(data3, new)
-  #      
-  #    }
-  #  }
-  #  data3 <- data3[-grep("\\w{3,}\\.", data3$FROM),] # removes orginal row with all data
-  #  data3$FROM <- gsub("^ |^  | $|  $", "", data3$FROM)
-  #  data3 <- data3[!data3$FROM == "",] # removes blank observations
-  #  
-  # ################
-  # data$FROM <- gsub("([a-z]{3})[A-Z]", '\\1', data$FROM)
-  
-  data3 %<>% getFirstLast.Comma('FROM')
-  
-  #data3 <- extractMemberName(data3, members, 'FROM') # getFirstLast seems to work better, but there are a lot of non-members and bad OCR
+  #data %<>% getFirstLast.Comma('FROM')
   
  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # merge 2007-2014 with 2015-2017
-  data %<>%
-    mutate(ERROR =  as.character(ERROR) ) %>%
-    full_join(data3 %>% mutate(ERROR =  as.character(ERROR)))
-  
-  
+data <- extractMemberName(data, members, 'FROM')
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, everything())
@@ -156,10 +76,16 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR))
   
-  Unfoundnames <- data3 %>%
-    filter(is.na(last_name),
-           is.na(ERROR))
+
+
   
+  unfoundnames <- data %>%
+    filter(is.na(last_name))
+  
+
+  # arrange columns for hand coding
+  data %<>% select(ID, DATE, chamber,  FROM, everything())
+
   
   # apply coding rules
   data%<>%
@@ -195,5 +121,6 @@ clean <- function(file.name) {
   
   
   
+  return(data)  
   
 }

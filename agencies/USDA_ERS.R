@@ -177,6 +177,8 @@ clean <- function(file.name){
   
   # arrange columns for further hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+  return(data)
 }
 
 

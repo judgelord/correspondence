@@ -104,6 +104,8 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(DATE, FROM, SUBJECT, everything())
+  
+  return(data)
 }
 
 

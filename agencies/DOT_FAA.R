@@ -14,7 +14,15 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE <- multidate(data$DATE, c("%d-%b-%y","%B %d, %Y"))
+  
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
   #create year and congress columns
