@@ -43,6 +43,10 @@ clean <- function(file.name) {
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
+  #Remove Jr.
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, " Jr.| JR."))
+  
   
   #String split for multiple member
   data %<>%
@@ -51,10 +55,10 @@ clean <- function(file.name) {
     unnest(FROM) %>%
     distinct()
   
-  data %<>% getFirstLast.Comma('FROM')
+  #data %<>% getFirstLast.Comma('FROM')
   
  
-#data <- extractMemberName(data, members, 'FROM')
+data <- extractMemberName(data, members, 'FROM')
 
   
   # arrange columns for hand coding
@@ -67,7 +71,7 @@ clean <- function(file.name) {
 
 
   
-  unfoundnames3 <- data %>%
+  unfoundnames <- data %>%
     filter(is.na(last_name))
   
 
