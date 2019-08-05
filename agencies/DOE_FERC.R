@@ -44,15 +44,15 @@ clean <- function(file.name) {
   
   #FIXED AND ADDED TO nameCongress AND nameMethods
 
- # data %<>% 
+  data %<>% 
  #    #Bob Graham 
- #    mutate(FROM = ifelse (grepl("Bob Graham", FROM, ignore.case = TRUE), "Daniel Graham", FROM)) %>% 
- #    #Strom Thurmond
- #    mutate(FROM = ifelse (grepl("Strom Thurmond|Stom Thurmond", FROM, ignore.case = TRUE), "James Thurmond", FROM)) %>% 
+mutate(FROM = str_replace(FROM, "Bob Graham", "Daniel Graham")) %>% 
+ #Strom Thurmond
+     mutate(FROM = str_replace(FROM, "Strom Thurmond|Stom Thurmond", "James Thurmond")) %>%
  #    #Michael A Arcuri
  #    mutate(FROM = ifelse (grepl("Michael A. Arcuri", FROM, ignore.case = TRUE), "Michael Arcuri", FROM)) %>% 
  #    #WJ "Billy" Tauzin
- #    mutate(FROM = ifelse (grepl("W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", FROM, ignore.case = TRUE), "Wilbert Tauzin", FROM)) %>% 
+ mutate(FROM = str_replace(FROM, "W.J. \"Billy\" Tauzin|WJ Billy Tauzin|W.J \"Billy\" Tauzin|Chairman W.J \"Billy\ Tauzin", "Wilbert Tauzin")) %>% 
  #    #Patty Muray 
  #    mutate(FROM = ifelse (grepl("Patty Muray", FROM, ignore.case = TRUE), "Patty Murray", FROM)) %>% 
  #    #Margret Wood Hassan 
@@ -62,8 +62,8 @@ clean <- function(file.name) {
  #    #Herb Barrett has 2 misnamed observations but deadend 
  #    #Vernon J Ehlers
  #    mutate(FROM = ifelse (grepl("Vernon J. Ehlers", FROM, ignore.case = TRUE), "Vernon J Ehlers", FROM)) %>%
- #   #Russell D Feingold
- #    mutate(FROM = ifelse (grepl("Russel D, Feingold", FROM, ignore.case = TRUE), "Russell D Feingold", FROM))
+   #Russell D Feingold
+  mutate(FROM = str_replace(FROM, "Russel D, Feingold", "Russell D Feingold"))
   
   
  
