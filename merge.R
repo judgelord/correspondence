@@ -782,7 +782,7 @@ dcommittees %<>% full_join(all_contacts_committees)
 }
 
 
-# save if all data merged 
+# save if all data sources merged, save data files
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 
   all_contacts <- df
