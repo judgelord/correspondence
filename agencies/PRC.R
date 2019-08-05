@@ -86,5 +86,6 @@ clean <- function(file.name) {
     
     
   
+return(data)  
   
 } # end function
