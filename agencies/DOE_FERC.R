@@ -64,6 +64,10 @@ clean <- function(file.name) {
     mutate(FROM = ifelse (grepl("Vernon J. Ehlers", FROM, ignore.case = TRUE), "Vernon J Ehlers", FROM)) %>%
    #Russell D Feingold
     mutate(FROM = ifelse (grepl("Russel D, Feingold", FROM, ignore.case = TRUE), "Russell D Feingold", FROM))
+ 
+ #Typos
+ data %<>%
+   mutate(FROM = str_replace(FROM, "E. Benjamin Nelson", "Earl NELSON"))
    
 
  
