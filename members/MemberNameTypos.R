@@ -263,8 +263,8 @@ typos_last <- tribble(
   "Pete", "Aguilar", "Aguliar",
   "Sean", "Duffy", "Dufffy",
   "Charles", "Schumer", "Shumer",
-  "Robert", "Hurt", "Hunt"
-
+  "Robert", "Hurt", "Hunt",
+  "Randy", "Hultgren", "(Hultgreen|Hultgreeen)"
   
  
   
