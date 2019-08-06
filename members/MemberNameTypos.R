@@ -141,7 +141,7 @@ typos_last <- tribble(
   "Ron", "Wyden", "Wydon",
   "John", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
-  "Blake", "Farenthold", "Farenhold|Farenthod",
+  "Blake", "Farenthold", "Farenhold|Farenthod|Farentold",
   "Anna", "Eshoo", "Eschoo",
   "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap|Heitkamps)",
   "Gerry", "Connolly", "Connelly",
