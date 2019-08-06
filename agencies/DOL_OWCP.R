@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOL_OWCP" # for testing
+#file.name <- "DOL_OWCP" # for testing
 
 
 clean <- function(file.name) {
@@ -11,8 +11,12 @@ clean <- function(file.name) {
   
   colnames(data)[colnames(data) == 'SIMS ID'] <- 'ID'
   
-  # format DATE to multiple formats
+  #format DATE to multiple formats
   data$DATE %<>% as.Date("%Y-%m-%d")
+  
+  #finding NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -42,7 +46,12 @@ clean <- function(file.name) {
   # data <- data[!data$FROM == "",] # removes blank observations
   ################
   
-
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Foxx. Virginia", "Foxx, Virginia")) %>% 
+    mutate(FROM = str_replace(FROM, "Schumer", "Schumer, Charles")) %>%
+    mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "Young, C.W."))
+    
   data %<>% extractMemberName(members, 'FROM')
  
   
@@ -50,6 +59,11 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senate|Senator", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
+  
+  #ERRORS
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth"), "Not Member", ERROR))
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, everything())

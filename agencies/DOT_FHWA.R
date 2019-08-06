@@ -63,9 +63,10 @@ clean <- function(file.name) {
     unnest(FROM) %>%
     distinct()
   
-  #data %<>% getFirstLast.Comma('FROM')
+#data %<>% getFirstLast.Comma('FROM')
   
- 
+#change from getfirstlast to extractMemberName since it caputures more data
+  
 data <- extractMemberName(data, members, 'FROM')
 
   
