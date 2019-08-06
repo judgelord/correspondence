@@ -55,6 +55,11 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senate|Senator", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
   
+  #ERRORS
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Bordallo, Madeleine Z|Norton, Eleanor Holmes"), "Not Member", ERROR))
+  
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE, chamber,  FROM, SUBJECT, everything())
   
