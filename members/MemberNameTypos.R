@@ -264,7 +264,7 @@ typos_last <- tribble(
   "Charles", "Schumer", "Shumer",
   "Robert", "Hurt", "Hunt",
   "Randy", "Hultgren", "(Hultgreen|Hultgreeen)",
-  "Eric", "Swalwell", "Swalwell",
+  "Eric", "Swalwell", "(Swallwell|Swalwell)",
   "Sherrod", "Brown", "Browns",
   "Tony", "Cardenas", "(Caedenas|C.rdenas)"
   
