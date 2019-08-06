@@ -2,8 +2,8 @@
 "1","Department of Agriculture",29,29,11,9593
 "2","Department of Commerce",18,18,10,7310
 "3","Department of Defense",49,10,7,7385
-"4","Department of Education",1,1,1,3874
-"5","Department of Energy",8,2,1,2484
+"4","Department of Education",1,1,1,3879
+"5","Department of Energy",8,2,1,2485
 "6","Department of Health and Human Services",15,8,5,12625
 "7","Department of Homeland Security",6,5,5,24710
 "8","Department of Housing and Urban Development",2,1,1,31795
@@ -12,7 +12,7 @@
 "11","Department of State",1,0,0,0
 "12","Department of the Interior",10,6,5,5193
 "13","Department of the Treasury",8,5,5,12296
-"14","Department of Transportation",10,6,6,15546
+"14","Department of Transportation",10,6,6,20171
 "15","Department of Veterans Affairs",3,2,1,74815
 "16","Independent Agencies",38,24,NA,77527
-"17","Total",233,129,NA,338771
+"17","Total",233,129,NA,343402
