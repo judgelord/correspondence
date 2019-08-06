@@ -19,7 +19,6 @@ typos_clear <- tribble(
   "Timothy", "T.mothy",
   "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
   "Martin","Martrin", 
-  "Cardenas", "C.rdenas",
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
   "Sanchez", "S.nchez",
@@ -78,7 +77,7 @@ typos_last <- tribble(
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
   "Rodney", "Frelinghuysen", "(Frelinghuyser|Frelinhuysen)",
-  "Shelly", "Barkley", "Berkley",
+  "Shelley", "Berkley", "Barkley",
   "Steny", "Hoyer", "Royer",
   "Vito", "Fossella", "Fosella",
   "John", "Barrasso", "Barasso",
@@ -92,7 +91,7 @@ typos_last <- tribble(
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
   "Steve", "Scalise", "(Scalisse|Scallise)",
-  "Russ", "Carnahan", "Camahan",
+  "Russ", "Carnahan", "(Carnhan|Camahan)",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
   "Olympia","Snowe", "Showe",
@@ -184,7 +183,7 @@ typos_last <- tribble(
   "Angus", "King", "Kiing",
   "Martin", "Heinrich", "(Hienrich|Heinriech)",
   "Ellen", "Tauscher", "Ianscher",
-  "Jeff", "Bingaman", "Bingamen",
+  "Jeff", "Bingaman", "(Bingman|Bingmen|Bingamen)",
   "Elizabeth", "Warren", "Varren",
   "Adam", "Schiff", "(Schif|Sdxiff)",
   "Robert", "TORRICELLI", "Toricelli",
@@ -259,10 +258,17 @@ typos_last <- tribble(
   "George", "Holding", "Holdings",
   "Marlin", "Stutzman", "(Stutzzman|Stutzmann)",
   "Jeff", "Flake", "Flakes",
-  "Ben", "Lujan", "Luj.n"
- 
-
-
+  "Ben", "Lujan", "Luj.n",
+  "Pete", "Aguilar", "Aguliar",
+  "Sean", "Duffy", "Dufffy",
+  "Charles", "Schumer", "Shumer",
+  "Robert", "Hurt", "Hunt",
+  "Randy", "Hultgren", "(Hultgreen|Hultgreeen)",
+  "Eric", "Swalwell", "(Swallwell|Swalwell)",
+  "Sherrod", "Brown", "Browns",
+  "Tony", "Cardenas", "(Caedenas|C.rdenas)",
+  "Mick", "Mulvaney", "Mulvancy",
+  "Kathy", "Castor", "Caster"
   
  
   
@@ -283,7 +289,7 @@ typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
   "Stephen", "Lynch", "Steven", 
   "Zoe", "Lofgren", "Toe", 
-  "Jeanne", "Shaheen", "Teanne", 
+  "Jeanne", "Shaheen", "(Joanne|Teanne)", 
   "Ron", "Wyden", "Roy", 
   "Russell","Feingold", "(Russel|Rusell)",
   "Ric", "Keller", "Rick", 
@@ -371,11 +377,16 @@ typos_first <- tribble(
   "Nanette", "BARRAGAN", "Nannette",
   "Sanford", "Bishop", "Sandford",
   "Alcee", "Hastings", "(Alccc|Ateee)",
-  "Arlen", "Specter", "Alien",
+  "Arlen", "Specter", "(Alan|Alien)",
   "Bart", "Gordon", "Art",
   "Barney", "Frank", "Bamey",
   "Richard", "Shelby", "Ricard",
-  "Ruben", "Hinojosa", "Rub.n"
+  "Ruben", "Hinojosa", "Rub.n",
+  "Shelley", "Berkley", "Shelly",
+  "Chris", "Collins", "Chirs",
+  "Diane", "Black", "Diana",
+  "Lloyd", "Doggett", "Llyod"
+  
  
 
  

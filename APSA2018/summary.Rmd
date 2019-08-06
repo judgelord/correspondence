@@ -1,10 +1,13 @@
 ---
 title: "How Legislators Actually Invest Their Time"
+author: "Devin Judge-Lord, Justin Grimmer, Eleanor Neff Powell"
 output: 
    html_document:
     toc: true
+    toc_float: true
     code_folding: hide
 ---
+
 
 ```{r setup, include=FALSE}
 source(here::here("setup.R"))
@@ -41,7 +44,7 @@ kable(read_csv(here("data/_FOIA_response_table.csv")) %>% select(-X1))
 ```
 
 We classify legislator requests into five overall types:
-```{r data_by_type}
+```{r data_by_type, fig.height=4, fig.width=6}
 
 df %>% 
   filter(Type != "To be coded") %>%  
@@ -62,7 +65,7 @@ df %>%
 
 In additition to our five broad types, we have a second, more nuanced coding scheme focused on major agency decisions or events. This was, in part, developed inductively through the coding process. 
 
-```{r data_by_event}
+```{r data_by_event, fig.width=6}
 df %>% 
   filter(!is.na(POLICY_EVENT)) %>% 
   mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>%
@@ -165,7 +168,12 @@ df %>%
     ggplot() + 
     geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
     geom_smooth(aes(x = log(pop2010), y = mean)) + 
-  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > 137, member_state, "")), check_overlap = F, size = 2.5) + theme_bw() +
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > 150 | mean < 50, 
+                               member_state, 
+                               "")), 
+            check_overlap = T, size = 2.5) + theme_bw() +
   labs(title = "Senator Requests per Year by State Population",
        x = "Log State Population",
        y = "Average Number of Requests per Year")
@@ -510,7 +518,77 @@ kable(m)
 
 
 
-### Committee chairs contact agencies that their committee oversees more than other members of the same committee. 
+## Committee chairs compared to committee members
+
+```{r chair_models_table, eval = TRUE}
+# oversight chair without member FE
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency), 
+                   data = all %>% 
+                     group_by(agency, year, congress, icpsr, chair) %>%
+                     summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") ) %>% mutate(model = "Overall")
+
+Policy <- tidy(lm(n ~ chair  + factor(congress) + factor(agency),
+                  data = p2 %>% 
+                    group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency),
+                       data = c2 %>%
+                         group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "Constituent")
+
+chair  <- rbind(Overall, Policy, Constituent)
+
+
+# oversight chair with member FE
+Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), 
+                   data = all %>%
+                     group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n()) %>% distinct() ) ) %>%
+  filter(term %in% c("chair") ) %>% mutate(model = "DiD - Overall")
+
+Policy <- tidy(lm(n ~ chair  + factor(congress) + factor(agency) + factor(icpsr),
+                  data = p2 %>%
+                    group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "DiD - Policy")
+
+Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr),
+                       data = c2 %>% 
+                         group_by(agency, year, congress, icpsr, chair) %>%
+                 summarise(n = n())  %>% distinct() ) ) %>%
+  filter(term %in% c("chair") )  %>% mutate(model = "DiD - Constituent")
+
+chairFE  <- rbind(Overall, Policy, Constituent)
+
+
+# combine 
+m <- rbind(chair, chairFE)
+kable(m)
+```
+
+```{r chair_models, fig.height = 2.5, fig.width= 6, eval = TRUE}
+
+{dwplot(m) %>% 
+    relabel_predictors(c(committee_chair = "")) +
+    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + 
+    ylab("") +
+     geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
+     ggtitle("Committee Chairs Relative to Members") + 
+    guides(colour = guide_legend(reverse=T))  + 
+     theme(legend.title = element_blank(),
+           axis.ticks.y = element_blank(),
+           panel.grid.major.y = element_blank())} 
+
+
+```
+
+
+
+### Oversight chairs contact agencies that their committee oversees more than other members of the same committee. 
 
 
 
@@ -526,13 +604,17 @@ Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(age
   filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "Overall")
 
 Policy <- tidy(lm(n ~ oversight_committee_chair  + factor(congress) + factor(agency),
-                  data = p2 %>% filter(oversight_committee == 1) %>%
+                  data = p2 %>% 
+                    # oversight only 
+                    filter(oversight_committee == 1) %>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "Policy")
 
 Constituent <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency),
-                       data = c2 %>% filter(oversight_committee == 1) %>%
+                       data = c2 %>% 
+                         # oversight only
+                         filter(oversight_committee == 1) %>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") )  %>% mutate(model = "Constituent")
@@ -542,7 +624,9 @@ oversight_committee_chair  <- rbind(Overall, Policy, Constituent)
 
 # oversight chair with member FE
 Overall <- tidy(lm(n ~ oversight_committee_chair + factor(congress) + factor(agency) + factor(icpsr), 
-                   data = all %>% filter(oversight_committee == 1)%>%
+                   data = all %>% 
+                     # oversight only 
+                     filter(oversight_committee == 1)%>%
                  group_by(agency, year, congress, icpsr, oversight_committee_chair) %>%
                  summarise(n = n()) %>% distinct() ) ) %>%
   filter(term %in% c("oversight_committee_chair") ) %>% mutate(model = "DiD - Overall")
@@ -571,7 +655,8 @@ kable(m)
 
 {dwplot(m) %>% 
     relabel_predictors(c(oversight_committee_chair = "")) +
-    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
+    xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + 
+    ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
      ggtitle("Chairs Relative to Other Oversight Committee Members") + 
     guides(colour = guide_legend(reverse=T))  + 
@@ -585,15 +670,19 @@ kable(m)
 
 
 ```{r non_oversight_committee_chair_models_table, eval = TRUE}
-# oversight chair without member FE
+# non oversight chair without member FE
 Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency), 
-                   data = all %>% filter(oversight_committee == 0) %>%
+                   data = all %>% 
+                     # non oversight 
+                     filter(oversight_committee == 0) %>%
                  group_by(agency, year, congress, icpsr, chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("chair") ) %>% mutate(model = "Overall")
 
 Policy <- tidy(lm(n ~ chair  + factor(congress) + factor(agency),
-                  data = p2 %>% filter(oversight_committee == 0) %>%
+                  data = p2 %>% 
+                    # non oversight 
+                    filter(oversight_committee == 0) %>%
                  group_by(agency, year, congress, icpsr, chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("chair") )  %>% mutate(model = "Policy")
@@ -607,21 +696,27 @@ Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency),
 chair  <- rbind(Overall, Policy, Constituent)
 
 
-# oversight chair with member FE
+# non oversight chair with member FE
 Overall <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr), 
-                   data = all %>% filter(oversight_committee == 0)%>%
+                   data = all %>% 
+                     # non oversight 
+                     filter(oversight_committee == 0)%>%
                  group_by(agency, year, congress, icpsr, chair) %>%
                  summarise(n = n()) %>% distinct() ) ) %>%
   filter(term %in% c("chair") ) %>% mutate(model = "DiD - Overall")
 
 Policy <- tidy(lm(n ~ chair  + factor(congress) + factor(agency) + factor(icpsr),
-                  data = p2 %>% filter(oversight_committee == 0) %>%
+                  data = p2 %>% 
+                    # non oversight 
+                    filter(oversight_committee == 0) %>%
                  group_by(agency, year, congress, icpsr, chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("chair") )  %>% mutate(model = "DiD - Policy")
 
 Constituent <- tidy(lm(n ~ chair + factor(congress) + factor(agency) + factor(icpsr),
-                       data = c2 %>% filter(oversight_committee == 0) %>%
+                       data = c2 %>% 
+                         # non oversight 
+                         filter(oversight_committee == 0) %>%
                  group_by(agency, year, congress, icpsr, chair) %>%
                  summarise(n = n())  %>% distinct() ) ) %>%
   filter(term %in% c("chair") )  %>% mutate(model = "DiD - Constituent")
@@ -640,7 +735,7 @@ kable(m)
     relabel_predictors(c(chair = "")) +
     xlab("Estimated Additional Letters per Year (Congress and Agency FE)") + ylab("") +
      geom_vline(xintercept = 0, colour = "grey60", linetype = 2) +
-     ggtitle("Chairs Relative to Other Oversight Committee Members") + 
+     ggtitle("Chairs Relative to Other Committee Members (Non-oversight committees)") + 
     guides(colour = guide_legend(reverse=T))  + 
      theme(legend.title = element_blank(),
            axis.ticks.y = element_blank(),
@@ -649,5 +744,6 @@ kable(m)
 
 ```
 
+---
 
-
+# [Download the paper](https://judgelord.github.io/correspondence/APSA2018/APSA2018.pdf)
