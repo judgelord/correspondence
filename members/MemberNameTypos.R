@@ -260,7 +260,8 @@ typos_last <- tribble(
   "Marlin", "Stutzman", "(Stutzzman|Stutzmann)",
   "Jeff", "Flake", "Flakes",
   "Ben", "Lujan", "Luj.n",
-  "Pete", "Aguilar", "Aguliar"
+  "Pete", "Aguilar", "Aguliar",
+  "Sean", "Duffy", "Dufffy"
  
 
 
