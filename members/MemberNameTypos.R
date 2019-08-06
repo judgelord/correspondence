@@ -286,7 +286,7 @@ typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
   "Stephen", "Lynch", "Steven", 
   "Zoe", "Lofgren", "Toe", 
-  "Jeanne", "Shaheen", "Teanne", 
+  "Jeanne", "Shaheen", "(Joanne|Teanne)", 
   "Ron", "Wyden", "Roy", 
   "Russell","Feingold", "(Russel|Rusell)",
   "Ric", "Keller", "Rick", 
