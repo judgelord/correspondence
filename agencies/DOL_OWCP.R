@@ -46,7 +46,10 @@ clean <- function(file.name) {
   # data <- data[!data$FROM == "",] # removes blank observations
   ################
   
-
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Foxx. Virginia", "Foxx, Virginia")) %>%
+    
   data %<>% extractMemberName(members, 'FROM')
  
   
@@ -57,7 +60,7 @@ clean <- function(file.name) {
   
   #ERRORS
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Bordallo, Madeleine Z|Norton, Eleanor Holmes"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth"), "Not Member", ERROR))
   
   
   # arrange columns for hand coding
