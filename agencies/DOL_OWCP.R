@@ -52,7 +52,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Schumer", "Schumer, Charles")) %>%
     mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "Young, Bill")) %>%
     mutate(FROM = str_replace(FROM, "Young, C.W.", "Young, Bill")) %>%
-    mutate(FROM = str_replace(FROM, "Byrd. Robert C.", "Byrd, Robert C.")) 
+    mutate(FROM = str_replace(FROM, "Byrd. Robert C.", "Byrd, Robert C.")) %>% 
+    mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "Barrett, James"))
     
     
   data %<>% extractMemberName(members, 'FROM')
@@ -65,7 +66,7 @@ clean <- function(file.name) {
   
   #ERRORS
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
   
   
   # arrange columns for hand coding
