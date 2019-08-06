@@ -261,7 +261,8 @@ typos_last <- tribble(
   "Jeff", "Flake", "Flakes",
   "Ben", "Lujan", "Luj.n",
   "Pete", "Aguilar", "Aguliar",
-  "Sean", "Duffy", "Dufffy"
+  "Sean", "Duffy", "Dufffy",
+  "Charles", "Schumer", "Shumer"
  
 
 
