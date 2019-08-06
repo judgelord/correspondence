@@ -267,7 +267,8 @@ typos_last <- tribble(
   "Eric", "Swalwell", "(Swallwell|Swalwell)",
   "Sherrod", "Brown", "Browns",
   "Tony", "Cardenas", "(Caedenas|C.rdenas)",
-  "Mick", "Mulvaney", "Mulvancy"
+  "Mick", "Mulvaney", "Mulvancy",
+  "Kathy", "Castor", "Caster"
   
  
   
@@ -384,7 +385,8 @@ typos_first <- tribble(
   "Shelley", "Berkley", "Shelly",
   "Chris", "Collins", "Chirs",
   "Diane", "Black", "Diana",
-  "Kathy", "Castor", "Caster"
+  "Lloyd", "Doggett", "Llyod"
+  
  
 
  
