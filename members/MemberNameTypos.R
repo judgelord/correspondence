@@ -78,7 +78,7 @@ typos_last <- tribble(
   "Rick", "Boucher", "Bocuher",
   "Robert", "Andrews", "Andrew",
   "Rodney", "Frelinghuysen", "(Frelinghuyser|Frelinhuysen)",
-  "Shelley", "Barkley", "Berkley",
+  "Shelley", "Berkley", "Barkley",
   "Steny", "Hoyer", "Royer",
   "Vito", "Fossella", "Fosella",
   "John", "Barrasso", "Barasso",
