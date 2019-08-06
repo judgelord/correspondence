@@ -54,7 +54,8 @@ clean <- function(file.name) {
   #Format Typos
   data %<>%
     mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
-    mutate(FROM = str_replace(FROM, ",, ", ", "))
+    mutate(FROM = str_replace(FROM, ",, ", ", ")) %>%
+    mutate(FROM = str_replace_all(FROM, "U.S.|U.S", "US"))
   
   #Name Format Typos
   data %<>%
@@ -91,6 +92,7 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data))
   
+
 #data %<>% getFirstLast.Comma('FROM')
   
 #change from getfirstlast to extractMemberName since it caputures more data
