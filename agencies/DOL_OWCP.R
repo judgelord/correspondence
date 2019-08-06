@@ -74,7 +74,7 @@ clean <- function(file.name) {
   
   #ERRORS
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "SC First Congressional District Office|Shahan, Theresa|Smalls, Eugene C.|Coleman, Wayne A.|Churovich, Danial|Christensen, Donna M.|Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Evangelisti, John S.|Dillon, Stephaine|Deloach, Lawrence E.|Crawford, Kathryn G.|Connor, Jeffrey|SC First Congressional District Office|Shahan, Theresa|Smalls, Eugene C.|Coleman, Wayne A.|Churovich, Danial|Christensen, Donna M.|Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
   
   
   # arrange columns for hand coding
