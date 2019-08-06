@@ -52,7 +52,17 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Schumer", "Schumer, Charles")) %>%
     mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "Young, Bill")) %>%
     mutate(FROM = str_replace(FROM, "Young, C.W.", "Young, Bill")) %>%
-    mutate(FROM = str_replace(FROM, "Byrd. Robert C.", "Byrd, Robert C.")) 
+    mutate(FROM = str_replace(FROM, "Byrd. Robert C.", "Byrd, Robert C.")) %>% 
+    mutate(FROM = str_replace(FROM, "Barrett, J. Gresham", "Barrett, James")) %>%
+    mutate(FROM = str_replace(FROM, "Beutler, Jamie Herrera", "HERRERA BEUTLER, Jaime")) %>%
+    mutate(FROM = str_replace(FROM, "Filemon, Vela", "VELA, Filemon")) %>%
+    mutate(FROM = str_replace(FROM, "Pocan", "Pocan, Mark")) %>%
+    mutate(FROM = str_replace(FROM, "Hochul, Kthleen C.", "Hochul, Kathleen C.")) %>%
+    mutate(FROM = str_replace(FROM, "Conaway, K. Michael", "Conaway, Michael"))
+    
+    
+    
+    
     
   data %<>% extractMemberName(members, 'FROM')
  
@@ -64,7 +74,7 @@ clean <- function(file.name) {
   
   #ERRORS
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "SC First Congressional District Office|Shahan, Theresa|Smalls, Eugene C.|Coleman, Wayne A.|Churovich, Danial|Christensen, Donna M.|Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
   
   
   # arrange columns for hand coding

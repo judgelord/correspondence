@@ -19,7 +19,6 @@ typos_clear <- tribble(
   "Timothy", "T.mothy",
   "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
   "Martin","Martrin", 
-  "Cardenas", "C.rdenas",
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
   "Sanchez", "S.nchez",
@@ -92,7 +91,7 @@ typos_last <- tribble(
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
   "Steve", "Scalise", "(Scalisse|Scallise)",
-  "Russ", "Carnahan", "Camahan",
+  "Russ", "Carnahan", "(Carnhan|Camahan)",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
   "Olympia","Snowe", "Showe",
@@ -264,7 +263,12 @@ typos_last <- tribble(
   "Sean", "Duffy", "Dufffy",
   "Charles", "Schumer", "Shumer",
   "Robert", "Hurt", "Hunt",
-  "Randy", "Hultgren", "(Hultgreen|Hultgreeen)"
+  "Randy", "Hultgren", "(Hultgreen|Hultgreeen)",
+  "Eric", "Swalwell", "(Swallwell|Swalwell)",
+  "Sherrod", "Brown", "Browns",
+  "Tony", "Cardenas", "(Caedenas|C.rdenas)",
+  "Mick", "Mulvaney", "Mulvancy",
+  "Kathy", "Castor", "Caster"
   
  
   
@@ -379,7 +383,10 @@ typos_first <- tribble(
   "Richard", "Shelby", "Ricard",
   "Ruben", "Hinojosa", "Rub.n",
   "Shelley", "Berkley", "Shelly",
-  "Chris", "Collins", "Chirs"
+  "Chris", "Collins", "Chirs",
+  "Diane", "Black", "Diana",
+  "Lloyd", "Doggett", "Llyod"
+  
  
 
  
