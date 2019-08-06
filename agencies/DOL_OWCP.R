@@ -49,7 +49,8 @@ clean <- function(file.name) {
   #Format Typo
   data %<>%
     mutate(FROM = str_replace(FROM, "Foxx. Virginia", "Foxx, Virginia")) %>% 
-    mutate(FROM = str_replace(FROM, "Schumer", "Schumer, Charles"))
+    mutate(FROM = str_replace(FROM, "Schumer", "Schumer, Charles")) %>%
+    mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "Young, C.W."))
     
   data %<>% extractMemberName(members, 'FROM')
  
