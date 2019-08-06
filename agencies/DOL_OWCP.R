@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOL_OWCP" # for testing
+#file.name <- "DOL_OWCP" # for testing
 
 
 clean <- function(file.name) {
@@ -11,8 +11,12 @@ clean <- function(file.name) {
   
   colnames(data)[colnames(data) == 'SIMS ID'] <- 'ID'
   
-  # format DATE to multiple formats
+  #format DATE to multiple formats
   data$DATE %<>% as.Date("%Y-%m-%d")
+  
+  #finding NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
