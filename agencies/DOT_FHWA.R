@@ -63,7 +63,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Schoch, P.E., Barry J", "Schoch, Barry")) %>%
     mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth")) %>%
     mutate(FROM = str_replace(FROM, "Cassidy, M.D., Bill", "Bill CASSIDY")) %>%
-    mutate(FROM = str_replace(FROM, "Cleaver, n, Emanuel|CLEAVER n, EMANUEL|Cleaver, II, Emanuel|Cleaver, n , Emanuel", "Cleaver, Emanuel"))
+    mutate(FROM = str_replace(FROM, "Cleaver, n, Emanuel|CLEAVER n, EMANUEL|Cleaver, II, Emanuel|Cleaver, n , Emanuel", "Cleaver, Emanuel")) %>%
+    mutate(FROM = str_replace(FROM, "Butterfield, GK", "George BUTTERFIELD"))
     
   #Name Typos
   data %<>%
