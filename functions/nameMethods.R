@@ -710,7 +710,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
   # if congress not in members file 
   if(!congress_i %in% members$congress){
     
-    base::message(str_c(unique(data$agency),
+    base::message(red(str_c(unique(data$agency),
                 " BAD DATES? ",
                 paste(unique(data$DATE), collapse =";"),
                 "
@@ -719,7 +719,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
                 length(unique(data$string)), " unique strings.
                 ",
                 "Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1]), "\""
-          )
+          ))
     
     data %<>% 
       mutate(pattern = "Date out of range", 
@@ -731,10 +731,10 @@ extractNamesPerCongress <- function(congress_i, data, members){
   if(congress_i %in% members$congress){
   members %<>% filter(congress == congress_i)
   
-  base::message( str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th, n = ", nrow(data), ". ", length(unique(data$string)), " unique strings.",
+  base::message( green(str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th, n = ", nrow(data), ". ", length(unique(data$string)), " unique strings.",
          " Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1], "\""
          )
-         )
+         ))
   
   # match patterns from the members data and merge with member names
   data %<>%

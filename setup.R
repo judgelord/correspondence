@@ -1,7 +1,7 @@
   options(stringsAsFactors = FALSE)
   
   requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse",
-                "pdftools", "here", "rvest","maps", "ineq", "mapproj", "dotwhisker")
+                "pdftools", "here", "rvest","maps", "ineq", "mapproj", "dotwhisker", "crayon")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
@@ -40,6 +40,7 @@
   library(knitr)
   library(broom)
   library(dotwhisker)
+  library(crayon)
   library(tidyverse)
   
   source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
