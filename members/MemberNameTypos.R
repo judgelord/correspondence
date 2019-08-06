@@ -91,7 +91,7 @@ typos_last <- tribble(
   "Peter", "DeFazio", "DiFazio",
   "Roy", "Blunt", "Blur",
   "Steve", "Scalise", "(Scalisse|Scallise)",
-  "Russ", "Carnahan", "Camahan",
+  "Russ", "Carnahan", "(Carnhan|Camahan)",
   "Zoe", "Lofgren", "Lufgren",
   "Thomas", "Holden", "Holen",
   "Olympia","Snowe", "Showe",
