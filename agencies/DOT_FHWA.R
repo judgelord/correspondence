@@ -71,7 +71,10 @@ clean <- function(file.name) {
   
   #chamber Typos
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Duckworth, Tammy") & str_detect(congress, "113|114"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Bill CASSIDY") & str_detect(congress, "113"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & str_detect(congress, "113"), "House", chamber))
   
   #Match on chamber
   data %<>%
@@ -107,9 +110,8 @@ data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Dayton, Mark"), "Minnesota Gov.", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John"), "Non Member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike|Cannella, Anthony"), "State Politican", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR))
   
 
