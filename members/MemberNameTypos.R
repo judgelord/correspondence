@@ -379,7 +379,8 @@ typos_first <- tribble(
   "Barney", "Frank", "Bamey",
   "Richard", "Shelby", "Ricard",
   "Ruben", "Hinojosa", "Rub.n",
-  "Shelley", "Berkley", "Shelly"
+  "Shelley", "Berkley", "Shelly",
+  "Chris", "Collins", "Chirs"
  
 
  
