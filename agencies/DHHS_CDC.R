@@ -4,7 +4,7 @@
 # 1204 out of 1316 matches. I think all non-matches are non-members after checking, should be good. 
 # Complete
 
-#file.name <- "DHHS_CDC" # for testing
+# file.name <- "DHHS_CDC" # for testing
 
 
 clean <- function(file.name) {
@@ -97,7 +97,7 @@ clean <- function(file.name) {
   #Create sample for all of the NA names and extract names from 'Titles' into dataset
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members = members, col_name = "Titles")
+    extractMemberName(members, col_name = "Titles")
   
   Unfoundnames %>% 
     mutate(found = !is.na(last_name)) %>% 
@@ -106,7 +106,7 @@ clean <- function(file.name) {
   #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
   Unfoundnames2 <- Unfoundnames %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members = members, col_name =  "SUBJECT") %>%
+    extractMemberName(members, col_name =  "SUBJECT") %>%
     drop_na(last_name)
   
   Unfoundnames2 %>% 
