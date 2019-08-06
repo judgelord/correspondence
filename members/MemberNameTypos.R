@@ -380,7 +380,8 @@ typos_first <- tribble(
   "Richard", "Shelby", "Ricard",
   "Ruben", "Hinojosa", "Rub.n",
   "Shelley", "Berkley", "Shelly",
-  "Chris", "Collins", "Chirs"
+  "Chris", "Collins", "Chirs",
+  "Diane", "Black", "Diana"
  
 
  
