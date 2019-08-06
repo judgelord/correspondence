@@ -222,11 +222,11 @@ while(!is.na(data_list[i,1])) {
   
   i <- i + 1
 }
+stopped <- data_list$agency[i]
+print(paste("merge.R stopped at", stopped))
 
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
-
-message("merge.R stopped at", data_list$agency[i])
 
 # ## Text Devin 
 # library(gmailr)
@@ -807,5 +807,5 @@ look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agen
 paste("missing from d:", paste(data_list$agency[!data_list$agency %in% unique(d$agency)], collapse = ", "))
 paste("missing from df:", paste(data_list$agency[!data_list$agency %in% unique(df$agency)], collapse = ", "))
 
-paste("merge.R stopped at", data_list$agency[i])
+print(paste("merge.R stopped at", stopped))
 

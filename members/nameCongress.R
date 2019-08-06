@@ -612,17 +612,6 @@ suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initi
   members %<>% select(-congresses)
 
   
-  
-  # FIXME 
-  # Until purrr version of extractMemberNames is done, we need to split up members
-  # The new purrr solution will use members2 for now
-  members2 <- members
-    
-  # 2000-2007 congresses 
-  members_106to109th <- filter(members, congress < 112)
-  
-  members %<>% filter(congress > 109)
-  
-  save(members, members_106to109th, members2, file = "members/nameCongress.Rdata")
+  save(members, file = "members/members.Rdata")
   
   

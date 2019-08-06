@@ -8,8 +8,8 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # create LetterID variable
+  data$LetterID <- c(1:nrow(data))
   
   #create agency column
   data$agency <- file.name
@@ -36,7 +36,14 @@ clean <- function(file.name) {
   #create variable for chamber
   data %<>%
     mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) #%>% 
+    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(X6, "U.S. House of Representatives"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(X7, "U.S. House of Representatives"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(X8, "U.S. House of Representatives"), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(X6, "United States Senate"), "Senate", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(X7, "United States Senate"), "Senate", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(X8, "United States Senate"), "Senate", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "United States Senate"), "Senate", chamber))
   #mutate(chamber = ifelse(is.na(last_name), NA, chamber))
   
   
@@ -52,9 +59,17 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "YOUNG, C. W. BILL", "Charles YOUNG")) %>%
     mutate(FROM = str_replace(FROM, "Schoch, P.E., Barry J", "Schoch, Barry")) %>%
-    mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth"))
+    mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth")) %>%
+    mutate(FROM = str_replace(FROM, "Cassidy, M.D., Bill", "Bill CASSIDY")) %>%
+    mutate(FROM = str_replace(FROM, "Cleaver, n, Emanuel|CLEAVER n, EMANUEL|Cleaver, II, Emanuel|Cleaver, n , Emanuel", "Cleaver, Emanuel"))
     
+  #chamber Typos
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber))
   
+  #Match on chamber
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Timothy V") & str_detect(chamber, "House") & str_detect(congress, "111|112"), str_replace(FROM, "Johnson, Timothy V", "Timothy V JOHNSON"), FROM))
   
   #String split for multiple member
   data %<>%
@@ -62,6 +77,9 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "\\.")) %>%
     unnest(FROM) %>%
     distinct()
+  
+  # create ID variable
+  data$ID <- c(1:nrow(data))
   
 #data %<>% getFirstLast.Comma('FROM')
   
@@ -75,13 +93,19 @@ data <- extractMemberName(data, members, 'FROM')
   
   # add errors
   data %<>%
-    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR))
+    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Dayton, Mark"), "Minnesota Gov.", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike"), "State Politican", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR))
   
 
 
   
   unfoundnames <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name),
+           is.na(ERROR))
   
 
   # arrange columns for hand coding

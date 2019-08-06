@@ -48,8 +48,8 @@
   source(here("functions/nameMethods.R")) # functions for cleaning member names to match the augmented member file
   
   #source(here("members/nameCongress.R")) # augments voteview member names
-  ## Load augmented member names without having to load voteview 
-  load(here("members/nameCongress.Rdata"))
+  ## Load augmented member names without having to load voteview package
+  load(here("members/members.Rdata"))
   
   ## Load typos and date corrections
   source(here("members/MemberNameTypos.R"))
