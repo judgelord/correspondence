@@ -13,13 +13,12 @@ clean <- function(file.name) {
    # create agency column
   data$agency <- "DOE_FERC"
 
-
-  
-
-  
-  
   # Format date, year, Congress, member name etc. 
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  
+  # FIXME # for now, just looking post 2000
+  data %<>% filter(year > 1999)
+  
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
