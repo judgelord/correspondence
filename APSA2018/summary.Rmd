@@ -13,9 +13,9 @@ output:
 source(here::here("setup.R"))
 
 load(here("data/all_contacts.RData"))
-df <- all_contacts
+df <- all_contacts %>% filter(year >2006, year <2019)
 load(here("data/all_contacts_committees.RData"))
-dcommittees <- all_contacts_committees
+dcommittees <- all_contacts_committees %>% filter(year >2006, year <2019)
 
 ```
 

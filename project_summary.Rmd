@@ -13,9 +13,9 @@ source("setup.R")
 
 # load data
 load(here("data/all_contacts.RData"))
-df <- all_contacts
+df <- all_contacts %>% filter(year >2004)
 load(here("data/all_contacts_committees.RData"))
-dcommittees <- all_contacts_committees
+dcommittees <- all_contacts_committees %>% filter(year >2004)
 ```
 
 ```{r global.options, include=FALSE}
@@ -34,6 +34,8 @@ knitr::opts_chunk$set(echo = TRUE,
 ```{r}
 kable(read_csv(here("data/_FOIA_response_table.csv")) %>% select(-X1))
 ```
+
+### 2005 - present.
 
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?  
 
@@ -96,7 +98,7 @@ df %>%
 # DOC_MBDA
 ```  
 
-All time-series analysis below subsets to agencies with ten years of data.   
+All time-series analysis below subsets to agencies with at least ten continous years of coverage (2007-2018).   
 
 ```{r data_by_type, fig.height=4, fig.width=6}
 df %>% 

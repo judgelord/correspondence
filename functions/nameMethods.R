@@ -711,8 +711,8 @@ extractNamesPerCongress <- function(congress_i, data, members){
   if(!congress_i %in% members$congress){
     
     base::message(red(str_c("BAD DATES? ",
-                            unique(data$agency), "$DATE = ",
-                            paste(unique(data$DATE), collapse =";"),
+                            unique(data$agency), " data$DATE = ", # delete for R package
+                            paste(unique(data$DATE), collapse =";"), # delete for R package
                 "\n n = ", nrow(data), " (", length(unique(data$string)), " distinct).\n",
                 "Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1], "\""
           )))

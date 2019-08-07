@@ -1,5 +1,7 @@
 ---
-title: "Lobbying the U.S. Federal Energy Regulatory Commission (FERC)"
+title: "Campaign Contributions and Bureaucratic Oversight"
+subtitle: A Case Study of the Federal Energy Regulatory Commission"
+author: "Eleanor Neff Powell, Devin Judge-Lord, Justin Grimmer"
 output:
   #pdf_document
     html_document:
@@ -10,7 +12,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE, echo=FALSE}
+```{r setup, include=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
 requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here", "devtools")
@@ -23,7 +25,7 @@ requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magritt
 
 ```
 
-```{r}
+```{r, include=FALSE}
   library(tidyverse)
   library(ineq)
   library(ggplot2); theme_set(theme_bw())
@@ -249,8 +251,15 @@ d %>%
     group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
     ggplot() + 
     geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
-    geom_smooth(aes(x = log(pop2010), y = mean)) + 
-  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > mean(mean)*1.75, member_state, "")), check_overlap = F, size = 2.5, hjust = 0) + theme_bw() +
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
   labs(title = "Senator Requests per Year by State Population",
        x = "Log State Population",
        y = "Average Number of Requests per Year")
@@ -418,12 +427,22 @@ all_contacts %>%
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, congress, chamber, committees, total, ShareToFERC) %>% 
-  filter(ShareToFERC>.5) %>%
+  filter(ShareToFERC>.5, total>5) %>%
   knitr::kable()
 ```
 
 
 ## Interesting cases
+
+From [Sen. Dianne Feinstein's website section on accomplishements in the 107th congress](https://www.feinstein.senate.gov/public/index.cfm?p=107th-congress):
+
+"**Significant Negotiations:**
+
+Just and Reasonable Electricity Rates – With the electricity rates skyrocketing because of market manipulation during the California energy crisis, Senator Feinstein lobbied the President, other members of Congress and the Federal Energy Regulatory Commission to cap electricity and natural gas rates.  She also introduced S.26, which would have authorized the Department of Energy to impose price caps, S.287, to direct FERC to impose cost of service based rates on electricity and S.764 to give FERC the choice of either price caps based on demand or cost of service rates.  While the bills did not come up for a vote, Senator Feinstein was finally successful in convincing FERC, after new commissioners were sworn in, to impose price caps on their own."
+
+---
+
+From the [West Virginia Gazette](https://www.wvgazettemail.com/news/politics/wv-republican-congressmen-s-funding-dwarfs-challengers/article_2e9bcb96-9021-56a6-ac0f-57f2917a6bef.html):
 
 In an article titled "Republican congressmen’s funding dwarfs challengers’", the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
 In 2017, he wrote on behalf of the 
@@ -1231,29 +1250,38 @@ letters_PACs_total %>% top_n(1, PAC_contributions) %>% knitr::kable()
 
 ### Pro-business letters per cycle
 ```{r, letter_money}
-top1 <- top_n(letters_money_total %>% filter(!is.na(name_state)), 5, PAC_contributions) %>% .$name_state
-top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% .$name_state
+top1 <- top_n(letters_money_total %>% 
+                filter(!is.na(name_state)), 5, PAC_contributions) %>%
+  .$name_state
+
+top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% 
+  .$name_state
 
 letters_money_total %>% 
+  mutate(name_state = as.character(name_state)) %>%
   ggplot() + 
   aes(x = PAC_contributions, 
       y = ProBusiness_Letters_Per_Cycle) + 
   geom_point(alpha = .5) + 
   geom_text(aes(label = ifelse(name_state %in% top2,
-                               name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
-  
+                               name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
   labs(x = "PAC Contributions 1990-2014",
        y = "Average Pro-Business Letters sent to FERC per Cycle")
 
 letters_money_total %>% 
+  mutate(name_state = as.character(name_state)) %>%
   ggplot() + 
   coord_flip() + 
   aes(x = PAC_contributions, 
       y = ProBusiness_Letters_Per_Cycle) + 
   geom_point(alpha = .5) + 
-  geom_text(aes(label = ifelse(name_state %in% top1,
-                               name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
-  
+  geom_text(aes(label = ifelse(name_state %in% top1, name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
   labs(x = "PAC Contributions 1990-2014",
        y = "Average Pro-Business Letters sent to FERC per Cycle")
   

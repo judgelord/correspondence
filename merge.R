@@ -205,7 +205,7 @@ head(data_list)
 i <- 1
 while(!is.na(data_list[i,1])) {
   
-  print(data_list$agency[i])
+  base::message(inverse("----", data_list$agency[i], "----"))
   
   d1 <- clean.agency(
     agency = as.character(data_list[i, 1]),
@@ -222,8 +222,10 @@ while(!is.na(data_list[i,1])) {
   
   i <- i + 1
 }
+
 stopped <- data_list$agency[i]
-print(paste("merge.R stopped at", stopped))
+
+base::message(white(paste("merge stopped at", stopped)))
 
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
