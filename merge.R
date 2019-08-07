@@ -179,10 +179,10 @@ d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
 # merge with voteview data to initiate d (unfiltered data)
 d <- d1 %>%
-  left_join(members2) %>% # merge on common variables (may differ)
+  left_join(members) %>% # merge on common variables (may differ)
   select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
-  left_join(members2) %>% # merge on common variables (may differ)
+  left_join(members) %>% # merge on common variables (may differ)
   distinct()
 
 d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
