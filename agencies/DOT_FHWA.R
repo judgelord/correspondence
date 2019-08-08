@@ -74,7 +74,11 @@ clean <- function(file.name) {
   data %<>%
   mutate(FROM = ifelse(str_detect(SUBJECT, "SOUTH DAKOTA| OGLALA SIOUX TRIBE|CHEYENNE RIVER SIOUX"), str_replace(FROM, "JOHNSON, TIM", "Timothy Peter JOHNSON"), FROM)) %>%
   mutate(FROM = ifelse(str_detect(SUBJECT, "ILLINOIS|CURTIS ROAD CORRIDOR STUDY|SANGAMON COUNTY"), str_replace(FROM, "JOHNSON, TIM", "Timothy V JOHNSON"), FROM))
-    
+  
+  
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Timothy Peter JOHNSON") & congress %in% c(112), "Senate", chamber))
+  
   #Name Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James"))
