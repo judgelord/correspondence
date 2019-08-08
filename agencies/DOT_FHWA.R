@@ -39,16 +39,7 @@ clean <- function(file.name) {
   #create variable for chamber
   data %<>%
     mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X6, "U.S. House of Representatives"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X7, "U.S. House of Representatives"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X8, "U.S. House of Representatives"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X6, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X7, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X8, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "House of Representatives"), "House", chamber))
-  #mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) 
   
   
   #Remove non members from dataset
@@ -78,22 +69,22 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Costello n, Jerry F", "Costello, Jerry F")) %>%
     mutate(FROM = str_replace(FROM, "Hardy, MD, Joseph", "Hardy, Joseph")) %>%
     mutate(FROM = str_replace(FROM, "Kitzhaber, M.D., John A", "Kitzhaber, John A"))
+  
+  #Match on state
+  data %<>%
+  mutate(FROM = ifelse(str_detect(SUBJECT, "SOUTH DAKOTA| OGLALA SIOUX TRIBE|CHEYENNE RIVER SIOUX"), str_replace(FROM, "JOHNSON, TIM", "Timothy Peter JOHNSON"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(SUBJECT, "ILLINOIS|CURTIS ROAD CORRIDOR STUDY|SANGAMON COUNTY"), str_replace(FROM, "JOHNSON, TIM", "Timothy V JOHNSON"), FROM))
     
   #Name Typos
   data %<>%
-    mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James")) #%>%
-    # mutate(FROM = str_replace(FROM, "SLAUGHTER, LOUS", "SLAUGHTER, Louise")) %>%
-    # mutate(FROM = str_replace(FROM, "CARNAHAN, RUS", "CARNAHAN, RUSS")) %>%
-    # mutate(FROM = str_replace(FROM, "MIKUSI, BARBARA", "MIKULSKI, Barbara")) %>%
-    # mutate(FROM = str_replace(FROM, "FEINGOLD, RUSLL", "FEINGOLD, Russell")) %>%
-    # mutate(FROM = str_replace(FROM, "PAUSN, ERIK", P))
+    mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James"))
   
   #chamber Typos
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Duckworth, Tammy") & str_detect(congress, "113|114"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Bill CASSIDY") & str_detect(congress, "113"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & str_detect(congress, "113"), "House", chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Duckworth, Tammy") & congress %in% c(113, 114), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Bill CASSIDY") & congress %in% c(113), "House", chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & congress %in% (113), "House", chamber)) 
   
   #Match on chamber
   data %<>%
