@@ -270,7 +270,8 @@ typos_last <- tribble(
   "Mick", "Mulvaney", "Mulvancy",
   "Kathy", "Castor", "Caster",
   "Henry", "Cuellar", "Cueller",
-  "Richard", "Durbin", "Dubin"
+  "Richard", "Durbin", "Dubin",
+  "Bill", "Shuster", "Schuster"
   
  
   
