@@ -388,7 +388,8 @@ typos_first <- tribble(
   "Chris", "Collins", "Chirs",
   "Diane", "Black", "Diana",
   "Lloyd", "Doggett", "Llyod",
-  "Elton", "Gallegly", "Wlton"
+  "Elton", "Gallegly", "Wlton",
+  "Barack", "Obama", "Brack"
  
 
  
