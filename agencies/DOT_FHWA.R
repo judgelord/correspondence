@@ -64,7 +64,12 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth")) %>%
     mutate(FROM = str_replace(FROM, "Cassidy, M.D., Bill", "Bill CASSIDY")) %>%
     mutate(FROM = str_replace(FROM, "Cleaver, n, Emanuel|CLEAVER n, EMANUEL|Cleaver, II, Emanuel|Cleaver, n , Emanuel", "Cleaver, Emanuel")) %>%
-    mutate(FROM = str_replace(FROM, "Butterfield, GK", "George BUTTERFIELD"))
+    mutate(FROM = str_replace(FROM, "Butterfield, GK", "George BUTTERFIELD")) %>%
+    mutate(FROM = str_replace(FROM, "James, Sr., Charles E", "James, Charles E")) %>%
+    mutate(FROM = str_replace(FROM, "Bera, M.D., Ami", "Bera, Ami")) %>%
+    mutate(FROM = str_replace(FROM, "Costello n, Jerry F", "Costello, Jerry F")) %>%
+    mutate(FROM = str_replace(FROM, "Hardy, MD, Joseph", "Hardy, Joseph")) %>%
+    mutate(FROM = str_replace(FROM, "Kitzhaber, M.D., John A", "Kitzhaber, John A"))
     
   #Name Typos
   data %<>%
@@ -111,16 +116,18 @@ data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Pierluisi, Pedro R"), "Non voting member", ERROR))
   
 
 
   
   unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR))
+           is.na(ERROR),
+           ! is.na(DATE))
   
 
   # arrange columns for hand coding
