@@ -271,7 +271,8 @@ typos_last <- tribble(
   "Kathy", "Castor", "Caster",
   "Henry", "Cuellar", "Cueller",
   "Richard", "Durbin", "Dubin",
-  "Bill", "Shuster", "Schuster"
+  "Bill", "Shuster", "Schuster",
+  "Allyson", "Schwartz", "Schwaltz"
   
  
   
@@ -390,7 +391,8 @@ typos_first <- tribble(
   "Diane", "Black", "Diana",
   "Lloyd", "Doggett", "Llyod",
   "Elton", "Gallegly", "Wlton",
-  "Barack", "Obama", "Brack"
+  "Barack", "Obama", "Brack",
+  "Denny", "Rehberg", "Danny"
  
 
  
@@ -408,7 +410,6 @@ typos_middle <-  tribble(
   "Benjamin", "Nighthorse", "Campbell", "(Nigbthorse|Nighhorse)",
   "Ben", "Nighthorse", "Campbell", "Nighhorse",
   "John", "Dennis", "Hastert", "Denis",
-  "Mike", "Dennis", "Rehberg", "Denis",
   "James", "Strom", "Thurmond", "Stom"
 ) %>% 
   transmute(typos = str_c(paste(first_name, " ", middle_name_typos, " ", last_name),
@@ -452,7 +453,8 @@ typos_middle_initial <- tribble(
   "Gary", "L", "Ackerman", "J",
   "Anthony", "G", "Brown", "J",
   "Peter", "G", "Fitzgerald", "B",
-  "John", "J", "Faso", "S"
+  "John", "J", "Faso", "S",
+  "Allyson", "Y", "Schwartz", "D"
 )%>% 
   transmute(typos = str_c(str_c(first_name, " ", middle_initial_typos, " ", last_name),
                           str_c(last_name, ", ", first_name, " ", middle_initial_typos), sep = "|"),
