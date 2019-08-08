@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "DOL_OWCP" # for testing
+# file.name <- "DOL_OWCP" # for testing
 
 
 clean <- function(file.name) {
@@ -60,7 +60,12 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Hochul, Kthleen C.", "Hochul, Kathleen C.")) %>%
     mutate(FROM = str_replace(FROM, "Conaway, K. Michael", "Conaway, Michael")) %>%
     mutate(FROM = str_replace(FROM, "Lugar Richard", "Lugar, Richard")) %>%
-    mutate(FROM = str_replace(FROM, "Sensenbrenner, F. James Jr.", "Sensenbrenner, James"))
+    mutate(FROM = str_replace(FROM, "Sensenbrenner, F. James Jr.", "Sensenbrenner, James")) %>%
+    mutate(FROM = str_replace(FROM, "Courtney", "Courtney, Joe")) %>%
+    mutate(FROM = str_replace(FROM, "Clinton", "CLINTON, Hillary Rodham")) %>% 
+    mutate(FROM = str_replace(FROM, "Polis", "POLIS, Jared")) %>%
+    mutate(FROM = str_replace(FROM, "PERLMUTTER", "PERLMUTTER, Ed"))
+    
     
     
     
@@ -72,11 +77,21 @@ clean <- function(file.name) {
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senate|Senator", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
+    mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)|Representative", FROM), "House", chamber)) 
   
   #ERRORS
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Parsons, Stephanie|McLancon, Charlie|Rafferty, Dennis Michael|North, Lynn Fraley|Muirhead, James D.|Hulegaren, Marty|Ricks, Rosena A.|Hand, Donna|Fortuno, Luis G.|Evangelisti, John S.|Dillon, Stephaine|Deloach, Lawrence E.|Crawford, Kathryn G.|Connor, Jeffrey|SC First Congressional District Office|Shahan, Theresa|Smalls, Eugene C.|Coleman, Wayne A.|Churovich, Danial|Christensen, Donna M.|Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Martin, Todd|Jerison, Deb|Robinson, Johnnie E. III|Parsons, Stephanie|McLancon, Charlie|Rafferty, Dennis Michael|North, Lynn Fraley|Muirhead, James D.|Hulegaren, Marty|Ricks, Rosena A.|Hand, Donna|Fortuno, Luis G.|Evangelisti, John S.|Dillon, Stephaine|Deloach, Lawrence E.|Crawford, Kathryn G.|Connor, Jeffrey|SC First Congressional District Office|Shahan, Theresa|Smalls, Eugene C.|Coleman, Wayne A.|Churovich, Danial|Christensen, Donna M.|Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))
+  
+  #FOIA NOTES
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Wittman & 17 Others"), "Multiple members FOIA", NOTES)) 
+  
+  #REGULAR NOTES
+  data %<>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Rodriguez, Ciro"), "No longer in Congress", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Owens, William L. "), "No longer in Congress", NOTES))
+  
   
   
   # arrange columns for hand coding
@@ -86,7 +101,8 @@ clean <- function(file.name) {
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR)) 
+           is.na(ERROR),
+           is.na(NOTES))
   
   
   return(data)
