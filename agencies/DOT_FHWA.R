@@ -131,8 +131,10 @@ data <- extractMemberName(data, members, 'FROM')
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Pierluisi, Pedro R"), "Non voting member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil") & congress %in% c(112,113), "No longer in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Pierluisi, Pedro R"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Salazar, Ken") & congress %in% c(112), "No longer in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Hassan, Margaret Wood") & congress %in% c(113), "Not yet in congress", ERROR))
   
 
 
