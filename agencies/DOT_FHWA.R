@@ -30,7 +30,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data$FROM <- gsub("e'", "e" ,data$FROM)
+  data %<>%
+    mutate(FROM = str_replace(FROM, "e'", "e"))
+  
+  #data$FROM <- gsub("e'", "e" ,data$FROM)
   
   
   #create variable for chamber
@@ -51,11 +54,16 @@ clean <- function(file.name) {
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
+  data %>%
+    filter(LetterID == 793) %>%
+    select(FROM)
+  
   #Format Typos
   data %<>%
     mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
     mutate(FROM = str_replace(FROM, ",, ", ", ")) %>%
-    mutate(FROM = str_replace_all(FROM, "U.S.|U.S", "US"))
+    mutate(FROM = str_replace_all(FROM, "U//.S//.|U//.S", "US")) %>%
+    mutate(FROM = str_replace(FROM, ", n,| n, ", ", "))
   
   #Name Format Typos
   data %<>%
@@ -73,7 +81,12 @@ clean <- function(file.name) {
     
   #Name Typos
   data %<>%
-    mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James"))
+    mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James")) %>%
+    # mutate(FROM = str_replace(FROM, "SLAUGHTER, LOUS", "SLAUGHTER, Louise")) %>%
+    # mutate(FROM = str_replace(FROM, "CARNAHAN, RUS", "CARNAHAN, RUSS")) %>%
+    # mutate(FROM = str_replace(FROM, "MIKUSI, BARBARA", "MIKULSKI, Barbara")) %>%
+    # mutate(FROM = str_replace(FROM, "FEINGOLD, RUSLL", "FEINGOLD, Russell")) %>%
+    # mutate(FROM = str_replace(FROM, "PAUSN, ERIK", P))
   
   #chamber Typos
   data %<>%
