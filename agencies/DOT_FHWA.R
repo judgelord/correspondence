@@ -62,7 +62,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
     mutate(FROM = str_replace(FROM, ",, ", ", ")) %>%
-    mutate(FROM = str_replace_all(FROM, "U//.S//.|U//.S", "US")) %>%
+    mutate(FROM = str_replace_all(FROM, "U\\.S\\.|U\\.S", "US")) %>%
     mutate(FROM = str_replace(FROM, ", n,| n, ", ", "))
   
   #Name Format Typos
@@ -81,7 +81,7 @@ clean <- function(file.name) {
     
   #Name Typos
   data %<>%
-    mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James")) %>%
+    mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James")) #%>%
     # mutate(FROM = str_replace(FROM, "SLAUGHTER, LOUS", "SLAUGHTER, Louise")) %>%
     # mutate(FROM = str_replace(FROM, "CARNAHAN, RUS", "CARNAHAN, RUSS")) %>%
     # mutate(FROM = str_replace(FROM, "MIKUSI, BARBARA", "MIKULSKI, Barbara")) %>%
