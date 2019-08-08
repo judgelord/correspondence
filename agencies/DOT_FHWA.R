@@ -119,7 +119,7 @@ data <- extractMemberName(data, members, 'FROM')
     mutate(ERROR = ifelse(str_detect(FROM, "James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Pierluisi, Pedro R"), "Non voting member", ERROR)))
+    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Pierluisi, Pedro R"), "Non voting member", ERROR))
   
 
 
