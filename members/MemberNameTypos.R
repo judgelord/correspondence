@@ -234,7 +234,7 @@ typos_last <- tribble(
   "Scott", "Tipton", "Titpon",
   "Randy", "Weber", "Wever",
   "Randy", "Neugebauer","NEUGBAUER",
-  "Johnny", "Isakson", "(ISAKSON|Isaakson)",
+  "Johnny", "Isakson", "(Iskason|Isaakson)",
   "Deb", "FISCHER", "Fisher",
   "Ami", "Bera", "(Beta|Gera)",
   "Lynn", "WOOLSEY", "Woosley",
@@ -338,7 +338,7 @@ typos_first <- tribble(
   "Dennis", "Cardoza", "Denis",
   "Dennis", "Moore", "Denis",
   "Dennis", "KUCINICH", "Denis",
-  "Sheila", "Jackson Lee", "Shelee",
+  "Sheila", "Jackson Lee", "(Shelia|Shelee|Shelia Jackson)",
   "Jose", "Serrano", "Jos.",
   "Lindsey", "Graham", "Lindsay",
   "Andre", "Carson", "Andr.",
@@ -392,7 +392,8 @@ typos_first <- tribble(
   "Lloyd", "Doggett", "Llyod",
   "Elton", "Gallegly", "Wlton",
   "Barack", "Obama", "Brack",
-  "Denny", "Rehberg", "Danny"
+  "Denny", "Rehberg", "Danny",
+  "Christopher", "Murphy", "Chistopher"
  
 
  
