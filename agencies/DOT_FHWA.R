@@ -45,9 +45,7 @@ clean <- function(file.name) {
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
-  data %>%
-    filter(LetterID == 793) %>%
-    select(FROM)
+
   
   #Format Typos
   data %<>%
@@ -76,8 +74,8 @@ clean <- function(file.name) {
   mutate(FROM = ifelse(str_detect(SUBJECT, "ILLINOIS|CURTIS ROAD CORRIDOR STUDY|SANGAMON COUNTY"), str_replace(FROM, "JOHNSON, TIM", "Timothy V JOHNSON"), FROM))
   
   
-  data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Timothy Peter JOHNSON") & congress %in% c(112), "Senate", chamber))
+  #data %<>%
+   # mutate(chamber = ifelse(str_detect(FROM, "Timothy Peter JOHNSON") & congress %in% c(112), "Senate", chamber))
   
   #Name Typos
   data %<>%
@@ -109,6 +107,9 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data))
   
+  data %>%
+    filter(ID == 4866) %>%
+    select(FROM)
 
 #data %<>% getFirstLast.Comma('FROM')
   
