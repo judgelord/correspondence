@@ -66,7 +66,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Kitzhaber, M\\.D\\., John A", "Kitzhaber, John A")) %>%
     mutate(FROM = str_replace(FROM, "SENSENBRENNER, F\\. JAMES\\.|Sensenbrenner, F\\. James|SENSENBRENNER, F\\. JAMES", "SENSENBRENNER, Frank.")) %>%
     mutate(FROM = str_replace(FROM, "V01N0VICH, GEORGE", "VOINOVICH, George")) %>%
-    mutate(FROM = str_replace(FROM, "RUPPERSBERGER, C\\.A\\. DUTCH\\.|RUPPERSBERGER, C\\.A\\. DUTCH|Ruppersberger, C\\.A\\. Dutch", "Dutch RUPPERSBERGER"))
+    mutate(FROM = str_replace(FROM, "RUPPERSBERGER, C\\.A\\. DUTCH\\.|RUPPERSBERGER, C\\.A\\. DUTCH|Ruppersberger, C\\.A\\. Dutch", "Dutch RUPPERSBERGER")) %>%
+    mutate(FROM = str_replace(FROM, "CONAWAY, K\\. MICHAEL\\.", "Kenneth CONAWAY")) %>%
+    mutate(FROM = str_replace(FROM, "Pocan,Mark", "Pocan, Mark"))
   
   #Match on state
   data %<>%
@@ -127,9 +129,9 @@ data <- extractMemberName(data, members, 'FROM')
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Miller, Deb"), "Agency Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Hannig, Gary"), "State Agency Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "MOTZKO, RICHARD|SCHNEIDER, JAMES|BROWN, KYLE|CRAIG, JOHN|DEVELLE, LOLA|DUDZIAK, JOHN|Hersman, Deborah AP|Smith, Samuel H|STARR, NANCY|DESCHERER, CHRISTOPHER|CONWAY, JOSEPH|BILLIOT, CURTIS|WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "PLALE, JEFF|SWEET, ROBERT|Beebe, Mike D|Brewer, Janice K|Brooks, Michele|Lingle, Linda|Longietti, Mark|Markosek, Joseph F|McCall, Keith R|Paterson, David A|Reukauf, William E|Riley, Joseph P|Villaraigosa, Antonio R|Rybak, RT|Kulongoski, Theodore R|Pawlenty, Tim|Gregoire, Christine O|Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Smith, James T|Conti, Eugene A|Hannig, Gary"), "State Agency Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Renjel, Louis E|Levi, Grant|Hancock, Michael W|HAGANS, ENOCH|HUTCHERSON, GASTON|THEISEN, MARK|MOTZKO, RICHARD|SCHNEIDER, JAMES|BROWN, KYLE|CRAIG, JOHN|DEVELLE, LOLA|DUDZIAK, JOHN|Hersman, Deborah AP|Smith, Samuel H|STARR, NANCY|DESCHERER, CHRISTOPHER|CONWAY, JOSEPH|BILLIOT, CURTIS|WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Wilson, E Dotson|Whirley, Gregory A|Wharton, AC|Quinn, Pat|Martinez, Nelda|Lent, Patty|Gottlieb, Mark|Faulconer, Kevin L|Fletcher, Ernie|PLALE, JEFF|SWEET, ROBERT|Beebe, Mike D|Brewer, Janice K|Brooks, Michele|Lingle, Linda|Longietti, Mark|Markosek, Joseph F|McCall, Keith R|Paterson, David A|Reukauf, William E|Riley, Joseph P|Villaraigosa, Antonio R|Rybak, RT|Kulongoski, Theodore R|Pawlenty, Tim|Gregoire, Christine O|Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil") & congress %in% c(112,113), "No longer in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "NORTON, ELEANOR|Norton, Eleanor Holmes|Pierluisi, Pedro R|FORTUNO, LUIS"), "Non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Salazar, Ken") & congress %in% c(112), "No longer in congress", ERROR)) %>%
