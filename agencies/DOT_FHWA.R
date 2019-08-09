@@ -64,7 +64,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Costello n, Jerry F", "Costello, Jerry F")) %>%
     mutate(FROM = str_replace(FROM, "Hardy, MD, Joseph", "Hardy, Joseph")) %>%
     mutate(FROM = str_replace(FROM, "Kitzhaber, M.D., John A", "Kitzhaber, John A")) %>%
-    mutate(FROM = str_replace(FROM, "SENSENBRENNER, F JAMES", "SENSENBRENNER, Frank")) %>%
+    mutate(FROM = str_replace(FROM, "SENSENBRENNER, F. JAMES.|Sensenbrenner, F. James|SENSENBRENNER, F. JAMES", "SENSENBRENNER, Frank.")) %>%
     mutate(FROM = str_replace(FROM, "V01N0VICH, GEORGE", "VOINOVICH, George"))
   
   #Match on state
@@ -108,7 +108,7 @@ clean <- function(file.name) {
   data$ID <- c(1:nrow(data))
   
   data %>%
-    filter(LetterID == 292) %>%
+    filter(LetterID == 42) %>%
     select(FROM)
 
 
@@ -125,8 +125,9 @@ data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Pawlenty, Tim|Gregoire, Christine O|Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Miller, Deb"), "Agency Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "STARR, NANCY|DESCHERER, CHRISTOPHER|CONWAY, JOSEPH|BILLIOT, CURTIS|WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Villaraigosa, Antonio R|Rybak, RT|Kulongoski, Theodore R|Pawlenty, Tim|Gregoire, Christine O|Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil") & congress %in% c(112,113), "No longer in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "NORTON, ELEANOR|Norton, Eleanor Holmes|Pierluisi, Pedro R|FORTUNO, LUIS"), "Non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Salazar, Ken") & congress %in% c(112), "No longer in congress", ERROR)) %>%
