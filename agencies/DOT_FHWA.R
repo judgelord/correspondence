@@ -66,7 +66,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Kitzhaber, M\\.D\\., John A", "Kitzhaber, John A")) %>%
     mutate(FROM = str_replace(FROM, "SENSENBRENNER, F\\. JAMES\\.|Sensenbrenner, F\\. James|SENSENBRENNER, F\\. JAMES", "SENSENBRENNER, Frank.")) %>%
     mutate(FROM = str_replace(FROM, "V01N0VICH, GEORGE", "VOINOVICH, George")) %>%
-    mutate(FROM = str_replace(FROM, "RUPPERSBERGER, C\\.A\\. DUTCH\\.|Ruppersberger, C\\.A\\. Dutch\\.|C\\.A\\. Dutch Ruppersberger", "Dutch RUPPERSBERGER"))
+    mutate(FROM = str_replace(FROM, "RUPPERSBERGER, C\\.A\\. DUTCH\\.|RUPPERSBERGER, C\\.A\\. DUTCH|Ruppersberger, C\\.A\\. Dutch", "Dutch RUPPERSBERGER"))
   
   #Match on state
   data %<>%
@@ -109,7 +109,7 @@ clean <- function(file.name) {
   data$ID <- c(1:nrow(data))
   
   data %>%
-    filter(LetterID == 42) %>%
+    filter(LetterID == 2302) %>%
     select(FROM)
 
 
