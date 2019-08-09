@@ -11,6 +11,10 @@ clean <- function(file.name) {
   
   colnames(data)[colnames(data) == 'SIMS ID'] <- 'ID'
   
+  #Create Letter ID
+  data %<>%
+    mutate(LetterID = row_number())
+  
   #format DATE to multiple formats
   data$DATE %<>% as.Date("%Y-%m-%d")
   
@@ -68,18 +72,11 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Representative Ben Ray Lújan", "Lújan, Ben")) %>%
     mutate(FROM = str_replace(FROM, "Reed , Thomas W. II", "REED, Thomas W. II")) %>%
     mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila")) %>%
-    mutate(FROM = str_replace(FROM, "Alexander", "ALEXANDER, Lamar"))
-    
-    
-     
+    mutate(FROM = str_replace(FROM, "Alexander", "ALEXANDER, Lamar")) %>%
+    mutate(FROM = str_replace(FROM, "McGovern", "McGOVERN, James P.")) %>%
+    mutate(FROM = str_replace(FROM, "Hill, J. French", "HILL, French")) 
+  
 
-    
-    
-    
-    
-    
-    
-    
   data %<>% extractMemberName(members, 'FROM')
   
  
@@ -96,12 +93,22 @@ clean <- function(file.name) {
   #FOIA NOTES
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Wittman & 17 Others"), "Multiple members Unknown", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Maloney & 15 Others"), "Multiple members Unknown", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Maloney & 15 Others"), "Multiple members Unknown", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Scott, R. & 7 Other"), "Multiple members Unknown", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Voinovich & 12 Others"), "Multiple members Unknown", NOTES)) %>% 
+    mutate(NOTES = ifelse(ID=="482623", "Multiple members Unknown", NOTES)) %>%
+    mutate(NOTES = ifelse(ID=="520604", "Multiple members Unknown", NOTES))
+    
+    
+ 
+
  
   #REGULAR NOTES
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Rodriguez, Ciro"), "No longer in Congress", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Owens, William L. "), "No longer in Congress", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Owens, William L. "), "No longer in Congress", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Sen\\)"), "Not sure if we are missing members or need to investigate why a name isn't attached to this", NOTES))
+    
   
   
   

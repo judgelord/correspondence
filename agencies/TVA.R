@@ -14,7 +14,7 @@ clean <- function(file.name) {
   data$agency <- file.name 
   
  
-  #Format DAte
+  #Format DATE
   data$DATE %<>% as.Date("%m/%d/%Y %H:%M")
   
 
