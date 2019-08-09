@@ -27,10 +27,10 @@ clean <- function(file.name) {
   
   data$last_name <-  gsub("(.*)(,|\\.)(.*)", "\\1", data$FROM)
   
-  #data$last_name <- formatLastName(data, 'last_name')
+  data$last_name <- formatLastName(data, 'last_name')
   
   #Extract Member names (New edit from formatLastName)
-  data <-  extractMemberName(data,members,"FROM") 
+  #data <-  extractMemberName(data,members,"FROM") 
   
 
   data %<>%
@@ -78,6 +78,8 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse(powellType == "Contracting", 2, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Congressional Travel/ Movement", 6, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Not Enough Info", 0, TYPE)) 
+  
+  return(data)
 
 }
 

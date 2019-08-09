@@ -7,7 +7,6 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  
   # create LetterID variable
   data$LetterID <- c(1:nrow(data))
   
@@ -30,32 +29,29 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data$FROM <- gsub("e'", "e" ,data$FROM)
+  data %<>%
+    mutate(FROM = str_replace(FROM, "e'", "e"))
+  
+  #data$FROM <- gsub("e'", "e" ,data$FROM)
   
   
   #create variable for chamber
-  data %<>%
-    mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X6, "U.S. House of Representatives"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X7, "U.S. House of Representatives"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X8, "U.S. House of Representatives"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X6, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X7, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(X8, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "United States Senate"), "Senate", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "House of Representatives"), "House", chamber))
-  #mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+  #data %<>%
+   # mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
+   # mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) 
   
   
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
+
+  
   #Format Typos
   data %<>%
     mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
     mutate(FROM = str_replace(FROM, ",, ", ", ")) %>%
-    mutate(FROM = str_replace_all(FROM, "U.S.|U.S", "US"))
+    mutate(FROM = str_replace_all(FROM, "U\\.S\\.|U\\.S", "US")) %>%
+    mutate(FROM = str_replace(FROM, ", n,| n, ", ", "))
   
   #Name Format Typos
   data %<>%
@@ -64,23 +60,37 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM,"Prasad, P.E., Ananth", "Prasad, Ananth")) %>%
     mutate(FROM = str_replace(FROM, "Cassidy, M.D., Bill", "Bill CASSIDY")) %>%
     mutate(FROM = str_replace(FROM, "Cleaver, n, Emanuel|CLEAVER n, EMANUEL|Cleaver, II, Emanuel|Cleaver, n , Emanuel", "Cleaver, Emanuel")) %>%
-    mutate(FROM = str_replace(FROM, "Butterfield, GK", "George BUTTERFIELD"))
-    
+    mutate(FROM = str_replace(FROM, "Butterfield, GK", "George BUTTERFIELD")) %>%
+    mutate(FROM = str_replace(FROM, "James, Sr., Charles E", "James, Charles E")) %>%
+    mutate(FROM = str_replace(FROM, "Bera, M.D., Ami", "Bera, Ami")) %>%
+    mutate(FROM = str_replace(FROM, "Costello n, Jerry F", "Costello, Jerry F")) %>%
+    mutate(FROM = str_replace(FROM, "Hardy, MD, Joseph", "Hardy, Joseph")) %>%
+    mutate(FROM = str_replace(FROM, "Kitzhaber, M.D., John A", "Kitzhaber, John A"))
+  
+  #Match on state
+  data %<>%
+  mutate(FROM = ifelse(str_detect(SUBJECT, "SOUTH DAKOTA| OGLALA SIOUX TRIBE|CHEYENNE RIVER SIOUX"), str_replace(FROM, "JOHNSON, TIM|JOHNSON, TIMOTHY", "Timothy Peter JOHNSON"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(SUBJECT, "ILLINOIS|CURTIS ROAD CORRIDOR STUDY|SANGAMON COUNTY"), str_replace(FROM, "JOHNSON, TIM|JOHNSON, TIMOTHY", "Timothy V JOHNSON"), FROM))
+  
+  
+  #data %<>%
+   # mutate(chamber = ifelse(str_detect(FROM, "Timothy Peter JOHNSON") & congress %in% c(112), "Senate", chamber))
+  
   #Name Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Clybum, James E", "Clyburn, James"))
   
-  #chamber Typos
-  data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Duckworth, Tammy") & str_detect(congress, "113|114"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Bill CASSIDY") & str_detect(congress, "113"), "House", chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & str_detect(congress, "113"), "House", chamber))
-  
+  # #chamber Typos
+  # data %<>%
+  #   mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber)) %>%
+  #   mutate(chamber = ifelse(str_detect(FROM, "Duckworth, Tammy") & congress %in% c(113, 114), "House", chamber)) %>%
+  #   mutate(chamber = ifelse(str_detect(FROM, "Bill CASSIDY") & congress %in% c(113), "House", chamber)) %>%
+  #   mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & congress %in% (113), "House", chamber)) 
+  # 
   #Match on chamber
-  data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Timothy V") & str_detect(chamber, "House") & str_detect(congress, "111|112"), str_replace(FROM, "Johnson, Timothy V", "Timothy V JOHNSON"), FROM))
-  
+  # data %<>%
+  #   mutate(FROM = ifelse(str_detect(FROM, "Johnson, Timothy V") & str_detect(chamber, "House") & str_detect(congress, "111|112"), str_replace(FROM, "Johnson, Timothy V", "Timothy V JOHNSON"), FROM))
+  # 
   
   #Remove non members before string split
   data %<>%
@@ -96,35 +106,42 @@ clean <- function(file.name) {
   # create ID variable
   data$ID <- c(1:nrow(data))
   
+  data %>%
+    filter(LetterID == 3981) %>%
+    select(FROM)
 
-#data %<>% getFirstLast.Comma('FROM')
+
   
-#change from getfirstlast to extractMemberName since it caputures more data
+#extractMemberName since it caputures more data
   
 data <- extractMemberName(data, members, 'FROM')
 
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, chamber,  FROM, everything())
+  data %<>% select(ID, DATE, FROM, everything())
   
   # add errors
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud"), "Non Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil"), "Not in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil") & congress %in% c(112,113), "No longer in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Pierluisi, Pedro R"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Salazar, Ken") & congress %in% c(112), "No longer in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Hassan, Margaret Wood") & congress %in% c(113), "Not yet in congress", ERROR))
   
 
 
   
   unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR))
+           is.na(ERROR),
+           ! is.na(DATE))
   
 
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, chamber,  FROM, everything())
+  data %<>% select(ID, DATE, FROM, everything())
 
   
   # apply coding rules
