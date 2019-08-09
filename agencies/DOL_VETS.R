@@ -93,7 +93,7 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("VETERANS' SERVICES|WORKFORCE INVESTMENT PROGRAM", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
 
   
-  
+ return(data) 
   
   
   
