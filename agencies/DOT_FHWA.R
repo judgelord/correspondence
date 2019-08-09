@@ -69,7 +69,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "RUPPERSBERGER, C\\.A\\. DUTCH\\.|RUPPERSBERGER, C\\.A\\. DUTCH|Ruppersberger, C\\.A\\. Dutch", "Dutch RUPPERSBERGER")) %>%
     mutate(FROM = str_replace(FROM, "CONAWAY, K\\. MICHAEL\\.", "Kenneth CONAWAY")) %>%
     mutate(FROM = str_replace(FROM, "Pocan,Mark", "Pocan, Mark")) %>%
-    mutate(FROM = str_replace(FROM, "CLAY, WM\\. LACY\\.", "William Lacy CLAY")) %>%
+    mutate(FROM = str_replace(FROM, "CLAY, WM\\. LACY\\.", "William Lacy CLAY\\.")) %>%
+    mutate(FROM = str_replace(FROM, "CLAY, WM\\. LACY|Wm\\. Lacy Clay", "William Lacy CLAY"))
     mutate(FROM = str_replace(FROM, "Saenz, P\\.E\\., Amadeo", "Saenz, Amadeo"))
   
   #Match on state
