@@ -806,8 +806,14 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 # counts per agency - check if this matches google sheet 
 look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
 
-paste("missing from d:", paste(data_list$agency[!data_list$agency %in% unique(d$agency)], collapse = ", "))
-paste("missing from df:", paste(data_list$agency[!data_list$agency %in% unique(df$agency)], collapse = ", "))
+if(data_list$agency != unique(df$agency)){
+base::message("missing from d:", paste(data_list$agency[!data_list$agency %in% unique(d$agency)], collapse = ", "))
 
-print(paste("merge.R stopped at", stopped))
+base::message("missing from df:", paste(data_list$agency[!data_list$agency %in% unique(df$agency)], collapse = ", "))
 
+base::message(paste("merge.R stopped at", stopped))
+}
+
+if(data_list$agency == unique(df$agency)){
+  base::message(green("Merge complete"))
+}
