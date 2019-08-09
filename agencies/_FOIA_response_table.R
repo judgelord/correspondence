@@ -1,17 +1,10 @@
-# corrections
-df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
-df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
-df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
-df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
-
 
 # get FOIAed agency totals from FOIA List on drive 
 data <- gs_title("FOIA List") %>% gs_read() %>% select(Department, Bureau, sample, data, on_drive) %>% filter(!is.na(sample)) %>% distinct() #%>% group_by(agency) %>% tally()
 
 data$data <-gsub("yes.*", 1, data$data)
 data$data <-gsub("no.*", 0, data$data)
-data$data1 <- data$data
-data$data1 %<>% as.numeric()
+data$data1 <- as.numeric(data$data)
 
 data$on_drive <-gsub("yes.*", 1, data$on_drive)
 data$on_drive <-gsub("no.*", 0, data$on_drive)

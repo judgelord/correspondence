@@ -67,4 +67,16 @@
                         fig.height = 3,
                         fig.width = 3)
   
-
+  data_complete <- function(){
+    if( length(data_list$agency) != length(unique(df$agency)) ){
+      base::message("missing from d:", paste(data_list$agency[!data_list$agency %in% unique(d$agency)], collapse = ", "))
+      
+      base::message("missing from df:", paste(data_list$agency[!data_list$agency %in% unique(df$agency)], collapse = ", "))
+      
+      base::message(paste("merge.R stopped at", stopped))
+    }
+    
+    if(length(data_list$agency) == length(unique(df$agency))){
+      base::message(green("Merge complete"))
+    }
+  }

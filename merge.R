@@ -180,7 +180,7 @@ d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 # merge with voteview data to initiate d (unfiltered data)
 d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
-  select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+  select(ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
   distinct()
@@ -284,13 +284,14 @@ for(i in 1:length(names)){
 
 d %<>% 
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
-  mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
-  mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "2 Tim Johns", ERROR)) %>% 
+  mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "FOIA 2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
+  mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "FOIA 2 Tim Johns", ERROR)) %>% 
   mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
   mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR))
 
+write_csv(d %>% filter(str_detect(NOTES, "FOIA")), path = "data/LETTERS_TO_FOIA.csv")
 
 #########################
 # ERRORS to investigate #
@@ -384,11 +385,13 @@ bad.party <- d %>%
 d %<>% ungroup()
 # FIXME
 # This is where observations that failed to match in Voteview get dropped. 
-
 df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
-committees %<>% select(-party) # drop Stewart committee data party codes 
 
+committees %<>% 
+  select(-party) # drop Stewart committee data party codes 
 
+# are all agencies here? 
+data_complete()
 
 # TIMESERIES COMPLETENESS 
 # identify timeframe and completeness for each agency
@@ -806,14 +809,5 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 # counts per agency - check if this matches google sheet 
 look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
 
-if(data_list$agency != unique(df$agency)){
-base::message("missing from d:", paste(data_list$agency[!data_list$agency %in% unique(d$agency)], collapse = ", "))
 
-base::message("missing from df:", paste(data_list$agency[!data_list$agency %in% unique(df$agency)], collapse = ", "))
-
-base::message(paste("merge.R stopped at", stopped))
-}
-
-if(data_list$agency == unique(df$agency)){
-  base::message(green("Merge complete"))
-}
+data_complete()

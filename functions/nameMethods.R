@@ -772,6 +772,9 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     # lower case 
     data$string %<>% tolower()
     
+    # explicit NA
+    dota$string %<>% replace_na("")
+    
     # Fix name typos
     data %<>% 
       # find common typos
