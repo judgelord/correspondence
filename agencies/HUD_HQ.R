@@ -6,10 +6,9 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
-  names(data)[names(data) == 'Folder ID'] <- 'ID'
-  
+  data %<>% mutate(ID = 'Folder ID')   # Is ths letterID or ID?
   
   #create agency column
   data$agency <- file.name
@@ -35,10 +34,10 @@ clean <- function(file.name) {
  
   #Matching on congress to prevent duplicates 
   data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Duncan Hunter") & congress == 114|111|116|115|113|112, str_replace(FROM, "Duncan Hunter", "Duncan Duane HUNTER"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Duncan Hunter") & congress %in% c(114,111,116,115,113,112), str_replace(FROM, "Duncan Hunter", "Duncan Duane HUNTER"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Duncan Hunter") & congress == 110, str_replace(FROM, "Duncan Hunter", "Duncan Lee HUNTER"), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(FROM, "Mike Rogers") & congress == 114|115|116, str_replace(FROM, "Mike Rogers", "Mike Dennis ROGERS"), FROM)) %>%
-    mutate(FROM = ifelse(FROM == "Donald Payne" & congress == 111|110, str_replace(FROM, "Donald Payne", "Donald Milford PAYNE"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Mike Rogers") & congress %in% c(114,115,116), str_replace(FROM, "Mike Rogers", "Mike Dennis ROGERS"), FROM)) %>%
+    mutate(FROM = ifelse(FROM == "Donald Payne" & congress %in% c(111,110), str_replace(FROM, "Donald Payne", "Donald Milford PAYNE"), FROM)) %>%
    # mutate(FROM = ifelse(str_detect(FROM, "Donald Payne") & congress == 116|115|114|113, str_replace(FROM, "Donald Payne", "Donald Payne, Jr."), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Tim Johnson") & congress == 113, str_replace(FROM, "Tim Johnson", "Timothy Peter JOHNSON"), FROM))
   

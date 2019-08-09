@@ -475,17 +475,19 @@ typos_middle_initial <- tribble(
 
 
 # combine typos 
-typos <- full_join(typos_first, typos_last) %>% 
+typos <- typos_clear %>% 
+  full_join(typos_first) %>% 
+  full_join(typos_last) %>% 
   full_join(typos_middle) %>% 
   full_join(typos_middle_initial) %>% 
-  # mutate(correct = paste(first_name, last_name)) %>% 
+  full_join(typos_common_name) %>% 
+  # combine typos with the same correction
   group_by(correct) %>%
   summarise(typos = typos %>% str_c(collapse = "|") ) %>%
-  full_join(typos_clear) %>% 
   mutate(typos = tolower(typos),
          correct = tolower(correct))
 
 
 
 
-rm(typos_first, typos_last, typos_middle, typos_middle_initial, typos_clear)
+rm(typos_clear, typos_first, typos_last, typos_middle, typos_middle_initial, typos_common_name)
