@@ -29,6 +29,11 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #checking NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
+  
  # # data$FROM <- gsub("^.*\\/.... .*(Senator|Sen\\.|Congressman|Rep|Rep\\.|Cong|Cong\\.|Congress) (\\w{+}) .*$", '\\2', data$SUBJECT)
  #   data$FROM <- gsub("^.*(Senator|Sen\\.|Congressman|Rep|Rep\\.|Cong|Cong\\.|Congress) (\\w{+}) .*$", '\\2', data$SUBJECT)
  #  
