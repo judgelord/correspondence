@@ -18,6 +18,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #checking NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
   
   data$FROM <- gsub("^MOC","", data$FROM)
   data$FROM <- gsub("  "," ", data$FROM)
@@ -27,10 +31,10 @@ clean <- function(file.name) {
   
   data$last_name <-  gsub("(.*)(,|\\.)(.*)", "\\1", data$FROM)
   
-  data$last_name <- formatLastName(data, 'last_name')
+  #data$last_name <- formatLastName(data, 'last_name')
   
   #Extract Member names (New edit from formatLastName)
-  #data <-  extractMemberName(data,members,"FROM") 
+  data <-  extractMemberName(data,members,"FROM") 
   
 
   data %<>%
