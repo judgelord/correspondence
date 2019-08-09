@@ -89,8 +89,8 @@ clean <- function(file.name) {
      mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & congress %in% (113), "House", chamber)) 
    
   #Match on chamber
-   data %<>%
-     mutate(FROM = ifelse(str_detect(FROM, "Johnson, Timothy V") & str_detect(chamber, "House") & str_detect(congress, "111|112"), str_replace(FROM, "Johnson, Timothy V", "Timothy V JOHNSON"), FROM))
+  # data %<>%
+   #  mutate(FROM = ifelse(str_detect(FROM, "Johnson, Timothy V") & str_detect(chamber, "House") & str_detect(congress, "111|112"), str_replace(FROM, "Johnson, Timothy V", "Timothy V JOHNSON"), FROM))
   
   
   #Remove non members before string split
