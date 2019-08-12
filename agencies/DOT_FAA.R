@@ -44,12 +44,21 @@ clean <- function(file.name) {
   
   data$ID <- c(1:nrow(data))
   
+  #Create variable for chamber position  (Senator or Representative)
+  data %<>%
+    mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
+    mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
+    mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
+  
+  
   #Format Typo
   data %<>%
     mutate(FROM = str_replace_all(FROM, " ,", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, " , ", ", ")) %>%
-    mutate(FROM = str_remove(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
-    mutate(FROM = str_replace_all(FROM, ",, ", ", "))
+    mutate(FROM = str_remove_all(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
+    mutate(FROM = str_replace_all(FROM, ",, ", ", ")) %>%
+    mutate(FROM = str_replace_all(FROM, "\\. ", " "))
     
     
   # data <- getFirstLast.Comma(data, 'FROM')
@@ -59,13 +68,7 @@ clean <- function(file.name) {
   
   data %<>% extractMemberName(members, 'FROM')
   
-   #Create variable for chamber position  (Senator or Representative)
-   data %<>%
-     mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
-     mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
-     mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
-     mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
-   
+  
   #create variable for state
   
   data %<>% 
