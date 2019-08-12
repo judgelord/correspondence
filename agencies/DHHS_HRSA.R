@@ -28,41 +28,26 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  i <- 1
-  for(i in 1:nrow(data)){
-    if(grepl(" and Rep| and Sen\\.|, Sen\\.| and Sen |, Sen |;|, Rep", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = " and Rep| and Sen\\.|, Sen\\.| and Sen |, Sen |;|, Rep") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], " and Rep| and Sen\\.|, Sen\\.| and Sen |, Sen |;|, Rep"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[!data$FROM == "",] # removes blank observations
-  ################
-  
+data %<>% 
+    mutate(FROM = str_split(FROM, " and Rep| and Sen\\.|, Sen\\.| and Sen |, Sen |;|, Rep")) %>% 
+    unnest()
   
   
   # create variable for first and last name
-  data1 <- data[c(1:4363),]
-  data2 <- data[c(4364:nrow(data)),]
+  data %<>% extractMemberName(members, "FROM")
   
-  data1 <- getFirstLast.Comma(data1, "FROM")
-  data2 <- extractMemberName(data2,members, "FROM")
-  #merge two datasets
-  data <- full_join(data1,data2)
+  data %<>% 
+    mutate(ERROR = ifelse(FROM == "", "blank", ERROR), 
+           ERROR = ifelse(FROM %in% c("Senate HELP Committee",
+                                      "Senate HELP Committee - Bipartisan Staff",
+                                      "House E&C Committee",
+                                      "Senate HELP Subcommittee on Children and Families",
+                                      "House Ways and Means Committee",
+                                      "Senate Committee on Finance"), 
+                          "committee",
+                          ERROR))
   
-  data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[!data$FROM == "Senate HELP Committee",] # removes  observations
-  data <- data[!data$FROM == "Senate HELP Committee - Bipartisan Staff",] # removes  observations
-  data <- data[!data$FROM == "House E&C Committee",] # removes  observations
-  data <- data[!data$FROM == "Senate HELP Subcommittee on Children and Families",] # removes  observations
-  data <- data[!data$FROM == "House Ways and Means Committee",] # removes  observations
-  data <- data[!data$FROM == "Senate Committee on Finance",] # removes  observations
-  
-  
-  
+
   #data$FROM2 <- gsub("^Sen\\.|^Rep\\.|^Reps\\.|Senator", "", data$FROM2)
   
   # # create data set of non matching data so extractMemberName() can be called on differently formatted observations
