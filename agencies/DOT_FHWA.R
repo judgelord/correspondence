@@ -46,7 +46,7 @@ clean <- function(file.name) {
   
   #Format Typos
   data %<>%
-    mutate(FROM = str_remove_all(FROM, " Jr.| JR.")) %>%
+    mutate(FROM = str_remove_all(FROM, " Jr\\.| JR\\.")) %>%
     mutate(FROM = str_replace(FROM, ",, ", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, "U\\.S\\.|U\\.S", "US")) %>%
     mutate(FROM = str_replace(FROM, ", n,| n, ", ", "))

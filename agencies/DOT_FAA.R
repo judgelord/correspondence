@@ -36,25 +36,21 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
+  data %<>%
+  mutate(FROM = str_split(FROM, ";")) %>%
+  unnest(FROM)
+  
   ################
+  
+  data$ID <- c(1:nrow(data))
   
   #Format Typo
   data %<>%
-    mutate(SUBJECT = str_replace_all(SUBJECT, " ,", ",")) %>%
-    mutate(SUBJECT = str_replace_all(SUBJECT, ", ", ","))
+    mutate(FROM = str_replace_all(FROM, " ,", ", ")) %>%
+    mutate(FROM = str_replace_all(FROM, " , ", ", ")) %>%
+    mutate(FROM = str_remove(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
+    mutate(FROM = str_replace_all(FROM, ",, ", ", "))
+    
     
   # data <- getFirstLast.Comma(data, 'FROM')
   
@@ -63,13 +59,13 @@ clean <- function(file.name) {
   
   data %<>% extractMemberName(members, 'FROM')
   
-  # #Create variable for chamber position  (Senator or Representative)
-  # data %<>%
-  #   mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
-  #   mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
-  #   mutate(chamber = ifelse(grepl("Representative", assigned), "House", chamber)) %>% 
-  #   mutate(chamber = ifelse(grepl("Senate", assigned), "Senate", chamber)) 
-  # 
+   #Create variable for chamber position  (Senator or Representative)
+   data %<>%
+     mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
+     mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
+     mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
+     mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
+   
   #create variable for state
   
   data %<>% 
@@ -89,6 +85,11 @@ clean <- function(file.name) {
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
+  
+  data %>%
+    filter(ID == 17) %>%
+    select(FROM)
+    
 
   return(data)
 }
