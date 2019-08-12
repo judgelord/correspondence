@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "Treasury_OCC" # for testing
+# file.name <- "Treasury_OCC" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
@@ -21,30 +21,43 @@ clean <- function(file.name) {
   NOdate <- data %>%
     filter(is.na(DATE))
   
-  # # create chamber variable
-  # data %<>%
-  #   mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
-  #   mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
-  # 
+
+  
+  ## create chamber variable
+   data %<>%
+     mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
+     mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
+   
   data %<>% 
     mutate(FROM = Senator) %>% 
     mutate(FROM = ifelse(is.na(Senator), `House Member`, FROM))
   
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";#\\d{+};#", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";#\\d{1,3};#") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";#\\d{1,3};#"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
   
- 
-  data <- data[-grep(";#\\d{+};", data$FROM),] # removes original row with all data
+  ###############    
+  
+  # #String Split for Multiple Members
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, ";#[0-9]+")) %>%
+    #mutate(FROM = str_remove(FROM, "#")) %>%
+    mutate(FROM = str_split(FROM, ";")) %>%
+    unnest(FROM)
+  
+  
+  
+  # Creates duplicate rows for lines with multiple representatives
+  # for(i in 1:nrow(data)){
+  #   if(grepl(";#\\d{+};#", data$FROM[i])) {
+  # 
+  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";#\\d{1,3};#") + 1))
+  #     new$FROM <- unlist(str_split(data$FROM[i], ";#\\d{1,3};#"))
+  # 
+  #     data <- rbind(data, new)
+  # 
+  #   }
+  # }
+  # 
+  # 
+  # data <- data[-grep(";#\\d{+};", data$FROM),] # removes original row with all data
   
   # create Letter ID variable
   data$LetterID <-  c(1:nrow(data))
@@ -54,16 +67,26 @@ clean <- function(file.name) {
   
   data$FROM <- gsub(", Jr.", ",", data$FROM)
   
- #  # create variable for first and last name
+ #create variable for first and last name
   
   #data <- getFirstLast.Comma(data, "FROM")
   #data$first_name <- formatFirstName(data, "first_name")
  
  data <- extractMemberName(data, members, 'FROM')
  
- #finding unfound names
- unfoundnames<- data %>%
-   filter(is.na(last_name))
+ #Typos
+ data %<>%
+   mutate(FROM = str_replace(FROM, "Capito, Shelly Moore", "CAPITO, Shelley Moore")) %>%
+
+#non-members of congress   
+data %<>%
+   mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata|Del. Madeleine Bordallo"), "Non Voting Member", ERROR))
+ 
+   #Failing observations
+   Unfoundnames <- data %>%
+   filter(is.na(last_name),
+          is.na(ERROR),
+          is.na(NOTES))  
  
  unfoundnames %<>%
    select(ID, DATE, FROM, SUBJECT, last_name, everything())
