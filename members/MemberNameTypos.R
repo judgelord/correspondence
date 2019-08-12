@@ -214,7 +214,7 @@ typos_last <- tribble(
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
-  "Shelley", "Moore Capito", "(Moore|Capito|MooreCapito|Moore-Capito)",
+  "Shelley", "Capito", "(MooreCapito|Moore-Capito)",
   "Jeanne", "Shaheen", "(Shaneen|Shahenn)",
   "Debbie", "Wasserman Schultz", "(Schultz|Wasserman Shultz|Wasserman-Schultz|Wasserman-S|Wasserman-|Wasserman)",   
   # FIXME #  last names hypenation can be a clear typo, but we can't just replace "Schultz"--that needs to be a last name typo (otherwise "Debbie Wasserman Schultz" will be replaced with "Debbie Wasserman Wasserman Schultz" and fail to match)
@@ -302,7 +302,7 @@ typos_first <- tribble(
   "Ric", "Keller", "Rick", 
   "Orrin", "Hatch", "Orring",
   "Olympia","Snowe", "Olymia",
-  "Shelley","Moore Capito", "(Shelby|Shelly)", 
+  "Shelley","Capito", "(Shelby|Shelly)", 
   "Charles", "Schumer", "(Charls|Charls E)", # FIXME just adding middle initial for now, but eventually, it should be added to the typo pattern by merging with members data
   "Julia", "Carson", "Julie", 
   "Tom", "Barrett", "Mark", 
