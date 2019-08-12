@@ -42,6 +42,8 @@ clean <- function(file.name) {
   
   ################
   
+  data$ID <- c(1:nrow(data))
+  
   #Format Typo
   data %<>%
     mutate(FROM = str_replace_all(FROM, " ,", ", ")) %>%
@@ -57,13 +59,13 @@ clean <- function(file.name) {
   
   data %<>% extractMemberName(members, 'FROM')
   
-  # #Create variable for chamber position  (Senator or Representative)
-  # data %<>%
-  #   mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
-  #   mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
-  #   mutate(chamber = ifelse(grepl("Representative", assigned), "House", chamber)) %>% 
-  #   mutate(chamber = ifelse(grepl("Senate", assigned), "Senate", chamber)) 
-  # 
+   #Create variable for chamber position  (Senator or Representative)
+   data %<>%
+     mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
+     mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
+     mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
+     mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
+   
   #create variable for state
   
   data %<>% 
