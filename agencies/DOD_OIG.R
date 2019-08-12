@@ -10,7 +10,7 @@ clean <- function(file.name) {
   # create agency column
   data$agency <- file.name
   
-  data$ID <- seq(1:nrow(data))
+  data$LetterID <- seq(1:nrow(data))
   
   
   data$DATE <- as.Date(data$'Final Date', "%m/%d/%y")
@@ -28,7 +28,7 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "/")) %>%
     unnest(FROM)
   
-  data$LetterID <- seq(1:nrow(data))
+  data$ID <- seq(1:nrow(data))
   ################ 
   
   
