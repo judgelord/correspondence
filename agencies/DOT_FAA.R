@@ -36,25 +36,17 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
+  data %<>%
+  mutate(FROM = str_split(FROM, ";")) %>%
+  unnest(FROM)
+  
   ################
   
   #Format Typo
   data %<>%
-    mutate(SUBJECT = str_replace_all(SUBJECT, " ,", ",")) %>%
-    mutate(SUBJECT = str_replace_all(SUBJECT, ", ", ","))
+    mutate(FROM = str_replace_all(FROM, " ,", ", ")) %>%
+    mutate(FROM = str_replace_all(FROM, " , ", ", "))
+    
     
   # data <- getFirstLast.Comma(data, 'FROM')
   
@@ -89,6 +81,11 @@ clean <- function(file.name) {
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
+  
+  data %>%
+    filter(ID == 17) %>%
+    select(FROM)
+    
 
   return(data)
 }
