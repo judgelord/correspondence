@@ -64,7 +64,8 @@ typos_clear <- tribble(
   "Ryan, Paul", "Ryan Paul",
   "Chao, Elaine", "Chao Elaine",
   "Miller, George", "Miller George",
-  "Herrera Beutler, Jaime", "Herrera Beutler Jaime"
+  "Herrera Beutler, Jaime", "Herrera Beutler Jaime",
+  "Conyers John", "Conyers, John"
   
   
 )
@@ -126,7 +127,7 @@ typos_last <- tribble(
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
   "Charles", "Rangel", "Ranger",
-  "Christopher", "Van Hollen", "(VANHOLLEN|Van Kollen|Van Hollen|Van|Hollen)", 
+  "Christopher", "Van Hollen", "(VANHOLLEN|Van Kollen|Van Hollen|Van|Hollen|Van)", 
   "Gary", "Ackerman", "Acherman",
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
@@ -397,7 +398,8 @@ typos_first <- tribble(
   "Barack", "Obama", "Brack",
   "Denny", "Rehberg", "Danny",
   "Christopher", "Murphy", "Chistopher",
-  "Elijah", "Cummings", "Eluah"
+  "Elijah", "Cummings", "Eluah",
+  "Michael", "Conaway", "K. Michael"
  
 
  
