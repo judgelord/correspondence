@@ -44,9 +44,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "KUSTER, Ann McLane", "McLane", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "SMITH, Tina", "Flint", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "BONO, Mary", "(Mack Bono|Bono Mack|Mack)", maiden_name)) %>% #Mack really isn't her maiden name
-     
-    # last names
-    mutate(last_name = ifelse(bioname == "CAPITO, Shelley Moore", "Moore Capito", last_name)) %>%  
+    mutate(maiden_name = ifelse(bioname == "CAPITO, Shelley Moore", "Moore", maiden_name)) %>%  
      
     # common names
      # NOTE, as written this will overwrite existing common names. 
@@ -531,6 +529,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   #members$firstinitial_middleinitial_last <- paste(members$first_initial, members$middle_initial, members$last_name, sep = " ")
+ 
   
   members %<>% 
     ungroup() %>% 
@@ -540,7 +539,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            #first_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
-           last_comma_common = paste0(last_name, ", ", common_name),
+           last_comma_common = paste(last_name, ", ", common_name),
+           last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
            chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
@@ -594,6 +594,7 @@ members %<>%
                      first_maiden_last,
                      common_maiden_last,
                      last_comma_common,
+                     last_comma_first_maiden,
                      firstinitial_middleinitial_last
 
   ) %>%
