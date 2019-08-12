@@ -77,14 +77,23 @@ clean <- function(file.name) {
  #Typos
  data %<>%
    mutate(FROM = str_replace(FROM, "Capito, Shelly Moore", "CAPITO, Shelley Moore")) %>%
-   mutate(FROM = str_replace(FROM, "#Mastro, Catherin Cortez", "Mastro, Catherine Cortez"))
+   mutate(FROM = str_replace(FROM, "#Mastro, Catherin Cortez", "Mastro, Catherine Cortez")) %>%
+   mutate(FROM = str_replace(FROM, "#Conaway, K Michael", "Conaway, Michael")) %>%
+   mutate(FROM = str_replace(FROM, "Conaway, K Michael", "Conaway, Michael")) %>%
+   mutate(FROM = str_replace(FROM, "#Butterfield, G K", "#Butterfield, George")) %>%
+   mutate(FROM = str_replace(FROM, "Hollen, Chris Van", "VAN HOLLEN, Christopher"))
+   
+   
  
    
 
 #non-members of congress   
 data %<>%
-   mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata"), "Non Voting Member", ERROR))
+   mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata"), "Non Voting Member", ERROR)) %>%
+   mutate(ERROR = ifelse(str_detect(FROM, "#Plaskett, Stacey"), "Non Voting Member", ERROR)) %>%
+   
  
+
    #Failing observations
    Unfoundnames <- data %>%
    filter(is.na(last_name),
