@@ -45,7 +45,9 @@ clean <- function(file.name) {
   #Format Typo
   data %<>%
     mutate(FROM = str_replace_all(FROM, " ,", ", ")) %>%
-    mutate(FROM = str_replace_all(FROM, " , ", ", "))
+    mutate(FROM = str_replace_all(FROM, " , ", ", ")) %>%
+    mutate(FROM = str_remove(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
+    mutate(FROM = str_replace_all(FROM, ",, ", ", "))
     
     
   # data <- getFirstLast.Comma(data, 'FROM')
