@@ -59,6 +59,13 @@ clean <- function(file.name) {
     mutate(FROM = str_remove_all(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
     mutate(FROM = str_replace_all(FROM, ",, ", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, "\\. ", " "))
+  
+  #Name Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Sensenbrenner, F James", "Frank SENSENBRENNER")) %>%
+    mutate(FROM = str_replace(FROM, "FrR\\/AZ anks, Trent\\.", "Trent FRANKS \\/AZ")) %>%
+    mutate(FROM = str_replace(FROM, "ClD\\/MO ay, Wm Lacy\\.", "William CLAY \\/MO")) %>%
+    mutate(FROM = str_replace(FROM, "WD\\/VA arner, Mark\\.", "Mark WARNER \\/VA"))
     
     
   # data <- getFirstLast.Comma(data, 'FROM')
@@ -90,7 +97,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   data %>%
-    filter(ID == 17) %>%
+    filter(ID == 8980) %>%
     select(FROM)
     
 
