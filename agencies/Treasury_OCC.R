@@ -38,7 +38,7 @@ clean <- function(file.name) {
   # #String Split for Multiple Members
   data %<>%
     mutate(FROM = str_remove_all(FROM, ";#[0-9]+")) %>%
-    #mutate(FROM = str_remove(FROM, "#")) %>%
+    mutate(FROM = str_remove_all(FROM, "#")) %>%
     mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM)
   
@@ -90,7 +90,7 @@ clean <- function(file.name) {
 #non-members of congress   
 data %<>%
    mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata"), "Non Voting Member", ERROR)) %>%
-   mutate(ERROR = ifelse(str_detect(FROM, "#Plaskett, Stacey"), "Non Voting Member", ERROR)) %>%
+   mutate(ERROR = ifelse(str_detect(FROM, "#Plaskett, Stacey"), "Non Voting Member", ERROR)) 
    
  
 
