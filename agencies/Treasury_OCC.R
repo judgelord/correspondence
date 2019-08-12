@@ -77,10 +77,13 @@ clean <- function(file.name) {
  #Typos
  data %<>%
    mutate(FROM = str_replace(FROM, "Capito, Shelly Moore", "CAPITO, Shelley Moore")) %>%
+   mutate(FROM = str_replace(FROM, "#Mastro, Catherin Cortez", "Mastro, Catherine Cortez"))
+ 
+   
 
 #non-members of congress   
 data %<>%
-   mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata|Del. Madeleine Bordallo"), "Non Voting Member", ERROR))
+   mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata"), "Non Voting Member", ERROR))
  
    #Failing observations
    Unfoundnames <- data %>%
@@ -114,11 +117,6 @@ data %<>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("RISK MANAGEMENT|FINTECH|BANK OF TEXAS|BITCOIN", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
   
-  #sample <- data %>%
-  #filter(is.na(last_name))  
-  #View(sample) 
-  
-  ##testing code
   
   
 return(data)  
