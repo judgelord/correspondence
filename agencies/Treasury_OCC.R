@@ -77,7 +77,7 @@ clean <- function(file.name) {
  #Typos
  data %<>%
    mutate(FROM = str_replace(FROM, "Capito, Shelly Moore", "CAPITO, Shelley Moore")) %>%
-   mutate(FROM = str_replace(FROM, "#Mastro, Catherin Cortez", "Mastro, Catherine Cortez")) %>%
+   mutate(FROM = str_replace(FROM, "#Mastro, Catherin Cortez", "CORTEZ MASTO, Catherine Marie")) %>%
    mutate(FROM = str_replace(FROM, "#Conaway, K Michael", "Conaway, Michael")) %>%
    mutate(FROM = str_replace(FROM, "Conaway, K Michael", "Conaway, Michael")) %>%
    mutate(FROM = str_replace(FROM, "#Butterfield, G K", "#Butterfield, George")) %>%
