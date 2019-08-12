@@ -17,6 +17,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
   # # create chamber variable
   # data %<>%
   #   mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
@@ -52,10 +56,10 @@ clean <- function(file.name) {
   
  #  # create variable for first and last name
   
-  data <- getFirstLast.Comma(data, "FROM")
-  data$first_name <- formatFirstName(data, "first_name")
+  #data <- getFirstLast.Comma(data, "FROM")
+  #data$first_name <- formatFirstName(data, "first_name")
  
- #data <- extractMemberName(data, members, 'FROM')
+ data <- extractMemberName(data, members, 'FROM')
  
  #finding unfound names
  unfoundnames<- data %>%
