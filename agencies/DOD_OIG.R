@@ -10,7 +10,7 @@ clean <- function(file.name) {
   # create agency column
   data$agency <- file.name
   
-  data$ID <- seq(1:nrow(data))
+  data$LetterID <- seq(1:nrow(data))
   
   
   data$DATE <- as.Date(data$'Final Date', "%m/%d/%y")
@@ -24,18 +24,11 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
+  data %<>%
+    mutate(FROM = str_split(FROM, "/")) %>%
+    unnest(FROM)
+  
+  data$ID <- seq(1:nrow(data))
   ################ 
   
   
