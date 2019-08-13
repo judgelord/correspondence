@@ -43,7 +43,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(is.na(DATE), "Missing Date", ERROR))
   
   # member name
-  data <-  extractMemberName(data, members,"FROM")
+  data <- extractMemberName(data, members,"FROM")
 
   
 }
