@@ -70,14 +70,12 @@ data %<>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "John Comvn", "John Cornyn")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Veasey", "Marc Veasey"))
   
-  
-  
-  
-
-      
-
 #extracting members from Subject
 data <- extractMemberName(data, members, 'SUBJECT')
+
+#non-members of congress   
+data %<>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Aumua Amata Coleman Radewagen"), "Non Voting Member", ERROR))
 
 #FOIA NOTES
 data %<>%
