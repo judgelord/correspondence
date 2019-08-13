@@ -86,13 +86,17 @@ data %<>%
   mutate(NOTES = ifelse(str_detect(FROM, "Johnson, Tim"), "Wrong Congress", NOTES))
 
    #Failing observations
-   Unfoundnames <- data %>%
+   unfoundnames <- data %>%
    filter(is.na(last_name),
           is.na(ERROR),
           is.na(NOTES))  
  
  unfoundnames %<>%
    select(ID, DATE, FROM, SUBJECT, last_name, everything())
+ 
+ 
+ 
+ 
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())

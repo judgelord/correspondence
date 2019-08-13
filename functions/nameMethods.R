@@ -710,11 +710,20 @@ extractNamesPerCongress <- function(congress_i, data, members){
   # if congress not in members file 
   if(!congress_i %in% members$congress){
     
+    top5 <- nrow(data)
+    if(top5>5){top5<-5}
+    
     base::message(red(str_c("BAD DATES? ",
-                            unique(data$agency), " data$DATE = ", # delete for R package
+                            unique(data$agency), # delete for R package
+                            " data$DATE = ", # delete for R package
                             paste(unique(data$DATE), collapse =";"), # delete for R package
                 "\n n = ", nrow(data), " (", length(unique(data$string)), " distinct).\n",
-                "Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1], "\""
+                "Most common strings: \"", 
+                str_c(count(data, string) %>% 
+                        top_n(top5, n) %>% 
+                        .[top5,1], 
+                      collapse = "\", \""), 
+                "\""
           )))
     
     data %<>% 
@@ -758,10 +767,10 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
       # col_name <- "FROM"
 
   
-  # Make missing congress 0 so that it will not be dropped 
+  # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)
-
-    data %<>% mutate(string = data[[col_name]])
+  
+  data %<>% mutate(string = data[[col_name]])
     
     # clean up text
     data$string %<>% cleanFROMcolumn()
