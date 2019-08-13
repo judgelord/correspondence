@@ -5,7 +5,7 @@
 # file.name <- "DOT_FTA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data from google sheet
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data from google sheet
 
   # create agency column
   data$agency <- file.name
@@ -29,6 +29,6 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
-  
+return(data)  
 }
 
