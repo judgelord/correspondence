@@ -75,7 +75,9 @@ data <- extractMemberName(data, members, 'SUBJECT')
 
 #non-members of congress   
 data %<>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Aumua Amata Coleman Radewagen"), "Non Voting Member", ERROR))
+  mutate(ERROR = ifelse(str_detect(FROM, "Aumua Amata Coleman Radewagen"), "Non Voting Member", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Stacey Plaskett"), "Non Voting Member", ERROR))
+  
 
 #FOIA NOTES
 data %<>%
@@ -111,11 +113,6 @@ Unfoundnames <- data %>%
          is.na(ERROR),
          is.na(NOTES))
 
-#sample <- data %>%
-#filter(is.na(first_name))  
-#View(sample)
-
-##checking code
 
 # arrange columns for hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())
