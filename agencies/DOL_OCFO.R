@@ -3,10 +3,11 @@
 
 # Finished. All matching correctly. 
 
- #file.name <- "DOL_OCFO" # for testing
+ # file.name <- "DOL_OCFO" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   
   # create agency column
@@ -36,7 +37,9 @@ clean <- function(file.name) {
   
   
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
@@ -50,6 +53,8 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
+  
+  return(data)
   
   
 }
