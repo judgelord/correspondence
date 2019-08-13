@@ -44,6 +44,10 @@ clean <- function(file.name) {
   
   data$ID <- c(1:nrow(data))
   
+  #chamber typos
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Flake, Jeff\\.|Flake, Jeff") & congress %in% c("114|115"), str_replace(FROM, "Flake, Jeff\\. \\\n \\\n R\\/AZ \\\n \\\n U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. Congressman|Flake, Jeff\\.   U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. R\\/AZ U\\.S\\. House of Representatives|Flake, Jeff Congressman U\\.S House of Representatives|Flake, Jeff\\. Congressman U\\.S\\. House of Representatives|Flake, Jeff\\. U\\.S\\. House of Representatives", "Flake, Jeff United States Senate"), FROM))
+  
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
@@ -64,10 +68,11 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "Sensenbrenner, F James|Sensenbrenner,, F James|Sensenbrenner,  F James", "Frank SENSENBRENNER")) %>%
     mutate(FROM = str_replace(FROM, "FrR\\/AZ anks, Trent\\.|FrR\\/AZ  anks, Trent\\.", "Trent FRANKS \\/AZ")) %>%
-    mutate(FROM = str_replace(FROM, "ClD\\/MO ay, Wm Lacy\\.|Clay, Wm Lacy  D\\/MO", "William CLAY \\/MO")) %>%
+    mutate(FROM = str_replace(FROM, "ClD\\/MO ay, Wm Lacy\\.|Clay, Wm Lacy  D\\/MO|ClD\\/MO  ay, Wm Lacy\\.", "William CLAY \\/MO")) %>%
     mutate(FROM = str_replace(FROM, "WD\\/VA arner, Mark\\.|WD\\/VA  arner, Mark\\.", "Mark WARNER \\/VA")) %>%
     mutate(FROM = str_replace(FROM, "Young, C\\.W Bill|Young, C W Bill|Young, CW Bill", "Charles YOUNG")) %>%
-    mutate(FROM = str_replace(FROM, "McKinley, P\\.E\\., David B", "David McKINLEY"))
+    mutate(FROM = str_replace(FROM, "McKinley, P\\.E\\., David B", "David McKINLEY")) %>%
+    mutate(FROM = str_replace(FROM, "Gosar, D\\.D\\.S\\., Paul A", "Paul GOSAR"))
     
     
   # data <- getFirstLast.Comma(data, 'FROM')
@@ -93,7 +98,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor"), "Non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Local Government"), "State Politician", ERROR))
 
   #Failing observations
@@ -102,7 +107,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   data %>%
-    filter(ID == 346) %>%
+    filter(ID == 11915) %>%
     select(FROM)
     
 
