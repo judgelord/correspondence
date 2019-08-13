@@ -44,6 +44,8 @@ clean <- function(file.name) {
   
 
 data %<>% select(DATE, originalDATE, SUBJECT, last_name, chamber, everything())  
+
+return(data)
   
   
 }
