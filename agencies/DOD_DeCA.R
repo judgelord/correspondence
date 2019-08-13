@@ -2,9 +2,9 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
- #  170 out of 190 matching. No first name, state, or chamber information. 
+ #170 out of 190 matching. No first name, state, or chamber information. 
 
- #file.name <- "DOD_DeCA Devin" # for testing
+ # file.name <- "DOD_DeCA Devin" # for testing
 
 
 clean <- function(file.name) {
@@ -28,7 +28,7 @@ clean <- function(file.name) {
   # create variable for  last name
   data$last_name <- formatLastName(data, 'FROM')
   
-  #getfirstlast runs better than extractMemberName
+  
   
   #data <- extractMemberName(data, members, 'FROM') 
   
