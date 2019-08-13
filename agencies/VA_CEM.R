@@ -3,7 +3,6 @@
 
 # file.name <- "VA_CEM" # for testing
 
-#file.name <- "VA_CEM" #for testing 13 June
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
