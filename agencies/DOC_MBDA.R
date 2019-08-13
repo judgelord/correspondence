@@ -30,6 +30,7 @@ clean <- function(file.name) {
   # member name
   data %<>% extractMemberName(members,"FROM")
   
+  return(data)
   
   
 }
