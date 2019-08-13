@@ -1,10 +1,11 @@
 # This script defines a function to clean google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables based on agency-specific information
 
-#file.name <- "DOD_Navy Delaney" # for testing
+# file.name <- "DOD_Navy Delaney" # for testing
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # Remove NA Observations
@@ -30,11 +31,11 @@ clean <- function(file.name) {
   data$FROM <- gsub("--", " ", data$FROM)
   
   # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  #data <- getFirstLast.Comma(data, "FROM")
   
   #getFirstLast runs better than extractMemberName
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   
   data %<>%
