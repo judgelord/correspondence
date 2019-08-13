@@ -3,7 +3,7 @@
 
 # 2000+ non matches, but most shouldn't be matching. 
 
-#file.name <- "DHHS_SAMHSA" # for testing
+# file.name <- "DHHS_SAMHSA " # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
