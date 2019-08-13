@@ -8,7 +8,8 @@
 # file.name <- "DOL_OFCCP" # for testing 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -48,11 +49,10 @@ clean <- function(file.name) {
     # mutate(last_name = ifelse(grepl("^(\\w) (\\w+)$", first_last),gsub("^(\\w) (\\w+)$", '\\2', first_last), last_name)) %>%  # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
     mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
 
-  #getfirstlast works better than extractmembername
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
@@ -80,6 +80,6 @@ clean <- function(file.name) {
   
   
   
-  
+return(data)  
   
 }
