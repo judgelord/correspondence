@@ -5,7 +5,8 @@
  # file.name <- "DOL_OSHA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # create LetterID variable
   data$LetterID <- c(1:nrow(data))
