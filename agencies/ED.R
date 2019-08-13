@@ -4,11 +4,11 @@
 # Lots of errors, needs fixing
 # down to 264 errors, lots of spelling
 
-#file.name <- "ED" # for testing
+# file.name <- "ED" # for testing
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # # Remove 69 NA rows
   # data %<>% filter(!(is.na(data$FROM)&is.na(data$DATE)&is.na(data$SUBJECT)))
@@ -33,10 +33,10 @@ clean <- function(file.name) {
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
 
   # create variable for first and last name
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
   
-  #getFirstLast runs better than extractmembername
-  #data <- extractMemberName(data, members, 'FROM')
+
+  data <- extractMemberName(data, members, 'FROM')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
