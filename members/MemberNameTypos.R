@@ -387,7 +387,7 @@ typos_first <- tribble(
   "Nanette", "BARRAGAN", "Nannette",
   "Sanford", "Bishop", "Sandford",
   "Alcee", "Hastings", "(Alccc|Ateee)",
-  "Arlen", "Specter", "(Alan|Alien)",
+  "Arlen", "Specter", "(Alan|Alien|Arien)",
   "Bart", "Gordon", "Art",
   "Barney", "Frank", "Bamey",
   "Richard", "Shelby", "Ricard",
