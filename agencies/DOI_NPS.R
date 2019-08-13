@@ -2,11 +2,12 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
- #file.name <- "DOI_NPS" # for testing
+ # file.name <- "DOI_NPS" # for testing
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   #create agency column
   data$agency <- file.name
@@ -57,11 +58,10 @@ clean <- function(file.name) {
   
 
   # names 
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
   
-  #Getfirstlast runs better than extractMemberName
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
@@ -108,7 +108,7 @@ clean <- function(file.name) {
   
   
   
-  
+return(data)  
   
   
 }
