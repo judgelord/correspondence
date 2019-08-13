@@ -38,7 +38,7 @@ data_list <- tribble(
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "not coded", NA, #
-# "DHHS_SAMHSA", "not coded", NA, # No dates, need better data
+# "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
@@ -59,18 +59,18 @@ data_list <- tribble(
 "DOD_DLA_Aviation", "not coded", NA,
 "DOD_Navy", "coded", "Delaney", # no records before 2013
 "DOD_OIG", "not coded", NA, # waiting for records back from Joe    # only last name info --> 600+ non matches
-"DOD_OSDJS", "not coded", NA, # waiting on remaining records
+"DOD_OSDJS", "not coded", NA, # some records are in text files to be merged #45, waiting on remaining records
 "DOD_USACE", "not coded", NA, # no records before fall 2013
 # "DOD_USMC", "not coded", NA, #  DON-USMC-2018-004141 needs to be converted from pdf and added to drive
 # DOE
 "DOE_FERC", "not coded", NA,
-# DOI # we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
+# DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "not coded", NA,
 # DOJ 
- "DOJ_CIV", "not coded", NA,
+"DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "not coded", NA,
 "DOJ_EOIR", "not coded", NA,
 # DOL 
@@ -86,7 +86,7 @@ data_list <- tribble(
 # "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
-"DOT_FHWA", "not coded", NA, # complete, but in two sheets: currently combined  in the clean script, but may want to combine: https://docs.google.com/spreadsheets/d/1WHEU8f73opKs13smHX8NVbitXgpv83zGfp_DhnU6NEI/edit#gid=1436701610
+"DOT_FHWA", "not coded", NA, # complete, multiple data sources merged
 "DOT_FTA", "not coded", NA, 
 "DOT_PHMSA", "not coded", NA, # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
@@ -101,7 +101,7 @@ data_list <- tribble(
 # FCC
 "FCC", "coded", "Devin",
 # FDA
-"FDA", "not coded", NA,  # 2012-2018 now on drive, waiting on 2007-2011, Sarah B. Kotler email 
+"FDA", "not coded", NA,  # 2007-2018 now on drive, debug issue #97
 # FHFA
 "FHFA", "not coded", NA, #
 # FMC
@@ -291,7 +291,7 @@ d %<>%
   mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR))
 
-write_csv(d %>% filter(str_detect(NOTES, "FOIA")), path = "data/LETTERS_TO_FOIA.csv")
+
 
 #########################
 # ERRORS to investigate #
@@ -804,6 +804,7 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   save(bad.party, file = "data/bad.party.RData")
   # save(bad.committees.1, file = "data/bad.committees.1.RData")
   save(bad.committees.2, file = "data/bad.committees.2.RData")
+  write_csv(d %>% filter(str_detect(NOTES, "FOIA")), path = "data/LETTERS_TO_FOIA.csv")
 }
 
 # counts per agency - check if this matches google sheet 

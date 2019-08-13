@@ -5,7 +5,7 @@
 ##file.name <- "DOD_USACE" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) %>% gs_read(.default = col_character()) # get data
   
   # create agency column
   data$agency <- file.name
@@ -19,15 +19,16 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+
+  # member name
+  data %<>% 
+    mutate(SUBJECT = paste(Priority, SUBJECT, Owner) %>% str_replace_all(" NA |^NA | NA$", " ")) 
+  
   # chamber 
   data %<>% 
     mutate(chamber = ifelse(grepl(" REP | REPS | Rep ", SUBJECT), "House", NA)) %>%
     mutate(chamber = ifelse(grepl(" SEN | SENS | Sen ", SUBJECT), "Senate", chamber))
   
-  # member name
-  data %<>% 
-    mutate(SUBJECT = paste(Priority, SUBJECT, Owner)) 
-  # data$SUBJECT <- gsub("(^| )NA( |$)", "",data$SUBJECT)
 
   data$last_name <- gsub(".* REP |.* REPS|.* SEN |.* SENS |.* CONGRESSIONAL -|.* CONRESSIONAL - |^Routine ","", data$SUBJECT)
   data$last_name <-  toupper(data$last_name)  %>%
@@ -37,9 +38,18 @@ clean <- function(file.name) {
   data$first_name <- NA
   data$first_name <- addFirst(data$first_name,data$last_name)
   
+  data %<>% 
+    mutate(FROM = paste(chamber, first_name, last_name)) %>%
+    mutate(FROM = str_replace(FROM, "House", "Representative"),
+           FROM = str_replace(FROM, "Senate", "Senator"),
+           FROM = str_replace_all(FROM, " NA |^NA | NA$", " ")) %>% 
+    select(DATE, chamber, first_name, last_name, FROM, SUBJECT, everything())
+  
+  data %<>% extractMemberName(members, "FROM")
+  
   #Failing observations
   Unfoundnames <- data %>%
-    filter(is.na(last_name),
+    filter(pattern == "404error",
            is.na(ERROR)) 
   
 
