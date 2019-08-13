@@ -2,12 +2,12 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# Finished. 100% match on first_name/last_name
 
-#file.name <- "DOL_EBSA" # for testing
+# file.name <- "DOL_EBSA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   data$ID <- seq(1:nrow(data))
   
@@ -21,10 +21,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
   
   #extractmembernames is quite a bit slower than getFirstLast
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   
   # arrange columns for hand coding
@@ -59,5 +59,5 @@ clean <- function(file.name) {
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("PROTECTIONS", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("PROTECTIONS", SUBJECT, ignore.case = TRUE), "LEGISLATION", EVENT_NAME)) 
   
-  
+return(data)  
 }
