@@ -1,5 +1,5 @@
 
-#file.name <- "IRS" # for testing
+# file.name <- "IRS" # for testing
 
 
 clean <- function(file.name) {
@@ -65,13 +65,17 @@ data %<>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Schumer", "Chuck Schumer")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Rubio", "Marco Rubio")) %>%
   mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Sandford", "Mark Sanford")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Sanford", "Mark Sanford"))
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Sanford", "Mark Sanford")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "DeSantis", "DeSANTIS, Ron")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "John Comvn", "John Cornyn")) %>%
+  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Veasey", "Marc Veasey"))
   
-
-      
-
 #extracting members from Subject
 data <- extractMemberName(data, members, 'SUBJECT')
+
+#non-members of congress   
+data %<>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Aumua Amata Coleman Radewagen"), "Non Voting Member", ERROR))
 
 #FOIA NOTES
 data %<>%
