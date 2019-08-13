@@ -1,6 +1,7 @@
 
 # FREQUENT TYPOS WHERE WE CAN JUST REPLACE THEM REGARDLESS OF THE WORDS BEFORE AND AFTER (i.e. we are very confident that this is what they should be)
 # THERE IS NOTHING ELSE IT COULD POSSIBLY BE
+
 typos_clear <- tribble(
   ~correct, ~typos,
   "Cummings", "(Cummins|Cwnmings)",

@@ -7,6 +7,7 @@
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   #create agency column
@@ -27,7 +28,6 @@ clean <- function(file.name) {
   # create variable for first and last name
   #data <- getFirstLast.Comma(data, "FROM")
   
-  #extractmemberName works better than getFirstLast
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
@@ -49,6 +49,6 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMERCIAL PAY", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMERCIAL PAY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
-  
+  return(data) 
   
 }

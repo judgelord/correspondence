@@ -41,5 +41,7 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  return(data)
+  
 } # end function 
 

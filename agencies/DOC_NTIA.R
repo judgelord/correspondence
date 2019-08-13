@@ -45,5 +45,5 @@ clean <- function(file.name) {
   # member name
   data <- extractMemberName(data, members,"FROM")
 
-  
+  return(data)  
 }
