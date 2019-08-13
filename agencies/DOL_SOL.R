@@ -5,7 +5,8 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   names(data)[names(data) == 'SIMS ID'] <- 'LetterID'
   
