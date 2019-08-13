@@ -24,7 +24,7 @@ cleanFROMcolumn <- function(FROM){
   FROM <- trimws(FROM)
   
   # fix misplaced commas
-  FROM <- gsub("(\\w+) ,(\\w+)", "\\1, \\2", FROM)
+  FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
   
   # trim down extra spaces
   #FROM <- gsub(" +", " ", FROM) # extra spaces
@@ -733,11 +733,12 @@ extractNamesPerCongress <- function(congress_i, data, members){
       paste0("Bad dates in ", unique(data$agency), "?"),
       paste(data %>% 
       group_by(string) %>% 
-      mutate(DATE = paste0(unique(DATE), collapse = ", ")) %>%
-      count(DATE, string) %>% 
+      mutate(DATE = paste0(unique(DATE), collapse = ", "),
+             ID = paste0(unique(ID), collapse = ", ") ) %>%
+      count(DATE, ID, string) %>% 
       arrange(-n) %>% 
       ungroup() %>% 
-      transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE)) %>% 
+      transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE, ", ID = ", ID)) %>% 
       .$strings, 
       collapse = "\n"), sep = "\n")))
     
