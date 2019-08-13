@@ -49,6 +49,6 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMERCIAL PAY", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMERCIAL PAY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
-  
+  return(data) 
   
 }
