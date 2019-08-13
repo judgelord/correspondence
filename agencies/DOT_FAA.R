@@ -45,15 +45,17 @@ clean <- function(file.name) {
   data$ID <- c(1:nrow(data))
   
   #chamber typos
-  data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Flake, Jeff\\.|Flake, Jeff") & congress %in% c("114|115"), str_replace(FROM, "Flake, Jeff\\. \\\n \\\n R\\/AZ \\\n \\\n U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. Congressman|Flake, Jeff\\.   U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. R\\/AZ U\\.S\\. House of Representatives|Flake, Jeff Congressman U\\.S House of Representatives|Flake, Jeff\\. Congressman U\\.S\\. House of Representatives|Flake, Jeff\\. U\\.S\\. House of Representatives", "Flake, Jeff United States Senate"), FROM))
-  
+  # data %<>%
+  #   mutate(FROM = ifelse(str_detect(FROM, "Flake, Jeff\\.|Flake, Jeff") & congress %in% c("114|115"), str_replace(FROM, "Flake, Jeff\\. \\\n \\\n R\\/AZ \\\n \\\n U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. Congressman|Flake, Jeff\\.   U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. R\\/AZ U\\.S\\. House of Representatives|Flake, Jeff Congressman U\\.S House of Representatives|Flake, Jeff\\. Congressman U\\.S\\. House of Representatives|Flake, Jeff\\. U\\.S\\. House of Representatives", "Flake, Jeff United States Senate"), FROM)) %>%
+  #   mutate(FROM = ifelse(str_detect(FROM, "Heinrich, Martin T Congressman U\\.S House of Representatives") & congress %in% c("113"), str_replace(FROM, "Heinrich, Martin T Congressman U\\.S House of Representatives", "Heinrich, Martin \\. D/NM United States Senate"), FROM)) %>%
+  #   mutate(FROM = ifelse(str_detect(FROM, "Gardner, Cory R/CO United States Senate") & congress %in% c("113"), str_replace(FROM, "Gardner, Cory\\. R\\/CO United States Senate", "Gardner, Cory \\/CO House of Representatives"), FROM))
+  # 
   #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
-    mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
-    mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
+  # data %<>%
+  #   mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
+  #   mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
+  #   mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
+  #   mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
   
   
   #Format Typo
@@ -72,7 +74,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "WD\\/VA arner, Mark\\.|WD\\/VA  arner, Mark\\.", "Mark WARNER \\/VA")) %>%
     mutate(FROM = str_replace(FROM, "Young, C\\.W Bill|Young, C W Bill|Young, CW Bill", "Charles YOUNG")) %>%
     mutate(FROM = str_replace(FROM, "McKinley, P\\.E\\., David B", "David McKINLEY")) %>%
-    mutate(FROM = str_replace(FROM, "Gosar, D\\.D\\.S\\., Paul A", "Paul GOSAR"))
+    mutate(FROM = str_replace(FROM, "Gosar, D\\.D\\.S\\., Paul A", "Paul GOSAR")) %>%
+    mutate(FROM = str_replace(FROM, "Conaway, K Michael", "Kenneth CONAWAY"))
     
     
   # data <- getFirstLast.Comma(data, 'FROM')
