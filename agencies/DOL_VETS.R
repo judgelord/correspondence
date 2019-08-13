@@ -5,7 +5,8 @@
 #file.name <- "DOL_VETS" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   #rename ID column and remove duplicated observations
   colnames(data)[colnames(data) == 'SIMS ID'] <- 'ID'
@@ -42,11 +43,11 @@ clean <- function(file.name) {
   ################
   
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
   
   #getFirstLast works better than extractMemberName
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   data$FROM2 <- gsub("^\\w+\\. (\\w)( |. )(\\w+)", '\\1 \\3', data$FROM2)
   
