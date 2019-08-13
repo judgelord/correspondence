@@ -7,7 +7,8 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   data$FROM <- paste(data$first_name, " ", data$last_name )
   #create agency column
@@ -31,5 +32,7 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
+  
+  return(data)
 }
 
