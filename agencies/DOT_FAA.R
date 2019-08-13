@@ -62,10 +62,11 @@ clean <- function(file.name) {
   
   #Name Format Typo
   data %<>%
-    mutate(FROM = str_replace(FROM, "Sensenbrenner, F James", "Frank SENSENBRENNER")) %>%
-    mutate(FROM = str_replace(FROM, "FrR\\/AZ anks, Trent\\.", "Trent FRANKS \\/AZ")) %>%
-    mutate(FROM = str_replace(FROM, "ClD\\/MO ay, Wm Lacy\\.", "William CLAY \\/MO")) %>%
-    mutate(FROM = str_replace(FROM, "WD\\/VA arner, Mark\\.", "Mark WARNER \\/VA"))
+    mutate(FROM = str_replace(FROM, "Sensenbrenner, F James|Sensenbrenner,, F James|Sensenbrenner,  F James", "Frank SENSENBRENNER")) %>%
+    mutate(FROM = str_replace(FROM, "FrR\\/AZ anks, Trent\\.|FrR\\/AZ  anks, Trent\\.", "Trent FRANKS \\/AZ")) %>%
+    mutate(FROM = str_replace(FROM, "ClD\\/MO ay, Wm Lacy\\.|Clay, Wm Lacy  D\\/MO", "William CLAY \\/MO")) %>%
+    mutate(FROM = str_replace(FROM, "WD\\/VA arner, Mark\\.|WD\\/VA  arner, Mark\\.", "Mark WARNER \\/VA")) %>%
+    mutate(FROM = str_replace(FROM, "Young, C\\.W Bill|Young, C W Bill|Young, CW Bill", "Charles YOUNG"))
     
     
   # data <- getFirstLast.Comma(data, 'FROM')
@@ -90,6 +91,9 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Holmes Norton, Eleanor|Norton, Eleanor Holmes"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Local Government"), "State Politician", ERROR))
 
   #Failing observations
   Unfoundnames <- data %>%
@@ -97,7 +101,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   data %>%
-    filter(ID == 8980) %>%
+    filter(ID == 6182) %>%
     select(FROM)
     
 
