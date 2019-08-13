@@ -6,10 +6,11 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # Remove duplicated rows
-  data <- data[!duplicated(data[,c('ID')]),]  
+  #data <- data[!duplicated(data[,c('ID')]),]  
   
   # create easier to recognize ID variable
   data$ID <- c(1:nrow(data))
@@ -44,16 +45,22 @@ clean <- function(file.name) {
       
     }
   }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ ", "", data$FROM)
+  #String Split for Multiple Members
+  data %<>%
+    mutate(FROM = str_split(FROM, ";")) %>%
+    mutate(FROM = str_remove_all(FROM, "MOC ")) %>%
+    unnest(FROM)
+  
+  #data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  #data$FROM <- gsub("^ ", "", data$FROM)
   ###     ###     ###
   
   # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  #data <- getFirstLast.Comma(data, "FROM")
   
   #getFirstLast runs better than extractMemberName
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
