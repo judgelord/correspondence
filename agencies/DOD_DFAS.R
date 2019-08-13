@@ -7,6 +7,7 @@
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   #create agency column
@@ -27,7 +28,6 @@ clean <- function(file.name) {
   # create variable for first and last name
   #data <- getFirstLast.Comma(data, "FROM")
   
-  #extractmemberName works better than getFirstLast
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
