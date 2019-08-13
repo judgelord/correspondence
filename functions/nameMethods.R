@@ -23,6 +23,9 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub("\n", " ", FROM)
   FROM <- trimws(FROM)
   
+  # fix misplaced commas
+  FROM <- gsub("(\\w+) ,(\\w+)", "\\1, \\2", FROM)
+  
   # trim down extra spaces
   #FROM <- gsub(" +", " ", FROM) # extra spaces
   
@@ -712,19 +715,31 @@ extractNamesPerCongress <- function(congress_i, data, members){
     
     top5 <- nrow(data)
     if(top5>5){top5<-5}
+    # 
+    # base::message(red(str_c("BAD DATES? ",
+    #                         unique(data$agency), # delete for R package
+    #                         " data$DATE = ", # delete for R package
+    #                         paste(unique(data$DATE), collapse =";"), # delete for R package
+    #             "\n n = ", nrow(data), " (", length(unique(data$string)), " distinct).\n",
+    #             "Most common strings: \"", 
+    #             str_c(count(data, string) %>% 
+    #                     top_n(top5, n) %>% 
+    #                     .[1:top5,1], 
+    #                   collapse = "\", \""), 
+    #             "\""
+    #       )))
     
-    base::message(red(str_c("BAD DATES? ",
-                            unique(data$agency), # delete for R package
-                            " data$DATE = ", # delete for R package
-                            paste(unique(data$DATE), collapse =";"), # delete for R package
-                "\n n = ", nrow(data), " (", length(unique(data$string)), " distinct).\n",
-                "Most common strings: \"", 
-                str_c(count(data, string) %>% 
-                        top_n(top5, n) %>% 
-                        .[top5,1], 
-                      collapse = "\", \""), 
-                "\""
-          )))
+    base::message(red(paste(
+      paste0("Bad dates in ", unique(data$agency), "?"),
+      paste(data %>% 
+      group_by(string) %>% 
+      mutate(DATE = paste0(unique(DATE), collapse = ", ")) %>%
+      count(DATE, string) %>% 
+      arrange(-n) %>% 
+      ungroup() %>% 
+      transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE)) %>% 
+      .$strings, 
+      collapse = "\n"), sep = "\n")))
     
     data %<>% 
       mutate(pattern = "Date out of range", 
@@ -765,7 +780,9 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
       
       # FOR TESTING 
       # col_name <- "FROM"
-
+  
+  # Add ID if missing 
+  if(! "ID" %in% names(data)){data$ID <- 1:nrow(data)}
   
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)
