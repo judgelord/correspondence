@@ -3,10 +3,11 @@
 
 # 84 mismatches on last_name
 
-#file.name <- "DHHS_ACF" # for testing
+# file.name <- "DHHS_ACF" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # duplicate DOC ID rows were all invalid observations (removes 44 rows)
   data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]
@@ -33,6 +34,10 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%Y")
+  
+  #Check for NA Dates
+  NoDATE <- data %>%
+    filter(is.na(DATE))
   
   
   #create year and congress columns
