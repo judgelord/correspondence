@@ -120,8 +120,13 @@ data_list <- tribble(
 "NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
 # NCPC
 "NCPC", "not coded", NA,
+# NCUA
 "NCUA", "not coded", NA, 
+# NIGC
+"NIGC", "coded", "Fatima",
+# NLRB
 "NLRB" , "not coded", NA,
+# NWTRB
 "NWTRB", "not coded", NA,
 # OSMRE
 "OSMRE","not coded", NA, # no observatoins are people from congress, adds no new data
@@ -151,7 +156,7 @@ data_list <- tribble(
 # USPS
 "USPS", "not coded", NA,
 "VA_CEM", "not coded", NA,
-"VA", "not coded", NA
+"VA", "coded", "Rochelle"
 )
 data_list
 

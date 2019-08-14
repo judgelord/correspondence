@@ -3,7 +3,6 @@
 
 #file.name <- "VA" # for testing
 
-
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
@@ -31,13 +30,10 @@ clean <- function(file.name) {
 
   
   #Filter out rows without data
-  data %<>% filter(!FROM == "")
-  data %<>% filter(!FROM == "N/A") %>%
-    filter(! FROM == "n/a") %>%
-    filter(! FROM == "N/a") %>%
-    filter(! FROM == "n/a/") %>%
-    filter(! FROM == "m/a") %>%
-    filter(! FROM == "`N/A")
+  data %<>% 
+    mutate(FROM = ifelse(FROM %in% c("", "N/A","n/a","N/a", "n/a/","m/a","`N/A") | is.na(FROM),
+                         person,
+                         FROM))
   
   data %<>%
     mutate(FROM = str_remove(FROM, " N/A"))
@@ -50,7 +46,7 @@ clean <- function(file.name) {
 
   #Trim White Space
   data %<>%
-    mutate(FROM = str_trim(FROM))
+    mutate(FROM = str_squish(FROM))
  
 #Typo  
 data %<>%
@@ -96,7 +92,7 @@ data %<>%
   
   #Filter for Unfoundnames
   Unfoundnames <- data %>%
-    filter(is.na(last_name)) %>%
+    filter(is.na(last_name), !is.na(string)) %>%
     select(-last_name, -first_name)
  
   #Separate from data 
@@ -138,10 +134,13 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Smith"), "Multiple Smith's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Johnson"), "Multiple Johnson's FOIA", NOTES))
   
-  #Filter non-members while working
+  # Error out non-members 
   data %<>%
-    filter( ! str_detect(FROM, "Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative non Congressional|
-                         Representative Non-Congressional|Representative NonCongressional|Representative NY-25"))
+    mutate(ERROR = ifelse(str_detect(FROM, "Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative non Congressional|
+                         Representative Non-Congressional|Representative NonCongressional|Representative NY-25"),
+                          "non-member",
+                          ERROR))
+           
   
  
   Unfoundnames2 <- data %>%

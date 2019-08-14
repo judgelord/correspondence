@@ -13,7 +13,7 @@
 # It is used in extractMemberNames etc. to preprocess text.
 cleanFROMcolumn <- function(FROM){
 
-  # remove 
+  # remove +
   FROM <- gsub('\\+', "", FROM)
   
   # remove common names in quotes 
@@ -23,40 +23,52 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub("\n", " ", FROM)
   FROM <- trimws(FROM)
   
+  # remove extra white space inside strings
+  FROM <- str_squish(FROM)
+  
   # fix misplaced commas
   #FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
-  
   FROM <- gsub(" ,| , |,", ", ", FROM)
   
-  #remove specials
-  #FROM <- gsub("[[:punct:]]", "", FROM)
+  # remove extra white space inside strings again
+  FROM <- str_squish(FROM)
   
   # remove 
-  FROM <- gsub(pattern = " Jr.| Jr| III| II| Ii| IV| ll| Jr,| Jr,", "", FROM)
+  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll", "", FROM)
+  # replace with comma
+  FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
+               replacement = ",", FROM)
+
  
-  FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
-  FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Rep |Sen ", "", FROM)
+  FROM <- gsub("\n", "", FROM)
+  
+  # Replace titles
+  FROM <- gsub("(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )|", "Senator", FROM)
+  FROM <- gsub("(REP|Rep)( |- | - |\\. |\\.)|Congressman|Congresswoman", "Representative", FROM)
+  # delete R- and C- preface because it is not unique enough? 
+  FROM <- gsub("^(R|C)(-| )", "")
+  
   
   # trim down extra spaces
+  FROM <- str_squish(FROM)
   FROM <- gsub(" +", " ", FROM) # extra spaces
   
-  # replace with comma
-  FROM <- gsub(pattern = " CPA,| M.D.| M.D.,| MD,| M.C.,| P.E.,| P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
-               replacement = ",", FROM)
+
   
   # replace with "U.S."
-  FROM <- gsub(pattern = "Member, U.S", "U.S", FROM)
+  FROM <- gsub(pattern = "Member, U.S", "US", FROM)
   
   # remove periods
   FROM <- gsub(pattern= "\\.\\.", replacement = " ", FROM) 
   FROM <- gsub(pattern= "\\.", replacement = " ", FROM) 
   
   #removing double commas
-  FROM <- gsub(" ,,| ,, |,,|, ,", ", ", FROM)
+  FROM <- gsub(",,|, ,", ", ", FROM)
 
   # replace spaces with a single space
   FROM <- gsub(" +", " ", FROM) # extra spaces
   FROM <- trimws(FROM)
+  FROM <- str_squish(FROM)
   
   return(FROM)
 }
