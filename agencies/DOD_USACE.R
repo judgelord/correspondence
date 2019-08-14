@@ -47,7 +47,9 @@ clean <- function(file.name) {
   
   data %<>% extractMemberName(members, "FROM")
   
-  data %<>% mutate(NOTES = ifelse(str_detect(SUBJECT, "multi ", paste("FOIA", NOTES), NOTES)))
+  data %<>% mutate(NOTES = ifelse(str_detect(SUBJECT, "multi "), 
+                                  paste("FOIA", NOTES), 
+                                  NOTES))
   
   #Failing observations
   Unfoundnames <- data %>%
