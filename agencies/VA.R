@@ -9,9 +9,9 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
 
-  #Create ID
+  #Create LetterID
   data %<>%
-    mutate(ID = row_number())
+    mutate(LetterID = row_number())
   
   #create agency column
   data$agency <- file.name 
@@ -76,6 +76,9 @@ data %<>%
   data %<>%
     mutate(FROM = str_split(FROM, "\\/")) %>%
     unnest(FROM)
+  
+  # create ID 
+  data$ID <- 1:nrow(data)
 
   data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
