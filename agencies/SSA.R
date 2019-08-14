@@ -2,10 +2,11 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "SSA" # for testing
+# file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # Remove rows containing NA in both FROM and SUBJECT column
   data <- data[!(is.na(data$FROM)&is.na(data$SUBJECT)),]
@@ -24,6 +25,10 @@ clean <- function(file.name) {
   data$DATE <- gsub("/200","/0",data$DATE)
   data$DATE <- gsub("/201","/1",data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
 
   
   
@@ -136,6 +141,11 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^\\(.*\\)$|N/A",FROM), FROM, ERROR))
   
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           is.na(NOTES))  
   
   
   
