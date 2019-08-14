@@ -2,10 +2,11 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "CNCS" # for testing
+# file.name <- "CNCS" # for testing
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
   
   #Create LetterID
@@ -91,8 +92,8 @@ clean <- function(file.name) {
   Unfoundnames %<>%
     mutate(FROM = str_replace(FROM, " ", ", "))
   
-  #Get member names
-  Unfoundnames <- getFirstLast.Comma(Unfoundnames, 'FROM')
+  # #Get member names
+  # Unfoundnames <- getFirstLast.Comma(Unfoundnames, 'FROM')
   
   #Rejoin data
   data %<>%
