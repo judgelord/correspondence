@@ -3,10 +3,11 @@
 
 # 2000+ non matches, but most shouldn't be matching. 
 
-# file.name <- "DHHS_SAMHSA " # for testing
+# file.name <- "DHHS_SAMHSA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -27,7 +28,10 @@ clean <- function(file.name) {
   # create variable for full name
   
   #data$FROM <- data$X3
-  data <- getFirstLast.Comma(data, "FROM")
+  
+  data <- extractMemberName(data, members, 'FROM')
+  
+  #data <- getFirstLast.Comma(data, "FROM")
   
   
   
