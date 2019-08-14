@@ -23,7 +23,6 @@ clean <- function(file.name) {
   
   #data <- getFirstLast.Comma(data, 'FROM')
   
-  #extractmembernames is quite a bit slower than getFirstLast
   data <- extractMemberName(data, members, 'FROM')
   
   

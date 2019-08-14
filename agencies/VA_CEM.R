@@ -5,7 +5,8 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   data %<>% 
     mutate(DATE = `Date Received`,
@@ -44,10 +45,6 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
-  #sample <- data %>%
-  #filter(is.na(first_name))  
-  #View(sample) 
-  ## code for testing
   
   return(data)
 }

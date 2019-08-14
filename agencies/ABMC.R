@@ -25,12 +25,16 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Typo  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Menendez", "Menendez, Robert"))
+  
   
   data <- extractMemberName(data, members, 'FROM')
   
-   # sample <- data %>%
-   # filter(is.na(last_name))
-   # View(sample)
+    sample <- data %>%
+    filter(is.na(last_name))
+    View(sample)
 
   
   # arrange columns for hand coding

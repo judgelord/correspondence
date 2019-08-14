@@ -3,11 +3,12 @@
 
 # Complete. All matched. 
 
-#file.name <- "DHS_ICE" # for testing
+# file.name <- "DHS_ICE" # for testing
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # ID variable
   data$ID <- c(1:nrow(data))
@@ -36,22 +37,26 @@ clean <- function(file.name) {
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
   
   
-  # NAMES 
-  # create two different datasets for different name formats
-  data1 <- filter(data, is.na(FROM))
-  data2 <- filter(data, !is.na(FROM))
+  # # NAMES 
+  # # create two different datasets for different name formats
+  # data1 <- filter(data, is.na(FROM))
+  # data2 <- filter(data, !is.na(FROM))
+  # 
+  # data1 %<>% 
+  #   mutate(FROM = ifelse(is.na(`Member/Committee (HOR)`) & is.na(FROM),  
+  #                        `Member/Committee (Senate)`, 
+  #                        `Member/Committee (HOR)`) ) 
   
-  data1 %<>% 
-    mutate(FROM = ifelse(is.na(`Member/Committee (HOR)`) & is.na(FROM),  
-                         `Member/Committee (Senate)`, 
-                         `Member/Committee (HOR)`) ) 
+  # data %<>% 
+  #   mutate(FROM = ifelse(is.na(FROM))),
+  #   na
   
   # create variable for first and last name
-  data1 %<>% getFirstLast.Comma("FROM")
+  #data1 %<>% getFirstLast.Comma("FROM")
   
-  data2 %<>% extractMemberName(members, "FROM")
+  data %<>% extractMemberName(members, "FROM")
   
-  data <- full_join(data2, data1)
+  #data <- full_join(data2, data1)
   
   
 

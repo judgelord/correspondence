@@ -5,7 +5,8 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -50,6 +51,7 @@ clean <- function(file.name) {
   data$last_name <- formatLastName(data, 'FROM')
   
   #data <- extractMemberName(data, members, 'FROM')
+  
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name,
                               gsub("(^\\w+) .*", replacement = "\\1", last_name )))

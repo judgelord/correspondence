@@ -24,21 +24,24 @@ cleanFROMcolumn <- function(FROM){
   FROM <- trimws(FROM)
   
   # fix misplaced commas
-  FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
+  #FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
   
-  # trim down extra spaces
-  #FROM <- gsub(" +", " ", FROM) # extra spaces
+  FROM <- gsub(" ,| , |,", ", ", FROM)
   
   #remove specials
   #FROM <- gsub("[[:punct:]]", "", FROM)
   
   # remove 
-  FROM <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", FROM)
+  FROM <- gsub(pattern = " Jr.| Jr| III| II| Ii| IV| ll| Jr,| Jr,", "", FROM)
+ 
   FROM <- gsub("(^ |^  |^   |\n)", "", FROM)
   FROM <- gsub("(REP|SEN)(\\.|- | - |\\. )|(^S(-| ))|Congressman|Congresswoman|Sen\\.|(^(R|C)(-| ))|Rep |Sen ", "", FROM)
   
+  # trim down extra spaces
+  FROM <- gsub(" +", " ", FROM) # extra spaces
+  
   # replace with comma
-  FROM <- gsub(pattern = ", CPA,|, M.D.|, M.D.,|, MD,|, M.C.,|, III,|, P.E.,|, P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
+  FROM <- gsub(pattern = " CPA,| M.D.| M.D.,| MD,| M.C.,| P.E.,| P.E.| Ii,| \\(Il\\),Rep\\.| \\(Il\\),Sen\\.",
                replacement = ",", FROM)
   
   # replace with "U.S."
@@ -47,6 +50,9 @@ cleanFROMcolumn <- function(FROM){
   # remove periods
   FROM <- gsub(pattern= "\\.\\.", replacement = " ", FROM) 
   FROM <- gsub(pattern= "\\.", replacement = " ", FROM) 
+  
+  #removing double commas
+  FROM <- gsub(" ,,| ,, |,,|, ,", ", ", FROM)
 
   # replace spaces with a single space
   FROM <- gsub(" +", " ", FROM) # extra spaces
