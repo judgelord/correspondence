@@ -8,6 +8,7 @@
 #file.name <- "Treasury_Fiscal" ##for testing 13 June 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
  #Create ID 
@@ -27,6 +28,7 @@ data %<>%
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   #checking for dates that are NA
+  
   NOdate <- data %>%
     filter(is.na(DATE))
   
