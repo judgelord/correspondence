@@ -1,10 +1,11 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "NIGC" # for testing
+# file.name <- "NIGC Fatima" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   
   # Make ID column. No duplicated or multi-member letters cases found
@@ -101,7 +102,7 @@ clean <- function(file.name) {
 
   
   # arrange columns for hand coding
-  data %<>% select(DATE, FROM, SUBJECT, everything())
+  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   return(data)
 }
