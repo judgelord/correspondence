@@ -2,9 +2,10 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "DOL_MSHA" # for testing
+# file.name <- "DOL_MSHA" # for testing
  
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # Remove NA rows
@@ -73,7 +74,9 @@ clean <- function(file.name) {
   data$FROM <- ocr.errors(data$FROM)
   
   # get names 
-  data <- getFirstLast.Comma(data, 'FROM')
+  # data <- getFirstLast.Comma(data, 'FROM')
+  
+  data <-  extractMemberName(data,members,"FROM") 
   
   # create separate dataset with for names with only last name
   data2 <- data[grepl("^\\w+$", data$FROM),]
@@ -99,8 +102,7 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
   
-  #
-  # 
+  
   # data%<>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
@@ -108,8 +110,8 @@ clean <- function(file.name) {
   #   mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "98% SURE THESE SUBJECTS REPRESENT CERTAIN PEOPLE WORKING FOR THE COMPANIES AND NOT THE COMPANIES THEMSELVES, BUT CAN'T SAY WITH ABSOLUTE CERTAINTY", NOTES)) %>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONCERNING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONCERNING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  # 
-  # 
+  
+  
   
 return(data)  
   
