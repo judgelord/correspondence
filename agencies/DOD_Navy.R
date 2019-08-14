@@ -3,19 +3,16 @@
 
 # file.name <- "DOD_Navy Delaney" # for testing
 
-
 clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() # get data
-  
-  # Remove NA Observations
-  data <- data[!is.na(data$FROM),]
   
   # create agency column
   data$agency <- file.name
   
   
   # Format date, year, Congress, member name etc.
+  data$DATEoriginal <- data$DATE
   data$DATE %<>% as.Date("%m/%d/%y")
   
   #create year and congress columns
@@ -28,25 +25,56 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
   
-  data$FROM <- gsub("--", " ", data$FROM)
+  # clean up from column
+  data$FROM %<>% str_remove_all("-")
+  data$FROM %<>% cleanFROMcolumn()
+  
+  # split multiple members separated by a / (there are only a few, and some subject content is in the FROM column, to correct by hand)
+  data %<>% 
+    mutate(FROM = str_split(FROM, "/")) %>% 
+    unnest(FROM)
   
   # create variable for first and last name
-  #data <- getFirstLast.Comma(data, "FROM")
-  
-  #getFirstLast runs better than extractMemberName
-  
-  data <- extractMemberName(data, members, 'FROM')
-  
-  
   data %<>%
-    mutate(last_name = ifelse(grepl('^(\\w+)$',FROM2), FROM, last_name))
+    # if there is only one word in FROM, format it as a last name
+    mutate(last_name = ifelse(grepl('^(\\w+)$',FROM), FROM, NA)) 
   
-  data$first_name <- addFirst(data$first_name,data$last_name)
+  data$last_name <- formatLastName(data, "last_name")
+  
+  data$last_name %<>% 
+    str_replace("STOPLIGHT MCCAIN SERGEANT", "MCCAIN") %>% 
+    str_remove("REP |SEN |Sen |Rep ") 
+  
+  # add a first name
+  data$first_name <- NA
+  data$first_name <- addFirst(data$first_name, data$last_name)
+  
+  # for these observations, replace FROM with the combined first and last
+  data %<>% 
+    mutate(FROM = ifelse(!is.na(first_name), paste(first_name, last_name), FROM)) %>% 
+    # drop these first and last columns to get new ones from extractMemberName
+    select(-first_name, -last_name)
+  
+
+  # specific corrections
+  data$FROM %<>% 
+    str_replace("BORDALLO,LEINE", "BORDALLO, LEINE") %>%
+    str_replace("SENSENBRENNER, F JAMES", "SENSENBRENNER, JAMES")
+    
+    
+  
+  data %<>% extractMemberName(members, 'FROM')
+  
   
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
+  
+  bad_dates <- data %>% 
+    filter(is.na(DATE)) %>% 
+    select(FROM, string, DATEoriginal)
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
