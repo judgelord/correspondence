@@ -2,10 +2,11 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "FCC Devin" # for testing
+# file.name <- "FCC Devin" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
 
   # create ID variable
   #colnames(data)[colnames(data) == 'X1'] <- 'ID'
