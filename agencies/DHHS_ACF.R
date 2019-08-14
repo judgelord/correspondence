@@ -48,6 +48,16 @@ clean <- function(file.name) {
   # create variable for full name
   #data <- getFirstLast.Comma(data, "FROM")
   
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Gillibrand. Kirsten E.", "Gillibrand, Kirsten E.")) %>%
+    mutate(FROM = str_replace(FROM, "Butterfield, G. K.", "Butterfield, George")) %>%
+    mutate(FROM = str_replace(FROM, "BONO Mack, MARY", "Bono, Mary")) %>%
+    mutate(FROM = str_replace(FROM, "Ros-Lehtinen, lleana", "ROS-LEHTINEN, Ileana"))
+    
+ 
+    
+  
   #Change from getFirstLast to extractMemberName
   data <- extractMemberName(data, members, 'FROM')
   
