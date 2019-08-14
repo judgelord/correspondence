@@ -26,7 +26,7 @@ cleanFROMcolumn <- function(FROM){
   # fix misplaced commas
   #FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
   
-  FROM <- gsub(" ,| , ", ", ", FROM)
+  FROM <- gsub(" ,| , |,", ", ", FROM)
   
   
   
