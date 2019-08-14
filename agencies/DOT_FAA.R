@@ -75,7 +75,10 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Young, C\\.W Bill|Young, C W Bill|Young, CW Bill", "Charles YOUNG")) %>%
     mutate(FROM = str_replace(FROM, "McKinley, P\\.E\\., David B", "David McKINLEY")) %>%
     mutate(FROM = str_replace(FROM, "Gosar, D\\.D\\.S\\., Paul A", "Paul GOSAR")) %>%
-    mutate(FROM = str_replace(FROM, "Conaway, K Michael", "Kenneth CONAWAY"))
+    mutate(FROM = str_replace(FROM, "Conaway, K Michael", "Kenneth CONAWAY")) %<>%
+    mutate(FROM = str_replace(FROM, "Johnson, Timothy V", "Timothy V JOHNSON")) %<>%
+    mutate(FROM = str_replace(FROM, "Rogers, Mike D\\/AL U.S House of Representatives", "Mike Dennis ROGERS \\/AL U.S House of Representatives")) %>%
+    mutate(FROM = str_replace(FROM, "Brownley, Julie", "Julia BROWNLEY"))
   
   #Name Typo
   data %<>%
@@ -107,16 +110,18 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor"), "Non voting member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Local Government"), "State Politician", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Local Government|Governor"), "State Politician", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Beasley, James E\\."), "Non member", ERROR))
 
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
   
-  data %>%
-    filter(ID == 11915) %>%
-    select(FROM)
+data %>%
+    filter(ID == 841) %>%
+  select(FROM)
     
 
   return(data)
