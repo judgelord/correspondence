@@ -3,10 +3,11 @@
 
 # Completed Matching on last_name
 
-#file.name <- "DHHS_ACL" # for testing
+# file.name <- "DHHS_ACL" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   #create ID variable 
   data$ID <- c(1:nrow(data))
@@ -17,6 +18,13 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%y")
   
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Lujan Grishman", "Michelle Lujan Grishman"))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -53,6 +61,12 @@ clean <- function(file.name) {
   data %<>%
     mutate(state = gsub(".*\\((\\w{2})\\).*", "\\1", data$FROM))
   data$state <- stateFromLower(data$state)
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           is.na(NOTES))  
     
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
