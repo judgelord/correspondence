@@ -403,7 +403,8 @@ typos_first <- tribble(
   "Christopher", "Murphy", "Chistopher",
   "Elijah", "Cummings", "Eluah",
   "Michael", "Conaway", "K. Michael",
-  "Jon", "Tester", "John"
+  "Jon", "Tester", "John",
+  "Lisa", "Murkowski", "Usa"
  
 
  
