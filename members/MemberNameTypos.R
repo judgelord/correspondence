@@ -332,7 +332,6 @@ typos_first <- tribble(
   "Filemon", "Vela", "Filimon",
   "Artur", "Davis", "Arthur",
   "Patrick", "Leahy", "Ted",
-  "Mary", "Bono", "Mack",
   "Harry", "Reid", "Marry",
   "Anna", "Eshoo", "(Ana|Anna A.)",
   "Darrell", "Issa", "(Darryl|Daryl|Darrel|Darel)",
@@ -404,7 +403,7 @@ typos_first <- tribble(
   "Elijah", "Cummings", "Eluah",
   "Michael", "Conaway", "K. Michael",
   "Jon", "Tester", "John",
-  "Lisa", "Murkowski", "Usa"
+  "Lisa", "Murkowski", "Usa",
  
 
  
