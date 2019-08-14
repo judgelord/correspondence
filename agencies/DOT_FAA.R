@@ -84,7 +84,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Hastert, J Dennis", "John Dennis HASTERT")) %>%
     mutate(FROM = str_replace(FROM, "Larsen, John", "John LARSON")) %>%
     mutate(FROM = str_replace(FROM, "Lieu, Ted W", "Ted LIEU")) %>%
-    mutate(FROM = str_replace(FROM, "Ferguson IV, A Drew|Ferguson, IV, A Drew", "Drew FERGUSON"))
+    mutate(FROM = str_replace(FROM, "Ferguson IV, A Drew|Ferguson, IV, A Drew", "Drew FERGUSON")) %>%
+    mutate(FROM = str_replace(FROM, "Amodel, Mark", "Mark AMODEI"))
   
   #Name Typo
   data %<>%
@@ -116,9 +117,9 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Fortuno, Luis|Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor"), "Non voting member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Local Government|Governor"), "State Politician", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor"), "State Politician", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Baker, Mark|Robinson, Russell E Aviation Industry|Beasley, James E\\."), "Non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Beasley, James E\\."), "Non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c("110"), "Not yet in congress", ERROR))
 
   #Failing observations
@@ -127,7 +128,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
 data %>%
-    filter(ID == 11613) %>%
+    filter(ID == 1776) %>%
   select(FROM)
     
 
