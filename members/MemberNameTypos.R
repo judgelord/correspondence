@@ -4,7 +4,7 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
-  "ThuneJohn", "Thune, John",
+  "Thune, John", "ThuneJohn",
   "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
@@ -18,7 +18,6 @@ typos_clear <- tribble(
   "Jeffrey", "Jeflrey",
   "Barbara", "(Babara|Barabara)",
   "Velazquez", "Vel.zquez",
-  "Timothy", "T.mothy",
   "MacArthur","(Mcarthur|Mccarthur)", # there is no McArthur in members file
   "Martin","Martrin", 
   "VISCLOSKY", ".isclosky",
