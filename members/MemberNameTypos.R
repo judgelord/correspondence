@@ -279,7 +279,8 @@ typos_last <- tribble(
   "Jerry", "McNERNEY", "McNemey",
   "Michael", "Bennet", "Bennett",
   "John", "Conyers", "Conyer",
-  "Kay", "Hagan", "Hagen"
+  "Kay", "Hagan", "Hagen",
+  "Ed", "Whitfield", "Whitefield"
   
  
   
@@ -404,6 +405,7 @@ typos_first <- tribble(
   "Michael", "Conaway", "K. Michael",
   "Jon", "Tester", "John",
   "Lisa", "Murkowski", "Usa",
+  "Donald", "MCEACHIN", "McEachin, A.Donald" 
  
 
  
