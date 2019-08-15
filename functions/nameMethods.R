@@ -40,14 +40,18 @@ cleanFROMcolumn <- function(FROM){
                replacement = ",", FROM)
 
  
-  FROM <- gsub("\n", "", FROM)
+  FROM <- gsub("\n", " ", FROM)
   
-  # Replace titles
+  # remove extra white space inside strings again
+  FROM <- str_squish(FROM)
+  
+  # Delete titles that appear after a commma
+  FROM <- gsub(", (SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", ", ", FROM)
+  FROM <- gsub(", (REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )|Congressman|Congresswoman", ", ", FROM)
+  
+  # Replace titles at the beginning of a string or not after a comma 
   FROM <- gsub("(^| )(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", "Senator ", FROM)
-  FROM <- gsub("(^| )(REP|Rep)( |- | - |\\. |\\.)|Congressman|Congresswoman", "Representative ", FROM)
-  # delete R- and C- preface because it is not unique enough? 
-  FROM <- gsub("^(R|C)(-| )", "", FROM)
-  
+  FROM <- gsub("(^| )(REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )|Congressman|Congresswoman", "Representative ", FROM)
   
   # trim down extra spaces
   FROM <- str_squish(FROM)
@@ -750,15 +754,17 @@ extractNamesPerCongress <- function(congress_i, data, members){
     base::message(red(paste(
       paste0("Bad dates in ", unique(data$agency), "?"),
       paste(data %>% 
-      group_by(string) %>% 
-      mutate(DATE = paste0(unique(DATE), collapse = ", "),
-             ID = paste0(unique(ID), collapse = ", ") ) %>%
-      count(DATE, ID, string) %>% 
-      arrange(-n) %>% 
-      ungroup() %>% 
-      transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE, ", ID = ", ID)) %>% 
-      .$strings, 
-      collapse = "\n"), sep = "\n")))
+              filter(string != "" & string != "na" & !is.na(string)) %>% 
+              group_by(string) %>% 
+              mutate(DATE = paste0(unique(DATE), collapse = ", "),
+                     ID = paste0(unique(LetterID), collapse = ", ") ) %>%
+              count(DATE, ID, string) %>% 
+              arrange(-n) %>% 
+              ungroup() %>% 
+              transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE, ", ID = ", ID)) %>%
+              .$strings,
+            collapse = "\n"), 
+      sep = "\n")))
     
     data %<>% 
       mutate(pattern = "Date out of range", 
