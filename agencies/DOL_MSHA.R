@@ -12,14 +12,15 @@ clean <- function(file.name) {
   data <- data[!is.na(data$FROM)&!is.na(data$DATE),]
   
   
-  # create ID variable
-  data$ID <- c(1:nrow(data)) 
+  # create Letter ID variable
+  data$LetterID <- 1:nrow(data)
   
   # # create agency column
   data$agency <- file.name
-  # 
+  
+  data$DATEoriginal <- data$DATE
   # # Format date, year, Congress, member name etc. 
-  data$DATE <-  as.Date(data$DATE, "%m/%d/%Y")
+  data$DATE %<>% multidate(c("%m/%d/%Y", "%m/%d/%y"))
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
@@ -77,6 +78,9 @@ clean <- function(file.name) {
   # data <- getFirstLast.Comma(data, 'FROM')
   
   data <-  extractMemberName(data,members,"FROM") 
+  
+  # create ID variable
+  data$ID <- 1:nrow(data)
   
   # create separate dataset with for names with only last name
   data2 <- data[grepl("^\\w+$", data$FROM),]
