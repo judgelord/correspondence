@@ -32,9 +32,9 @@ clean <- function(file.name) {
   
   data <- extractMemberName(data, members, 'FROM')
   
-    sample <- data %>%
-    filter(is.na(last_name))
-    View(sample)
+    # sample <- data %>%
+    # filter(is.na(last_name))
+    # View(sample)
 
   
   # arrange columns for hand coding

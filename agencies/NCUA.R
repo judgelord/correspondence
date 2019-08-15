@@ -30,15 +30,6 @@ clean <- function(file.name) {
   # create first and last name variables
   data <- extractMemberName(data, members, 'FROM')
   
-  #data <- getFirstLast.Comma(data2, 'FROM')
-   
-  data %<>%
-    mutate(first_name = ifelse(data$last_name %in% members$last_name, data$first_name  , data2$first_name  )) %>% 
-    mutate(last_name = ifelse(data$last_name %in% members$last_name, data$last_name , data2$last_name))
- 
-  data %<>%
-    mutate(last_name = ifelse(grepl("^\\w+$", FROM), formatLastName(data, 'FROM'), last_name))
-  
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
