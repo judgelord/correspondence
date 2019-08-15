@@ -43,10 +43,10 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub("\n", "", FROM)
   
   # Replace titles
-  FROM <- gsub("(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )|", "Senator", FROM)
-  FROM <- gsub("(REP|Rep)( |- | - |\\. |\\.)|Congressman|Congresswoman", "Representative", FROM)
+  FROM <- gsub("(^| )(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", "Senator ", FROM)
+  FROM <- gsub("(^| )(REP|Rep)( |- | - |\\. |\\.)|Congressman|Congresswoman", "Representative ", FROM)
   # delete R- and C- preface because it is not unique enough? 
-  FROM <- gsub("^(R|C)(-| )", "")
+  FROM <- gsub("^(R|C)(-| )", "", FROM)
   
   
   # trim down extra spaces
@@ -802,6 +802,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
   
   # Add ID if missing 
   if(! "ID" %in% names(data)){data$ID <- 1:nrow(data)}
+  if(! "Letter ID" %in% names(data)){data$ID <- 1:nrow(data)}
   
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)

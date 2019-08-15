@@ -185,7 +185,7 @@ d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 # merge with voteview data to initiate d (unfiltered data)
 d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
-  select(ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+  select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
   distinct()
@@ -305,13 +305,18 @@ d %<>%
 # date typos 
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
-  filter(year > 2019 | year < 1999) %>% 
-  filter(!(year < 1999 & agency == "DOE_FERC")) %>% 
+  filter(!is.na(FROM) & FROM != "") %>% 
+  filter(year > 2019 | year < 1999 | pattern == "Date out of range") %>% 
+  filter(!(year < 1999 & agency == "DOE_FERC")) %>% # FERC data extend befor 2000
   arrange(DATE) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
+  select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 
-# select  timeframe
-d %<>% filter(year < 2019 & year > 1999)
+
+d %<>% 
+  # drop obs out of timeframe
+  filter(year < 2019 & year > 1999) %>% 
+  # drop bad dates (dates where the member did not serve)
+  filter(DATE != "Date out of range")
 
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
