@@ -34,6 +34,10 @@ data %<>%
   NOdate <- data %>%
     filter(is.na(DATE))
   
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "McEachin, A.Donald", "MCEACHIN, Aston Donald"))
+  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
@@ -47,6 +51,10 @@ data %<>%
   #change from getfirstlast to extractmembername
   
   data <- extractMemberName(data, members, 'FROM')
+  
+  #ERRORS
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Whitehouse, The|Christensen, Donna M.C.|Pierluisi, Pedro R.|Sablan, Gregorio Kilili Camacho|Plaskett, Stacey|Gonzalez-Colon, Jenniffer|MATT HUTCHINSON|CAROLYN PRICE|MATT HUTCHISON"), "Not Member", ERROR))
   
   #Failing observations
   Unfoundnames <- data %>%
