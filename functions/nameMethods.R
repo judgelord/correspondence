@@ -43,10 +43,10 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub("\n", "", FROM)
   
   # Replace titles
-  FROM <- gsub("(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )|", "Senator", FROM)
-  FROM <- gsub("(REP|Rep)( |- | - |\\. |\\.)|Congressman|Congresswoman", "Representative", FROM)
+  FROM <- gsub("(^| )(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", "Senator", FROM)
+  FROM <- gsub("(^| )(REP|Rep)( |- | - |\\. |\\.)|Congressman|Congresswoman", "Representative", FROM)
   # delete R- and C- preface because it is not unique enough? 
-  FROM <- gsub("^(R|C)(-| )", "")
+  FROM <- gsub("^(R|C)(-| )", "", FROM)
   
   
   # trim down extra spaces
