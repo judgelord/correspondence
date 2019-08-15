@@ -4,6 +4,7 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
+  "ThuneJohn", "Thune, John",
   "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
