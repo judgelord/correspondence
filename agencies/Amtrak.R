@@ -9,7 +9,8 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
   # create ID variable
-  data$ID <- c(1:nrow(data))
+  data$LetterID <- 1:nrow(data)
+  
   #create agency column
   data$agency <- file.name 
   
@@ -46,6 +47,8 @@ clean <- function(file.name) {
   data <- data[-grep("^\\d", data$FROM),]
   ###     ###     ###
   
+  # create ID variable
+  data$ID <- 1:nrow(data)
   
   # create variable for first and last name
   data$last_name <- formatLastName(data, 'FROM')
