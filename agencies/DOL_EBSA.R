@@ -21,6 +21,14 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Butterfield, G.K.", "BUTTERFIELD, George Kenneth, Jr. (G.K.)")) %>%
+    mutate(FROM = str_replace(FROM, "Sensenbrenner, Jr., F. James", "SENSENBRENNER, Frank James, Jr.")) %>%
+    mutate(FROM = str_replace(FROM, "Bono Mack, Mary", "BONO, Mary")) %>%
+    mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "YOUNG, Charles William (Bill)")) %>%
+    mutate(FROM = str_replace(FROM, "Johnson (Il), Rep. Timothy", "JOHNSON, Timothy Peter (Tim)")) 
+  
   #data <- getFirstLast.Comma(data, 'FROM')
   
   data <- extractMemberName(data, members, 'FROM')

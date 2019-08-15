@@ -81,12 +81,12 @@ clean <- function(file.name) {
   # create first and last name variables
   data %<>% extractMemberName(members, 'FROM')
   
-  #Format last name and put in last_name  
+  #Format last name and put in last_name
   data %<>%
     mutate(FROM = str_trim(FROM)) %>%
     mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
-  
-  #Add first name 
+
+  #Add first name
   data %<>%
     mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
