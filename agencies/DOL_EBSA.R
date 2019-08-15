@@ -27,7 +27,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Sensenbrenner, Jr., F. James", "SENSENBRENNER, Frank James, Jr.")) %>%
     mutate(FROM = str_replace(FROM, "Bono Mack, Mary", "BONO, Mary")) %>%
     mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "YOUNG, Charles William (Bill)")) %>%
-    mutate(FROM = str_replace(FROM, "Johnson (Il), Rep. Timothy", "JOHNSON, Timothy V.")) 
+    mutate(FROM = str_replace(FROM, "Johnson \\(Il\\), Rep. Timothy", "JOHNSON, Timothy V.")) 
   
   #data <- getFirstLast.Comma(data, 'FROM')
   
