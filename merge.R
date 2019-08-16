@@ -156,7 +156,7 @@ data_list <- tribble(
 # USPS
 "USPS", "not coded", NA,
 "VA_CEM", "not coded", NA,
-"VA", "coded", "Rochelle"
+"VA", "coded", "Rochelle" # no data before 2008
 )
 data_list
 
@@ -820,5 +820,7 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 # counts per agency - check if this matches google sheet 
 look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
 
+# Check that FERC data is complete:
+df %>% filter(agency == "DOE_FERC") %>% count(year)
 
 data_complete()

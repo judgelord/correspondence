@@ -38,6 +38,10 @@ data %<>% mutate(N = ifelse(is.na(N), 0, N))
 data %<>% ungroup() %>%
   bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total")))
 
+data %<>% 
+  rename(`Components FOIAed` = Components,
+         `Records received` = Records)
+
 write.csv(data, file = "data/_FOIA_response_table.csv")
 
 # library(stargazer)
