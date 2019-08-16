@@ -15,6 +15,10 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE %<>% multidate( c("%m/%d/%y","%Y-%m-%d"))
   
   data %<>%
