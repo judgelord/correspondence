@@ -823,4 +823,7 @@ look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agen
 # Check that FERC data is complete:
 df %>% filter(agency == "DOE_FERC") %>% count(year)
 
+# If everything looks good, update data summary table 
+# source("agencies/_FOIA_response_table.R")
+
 data_complete()

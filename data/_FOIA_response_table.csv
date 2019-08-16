@@ -1,18 +1,18 @@
-"","Department","Components","Records","Coded","N"
+"","Department","Components FOIAed","Records received","Coded","N"
 "1","Department of Agriculture",29,29,11,9641
-"2","Department of Commerce",18,18,10,8510
+"2","Department of Commerce",19,18,10,8510
 "3","Department of Defense",49,10,7,8005
 "4","Department of Education",1,1,1,3973
 "5","Department of Energy",8,2,1,6119
 "6","Department of Health and Human Services",15,8,5,29195
-"7","Department of Homeland Security",6,5,5,35183
+"7","Department of Homeland Security",14,12,12,35183
 "8","Department of Housing and Urban Development",2,1,1,31852
-"9","Department of Justice",11,1,1,2379
-"10","Department of Labor",24,11,7,51836
+"9","Department of Justice",23,3,2,2379
+"10","Department of Labor",22,11,7,51836
 "11","Department of State",1,0,0,0
-"12","Department of the Interior",10,6,5,5731
-"13","Department of the Treasury",8,5,5,12785
+"12","Department of the Interior",11,7,6,5731
+"13","Department of the Treasury",7,5,5,12785
 "14","Department of Transportation",10,6,6,20497
-"15","Department of Veterans Affairs",4,3,2,76295
-"16","Independent Agencies",49,35,25,81817
-"17","Total",245,141,92,383818
+"15","Department of Veterans Affairs",6,3,2,76295
+"16","Independent Agencies",77,39,26,81823
+"17","Total",294,155,102,383824

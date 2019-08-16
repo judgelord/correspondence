@@ -98,6 +98,20 @@ df %>%
 # DOC_MBDA
 ```  
 
+High priority agencies for coding:
+```{r coding priorities}
+df %>% 
+  filter(!is.na(SUBJECT), complete) %>% 
+  group_by(agency) %>%
+  mutate(types = paste(TYPE, collapse = "")) %>%
+  filter(!str_detect(types, "1|2|3|4|5")) %>% 
+  count(agency) %>% 
+  kable()
+```
+
+
+--
+
 All time-series analysis below subsets to agencies with at least ten continous years of coverage (2007-2018).   
 
 ```{r data_by_type, fig.height=4, fig.width=6}
@@ -996,6 +1010,9 @@ When we match committees and departments, we see some larger effects, but not co
 Focusing on committee effects, chair-committee linkages seem stronger in the House than the Senate where non-chair members are also engaged. Committee leadership appears to mean more in the House, where most members do very little. This is especially clear for DHS where House Homeland Security Committee leaders write far more to DHS than other members but a half dozen Senators write more letters to DHS than the Homeland Security Committee Chair.
 
 ```{r committeechiars_barcode_DHS, fig.height=3}
+dcommittees %<>% filter(year > 2006)
+df %<>% filter(year >2006)
+
 Chamber = "House" 
 dcommittees %>% 
   filter(chamber == Chamber, 
