@@ -7,7 +7,9 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read()
+    
+  data$LetterID <- 1:nrow(data)
   
   # duplicate DOC ID rows were all invalid observations (removes 44 rows)
   data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]

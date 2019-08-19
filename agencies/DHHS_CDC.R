@@ -8,15 +8,14 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
+  data <- gs_title(file.name) %>% gs_read()   
   
-  #Create LetterID
-  data %<>%
-    rename(LetterID = ID)
-  
-  #Fix duplication
-  data %<>%
-    select(-c(FolderID, LetterID, Action)) %<>% distinct()
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-c(FolderID, LetterID, Action)) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
  
    data %<>%
     group_by(FROM, SUBJECT, DATE) %>%

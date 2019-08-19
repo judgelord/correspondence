@@ -586,7 +586,10 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     # loop over congresses in data 
     data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members)
     
-    data %<>% select(typos, correct, string, pattern, congress, everything())
+    # New ID since function may split out multiple members if found
+    data$ID <- 1:nrow(data)
+    
+    data %<>% select(LetterID, ID, DATE, congress, string, typos, correct, pattern, everything())
     
     return(data)
 }

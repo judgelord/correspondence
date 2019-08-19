@@ -9,9 +9,13 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  #create ID variable 
-  data$ID <- c(1:nrow(data))
-  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+
   #create agency column
   data$agency <- file.name
   
@@ -24,7 +28,6 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
 ###############    
-  data$LetterID <- 1:nrow(data)
   # Creates duplicate rows for lines with multiple representatives
   data %<>% 
     mutate(FROM = str_split(FROM, " and |;|, Sen(\\.| )|, Rep(\\.| )")) %>% 
