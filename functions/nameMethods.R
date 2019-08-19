@@ -2,7 +2,6 @@
 # This script defines functions for cleaning and extracting names of members of congress
 #' cleanFROMcolumn() preprocesses text to make matching more likely
 #' formatFirstName() and formatLastName()formats names to look like those provided by voteview. These are used by other functions
-#' getFirstLast.Comma() looks for names in the format Last, First only 
 #' extractMemberNames looks for names in many formats
 #' addFirst() adds first names given last names, but only to last names that are unique in congress. This should be used with caution.
 ##########################################################################################################
@@ -550,8 +549,8 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
       # col_name <- "FROM"
   
   # Add ID if missing 
-  if(! "ID" %in% names(data)){data$ID <- 1:nrow(data)}
-  if(! "Letter ID" %in% names(data)){data$LetterID <- 1:nrow(data)}
+  if(!"ID" %in% names(data)){data$ID <- 1:nrow(data)}
+  if(!"LetterID" %in% names(data)){data$LetterID <- 1:nrow(data)}
   
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)

@@ -19,19 +19,18 @@ clean <- function(file.name) {
   #data$DATE %<>% as.Date("%B %d, %Y")
   data$DATE <- multidate(data$DATE, c("%B %d, %Y", "%m/%d/%y"))
 
-  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  
-  
-  ###############    
+###############    
+  data$LetterID <- 1:nrow(data)
   # Creates duplicate rows for lines with multiple representatives
-data %<>% 
-    mutate(FROM = str_split(FROM, " and Rep| and Sen\\.|, Sen\\.| and Sen |, Sen |;|, Rep")) %>% 
+  data %<>% 
+    mutate(FROM = str_split(FROM, " and |;|, Sen(\\.| )|, Rep(\\.| )")) %>% 
     unnest()
   
+  data$ID <- 1:nrow(data)
   
   # create variable for first and last name
   data %<>% extractMemberName(members, "FROM")
@@ -47,16 +46,6 @@ data %<>%
                           "committee",
                           ERROR))
   
-
-  #data$FROM2 <- gsub("^Sen\\.|^Rep\\.|^Reps\\.|Senator", "", data$FROM2)
-  
-  # # create data set of non matching data so extractMemberName() can be called on differently formatted observations
-  # dataNoMatch <- data[which(!data$last_name %in% members$last_name),] 
-  # #colnames(dataNoMatch)[colnames(dataNoMatch) == 'FROM2'] <- 'FROM3'
-  # dataNoMatch <- extractMemberName(dataNoMatch, members, 'FROM2')
-  # data %<>% left_join(dataNoMatch)
-
-  
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
@@ -66,31 +55,21 @@ data %<>%
            is.na(ERROR)) 
   
   data %<>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("BEHALF OF CONSTITUENT|CONSTITUENT CONCERNS|NOMINATION|(6)", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("BEHALF OF CONSTITUENT|CONSTITUENT CONCERNS|NOMINATION|(6)", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("STATE UNIVERSITY|UNIVERSITY OF|UNIVERSITY'S", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("STATE UNIVERSITY|UNIVERSITY OF|UNIVERSITY'S", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("UNIVERSITY OF", SUBJECT, ignore.case = TRUE), "WOULD BE #2 IF ANY OF THESE ARE PRIVATE SCHOOLS, DON'T THINK THEY ARE THOUGH", NOTES)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT APPLICATION.*INC.|HOSPITAL.*INC.", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT APPLICATION.*INC.|HOSPITAL.*INC", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FIRST CHOICE HEALTH CENTERS|FAMILY HEALTHCARE|COLLEGE|HEALTH SERVICES|HEALTH CENTER|MEDICAL CENTER", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FIRST CHOICE HEALTH CENTERS|FAMILY HEALTHCARE|COLLEGE|HEALTH SERVICES|HEALTH CENTER|MEDICAL CENTER", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("FIRST CHOICE HEALTH CENTERS|FAMILY HEALTHCARE|COLLEGE|HEALTH SERVICES|HEALTH CENTER|MEDICAL CENTER", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
-  mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("FIRST CHOICE HEALTH CENTERS", SUBJECT, ignore.case = TRUE), "LIKE 95% SURE THIS IS A NON-PROFIT, BUT COULD NOT FIND DEFINITIVE EVIDENCE", NOTES)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HUDSON HEADWATERS|JEWISH|NEW ACCESS POINTS|MICHIGAN PRIMARY CARE|DECKER|HARLEM UNITED|SUPPORT.*PUBLIC HEALTH|SUPPORT.*REGIONAL|SUPPORT.*COUNTY|WAKEMED|SUPPORT OF.*COMMUNITY|WEST VIRGINIA|COMMUNITY HEALTH CENTER|RURAL HEALTH CARE|NURSE ASSOCIATION|CITY OF|GRANT APPLICATION|FAMILY CARE CENTER", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HUDSON HEADWATERS|JEWISH|NEW ACCESS POINTS|MICHIGAN PRIMARY CARE|DECKER|HARLEM UNITED|SUPPORT.*PUBLIC HEALTH|SUPPORT.*REGIONAL|SUPPORT.*COUNTY|WAKEMED|SUPPORT OF.*COMMUNITY|WEST VIRGINIA|COMMUNITY HEALTH CENTER|RURAL HEALTH CARE|NURSE ASSOCIATION|CITY OF|GRANT APPLICATION|FAMILY CARE CENTER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PROPOSED RULE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PROPOSED RULE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
-  
-  
-  
-  
-  
-  
-  
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("BEHALF OF CONSTITUENT|CONSTITUENT CONCERNS|NOMINATION|(6)", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("BEHALF OF CONSTITUENT|CONSTITUENT CONCERNS|NOMINATION|(6)", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("STATE UNIVERSITY|UNIVERSITY OF|UNIVERSITY'S", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("STATE UNIVERSITY|UNIVERSITY OF|UNIVERSITY'S", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+    mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("UNIVERSITY OF", SUBJECT, ignore.case = TRUE), "WOULD BE #2 IF ANY OF THESE ARE PRIVATE SCHOOLS, DON'T THINK THEY ARE THOUGH", NOTES)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GRANT APPLICATION.*INC.|HOSPITAL.*INC.", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GRANT APPLICATION.*INC.|HOSPITAL.*INC", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FIRST CHOICE HEALTH CENTERS|FAMILY HEALTHCARE|COLLEGE|HEALTH SERVICES|HEALTH CENTER|MEDICAL CENTER", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FIRST CHOICE HEALTH CENTERS|FAMILY HEALTHCARE|COLLEGE|HEALTH SERVICES|HEALTH CENTER|MEDICAL CENTER", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
+    mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("FIRST CHOICE HEALTH CENTERS|FAMILY HEALTHCARE|COLLEGE|HEALTH SERVICES|HEALTH CENTER|MEDICAL CENTER", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+    mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("FIRST CHOICE HEALTH CENTERS", SUBJECT, ignore.case = TRUE), "LIKE 95% SURE THIS IS A NON-PROFIT, BUT COULD NOT FIND DEFINITIVE EVIDENCE", NOTES)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("HUDSON HEADWATERS|JEWISH|NEW ACCESS POINTS|MICHIGAN PRIMARY CARE|DECKER|HARLEM UNITED|SUPPORT.*PUBLIC HEALTH|SUPPORT.*REGIONAL|SUPPORT.*COUNTY|WAKEMED|SUPPORT OF.*COMMUNITY|WEST VIRGINIA|COMMUNITY HEALTH CENTER|RURAL HEALTH CARE|NURSE ASSOCIATION|CITY OF|GRANT APPLICATION|FAMILY CARE CENTER", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HUDSON HEADWATERS|JEWISH|NEW ACCESS POINTS|MICHIGAN PRIMARY CARE|DECKER|HARLEM UNITED|SUPPORT.*PUBLIC HEALTH|SUPPORT.*REGIONAL|SUPPORT.*COUNTY|WAKEMED|SUPPORT OF.*COMMUNITY|WEST VIRGINIA|COMMUNITY HEALTH CENTER|RURAL HEALTH CARE|NURSE ASSOCIATION|CITY OF|GRANT APPLICATION|FAMILY CARE CENTER", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
+    mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PROPOSED RULE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
+    mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PROPOSED RULE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
   return(data)
-  
-  
-  
 }
