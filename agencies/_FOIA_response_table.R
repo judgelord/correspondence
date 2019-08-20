@@ -44,6 +44,11 @@ data %<>%
 
 write.csv(data, file = "data/_FOIA_response_table.csv")
 
-# library(stargazer)
-# stargazer(data,  summary=F, rownames=FALSE)
+n <- tail(data$N, 1)
+
+write(n, file = "data/n")
+
+
+library(stargazer)
+write(stargazer(data,  summary=F, rownames=FALSE), file = "data/_FOIA_response_table.tex")
 

@@ -19,7 +19,7 @@
     \author{Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Associate Professor, Stanford University} \and Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison}}
     \date{\today}
     
-\graphicspath{Figs/}
+\graphicspath{../Figs/}
 
 
 \begin{document}
@@ -177,9 +177,9 @@ The novel and often unanticipated results emerging from data on congressional co
 \section{Data} 
 To examine the relationship between institutional power and constituent service, we assemble a new dataset of legislator-agency contacts covering a wide array of government agencies and broadest time frame to date. We submitted FOIA request for all records of communication from Members of Congress and their staff to all cabinet departments, their component agencies, and 34 independent agencies for the period from 2007-2017.
 
-\paragraph{Response Rates to Our FOIA Requests} As of August 2018, all departments except for the State Department and Department of Veterans' Affairs have provided records, though the majority of records from the Departments of Defense and Energy are still being processed, and the majority of Department of Justice components have either not yet granted our request or claimed that they do not track congressional correspondence (see Table \ref{responserates}). Some components provided records that duplicated records from the Secretary's office, for example in the Department of Agriculture where several such component records were dropped. As for independent agencies, we are waiting on records from the SEC, OPM, MSPB, FTC, FLRA, NSF, NRC, U.S. Export-Import Bank, CPSC, CFPB, CFTC, CIA, and Appalachian Regional Commission. The remaining 21 independent agencies have provided records, though some are still in the process of reviewing and releasing additional records. Of these, 18 have been sufficiently cleaned, coded, and linked with other data source for inclusion in this analysis. The large amount of data yet to be received will allow out-of-sample tests of the present analysis. In all we have filed \input{data/FOIA_requests}, yielding \input{data/n} observations.
+\paragraph{Response Rates to Our FOIA Requests} As of August 2018, all departments except for the State Department and Department of Veterans' Affairs have provided records, though the majority of records from the Departments of Defense and Energy are still being processed, and the majority of Department of Justice components have either not yet granted our request or claimed that they do not track congressional correspondence (see Table \ref{responserates}). Some components provided records that duplicated records from the Secretary's office, for example in the Department of Agriculture where several such component records were dropped. As for independent agencies, we are waiting on records from the SEC, OPM, MSPB, FTC, FLRA, NSF, NRC, U.S. Export-Import Bank, CPSC, CFPB, CFTC, CIA, and Appalachian Regional Commission. The remaining 21 independent agencies have provided records, though some are still in the process of reviewing and releasing additional records. Of these, 18 have been sufficiently cleaned, coded, and linked with other data source for inclusion in this analysis. The large amount of data yet to be received will allow out-of-sample tests of the present analysis. In all we have filed \input{../data/FOIA_requests}\unskip, yielding \input{../data/n}\unskip observations.
 
-\input{data/_FOIA_response_table.csv}
+\input{../data/_FOIA_response_table.tex}
 
 
 % response table
@@ -240,7 +240,7 @@ In our current dataset, the number of contacts per legislator varies from 0 to o
 \begin{figure}[hbt!]
 \centering
 \caption{Distribution Across Types of Congressional Requests 2007-2017} \label{f:fig2}
-\scalebox{0.8}{\includegraphics{data_by_type.pdf}}
+\scalebox{0.8}{\includegraphics{../Figs/data_by_type-1}}
 \end{figure}
 
 
@@ -254,13 +254,13 @@ The number of constituency service requests that legislators write is distribute
 \begin{figure}
 \centering
 \caption{Considerable Across Legislator Variation in Who Contacts Agencies}
-\includegraphics[width = \textwidth]{percentiles-1}
+\includegraphics[width = \textwidth]{../Figs/percentiles-1}
 \end{figure}
 
 \begin{figure}
 \centering
 \caption{Senators from larger states do more constituent service.}
-\includegraphics[width = \textwidth]{population-1}
+\includegraphics[width = \textwidth]{../Figs/population-1}
 \end{figure}
 
 \paragraph{Population} An obvious initial explanation for the differences in the rates legislators contact on behalf of their constituents is the population of a district.  After all, legislators are most likely to contact agencies on behalf of their constituents if they receive some request to make that contact.  Of course, House districts have little variation in population, so differences in the number of constituents cannot explain the variation in their proclivity to contact the bureaucracy.  The Senate, however, shows strong evidence that the number of constituents influences their level of contact.  In fact, in the Senate, an additional million constituents is associated with an additional 0.15 contacts per agency per year.\footnote{While such numbers may seem small, they are substantive large when considering our units of analysis are mostly sub-departmental agencies or components, of which we identified 234. Even by a conservative estimate, one additional contact per agency may translate to an additional 100 contacts per year government-wide. Thus, we estimate that 0.15 additional contacts per agency indicate roughly 15-30 additional contacts per year.} There are two complementary explanations for this difference. First, it could be that senators from more populous states simply receive more requests for constituency service.  Second, it could be that legislators from larger states are able to make use of their larger staff.  Preliminary, our evidence suggests that demand is a significant driver of unequally distributed advocacy. For every additional million constituents, senators initiate an additional 0.09 contacts per year on behalf of constituents, while only policy contacts only increase by 0.005 per year.  
@@ -289,8 +289,8 @@ The number of constituency service requests that legislators write is distribute
 \begin{figure}
 \centering
 \caption{Legislators' Ideology Seems Not to Predict How Often They Contact Federal Agencies}\label{f:fig1}
-\includegraphics[width = 4in]{ideology_density-2}
-\includegraphics[width = 4in]{ideology_density-3}
+\includegraphics[width = 4in]{../Figs/ideology_density-2}
+\includegraphics[width = 4in]{../Figs/ideology_density-3}
 \end{figure}
 
 
@@ -425,7 +425,7 @@ More importantly, looking across many agencies reveals that powerful legislators
 
 \bibliographystyle{chicago-apsr}
 
-\bibliography{congress2018}
+\bibliography{congress2018.bib}
 
 %\newpage
 %\listoftodos[Notes]
