@@ -499,11 +499,11 @@ extractNamesPerCongress <- function(congress_i, data, members){
               filter(nchar(string >2) & !string %in% c("na", "na na", "(b)(6)") & !is.na(string)) %>% 
               group_by(string) %>% 
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
-                     ID = paste0(unique(LetterID), collapse = ", ") ) %>%
-              count(DATE, ID, string) %>% 
+                     row = paste0(unique(LetterID), collapse = ", ") ) %>%
+              count(DATE, row, string) %>% 
               arrange(-n) %>% 
               ungroup() %>% 
-              transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE, ", ID = ", ID)) %>%
+              transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE, ", row ", row)) %>%
               .$strings,
             collapse = "\n"), 
       sep = "\n")))

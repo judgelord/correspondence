@@ -73,6 +73,8 @@ data_list <- tribble(
 "DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "not coded", NA,
 "DOJ_EOIR", "not coded", NA,
+# "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
+# "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
 # DOL 
 "DOL_EBSA", "not coded", NA,
 "DOL_MSHA", "not coded", NA, 
@@ -204,7 +206,7 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
 
-# data_list %<>% filter(!(agency %in% df$agency)) # to add new agencies without updating old ones or restart interrupted merge
+# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 head(data_list)
 
 i <- 1

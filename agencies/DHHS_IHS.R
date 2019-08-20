@@ -27,7 +27,7 @@ clean <- function(file.name) {
   ###############    
   # Creates duplicate rows for lines with multiple representatives
 data %<>% 
-    mutate(str_split(FROM, "/")) %>% 
+    mutate(FROM = str_split(FROM, "/")) %>% 
     unnest(FROM)
   ################
   
