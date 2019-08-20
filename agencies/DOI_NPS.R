@@ -7,7 +7,12 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   #create agency column
   data$agency <- file.name
@@ -23,43 +28,16 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
+  #String Split for Multiple Members
+  data %<>%
+    mutate(FROM = str_split(FROM, ";")) %>%
+    mutate(FROM = str_remove_all(FROM, "MOC ")) %>%
+    unnest(FROM)
   
-  
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
-
-
-  
-  ################ 
-  
-  #  We got better quality data, now ignoring FROM2 col
-  # create variable for last name
-  # data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
-  # data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.", replacement = ",", data$FROM2)
-  # data$last_name <- formatLastName(data, 'FROM2')
-  
-  ################
-  
-  
   data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
   data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
-  
-
-  # names 
-  #data <- getFirstLast.Comma(data, 'FROM')
-  
   
   data <- extractMemberName(data, members, 'FROM')
   

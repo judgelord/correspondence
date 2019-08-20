@@ -50,5 +50,11 @@ write(n, file = "data/n")
 
 
 library(stargazer)
-write(stargazer(data,  summary=F, rownames=FALSE), file = "data/_FOIA_response_table.tex")
+write(stargazer(data,  
+                summary=F, 
+                rownames=FALSE,
+                title="Contacts From Members of Congress to Federal Agencies", 
+                style="apsr",
+                label = "responserates"), 
+      file = "data/_FOIA_response_table.tex")
 

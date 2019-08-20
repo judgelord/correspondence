@@ -4,17 +4,26 @@
 #file.name <- "DOJ_ENRD" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
-  data %<>%
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% 
+    select(-LetterID) %>%     
     group_by(SUBJECT, DATE, FROM) %>%
     mutate(n = n(),
            WFs = str_c(WF, collapse = "; ")) %>%
     arrange(-n) %>%
     select(-WF) %>%
-    ungroup() %>%
+    ungroup() %>% 
+    distinct() 
+  
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% 
     distinct()
   
+
   # create LetterID variable
   data$LetterID <- c(1:nrow(data))
   
@@ -64,10 +73,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
+    
+    # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
-  
-  #Create ID
-  data$ID <- c(1:nrow(data))
   
   #Extract Member names
   data %<>%

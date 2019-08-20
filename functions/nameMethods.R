@@ -494,16 +494,16 @@ extractNamesPerCongress <- function(congress_i, data, members){
     #       )))
     
     base::message(red(paste(
-      paste0("Bad dates in ", unique(data$agency), "?"),
+      paste0("Bad dates in ", unique(data$agency), ", ", congress_i, "th congress?"),
       paste(data %>% 
               filter(nchar(string >2) & !string %in% c("na", "na na", "(b)(6)") & !is.na(string)) %>% 
               group_by(string) %>% 
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
-                     row = paste0(unique(LetterID), collapse = ", ") ) %>%
+                     row = paste0(unique(LetterID), collapse = ";") ) %>%
               count(DATE, row, string) %>% 
               arrange(-n) %>% 
               ungroup() %>% 
-              transmute(strings = paste0("\"", string, "\" x ", n, ", DATE = ", DATE, ", row ", row)) %>%
+              transmute(strings = paste0("row ", row, ", DATE = ", DATE, " \"", string, "\"")) %>%
               .$strings,
             collapse = "\n"), 
       sep = "\n")))
