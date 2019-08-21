@@ -7,8 +7,14 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -22,22 +28,9 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("&|/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "&|/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "&|/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("&|/", data$FROM),] # removes orginal row with all data
-  ################
-  
-  
-  
-  #data <- getFirstLast.Comma(data, 'FROM')
+  data %<>% 
+    mutate(FROM = str_split(FROM, "/|&")) %>% 
+    unnest(FROM)
   
   data <- extractMemberName(data, members, 'FROM')
   
@@ -55,6 +48,4 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
   
   return(data)
-  
-  
 }

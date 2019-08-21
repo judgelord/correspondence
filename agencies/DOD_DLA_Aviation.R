@@ -34,14 +34,7 @@ clean <- function(file.name) {
   
   # create first and last name variables
   data <- extractMemberName(data,members,'FROM')
-  
-  #specific correction
-  # data %<>%
-  #   mutate(last_name = ifelse(LetterID == 31, NA, last_name)) %>%
-  #   mutate(first_name = ifelse(LetterID == 31, NA, first_name)) %>%
-  #   mutate(chamber = ifelse(LetterID == 31, NA, chamber))
-   
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   

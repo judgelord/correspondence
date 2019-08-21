@@ -5,10 +5,14 @@
  
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read()  
   
-  #create ID variable
-  data$ID <- c(1:nrow(data))
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -40,25 +44,8 @@ clean <- function(file.name) {
   mutate(FROM = str_split(FROM, ";")) %>%
   unnest(FROM)
   
-  ################
-  
-  data$ID <- c(1:nrow(data))
-  
-  #chamber typos
-  # data %<>%
-  #   mutate(FROM = ifelse(str_detect(FROM, "Flake, Jeff\\.|Flake, Jeff") & congress %in% c("114|115"), str_replace(FROM, "Flake, Jeff\\. \\\n \\\n R\\/AZ \\\n \\\n U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. Congressman|Flake, Jeff\\.   U\\.S\\. House of Representatives|Flake, Jeff\\.  Congressman  U\\.S\\. House of Representatives|Flake, Jeff\\. R\\/AZ U\\.S\\. House of Representatives|Flake, Jeff Congressman U\\.S House of Representatives|Flake, Jeff\\. Congressman U\\.S\\. House of Representatives|Flake, Jeff\\. U\\.S\\. House of Representatives", "Flake, Jeff United States Senate"), FROM)) %>%
-  #   mutate(FROM = ifelse(str_detect(FROM, "Heinrich, Martin T Congressman U\\.S House of Representatives") & congress %in% c("113"), str_replace(FROM, "Heinrich, Martin T Congressman U\\.S House of Representatives", "Heinrich, Martin \\. D/NM United States Senate"), FROM)) %>%
-  #   mutate(FROM = ifelse(str_detect(FROM, "Gardner, Cory R/CO United States Senate") & congress %in% c("113"), str_replace(FROM, "Gardner, Cory\\. R\\/CO United States Senate", "Gardner, Cory \\/CO House of Representatives"), FROM))
-  # 
-  #Create variable for chamber position  (Senator or Representative)
-  # data %<>%
-  #   mutate(chamber = ifelse (str_detect(FROM, "Senator|Senate"), "Senate", NA)) %>% 
-  #   mutate(chamber = ifelse(str_detect(FROM, "Representative"), "House", chamber)) %>% 
-  #   mutate(chamber = ifelse(str_detect(assigned, "Representative"), "House", chamber)) %>% 
-  #   mutate(chamber = ifelse(str_detect(assigned, "Senate"), "Senate", chamber)) 
-  
-  
-  #Format Typo
+ 
+  #Format Typos
   data %<>%
     mutate(FROM = str_replace_all(FROM, " ,", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, " , ", ", ")) %>%
@@ -66,7 +53,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace_all(FROM, ",, ", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, "\\. ", " "))
   
-  #Name Format Typo
+  #Name Format Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Sensenbrenner, F James|Sensenbrenner,, F James|Sensenbrenner,  F James", "Frank SENSENBRENNER")) %>%
     mutate(FROM = str_replace(FROM, "FrR\\/AZ anks, Trent\\.|FrR\\/AZ  anks, Trent\\.", "Trent FRANKS \\/AZ")) %>%
@@ -87,16 +74,11 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Ferguson IV, A Drew|Ferguson, IV, A Drew", "Drew FERGUSON")) %>%
     mutate(FROM = str_replace(FROM, "Amodel, Mark", "Mark AMODEI"))
   
-  #Name Typo
+  #Name Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Ros-Lehtinen, Heana", "leana ROS-LEHTINEN")) %>%
     mutate(FROM = str_replace(FROM, "Buschon, Larry", "Larry BUCSHON"))
     
-    
-  # data <- getFirstLast.Comma(data, 'FROM')
-  
-  ##extractmemberName takes longer and is worse than getFirstLast
-  ## IS THIS TRUE ????
   
   data %<>% extractMemberName(members, 'FROM')
   
@@ -120,17 +102,12 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor"), "State Politician", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Beasley, James E\\."), "Non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c("110"), "Not yet in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c(110), "Not yet in congress", ERROR))
 
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
-  
-data %>%
-    filter(ID == 1776) %>%
-  select(FROM)
-    
 
   return(data)
 }

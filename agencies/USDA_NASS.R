@@ -14,8 +14,13 @@ clean <- function(file.name){
   # create agency column 
   data$agency <- file.name
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
   data$DATE %<>% as.Date("%m/%d/%Y")
@@ -52,18 +57,10 @@ data$FROM <- gsub(", 2nd District Hawaii","",data$FROM)
 
 ###############    
 # Creates duplicate rows for lines with multiple representatives
-for(i in 1:nrow(data)){
-  if(grepl(",", data$FROM[i])) {
-    
-    new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-    new$FROM <- unlist(str_split(data$FROM[i], ","))
-    
-    data <- rbind(data, new)
-    
-  }
-}
-data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-################
+data %<>% 
+  mutate(FROM = str_split(FROM, ",")) %>% 
+  unnest(FROM)
+
 
 # create variable  for first and last name
 data <- extractMemberName(data, members, 'FROM')

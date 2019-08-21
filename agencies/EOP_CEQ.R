@@ -4,17 +4,19 @@
 #file.name <- "EOP_CEQ" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
-  #Create LetterID  
-  data %<>%
-    mutate(LetterID = row_number())
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   #create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc.
-
   data$DATE %<>% as.Date("%d-%b-%y")
   
   #create year and congress columns
@@ -37,10 +39,6 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "\\,| and|\\/|\\&")) %>%
     unnest(FROM)
   
-  #Create ID  
-  data %<>%
-    mutate(ID = row_number())
-  
   #chamber
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "Member of Congress|Congressman"),
@@ -53,11 +51,12 @@ data %<>%
 
 #Trim White Space
 data %<>%
-  mutate(FROM = str_trim(FROM))
+  mutate(FROM = str_squish(FROM))
 
 #Chamber errors
+# FIXME # SHOULD BE CONGRESS SPECIFIC 
 data %<>%
-  mutate(chamber = ifelse(str_detect(FROM, "Capps|Welch"), str_replace(chamber, "Senate", "House"), chamber))
+  mutate(chamber = ifelse(str_detect(FROM, "Capps|Welch"), "House", chamber))
 
 #Name Typos
 data %<>%

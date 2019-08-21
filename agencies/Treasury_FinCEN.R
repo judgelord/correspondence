@@ -5,7 +5,14 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct()# get data
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   #create agency column
   data$agency <- file.name
@@ -61,11 +68,6 @@ clean <- function(file.name) {
     ungroup() %>%
     distinct()
   
-  #Create LetterID
-  data %<>%
-    mutate(LetterID = row_number())
-  
-  
   #Filter out headings
   data %<>%
     filter( ! Summary == "Summary")
@@ -87,10 +89,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse(str_detect(Summary, "Congressman|Rep.|Con. |con. |cong |congs |cong. |rep| congressman  | Congresswoman |House |house |CONGRESSMAN |Congressmen |Representative|Representative "), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(Summary, "Sen |Sen.|Senators"), "Senate", chamber))
-  
-  #ID
-  data %<>%
-    mutate(ID = row_number())
+
   
   #Recode to match chamber_last
   data %<>%

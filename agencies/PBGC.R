@@ -8,11 +8,17 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
+  # ARE WE SURE WE WANT TO DELETE ALL OF THESE?
   data <- data[-which(is.na(data$LNAME)),]
   data <- data[-which(data$LNAME == "LNAME"),]
-  
-  # create ID variable
-  data$ID <- c(1:nrow(data)) 
   
   # create Subject variable
  # data$SUBJECT <- data$SUMMARY
@@ -30,7 +36,7 @@ clean <- function(file.name) {
   
   
   # create variable for full name
-  data$FROM <- paste(data$FNAME, data$LNAME, sep = " ")
+  data$FROM <- paste(data$FNAME, data$LNAME)
   data <- extractMemberName(data, members, 'FROM')
   
   

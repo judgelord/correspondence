@@ -7,6 +7,9 @@
 
 clean <- function(file.name) {
   
+  # get data from google drive 
+  data <- gs_title(file.name) %>% gs_read() 
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -32,9 +35,9 @@ clean <- function(file.name) {
   #String Split for Multiple Members
   data %<>%
     mutate(FROM = str_split(FROM, ";")) %>%
-    mutate(FROM = str_remove_all(FROM, "MOC ")) %>%
-    unnest(FROM)
+    unnest(FROM) 
   
+  data %<>% mutate(FROM = str_remove_all(FROM, "MOC "))
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
   data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
   data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors

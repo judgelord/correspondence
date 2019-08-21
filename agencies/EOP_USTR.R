@@ -5,47 +5,29 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  data <- gs_title(file.name) 
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
-  names(data)[names(data) == 'Date Received'] <- 'DATE'
-  names(data)[names(data) == 'Source'] <- 'FROM'
-  names(data)[names(data) == 'Title'] <- 'SUBJECT'
-  names(data)[names(data) == 'Signature(s)'] <- 'FROM'
+  data %<>% 
+    mutate(DATE = 'Date Received',
+           FROM = 'Source',
+           SUBJECT = paste(Title, 'Signature(s)'))
   
-  i <- 1
+  # create agency column
+  data$agency <- file.name 
   
-  # for (i in 1:nrow(data)) {
-  #   print(i)
-  #   
-  #   if(grepl("^[A-Z]", data$DATE[i])) {
-  #       
-  #     data$FROM[i-1] <- paste( c(data$FROM[i-1]), ";", data$DATE[i], collapse = " ") 
-  #     data <- data[-i,]
-  #     i <- i-1
-  #     } else{
-  #         
-  #   }
-  #   
-  #   
-  #   
-  # }
-  # 
+  # Format date, year, Congress
+  data$DATE %<>% as.Date() # FIXME
+  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
+  data <- extractMemberName(data, members, 'FROM')
   
-  # # create ID variable
-  # data$ID <- c(1:nrow(data))
-  # #create agency column
-  # data$agency <- file.name 
-  # 
-  # # Format date, year, Congress
-  # data$DATE %<>% as.Date("%m/%d/%Y")
-  # data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
-  # data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-  # 
-  # 
-  # data <- extractMemberName(data, members, 'FROM')
-  # 
-  # 
-  # # arrange columns for hand coding
-  # data %<>% select(ID, DATE,  FROM,  everything())
+  data %<>% select(ID, DATE,  FROM,  everything())
 }

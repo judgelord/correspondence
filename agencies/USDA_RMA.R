@@ -7,8 +7,13 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   
   #create agency column
   data$agency <- file.name
@@ -47,33 +52,18 @@ clean <- function(file.name) {
   
   ###     ###     ###
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(",", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ","))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(",", data$FROM),] # removes original row with all data
-  data <- data[-grep("/", data$FROM),] # removes original row with all data
-  ###     ###     ###
+  data %<>% 
+    mutate(FROM = str_split(FROM, ",")) %>% 
+    unnest(FROM)
   
-  data$FROM <- (gsub("& 12 Senators","",data$FROM)) # remove +
-  data <- data[-grep("Senators", data$FROM),]
+  data %<>% 
+    mutate(FROM = str_split(FROM, "/")) %>% 
+    unnest(FROM)
   
+  data %<>% 
+    mutate(NOTES = ifelese(str_detect(FROM, "& [0-9]+ Senators"),"FOIA", NOTES),
+           ERROR = ifelese(str_detect(FROM, "& [0-9]+ Senators"),"multiple", ERROR)) 
+
   # # Give first names to A. Green and G. Green
   # data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)
   # data$FROM <- gsub("G. Green", "Green", data$FROM)
@@ -84,7 +74,7 @@ clean <- function(file.name) {
   data$last_name <- formatLastName(data, 'FROM')
   
   #extractmembername captures same amount of observations but is less efficient
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())

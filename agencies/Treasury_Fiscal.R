@@ -11,9 +11,15 @@ clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() # get data
   
- #Create ID 
-data %<>% 
-    mutate(ID = row_number())
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
  
   #Create FROM column 
   data$FROM <- paste(data$AUTHOR.FIRST.NAME, data$AUTHOR.LAST.NAME, sep = " ")

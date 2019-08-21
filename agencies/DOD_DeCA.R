@@ -8,6 +8,7 @@
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # LetterID = sheet row number
@@ -16,8 +17,6 @@ clean <- function(file.name) {
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
-  
-  data$ID <- c(1:nrow(data))
   
   #remove unwanted rows
   data <- data[-which(-is.na(data$FROM)& is.na(data$'CNTL NO')),]
@@ -34,9 +33,11 @@ clean <- function(file.name) {
   # create variable for  last name
   data$last_name <- formatLastName(data, 'FROM')
   
+  # add first
+  data$first_name = NA
+  data$first_name = addFirst(data$first_name, data$last_name)
   
-  
-  #data <- extractMemberName(data, members, 'FROM') 
+  data <- extractMemberName(data, members, 'FROM') 
   
   #Failing observations
   Unfoundnames <- data %>%
@@ -45,13 +46,6 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
-  
-  
-  
-  
+
   return(data)  
-  
-  
-  
-  
 }

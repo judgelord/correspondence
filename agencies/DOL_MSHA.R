@@ -6,14 +6,14 @@
  
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
-  # Remove NA rows
-  data <- data[!is.na(data$FROM)&!is.na(data$DATE),]
-  
-  
-  # create Letter ID variable
+  # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # # create agency column
   data$agency <- file.name
@@ -28,65 +28,20 @@ clean <- function(file.name) {
   data %<>% mutate(FROM = ifelse(grepl("^69",data$FROM), data$Organization, data$FROM))
   
   
-  
-  
-  # ###############    
-  # # Creates duplicate rows for lines with multiple representatives
-  # for(i in 1:nrow(data)){
-  #   if(grepl(";|&| and |/", data$FROM[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|&| and |/") + 1))
-  #     new$FROM <- unlist(str_split(data$FROM[i], ";|&| and |/"))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep(";|&| and |/", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  # data <- data[!data$FROM == "",] # removes blank observations
-  # 
-  # ################
-  # 
-  # # create variable for full name
+  data %<>% 
+    mutate(FROM = str_split(FROM, "/|;|&")) %>% 
+    unnest(FROM)
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senat", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong|\\(Song.\\)|Congressman", FROM), "House", chamber)) 
   
-  
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/|;|&", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/|;|&") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/|;|&"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/|;|&", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  ########
-  
-  data$FROM <- ocr.errors(data$FROM)
-  
-  # get names 
-  # data <- getFirstLast.Comma(data, 'FROM')
-  
-  data <-  extractMemberName(data,members,"FROM") 
-  
-  # create ID variable
-  data$ID <- 1:nrow(data)
-  
   # create separate dataset with for names with only last name
   data2 <- data[grepl("^\\w+$", data$FROM),]
   # remove these observations from the original
   data <- data[!grepl("^\\w+$", data$FROM),]
-
+  
   # Format last_name column in dataset 2 
   data2$last_name <- data2$FROM
   data2$last_name <- formatLastName(data2, 'last_name')
@@ -96,6 +51,10 @@ clean <- function(file.name) {
   
   # merge the two separated datasets
   data <- full_join(data,data2)
+  
+  data <-  extractMemberName(data,members,"FROM") 
+
+
   
   #Failing observations
   Unfoundnames <- data %>%

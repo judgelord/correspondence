@@ -8,6 +8,15 @@ clean <- function(file.name){
   # get data from google drive 
   data <- gs_title(file.name) %>% gs_read() 
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
+  
   # create agency column 
   data$agency <- file.name
   
@@ -76,11 +85,6 @@ sample2data %<>%
   mutate(n = n(),
          last_name = str_c(last_name, collapse = "; ")) %>%
   distinct()
-
-
-data %>%
-  filter(ID == 6397183) %>%
-  select(FROM)
 
 
 #Membership Errors

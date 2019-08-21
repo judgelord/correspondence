@@ -8,10 +8,15 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
   
-  # # Remove 69 NA rows
-  # data %<>% filter(!(is.na(data$FROM)&is.na(data$DATE)&is.na(data$SUBJECT)))
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
 
   #create agency column
   data$agency <- file.name
@@ -33,9 +38,6 @@ clean <- function(file.name) {
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
 
   # create variable for first and last name
-  #data <- getFirstLast.Comma(data, 'FROM')
-  
-
   data <- extractMemberName(data, members, 'FROM')
   
   # arrange columns for hand coding

@@ -8,8 +8,13 @@ clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  #create ID variable
-  data$ID <- c(1:nrow(data))
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -23,20 +28,10 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";| and ", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";| and ") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";| and "))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";| and ", data$FROM),] # removes orginal row with all data
-  ################
-  
-
+  data %<>% 
+    mutate(FROM = str_split(FROM, ";| and ")) %>% 
+    unnest(FROM)
+ 
  # Add Errors for non members
   data %<>% mutate(ERROR = ifelse(grepl("Congressional Research Service",FROM), "Congressional Research Service",ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Senate Agriculture Appropriations Subcommittee Majority Staff",FROM), "Senate Agriculture Appropriations Subcommittee Majority Staff",ERROR)) %>% 

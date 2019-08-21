@@ -6,16 +6,16 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
-  
-  # create LetterID variable
-  data$LetterID <- c(1:nrow(data))
+  data <- gs_title(file.name) %>% gs_read()   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
-  
-  # Format date, year, Congress, member name etc. 
-  #data$DATE %<>% as.Date("%m/%d/%Y")
   
   # Format date, year, Congress, member name etc.
   data$DATE <- gsub("/201", "/1", data$DATE) 
@@ -51,13 +51,9 @@ clean <- function(file.name) {
   
   #Trim White Space
   data %<>%
-    mutate(FROM = str_trim(FROM))
+    mutate(FROM = str_squish(FROM))
 
-  
-  # create ID variable
-  data$ID <- c(1:nrow(data))
-  
-  #Delete extra space
+  #Delete extra commas
   data %<>%
     mutate(FROM = str_replace(FROM, " , | ,", ", "))
   
@@ -130,14 +126,6 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Dicks, Norm") & congress == 111, str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Davis, Tom \\(Chairman\\)") & congress == 109, "House", chamber))
     
-  
-  data %>%
-    filter(LetterID == 2463) %>%
-    select(FROM)
-  
-  # extract member names
-  #data %<>%
-   # getFirstLast.Comma("FROM")
   
   data <- extractMemberName(data, members, 'FROM')
   

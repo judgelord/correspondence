@@ -9,10 +9,14 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -26,31 +30,13 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";|&|/| and ", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|&|/| and ") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";|&|/| and "))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";|&|/| and ", data$FROM),] # removes orginal row with all data
-  ################
+  data %<>% 
+    mutate(FROM = str_split(FROM, ";|&|/| and ")) %>% 
+    unnest(FROM)
   
-  
-  data$FROM <- gsub("  |   |    ", " ", data$FROM)
-  data$FROM <- gsub("^ | $", "", data$FROM)
-
-    
   data %<>%
-    # mutate(last_name = ifelse(grepl("^\\w+$",FROM), formatLastName(data, 'FROM'), last_name)) %>%     # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
-    # mutate(last_name = ifelse(grepl("^(\\w) (\\w+)$", first_last),gsub("^(\\w) (\\w+)$", '\\2', first_last), last_name)) %>%  # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
-    mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
+       mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
   
-  #data <- getFirstLast.Comma(data, 'FROM')
-
   
   data <- extractMemberName(data, members, 'FROM')
   

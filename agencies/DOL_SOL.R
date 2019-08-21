@@ -6,9 +6,14 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
-  names(data)[names(data) == 'SIMS ID'] <- 'LetterID'
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   
    #create agency column
@@ -60,11 +65,6 @@ data %<>%
 #Removes the word "and" from the variable FROM
 data %<>%
   mutate(FROM = str_remove(FROM, " and|;")) 
-
-#Create ID
-data %<>%
-  mutate(ID = row_number())
-
 
 #Replaces "." with "," where they separate a first from a last name
 data %<>%
@@ -173,7 +173,7 @@ data$FROM %<>%
 
 #extractMemberName
 
-data <- extractMemberName(data, members, 'FROM')
+data %<>% extractMemberName(members, 'FROM')
 
 
 

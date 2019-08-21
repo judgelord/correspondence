@@ -6,13 +6,13 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
-  
-  #rename ID column and remove duplicated observations
-  colnames(data)[colnames(data) == 'SIMS ID'] <- 'ID'
-  data <- data[!duplicated(data[,c('ID')]),]  
-  
-  
+  data <- gs_title(file.name) %>% gs_read()   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -26,26 +26,10 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";|&| and |/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|&| and |/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";|&| and |/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";|&| and |/", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[-grep(" other", data$FROM, ignore.case = TRUE),] 
-  ################
-  
-  
-  #data <- getFirstLast.Comma(data, 'FROM')
-  
-  #getFirstLast works better than extractMemberName
+  data %<>%
+    mutate(FROM = str_split(FROM, ";|&| and |/")) %>% 
+    unnest(FROM)
+
   
   data <- extractMemberName(data, members, 'FROM')
   

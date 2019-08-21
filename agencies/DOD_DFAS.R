@@ -32,8 +32,6 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Representative", FROM, ignore.case = TRUE), "House", chamber)) 
 
   
-  # create variable for first and last name
-  #data <- getFirstLast.Comma(data, "FROM")
   
   data <- extractMemberName(data, members, 'FROM')
   

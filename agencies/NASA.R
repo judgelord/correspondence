@@ -7,6 +7,14 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   # format DATE to multiple formats
   data$DATE <- multidate(data$DATE, c("%d-%b-%y", "%b %d,%Y"))
    
@@ -14,9 +22,6 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  # create LetterID variable
-  data$LetterID <- c(1:nrow(data))
-  
   #create agency column
   data$agency <- file.name
 
@@ -45,9 +50,6 @@ clean <- function(file.name) {
   # chamber
   data$chamber <- ifelse(data$chamber == "HOUSE", 'House', data$chamber)
   data$chamber <- ifelse(data$chamber == "SENATE", "Senate", data$chamber)
-  
-  #Create ID variable
-  data$ID <- c(1:nrow(data))
   
   # preprocess
   data %<>%
@@ -81,9 +83,6 @@ clean <- function(file.name) {
     mutate(FROM = ifelse(FROM == "LUJ��N GRISHAM", str_replace(FROM,"LUJ��N GRISHAM", "Michelle LUJAN"), FROM))
   #mutate(FROM = ifelse(FROM == "Representative COBURN", ))
   
-  data %>%
-    filter(ID == 695) %>%
-    select(FROM)
   
   #Chamber errors
   data %<>%

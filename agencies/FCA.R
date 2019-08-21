@@ -11,12 +11,16 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
   # only SUBJECT contains useful data
   data %<>% select(FROM, SUBJECT, DATE, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% distinct() 
-  
-  # create ID variable
-  data$ID <- c(1:nrow(data))
-  
   
   #create agency column
   data$agency <- file.name 

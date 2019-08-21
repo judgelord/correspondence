@@ -5,12 +5,15 @@
 
 clean <- function(file.name) {
   
-  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  data <- gs_title(file.name) %>% gs_read() 
   
-  
-  # Make ID column. No duplicated or multi-member letters cases found
-  data %<>% 
-    rowid_to_column("ID")
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+
   
   # Rename to standard column names 
   data %<>% 
