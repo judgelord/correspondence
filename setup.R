@@ -25,7 +25,7 @@
     scale_fill_viridis_d(...)
   library(magrittr)
   library(googlesheets)
-  # modified gs_read function to assume char type
+  # modified gs_read function to assume char typ
   gs_read_chr <- function(title){
     data <- gs_read(title, 
                     FROM = col_character(), 
