@@ -479,19 +479,6 @@ extractNamesPerCongress <- function(congress_i, data, members){
     
     top5 <- nrow(data)
     if(top5>5){top5<-5}
-    # 
-    # base::message(red(str_c("BAD DATES? ",
-    #                         unique(data$agency), # delete for R package
-    #                         " data$DATE = ", # delete for R package
-    #                         paste(unique(data$DATE), collapse =";"), # delete for R package
-    #             "\n n = ", nrow(data), " (", length(unique(data$string)), " distinct).\n",
-    #             "Most common strings: \"", 
-    #             str_c(count(data, string) %>% 
-    #                     top_n(top5, n) %>% 
-    #                     .[1:top5,1], 
-    #                   collapse = "\", \""), 
-    #             "\""
-    #       )))
     
     base::message(red(paste(
       paste0("Bad dates in ", unique(data$agency), ", ", congress_i, "th congress?"),
@@ -501,6 +488,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
                      row = paste0(unique(LetterID), collapse = ";") ) %>%
               count(DATE, row, string) %>% 
+              arrange(row) %>% 
               arrange(-n) %>% 
               ungroup() %>% 
               transmute(strings = paste0("row ", row, ", DATE = ", DATE, " \"", string, "\"")) %>%
@@ -593,3 +581,4 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     
     return(data)
 }
+
