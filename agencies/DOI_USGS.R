@@ -27,15 +27,14 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  
-  data$FROM <- data$'Last Name'
+  data$first_name <- NA
+  data$last_name <- toupper(data$'Last Name')
+  data$first_name %<>% addFirst(data$last_name)
+  data$FROM <- paste(data$Salutation, data$first_name, data$last_name) %>% 
+    str_replace(" NA ", " ")
 
-  # create variable for last name
-  data$last_name <- formatLastName(data, 'FROM')
   
-  #formatLast_name works better than extractmembername
-  
-  #data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
