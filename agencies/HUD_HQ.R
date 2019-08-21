@@ -19,7 +19,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
-  data$DATE <-  as.Date(data$'Date on Correspondence', "%m/%d/%Y")
+  data$DATE <-  as.Date(data$`Date on Correspondence`, "%m/%d/%Y")
   
   
   #create year and congress columns

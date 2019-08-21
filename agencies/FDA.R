@@ -19,6 +19,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
+  data$DATE %<>% str_squish()
   data$DATE  <- gsub(" .*", "", data$DATE)
   
   data$DATE <- gsub("/201", "/1", data$DATE) 

@@ -36,34 +36,24 @@ clean <- function(file.name) {
   
   ##     ###     ###
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  data <- data[-grep("--",data$FROM),]
-  data <- data[-grep("^\\d", data$FROM),]
-  ###     ###     ###
-  
-  # create ID variable
-  data$ID <- 1:nrow(data)
+ data %<>% 
+   mutate(FROM = str_split(FROM, "/")) %>% 
+   unnest(FROM)
   
   # create variable for first and last name
   data$last_name <- formatLastName(data, 'FROM')
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data$first_name <- NA
+  data$first_name %<>% addFirst(data$last_name)
   
-  data %<>%
-    mutate(last_name = ifelse(last_name %in% members$last_name, last_name,
-                              gsub("(^\\w+) .*", replacement = "\\1", last_name )))
+  data %<>% 
+    mutate(FROM = paste(chamber, first_name, last_name) %>% 
+             str_replace("NA", " ") %>% 
+             str_replace("Senate", "Senator") %>% 
+             str_replace("House", "Representative") )
   
-  
+  data <- extractMemberName(data, members, 'FROM')
+
   data$state <- stateFromLower(data$State)
   
   

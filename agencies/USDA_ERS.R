@@ -23,7 +23,7 @@ clean <- function(file.name){
 
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
-  data %<>% mutate(DATE = 'Date on Letter')
+  data %<>% mutate(DATE = `Date on Letter`)
   data$DATE %<>% as.Date("%m/%d/%Y")
 
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
@@ -38,24 +38,26 @@ clean <- function(file.name){
   
   
   
+  # REPLACING WITH EXTRACTMEMBERNAME()
+  # 
+  # # create variable for first name
+  # data %<>%
+  #   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
+  #   mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
+  #   mutate(first_name =  ifelse(grepl("Butch", first_name), "C.L. 'Butch'", first_name)) %>% 
+  #   mutate(first_name = stri_trans_totitle(first_name))
+  # 
+  # 
+  # # create variable for last name
+  # data %<>%
+  #   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
+  #   mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
+  #   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
+  #   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))
+  # data$last_name <- formatLastName(data, "last_name")
+  # 
   
-  
-  # create variable for first name
-  data %<>%
-    mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-    mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
-    mutate(first_name =  ifelse(grepl("Butch", first_name), "C.L. 'Butch'", first_name)) %>% 
-    mutate(first_name = stri_trans_totitle(first_name))
-  
-  
-  # create variable for last name
-  data %<>%
-    mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
-    mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
-    mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-    mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))
-  data$last_name <- formatLastName(data, "last_name")
-  
+  data %<>% extractMemberName(members, "FROM")
   
   #Create variable for chamber (Senator or Representative)
   data %<>%
@@ -170,10 +172,7 @@ clean <- function(file.name){
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("GOVERNMENT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
     mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("GOVERNMENT", SUBJECT, ignore.case = TRUE), "2", CERTAINTY))
   
-  
-  
-  # arrange columns for further hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+
   
   return(data)
 }

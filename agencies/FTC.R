@@ -32,7 +32,6 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  data %<>% select(ID, DATE, FROM, everything())  
 
   #No chamber variable in script because chambers may be wrong
   
@@ -65,6 +64,7 @@ clean <- function(file.name) {
   
 
   data %<>% extractMemberName(members, "FROM")
+
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Duncan Hunter") & is.na(last_name) & ! str_detect(congress, "110"), "Wrong Duncan, Duplicate", ERROR))
