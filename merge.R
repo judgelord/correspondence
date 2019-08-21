@@ -80,6 +80,7 @@ data_list <- tribble(
 "DOL_MSHA", "not coded", NA, 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
+# "DOL_OALJ", "not coded", NA,
 "DOL_OSHA", "not coded", NA,
 "DOL_OWCP", "not coded", NA,
 "DOL_SOL", "not coded", NA, 
