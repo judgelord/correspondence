@@ -16,8 +16,13 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%y")
+  
+  # Format date, year, Congress, member name etc.
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
   
   #checking for NA dates
   NOdate <- data %>%
