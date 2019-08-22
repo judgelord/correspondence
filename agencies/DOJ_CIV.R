@@ -1,9 +1,10 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
- #file.name <- "DOJ_CIV" # for testing
+ # file.name <- "DOJ_CIV" # for testing
  
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read()  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
@@ -17,6 +18,10 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%y")
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
 
   
   #create year and congress columns
@@ -33,9 +38,6 @@ clean <- function(file.name) {
   data$FROM <- paste(data$First.Name, data$Last.Name)
   data <- extractMemberName(data, members, 'FROM')
     
-
-
-
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
