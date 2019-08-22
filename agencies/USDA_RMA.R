@@ -61,8 +61,8 @@ clean <- function(file.name) {
     unnest(FROM)
   
   data %<>% 
-    mutate(NOTES = ifelese(str_detect(FROM, "& [0-9]+ Senators"),"FOIA", NOTES),
-           ERROR = ifelese(str_detect(FROM, "& [0-9]+ Senators"),"multiple", ERROR)) 
+    mutate(NOTES = ifelse(str_detect(FROM, "& [0-9]+ Senators"),"FOIA", NOTES),
+           ERROR = ifelse(str_detect(FROM, "& [0-9]+ Senators"),"multiple", ERROR)) 
 
   # # Give first names to A. Green and G. Green
   # data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)

@@ -40,7 +40,7 @@ clean <- function(file.name) {
   #String Split for Multiple Members
   data %<>%
     mutate(FROM = str_split(FROM, ";")) %>%
-    mutate(FROM = str_remove_all(FROM, "MOC ")) %>%
+    # mutate(FROM = str_remove_all(FROM, "MOC ")) %>%
     unnest(FROM)
   
   data <- extractMemberName(data, members, 'FROM')
