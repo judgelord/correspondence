@@ -8,6 +8,18 @@ clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() 
   
+  data %<>%
+    group_by(SUBJECT, DATE, `Control Number`) %>%
+    mutate(n = n(),
+           FROM = str_c(FROM, collapse = ". ")) %>%
+    ungroup() %>%
+    distinct()
+  
+  #Check Group
+  # data %>%
+  #   filter(`Control Number` == "FHWA-150213-003") %>%
+  #   select(FROM)
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -47,6 +59,10 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("United States Senate|Senate", Organization), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) 
   
+  
+  # data %<>% 
+  #   mutate(FROM = paste(FROM, , sep = " ")) %>%
+  #   select(-FName, -LName)
   
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
