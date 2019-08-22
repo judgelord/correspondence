@@ -19,8 +19,10 @@ clean <- function(file.name) {
 
   #Format Date
   data %<>%
-    mutate(DATE = if_else(is.na(DATE), `Date Inquiry Assigned`, DATE))
+    mutate(DATE = if_else(is.na(DATE) | DATE == "NA", `Date Inquiry Assigned`, DATE))
   data$DATE %<>% as.Date("%Y-%m-%d")
+  
+  
   
   #Check for NA Dates
   NoDATE <- data %>%
