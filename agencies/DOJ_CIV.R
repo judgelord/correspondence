@@ -6,6 +6,7 @@
 clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read()  
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -16,8 +17,11 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE <- data$originalDATE %>% 
+    str_replace("/ */", "/1/") %>%
+    str_replace(" 20", "/20") %>%
+    str_replace("([0-9])20", "\\1/20") %>%
+    multidate(c("%m/%d/%Y", "%m/%d/%y"))
   
   #checking for NA dates
   NOdate <- data %>%
