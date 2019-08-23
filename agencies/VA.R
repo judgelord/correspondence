@@ -26,9 +26,11 @@ clean <- function(file.name) {
   
   
   
-  #Check for NA Dates
+  #Check for NA Dates # FIXME
   NoDATE <- data %>%
     filter(is.na(DATE))
+  
+  data %<>% anti_join(NoDate)
 
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -85,6 +87,11 @@ data %<>%
   data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
   
+  #Paste Chamber into FROM
+  Unfoundnames %<>%
+    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+  
   #Extract Member Names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
@@ -107,10 +114,7 @@ data %<>%
     anti_join(Unfoundnames)
  
  
-  #Paste Chamber into FROM
-  Unfoundnames %<>%
-    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+
   
   #Extract Member Names
   Unfoundnames %<>%
