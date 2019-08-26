@@ -47,6 +47,7 @@ typos_clear <- tribble(
   "KYL, JON", "KYL JON",
   "MCCAIN, JOHN", "MCCAIN JOHN",
   "CANTWELL, MARIA","CANTWELL MARIA",
+  "YOUNG. DON","YOUNG. DON",
 
   
 
@@ -74,7 +75,8 @@ typos_clear <- tribble(
   "Chao, Elaine", "Chao Elaine",
   "Miller, George", "Miller George",
   "Herrera Beutler, Jaime", "Herrera Beutler Jaime",
-  "Conyers, John", "Conyers John"
+  "Conyers, John", "Conyers John",
+  "UDALL, TOM", "UDALL TOM"
   
   
 )
@@ -289,7 +291,8 @@ typos_last <- tribble(
   "John", "Conyers", "Conyer",
   "Kay", "Hagan", "Hagen",
   "Ed", "Whitfield", "Whitefield",
-  "Mary", "Fallin", "FALUN"
+  "Mary", "Fallin", "FALUN",
+  "Tom", "Udall", "UDAU"
   
  
   
