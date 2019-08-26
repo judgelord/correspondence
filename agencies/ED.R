@@ -37,17 +37,21 @@ clean <- function(file.name) {
   data$FROM <- gsub("Mr.|Ms.", "",data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
   
-  #Error for nonmembers
-  data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Sampson, Ann|Christensen, Donna M.|Second Congressional District of Illinois|Coock, Barbara|Norton, Eleanor Holmes|Norton, Eleanor H.|Norton , Eleanor|Young, Nancy W."), "Non members of Congress", ERROR))
+  #data %<>% filter(str_detect(FROM,"Hollen, Chris Van"))
   
   #Fixes name typo
   data$FROM %<>%
-    str_replace("Willia Roger", "Roger Williams") %>%
-    str_replace("Cornyn,TheJohn", "John Cornyn") 
-
+    str_replace_all("Willia Roger", "Roger Williams") %>%
+    str_replace_all("Cornyn,TheJohn", "John Cornyn") %>%
+    str_replace_all("Hollen,  Chris Van", "VAN HOLLEN, Christopher")
+  
+  
   # create variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
+  
+  #Error for nonmembers
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Sampson, Ann|Christensen, Donna M.|Second Congressional District of Illinois|Coock, Barbara|Norton, Eleanor Holmes|Norton, Eleanor H.|Norton , Eleanor|Young, Nancy W."), "Non members of Congress", ERROR))
   
   
     

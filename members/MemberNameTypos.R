@@ -48,6 +48,8 @@ typos_clear <- tribble(
   "MCCAIN, JOHN", "MCCAIN JOHN",
   "CANTWELL, MARIA","CANTWELL MARIA",
   "YOUNG, DON","YOUNG. DON",
+  "Van Hollen, Chris","Hollen, Chris Van",
+  
 
   
 
@@ -138,7 +140,7 @@ typos_last <- tribble(
   "Dutch", "Ruppersberger", "Rupperberger",
   "Carolyn", "Maloney", "Malony",
   "Charles", "Rangel", "Ranger",
-  "Christopher", "Van Hollen", "(VANHOLLEN|Van Kollen|Van Hollen|Van|Hollen|Van)", 
+  "Christopher", "Van Hollen", "(VANHOLLEN|Van Kollen|Hollen)", 
   "Gary", "Ackerman", "Acherman",
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
