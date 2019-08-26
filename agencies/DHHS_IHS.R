@@ -43,7 +43,7 @@ data %<>%
   data$FROM %<>%
     str_replace("YOUNG. DON", "YOUNG, DON") %>%
     str_replace("5IMPSON", "SIMPSON, Michael K.") %>%
-    str_replace("MERKLEY", "MERKLEY, Jeff") %>%
+    str_replace("MERKLEY", "MERKLEY, Jeff") 
     
     
    
