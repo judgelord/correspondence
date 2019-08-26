@@ -30,7 +30,7 @@ clean <- function(file.name) {
   NoDATE <- data %>%
     filter(is.na(DATE))
   
-  data %<>% anti_join(NoDate)
+  data %<>% anti_join(NoDATE)
 
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -88,7 +88,7 @@ data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
   
   #Paste Chamber into FROM
-  Unfoundnames %<>%
+  data %<>%
     mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
   
@@ -96,10 +96,12 @@ data %<>%
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
   
-  #Check for duplicates
-  sample2data<- data
   
-  sample2data %<>%
+  
+  
+  
+  #Check for duplicates
+  sample2data <- data %>%
     group_by(ID, SUBJECT, DATE) %>%
     mutate(n = n(),
            last_name = str_c(last_name, collapse = "; "))
@@ -108,21 +110,6 @@ data %<>%
   Unfoundnames <- data %>%
     filter(is.na(last_name), !is.na(string)) %>%
     select(-last_name, -first_name)
- 
-  #Separate from data 
-  data %<>%
-    anti_join(Unfoundnames)
- 
- 
-
-  
-  #Extract Member Names
-  Unfoundnames %<>%
-    extractMemberName(members = members, col_name = "FROM")
-  
-  #Rejoin data
-  data %<>%
-    full_join(Unfoundnames)
   
   
   #Membership Errors
