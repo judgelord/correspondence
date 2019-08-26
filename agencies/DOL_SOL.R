@@ -25,7 +25,6 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   #checking for Nodates
-  
   NOdate <- data %>%
     filter(is.na(DATE))
 
