@@ -36,14 +36,21 @@ clean <- function(file.name) {
   data$FROM <- gsub("( |^)The( |$)|honorable|Honorable|hon\\.|honora ble|Honorab le|Senator|Name:", "", data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Mr.|Ms.", "",data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
+  
+  #Error for nonmembers
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Sampson, Ann|Christensen, Donna M.|Second Congressional District of Illinois|Coock, Barbara|Norton, Eleanor Holmes|Norton, Eleanor H.|Norton , Eleanor|Young, Nancy W."), "Non members of Congress", ERROR))
+  
+  #Fixes name typo
+  data$FROM %<>%
+    str_replace("Willia Roger", "Roger Williams") %>%
+    str_replace("Cornyn,TheJohn", "John Cornyn") 
 
   # create variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
   
-  #Fixes name typo
-  data$FROM %<>%
-    str_replace("Ada Alma", "ADAMS, Alma")
   
+    
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
   
