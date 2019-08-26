@@ -71,7 +71,7 @@ data %<>%
 
   NonVotingMember <- data$FROM %>%
     str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
-               Christensen, Donna M.|Sablan, Gregorio Kilili Camacho")
+               Christensen, Donna M.|Sablan, Gregorio Kilili Camacho|CAIN, ROBERT")
   #
   
   #Failing observations

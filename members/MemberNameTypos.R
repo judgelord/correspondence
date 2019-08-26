@@ -41,6 +41,13 @@ typos_clear <- tribble(
   "Perlmutter", "Perimutter",
   "Manzullo", "Manzulo",
   "NEUGEBAUER", "BEUGEBAUER",
+  "INHOFE, JAMES", "INHOFEJAMES",
+  "BAUCUS, MAX", "8AUCUS, MAX",
+  "BINGAMAN, JEFF", "BINGAMAN JEFF",
+  "KYL, JON", "KYL JON",
+  "MCCAIN, JOHN", "MCCAIN JOHN",
+
+  
 
   
 
