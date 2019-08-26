@@ -46,6 +46,12 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_remove(FROM, "Sen. |\\)")) %>%
     mutate(FROM = str_remove(FROM, "Rep. |\\)|\\(|Reps |Sen | NJ| CM| CW|Senator |\\(CW\\)|\\(CM\\)|Rep |Sens. |Reps. | NY-19| CM"))
+
+  
+  data %<>% 
+    mutate(FROM = paste(chamber, FROM) %>% 
+             str_replace("Senate", "Senator") %>% 
+             str_replace("House", "Representative"))
   
   #Typos
   #added misspellings of names into nameMethods
@@ -62,59 +68,36 @@ clean <- function(file.name) {
    mutate(FROM = str_replace(FROM, "Bass", "Charlie Bass"))  
  
   
-  data %<>% select(LetterID, DATE, FROM, everything())  
+  
+  data %<>%
+    mutate(FROM = str_squish(FROM))
+  
 
   #Extract Member names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
   
   #Remove Blank Spaces
-  data %<>% filter(!FROM == "")
+  data %<>% mutate(ERROR = ifelse(FROM == "", "blank", ERROR))
   
   #ERRORS Not members
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Gov |Gov.|Mayor"), "State Politician", ERROR))
   
-  #Filter while working
-  #data %<>%
-   # filter( ! str_detect(FROM, "Gov |Gov.|Mayor"))
-  
-  
-  data %<>%
-    mutate(FROM = str_trim(FROM))
+
   
   #Filter for stil unnamed
   Unfoundnames <- data %>%
     filter(is.na(last_name) & str_detect(FROM, " ") & ! str_detect(FROM, ", "))
   
-  #Split data
-  data %<>%
-    anti_join(Unfoundnames)   
-  
-  #Format Last First with comma
-  Unfoundnames %<>%
-    mutate(FROM = str_replace(FROM, " ", ", "))
-  
-  # #Get member names
-  # Unfoundnames <- getFirstLast.Comma(Unfoundnames, 'FROM')
-  
-  #Rejoin data
-  data %<>%
-    full_join(Unfoundnames)
-  
   #Create ID
   data %<>%
     mutate(ID = row_number())
       
-  #Format last name and put in last_name  
-  data %<>%
-    mutate(last_name = ifelse(! str_detect(FROM, "\\,|\\.| ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
   
-  #Add first name 
-  data %<>%
-    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
- 
+  
+  
  #Notes for multiple unnamed members 
   data %<>%
     mutate(NOTES = ifelse(str_detect(Title, "Multi"), "Multiple unnamed members", NOTES))
