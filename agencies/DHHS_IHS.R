@@ -51,7 +51,7 @@ data %<>%
     
     
   
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM')
   
   
   #Membership Errors
@@ -70,9 +70,13 @@ data %<>%
                Brown, Edmund G. Jr.|De Leon, Kevin|Stack, Brian P.|Snyder, Rick")
 
   NonVotingMember <- data$FROM %>%
-    str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
-               Christensen, Donna M.|Sablan, Gregorio Kilili Camacho|CAIN, ROBERT")
-  #
+    str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|Christensen, Donna M.|Sablan, Gregorio Kilili Camacho|CAIN, ROBERT")
+  
+  data %<>% 
+    mutate(ERROR = ifelse(FROM %in% NonVotingMember, "Non-voting member", ERROR)) %>% 
+    mutate(ERROR = ifelse(FROM %in% StatePoliticians, "State Politicians", ERROR)) %>% 
+    mutate(ERROR = ifelse(FROM %in% NonVotingMember, "Non-Member", ERROR))
+
   
   #Failing observations
   Unfoundnames <- data %>%
