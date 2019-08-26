@@ -46,6 +46,7 @@ typos_clear <- tribble(
   "BINGAMAN, JEFF", "BINGAMAN JEFF",
   "KYL, JON", "KYL JON",
   "MCCAIN, JOHN", "MCCAIN JOHN",
+  "CANTWELL, MARIA","CANTWELL MARIA",
 
   
 
@@ -287,7 +288,8 @@ typos_last <- tribble(
   "Michael", "Bennet", "Bennett",
   "John", "Conyers", "Conyer",
   "Kay", "Hagan", "Hagen",
-  "Ed", "Whitfield", "Whitefield"
+  "Ed", "Whitfield", "Whitefield",
+  "Mary", "Fallin", "FALUN"
   
  
   
@@ -412,7 +414,8 @@ typos_first <- tribble(
   "Michael", "Conaway", "K. Michael",
   "Jon", "Tester", "John",
   "Lisa", "Murkowski", "Usa",
-  "Donald", "MCEACHIN", "McEachin, A.Donald" 
+  "Donald", "MCEACHIN", "McEachin, A.Donald",
+  "Byron", "Dorgan", "Bryon"
  
 
  

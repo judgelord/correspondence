@@ -41,7 +41,7 @@ data %<>%
   
   #Fixes name typo
   data$FROM %<>%
-    str_replace("UDALL", "UDALL, TOM") 
+    #str_replace("UDALL", "UDALL, TOM") 
 
     
     
