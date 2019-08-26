@@ -9,7 +9,7 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() 
   
   # LetterID = sheet row number
-  data$LetterID <- 1:nrow(data)
+  data$LetterID <- 2:(nrow(data)+1) 
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
@@ -40,8 +40,13 @@ data %<>%
   
   
   #Fixes name typo
-  #data$FROM %<>%
-    #str_replace("UDALL", "UDALL, TOM") 
+  data$FROM %<>%
+    str_replace("YOUNG. DON", "YOUNG, DON") %>%
+    str_replace("5IMPSON", "SIMPSON, Michael K.") %>%
+    str_replace("MERKLEY", "MERKLEY, Jeff") %>%
+    
+    
+   
 
     
     
