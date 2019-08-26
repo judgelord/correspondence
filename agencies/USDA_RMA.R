@@ -20,32 +20,24 @@ clean <- function(file.name) {
   
  #create column that is converted version of DATE, new column is NEWDATE
   
-  data$NEWDATE <- data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y"))
+  data$DATEoriginal <- data$DATE
   
-  # figuring out class for NEWDATE column
-  # class(data$NEWDATE)
+  data$NEWDATE <- data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y")) %>% as.character()
   
+  data$NEWDATESIGNED <- data$DateSigned %>% multidate(c("%m-%d-%y","%m/%d/%y")) %>% as.character()
   
+  data %<>% 
+    mutate(DATE = ifelse(is.na(NEWDATE), NEWDATESIGNED, NEWDATE))  ##replacing NA dates with date signed
+
   
-  #data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y"))
-  
-  #help(as.Date)
-  
- data %<>% 
-    mutate(DATE = ifelse(is.na(NEWDATE), DateSigned, DATE))  ##replacing NA dates with date signed
-  
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% multidate(c("%m-%d-%y","%m/%d/%y"))  
+  data %<>% 
+    select(DATE, DATEoriginal, NEWDATE, DateSigned, NEWDATESIGNED, everything())
   
 
   #checking for NA dates
   NOdate <- data %>%
     filter(is.na(DATE))
-  
-  
 
-  
-  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
@@ -63,6 +55,18 @@ clean <- function(file.name) {
   data %<>% 
     mutate(NOTES = ifelse(str_detect(FROM, "& [0-9]+ Senators"),"FOIA", NOTES),
            ERROR = ifelse(str_detect(FROM, "& [0-9]+ Senators"),"multiple", ERROR)) 
+  
+  # create variable for last name
+  data$last_name <- formatLastName(data, 'FROM')
+  
+  data$first_name <- NA
+  
+  data$first_name %<>% addFirst(data$last_name)
+  
+  data %<>% 
+    mutate(FROM2 = paste(first_name, last_name) %>%
+             str_remove("^NA ")) %>% 
+    select(-last_name, -first_name)
 
   # # Give first names to A. Green and G. Green
   # data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)
@@ -70,11 +74,9 @@ clean <- function(file.name) {
   # data$first_name <- ifelse(grepl("A.\nGreen", data$FROM), "Alan", data$first_name)
   # data$FROM <- gsub("A.\nGreen", "Green", data$FROM)
   
-  # create variable for last name
-  data$last_name <- formatLastName(data, 'FROM')
-  
+
   #extractmembername captures same amount of observations but is less efficient
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM2')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())

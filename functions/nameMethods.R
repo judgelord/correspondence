@@ -543,7 +543,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
   if(!"ID" %in% names(data)){data$ID <- 1:nrow(data)}
   data$ID %<>% formatC(width=6, flag="0")
   if(!"LetterID" %in% names(data)){data$LetterID <- 1:nrow(data)}
-  data %<>% mutate(LetterID = LetterID + 1)
+  data %<>% mutate(LetterID = as.numeric(LetterID) + 1)
   data$LetterID %<>% formatC(width=6, flag="0")
   
   # Make missing congress explicit 0 so that it will not be dropped 
