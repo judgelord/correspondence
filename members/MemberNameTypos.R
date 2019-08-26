@@ -78,8 +78,9 @@ typos_clear <- tribble(
   "Miller, George", "Miller George",
   "Herrera Beutler, Jaime", "Herrera Beutler Jaime",
   "Conyers, John", "Conyers John",
-  "UDALL, TOM", "UDALL TOM"
-  
+  "UDALL, TOM", "UDALL TOM",
+  "Sensenbrenner, James", "Sensenbrenner James",
+  "Pittenger, Robert", "Pittenger Robert"
   
 )
 
@@ -294,7 +295,8 @@ typos_last <- tribble(
   "Kay", "Hagan", "Hagen",
   "Ed", "Whitfield", "Whitefield",
   "Mary", "Fallin", "FALUN",
-  "Tom", "Udall", "(Uda ll|UDAU)"
+  "Tom", "Udall", "(Uda ll|UDAU)",
+  "Morgan", "Griffith", "Griffiths"
   
  
   

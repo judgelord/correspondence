@@ -33,7 +33,7 @@ clean <- function(file.name) {
   
   
   # preprocess FROM column
-  data$FROM <- gsub("( |^)The( |$)|honorable|Honorable|hon\\.|honora ble|Honorab le|Senator|Name:|Ho norable|Representataive|Honorabel", "", data$FROM, ignore.case = TRUE)
+  data$FROM <- gsub("( |^)The( |$)|honorable|Honorable|Honorabl e|hon\\.|honora ble|Honorab le|Senator|Name:|Ho norable|Representataive|Honorabel", "", data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Mr\\.|Ms\\.|Mr ", "",data$FROM, ignore.case = TRUE)
   data$FROM <- gsub("Wolff", "Wolf", data$FROM)
   
@@ -58,7 +58,13 @@ clean <- function(file.name) {
     str_replace_all("Young,  C.W. Bill", "YOUNG, Charles William (Bill)") %>%
     str_replace_all("Cornyn, Mr John", "Cornyn, John") %>%
     str_replace_all("Barr,TheAndy", "BARR, Garland H. (Andy) IV") %>%
-    str_replace_all("Barr,TheAndy", "BARR, Garland H. (Andy) IV")
+    str_replace_all("Griffiths,  H. Morgan", "GRIFFITH, H. Morgan") %>%
+    str_replace_all("Warner, Hono rable Mark", "WARNER, Mark") %>% 
+    str_replace_all("Graham, Lind sey", "Graham, Lindsey") %>%
+    str_replace_all("Beyer S, Donald,", "BEYER, Donald Sternoff Jr") %>%
+    str_replace_all("Lewis,  Jerry", "LEWIS, Charles Jeremy (Jerry)")
+  
+    
     
   
     
@@ -75,7 +81,7 @@ clean <- function(file.name) {
   
   #Error for nonmembers
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Stebe|Sampson,  Ann|Raad, Jim|Christensen,  Donna M.|Second Congressional District of Illinois|Coock, Barbara|Norton,  Eleanor Holmes|Norton,  Eleanor H.|Norton ,  Eleanor|Young,  Nancy W."), "Non members of Congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Stebe|Sampson,  Ann|Raad, Jim|Christensen,  Donna M.|Second Congressional District of Illinois|Coock, Barbara|Norton, Eleanor Holmes|Norton,  Eleanor H.|Norton ,  Eleanor|Young,  Nancy W."), "Non members of Congress", ERROR))
   
   
     
