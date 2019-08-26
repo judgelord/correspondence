@@ -68,7 +68,11 @@ data %<>%
   NonVotingMember <- data$FROM %>%
     str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
                Christensen, Donna M.|Sablan, Gregorio Kilili Camacho")
-  #
+  
+  data %<>% 
+    mutate(ERROR = ifelse(FROM %in% NonVotingMember, "Non-voting member", ERROR)) %>% 
+    mutate(ERROR = ifelse(FROM %in% StatePoliticians, "State Politicians", ERROR)) %>% 
+    mutate(ERROR = ifelse(FROM %in% NonVotingMember, "Non-Member", ERROR))
   
   #Failing observations
   Unfoundnames <- data %>%
