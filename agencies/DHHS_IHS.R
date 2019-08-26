@@ -39,8 +39,32 @@ data %<>%
   #data <- getFirstLast.Comma(data, 'FROM')
   
   
+  #Fixes name typo
+  data$FROM %<>%
+    str_replace("INHOFEJAMES", "INHOFE, JAMES")
   
   data <- extractMemberName(data, members, 'FROM')
+  
+  
+  #Membership Errors
+  NonMembers <- data$FROM %>%
+    str_detect("Norton, Eleanor Holmes|Ackerman, Greg T.|Ackerman, Joyce L.|Zawacki, Thomas O.|Wu, Portia|Winglass, Robert J.|
+               Williams, Doug|Weprin, David I.|Washington, Pauletta D.|Washington, Willie C.|Alvarez, Robert|Cummings, Claude Jr.|
+               Fuentes, Nathan D.|Cresci, Peter J.|Deloach, Lawrence E.|Muirhead, James D.|Drago, Tom|Pizzella, Patrick|
+               Chao, Secretary|McCarthy, Devin|McNally, Cheryl L.|Chao, Secretary|Ching, Darwin L.D.|Chao, Elaine L.|
+               Aumiller, Aaron B.|Williams, Doug|Stinson, Tamara|Hulse, Trevor M.|Smalls, Eugene C.|Simpson, James|
+               North, Lynn Fraley|DeBruin, David W.|Coleman, Wayne A.|Miller, Lorraine C.|Friedel, Laura|
+               Gonzalez-Colon, Jenniffer|Haley, Nikki R.|Hunt, Robert|Inos, Eloy S.|Knox, Wayne|McLaren, Ellen C.")
+
+  StatePoliticians <- data$FROM %>%
+    str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold|Cunningham, Don|
+               Spitzer, Eliot|Lynch, John H.|Rell, M. Jodi|Lingle, Linda|Pawlenty, Tim|Goode, Virgil H. Jr.|Dayton, Mark|
+               Brown, Edmund G. Jr.|De Leon, Kevin|Stack, Brian P.|Snyder, Rick")
+
+  NonVotingMember <- data$FROM %>%
+    str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
+               Christensen, Donna M.|Sablan, Gregorio Kilili Camacho")
+  #
   
   #Failing observations
   Unfoundnames <- data %>%
