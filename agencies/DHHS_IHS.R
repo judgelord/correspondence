@@ -41,7 +41,11 @@ data %<>%
   
   #Fixes name typo
   data$FROM %<>%
-    str_replace("INHOFEJAMES", "INHOFE, JAMES")
+    str_replace("INHOFEJAMES", "INHOFE, JAMES") %>%
+    str_replace("8AUCUS, MAX", "BAUCUS, MAX") %>%
+    str_replace("BINGAMAN JEFF", "BINGAMAN, JEFF") 
+    
+    
   
   data <- extractMemberName(data, members, 'FROM')
   
