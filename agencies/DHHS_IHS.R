@@ -43,11 +43,15 @@ data %<>%
   data$FROM %<>%
     str_replace("INHOFEJAMES", "INHOFE, JAMES") %>%
     str_replace("8AUCUS, MAX", "BAUCUS, MAX") %>%
-    str_replace("BINGAMAN JEFF", "BINGAMAN, JEFF") 
+    str_replace("BINGAMAN JEFF", "BINGAMAN, JEFF") %>%
+    str_replace("KYL JON", "KYL, JON") %>%
+    str_replace("MCCAIN JOHN", "MCCAIN, JOHN")
+
+    
     
     
   
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM')
   
   
   #Membership Errors
