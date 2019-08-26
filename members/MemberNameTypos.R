@@ -47,7 +47,7 @@ typos_clear <- tribble(
   "KYL, JON", "KYL JON",
   "MCCAIN, JOHN", "MCCAIN JOHN",
   "CANTWELL, MARIA","CANTWELL MARIA",
-  "YOUNG. DON","YOUNG. DON",
+  "YOUNG, DON","YOUNG. DON",
 
   
 
