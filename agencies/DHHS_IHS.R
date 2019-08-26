@@ -9,7 +9,7 @@ clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() 
   
   # LetterID = sheet row number
-  data$LetterID <- 1:nrow(data)
+  data$LetterID <- 2:(nrow(data)+1) 
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
@@ -41,11 +41,12 @@ data %<>%
   
   #Fixes name typo
   data$FROM %<>%
-    str_replace("INHOFEJAMES", "INHOFE, JAMES") %>%
-    str_replace("8AUCUS, MAX", "BAUCUS, MAX") %>%
-    str_replace("BINGAMAN JEFF", "BINGAMAN, JEFF") %>%
-    str_replace("KYL JON", "KYL, JON") %>%
-    str_replace("MCCAIN JOHN", "MCCAIN, JOHN")
+    str_replace("YOUNG. DON", "YOUNG, DON") %>%
+    str_replace("5IMPSON", "SIMPSON, Michael K.") %>%
+    str_replace("MERKLEY", "MERKLEY, Jeff") %>%
+    
+    
+   
 
     
     
@@ -62,7 +63,7 @@ data %<>%
                Chao, Secretary|McCarthy, Devin|McNally, Cheryl L.|Chao, Secretary|Ching, Darwin L.D.|Chao, Elaine L.|
                Aumiller, Aaron B.|Williams, Doug|Stinson, Tamara|Hulse, Trevor M.|Smalls, Eugene C.|Simpson, James|
                North, Lynn Fraley|DeBruin, David W.|Coleman, Wayne A.|Miller, Lorraine C.|Friedel, Laura|
-               Gonzalez-Colon, Jenniffer|Haley, Nikki R.|Hunt, Robert|Inos, Eloy S.|Knox, Wayne|McLaren, Ellen C.")
+               Gonzalez-Colon, Jenniffer|Haley, Nikki R.|Hunt, Robert|Inos, Eloy S.|Knox, Wayne|McLaren, Ellen C.|CAIN, ROBERT|SORBEL, TARYN|LINSKEY, KEVIN")
 
   StatePoliticians <- data$FROM %>%
     str_detect("Gordner, John R.|Avella, Tony|Young, Catharine M.|Uresti, Carlos I.|Schwarzenegger, Arnold|Cunningham, Don|
