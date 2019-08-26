@@ -51,8 +51,11 @@ clean <- function(file.name) {
     str_replace_all("Uda ll,  Tom                        QS-QQ", "UDALL, Thomas (Tom)") %>%
     str_replace_all("McMorris Rodgers ,", "McMORRIS RODGERS, Cathy") %>%
     str_replace_all("Ros-Lehtinen,", "ROS-LEHTINEN, Ileana") %>%
-    str_replace_all("Butterfield, G.K.", "BUTTERFIELD, George Kenneth, Jr. (G.K.)") %>%
-    str_replace_all("Ada Alma", "ADAMS, Alma")
+    str_replace_all("Butterfield,  G.K.", "BUTTERFIELD, George Kenneth, Jr. (G.K.)") %>%
+    str_replace_all("Ada Alma", "ADAMS, Alma") %>%
+    str_replace_all("Young,  CW Bill", "YOUNG, Charles William (Bill)") %>%
+    str_replace_all("Young,  C.W. Bill", "YOUNG, Charles William (Bill)")
+   
     
  
    
