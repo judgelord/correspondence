@@ -40,6 +40,10 @@ clean <- function(file.name) {
   # create variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
   
+  #Fixes name typo
+  data$FROM %<>%
+    str_replace("Ada Alma", "ADAMS, Alma")
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
   
