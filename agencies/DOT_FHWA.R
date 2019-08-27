@@ -62,22 +62,26 @@ clean <- function(file.name) {
   
   #Paste multiple authors into FROM column
    data %<>%
-     mutate(FROM = ifelse( ! str_detect(X6, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X6), paste(FROM, X6, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X7, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X7), paste(FROM, X7, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X8, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X8), paste(FROM, X8, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X9, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X9), paste(FROM, X9, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X10, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X10), paste(FROM, X10, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X11, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X11), paste(FROM, X11, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X12, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X12), paste(FROM, X12, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X13, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X13), paste(FROM, X13, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X14, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X14), paste(FROM, X14, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X15, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X15), paste(FROM, X15, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X16, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X16), paste(FROM, X16, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X17, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X17), paste(FROM, X17, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X18, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X18), paste(FROM, X18, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X19, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X19), paste(FROM, X19, sep = " "), FROM)) 
+     mutate(FROM = ifelse( ! str_detect(X6, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X6), paste(FROM, X6, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X7, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X7), paste(FROM, X7, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X8, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X8), paste(FROM, X8, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X9, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X9), paste(FROM, X9, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X10, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X10), paste(FROM, X10, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X11, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X11), paste(FROM, X11, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X12, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X12), paste(FROM, X12, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X13, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X13), paste(FROM, X13, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X14, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X14), paste(FROM, X14, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X15, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X15), paste(FROM, X15, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X16, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X16), paste(FROM, X16, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X17, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X17), paste(FROM, X17, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X18, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X18), paste(FROM, X18, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X19, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT|\\(P\\)") & ! is.na(X19), paste(FROM, X19, sep = " "), FROM)) 
    
 
+   #Fix name format
+   data %<>%
+     mutate(FROM = str_replace(FROM, "Floyd, Dr. Isaac L.", "Dr Isaac Floyd"))
+   
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
@@ -123,7 +127,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Pocan,Mark", "Pocan, Mark")) %>%
     mutate(FROM = str_replace(FROM, "CLAY, WM\\. LACY\\.", "William Lacy CLAY\\.")) %>%
     mutate(FROM = str_replace(FROM, "CLAY, WM\\. LACY|Wm\\. Lacy Clay", "William Lacy CLAY")) %>%
-    mutate(FROM = str_replace(FROM, "Saenz, P\\.E\\., Amadeo", "Saenz, Amadeo"))
+    mutate(FROM = str_replace(FROM, "Saenz, P\\.E\\., Amadeo", "Saenz, Amadeo")) %>%
+    mutate(FROM = str_replace(FROM, "SECRETARY LAHOOD", "Ray LaHood"))
   
 
   
@@ -162,7 +167,7 @@ clean <- function(file.name) {
     # remove periods after single letters 
     mutate(FROM = str_replace(FROM, "( )(\\w)\\.", "\\1\\2")) %>%
     # split on remaining periods 
-    mutate(FROM = str_split(FROM, "\\.")) %>%
+    mutate(FROM = str_split(FROM, "\\.| and |&")) %>%
     unnest(FROM) %>%
     distinct()
   
@@ -177,16 +182,17 @@ data <- extractMemberName(data, members, 'FROM')
   data %<>%
     mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Grundmann, Susan Tsui|Duncan, Arne|Bezio, Brian|Onge, Robert J|Miller, Deb"), "Agency Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "O'DONNELL, WILLIAM|Grundmann, Susan Tsui|Duncan, Arne|Bezio, Brian|Onge, Robert J|Miller, Deb"), "Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Hall, Christy A|Connaughton, Sean T|Connaughton, Sean|Saenz, Amadeo|Smith, James T|Conti, Eugene A|Hannig, Gary"), "State Agency Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Murphy, Joan Patricia|McLeod, William D|Weber, J F|WILLIAMS, LISA|Williams, Eugene|Williams, Dennis P|Williams, Dana|Williams, Eugene|Young, John F|Gillan, Jacqueline S|Garcia Martino, Andres R|Fraley, Jeff|Chaney, Nancy J|Berry, John|Atkins, Miles|Anderson, Elliot T|THOMAS, DAVID|Renjel, Louis E|Levi, Grant|Hancock, Michael W|HAGANS, ENOCH|HUTCHERSON, GASTON|THEISEN, MARK|MOTZKO, RICHARD|SCHNEIDER, JAMES|BROWN, KYLE|CRAIG, JOHN|DEVELLE, LOLA|DUDZIAK, JOHN|Hersman, Deborah AP|Smith, Samuel H|STARR, NANCY|DESCHERER, CHRISTOPHER|CONWAY, JOSEPH|BILLIOT, CURTIS|WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud|CHEATHAM, JAMES"), "Non Member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Walker, Scott|Webber, Jay|Griffo, Joseph A|Gray, Vincent C|Giacopini, Dorene M|Gerard, Don|Garcia-Padilla, Alejandro|Garcetti, Eric|Feiner, Paul J|Evans, Noreen|Demmer, Tom|Dalrymple, Jack|Cooley, Ken|Campana, Gabriel|Brown, Troy E|Blankenbush, Ken|Bing, Dave|Beshear, Steven L|Wilson, E Dotson|Whirley, Gregory A|Wharton, AC|Quinn, Pat|Martinez, Nelda|Lent, Patty|Gottlieb, Mark|Faulconer, Kevin L|Fletcher, Ernie|PLALE, JEFF|SWEET, ROBERT|Beebe, Mike D|Brewer, Janice K|Brooks, Michele|Lingle, Linda|Longietti, Mark|Markosek, Joseph F|McCall, Keith R|Paterson, David A|Reukauf, William E|Riley, Joseph P|Villaraigosa, Antonio R|Rybak, RT|Kulongoski, Theodore R|Pawlenty, Tim|Gregoire, Christine O|Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark"), "State Politican", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Murphy, Joan Patricia|McLeod, William D|Weber, J F|WILLIAMS, LISA|Williams, Eugene|Williams, Dennis P|Williams, Dana|Williams, Eugene|Young, John F|Gillan, Jacqueline S|Garcia Martino, Andres R|Fraley, Jeff|Chaney, Nancy J|Berry, John|Atkins, Miles|Anderson, Elliot T|THOMAS, DAVID|Renjel, Louis E|Levi, Grant|Hancock, Michael W|HAGANS, ENOCH|HUTCHERSON, GASTON|THEISEN, MARK|MOTZKO, RICHARD|SCHNEIDER, JAMES|BROWN, KYLE|CRAIG, JOHN|DEVELLE, LOLA|DUDZIAK, JOHN|Hersman, Deborah AP|Smith, Samuel H|STARR, NANCY|DESCHERER, CHRISTOPHER|CONWAY, JOSEPH|BILLIOT, CURTIS|WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|KAUFMAN, ROY|Kelly, Brian P|Kelly, Brian|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud|CHEATHAM, JAMES|Dr Isaac Floyd|MEININGER, RANDY|VERBEEK, GERALD|WHEELER, WILLIAM|Teresa Heinz|BELT, SCOTT|BEULAH"), "Non Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Walker, Scott|Webber, Jay|Griffo, Joseph A|Gray, Vincent C|Giacopini, Dorene M|Gerard, Don|Garcia-Padilla, Alejandro|Garcetti, Eric|Feiner, Paul J|Evans, Noreen|Demmer, Tom|Dalrymple, Jack|Cooley, Ken|Campana, Gabriel|Brown, Troy E|Blankenbush, Ken|Bing, Dave|Beshear, Steven L|Wilson, E Dotson|Whirley, Gregory A|Wharton, AC|Quinn, Pat|Martinez, Nelda|Lent, Patty|Gottlieb, Mark|Faulconer, Kevin L|Fletcher, Ernie|PLALE, JEFF|SWEET, ROBERT|Beebe, Mike D|Brewer, Janice K|Brooks, Michele|Lingle, Linda|Longietti, Mark|Markosek, Joseph F|McCall, Keith R|Paterson, David A|Reukauf, William E|Riley, Joseph P|Villaraigosa, Antonio R|Rybak, RT|Kulongoski, Theodore R|Pawlenty, Tim|Gregoire, Christine O|Avella, Tony|Hanna, Mike|Cannella, Anthony|Dayton, Mark|ROACH, RANDY|Harl, Scott J|HARL, SCOTT|Kahele, Gilbert"), "State Politican", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Abercrombie, Neil") & congress %in% c(112,113), "No longer in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "NORTON, ELEANOR|Norton, Eleanor Holmes|Pierluisi, Pedro R|FORTUNO, LUIS"), "Non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Salazar, Ken") & congress %in% c(112), "No longer in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Chafee, Lincoln D|Inslee, Jay") & congress %in% c(113), "No longer in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Hassan, Margaret Wood") & congress %in% c(113), "Not yet in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Sanford, Mark") & congress %in% c(110), "No longer in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Sanford, Mark") & congress %in% c(110), "No longer in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Ray LaHood") & congress %in% c(111), "Secretary of Transportation", ERROR))
   
 
 
