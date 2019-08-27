@@ -483,10 +483,18 @@ extractNamesPerCongress <- function(congress_i, data, members){
     base::message(red(paste(
       paste0("Bad dates in ", unique(data$agency), ", ", congress_i, "th congress?"),
       paste(data %>% 
-              filter(nchar(string >2) & 
-                       !string %in% c("na", "na na", "(b)(6)", "") & 
-                       !is.na(string) & 
-                       is.na(ERROR) ) %>% 
+              mutate(string = ifelse(
+                nchar(string <3) |
+                  string %in% c("na", "na na", "(b)(6)", "") |
+                  is.na(string) |
+                  !is.na(ERROR),
+                "but probably non-observations",
+                string) ) %>% 
+              group_by(LetterID) %>% 
+              mutate(LetterID = ifelse(string == "but probably non-observations",
+                                       LetterID == paste(top_n(1, LetterID), "-", top_n(1, desc(LetterID)) ),
+                                       LetterID) ) %>% 
+              ungroup() %>% 
               group_by(string) %>% 
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
                      row = paste0(unique(LetterID), collapse = ";") ) %>%
@@ -543,7 +551,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
   if(!"ID" %in% names(data)){data$ID <- 1:nrow(data)}
   data$ID %<>% formatC(width=6, flag="0")
   if(!"LetterID" %in% names(data)){data$LetterID <- 1:nrow(data)}
-  data %<>% mutate(LetterID = as.numeric(LetterID) - 1)
+  data %<>% mutate(LetterID = as.numeric(LetterID) + 1)
   data$LetterID %<>% formatC(width=6, flag="0")
   
   # Make missing congress explicit 0 so that it will not be dropped 

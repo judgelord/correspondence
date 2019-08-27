@@ -45,6 +45,11 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
+  
   # Errors for missing data
   data %<>%
     mutate(ERROR = ifelse(data$FROM == "NA NA", "NA FROM information", ERROR))
