@@ -62,20 +62,20 @@ clean <- function(file.name) {
   
   #Paste multiple authors into FROM column
    data %<>%
-     mutate(FROM = ifelse( ! str_detect(X6, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X6), paste(FROM, X6, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X7, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X7), paste(FROM, X7, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X8, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X8), paste(FROM, X8, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X9, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X9), paste(FROM, X9, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X10, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X10), paste(FROM, X10, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X11, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X11), paste(FROM, X11, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X12, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X12), paste(FROM, X12, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X13, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X13), paste(FROM, X13, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X14, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X14), paste(FROM, X14, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X15, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X15), paste(FROM, X15, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X16, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X16), paste(FROM, X16, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X17, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X17), paste(FROM, X17, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X18, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X18), paste(FROM, X18, sep = " "), FROM)) %>%
-     mutate(FROM = ifelse( ! str_detect(X19, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO") & ! is.na(X19), paste(FROM, X19, sep = " "), FROM)) 
+     mutate(FROM = ifelse( ! str_detect(X6, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X6), paste(FROM, X6, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X7, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X7), paste(FROM, X7, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X8, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X8), paste(FROM, X8, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X9, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X9), paste(FROM, X9, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X10, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X10), paste(FROM, X10, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X11, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X11), paste(FROM, X11, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X12, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X12), paste(FROM, X12, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X13, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X13), paste(FROM, X13, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X14, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X14), paste(FROM, X14, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X15, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X15), paste(FROM, X15, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X16, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X16), paste(FROM, X16, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X17, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X17), paste(FROM, X17, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X18, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X18), paste(FROM, X18, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X19, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)|ADMINISTRATION|REALTY|I\\/|RZACCAGNINO|I\\/VT") & ! is.na(X19), paste(FROM, X19, sep = " "), FROM)) 
    
 
    #Fix name format
@@ -192,7 +192,7 @@ data <- extractMemberName(data, members, 'FROM')
     mutate(ERROR = ifelse(str_detect(FROM, "Chafee, Lincoln D|Inslee, Jay") & congress %in% c(113), "No longer in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Hassan, Margaret Wood") & congress %in% c(113), "Not yet in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Sanford, Mark") & congress %in% c(110), "No longer in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Ray LaHood") & congress %in% c(111), "Secretary of Transportation"), ERROR)
+    mutate(ERROR = ifelse(str_detect(FROM, "Ray LaHood") & congress %in% c(111), "Secretary of Transportation", ERROR))
   
 
 
