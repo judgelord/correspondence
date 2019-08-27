@@ -89,8 +89,8 @@ data %<>%
   
   #Paste Chamber into FROM
   data %<>%
-    mutate(FROM =ifelse(str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+    mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
   
   #Extract Member Names
   data %<>%
@@ -147,7 +147,7 @@ data %<>%
            is.na(NOTES),
            str_detect(pattern, "404error"))
   
-
+# Unfoundnames2 %<>% extractMemberName(members, "FROM")
   
    #Check after run through merge
    #Unmatched <- d %>%
