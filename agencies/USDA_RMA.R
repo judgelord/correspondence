@@ -29,6 +29,7 @@ clean <- function(file.name) {
   data %<>% 
     mutate(DATE = ifelse(is.na(NEWDATE), NEWDATESIGNED, NEWDATE))  ##replacing NA dates with date signed
 
+  data$DATE %<>% as.Date()
   
   data %<>% 
     select(DATE, DATEoriginal, NEWDATE, DateSigned, NEWDATESIGNED, everything())
