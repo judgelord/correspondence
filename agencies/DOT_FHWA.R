@@ -60,23 +60,44 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) 
   
   
+  #Paste multiple authors into FROM column
+   data %<>%
+     mutate(FROM = ifelse( ! str_detect(X6, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X6), paste(FROM, X6, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X7, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X7), paste(FROM, X7, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X8, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X8), paste(FROM, X8, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X9, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X9), paste(FROM, X9, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X10, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X10), paste(FROM, X10, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X11, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X11), paste(FROM, X11, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X12, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X12), paste(FROM, X12, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X13, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X13), paste(FROM, X13, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X14, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X14), paste(FROM, X14, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X15, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X15), paste(FROM, X15, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X16, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X16), paste(FROM, X16, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X17, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X17), paste(FROM, X17, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X18, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X18), paste(FROM, X18, sep = " "), FROM)) %>%
+     mutate(FROM = ifelse( ! str_detect(X19, "[[:lower:]]|U\\.S\\.|D-|D\\/|R-|R\\/|1\\)|ADMINISTRATION \\(NHTSA\\)") & ! is.na(X19), paste(FROM, X19, sep = " "), FROM)) 
+   
+  
+   data %>%
+     filter(Sort == 498) %>%
+     select(FROM)
+  
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
-  #Paste multiple authors into FROM column
   
   #Paste split subject into SUBJECT
   data %<>%
-    mutate(SUBJECT = ifelse( ! str_detect(X20, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X20), paste(SUBJECT, X20, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X21, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X21), paste(SUBJECT, X21, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X22, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X22), paste(SUBJECT, X22, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X23, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X23), paste(SUBJECT, X23, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X24, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X24), paste(SUBJECT, X24, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X25, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X25), paste(SUBJECT, X25, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X26, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X26), paste(SUBJECT, X26, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X27, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X27), paste(SUBJECT, X27, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X28, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X28), paste(SUBJECT, X28, sep = " "), SUBJECT)) %>%
-    mutate(SUBJECT = ifelse( ! str_detect(X29, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X29), paste(SUBJECT, X29, sep = " "), SUBJECT))
+    mutate(SUBJECT = ifelse( ! str_detect(X20, "[[:lower:]]|U\\.S\\.") & ! is.na(X20), paste(SUBJECT, X20, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X21, "[[:lower:]]|U\\.S\\.") & ! is.na(X21), paste(SUBJECT, X21, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X22, "[[:lower:]]|U\\.S\\.") & ! is.na(X22), paste(SUBJECT, X22, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X23, "[[:lower:]]|U\\.S\\.") & ! is.na(X23), paste(SUBJECT, X23, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X24, "[[:lower:]]|U\\.S\\.") & ! is.na(X24), paste(SUBJECT, X24, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X25, "[[:lower:]]|U\\.S\\.") & ! is.na(X25), paste(SUBJECT, X25, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X26, "[[:lower:]]|U\\.S\\.") & ! is.na(X26), paste(SUBJECT, X26, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X27, "[[:lower:]]|U\\.S\\.") & ! is.na(X27), paste(SUBJECT, X27, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X28, "[[:lower:]]|U\\.S\\.") & ! is.na(X28), paste(SUBJECT, X28, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X29, "[[:lower:]]|U\\.S\\.") & ! is.na(X29), paste(SUBJECT, X29, sep = " "), SUBJECT))
   
   
   #Format Typos
@@ -146,6 +167,10 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "\\.")) %>%
     unnest(FROM) %>%
     distinct()
+  
+  data %>%
+    filter(Sort == 498) %>%
+    select(FROM)
 
 data <- extractMemberName(data, members, 'FROM')
 
