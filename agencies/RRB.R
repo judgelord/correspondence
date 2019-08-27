@@ -7,6 +7,7 @@
 # file.name <- "RRB" # for testing
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   
@@ -24,6 +25,10 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%d-%b-%y")
+  
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
   
@@ -43,6 +48,11 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   
   
