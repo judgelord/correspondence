@@ -490,11 +490,11 @@ extractNamesPerCongress <- function(congress_i, data, members){
                   !is.na(ERROR),
                 "but probably non-observations",
                 string) ) %>% 
-              group_by(LetterID) %>% 
-              mutate(LetterID = ifelse(string == "but probably non-observations",
-                                       LetterID == paste(top_n(1, LetterID), "-", top_n(1, desc(LetterID)) ),
-                                       LetterID) ) %>% 
-              ungroup() %>% 
+              # group_by(LetterID) %>% 
+              # mutate(LetterID = ifelse(string == "but probably non-observations",
+              #                          LetterID == paste(top_n(1, LetterID), "-", top_n(1, desc(LetterID)) ),
+              #                          LetterID) ) %>% 
+              # ungroup() %>% 
               group_by(string) %>% 
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
                      row = paste0(unique(LetterID), collapse = ";") ) %>%
