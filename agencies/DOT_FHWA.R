@@ -60,14 +60,24 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("U.S. House of Representatives|House|Representatives", Organization), "House", chamber)) 
   
   
-  # data %<>% 
-  #   mutate(FROM = paste(FROM, , sep = " ")) %>%
-  #   select(-FName, -LName)
-  
   #Remove non members from dataset
   data$FROM <- gsub("Writer\\(s\\):( |$)|Writer/Editor: |Writers): |\\.$", "", data$FROM)
   
-
+  #Paste multiple authors into FROM column
+  
+  #Paste split subject into SUBJECT
+  data %<>%
+    mutate(SUBJECT = ifelse( ! str_detect(X20, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X20), paste(SUBJECT, X20, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X21, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X21), paste(SUBJECT, X21, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X22, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X22), paste(SUBJECT, X22, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X23, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X23), paste(SUBJECT, X23, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X24, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X24), paste(SUBJECT, X24, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X25, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X25), paste(SUBJECT, X25, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X26, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X26), paste(SUBJECT, X26, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X27, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X27), paste(SUBJECT, X27, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X28, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X28), paste(SUBJECT, X28, sep = " "), SUBJECT)) %>%
+    mutate(SUBJECT = ifelse( ! str_detect(X29, "Addressed To|Cross Reference|Related Control|1\\)|White House Reference|On Behalf Of|\\(S-l\\)|Folder Template") & ! is.na(X29), paste(SUBJECT, X29, sep = " "), SUBJECT))
+  
   
   #Format Typos
   data %<>%
