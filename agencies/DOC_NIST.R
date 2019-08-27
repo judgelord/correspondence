@@ -2,9 +2,10 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "DOC_NIST" # for testing
+# file.name <- "DOC_NIST" # for testing
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
   # LetterID = sheet row number
@@ -30,6 +31,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
   # chamber 
   data %<>% 
     mutate(chamber = ifelse(grepl("Rep. |Rep |Cong", FROM), "House", NA)) %>%
@@ -42,6 +47,11 @@ clean <- function(file.name) {
   
   # member name
   data %<>% extractMemberName(members,"FROM")
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   
   
