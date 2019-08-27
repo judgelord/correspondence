@@ -30,7 +30,9 @@ clean <- function(file.name) {
   data$DATE <- gsub(" .*","",data$DATE)
   data$DATE <- gsub("/200","/0",data$DATE)
   data$DATE <- gsub("/201","/1",data$DATE)
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
   
   #checking for NA dates
   NOdate <- data %>%
