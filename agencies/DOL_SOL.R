@@ -169,6 +169,11 @@ data$FROM %<>%
  
  #data <- sampledata
  
+ data %>%
+   filter(`SIMS ID` == 712737) %>%
+   select(FROM, chamber)
+ 
+ 
 
 #extractMemberName
 
@@ -221,11 +226,8 @@ Unfoundnames <- data %>%
 
 #nonMembers
 nonmem <- data %>%
-  filter(! is.na(ERROR))
+  filter(!is.na(ERROR))
 
-data %>%
-  filter(ID == 712737) %>%
-  select(FROM, chamber)
 
 #Filter FOIA
 FOIA <- data %>%
@@ -242,11 +244,6 @@ data %<>%
 #Unfoundnames2 <- d %>%
 #filter(is.na(pattern))
 
-##code for testing
-
-  #arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, everything())
-  
   
   return(data)
 }
