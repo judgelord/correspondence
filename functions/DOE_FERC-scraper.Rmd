@@ -48,9 +48,13 @@ Some challenges:
       
 - Some lines in the table include links to more than one file (for example when a legislator included a letter from a constituent, it was scanned as a separate file), so there are more files than rows in the table. 
     - SOLUTION: use `dplyr`'s `gather()` make the table into one row per file, and then reverse this with `spread()` after merging in the text from the pdfs. 
+    
+> **Note:** The R Markdown file that made this document is [here](https://github.com/judgelord/correspondence/blob/master/functions/DOE_FERC-scraper.Rmd), and you can download an example .htm file [here](https://raw.githubusercontent.com/judgelord/correspondence/master/FERC/html/1.htm) (put it in a folder "FERC/html" or change the file path arguments below to match the location of your .htm files).
 
 
-Load saved html files from a elibrary [search](https://elibrary.ferc.gov/idmws/search/fercgensearch.asp)
+# Load saved html files 
+
+In this case, the HTML is [search results from the FERC elibrary](https://elibrary.ferc.gov/idmws/search/fercgensearch.asp) saved in a folder named "FERC/html". 
 ```{r}
 web_pages <- list.files(here("FERC", "html"), pattern = ".htm")
 
