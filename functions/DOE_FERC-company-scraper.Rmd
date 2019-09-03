@@ -42,7 +42,11 @@ library(here)
 
 The aim is to get the names of oil, gas, electric, and hydropower companies that lobby FERC from the [FERC website](https://www.ferc.gov/docs-filing/corp-off.asp?csrt=16593465655017166281) and match them to (1) [letters Members of Congress wrote to FERC](https://judgelord.github.io/correspondence/functions/DOE_FERC-scraper.html) and (2) [corporate and executive campaign contributions from DIME](https://data.stanford.edu/dime#download-data).
 
-# Get corportations and corporate officials from the FERC website
+
+>**Note:** The R Markdown file that made this document is [here](https://github.com/judgelord/correspondence/blob/master/functions/DOE_FERC-company-scraper.Rmd).
+
+
+# Get corporations and corporate officials from the FERC website
 
 ### 1: Instpect the URLs and source html 
 (in Chrome: view -> developer -> view source)
