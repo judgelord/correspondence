@@ -542,7 +542,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            #first_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
-           last_comma_commoninitial = paste0("^", last_name, ", ", str_sub(common_name, 1, 1), "$"),
+           last_comma_commoninitial = paste0("^", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
            last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
            chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
@@ -578,7 +578,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 # Replace NA names with "404error"
   
-replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 
@@ -599,9 +599,8 @@ members %<>%
                      first_maiden_last,
                      common_maiden_last,
                      last_comma_common,
-                     last_comma_first_maiden,
+                     #last_comma_first_maiden, # this seems redundent
                      firstinitial_middleinitial_last
-
   ) %>%
     unique() %>%
     str_subset("404error", negate = T) %>%
