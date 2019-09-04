@@ -497,7 +497,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
               # ungroup() %>% 
               group_by(string) %>% 
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
-                     row = paste0(unique(LetterID), collapse = ";") %>% str_trunc(2+10*7+3) ) %>% # "row [first 10 row numbers]..."
+                     row = paste0(unique(LetterID), collapse = ";") %>% str_trunc(4+(10*7)+3) ) %>% # "row [first 10 row numbers]..."
               count(DATE, row, string) %>% 
               arrange(row) %>% 
               arrange(-n) %>% 
