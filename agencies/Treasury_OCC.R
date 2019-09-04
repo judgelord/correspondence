@@ -1,13 +1,20 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "Treasury_OCC" # for testing
+# file.name <- "Treasury_OCC" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <-  c(1:nrow(data))
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
   
   #create agency column
   data$agency <- file.name
@@ -17,36 +24,86 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # # create chamber variable
-  # data %<>%
-  #   mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
-  #   mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
-  # 
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
+
+  
+  ## create chamber variable
+   data %<>%
+     mutate(chamber = ifelse(!is.na(Senator), "Senate", NA)) %>% 
+     mutate(chamber = ifelse(!is.na(`House Member`), "House", chamber))
+   
   data %<>% 
     mutate(FROM = Senator) %>% 
     mutate(FROM = ifelse(is.na(Senator), `House Member`, FROM))
   
+  
   ###############    
+  
+  #String Split for Multiple Members
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, ";#[0-9]+")) %>%
+    mutate(FROM = str_remove_all(FROM, "#")) %>%
+    mutate(FROM = str_split(FROM, ";")) %>%
+    unnest(FROM)
+  
+  
+  
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";#\\d{+};#", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";#\\d{1,3};#") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";#\\d{1,3};#"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";#\\d{+};", data$FROM),] # removes orginal row with all data
+  # for(i in 1:nrow(data)){
+  #   if(grepl(";#\\d{+};#", data$FROM[i])) {
+  # 
+  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";#\\d{1,3};#") + 1))
+  #     new$FROM <- unlist(str_split(data$FROM[i], ";#\\d{1,3};#"))
+  # 
+  #     data <- rbind(data, new)
+  # 
+  #   }
+  # }
+  # 
+  # 
+  # data <- data[-grep(";#\\d{+};", data$FROM),] # removes original row with all data
+  
+  # create Letter ID variable
+  data$LetterID <-  c(1:nrow(data))
+  
   ################
   
   
   data$FROM <- gsub(", Jr.", ",", data$FROM)
   
-  # create variable for first and last name
- data <- getFirstLast.Comma(data, "FROM")
- data$first_name <- formatFirstName(data, "first_name")
+ #create variable for first and last name
+  
+  #data <- getFirstLast.Comma(data, "FROM")
+  #data$first_name <- formatFirstName(data, "first_name")
+ 
+ data <- extractMemberName(data, members, 'FROM')
+ 
+
+#non-members of congress   
+data %<>%
+   mutate(ERROR = ifelse(str_detect(FROM, "Radewagen, Aumua Amata"), "Non Voting Member", ERROR)) %>%
+   mutate(ERROR = ifelse(str_detect(FROM, "Plaskett, Stacey"), "Non Voting Member", ERROR))
+
+#NOTES
+data %<>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Hastings, Doc"), "Wrong Congress", NOTES)) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Johnson, Tim"), "Wrong Congress", NOTES))
+
+   #Failing observations
+   unfoundnames <- data %>%
+   filter(is.na(last_name),
+          is.na(ERROR),
+          is.na(NOTES))  
+ 
+ unfoundnames %<>%
+   select(ID, DATE, FROM, SUBJECT, last_name, everything())
+ 
+ 
+ 
+ 
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
@@ -73,9 +130,7 @@ clean <- function(file.name) {
   
   
   
-  
-  
-  
+return(data)  
   
   
   

@@ -1,0 +1,139 @@
+---
+title: "How to convert pdfs to a data frames in **R**"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+                      #fig.path = "data")
+source(here::here("setup.R"))
+```
+
+This example uses the `tidyverse` packages `stringr`, `purrr`, as well as `here` and `magrittr`. 
+
+- [`stringr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#stringr)
+
+- [RegEx cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/regex.pdf)  
+
+- [`purrr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#purrr)
+
+```{libraries, echo = FALSE}
+library(here)
+library(tidyverse) # includes stringr and dplyr
+library(magrittr)
+library(pdftools)
+```
+
+Say we have a bunch of pdfs that look like [this](https://github.com/judgelord/correspondence/blob/master/data/Congressional%20logs%20Dec%202017-May%202019.pdf). This one has over 200 pages, so this would be a lot to re-arange by hand. 
+
+Let us start by cleaning one file
+```{r}
+text <- pdf_text(here("data/Congressional logs Dec 2017-May 2019.pdf")) 
+
+text[1:2]
+
+# replace all line breaks ("\n") with a space
+text %<>% str_replace_all("\n", " ")
+
+# replace one or more spaces with a single space using the regular expression "+" for a pattern repeating one or more times
+text %<>% str_replace_all(" +", " ")
+
+# remove white space from the beginning and end of the string
+text %<>% str_trim() 
+
+# str_squish is equivelent to both str_trim()/trimws() and str_replace_all(" +", " ")
+text %<>% str_squish()
+
+
+text[1:2] 
+
+
+# make it a tibble (a tidy data frame) 
+d <- tibble(text = text)
+
+d[1:2, ]
+
+# split into columns by a Regex pattern "sep = "[regex]"
+d %<>%
+  separate(text, into = c("header", "text"), sep = "Title:") %>% 
+  # drop header
+  select(-header)
+
+
+d
+
+# split out additional columns
+d %<>% 
+  tidyr::separate(text, 
+           into = c("Title", "Subject", "Control", "Assigned","Created", "Signature", "DATE", "Addressee", "Received", "Action", "Completed", "Priority", "Due", "Point of Contact", "Status"), 
+           sep = c("Subject:|Control:|Assigned To:|Created Date:|Signature Level:|Correspondence Date:|Addressee Office:|Received Date:|Action Requested:|Completed Date:|Priority:|Due Date:|Point of Contact:|Status:"), # RegEx pattern of separators
+           extra = "merge") # past any extra text at the end rather than dropping it
+  
+d %>% select(Title, Subject, DATE)
+```
+
+
+Trim white space at the beginning and end of each cell with `str_squish`. Apply to all columns with `mutate_all()`.
+```{r}
+d %<>% mutate_all(str_squish)
+
+d %>% select(Title, Subject, DATE)
+```
+
+
+Save as .csv
+```{r}
+d %<>% write_csv(path = "DOE Dec 2017-May 2019.csv")
+```
+
+# Make a function
+
+Turn the code we used to clean one file above in a function:
+
+```{r}
+# the new function, pdf_to_dataframe(), takes one argument, a file name
+pdf_to_dataframe <- function(file){
+  
+text <- pdf_text(here(file)) # the only change is that I replaced the file string with a *variable* called file.
+
+  # replace all line breaks ("\n") with a space
+  text %<>% str_replace_all("\n", " ")
+  
+  # make it a tibble (a tidy data frame) 
+  d <- tibble(text = text)
+  
+  # split into columns by a Regex pattern "sep = "[regex]"
+  d %<>%
+    separate(text, into = c("header", "text"), sep = "Title:") %>% 
+    # drop header
+    select(-header)
+  
+  # split out additional columns
+  d %<>% 
+    tidyr::separate(text, 
+             into = c("Title", "Subject", "Control", "Assigned","Created", "Signature", "DATE", "Addressee", "Received", "Action", "Completed", "Priority", "Due", "Point of Contact", "Status"), 
+             sep = c("Subject:|Control:|Assigned To:|Created Date:|Signature Level:|Correspondence Date:|Addressee Office:|Received Date:|Action Requested:|Completed Date:|Priority:|Due Date:|Point of Contact:|Status:"), # RegEx pattern of separators
+             extra = "merge") # past any extra text at the end rather than dropping it
+    
+  d %<>% mutate_all(str_squish)
+  
+  return(d) # return the output of the function 
+}
+```
+
+Let us test out our new function
+```{r}
+pdf_to_dataframe("data/Congressional logs Dec 2017-May 2019.pdf")
+```
+
+# Apply our function to all pdfs with `map_dfr` from `purrr`
+```{r}
+files <- c("data/Congressional logs Dec 2017-May 2019.pdf")
+
+# apply (map) our function onto each of our files and make a data frame (df) by combining them by row (r)
+d <- map_dfr(files, pdf_to_dataframe)
+
+d %<>% write_csv(path = "DOE_combined.csv")
+```

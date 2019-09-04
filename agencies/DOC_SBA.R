@@ -7,13 +7,19 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   #create agency column
   data$agency <- file.name 
   
   # Format date, year, Congress
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%m/%d/%Y") # FIXME THERE ARE OTHER DATE FORMATS IN FROM (MAY NEED TO BE FIXED BY HAND)
+
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
@@ -34,15 +40,5 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("POLICY PLANNING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("THANK YOU|ADMINISTRATOR", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  return(data)  
 }

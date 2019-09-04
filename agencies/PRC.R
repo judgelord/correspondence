@@ -6,9 +6,21 @@
 
 #file.name <- "PRC" # for testing
 
+#file.name <- "PRC" #testing 13 June
+
 clean <- function(file.name) {
   #  get data from google drive
   data <- gs_title(file.name) %>% gs_read()
+  
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
   
   data1 <- data
   data1$last_name <- formatLastName(data1, 'Last Name')
@@ -46,6 +58,11 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   data %<>% 
   mutate(SUBJECT = paste(SUBJECT,Sub_Issue)) %>%
   mutate(SUBJECT = paste(SUBJECT,Issue)) %>%
@@ -71,10 +88,14 @@ clean <- function(file.name) {
   
     
     
-    
-    
+#sample <- data %>%
+#filter(is.na(first_name))  
+#View(sample)    
+
+##checking code
     
     
   
+return(data)  
   
 } # end function

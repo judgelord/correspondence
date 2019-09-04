@@ -5,13 +5,19 @@
 # file.name <- "DOD_OIG" # for testing
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data from google sheet
+  
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
-  
-  data$ID <- seq(1:nrow(data))
-  
   
   data$DATE <- as.Date(data$'Final Date', "%m/%d/%y")
   
@@ -24,18 +30,11 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
+  data %<>%
+    mutate(FROM = str_split(FROM, "/")) %>%
+    unnest(FROM)
+  
+  data$ID <- seq(1:nrow(data))
   ################ 
   
   
@@ -47,6 +46,16 @@ clean <- function(file.name) {
   data$first_name <- addFirst(data$first_name,data$last_name)
   
   
+  #formatlastname works way better than extractMemberName
+  
+  #data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
+  
   
   data$SUBJECT <- data$SUBJECT
   
@@ -54,6 +63,6 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
-  
+  return(data)  
 }
 

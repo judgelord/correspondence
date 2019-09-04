@@ -4,13 +4,15 @@
 # file.name <- "VA_CEM" # for testing
 
 
-
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  names(data)[names(data) == 'Date Received'] <- 'DATE'
-  names(data)[names(data) == 'Primary Person'] <- 'FROM'
-  names(data)[names(data) == 'Subject'] <- 'SUBJECT'
+  data <- gs_title(file.name) %>% gs_read() %>% distinct() # get data
+  
+  data %<>% 
+    mutate(DATE = `Date Received`,
+           FROM = `Primary Person`,
+           SUBJECT = Subject)
+  
   
   #create agency column
   data$agency <- file.name 
@@ -20,11 +22,29 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data %<>% mutate(ERROR = ifelse(grepl("Randy Reeves", FROM, ignore.case = T), "Under Secretary", ERROR))
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+
+  # created chamber variable
+  data %<>%
+  mutate(chamber = ifelse(!is.na("Senator"), "Senate", NA)) %>% 
+  mutate(chamber = ifelse(!is.na("House Member"), "House", chamber))  
+  
+  data %<>% mutate(ERROR = ifelse(grepl("Randy Reeves", FROM), "Under Secretary", ERROR))
   
   data <- extractMemberName(data, members, 'FROM')
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           is.na(NOTES))
+  
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, everything())
+  data %<>% select(ID, DATE, FROM, everything())
+  
+  
+  return(data)
 }

@@ -8,6 +8,16 @@ clean <- function(file.name){
   # get data from google drive 
   data <- gs_title(file.name) %>% gs_read() 
   
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
+  
   # create agency column 
   data$agency <- file.name
   
@@ -16,6 +26,10 @@ clean <- function(file.name){
   data$DateSigned %<>% as.Date("%m/%d/%Y")
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
   data$FROM <- (gsub("+","",data$FROM)) # remove +
@@ -57,6 +71,8 @@ clean <- function(file.name){
   
   # arrange columns for further hand coding
   data %<>% select(ID, DATE, FROM, everything())
+  
+  return(data)
 }
 
 

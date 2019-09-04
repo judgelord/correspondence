@@ -2,17 +2,24 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "SSA" # for testing
+# file.name <- "SSA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   
   # Remove rows containing NA in both FROM and SUBJECT column
   data <- data[!(is.na(data$FROM)&is.na(data$SUBJECT)),]
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
-  
+
   # create agency column
   data$agency <- file.name
   
@@ -23,7 +30,13 @@ clean <- function(file.name) {
   data$DATE <- gsub(" .*","",data$DATE)
   data$DATE <- gsub("/200","/0",data$DATE)
   data$DATE <- gsub("/201","/1",data$DATE)
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
 
   
   
@@ -34,22 +47,9 @@ clean <- function(file.name) {
   #Duplicates need fixing, commas appear on non-duplicates (go back and fix after manual cleaning)
   ###############
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
-
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
-
-      data <- rbind(data, new)
-
-    }
-  }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
-  ################
-  
-  
+  data %<>% 
+    mutate(FROM = str_split(FROM, ";")) %>% 
+    unnest(FROM)
   
   
   # state
@@ -136,6 +136,11 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^\\(.*\\)$|N/A",FROM), FROM, ERROR))
   
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           is.na(NOTES))  
   
   
   
@@ -161,7 +166,7 @@ clean <- function(file.name) {
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("LUMBERTON", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
   
-  
+  return(data)  
 }
 
 

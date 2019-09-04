@@ -9,6 +9,14 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
   # create ID variable
   data$ID <- c(1:nrow(data))
   
@@ -22,10 +30,15 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Check for NA Dates
+  NoDATE <- data %>%
+    filter(is.na(DATE))
+  
   
   # member name
   data %<>% extractMemberName(members,"FROM")
   
+  return(data)
   
   
 }

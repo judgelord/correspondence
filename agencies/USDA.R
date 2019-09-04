@@ -1,10 +1,6 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
-# 573 non matches out of 4748
-
-
 #file.name <- "USDA" #for testing
 
 clean <- function(file.name){
@@ -12,14 +8,25 @@ clean <- function(file.name){
   # get data from google drive 
   data <- gs_title(file.name) %>% gs_read() 
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
+  
   # create agency column 
   data$agency <- file.name
   
-  # First, format date, year, Congress, member name etc. (things found in all logs)
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  # Format date, year, Congress, member name etc. 
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE %<>% as.Date("%m/%d/%y")
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001  
-
+  
 # Next, clean up SUBJECT for auto-coding (notice if TYPE has been hand coded)  
 unique(data$SUBJECT) # view SUBJECT strings
 log <- data %>% group_by(SUBJECT) %>% count() %>% arrange(desc(n))
@@ -44,41 +51,81 @@ data %<>%
 
 data$FROM <- ifelse( grepl("Ben|E. B",data$FROM)&grepl("Nelson",data$FROM), "Earl Nelson", data$FROM)
 
+data %<>%
+  mutate(FROM = str_replace(FROM, "\\.\\. ", ". "))
+
+#From Member staff
+data %<>%
+  mutate(FROM = str_replace(FROM, "Whitney Verett", "Office of Mike Dennis Rogers, Legislative Director Whitney Verett")) %>%
+  mutate(NOTES = ifelse(str_detect(FROM, "Office of Mike Dennis Rogers, Legislative Director Whitney Verett"), "From Member Staff", NOTES))
+
+#Format typos
+data %<>%
+  mutate(FROM = str_replace(FROM, "Kay B. Hutchison", "Kathryn HUTCHISON")) %>%
+  mutate(FROM = str_replace(FROM, "E. Benjamin Nelson|Ben Nelson", "Earl Nelson")) %>%
+  mutate(FROM = str_replace(FROM, "C \"Bill\" W. Young", "Charles YOUNG")) %>%
+  mutate(FROM = str_replace(FROM, "M. Michael Rounds", "Marion ROUNDS")) %>%
+  mutate(FROM = str_replace(FROM, "Margaret W. Hassan", "Margaret Wood HASSAN")) %>%
+  mutate(FROM = str_replace(FROM, "Earl \\(Buddy\\) L. Carter", "Earl CARTER")) %>%
+  mutate(FROM = str_replace(FROM, "John \\(Jay\\) D. Rockefeller", "John D. Rockefeller")) %>%
+  mutate(FROM = str_replace(FROM, "Kristen E. Gilliboard", "Kirsten GILLIBRAND")) %>%
+  mutate(FROM = str_replace(FROM, "Glenn \\(GT\\) Thompson|Glenn \\(CT\\) Thompson", "Glenn THOMPSON")) %>%
+  mutate(FROM = str_replace(FROM, "J. Luis. Correa", "Jose Luis CORREA")) %>%
+  mutate(FROM = str_replace(FROM, "Marie K. Hirono", "Mazie K. Hirono")) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Donald M. Payne") & str_detect(congress, "114"), str_replace(FROM, "Donald M. Payne", "Donald PAYNE"), FROM))
+
 data <- extractMemberName(data, members, 'FROM')
 
 
-# # create variable for first name
-# data %<>%
-#   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-#   mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) 
-# data$first_name <- formatFirstName(data, 'first_name')
-# 
-# 
-# 
-# 
-# 
-# data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II|, IV|IV", "", data$FROM)
-# 
-# # create variable for last name
-# data %<>%
-#   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM2)) %>% 
-#   mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
-#   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-#   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name)) %>% 
-#   mutate(last_name = gsub(pattern = ".* (\\w+, Jr.|\\w+ Jr.)", replacement = "\\1", last_name)) %>% 
-#   mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
-#   mutate(last_name = gsub(pattern = ".* (\\w+, ..)", replacement = "\\1", last_name))  %>% 
-#   mutate(last_name = ifelse(grepl(".* (\\w+, ..)", FROM2), gsub(pattern=".* (\\w+, ..)", 
-#                                                                replacement = "\\1", FROM2), last_name)) %>% 
-#   mutate(last_name = ifelse(grepl(".* (\\w+ ..)", FROM2), gsub(pattern=".* (\\w+ ..)", 
-#                                                                replacement = "\\1", FROM2), last_name))
-# data$last_name <- formatLastName(data, 'last_name')
-# 
-#   
-#  
-#  
-# 
-# data <- data[,!(names(data) %in% "FROM2")]
+#Check for duplicates
+sample2data<- data
+
+sample2data %<>%
+  group_by(ID, SUBJECT, DATE) %>%
+  mutate(n = n(),
+         last_name = str_c(last_name, collapse = "; ")) %>%
+  distinct()
+
+
+#Membership Errors
+NonMembers <- data$FROM %>%
+  str_detect("Gregg Engles|Gregg L. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue|Calvin Covington|
+             David M. Gibbons|David M. Pomerantz|Doug Maddox|Alicia Molt|Alyssa Kennedy|Andrew Zabel|Bill Northey|
+             Charles W. Bryant|Cheyenne Clements|Conae Black|Thyen|Daniel Wunderlich|Dave Chapman|DeLisa Lay|
+             William H. Wigton|Wayne Palla|Tim Nisly|Thomas Mumey|Stephen P. Ashkin|Stephen Pearce|Shelley Hearne|
+             Ron McCormick|Rreginald Kerns|Rudolph C. Cane|Sam Casella|Scott Simon|Shawna Johnson|Dennis Fife|
+             Dennis Webb|DuBoise White|Errol Rice|Eunice Beal|G. Joe Lyon|Joe Lyon|Gail Watson. Chlang|
+             Garry McGrath|Gerald Heatwole|J. Pat Mohan|James Ricky Williams|James Ricky. Williams|
+             Jeff Johnson|Jeff Schmidt|JON CASPERS|Jonathan L. Healy|Judy Sanchez|Kelly Rudd|Ken Nobis|
+             Kevin Phillips|Louis R. Zemek|Martha Torres|Melissa Greenbacker|Michael Doctor|
+             Michael Platt|Mike and Kathy Poff|Patricia D. Stroup|Randy Mooney|Randy Shuring|Robert Redding|
+             Robert Starr|Roger L. Richardson|Peter Sorenson|Nancy Sutley|Michael L. Bruhn|Mary Dean. Eckrote|
+             Marc Brinkmeyer|Lyle Peterson|John W. Oliver|John M. Meyer|Jodi Kuhn|Jerry Nelson|Jerry C. Washburn|
+             James Dain|James D. Wilson|James D. Wilson|Michael J. Schewel|Michael Lewis|Michael P. Botticelli|
+             Robert Manchin|Lance Price|Kimberly Pitts|Julie Decker|John E. Townsend|Gregory Mignon|John Triune|
+             Michael L. Young|Glenn Simon|Mike Strain|Parks Shackelford")
+
+
+StatePoliticians <- data$FROM %>%
+  str_detect("Roger Allbee|Scott Walker|C. W. Van Arsdale|Charles M. Brunner|Daniel Snarr|Dave Heinman|
+             Luis G. Fortuno|Russell C. Redding|Sandra B. Cunningham|Luis G. Fortuno|Jim Lykam|Ned Norris|
+             JoAnn B. Seghini|John Laird|Jennifer Gonzalez-Colon|Kate Brown|Kenneth F. Lowe, Jr.|Mike Brubaker")
+
+
+NonVotingMember <- data$FROM %>%
+  str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|
+             Christensen, Donna M.|Sablan, Gregorio Kilili Camacho|Gregorio Sablan|Madeleine Bordallo")
+
+data %<>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Trumka, Richard L."), "AFL-CIO President", ERROR)) %>%
+  mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
+  mutate(ERROR = ifelse(NonMembers, "Non Member", ERROR)) %>%
+  mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR))
+
+
+Unfoundnames <- data %>%
+  filter(is.na(last_name),
+         is.na(ERROR))
 
   
 data %<>%
@@ -165,6 +212,8 @@ data %<>%
 
   # arrange columns for further hand coding
 data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+
+return(data)
 }
 
 

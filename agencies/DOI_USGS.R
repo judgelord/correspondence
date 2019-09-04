@@ -7,28 +7,39 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
+  data <- gs_title(file.name) %>% gs_read()
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
-  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+
   #create agency column
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%Y")
   
-  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  
-  data$FROM <- data$'Last Name'
+  data$first_name <- NA
+  data$last_name <- toupper(data$'Last Name')
+  data$first_name %<>% addFirst(data$last_name)
+  data$FROM <- paste(data$Salutation, data$first_name, data$last_name) %>% 
+    str_replace(" NA ", " ")
 
-  # create variable for last name
-  data$last_name <- formatLastName(data, 'FROM')
+  
+  data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(`Last Name`),
+           is.na(ERROR))  
   
   #create variable for chamber
   data %<>%
@@ -38,4 +49,6 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())
+  
+  return(data)
 }

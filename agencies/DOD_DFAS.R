@@ -7,7 +7,15 @@
 
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   #create agency column
   data$agency <- file.name
@@ -24,8 +32,8 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Representative", FROM, ignore.case = TRUE), "House", chamber)) 
 
   
-  # create variable for first and last name
-  data <- getFirstLast.Comma(data, "FROM")
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^None$',FROM, ignore.case = T), 'None provided in FROM column', ERROR))
@@ -33,12 +41,19 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber,  everything())
   
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
+  
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("MILITARY PAY|CIVILIAN PAY|TRAVEL PAY", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("MILITARY PAY|CIVILIAN PAY|TRAVEL PAY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMERCIAL PAY", SUBJECT, ignore.case = TRUE), "2", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMERCIAL PAY", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) 
   
-  
+  return(data) 
   
 }

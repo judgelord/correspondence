@@ -1,5 +1,7 @@
 ---
-title: "Lobbying the U.S. Federal Energy Regulatory Commission (FERC)"
+title: "Campaign Contributions and Bureaucratic Oversight"
+subtitle: A Case Study of the Federal Energy Regulatory Commission"
+author: "Eleanor Neff Powell, Devin Judge-Lord, Justin Grimmer"
 output:
   #pdf_document
     html_document:
@@ -10,16 +12,20 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE, eval = FALSE}
+```{r setup, include=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
-requires <- c("tidyr", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here")
-  to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
+requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here", "devtools")
+  to_install <- c(!requires %in% rownames(installed.packages() ) )
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
-  devtools::install_github("wmurphyrd/fiftystater")
+
+  if(!"fiftystater" %in% rownames(installed.packages())){
+    devtools::install_github("wmurphyrd/fiftystater")
+  }
+
 ```
 
-```{r}
+```{r, include=FALSE}
   library(tidyverse)
   library(ineq)
   library(ggplot2); theme_set(theme_bw())
@@ -166,48 +172,7 @@ d %>%
 ---
 
 ## Coding of constituent type 
-Our coding of letter type is a mix of hand coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders (click `CODE` to see inductively-developed coding rules):
-```{r code, eval=FALSE}
-# TYPE 1: Indiv. constituent service 
-# TYPE 2: Corp. contituent service 
-# TYPE 3: 501c3 constituent service 
-# TYPE 4: Corp./Industry serving policy 
-# TYPE 5: General policy 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
-                        "1", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), 
-                             "2", CERTAINTY)) %>%
-  ## Corporate service?
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", SUBJECT, ignore.case = TRUE), 
-                        "2", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", SUBJECT, ignore.case = TRUE), 
-                             "3", CERTAINTY)) %>%
-  ## or policy
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("ROCKIES EXPRESS PIPELINE|ELECTRIC GENERATOR PROJECT", SUBJECT, ignore.case = TRUE), 
-                            "5", ALT_TYPE)) %>%
-  ## Policy work
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", SUBJECT, ignore.case = TRUE), 
-                        "5", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMMENTS OF US SENATOR|REQUEST INFORMATION|SENATOR.*COMMENTS|HEARING|MEETING|US SENATE SUBMITS|OVERSIGHT OF THE|EXPRESSING CONCERNS|SENATE SUBMITS COMMENTS", SUBJECT, ignore.case = TRUE), 
-                             "1", CERTAINTY)) %>%
-  ## Local government
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", SUBJECT, ignore.case = TRUE), 
-                        "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CITY OF.*APPLICATION|APPLICATION.*CITY OF|ON BEHALF OF.*COUNTY", SUBJECT, ignore.case = TRUE), 
-                             "1", CERTAINTY)) %>%
-  ## Corporate service
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("NEW COAL", SUBJECT, ignore.case = TRUE), 
-                        "4", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("NEW COAL", SUBJECT, ignore.case = TRUE), 
-                             "2", CERTAINTY)) %>%
-  mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("NEW COAL", SUBJECT, ignore.case = TRUE), 
-                            "5", ALT_TYPE)) %>%
-  ## PUCs = nonprofits, right?
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), 
-                        "3", TYPE)) %>%
-  mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PUBLIC UTILITIES COMMISSION", SUBJECT, ignore.case = TRUE), 
-                             "1", CERTAINTY)) 
-```
+Our coding of letter type is a mix of hand coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders using [inductively-developed coding rules](https://github.com/judgelord/correspondence/blob/master/agencies/DOE_FERC.R).
 
 FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
 
@@ -286,8 +251,15 @@ d %>%
     group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
     ggplot() + 
     geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
-    geom_smooth(aes(x = log(pop2010), y = mean)) + 
-  geom_text(aes(x = log(pop2010), y = mean, label = ifelse(mean > mean(mean)*1.75, member_state, "")), check_overlap = F, size = 2.5, hjust = 0) + theme_bw() +
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
   labs(title = "Senator Requests per Year by State Population",
        x = "Log State Population",
        y = "Average Number of Requests per Year")
@@ -434,7 +406,7 @@ all_contacts %>%
   summarise(n = n() ) %>%
   ungroup() %>%
   spread(key = "FERC", value = "n") %>% 
-  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, chamber, total, ShareToFERC) %>% 
@@ -455,12 +427,22 @@ all_contacts %>%
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, congress, chamber, committees, total, ShareToFERC) %>% 
-  filter(ShareToFERC>.5) %>%
+  filter(ShareToFERC>.5, total>5) %>%
   knitr::kable()
 ```
 
 
 ## Interesting cases
+
+From [Sen. Dianne Feinstein's website section on accomplishements in the 107th congress](https://www.feinstein.senate.gov/public/index.cfm?p=107th-congress):
+
+"**Significant Negotiations:**
+
+Just and Reasonable Electricity Rates – With the electricity rates skyrocketing because of market manipulation during the California energy crisis, Senator Feinstein lobbied the President, other members of Congress and the Federal Energy Regulatory Commission to cap electricity and natural gas rates.  She also introduced S.26, which would have authorized the Department of Energy to impose price caps, S.287, to direct FERC to impose cost of service based rates on electricity and S.764 to give FERC the choice of either price caps based on demand or cost of service rates.  While the bills did not come up for a vote, Senator Feinstein was finally successful in convincing FERC, after new commissioners were sworn in, to impose price caps on their own."
+
+---
+
+From the [West Virginia Gazette](https://www.wvgazettemail.com/news/politics/wv-republican-congressmen-s-funding-dwarfs-challengers/article_2e9bcb96-9021-56a6-ac0f-57f2917a6bef.html):
 
 In an article titled "Republican congressmen’s funding dwarfs challengers’", the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
 In 2017, he wrote on behalf of the 
@@ -1268,29 +1250,38 @@ letters_PACs_total %>% top_n(1, PAC_contributions) %>% knitr::kable()
 
 ### Pro-business letters per cycle
 ```{r, letter_money}
-top1 <- top_n(letters_money_total %>% filter(!is.na(name_state)), 5, PAC_contributions) %>% .$name_state
-top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% .$name_state
+top1 <- top_n(letters_money_total %>% 
+                filter(!is.na(name_state)), 5, PAC_contributions) %>%
+  .$name_state
+
+top2 <- top_n(letters_money_total, 5, ProBusiness_Letters_Per_Cycle) %>% 
+  .$name_state
 
 letters_money_total %>% 
+  mutate(name_state = as.character(name_state)) %>%
   ggplot() + 
   aes(x = PAC_contributions, 
       y = ProBusiness_Letters_Per_Cycle) + 
   geom_point(alpha = .5) + 
   geom_text(aes(label = ifelse(name_state %in% top2,
-                               name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
-  
+                               name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
   labs(x = "PAC Contributions 1990-2014",
        y = "Average Pro-Business Letters sent to FERC per Cycle")
 
 letters_money_total %>% 
+  mutate(name_state = as.character(name_state)) %>%
   ggplot() + 
   coord_flip() + 
   aes(x = PAC_contributions, 
       y = ProBusiness_Letters_Per_Cycle) + 
   geom_point(alpha = .5) + 
-  geom_text(aes(label = ifelse(name_state %in% top1,
-                               name_state, NA)), check_overlap = TRUE, hjust = 0, color = "blue") + 
-  
+  geom_text(aes(label = ifelse(name_state %in% top1, name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
   labs(x = "PAC Contributions 1990-2014",
        y = "Average Pro-Business Letters sent to FERC per Cycle")
   
@@ -1491,6 +1482,12 @@ mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_contributions*party, data = Antile
 tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
   labs(x="", y="Additional letters per congress")
+
+# FULL MODEL WITH NON- CONSTITUENT 
+# FIXME
+#mNonConstituent_Fullx <- glm(NonConstituent_Letters ~ PAC_contributions*party, data = NonConstituent_letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+#tidy(mNonConstituent_Fullx)
+#mplot(mNonConstituent_Fullx)+labs(x="", y="Additional non-constituent letters per congress")
 ```
 
 
@@ -1692,8 +1689,10 @@ models <- tidy(mAll_Full) %>%
   mutate(model = "Total Letters per Cycle") %>%
   full_join(tidy(mPro_Full) %>%
               mutate(model = "Pro-business Letters per Cycle")) %>%
+  full_join(tidy(mPro_Fullx) %>% mutate(model = "Pro-business Letters per Cycle, with interaction")) %>%
   full_join(tidy(mAnti_Full) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
+  full_join(tidy(mAnti_Fullx) %>% mutate(model = "Anti-business Letters per Cycle, with interaction")) %>%
   mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
 
 dplot(models) + 
@@ -1873,6 +1872,25 @@ FERC regulates electricity markets, oil and gas pipelines, and hydropower and ga
 ## Letters on behalf of projects in their districts
 TODO
 
+```{r}
+d %>% 
+  mutate(Place_District = tolower(Place_District)) %>% 
+  # FIXME 
+  # dropping odd observations, will correct in DOE_FERC.R script 
+  filter(Place_District %in% c("yes", "no", NA)) %>% 
+  filter(letter_position %in% c("AntiBusiness", "ProBusiness")) %>% 
+  filter(Constituent != "Not coded") %>% 
+  count(Place_District, letter_position, Constituent) %>% 
+  ggplot() +
+  aes(x = Place_District, y = n, fill = letter_position) +
+  geom_col() + 
+  facet_grid(Constituent ~ .)+ 
+  labs(x = "Is the proposed project in the member's district?",
+       y = "Number of letters",
+       fill = "")
+```
+
+
 ## Letters are on behalf of donors
 TODO
 
@@ -1881,24 +1899,47 @@ TODO
 
 
 # TO DO 
-- Fix Goode, who is being double counted as an R and I
-- add company names from company scraper to google sheet
-- template to match company names to donation (lobbyview, DIME)
-- template match company names to industry codes (center for responsive politics)
-
-## SHORT TERM
-- letters per company 
-- letters per company pac (before and after merging in partent companies)
-
-## LONG TERM 
 
 ## DONE
 - add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
-- link industry codes to CRP PAC committee classification 
+- link industry codes to CRP PAC committee classification: 
  1. Identify relevent industry codes 
  2. Get cycle-specific PAC classification for those industry codes 
  3. Subset dime to those PAC classification 
+ 
+ ## FERC Paper 1
+- Fix Goode, who is being double counted as an R and I
+- Add 2015-2018 DIME
+- Fix DIME ICPSRs 
+- Identify companies that did not match a PAC and see if they match a parent company 
+
+
+## FERC Paper 2 
+- letters per company 
+- letters per company pac (before and after merging in partent companies)
+- add company names from company scraper to google sheet
+- template to match company names to donation (lobbyview, DIME)
+- template match company names to industry codes (center for responsive politics)
+
+
+
+ 
+## FERC Paper 1
+- Fix Goode, who is being double counted as an R and I
+- Add 2015-2018 DIME
+- Fix DIME ICPSRs and check to make sure other members are not being dropped
+- Identify companies that did not match a PAC and see if they match a parent company 
+
+
+## FERC Paper 2 
+- letters per company 
+- letters per company pac (before and after merging in partent companies)
+- add company names from company scraper to google sheet
+- template to match company names to donation (lobbyview, DIME)
+- template match company names to industry codes (center for responsive politics)
+
+
 
 # References 
 

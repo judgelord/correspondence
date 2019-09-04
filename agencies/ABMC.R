@@ -5,12 +5,21 @@
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
+  data <- gs_title(file.name) %>% gs_read() 
   
-  names(data)[names(data) == 'Date Received'] <- 'DATE'
-  names(data)[names(data) == 'Source'] <- 'FROM'
-  names(data)[names(data) == 'Title'] <- 'SUBJECT'
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  data %<>% 
+    mutate(DATE = `Date Received`,
+           FROM = Source,
+           SUBJECT = Title)
+  
   
   
   # create ID variable
@@ -23,10 +32,20 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #Typo  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Menendez", "Menendez, Robert"))
+  
   
   data <- extractMemberName(data, members, 'FROM')
+  
+    # sample <- data %>%
+    # filter(is.na(last_name))
+    # View(sample)
 
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
+  
+  return(data)
 }

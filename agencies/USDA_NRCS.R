@@ -9,9 +9,13 @@ clean <- function(file.name){
   data <- gs_title(file.name) %>% gs_read() 
   
   
-  names(data)[names(data) == 'Control Number'] <- 'ID'
-  
-  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+
   # create agency column 
   data$agency <- file.name
   
@@ -47,20 +51,11 @@ clean <- function(file.name){
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(",", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ","))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
-  ################
+  data %<>% 
+    mutate(FROM = str_split(FROM, ",")) %>% 
+    unnest(FROM)
+  
+  data$FROM %<>% str_squish()
   
   # create variable for first name
   data %<>%
@@ -69,6 +64,7 @@ clean <- function(file.name){
     mutate(first_name = stri_trans_totitle(first_name)) 
   
   data$last_name <- data$FROM
+  
   data %<>%
     mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", last_name)) %>% 
     mutate(last_name = gsub(pattern= ".* (\\w+)\\-(\\w+)", replacement = "\\1-\\2", last_name))  %>% 
@@ -77,6 +73,11 @@ clean <- function(file.name){
     mutate(last_name = gsub(pattern = ".* (\\w+, Jr.)", replacement = "\\1", last_name)) %>% 
     mutate(last_name = gsub(pattern = ".* (\\w+, Sr.)", replacement = "\\1", last_name)) %>% 
     mutate(last_name = str_to_upper(last_name))
+  
+  # FIXME # WORTH COMPARING THIS TO USING THE ORIGINAL FROM 
+  data %<>% 
+    mutate(name = paste(first_name, last_name)) %>% 
+    extractMemberName(members, "name")
   
     
   # add ERROR for invalid congress names
@@ -99,7 +100,10 @@ clean <- function(file.name){
     mutate(SUBJECT = ifelse (grepl("Animal|ANIMAL", SUBJECT), "Animal Health", SUBJECT))
   
   
-  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   data %<>%
     mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Appropriation|APPROPRIATION|Funding|FUNDING|Farm Bill", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>% 
@@ -200,6 +204,8 @@ clean <- function(file.name){
   
      # arrange columns for further hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+return(data)
 }
 
 

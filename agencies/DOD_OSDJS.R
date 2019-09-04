@@ -3,13 +3,18 @@
 
 # 84 out of 1992 not matching
 
-#file.name <- "DOD_OSDJS" # for testing
-
+# file.name <- "DOD_OSDJS" # for testing
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  data$ID <- c(1:nrow(data))
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   #create agency column
   data$agency <- file.name
@@ -19,6 +24,10 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  #checking NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
   
   data$FROM <- gsub("^MOC","", data$FROM)
   data$FROM <- gsub("  "," ", data$FROM)
@@ -27,13 +36,28 @@ clean <- function(file.name) {
   data$FROM <- gsub("\\\\1", "VI", data$FROM)
   
   data$last_name <-  gsub("(.*)(,|\\.)(.*)", "\\1", data$FROM)
-  data$last_name <- formatLastName(data, 'last_name')
   
-  data$first_initial <- gsub("(.*)(,|\\.)(.*)", "\\3", data$FROM)
+  #data$last_name <- formatLastName(data, 'last_name')
   
+  #Extract Member names (New edit from formatLastName)
+  data <-  extractMemberName(data,members,"FROM") 
+  
+
   data %<>%
     mutate(last_name = ifelse(last_name %in% members$last_name, last_name, 
                               gsub("^(\\w+)(\\w| \\w)$", '\\1', last_name)))
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
+  
+  #checking for names that are NA
+  unfoundnames<- data %>%
+    filter(is.na(last_name))
+  
+  unfoundnames %<>%
+    select(ID, DATE, FROM, SUBJECT, last_name, everything())
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
@@ -64,6 +88,8 @@ clean <- function(file.name) {
     mutate(TYPE = ifelse(powellType == "Contracting", 2, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Congressional Travel/ Movement", 6, TYPE)) %>% 
     mutate(TYPE = ifelse(powellType == "Not Enough Info", 0, TYPE)) 
- 
   
+  return(data)
+
 }
+

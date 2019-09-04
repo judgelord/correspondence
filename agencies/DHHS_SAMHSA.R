@@ -3,10 +3,18 @@
 
 # 2000+ non matches, but most shouldn't be matching. 
 
-#file.name <- "DHHS_SAMHSA" # for testing
+# file.name <- "DHHS_SAMHSA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -25,13 +33,22 @@ clean <- function(file.name) {
   
   
   # create variable for full name
-  data$FROM <- data$X3
-  data <- getFirstLast.Comma(data, "FROM")
+  
+  #data$FROM <- data$X3
+  
+  data <- extractMemberName(data, members, 'FROM')
+  
+  #data <- getFirstLast.Comma(data, "FROM")
   
   
   
   # arrange columns for hand coding
   data %<>% select(ID, FROM, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,`Refd. To`)) %>% 
@@ -65,7 +82,7 @@ clean <- function(file.name) {
   
   
   
-  
+  return(data)
   
   
 }

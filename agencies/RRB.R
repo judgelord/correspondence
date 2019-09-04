@@ -7,10 +7,17 @@
 # file.name <- "RRB" # for testing
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   
   
   # create agency column
@@ -18,6 +25,10 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%d-%b-%y")
+  
+  #checking for dates that are NA
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
   
@@ -38,6 +49,10 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   
   
@@ -45,6 +60,7 @@ clean <- function(file.name) {
   
   
   
+return(data)  
   
   
   

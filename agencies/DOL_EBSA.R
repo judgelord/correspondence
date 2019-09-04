@@ -2,14 +2,20 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# Finished. 100% match on first_name/last_name
 
-#file.name <- "DOL_EBSA" # for testing
+# file.name <- "DOL_EBSA" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  data$ID <- seq(1:nrow(data))
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   
   # create agency column
   data$agency <- file.name
@@ -21,12 +27,27 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Butterfield, G.K.", "BUTTERFIELD, George Kenneth, Jr. (G.K.)")) %>%
+    mutate(FROM = str_replace(FROM, "Sensenbrenner, Jr., F. James", "SENSENBRENNER, Frank James, Jr.")) %>%
+    mutate(FROM = str_replace(FROM, "Bono Mack, Mary", "BONO, Mary")) %>%
+    mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "YOUNG, Charles William (Bill)")) %>%
+    mutate(FROM = str_replace(FROM, "Johnson \\(Il\\), Rep. Timothy", "JOHNSON, Timothy V.")) 
+  
+  #data <- getFirstLast.Comma(data, 'FROM')
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DISABILITY|PARTICIPANT RIGHTS|SPOUSE RIGHTS|ENROLLMENT RIGHTS|PARTICIPANTS|ELIGIBILITY|NOTICE|NOTICES|BENEFIT REDUCTION|ENTITLEMENT|ISSUE|ISSUES|PARTICIPANT|PARTICIPANTS|PARTICIPATION|PAYMENT|PAYMENTS|FACTS|HEALTH|SPOUSE BENEFIT|LOCATE PLAN|CALCULATION|PREMIUMS|LIFE|NO FUNDS|DURATION|COVERED WELFARE|COORDINATION|ABANDONED PLAN|BENEFIT LIMITATIONS|EARLY RETIREMENT|SEVERANCE PAY|BENEFIT DISTRIBUTIONS|TERMINATIONS|REQUEST|CONDITION|CONDITIONS|SURVIVOR|NON-COVERED PLANS|TRANSACTION|TRANSACTIONS|RECOVERY|FMLA|MEDICARE|DOMESTIC RELATIONS|INVESTMENT|VACATION|SUCCESSOR PLANS|CONFLICT OF INTEREST|DEPENDANTS", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
@@ -51,5 +72,5 @@ clean <- function(file.name) {
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("PROTECTIONS", SUBJECT, ignore.case = TRUE), "4", ALT_TYPE)) %>%
   mutate(EVENT_NAME = ifelse (!grepl("[0-9]", EVENT_NAME) & grepl("PROTECTIONS", SUBJECT, ignore.case = TRUE), "LEGISLATION", EVENT_NAME)) 
   
-  
+return(data)  
 }

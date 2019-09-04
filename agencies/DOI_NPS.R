@@ -2,58 +2,56 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
- #file.name <- "DOI_NPS" # for testing
+ # file.name <- "DOI_NPS" # for testing
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # get data from google drive 
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   #create agency column
   data$agency <- file.name
   
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%y")
+  # Format date, year, Congress, member name etc.
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE) 
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+
+  #String Split for Multiple Members
+  data %<>%
+    mutate(FROM = str_split(FROM, ";")) %>%
+    unnest(FROM) 
   
-  
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";", data$FROM),] # removes orginal row with all data
+  data %<>% mutate(FROM = str_remove_all(FROM, "MOC "))
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
-
-
-  
-  ################ 
-  
-  #  We got better quality data, now ignoring FROM2 col
-  # create variable for last name
-  # data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| Ii|, IV| IV| ll| Jr,", "", data$FROM)
-  # data$FROM2 <- gsub(pattern = ", Jr.,|, Jr. ,|, II ,|, CPA,|, M.D.|, M.D.,|, M.C.,|, III,|, P.E.,| Ii,| \\(Il\\), Rep.", replacement = ",", data$FROM2)
-  # data$last_name <- formatLastName(data, 'FROM2')
-  
-  ################
-  
-  
   data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
   data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
   
-
-  # names 
-  data <- getFirstLast.Comma(data, 'FROM')
+  data <- extractMemberName(data, members, 'FROM')
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   # data$last_name <- ifelse(grepl("^^(\\w+)$", data$FROM), formatLastName(data, 'FROM'), data$last_name)  # THIS DOES NOT LOOK RIGHT, TAKING IT OUT
   
@@ -95,7 +93,7 @@ clean <- function(file.name) {
   
   
   
-  
+return(data)  
   
   
 }

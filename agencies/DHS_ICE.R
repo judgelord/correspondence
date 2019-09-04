@@ -3,28 +3,19 @@
 
 # Complete. All matched. 
 
-#file.name <- "DHS_ICE" # for testing
+# file.name <- "DHS_ICE" # for testing
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
+  data <- gs_title(file.name) %>% gs_read() 
   
-  # create two different datasets for different name formats
-  data1 <-  filter(data,is.na(FROM))
-  data2 <- filter(data, !is.na(FROM))
-  
-  data1$FROM <- ifelse(is.na(data1$'Member/Committee (HOR)')& is.na(data1$FROM),  data1$"Member/Committee (Senate)", 
-                      data1$'Member/Committee (HOR)')
-  
-  # create variable for first and last name
-  data1 <- getFirstLast.Comma(data1, "FROM")
-  
-  data2 <- extractMemberName(data2,members,'FROM')
-  
-  data <- full_join(data2, data1)
-  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # ID variable
   data$ID <- c(1:nrow(data))
@@ -34,21 +25,59 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%y")
-
+  
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-
   # create chamber variable
-  data$chamber <- ifelse(is.na(data$'Member/Committee (HOR)')& !is.na(data$'Member/Committee (Senate)'),
-                         "Senate", NA )
-  data$chamber <- ifelse(is.na(data$'Member/Committee (Senate)')& !is.na(data$'Member/Committee (HOR)'),
-                         "House", data$chamber )
+  data$chamber <- ifelse(is.na(data$'Member/Committee (HOR)') & !is.na(data$'Member/Committee (Senate)'),
+                         "Senate", 
+                         NA )
+  data$chamber <- ifelse(is.na(data$'Member/Committee (Senate)') & !is.na(data$'Member/Committee (HOR)'),
+                         "House", 
+                         data$chamber )
+  
+
+  # make everything except DATE and congress character types 
+  data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
+  
+  
+  # # NAMES 
+  # # create two different datasets for different name formats
+  # data1 <- filter(data, is.na(FROM))
+  # data2 <- filter(data, !is.na(FROM))
+  # 
+  # data1 %<>% 
+  #   mutate(FROM = ifelse(is.na(`Member/Committee (HOR)`) & is.na(FROM),  
+  #                        `Member/Committee (Senate)`, 
+  #                        `Member/Committee (HOR)`) ) 
+  
+  # data %<>% 
+  #   mutate(FROM = ifelse(is.na(FROM))),
+  #   na
+  
+  # create variable for first and last name
+  #data1 %<>% getFirstLast.Comma("FROM")
+  
+  data %<>% extractMemberName(members, "FROM")
+  
+  #data <- full_join(data2, data1)
+  
+  
+
+  
+
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM,  chamber, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,Category)) %>% 
@@ -75,6 +104,6 @@ clean <- function(file.name) {
   
   
 
-  
+  return(data)
   
 }

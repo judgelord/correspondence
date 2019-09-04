@@ -8,10 +8,15 @@
 # file.name <- "DOL_OFCCP" # for testing 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -25,31 +30,16 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(";|&|/| and ", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|&|/| and ") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ";|&|/| and "))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(";|&|/| and ", data$FROM),] # removes orginal row with all data
-  ################
+  data %<>% 
+    mutate(FROM = str_split(FROM, ";|&|/| and ")) %>% 
+    unnest(FROM)
   
-  
-  data$FROM <- gsub("  |   |    ", " ", data$FROM)
-  data$FROM <- gsub("^ | $", "", data$FROM)
-
-    
   data %<>%
-    # mutate(last_name = ifelse(grepl("^\\w+$",FROM), formatLastName(data, 'FROM'), last_name)) %>%     # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
-    # mutate(last_name = ifelse(grepl("^(\\w) (\\w+)$", first_last),gsub("^(\\w) (\\w+)$", '\\2', first_last), last_name)) %>%  # COMMENTING THESE OUT BECAUSE I AM NOT OF THE INTENT 
-    mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
+       mutate(NOTES = ifelse(grepl("other", FROM, ignore.case = TRUE), "Multiple Congressman", NOTES))
   
-  data <- getFirstLast.Comma(data, 'FROM')
-
+  
+  data <- extractMemberName(data, members, 'FROM')
+  
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
@@ -57,6 +47,11 @@ clean <- function(file.name) {
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))  
   
   data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMPLAINT|WRONGFUL|HARASS|TERMINATION|UNFAIR|DISCRIMINATION|REQUEST|IBM|AFFIRMATIVE ACTION|DISABLED|VIOLATION|ASSISTANCE|LAID OFF|TERMINATED|DENIED|DISABILITY|COVERED PENSION|EMPLOYER CONTRIBUTIONS|SUBSIDY|NEED JOB|FIRED|PAY CHECK|INSURANCE|ISSUE WITH|INJURED|HIRING PRACTICES", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
@@ -71,6 +66,6 @@ clean <- function(file.name) {
   
   
   
-  
+return(data)  
   
 }

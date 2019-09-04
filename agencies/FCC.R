@@ -2,19 +2,41 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
- # file.name <- "FCC Devin" # for testing
+# file.name <- "FCC Devin" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  colnames(data)[colnames(data) == 'X1'] <- 'ID'
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
   
+  data$date <- data$DATE
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%Y-%m-%d")
+  data$DATE <- gsub("/201", "/1", data$DATE)
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE <- gsub("-201", "-1", data$DATE)
+  data$DATE <- gsub("-200", "-0", data$DATE)
+  #data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+
+  
+  data$DATE %<>% multidate(c("%Y-%m-%d","%m/%d/%y"))
+  
+  #checking for dates that are NA
+  
+  NOdate <- data %>%
+    filter(is.na(DATE))
+  
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "McEachin, A.Donald", "MCEACHIN, Aston Donald"))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -24,7 +46,20 @@ clean <- function(file.name) {
     mutate(party = ifelse(party == "GOP", "Republican",party)) %>% 
     mutate(party = ifelse(party == "DEM", "Democrat", party))
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
+  
+  #change from getfirstlast to extractmembername
+  
+  data <- extractMemberName(data, members, 'FROM')
+  
+  #ERRORS
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Norton, Eleanor Holmes|Whitehouse, The|Christensen, Donna M.C.|Pierluisi, Pedro R.|Sablan, Gregorio Kilili Camacho|Plaskett, Stacey|Gonzalez-Colon, Jenniffer|MATT HUTCHINSON|CAROLYN PRICE|MATT HUTCHISON"), "Not Member", ERROR))
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   # format state variable
   data$state <- stateFromLower(gsub(".*\\(.-|\\)","", data$FROM))
@@ -93,7 +128,7 @@ clean <- function(file.name) {
   
   
 
-    
+  return(data)    
     
 }
 

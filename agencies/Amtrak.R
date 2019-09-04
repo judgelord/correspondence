@@ -1,14 +1,20 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "Amtrak" # for testing
+# file.name <- "Amtrak" # for testing
 
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  data <- gs_title(file.name) %>% gs_read() 
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   #create agency column
   data$agency <- file.name 
   
@@ -30,31 +36,34 @@ clean <- function(file.name) {
   
   ##     ###     ###
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  data <- data[-grep("--",data$FROM),]
-  data <- data[-grep("^\\d", data$FROM),]
-  ###     ###     ###
+ data %<>% 
+   mutate(FROM = str_split(FROM, "/")) %>% 
+   unnest(FROM)
   
-  
-  # creat variable for first and last name
+  # create variable for first and last name
   data$last_name <- formatLastName(data, 'FROM')
-  data %<>%
-    mutate(last_name = ifelse(last_name %in% members$last_name, last_name,
-                              gsub("(^\\w+) .*", replacement = "\\1", last_name )))
   
+  data$first_name <- NA
+  data$first_name %<>% addFirst(data$last_name)
   
+  data %<>% 
+    mutate(FROM = paste(chamber, first_name, last_name) %>% 
+             str_replace("NA", " ") %>% 
+             str_replace("Senate", "Senator") %>% 
+             str_replace("House", "Representative") )
+  
+  data <- extractMemberName(data, members, 'FROM')
+
   data$state <- stateFromLower(data$State)
+  
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
+  
+  return(data)
 }

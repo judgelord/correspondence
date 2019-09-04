@@ -3,10 +3,13 @@
 
 # 84 mismatches on last_name
 
-#file.name <- "DHHS_ACF" # for testing
+# file.name <- "DHHS_ACF" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
+  
+  data <- gs_title(file.name) %>% gs_read()
+    
+  data$LetterID <- 1:nrow(data)
   
   # duplicate DOC ID rows were all invalid observations (removes 44 rows)
   data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]
@@ -34,6 +37,10 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%Y")
   
+  #Check for NA Dates
+  NoDATE <- data %>%
+    filter(is.na(DATE))
+  
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -41,13 +48,30 @@ clean <- function(file.name) {
   
   
   # create variable for full name
+  #data <- getFirstLast.Comma(data, "FROM")
   
-  data <- getFirstLast.Comma(data, "FROM")
+  #Format Typo
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Gillibrand. Kirsten E.", "Gillibrand, Kirsten E.")) %>%
+    mutate(FROM = str_replace(FROM, "Butterfield, G. K.", "Butterfield, George")) %>%
+    mutate(FROM = str_replace(FROM, "BONO Mack, MARY", "Bono, Mary")) %>%
+    mutate(FROM = str_replace(FROM, "Ros-Lehtinen, lleana", "ROS-LEHTINEN, Ileana"))
+    
+ 
+    
+  
+  #Change from getFirstLast to extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   data %<>% mutate(SUBJECT = paste(SUBJECT, `Refd. To`, `Action Required`))
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
   
   
   data %<>%
@@ -73,7 +97,7 @@ clean <- function(file.name) {
   
   
   
-  
+  return(data)
 }
 
 

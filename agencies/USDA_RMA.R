@@ -2,64 +2,82 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "USDA_RMA" # for testing
-
+#file.name <- "USDA_RMA" # for testing # 0 unfound dates and names
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() # get data
   
-  # create ID variable
-  data$ID <- c(1:nrow(data))
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
   
   #create agency column
   data$agency <- file.name
   
-  # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m-%d-%y")
-  data$DateSigned %<>% as.Date("%m-%d-%y")
+ #create column that is converted version of DATE, new column is NEWDATE
   
+  data$DATEoriginal <- data$DATE
   
+  data$NEWDATE <- data$DATE %>% multidate(c("%m-%d-%y","%m/%d/%y")) %>% as.character()
+  
+  data$NEWDATESIGNED <- data$DateSigned %>% multidate(c("%m-%d-%y","%m/%d/%y")) %>% as.character()
+  
+  data %<>% 
+    mutate(DATE = ifelse(is.na(NEWDATE), NEWDATESIGNED, NEWDATE))  ##replacing NA dates with date signed
+
+  data$DATE %<>% as.Date()
+  
+  data %<>% 
+    select(DATE, DATEoriginal, NEWDATE, DateSigned, NEWDATESIGNED, everything())
+  
+
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
+
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   ###     ###     ###
   # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl(",", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ",") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], ","))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  for(i in 1:nrow(data)){
-    if(grepl("/", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep(",", data$FROM),] # removes orginal row with all data
-  data <- data[-grep("/", data$FROM),] # removes orginal row with all data
-  ###     ###     ###
+  data %<>% 
+    mutate(FROM = str_split(FROM, ",")) %>% 
+    unnest(FROM)
   
-  data$FROM <- (gsub("& 12 Senators","",data$FROM)) # remove +
-  data <- data[-grep("Senators", data$FROM),]
+  data %<>% 
+    mutate(FROM = str_split(FROM, "/")) %>% 
+    unnest(FROM)
   
+  data %<>% 
+    mutate(NOTES = ifelse(str_detect(FROM, "& [0-9]+ Senators"),"FOIA", NOTES),
+           ERROR = ifelse(str_detect(FROM, "& [0-9]+ Senators"),"multiple", ERROR)) 
+  
+  # create variable for last name
+  data$last_name <- formatLastName(data, 'FROM')
+  
+  data$first_name <- NA
+  
+  data$first_name %<>% addFirst(data$last_name)
+  
+  data %<>% 
+    mutate(FROM2 = paste(first_name, last_name) %>%
+             str_remove("^NA ")) %>% 
+    select(-last_name, -first_name)
+
   # # Give first names to A. Green and G. Green
   # data$first_name <- ifelse(grepl("G. Green", data$FROM), "Gene", NA)
   # data$FROM <- gsub("G. Green", "Green", data$FROM)
   # data$first_name <- ifelse(grepl("A.\nGreen", data$FROM), "Alan", data$first_name)
   # data$FROM <- gsub("A.\nGreen", "Green", data$FROM)
   
-  # create variable for last name
-  data$last_name <- formatLastName(data, 'FROM')
+
+  #extractmembername captures same amount of observations but is less efficient
+  data %<>% extractMemberName(members, 'FROM2')
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())
@@ -67,6 +85,20 @@ clean <- function(file.name) {
   # add ERROR notes
   data %<>%
     mutate(ERROR = ifelse(grepl("Congress", data$FROM), "Not valid name info", ERROR))
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
+  
+  
+  #sample <- data %>%
+  #filter(is.na(DATE))  
+  #View(sample) 
+  
+  ##testing code
+  
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CLAIM|LATE PAYMENT|PREMIUM|PREVENTED PLANTING|FRAUD|ITS|ROTAT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
@@ -91,11 +123,9 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PRF|IOWA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("FOIA", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("FOIA", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-    
   
   
-  
-  
-  
+
+return(data)
   
 }

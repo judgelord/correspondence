@@ -6,6 +6,15 @@
 clean <- function(file.name) {
   # get data from google drive
   data <- gs_title(file.name) %>% gs_read()
+  
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
    
   # create agency column
   data$agency <- file.name
@@ -19,7 +28,10 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
   
   # create first and last name variables
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
+  
+  #changing from getfirstlast to extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   
   # create variable for chamber position  (Senator or Representative)
@@ -53,6 +65,11 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REPORT TO CONGRESS|WATERS OF THE US|REQUEST INFORMATION|LEAD IN AMMUNITION|HEARING INVITE|FUEL STANDARD|CLEAN AIR ACT|AGENCY'S|REGARDING FUNDING|QUESTIONS REGARDING|PAINTING RULE|BOILER MACT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("REPORT TO CONGRESS|WATERS OF THE US|REQUEST INFORMATION|LEAD IN AMMUNITION|HEARING INVITE|FUEL STANDARD|CLEAN AIR ACT|AGENCY'S|REGARDING FUNDING|QUESTIONS REGARDING|PAINTING RULE|BOILER MACT", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
@@ -72,6 +89,6 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT)) 
 
-  
+  return(data)  
   
 }

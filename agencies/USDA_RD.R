@@ -6,11 +6,13 @@
 clean <- function(file.name) {
   # get data from google drive
   data <- gs_title(file.name) %>% gs_read()
-  
-  # create ID column
-  names(data)[names(data) == 'X1'] <- 'ID'
-  
-  
+
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create agency column
   data$agency <- file.name
@@ -41,7 +43,10 @@ clean <- function(file.name) {
   #   mutate(first_name = stri_trans_totitle(first_name)) %>% 
   #   select(FROM, first_name, common_name, middle_name, middle_initial, last_name, everything()) 
   
-  data <- getFirstLast.Comma(data, 'FROM')
+  #data <- getFirstLast.Comma(data, 'FROM')
+  
+  #comparison between getFirstLast and extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   
 
@@ -129,8 +134,16 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^White House Referral$",data$FROM), "White House Referral", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^National Office Referral$",data$FROM), "National Office Referral", ERROR))
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
+  
+  
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+  return(data)
 }

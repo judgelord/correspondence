@@ -1,10 +1,18 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-#file.name <- "DOC_EDA" # for testing
+# file.name <- "DOC_EDA" # for testing
 
 clean <- function(file.name) {
+  
   data <- gs_title(file.name) %>% gs_read() # get data
+  
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create ID variable
   data$ID <- c(1:nrow(data))
@@ -14,6 +22,10 @@ clean <- function(file.name) {
   
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%y")
+  
+  #checking for NA dates
+  NOdate <- data %>%
+    filter(is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -87,8 +99,14 @@ clean <- function(file.name) {
   
   data <- full_join(data,data2)
   
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR))
+  
+  
   
 
   
-  
+  return(data)
 }

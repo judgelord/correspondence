@@ -2,23 +2,25 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-#file.name <- "DOL_MSHA" # for testing
+# file.name <- "DOL_MSHA" # for testing
  
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
-  # Remove NA rows
-  data <- data[!is.na(data$FROM)&!is.na(data$DATE),]
+  data <- gs_title(file.name) %>% gs_read() 
   
-  
-  # create ID variable
-  data$ID <- c(1:nrow(data)) 
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
   
   # # create agency column
   data$agency <- file.name
-  # 
+  
+  data$DATEoriginal <- data$DATE
   # # Format date, year, Congress, member name etc. 
-  data$DATE <-  as.Date(data$DATE, "%m/%d/%Y")
+  data$DATE %<>% multidate(c("%m/%d/%Y", "%m/%d/%y"))
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
@@ -26,78 +28,44 @@ clean <- function(file.name) {
   data %<>% mutate(FROM = ifelse(grepl("^69",data$FROM), data$Organization, data$FROM))
   
   
-  
-  
-  # ###############    
-  # # Creates duplicate rows for lines with multiple representatives
-  # for(i in 1:nrow(data)){
-  #   if(grepl(";|&| and |/", data$FROM[i])) {
-  #     
-  #     new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = ";|&| and |/") + 1))
-  #     new$FROM <- unlist(str_split(data$FROM[i], ";|&| and |/"))
-  #     
-  #     data <- rbind(data, new)
-  #     
-  #   }
-  # }
-  # data <- data[-grep(";|&| and |/", data$FROM),] # removes orginal row with all data
-  # data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  # data <- data[!data$FROM == "",] # removes blank observations
-  # 
-  # ################
-  # 
-  # # create variable for full name
+  data %<>% 
+    mutate(FROM = str_split(FROM, "/|;|&")) %>% 
+    unnest(FROM)
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senat", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong|\\(Song.\\)|Congressman", FROM), "House", chamber)) 
   
-  
-  ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  for(i in 1:nrow(data)){
-    if(grepl("/|;|&", data$FROM[i])) {
-      
-      new <- data %>% dplyr::slice(rep(i, each = str_count(data$FROM[i], pattern = "/|;|&") + 1))
-      new$FROM <- unlist(str_split(data$FROM[i], "/|;|&"))
-      
-      data <- rbind(data, new)
-      
-    }
-  }
-  data <- data[-grep("/|;|&", data$FROM),] # removes orginal row with all data
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  ########
-  
-  data$FROM <- ocr.errors(data$FROM)
-  
-  # get names 
-  data <- getFirstLast.Comma(data, 'FROM')
-  
-  # create separate dataset with for names with only last name
-  data2 <- data[grepl("^\\w+$", data$FROM),]
-  # remove these observations from the original
-  data <- data[!grepl("^\\w+$", data$FROM),]
+  # # create separate dataset with for names with only last name
+  # data2 <- data[grepl("^\\w+$", data$FROM),]
+  # # remove these observations from the original
+  # data <- data[!grepl("^\\w+$", data$FROM),]
+  # 
+  # # Format last_name column in dataset 2 
+  # data2$last_name <- data2$FROM
+  # data2$last_name <- formatLastName(data2, 'last_name')
+  # # add first names where applicable
+  # data2$first_name <- addFirst(data2$first_name,data2$last_name)
+  # 
+  # 
+  # # merge the two separated datasets
+  # data <- full_join(data,data2)
+  # 
+  data <-  extractMemberName(data,members,"FROM") 
 
-  # Format last_name column in dataset 2 
-  data2$last_name <- data2$FROM
-  data2$last_name <- formatLastName(data2, 'last_name')
-  # add first names where applicable
-  data2$first_name <- addFirst(data2$first_name,data2$last_name)
+
   
-  
-  # merge the two separated datasets
-  data <- full_join(data,data2)
-  
-  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) 
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
   
-  #
-  # 
+  
   # data%<>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
@@ -105,10 +73,10 @@ clean <- function(file.name) {
   #   mutate(NOTES = ifelse (!grepl("[0-9]", NOTES) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "98% SURE THESE SUBJECTS REPRESENT CERTAIN PEOPLE WORKING FOR THE COMPANIES AND NOT THE COMPANIES THEMSELVES, BUT CAN'T SAY WITH ABSOLUTE CERTAINTY", NOTES)) %>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONCERNING", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   #   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONCERNING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY))
-  # 
-  # 
   
   
+  
+return(data)  
   
 }
 
