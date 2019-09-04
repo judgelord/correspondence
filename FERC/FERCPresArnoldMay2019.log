@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  21 MAY 2019 10:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  21 MAY 2019 09:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**ConstituencyServicePres.tex
-(./ConstituencyServicePres.tex
+**FERCPresArnoldMay2019.tex
+(./FERCPresArnoldMay2019.tex
 LaTeX2e <2018-04-01> patch level 2
 Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
 (/usr/local/texlive/2018/texmf-dist/tex/latex/beamer/beamer.cls
@@ -709,8 +709,9 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 \ULC@box=\box55
 Package: ulem 2012/05/18
 \ULdepth=\dimen192
-) (./csquotes.sty
-Package: csquotes 2018/04/13 v5.2d context-sensitive quotations (JAW)
+)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/csquotes/csquotes.sty
+Package: csquotes 2018/02/11 v5.2c context-sensitive quotations (JAW)
 \csq@reset=\count156
 \csq@gtype=\count157
 \csq@glevel=\count158
@@ -719,8 +720,8 @@ Package: csquotes 2018/04/13 v5.2d context-sensitive quotations (JAW)
 \csq@tshold=\count161
 \csq@ltx@everypar=\toks44
 
-(./csquotes.def
-File: csquotes.def 2018/04/13 v5.2d csquotes generic definitions (JAW)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/csquotes/csquotes.def
+File: csquotes.def 2018/02/11 v5.2c csquotes generic definitions (JAW)
 )
 Package csquotes Info: Trying to load configuration file 'csquotes.cfg'...
 Package csquotes Info: ... configuration file loaded successfully.
@@ -732,32 +733,32 @@ File: csquotes.cfg
 erbeamer.sty)
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\\' on input line 12.
+(hyperref)                removing `\\' on input line 13.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\\' on input line 12.
+(hyperref)                removing `\\' on input line 13.
 
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... none found.
-(./ConstituencyServicePres.aux)
-\openout1 = `ConstituencyServicePres.aux'.
+(./FERCPresArnoldMay2019.aux)
+\openout1 = `FERCPresArnoldMay2019.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Try loading font information for OT1+lmss on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Try loading font information for OT1+lmss on input line 15.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ot1lmss.fd
@@ -829,7 +830,7 @@ e
 ))
 ABD: EveryShipout initializing macros
 \AtBeginShipoutBox=\box57
-Package hyperref Info: Link coloring OFF on input line 14.
+Package hyperref Info: Link coloring OFF on input line 15.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -839,60 +840,60 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count168
 )
-LaTeX Info: Redefining \ref on input line 14.
-LaTeX Info: Redefining \pageref on input line 14.
-LaTeX Info: Redefining \nameref on input line 14.
+LaTeX Info: Redefining \ref on input line 15.
+LaTeX Info: Redefining \pageref on input line 15.
+LaTeX Info: Redefining \nameref on input line 15.
 
-(./ConstituencyServicePres.out) (./ConstituencyServicePres.out)
+(./FERCPresArnoldMay2019.out) (./FERCPresArnoldMay2019.out)
 \@outlinefile=\write5
-\openout5 = `ConstituencyServicePres.out'.
+\openout5 = `FERCPresArnoldMay2019.out'.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/lmr/m/n --> OT1/cmss/m/n on input line 14.
+(Font)                  OT1/lmr/m/n --> OT1/cmss/m/n on input line 15.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/lmr/bx/n --> OT1/cmss/bx/n on input line 14.
+(Font)                  OT1/lmr/bx/n --> OT1/cmss/bx/n on input line 15.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 14.
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 15.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 14.
+(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 15.
 \symnumbers=\mathgroup6
 \sympureletters=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/lmss/m/n --> OT1/lmr/m/n on input line 14.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 14.
+(Font)                  OT1/lmss/m/n --> OT1/lmr/m/n on input line 15.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/lmr/bx/n --> OT1/lmss/bx/n on input line 14.
+(Font)                  OT1/lmr/bx/n --> OT1/lmss/bx/n on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/lmr/bx/n --> OT1/lmss/bx/n on input line 14.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 14.
+(Font)                  OT1/lmr/bx/n --> OT1/lmss/bx/n on input line 15.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/lmss/m/n --> OT1/lmss/m/n on input line 14.
+(Font)                  OT1/lmss/m/n --> OT1/lmss/m/n on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/lmss/bx/n --> OT1/lmss/m/n on input line 14.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 14.
+(Font)                  OT1/lmss/bx/n --> OT1/lmss/m/n on input line 15.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/lmr/m/it --> OT1/lmss/m/it on input line 14.
+(Font)                  OT1/lmr/m/it --> OT1/lmss/m/it on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/lmr/bx/it --> OT1/lmss/m/it on input line 14.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 14.
+(Font)                  OT1/lmr/bx/it --> OT1/lmss/m/it on input line 15.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/lmtt/m/n --> OT1/lmtt/m/n on input line 14.
+(Font)                  OT1/lmtt/m/n --> OT1/lmtt/m/n on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/lmtt/m/n --> OT1/lmtt/m/n on input line 14.
+(Font)                  OT1/lmtt/m/n --> OT1/lmtt/m/n on input line 15.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  OT1/lmss/m/n --> OT1/lmss/bx/n on input line 14.
+(Font)                  OT1/lmss/m/n --> OT1/lmss/bx/n on input line 15.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/lmss/m/it --> OT1/lmss/bx/it on input line 14.
+(Font)                  OT1/lmss/m/it --> OT1/lmss/bx/it on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/lmss/bx/n --> OT1/lmr/bx/n on input line 14.
+(Font)                  OT1/lmss/bx/n --> OT1/lmr/bx/n on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/lmss/bx/n --> OT1/lmss/bx/n on input line 14.
+(Font)                  OT1/lmss/bx/n --> OT1/lmss/bx/n on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/lmss/m/n --> OT1/lmss/bx/n on input line 14.
+(Font)                  OT1/lmss/m/n --> OT1/lmss/bx/n on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/lmss/m/it --> OT1/lmss/bx/it on input line 14.
+(Font)                  OT1/lmss/m/it --> OT1/lmss/bx/it on input line 15.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/lmtt/m/n --> OT1/lmtt/bx/n on input line 14.
+(Font)                  OT1/lmtt/m/n --> OT1/lmtt/bx/n on input line 15.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/translator/translator-basic-dicti
 onary-English.dict
@@ -917,476 +918,556 @@ Dictionary: translator-numbers-dictionary, Language: English
 (/usr/local/texlive/2018/texmf-dist/tex/latex/translator/translator-theorem-dic
 tionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
-) (./ConstituencyServicePres.nav)
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 17.
+) (./FERCPresArnoldMay2019.nav)
+Overfull \hbox (19.99345pt too wide) in paragraph at lines 15--15
+ [][][][]  
+ []
 
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 18.
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 17.
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 18.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 17.
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 18.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 17.
+(Font)              <10.95> on input line 18.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 17.
+(Font)              <8> on input line 18.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 17.
-LaTeX Font Info:    Try loading font information for U+msa on input line 17.
+(Font)              <6> on input line 18.
+LaTeX Font Info:    Try loading font information for U+msa on input line 18.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 17.
+LaTeX Font Info:    Try loading font information for U+msb on input line 18.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 17.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 18.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <8> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 17.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 18.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <6> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 17.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 18.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 17.
+(Font)              <9> on input line 18.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 17.
+(Font)              <5> on input line 18.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <9> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 17.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 18.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <5> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 17.
- [1
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 18.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[1
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 42.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 42.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 42.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <14.4> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 42.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 45.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <10> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 42.
-LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <7> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 42.
- [2
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 45.
 
-] [3
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[2
 
 ]
-<gh-pages/Figs/help.png, id=122, 591.20876pt x 563.10374pt>
-File: gh-pages/Figs/help.png Graphic file (type png)
-<use gh-pages/Figs/help.png>
-Package pdftex.def Info: gh-pages/Figs/help.png  used on input line 59.
-(pdftex.def)             Requested size: 342.2953pt x 326.03331pt.
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-Overfull \vbox (89.61957pt too high) detected at line 59
+[3
+
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [4
 
- <./gh-pages/Figs/help.png>] [5
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-] [6
-
-] [7
-
-] [8
-
-] [9
-
-] [10
-
-] [11
-
-] [12
-
-] [13
+[5
 
 ]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-Package hyperref Warning: Ignoring empty anchor on input line 224.
+[6
+
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[7
+
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[8
+
+]
+<Figs/20171020-0018-14718216.pdf, id=266, 614.295pt x 794.97pt>
+File: Figs/20171020-0018-14718216.pdf Graphic file (type pdf)
+<use Figs/20171020-0018-14718216.pdf>
+Package pdftex.def Info: Figs/20171020-0018-14718216.pdf  used on input line 13
+1.
+(pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
+
+Overfull \vbox (61.05725pt too high) detected at line 131
+ []
 
 
-Overfull \hbox (7.9212pt too wide) in paragraph at lines 224--224
- [] 
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[9
+
+ <./Figs/20171020-0018-14718216.pdf>]
+<Figs/20080515-0185small.pdf, id=307, 614.295pt x 794.97pt>
+File: Figs/20080515-0185small.pdf Graphic file (type pdf)
+<use Figs/20080515-0185small.pdf>
+Package pdftex.def Info: Figs/20080515-0185small.pdf  used on input line 141.
+(pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
+
+Overfull \vbox (62.426pt too high) detected at line 141
+ []
+
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[10
+
+ <./Figs/20080515-0185small.pdf>]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <14.4> on input line 157.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 157.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 157.
+LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <7> not available
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 157.
+
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[11
+
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[12
+
+]
+<Figs/data-by-type-1.png, id=475, 1349.04pt x 770.88pt>
+File: Figs/data-by-type-1.png Graphic file (type png)
+<use Figs/data-by-type-1.png>
+Package pdftex.def Info: Figs/data-by-type-1.png  used on input line 176.
+(pdftex.def)             Requested size: 342.2953pt x 195.58961pt.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[13
+
+ <./Figs/data-by-type-1.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [14
 
-] [15
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[15
 
 ]
-<gh-pages/Figs/EPA.png, id=470, 1244.65pt x 263.98625pt>
-File: gh-pages/Figs/EPA.png Graphic file (type png)
-<use gh-pages/Figs/EPA.png>
-Package pdftex.def Info: gh-pages/Figs/EPA.png  used on input line 248.
-(pdftex.def)             Requested size: 342.2953pt x 72.59845pt.
- [16
+<Figs/constituent-non-constituent-1.png, id=563, 1349.04pt x 578.16pt>
+File: Figs/constituent-non-constituent-1.png Graphic file (type png)
+<use Figs/constituent-non-constituent-1.png>
+Package pdftex.def Info: Figs/constituent-non-constituent-1.png  used on input 
+line 209.
+(pdftex.def)             Requested size: 342.2953pt x 146.6922pt.
 
- <./gh-pages/Figs/EPA.png>]
-<gh-pages/Figs/ICE.png, id=499, 1355.0625pt x 409.53pt>
-File: gh-pages/Figs/ICE.png Graphic file (type png)
-<use gh-pages/Figs/ICE.png>
-Package pdftex.def Info: gh-pages/Figs/ICE.png  used on input line 261.
-(pdftex.def)             Requested size: 342.2953pt x 103.4508pt.
- [17
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
- <./gh-pages/Figs/ICE.png>]
-<gh-pages/Figs/FERC.png, id=529, 786.94pt x 760.8425pt>
-File: gh-pages/Figs/FERC.png Graphic file (type png)
-<use gh-pages/Figs/FERC.png>
-Package pdftex.def Info: gh-pages/Figs/FERC.png  used on input line 270.
-(pdftex.def)             Requested size: 342.2953pt x 330.9406pt.
+[16
 
-Overfull \vbox (112.93625pt too high) detected at line 270
+ <./Figs/constituent-non-constituent-1.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[17
+
+]
+<Figs/members_barcoded-1.png, id=622, 1734.48pt x 770.88pt>
+File: Figs/members_barcoded-1.png Graphic file (type png)
+<use Figs/members_barcoded-1.png>
+Package pdftex.def Info: Figs/members_barcoded-1.png  used on input line 233.
+(pdftex.def)             Requested size: 342.2953pt x 152.12656pt.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [18
 
- <./gh-pages/Figs/FERC.png>]
-<FERC/Figs/CIACorrespondence.jpg, id=559, 2242.3775pt x 2256.43pt>
-File: FERC/Figs/CIACorrespondence.jpg Graphic file (type jpg)
-<use FERC/Figs/CIACorrespondence.jpg>
-Package pdftex.def Info: FERC/Figs/CIACorrespondence.jpg  used on input line 27
-7.
-(pdftex.def)             Requested size: 342.2953pt x 344.44077pt.
+ <./Figs/members_barcoded-1.png>]
+<Figs/members_barcoded-2.png, id=652, 1734.48pt x 770.88pt>
+File: Figs/members_barcoded-2.png Graphic file (type png)
+<use Figs/members_barcoded-2.png>
+Package pdftex.def Info: Figs/members_barcoded-2.png  used on input line 241.
+(pdftex.def)             Requested size: 342.2953pt x 152.12656pt.
 
-Overfull \vbox (126.43642pt too high) detected at line 277
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [19
 
- <./FERC/Figs/CIACorrespondence.jpg>]
-<gh-pages/Figs/data_by_type.pdf, id=590, 578.16pt x 289.08pt>
-File: gh-pages/Figs/data_by_type.pdf Graphic file (type pdf)
-<use gh-pages/Figs/data_by_type.pdf>
-Package pdftex.def Info: gh-pages/Figs/data_by_type.pdf  used on input line 300
-.
-(pdftex.def)             Requested size: 342.2953pt x 171.14679pt.
- [20
+ <./Figs/members_barcoded-2.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
- <./gh-pages/Figs/data_by_type.pdf>] [21
+[20
 
 ]
-<gh-pages/Figs/percentiles-1.png, id=652, 1156.32pt x 654.445pt>
-File: gh-pages/Figs/percentiles-1.png Graphic file (type png)
-<use gh-pages/Figs/percentiles-1.png>
-Package pdftex.def Info: gh-pages/Figs/percentiles-1.png  used on input line 37
-3.
-(pdftex.def)             Requested size: 342.2953pt x 193.72867pt.
- [22
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
- <./gh-pages/Figs/percentiles-1.png>] [23
-
-] [24
+[21
 
 ]
-<gh-pages/Figs/population-1.png, id=739, 1156.32pt x 712.6625pt>
-File: gh-pages/Figs/population-1.png Graphic file (type png)
-<use gh-pages/Figs/population-1.png>
-Package pdftex.def Info: gh-pages/Figs/population-1.png  used on input line 404
-.
-(pdftex.def)             Requested size: 289.07999pt x 178.16519pt.
+<Figs/part-constituent-1.png, id=740, 770.88pt x 578.16pt>
+File: Figs/part-constituent-1.png Graphic file (type png)
+<use Figs/part-constituent-1.png>
+Package pdftex.def Info: Figs/part-constituent-1.png  used on input line 267.
+(pdftex.def)             Requested size: 342.2953pt x 256.72018pt.
 
-Overfull \vbox (1.70528pt too high) detected at line 404
+
+LaTeX Warning: Reference `f:party' on page 22 undefined on input line 267.
+
+
+Overfull \vbox (54.44498pt too high) detected at line 267
+ []
+
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[22
+
+ <./Figs/part-constituent-1.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[23
+
+]
+<Figs/population-1.png, id=802, 1156.32pt x 712.6625pt>
+File: Figs/population-1.png Graphic file (type png)
+<use Figs/population-1.png>
+Package pdftex.def Info: Figs/population-1.png  used on input line 285.
+(pdftex.def)             Requested size: 342.2953pt x 210.96219pt.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[24
+
+ <./Figs/population-1.png>]
+<Figs/sentate_percapita_map-2.png, id=832, 1638.12pt x 963.6pt>
+File: Figs/sentate_percapita_map-2.png Graphic file (type png)
+<use Figs/sentate_percapita_map-2.png>
+Package pdftex.def Info: Figs/sentate_percapita_map-2.png  used on input line 2
+97.
+(pdftex.def)             Requested size: 342.2953pt x 201.34744pt.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [25
 
- <./gh-pages/Figs/population-1.png>] [26
+ <./Figs/sentate_percapita_map-2.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-] [27
-
-] [28
-
-] [29
+[26
 
 ]
-<gh-pages/Figs/cross_sectional_models-1.png, id=883, 1156.32pt x 750.805pt>
-File: gh-pages/Figs/cross_sectional_models-1.png Graphic file (type png)
-<use gh-pages/Figs/cross_sectional_models-1.png>
-Package pdftex.def Info: gh-pages/Figs/cross_sectional_models-1.png  used on in
-put line 446.
-(pdftex.def)             Requested size: 342.2953pt x 222.25313pt.
+<Figs/committeechiars_barcode-1.png, id=891, 1638.12pt x 963.6pt>
+File: Figs/committeechiars_barcode-1.png Graphic file (type png)
+<use Figs/committeechiars_barcode-1.png>
+Package pdftex.def Info: Figs/committeechiars_barcode-1.png  used on input line
+ 317.
+(pdftex.def)             Requested size: 342.2953pt x 201.34744pt.
 
-Overfull \vbox (19.97792pt too high) detected at line 446
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[27
+
+ <./Figs/committeechiars_barcode-1.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[28
+
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[29
+
+]
+<Figs/letters_PACs-data-1.png, id=978, 1830.84pt x 963.6pt>
+File: Figs/letters_PACs-data-1.png Graphic file (type png)
+<use Figs/letters_PACs-data-1.png>
+Package pdftex.def Info: Figs/letters_PACs-data-1.png  used on input line 347.
+(pdftex.def)             Requested size: 342.2953pt x 180.14523pt.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [30
 
- <./gh-pages/Figs/cross_sectional_models-1.png>]
-<gh-pages/Figs/oversight_committee_chair_models-1.png, id=914, 1156.32pt x 481.
-8pt>
-File: gh-pages/Figs/oversight_committee_chair_models-1.png Graphic file (type p
-ng)
-<use gh-pages/Figs/oversight_committee_chair_models-1.png>
-Package pdftex.def Info: gh-pages/Figs/oversight_committee_chair_models-1.png  
-used on input line 475.
-(pdftex.def)             Requested size: 342.2953pt x 142.62231pt.
- [31
+ <./Figs/letters_PACs-data-1.png>]
+<Figs/letters_money-2.png, id=1008, 1638.12pt x 963.6pt>
+File: Figs/letters_money-2.png Graphic file (type png)
+<use Figs/letters_money-2.png>
+Package pdftex.def Info: Figs/letters_money-2.png  used on input line 356.
+(pdftex.def)             Requested size: 342.2953pt x 201.34744pt.
 
- <./gh-pages/Figs/oversight_committee_chair_models-1.png>]
-<gh-pages/Figs/DiD-1.png, id=945, 1156.32pt x 750.805pt>
-File: gh-pages/Figs/DiD-1.png Graphic file (type png)
-<use gh-pages/Figs/DiD-1.png>
-Package pdftex.def Info: gh-pages/Figs/DiD-1.png  used on input line 484.
-(pdftex.def)             Requested size: 342.2953pt x 222.25313pt.
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-Overfull \vbox (27.97792pt too high) detected at line 484
+[31
+
+ <./Figs/letters_money-2.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
 [32
 
- <./gh-pages/Figs/DiD-1.png>] [33
-
 ]
-<gh-pages/Figs/ideology_density-2.png, id=1004, 578.16pt x 578.16pt>
-File: gh-pages/Figs/ideology_density-2.png Graphic file (type png)
-<use gh-pages/Figs/ideology_density-2.png>
-Package pdftex.def Info: gh-pages/Figs/ideology_density-2.png  used on input li
-ne 504.
-(pdftex.def)             Requested size: 144.54pt x 144.53964pt.
-<gh-pages/Figs/ideology_density-3.png, id=1005, 578.16pt x 578.16pt>
-File: gh-pages/Figs/ideology_density-3.png Graphic file (type png)
-<use gh-pages/Figs/ideology_density-3.png>
-Package pdftex.def Info: gh-pages/Figs/ideology_density-3.png  used on input li
-ne 504.
-(pdftex.def)             Requested size: 144.54pt x 144.53964pt.
- [34
+<Figs/models-1.png, id=1068, 1638.12pt x 385.44pt>
+File: Figs/models-1.png Graphic file (type png)
+<use Figs/models-1.png>
+Package pdftex.def Info: Figs/models-1.png  used on input line 375.
+(pdftex.def)             Requested size: 342.2953pt x 80.53897pt.
 
- <./gh-pages/Figs/ideology_density-2.png> <./gh-pages/Figs/ideology_density-3.p
-ng>] [35
-
-] [36
-
-] [37
-
-] [38
-
-] [39
-
-] [40
-
-]
-[41
-
-] [42
-
-] [43
-
-] [44
-
-]
-<FERC/Figs/data-by-type-1.png, id=1321, 1349.04pt x 770.88pt>
-File: FERC/Figs/data-by-type-1.png Graphic file (type png)
-<use FERC/Figs/data-by-type-1.png>
-Package pdftex.def Info: FERC/Figs/data-by-type-1.png  used on input line 607.
-(pdftex.def)             Requested size: 342.2953pt x 195.58961pt.
- [45
-
- <./FERC/Figs/data-by-type-1.png>] [46
-
-] [47
-
-]
-<FERC/Figs/constituent-non-constituent-1.png, id=1407, 1349.04pt x 578.16pt>
-File: FERC/Figs/constituent-non-constituent-1.png Graphic file (type png)
-<use FERC/Figs/constituent-non-constituent-1.png>
-Package pdftex.def Info: FERC/Figs/constituent-non-constituent-1.png  used on i
-nput line 640.
-(pdftex.def)             Requested size: 342.2953pt x 146.6922pt.
- [48
-
- <./FERC/Figs/constituent-non-constituent-1.png>] [49
-
-] [50
-
-] [51
-
-]
-<FERC/Figs/part-constituent-1.png, id=1523, 770.88pt x 578.16pt>
-File: FERC/Figs/part-constituent-1.png Graphic file (type png)
-<use FERC/Figs/part-constituent-1.png>
-Package pdftex.def Info: FERC/Figs/part-constituent-1.png  used on input line 6
-75.
-(pdftex.def)             Requested size: 342.2953pt x 256.72018pt.
-
-
-LaTeX Warning: Reference `f:party' on page 52 undefined on input line 675.
-
-
-Overfull \vbox (54.44498pt too high) detected at line 675
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
-[52
+[33
 
- <./FERC/Figs/part-constituent-1.png>] [53
-
-]
-<FERC/Figs/sentate_percapita_map-2.png, id=1584, 1638.12pt x 963.6pt>
-File: FERC/Figs/sentate_percapita_map-2.png Graphic file (type png)
-<use FERC/Figs/sentate_percapita_map-2.png>
-Package pdftex.def Info: FERC/Figs/sentate_percapita_map-2.png  used on input l
-ine 696.
-(pdftex.def)             Requested size: 342.2953pt x 201.34744pt.
- [54
-
- <./FERC/Figs/sentate_percapita_map-2.png>] [55
-
-] [56
-
-]
-<FERC/Figs/letters_PACs-data-1.png, id=1672, 1830.84pt x 963.6pt>
-File: FERC/Figs/letters_PACs-data-1.png Graphic file (type png)
-<use FERC/Figs/letters_PACs-data-1.png>
-Package pdftex.def Info: FERC/Figs/letters_PACs-data-1.png  used on input line 
-727.
-(pdftex.def)             Requested size: 342.2953pt x 180.14523pt.
- [57
-
- <./FERC/Figs/letters_PACs-data-1.png>]
-<FERC/Figs/letters_money-2.png, id=1702, 1638.12pt x 963.6pt>
-File: FERC/Figs/letters_money-2.png Graphic file (type png)
-<use FERC/Figs/letters_money-2.png>
-Package pdftex.def Info: FERC/Figs/letters_money-2.png  used on input line 736.
-
-(pdftex.def)             Requested size: 342.2953pt x 201.34744pt.
- [58
-
- <./FERC/Figs/letters_money-2.png>] [59
-
-]
-<FERC/Figs/models-full-1.png, id=1761, 1638.12pt x 385.44pt>
-File: FERC/Figs/models-full-1.png Graphic file (type png)
-<use FERC/Figs/models-full-1.png>
-Package pdftex.def Info: FERC/Figs/models-full-1.png  used on input line 756.
+ <./Figs/models-1.png>]
+<Figs/models-full-1.png, id=1098, 1638.12pt x 385.44pt>
+File: Figs/models-full-1.png Graphic file (type png)
+<use Figs/models-full-1.png>
+Package pdftex.def Info: Figs/models-full-1.png  used on input line 386.
 (pdftex.def)             Requested size: 342.2953pt x 80.53897pt.
- [60
 
- <./FERC/Figs/models-full-1.png>] [61
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[34
+
+ <./Figs/models-full-1.png>]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[35
 
 ]
-[62
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-] [63
+[36
+
+]
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[37
 
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\translate ' on input line 802.
+(hyperref)                removing `\translate ' on input line 426.
 
 
-Overfull \vbox (3.72433pt too high) detected at line 806
+Overfull \vbox (3.72433pt too high) detected at line 429
  []
 
-[64
 
-] [65
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
 
-] [66
-
-] [67
+[38
 
 ]
-<FERC/Figs/20171020-0018-14718216.pdf, id=1993, 614.295pt x 794.97pt>
-File: FERC/Figs/20171020-0018-14718216.pdf Graphic file (type pdf)
-<use FERC/Figs/20171020-0018-14718216.pdf>
-Package pdftex.def Info: FERC/Figs/20171020-0018-14718216.pdf  used on input li
-ne 899.
-(pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
+<Figs/EPA.png, id=1242, 1244.65pt x 263.98625pt>
+File: Figs/EPA.png Graphic file (type png)
+<use Figs/EPA.png>
+Package pdftex.def Info: Figs/EPA.png  used on input line 436.
+(pdftex.def)             Requested size: 342.2953pt x 72.59845pt.
 
-Overfull \vbox (61.05725pt too high) detected at line 899
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
-[68
+[39
 
- <./FERC/Figs/20171020-0018-14718216.pdf>]
-<FERC/Figs/20080515-0185small.pdf, id=2034, 614.295pt x 794.97pt>
-File: FERC/Figs/20080515-0185small.pdf Graphic file (type pdf)
-<use FERC/Figs/20080515-0185small.pdf>
-Package pdftex.def Info: FERC/Figs/20080515-0185small.pdf  used on input line 9
-09.
-(pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
+ <./Figs/EPA.png>]
+<Figs/ICE.png, id=1271, 1355.0625pt x 409.53pt>
+File: Figs/ICE.png Graphic file (type png)
+<use Figs/ICE.png>
+Package pdftex.def Info: Figs/ICE.png  used on input line 449.
+(pdftex.def)             Requested size: 342.2953pt x 103.4508pt.
 
-Overfull \vbox (62.426pt too high) detected at line 909
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
  []
 
-[69
+[40
 
- <./FERC/Figs/20080515-0185small.pdf>]
-<FERC/Figs/members_barcoded-1.png, id=2144, 1734.48pt x 770.88pt>
-File: FERC/Figs/members_barcoded-1.png Graphic file (type png)
-<use FERC/Figs/members_barcoded-1.png>
-Package pdftex.def Info: FERC/Figs/members_barcoded-1.png  used on input line 9
-25.
-(pdftex.def)             Requested size: 342.2953pt x 152.12656pt.
- [70
+ <./Figs/ICE.png>]
+<Figs/FERC.png, id=1301, 786.94pt x 760.8425pt>
+File: Figs/FERC.png Graphic file (type png)
+<use Figs/FERC.png>
+Package pdftex.def Info: Figs/FERC.png  used on input line 458.
+(pdftex.def)             Requested size: 342.2953pt x 330.9406pt.
 
- <./FERC/Figs/members_barcoded-1.png>]
-<FERC/Figs/members_barcoded-2.png, id=2174, 1734.48pt x 770.88pt>
-File: FERC/Figs/members_barcoded-2.png Graphic file (type png)
-<use FERC/Figs/members_barcoded-2.png>
-Package pdftex.def Info: FERC/Figs/members_barcoded-2.png  used on input line 9
-33.
-(pdftex.def)             Requested size: 342.2953pt x 152.12656pt.
- [71
+Overfull \vbox (112.93625pt too high) detected at line 458
+ []
 
- <./FERC/Figs/members_barcoded-2.png>]
-<FERC/Figs/population-1.png, id=2205, 1156.32pt x 712.6625pt>
-File: FERC/Figs/population-1.png Graphic file (type png)
-<use FERC/Figs/population-1.png>
-Package pdftex.def Info: FERC/Figs/population-1.png  used on input line 943.
-(pdftex.def)             Requested size: 342.2953pt x 210.96219pt.
- [72
 
- <./FERC/Figs/population-1.png>] [73
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[41
+
+ <./Figs/FERC.png>]
+<Figs/CIACorrespondence.jpg, id=1331, 2242.3775pt x 2256.43pt>
+File: Figs/CIACorrespondence.jpg Graphic file (type jpg)
+<use Figs/CIACorrespondence.jpg>
+Package pdftex.def Info: Figs/CIACorrespondence.jpg  used on input line 465.
+(pdftex.def)             Requested size: 342.2953pt x 344.44077pt.
+
+Overfull \vbox (126.43642pt too high) detected at line 465
+ []
+
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[42
+
+ <./Figs/CIACorrespondence.jpg>]
+<Figs/letters_PACs-data-2.png, id=1361, 1830.84pt x 963.6pt>
+File: Figs/letters_PACs-data-2.png Graphic file (type png)
+<use Figs/letters_PACs-data-2.png>
+Package pdftex.def Info: Figs/letters_PACs-data-2.png  used on input line 471.
+(pdftex.def)             Requested size: 342.2953pt x 180.14523pt.
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[43
+
+ <./Figs/letters_PACs-data-2.png>]
+
+Package hyperref Warning: Ignoring empty anchor on input line 509.
+
+
+Overfull \hbox (7.9212pt too wide) in paragraph at lines 509--509
+ [] 
+ []
+
+
+Overfull \hbox (19.99345pt too wide) has occurred while \output is active
+ [][][][]  
+ []
+
+[44
 
 ]
-<FERC/Figs/committeechiars_barcode-1.png, id=2264, 1638.12pt x 963.6pt>
-File: FERC/Figs/committeechiars_barcode-1.png Graphic file (type png)
-<use FERC/Figs/committeechiars_barcode-1.png>
-Package pdftex.def Info: FERC/Figs/committeechiars_barcode-1.png  used on input
- line 963.
-(pdftex.def)             Requested size: 342.2953pt x 201.34744pt.
- [74
-
- <./FERC/Figs/committeechiars_barcode-1.png>]
-<FERC/Figs/models-1.png, id=2293, 1638.12pt x 385.44pt>
-File: FERC/Figs/models-1.png Graphic file (type png)
-<use FERC/Figs/models-1.png>
-Package pdftex.def Info: FERC/Figs/models-1.png  used on input line 974.
-(pdftex.def)             Requested size: 342.2953pt x 80.53897pt.
- [75
-
- <./FERC/Figs/models-1.png>]
 \tf@nav=\write6
-\openout6 = `ConstituencyServicePres.nav'.
+\openout6 = `FERCPresArnoldMay2019.nav'.
 
 \tf@toc=\write7
-\openout7 = `ConstituencyServicePres.toc'.
+\openout7 = `FERCPresArnoldMay2019.toc'.
 
 \tf@snm=\write8
-\openout8 = `ConstituencyServicePres.snm'.
+\openout8 = `FERCPresArnoldMay2019.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 976.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 976.
- (./ConstituencyServicePres.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 976.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 976.
-Package rerunfilecheck Info: File `ConstituencyServicePres.out' has not changed
-.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 515.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 515.
+ (./FERCPresArnoldMay2019.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 515.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 515.
+Package rerunfilecheck Info: File `FERCPresArnoldMay2019.out' has not changed.
 (rerunfilecheck)             Checksum: D9694BC855D0C50CCAD6B8D6DEDF7609;41.
 
 
@@ -1394,13 +1475,13 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 18219 strings out of 492649
- 346556 string characters out of 6129622
- 426311 words of memory out of 5000000
- 21490 multiletter control sequences out of 15000+600000
- 70607 words of font info for 71 fonts, out of 8000000 for 9000
+ 18024 strings out of 492649
+ 342954 string characters out of 6129622
+ 426165 words of memory out of 5000000
+ 21368 multiletter control sequences out of 15000+600000
+ 65156 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,15n,57p,805b,574s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 56i,15n,57p,803b,573s stack positions out of 5000i,500n,10000p,200000b,80000s
 pdfTeX warning (dest): name{f:party} has been referenced but does not exist, 
 replaced by a fixed one
 
@@ -1411,13 +1492,13 @@ t/fonts/type1/public/lm/lmss12.pfb></usr/local/texlive/2018/texmf-dist/fonts/ty
 pe1/public/lm/lmss17.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public
 /lm/lmss8.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmss9.p
 fb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr
-/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmsso12.pfb></usr/local/te
-xlive/2018/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2018
-/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on ConstituencyServicePres.pdf (75 pages, 3772037 bytes).
+/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmsso10.pfb></usr/local/te
+xlive/2018/texmf-dist/fonts/type1/public/lm/lmsso12.pfb></usr/local/texlive/201
+8/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
+Output written on FERCPresArnoldMay2019.pdf (44 pages, 3147965 bytes).
 PDF statistics:
- 2393 PDF objects out of 2487 (max. 8388607)
- 2201 compressed objects within 23 object streams
- 156 named destinations out of 1000 (max. 500000)
- 216 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1475 PDF objects out of 1728 (max. 8388607)
+ 1339 compressed objects within 14 object streams
+ 91 named destinations out of 1000 (max. 500000)
+ 176 words of extra memory for PDF output out of 10000 (max. 10000000)
 
