@@ -72,12 +72,21 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Larsen, John", "John LARSON")) %>%
     mutate(FROM = str_replace(FROM, "Lieu, Ted W", "Ted LIEU")) %>%
     mutate(FROM = str_replace(FROM, "Ferguson IV, A Drew|Ferguson, IV, A Drew", "Drew FERGUSON")) %>%
-    mutate(FROM = str_replace(FROM, "Amodel, Mark", "Mark AMODEI"))
+    mutate(FROM = str_replace(FROM, "Amodel, Mark", "Mark AMODEI")) %>%
+    mutate(FROM = str_replace(FROM, "Charles, Schumer", "Charles Schumer")) %>%
+    mutate(FROM = str_replace(FROM, "Robert, Menendez ", "Robert Menendez ")) %>%
+    mutate(FROM = str_replace(FROM, "Rockefeller, VI, John D", "Rockefeller, John")) %>%
+    mutate(FROM = str_replace(FROM, "Schultz, Debbie Wasserman", "Debbie WASSERMAN SCHULTZ"))
   
   #Name Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Ros-Lehtinen, Heana", "leana ROS-LEHTINEN")) %>%
-    mutate(FROM = str_replace(FROM, "Buschon, Larry", "Larry BUCSHON"))
+    mutate(FROM = str_replace(FROM, "Buschon, Larry", "Larry BUCSHON")) %>%
+    mutate(FROM = str_replace(FROM, "DelBene, Susan ", "DelBene, Suzan ")) %>%
+    mutate(FROM = str_replace(FROM, "Shea-Porter, Carl", "Shea-Porter, Carol")) %>%
+    mutate(FROM = str_replace(FROM, "Beutler, Jairme Herrera", "Jaime HERRERA BEUTLER")) %>%
+    mutate(FROM = str_replace(FROM, "Strivers, Steve", "Steve STIVERS")) %>%
+    mutate(FROM = str_replace(FROM, "Hines, Jim", "Himes, Jim"))
     
   
   data %<>% extractMemberName(members, 'FROM')
@@ -97,12 +106,17 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
+  data %>%
+    filter(ID == 2206) %>%
+    select(FROM)
+  
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Fortuno, Luis|Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor"), "Non voting member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor"), "State Politician", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Faleomavaega, Eni F|Fortuno, Luis|Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor|Christensen, Donna M"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor|Hutchinson, Toi|Hueso, Ben  "), "State Politician", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Beasley, James E\\."), "Non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c(110), "Not yet in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Robinson, Russell E   Aviation Industry|Beasley, James E\\.|Benjiman, Moy."), "Non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c(110), "Not yet in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Joyce, David L") & congress %in% c(110), "Not yet in congress", ERROR))
 
   #Failing observations
   Unfoundnames <- data %>%
