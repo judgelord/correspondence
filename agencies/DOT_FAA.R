@@ -33,8 +33,7 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  data %<>%
-    mutate(FROM = str_replace(FROM, "Diaz-Balart, Mario\\.  R-FL  U\\.S\\. House of Representatives  Diaz-Balart, Lincoln\\.  R-FL  U\\.S\\. House of Representatives	", "Diaz-Balart, Mario  R-FL  U\\.S House of Representatives;  Diaz-Balart, Lincoln  R-FL  U\\.S House of Representatives"))
+
   
   # Add semi colons in rows with multiple congressman
   data$FROM <- gsub("(Senate|Representatives)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
@@ -118,7 +117,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   data %>%
-    filter(ID == 10284) %>%
+    filter(ID == 10131) %>%
     select(FROM)
   
   data %<>%
@@ -127,7 +126,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Leong, Aaron G|Estes, Mark|Williams, Susan|Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Robinson, Russell E   Aviation Industry|Beasley, James E\\.|Benjiman, Moy."), "Non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c(110), "Not yet in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Joyce, David L|Huffman, Jared ") & congress %in% c(110), "Not yet in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Joyce, David L|Huffman, Jared|Hudson, Richard") & congress %in% c(110), "Not yet in congress", ERROR))
 
   #Failing observations
   Unfoundnames <- data %>%
