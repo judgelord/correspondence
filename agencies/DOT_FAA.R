@@ -34,13 +34,9 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
 
-  
   # Add semi colons in rows with multiple congressman
   data$FROM <- gsub("(Senate|Representatives)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
   data$FROM <- gsub("(Infrastructure|Aviation|Transportation|Technology|Reform)  (\\w+,)","\\1;\\2", data$FROM, ignore.case = T)
-  
-  
-    
   
   
   ###############    
@@ -59,6 +55,17 @@ clean <- function(file.name) {
     mutate(FROM = str_remove_all(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
     mutate(FROM = str_replace_all(FROM, ",, ", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, "\\. ", " "))
+  
+  #Match on state
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim D-SD|Johnson, Tim R-SD"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike D\\/AL"), str_replace(FROM, "Rogers, Mike", "Mike Dennis ROGERS"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Udall, Mark E D\\/NM"), str_replace(FROM, "Udall, Mark E", "Thomas UDALL"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike R-MI"), str_replace(FROM, "Rogers, Mike", "Mike J ROGERS"), FROM))
+  
+  #Match on congress and chamber
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim United States Senate") & congress %in% c(110), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM))
   
   #Name Format Typos
   data %<>%
@@ -89,7 +96,7 @@ clean <- function(file.name) {
   
   #Name Typos
   data %<>%
-    mutate(FROM = str_replace(FROM, "Ros-Lehtinen, Heana", "leana ROS-LEHTINEN")) %>%
+    mutate(FROM = str_replace(FROM, "Ros-Lehtinen, Heana", "Ileana ROS-LEHTINEN")) %>%
     mutate(FROM = str_replace(FROM, "Buschon, Larry", "Larry BUCSHON")) %>%
     mutate(FROM = str_replace(FROM, "DelBene, Susan ", "DelBene, Suzan ")) %>%
     mutate(FROM = str_replace(FROM, "Shea-Porter, Carl", "Shea-Porter, Carol")) %>%
@@ -122,7 +129,7 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Faleomavaega, Eni F|Fortuno, Luis|Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor|Christensen, Donna M"), "Non voting member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor|Hutchinson, Toi|Hueso, Ben  "), "State Politician", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor|Hutchinson, Toi|Hueso, Ben|Udall, Mark E D\\/NM United States Senate"), "State Politician", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Leong, Aaron G|Estes, Mark|Williams, Susan|Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Robinson, Russell E   Aviation Industry|Beasley, James E\\.|Benjiman, Moy."), "Non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Ted LIEU") & congress %in% c(110), "Not yet in congress", ERROR)) %>%
