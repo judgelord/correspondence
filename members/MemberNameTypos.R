@@ -297,7 +297,7 @@ typos_last <- tribble(
   "Mary", "Fallin", "FALUN",
   "Tom", "Udall", "(Uda ll|UDAU)",
   "Morgan", "Griffith", "Griffiths",
-  "Janice", "Schakowsky", "Schakowski"
+  "Janice|Jan", "Schakowsky", "Schakowski"
   
  
   
