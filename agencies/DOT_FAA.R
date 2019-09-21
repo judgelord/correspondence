@@ -55,10 +55,10 @@ clean <- function(file.name) {
     mutate(FROM = str_remove_all(FROM, " Jr\\.| JR\\.| Jr\\.,")) %>%
     mutate(FROM = str_replace_all(FROM, ",, ", ", ")) %>%
     mutate(FROM = str_replace_all(FROM, "\\. ", " ")) %>%
-    mutate(FROM = str_replace_all(FROM, "  R\\/.*", " R\\/.*")) %>%
-    mutate(FROM = str_replace_all(FROM, "  R-.*", " R-.*")) %>%
-    mutate(FROM = str_replace_all(FROM, "  D\\/.*", " D\\/.*")) %>%
-    mutate(FROM = str_replace_all(FROM, "  D-.*", " D-.*"))
+    mutate(FROM = str_replace_all(FROM, "  R\\/", " R\\/")) %>%
+    mutate(FROM = str_replace_all(FROM, "  R-", " R-")) %>%
+    mutate(FROM = str_replace_all(FROM, "  D\\/", " D\\/")) %>%
+    mutate(FROM = str_replace_all(FROM, "  D-", " D-"))
   
   
   #Fix state space
