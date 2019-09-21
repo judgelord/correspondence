@@ -57,7 +57,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace_all(FROM, "\\. ", " ")) %>%
     mutate(FROM = str_replace_all(FROM, "  R\\/", " R\\/")) %>%
     mutate(FROM = str_replace_all(FROM, "  R-", " R-")) %>%
-    mutate(FROM = str_replace_all(FROM, "  D\\/", " D\//")) %>%
+    mutate(FROM = str_replace_all(FROM, "  D\\/", " D\\/")) %>%
     mutate(FROM = str_replace_all(FROM, "  D-", " D-"))
   
   
