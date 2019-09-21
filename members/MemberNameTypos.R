@@ -299,7 +299,8 @@ typos_last <- tribble(
   "Morgan", "Griffith", "Griffiths",
   "Jan", "Schakowsky", "Schakowski",
   "Ander", "Crenshaw", "Creshaw",
-  "Mike", "FITZPATRICK", "Fitzpatick"
+  "Mike", "FITZPATRICK", "Fitzpatick",
+  "Brian", "Schatz", "Schartz"
   
   
  
