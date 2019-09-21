@@ -58,14 +58,14 @@ clean <- function(file.name) {
   
   #Match on state
   data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim D-SD|Johnson, Tim R-SD"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike D\\/AL"), str_replace(FROM, "Rogers, Mike", "Mike Dennis ROGERS"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim D-SD|Johnson, Tim R-SD|Johnson, Tim  D-SD|Johnson, Tim  R-SD"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike D\\/AL|Rogers, Mike  D\\/AL"), str_replace(FROM, "Rogers, Mike", "Mike Dennis ROGERS"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Udall, Mark E D\\/NM"), str_replace(FROM, "Udall, Mark E", "Thomas UDALL"), FROM)) %>% #check that this is true
     mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike R-MI"), str_replace(FROM, "Rogers, Mike", "Mike J ROGERS"), FROM))
   
   #Match on congress and chamber
   data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim United States Senate") & congress %in% c(110), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM))
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim United States Senate|Johnson, Tim  United States Senate") & congress %in% c(110), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM))
   
   #Name Format Typos
   data %<>%
@@ -95,7 +95,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Bono Mack, Mary", "Mary BONO")) %>%
     mutate(FROM = str_replace(FROM, "Owens, The Honorable Bill", "William OWENS")) %>%
     mutate(FROM = str_replace(FROM, "Cook \\(Ret Col\\.\\), Paul", "COOK, Paul")) %>%
-    mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila"))
+    mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila")) %>%
+    mutate(FROM = str_replace(FROM, "Murkowski, Lisa   R\\/KS  United States Senate", "Murkowski, Lisa  R\\/AK  United States Senate"))
   
   #Name Typos
   data %<>%
@@ -139,7 +140,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   data %>%
-    filter(ID == 9609) %>%
+    filter(LetterID == 7483) %>%
     select(FROM)
   
   data %<>%
