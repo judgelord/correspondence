@@ -301,6 +301,7 @@ typos_last <- tribble(
   "Ander", "Crenshaw", "Creshaw",
   "Mike", "FITZPATRICK", "Fitzpatick"
   
+  
  
   
 
@@ -425,7 +426,8 @@ typos_first <- tribble(
   "Jon", "Tester", "John",
   "Lisa", "Murkowski", "Usa",
   "Donald", "MCEACHIN", "McEachin, A.Donald",
-  "Byron", "Dorgan", "Bryon"
+  "Byron", "Dorgan", "Bryon",
+  "Orrin", "Hatch", "Orin"
  
 
  
