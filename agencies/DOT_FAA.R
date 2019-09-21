@@ -60,7 +60,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim D-SD|Johnson, Tim R-SD"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike D\\/AL"), str_replace(FROM, "Rogers, Mike", "Mike Dennis ROGERS"), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(FROM, "Udall, Mark E D\\/NM"), str_replace(FROM, "Udall, Mark E", "Thomas UDALL"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Udall, Mark E D\\/NM"), str_replace(FROM, "Udall, Mark E", "Thomas UDALL"), FROM)) %>% #check that this is true
     mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike R-MI"), str_replace(FROM, "Rogers, Mike", "Mike J ROGERS"), FROM))
   
   #Match on congress and chamber
@@ -109,7 +109,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Sirens, Albio", "Sires, Albio")) %>%
     mutate(FROM = str_replace(FROM, "Sterns, Cliff", "Stearns, Cliff")) %>%
     mutate(FROM = str_replace(FROM, "Coata, Dan", "Coats, Dan")) %>%
-    mutate(FROM = str_replace(FROM, "Shock, Aaron", "Schock, Aaron"))
+    mutate(FROM = str_replace(FROM, "Shock, Aaron|Scheck, Aaron", "Schock, Aaron")) %>%
+    mutate(FROM = str_replace(FROM, "Hartzier, Vicky", "Hartzler, Vicky"))
     
   
   data %<>% extractMemberName(members, 'FROM')
@@ -135,8 +136,8 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Sablan, Gregorio Kilili Camacho|Faleomavaega, Eni F|Fortuno, Luis|Pierluisi, Pedro R|Bordallo, Madeleine Z|Holmes Norton, Eleanor|Norton, Eleanor Holmes|Holmes Norton,  Eleanor|Christensen, Donna M"), "Non voting member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor|Hutchinson, Toi|Hueso, Ben|Udall, Mark E D\\/NM United States Senate"), "State Politician", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L "), "Agency Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Avella, Tony|Local Government|Governor|Hutchinson, Toi|Hueso, Ben|County Executive"), "State Politician", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Eck, James T ANG Administrator|Dalrymple, Jack |Heurta, Michael P|Marootian, Jeff|Carraway, Melvin J|Jones,  Stephanie  Department of Transportation|Thomson, Kathryn B  General Counsel  U\\.S Department of Transportation|Bolton, Edward L\\.|Gilligan, Margaret|Jones,  Stephanie Senior Counselor and Chief Opportunitie s Officer|Kurland, Susan L |Bowman, Ben F|Fornarotto, Christa"), "Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Leong, Aaron G|Estes, Mark|Williams, Susan|Robinson, Russell E\\.|Baker, Mark|Robinson, Russell E Aviation Industry|Robinson, Russell E   Aviation Industry|Beasley, James E\\.|Benjiman, Moy.|Bauserman, Gilbert L"), "Non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Peters, Gary|Ted LIEU|Begich, Mark") & congress %in% c(110), "Not yet in congress", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Joyce, David L|Huffman, Jared|Hudson, Richard") & congress %in% c(110), "Not yet in congress", ERROR))
