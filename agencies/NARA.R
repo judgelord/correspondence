@@ -102,8 +102,15 @@ clean <- function(file.name) {
   return(data)
 }
 
-
-
-
-
-
+## SOME CODE TO SPLITE UP ONE CELL WITH OVER 100 OBSERVATIONS IN IT
+## THESE OBSERVATIONS ARE NOW AT THE BOTTOME OF THE GOOGLE SHEET
+# d <- data$Description[5987] %>% 
+#   str_split("(\n)")  %>% unlist()
+# 
+# d <- tibble(d = d)%>% 
+#   separate(d, 
+#            into = c("DATE", "FROM", "Contact", "Description", "Constituent", "Liable Office", "Case Number", "NOTES"),
+#            sep = "(\t)",
+#            extra = "merge")
+# 
+# write_csv(d, path = "NARA extra.csv")
