@@ -37,7 +37,7 @@ data_list <- tribble(
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
-"DHHS_IHS", "not coded", NA, #
+"DHHS_IHS", "coded", "Rochelle", #
 # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
@@ -81,8 +81,8 @@ data_list <- tribble(
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 # "DOL_OALJ", "not coded", NA,
-"DOL_OSHA", "not coded", NA,
-"DOL_OWCP", "not coded", NA,
+"DOL_OSHA", "coded", "Rochelle",
+"DOL_OWCP", "coded", "Rochelle",
 "DOL_SOL", "not coded", NA, 
 "DOL_VETS", "not coded", NA,
 # DOS 
@@ -104,7 +104,7 @@ data_list <- tribble(
 # FCC
 "FCC", "coded", "Devin",
 # FDA
-"FDA", "not coded", NA,  # 2007-2018 now on drive, debug issue #97
+"FDA", "coded", "Rochelle",  # 2007-2018 now on drive, debug issue #97
 # FHFA
 "FHFA", "not coded", NA, #
 # FMC
@@ -143,7 +143,7 @@ data_list <- tribble(
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "not coded", NA,
-# "Treasury_Mint", "not coded", NA, # rich and complete, but needs a script
+# "Treasury_Mint", "coded", "Rochelle", # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
 "TVA", "not coded", NA,
 # USDA 
