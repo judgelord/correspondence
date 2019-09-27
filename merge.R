@@ -71,7 +71,7 @@ data_list <- tribble(
 "DOI_USGS", "not coded", NA,
 # DOJ 
 "DOJ_CIV", "not coded", NA,
-"DOJ_ENRD", "not coded", NA,
+"DOJ_ENRD", "coded", "Julia",
 "DOJ_EOIR", "not coded", NA,
 # "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
 # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
@@ -91,7 +91,7 @@ data_list <- tribble(
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, multiple data sources merged
 "DOT_FTA", "not coded", NA, 
-"DOT_PHMSA", "not coded", NA, # need a clean script when on drive. 
+"DOT_PHMSA", "coded", "Hope", # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
