@@ -130,7 +130,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Walder, Greg", "Walden, Greg ")) %>%
     mutate(FROM = str_replace(FROM, "Gonzales, Charles", "Gonzalez, Charles")) %>%
     mutate(FROM = str_replace(FROM, "Bachus, Max", "Baucus, Max")) %>%
-    mutate(FROM = str_replace(FROM, "Ronney, Tom", "Rooney, Tom"))
+    mutate(FROM = str_replace(FROM, "Ronney, Tom", "Rooney, Tom")) %>%
+    mutate(FROM = str_replace(FROM, "Carson, Aaron", "CARSON, Andre"))
     
     
   
