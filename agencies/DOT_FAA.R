@@ -62,11 +62,11 @@ clean <- function(file.name) {
   
   
   #Fix state space
-  # data %<>%
-  #   mutate(FROM = str_replace(FROM, "Murkowski, Lisa   R\\/KS  United States Senate", "Murkowski, Lisa  R\\/AK  United States Senate")) %>%
-  #   mutate(FROM = str_replace(FROM, "Rogers, Mike  R-MI", "Rogers, Mike R-MI")) %>%
-  #   mutate(FROM = str_replace(FROM, "Rogers, Mike J   R\\/MI", "Rogers, Mike J R\\/MI")) %>%
-  #   mutate(FROM = str_replace(FROM, "Rogers, Mike  D\\/AL", "Rogers, Mike D\\/AL"))
+   data %<>%
+     mutate(FROM = str_replace(FROM, "Murkowski, Lisa   R\\/KS  United States Senate", "Murkowski, Lisa  R\\/AK  United States Senate")) %>%
+     mutate(FROM = str_replace(FROM, "Rogers, Mike  R-MI", "Rogers, Mike R-MI")) %>%
+     mutate(FROM = str_replace(FROM, "Rogers, Mike J   R\\/MI", "Rogers, Mike J R\\/MI")) %>%
+     mutate(FROM = str_replace(FROM, "Rogers, Mike  D\\/AL", "Rogers, Mike D\\/AL"))
   
   #Match on state
   data %<>%
@@ -107,7 +107,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Bono Mack, Mary", "Mary BONO")) %>%
     mutate(FROM = str_replace(FROM, "Owens, The Honorable Bill", "William OWENS")) %>%
     mutate(FROM = str_replace(FROM, "Cook \\(Ret Col\\.\\), Paul", "COOK, Paul")) %>%
-    mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila"))
+    mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila")) %>%
+    mutate(FROM = str_replace(FROM, "Grassley Charles E", "Grassley, Charles E"))
   
   #Name Typos
   data %<>%
@@ -151,7 +152,7 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   data %>%
-    filter(LetterID == 7483) %>%
+    filter(ID == 3893) %>%
     select(FROM)
   
   data %<>%
