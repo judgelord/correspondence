@@ -131,7 +131,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Gonzales, Charles", "Gonzalez, Charles")) %>%
     mutate(FROM = str_replace(FROM, "Bachus, Max", "Baucus, Max")) %>%
     mutate(FROM = str_replace(FROM, "Ronney, Tom", "Rooney, Tom")) %>%
-    mutate(FROM = str_replace(FROM, "Carson, Aaron", "CARSON, Andre"))
+    mutate(FROM = str_replace(FROM, "Carson, Aaron", "CARSON, Andre")) %>%
+    mutate(FROM = str_replace(FROM, "Crapos, Mike", "Crapo, Mike"))
     
     
   
@@ -169,6 +170,8 @@ clean <- function(file.name) {
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
+  nonmembers <- data %>%
+    filter(! is.na(ERROR))
 
   return(data)
 }
