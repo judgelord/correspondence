@@ -48,10 +48,9 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  #sampledata <- data %>%
-   #filter(str_detect(FROM, "Capito"))
+  #sampledata <- data[sample(1:nrow(data), 5000, replace=FALSE),]
 
- # data <- sampledata
+  #data <- sampledata
 
   #Trim White Space
   data %<>%
@@ -81,8 +80,8 @@ data %<>%
     mutate(FROM = str_split(FROM, "\\/")) %>%
     unnest(FROM)
   
-  # create ID 
-  data$ID <- 1:nrow(data)
+  # # create ID 
+  # data$ID <- 1:nrow(data)
 
   data %<>%
     mutate(FROM = str_remove(FROM, "\\/"))
@@ -100,11 +99,11 @@ data %<>%
   
   
   
-  #Check for duplicates
-  sample2data <- data %>%
-    group_by(ID, SUBJECT, DATE) %>%
-    mutate(n = n(),
-           last_name = str_c(last_name, collapse = "; "))
+   #Check for duplicates
+   sample2data <- data %>%
+     group_by(ID, SUBJECT, DATE) %>%
+     mutate(n = n(),
+            last_name = str_c(last_name, collapse = "; "))
   
   #Filter for Unfoundnames
   Unfoundnames <- data %>%
