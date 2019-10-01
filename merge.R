@@ -118,7 +118,7 @@ data_list <- tribble(
 # IRS 
 "IRS", "not coded", NA, # rolling release
 # NARA
-"NARA", "not coded", NA,
+"NARA", "coded", "Rochelle",
 # NASA
 "NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
 # NCPC
