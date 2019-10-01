@@ -206,7 +206,7 @@ FERC_corps %<>%
 
 ## For matching, remove endings like ", Inc." etc. 
 trim <- . %>%
-  str_remove_all("Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co\\.| Co$| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation") %>% 
+  str_remove_all("Companies of |Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co\\.| Co$| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation| Arkansas$") %>% 
   str_remove_all("^, ") %>%
   trimws()  # filter out names less than 2 characters 
 
@@ -305,16 +305,14 @@ FERC_corps %<>% group_by(company_short) %>%
 
 FERC_corps %>% count(company_short, company_short_refs) %>% arrange(-n)
 
-# Save 
-save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
 ```
 
 
 
-```{r votesmart}
+```{r votesmart, eval=FALSE, include=FALSE}
 # look up congressional districts with psvR
 FERC_corps %<>% 
-  mutate(zip = str_extract(contacts, "[0-9]{5}") ) 
+  mutate(zip = str_extract(contacts_refs, "[0-9]{5}") ) 
 
 FERC_corps %>% count(company, industry) %>% arrange(-n)
 
@@ -341,7 +339,49 @@ d %<>% mutate(industry = str_split(industry, ";")) %>%
   unnest()
 
 FERC_corps %<>% full_join(d)
-
 ```
 
 
+```{r save}
+# Save 
+save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
+```
+
+
+```{r unknown-zips, eval=FALSE, include=FALSE}
+FERC_corps %<>% mutate(zip = ifelse(is.na(zip) & str_detect(contacts_refs, "Alberta|Ontario|Canada|Quebec|Tiverton, ON"), "Canada", zip))
+
+found <- FERC_corps %>% select(company, company_short, industry, zip) %>% filter(!is.na(zip))
+
+unfound <- FERC_corps %>% select(company_short, industry, zip, contacts_refs) %>% filter(is.na(zip)) %>% distinct()
+
+unfound_from_letters <- dcorps %>% filter(!company_short %in% found$company_short,
+                                          !company %in% found$company) %>%
+  count(company_short) %>%
+  arrange(-n)
+
+
+
+
+parent_companies <- gs_title("parent_companies") %>% gs_read() # get data
+
+parent_companies_found <- partent_companies %>% 
+  # add zips for companies
+  left_join(FERC_corps %>% select(company_short,zip)) %>% 
+  filter(!is.na(zip))
+
+parents_found <- parent_companies %>% 
+  # remove cases where company zip is found
+  anti_join(parent_companies_found) %>%
+  # add zips for parent companies
+  left_join(FERC_corps %>% select(company_short, zip) %>% rename(parent_short = company_short)) %>% 
+  filter(!is.na(zip)) %>% distinct()
+
+parent_companies_found %<>% full_join(parents_found) %>% distinct()
+
+parent_companies %<>% full_join(parent_companies_found) %>% distinct()
+
+parent_companies %<>% full_join(FERC_letters %>% select(company_short, zip) %>% distinct()) %>% distinct()
+
+
+```
