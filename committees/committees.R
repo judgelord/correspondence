@@ -800,7 +800,7 @@ committees %<>% mutate(chair_since_2007 = ifelse(member_committee %in% chairs, T
 # arrange for easy viewing
 committees %<>% select(icpsr, name, congress, chamber, committee, prestige, prestige_chair, leadership_position, position, chair_of, seniorstatus, assigneddate, terminationdate, everything()) %>% ungroup()
 
-
+save(committees, file = "data/committees.Rdata")
 
 
 
