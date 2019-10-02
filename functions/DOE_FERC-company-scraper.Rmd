@@ -13,7 +13,7 @@ editor_options:
 
 ```{r setup, include=FALSE, echo=FALSE}
 ## Run a setup.R script to load R packages and set defaults
-#source(here::here("setup.R")) ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
+#source("setup.R") ## Alternatively: source("https://raw.githubusercontent.com/judgelord/PS811/master/setup.R")
 
 ## Modify some defaults for this example
 knitr::opts_chunk$set(fig.height = 4,
@@ -81,7 +81,7 @@ html <- read_html("https://www.ferc.gov/docs-filing/corp-off/gas/gas-B.asp")
 html %>% 
   html_nodes("strong") %>% 
   html_text() %>%
-  .[4:16]
+  .[4:6]
 ```
 
 
@@ -137,7 +137,7 @@ scraper <- function(url){
     str_remove("off/")
 
   ## Return a data frame with two variables, company and industry
-  d <- tibble(company = corps,
+  d <- tibble(company = str_squish(corps),
               industry = industry) %>% 
     distinct()
   
@@ -155,18 +155,21 @@ scraper <- function(url){
   ## Make a second dataframe of company names and addresses
   d2 <- tibble(contacts = contacts) %>% 
     separate(contacts, sep = "</strong>",
-             into = c("company", "contact"),
+             into = c("company", "contacts"),
              extra = "merge") %>% 
-    mutate(company = str_remove(contacts, "^[^A-Z]*"))%>% 
-    mutate(contacts = str_remove(contacts, "^[^A-Z]*"))
+    mutate(company = str_remove(company, "^[^A-Z]*")) %>% 
+      mutate(company = str_remove(company, "amp;")) %>% 
+    mutate(contacts = str_remove(contacts, "^[^A-Z]*")) %>% 
+    mutate_all(str_squish)
   
   d2 %<>% 
     distinct() %>% 
-    filter(!is.na(contact)) %>% 
+    filter(!is.na(contacts)) %>% 
     group_by(company) %>% 
     top_n(1)
   
   ## Join the company-contact data to the company-industry data
+  # FIXME may fail where specials other than anp&, also Penola line break
   d %<>% left_join(d2) %>% distinct()
   
   return(d)
@@ -179,8 +182,13 @@ scraper <- function(url){
 
 
 ```{r}
-FERC_corps <- map_dfr(url, possibly(scraper, NA_real_) ) 
+# Test function on one url
+FERC_corps <- map_dfr(url[1], possibly(scraper, NA_real_) ) 
+
+# Apply to all urls
+FERC_corps <- map_dfr(url, possibly(scraper, NA_real_) )  %>% distinct()
 head(FERC_corps)
+
 ```
 
 Clean up a bit, using `stringr` functions to make this list of companies more likely to be found in other datasets.
@@ -197,19 +205,17 @@ FERC_corps %<>%
   distinct() # drop duplicates
 
 ## For matching, remove endings like ", Inc." etc. 
-trim <- function(d){
-d %>%
-  str_remove_all("Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co\.| Co$| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation") %>% 
+trim <- . %>%
+  str_remove_all("Companies of |Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co\\.| Co$| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation| Arkansas$") %>% 
   str_remove_all("^, ") %>%
   trimws()  # filter out names less than 2 characters 
-}
 
 FERC_corps$company_short <- trim(FERC_corps$company) %>% trim()
 
 FERC_corps %<>% filter(nchar(company_short)>1,
                        company_short != "Â")
 
-head(FERC_corps)
+head(FERC_corps %>% select(company_short, everything()))
 ```
 
 
@@ -291,13 +297,91 @@ FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(-nchar(company_sh
 
 ```{r}
 ## Short to long names refrence variable
-FERC_corps %<>% group_by(company_short) %>% mutate(company_short_refs = str_c(company, collapse = "; ")) %>% ungroup()
+FERC_corps %<>% group_by(company_short) %>% 
+  mutate(company_short_refs = str_c(company, collapse = "; "),
+         contacts_refs = str_c(contacts, collapse = "; ")) %>% 
+  ungroup() %>% 
+  distinct()
 
-FERC_corps %>% group_by(company_short) %>% mutate(n=n()) %>% arrange(-n)
+FERC_corps %>% count(company_short, company_short_refs) %>% arrange(-n)
 
+```
+
+
+
+```{r votesmart, eval=FALSE, include=FALSE}
+# look up congressional districts with psvR
+FERC_corps %<>% 
+  mutate(zip = str_extract(contacts_refs, "[0-9]{5}") ) 
+
+FERC_corps %>% count(company, industry) %>% arrange(-n)
+
+d <- filter(FERC_corps, !is.na(zip)) %>% 
+  select(company, zip, industry) %>% 
+  distinct() %>% 
+  group_by(company, zip) %>% 
+  summarise(industry = str_c(industry, collapse  = ";"),
+            n = n()) %>% 
+  arrange(-n)
+
+d 
+
+zips <- list(d$zip)
+
+# install.packages("pvsR")
+library(pvsR)
+pvs.key <- ""
+districts <- District.getByZip(zips)
+
+d$districts <- districts 
+
+d %<>% mutate(industry = str_split(industry, ";")) %>% 
+  unnest()
+
+FERC_corps %<>% full_join(d)
+```
+
+
+```{r save}
 # Save 
 save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
 ```
 
 
+```{r unknown-zips, eval=FALSE, include=FALSE}
+FERC_corps %<>% mutate(zip = ifelse(is.na(zip) & str_detect(contacts_refs, "Alberta|Ontario|Canada|Quebec|Tiverton, ON"), "Canada", zip))
 
+found <- FERC_corps %>% select(company, company_short, industry, zip) %>% filter(!is.na(zip))
+
+unfound <- FERC_corps %>% select(company_short, industry, zip, contacts_refs) %>% filter(is.na(zip)) %>% distinct()
+
+unfound_from_letters <- dcorps %>% filter(!company_short %in% found$company_short,
+                                          !company %in% found$company) %>%
+  count(company_short) %>%
+  arrange(-n)
+
+
+
+
+parent_companies <- gs_title("parent_companies") %>% gs_read() # get data
+
+parent_companies_found <- partent_companies %>% 
+  # add zips for companies
+  left_join(FERC_corps %>% select(company_short,zip)) %>% 
+  filter(!is.na(zip))
+
+parents_found <- parent_companies %>% 
+  # remove cases where company zip is found
+  anti_join(parent_companies_found) %>%
+  # add zips for parent companies
+  left_join(FERC_corps %>% select(company_short, zip) %>% rename(parent_short = company_short)) %>% 
+  filter(!is.na(zip)) %>% distinct()
+
+parent_companies_found %<>% full_join(parents_found) %>% distinct()
+
+parent_companies %<>% full_join(parent_companies_found) %>% distinct()
+
+parent_companies %<>% full_join(FERC_letters %>% select(company_short, zip) %>% distinct()) %>% distinct()
+
+
+```
