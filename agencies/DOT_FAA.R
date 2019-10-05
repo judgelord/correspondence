@@ -76,7 +76,8 @@ clean <- function(file.name) {
     mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike R-MI|Rogers, Mike J R\\/MI"), str_replace(FROM, "Rogers, Mike", "Mike J ROGERS"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Murphy, Patrick J D-PA") & congress %in% c(114) & str_detect(SUBJECT, "Florida"), str_replace(FROM, "Murphy, Patrick J D-PA", "Murphy, Patrick E D-FL"), FROM)) %>%
     mutate(FROM = str_replace(FROM, "Murkowski, Lisa  R\\/KS  United States Senate", "Murkowski, Lisa  R/KS  United States Senate R\\/AK United States Senate")) %>%
-    mutate(FROM = str_replace(FROM, "Scott, Austin R\\/FL", "Scott, Austin R\\/GA"))
+    mutate(FROM = str_replace(FROM, "Scott, Austin R\\/FL", "Scott, Austin R\\/GA")) %>%
+    mutate(FROM = str_replace(FROM, "Tsongas, Niki  D\\/NJ", "Tsongas, Niki  D\\/MA"))
   
   #Match on congress and chamber
   data %<>%
