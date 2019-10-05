@@ -44,7 +44,7 @@ gs_auth()
 FERC_coders <- gs_title("FERC Data Assignments") %>% gs_read() %>% 
   rename(coder_sheet = `Sheets Assigned`) %>%
   select(coder_sheet, Freelancer) %>% 
-  drop_na(coder_sheet)
+  drop_na(coder_sheet) 
 
 # a helper function to read sheets from url
 gs_read_url <- function(coder_sheet){
@@ -59,6 +59,8 @@ gs_read_url <- function(coder_sheet){
 FERC_coded <- map_dfr(FERC_coders$coder_sheet, gs_read_url) 
 
 FERC_coded %<>% 
+  # drop unused vars
+  select_if(!is.logical) %>% 
   # drop uncoded obs
   drop_na(CongressPerson) %>% 
   # drop file_name, so we merge only on doc ID
@@ -185,7 +187,7 @@ d <- FERC_letters %>% full_join(FERC_coded %>% select(-SUBJECT))
 
 # duplicates?
 d %>% 
-  group_by(rowname, ID) %>%
+  group_by(ID) %>%
   count() %>% 
   arrange(-n) %>% 
   filter(n>1)%>% 

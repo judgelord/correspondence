@@ -578,7 +578,7 @@ sheet](https://docs.google.com/spreadsheets/d/1FjZIuz8T97nczCbYskjT7-Hl6we6hoa6V
 - (2) extract company contact persons and information from the FERC website.
 ```{r}
 load(here("data", "DOE_FERC-corps.Rdata"))
-FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company, -Fortune500) %>% distinct() 
+FERC_corps %<>% ungroup() %>% group_by(company_short) %>% mutate(industry = str_c(unique(industry), collapse = ";")) %>% select(-company) %>% distinct() 
 
 ## Make a single string of short corp names
 ferc_short <- unique(FERC_corps$company_short) %>% 
