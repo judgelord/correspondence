@@ -100,6 +100,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Drier, David", "Dreier, David")) %>%
     mutate(FROM = str_replace(FROM, "Schwartz, Ms Allyson Y", "Schwartz, Allyson Y"))
   
+  data %<>%
+    mutate(FROM = str_replace("\\.,", ","))
+  
   #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
   
   # trim extra white space before or after name
