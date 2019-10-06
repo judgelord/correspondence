@@ -101,7 +101,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Schwartz, Ms Allyson Y", "Schwartz, Allyson Y"))
   
   data %<>%
-    mutate(FROM = str_replace("\\.,", ","))
+    mutate(FROM = str_replace(FROM, "\\.,", ","))
   
   #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
   
