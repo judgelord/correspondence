@@ -98,7 +98,10 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "YOUNG, C\\.W\\. BILL|Young, C\\. W\\. Bill", "Bill YOUNG")) %>%
     mutate(FROM = str_replace(FROM, "McNerney, Jerr", "McNerney, Jerry")) %>%
     mutate(FROM = str_replace(FROM, "Drier, David", "Dreier, David")) %>%
-    mutate(FROM = str_replace(FROM, "Schwartz, Ms Allyson Y", "Schwartz, Allyson Y"))
+    mutate(FROM = str_replace(FROM, "Schwartz, Ms Allyson Y", "Schwartz, Allyson Y")) %>%
+    mutate(FROM = str_replace(FROM, "Alexander, Chairman Lamar", "Alexander, Lamar")) %>%
+    mutate(FROM = str_replace(FROM, "Bryne, Bradley", "Byrne, Bradley")) %>%
+    mutate(FROM = str_replace(FROM, "BUSCHON,  LARRY", "Larry BUCSHON"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
