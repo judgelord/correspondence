@@ -47,7 +47,7 @@ clean <- function(file.name) {
  data %<>% select(ID, DATE,  FROM, everything())
   
  # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|Inc.,|Inc.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
   data %<>%
     mutate(FROM = str_replace(FROM, "Addtional", "Addtional;")) %>%
@@ -70,17 +70,17 @@ clean <- function(file.name) {
   
   # clean from
   data %<>%
-    mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et.al|et. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
-                              ASSOCIATE.*| SENATOR.*| HOUSE OF REPRESENTATIVES.*| ASSOCIATE COMMISSIONER.*| HOUSE OF REPRESENTATIVES.*| CONGRESS.*|fno orgl |Ino orgl |\\[no orgl | U.S. Senate|FDA\\/OC\\/OPP\\/| G FDA\\/OPPLA\\/OL\\/|Mr. |Ms. |
-                              Dr. |Inc | Honorable| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
+    mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et\\.al|et\\. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
+                              ASSOCIATE.*| SENATOR.*| HOUSE OF REPRESENTATIVES.*| ASSOCIATE COMMISSIONER.*| HOUSE OF REPRESENTATIVES.*| CONGRESS.*|fno orgl |Ino orgl |\\[no orgl | U.S. Senate|FDA\\/OC\\/OPP\\/| G FDA\\/OPPLA\\/OL\\/|Mr\\. |Ms\\. |
+                              Dr\\. |Inc | Honorable| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
                                   anonymous |anonymous, anonymous | Ino orgl|\\)| FDA\\/OO\\/OHR\\/DPPER\\/|FDA\\/OMPT\\/CDER\\/OND\\/OAP\\/DAIP\\/|\\(b \\(|FDA\\/OGROP\\/ORA\\/OEIO\\/DFDT\\/|Naturals|Dr. |Sen |Senate|Sen | District.*| State.*")))
   data %<>%
-    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR.|Jr."))
+    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\."))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "Warner, Mark R US", "Warner, Mark R")) %>%
-    mutate(FROM = str_replace(FROM, "BROWN, SHERROD .", "Brown, Sherrod")) %>%
-    mutate(FROM = str_replace(FROM, "STOCKMAN, STEVE (R) TEXAS", "Stockman, Steve")) %>%
+    mutate(FROM = str_replace(FROM, "BROWN, SHERROD \\.", "Brown, Sherrod")) %>%
+    mutate(FROM = str_replace(FROM, "STOCKMAN, STEVE \\(R\\) TEXAS", "Stockman, Steve")) %>%
     mutate(FROM = str_replace(FROM, "Miller, Mke", "Miller, Mike")) %>%
     mutate(FROM = str_replace(FROM, "FRANKEN, ALS", "FRANKEN, AL S")) %>%
     mutate(FROM = str_replace(FROM, "BACHUS, SPENCERT", "Bachus, Spencer T")) %>%
@@ -129,7 +129,7 @@ clean <- function(file.name) {
 
  
 data %<>%
-  filter( ! FROM %in% c("[no org]", "Rec/Create Date:", "Office:","[no person]", "BE3H","BE3^^H","Ino orgl", "UNITED STATES",
+  filter( ! FROM %in% c("\\[no org\\]", "Rec\\/Create Date:", "Office:","\\[no person\\]", "BE3H","BE3^^H","Ino orgl", "UNITED STATES",
                         "SENATE", "fno orgl", "BS", "\\)", ".", "BE", "H", "^^H", "CONGRESS", "reiBi" ))
 
   data %<>%
