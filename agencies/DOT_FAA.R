@@ -70,10 +70,10 @@ clean <- function(file.name) {
   
   #Match on state
   data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim D-SD|Johnson, Tim R-SD|Johnson, Tim  D-SD|Johnson, Tim  R-SD"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim D-SD|Johnson, Tim R-SD|Johnson, Tim  D-SD|Johnson, Tim  R-SD|Johnson, Tim D\\/SD"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike D\\/AL"), str_replace(FROM, "Rogers, Mike", "Mike Dennis ROGERS"), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(FROM, "Udall, Mark E D\\/NM"), str_replace(FROM, "Udall, Mark E", "Thomas UDALL"), FROM)) %>% #check that this is true
-    mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike R-MI|Rogers, Mike J R\\/MI"), str_replace(FROM, "Rogers, Mike", "Mike J ROGERS"), FROM)) %>%
+    #mutate(FROM = ifelse(str_detect(FROM, "Udall, Mark E D\\/NM"), str_replace(FROM, "Udall, Mark E", "Thomas UDALL"), FROM)) %>% #check that this is true
+    mutate(FROM = ifelse(str_detect(FROM, "Rogers, Mike  R\\/MI|Rogers, Mike J  R\\/MI|Rogers, Mike R-MI|Rogers, Mike J R\\/MI"), str_replace(FROM, "Rogers, Mike", "Mike J ROGERS"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Murphy, Patrick J D-PA") & congress %in% c(114) & str_detect(SUBJECT, "Florida"), str_replace(FROM, "Murphy, Patrick J D-PA", "Murphy, Patrick E D-FL"), FROM)) %>%
     mutate(FROM = str_replace(FROM, "Murkowski, Lisa  R\\/KS  United States Senate", "Murkowski, Lisa  R/KS  United States Senate R\\/AK United States Senate")) %>%
     mutate(FROM = str_replace(FROM, "Scott, Austin R\\/FL", "Scott, Austin R\\/GA")) %>%
@@ -81,7 +81,7 @@ clean <- function(file.name) {
   
   #Match on congress and chamber
   data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim United States Senate|Johnson, Tim  United States Senate") & congress %in% c(110), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM))
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim United States Senate|Johnson, Tim  United States Senate|Johnson, Tim  Senator"), str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM))
   
   #Name Format Typos
   data %<>%
@@ -176,6 +176,10 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   nonmembers <- data %>%
     filter(! is.na(ERROR))
+  
+  data %>%
+    filter(ID == 555) %>%
+    select(FROM)
 
   return(data)
 }
