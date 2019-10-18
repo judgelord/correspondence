@@ -157,11 +157,13 @@ scraper <- function(url){
     separate(contacts, sep = "</strong>",
              into = c("company", "contacts"),
              extra = "merge") %>% 
-    mutate(company = str_remove(company, "^[^A-Z]*")) %>% 
-      mutate(company = str_remove(company, "amp;")) %>% 
+    ## Clean up a bit
+    mutate(company = str_remove(company, "^[^A-Z]*")) %>%
+      mutate(company = str_remove(company, "amp;")) %>% # remove & symbol
     mutate(contacts = str_remove(contacts, "^[^A-Z]*")) %>% 
-    mutate_all(str_squish)
+    mutate_all(str_squish) # remove extra white space
   
+  ## keep just one contact per company
   d2 %<>% 
     distinct() %>% 
     filter(!is.na(contacts)) %>% 
@@ -295,6 +297,7 @@ FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(nchar(company_sho
 FERC_corps %>% group_by(company_short) %>% tally() %>% arrange(-nchar(company_short)) 
 ```
 
+Inspect especially short and long company names:
 ```{r}
 ## Short to long names refrence variable
 FERC_corps %<>% group_by(company_short) %>% 
@@ -308,7 +311,9 @@ FERC_corps %>% count(company_short, company_short_refs) %>% arrange(-n)
 ```
 
 
+## Get congressional districts by company zipcode
 
+Here we use `psvR` to access VoteSmart data via their API (this requires an API key)
 ```{r votesmart, eval=FALSE, include=FALSE}
 # look up congressional districts with psvR
 FERC_corps %<>% 
@@ -324,7 +329,7 @@ d <- filter(FERC_corps, !is.na(zip)) %>%
             n = n()) %>% 
   arrange(-n)
 
-d 
+head(d) 
 
 zips <- list(d$zip)
 
@@ -337,12 +342,16 @@ district <- District.getByZip(list(10001,10002))
 d$districts <- districts 
 
 d %<>% mutate(industry = str_split(industry, ";")) %>% 
-  unnest()
+unnest()
 
 FERC_corps %<>% full_join(d)
+
+FERC_corps %>% 
+  group_by(company_short, company_short_refs, contacts_refs) %>% 
+  summarise(industry = str_c(industry, sep = ";", collapse = ";"))
 ```
 
-
+These data are saved as `DOE_FERC-corps.Rdata` in the `data` folder of this repository.
 ```{r save}
 # Save 
 save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
@@ -350,6 +359,7 @@ save(FERC_corps, file = here("data", "DOE_FERC-corps.Rdata"))
 
 
 ```{r unknown-zips, eval=FALSE, include=FALSE}
+# Note cases where company is in Canada
 FERC_corps %<>% mutate(zip = ifelse(is.na(zip) & str_detect(contacts_refs, "Alberta|Ontario|Canada|Quebec|Tiverton, ON"), "Canada", zip))
 
 found <- FERC_corps %>% select(company, company_short, industry, zip) %>% filter(!is.na(zip))

@@ -1536,8 +1536,8 @@ html %&gt;%
   html_nodes(&quot;strong&quot;) %&gt;% # company names appear with the HTML tag &quot;&lt;strong&gt;&quot;
   html_text() %&gt;% # to plain text
   .[1:6] # the first 3 rows seem to be web page headers</code></pre>
-<pre><code>## [1] &quot;(Revised 08/30/2019)A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z &quot;
-## [2] &quot;(Revised 08/30/2019)&quot;                                                                                                      
+<pre><code>## [1] &quot;(Revised 10/16/2019)A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z &quot;
+## [2] &quot;(Revised 10/16/2019)&quot;                                                                                                      
 ## [3] &quot;A &quot;                                                                                                                        
 ## [4] &quot;Alpine Transportation Company&quot;                                                                                             
 ## [5] &quot;Anadarko Gulf of Mexico Pipeline, Inc.&quot;                                                                                    
@@ -1554,6 +1554,8 @@ html %&gt;%
 <p>Gas companies with “B” names. <em>Notice how the URL changed:</em></p>
 <pre class="r"><code>html &lt;- read_html(&quot;https://www.ferc.gov/docs-filing/corp-off/gas/gas-B.asp&quot;) 
 
+# &quot;strong&quot; is bold in HTML
+# in this case bolded text is company names
 html %&gt;% 
   html_nodes(&quot;strong&quot;) %&gt;% 
   html_text() %&gt;%
@@ -1573,7 +1575,7 @@ str_c(&quot;https://www.ferc.gov/docs-filing/corp-off/&quot;, industry, &quot;/&
 <p>Looks good! Forward!</p>
 <p><code>cross()</code> lists each possible combination of URL parts. Because it returns a list, we use <code>lift()</code> to allow <code>str_c()</code> to take a list and paste it together. <code>map()</code> then does this for each.</p>
 <pre class="r"><code>url_parts &lt;- list(
-  base_url &lt;- &quot;https://www.ferc.gov/docs-filing/corp-off/&quot;,
+  base_url = &quot;https://www.ferc.gov/docs-filing/corp-off/&quot;,
   industry = c(&quot;oil/oil-&quot;, &quot;gas/gas-&quot;, &quot;electric/electric-&quot;, &quot;hydro/hydro-&quot;),
   letter = LETTERS, # LETTERS (A-Z) is built in to R
   end = &quot;.asp&quot;
@@ -1581,7 +1583,7 @@ str_c(&quot;https://www.ferc.gov/docs-filing/corp-off/&quot;, industry, &quot;/&
 
 url &lt;- url_parts %&gt;%
   cross() %&gt;%
-  map(lift(str_c)) %&gt;%
+  map_chr(lift(str_c)) %&gt;%
   str_remove(&quot;/[a-z]*-A&quot;) # remove &quot;/industry-A&quot;
 
 ## Add odd ULS
@@ -1611,25 +1613,64 @@ head(url)</code></pre>
     str_remove(&quot;off/&quot;)
 
   ## Return a data frame with two variables, company and industry
-  d &lt;- tibble(company = corps,
-              industry = industry)
+  d &lt;- tibble(company = str_squish(corps),
+              industry = industry) %&gt;% 
+    distinct()
+  
+  ## Get the names and addresses of company reps
+  ## &quot;ul&quot; is an unordered list in HTML
+  ## in this case, ul nodes contain the names and addresses of company representatives 
+  contacts &lt;- html %&gt;% 
+    html_nodes(&quot;strong, ul&quot;) %&gt;%
+    # instead of using html_text(), here I am just collapse the raw HTML into a single string
+    str_c(collapse = &quot;&quot;) %&gt;% 
+    # and split it out by the strong node so that each string starts with the company names I extracted above
+    str_split(&quot;&lt;strong&gt;&quot;) %&gt;% 
+    unlist()
+  
+  ## Make a second dataframe of company names and addresses
+  d2 &lt;- tibble(contacts = contacts) %&gt;% 
+    separate(contacts, sep = &quot;&lt;/strong&gt;&quot;,
+             into = c(&quot;company&quot;, &quot;contacts&quot;),
+             extra = &quot;merge&quot;) %&gt;% 
+    ## Clean up a bit
+    mutate(company = str_remove(company, &quot;^[^A-Z]*&quot;)) %&gt;%
+      mutate(company = str_remove(company, &quot;amp;&quot;)) %&gt;% # remove &amp; symbol
+    mutate(contacts = str_remove(contacts, &quot;^[^A-Z]*&quot;)) %&gt;% 
+    mutate_all(str_squish) # remove extra white space
+  
+  ## keep just one contact per company
+  d2 %&lt;&gt;% 
+    distinct() %&gt;% 
+    filter(!is.na(contacts)) %&gt;% 
+    group_by(company) %&gt;% 
+    top_n(1)
+  
+  ## Join the company-contact data to the company-industry data
+  # FIXME may fail where specials other than anp&amp;, also Penola line break
+  d %&lt;&gt;% left_join(d2) %&gt;% distinct()
+  
   return(d)
 }</code></pre>
 </div>
 <div id="apply-the-function-to-each-url" class="section level3">
 <h3>3. Apply the function to each URL</h3>
-<p><code>map()</code> each URL into the function, i.e. <em>apply</em> the function to each. I wrap the <code>scraper</code> function in <code>possibly()</code> so that if a URL does not work, it keeps going, just returning <code>NA</code> rather than stopping at an error. Specifically, I use <code>map_dfr</code> which returns a <em>data frame</em>, combining results with <code>rbind()</code>. See <code>?map()</code> and the <code>purrr</code> <a href="https://www.rstudio.com/resources/cheatsheets/#purrr">cheatsheet</a>.</p>
-<pre class="r"><code>FERC_corps &lt;- map_dfr(url, possibly(scraper, NA_real_) ) 
+<p><code>map()</code> each URL into the function, i.e. <em>apply</em> the function to each. I wrap the <code>scraper</code> function in <code>possibly()</code> so that if a URL does not work, it keeps going, just returning <code>NA</code> rather than stopping at an error. Specifically, I use <code>map_dfr</code> which returns a <em>data frame</em>, combining results with <code>rbind()</code>. See <code>?map()</code> and the <code>purrr</code> <a href="https://www.rstudio.com/resources/cheatsheets/#purrr">cheatsheet</a>.</p>
+<pre class="r"><code># Test function on one url
+FERC_corps &lt;- map_dfr(url[1], possibly(scraper, NA_real_) ) 
+
+# Apply to all urls
+FERC_corps &lt;- map_dfr(url, possibly(scraper, NA_real_) )  %&gt;% distinct()
 head(FERC_corps)</code></pre>
-<pre><code>## # A tibble: 6 x 2
-##   company                                industry
-##   &lt;chr&gt;                                  &lt;chr&gt;   
-## 1 Alpine Transportation Company          oil     
-## 2 Anadarko Gulf of Mexico Pipeline, Inc. oil     
-## 3 Anschutz Ranch East Pipeline, Inc.     oil     
-## 4 Apache Corporation                     oil     
-## 5 Apache GOM Pipeline, Inc.              oil     
-## 6 B                                      oil</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   company                 industry contacts                                
+##   &lt;chr&gt;                   &lt;chr&gt;    &lt;chr&gt;                                   
+## 1 Alpine Transportation … oil      &quot;Edward R. Hendrickson &lt;br&gt; Vice Presid…
+## 2 Anadarko Gulf of Mexic… oil      &quot;Bradley E. Boister &lt;br&gt; Manager, Domes…
+## 3 Anschutz Ranch East Pi… oil      &quot;Richard M. Jones &lt;br&gt; Vice President &lt;…
+## 4 Apache Corporation      oil      &quot;Stephen S. Williams&lt;br&gt; Senior Counsel…
+## 5 Apache GOM Pipeline, I… oil      &quot;Stephen S. Williams&lt;br&gt; Senior Counsel…
+## 6 B                       oil      &lt;NA&gt;</code></pre>
 <p>Clean up a bit, using <code>stringr</code> functions to make this list of companies more likely to be found in other datasets.</p>
 <pre class="r"><code>FERC_corps$company %&lt;&gt;% 
   str_replace_all(&quot;\r\n&quot;, &quot;, &quot;) %&gt;% 
@@ -1643,47 +1684,54 @@ FERC_corps %&lt;&gt;%
   distinct() # drop duplicates
 
 ## For matching, remove endings like &quot;, Inc.&quot; etc. 
-trim &lt;- function(d){
-d %&gt;%
-  str_remove_all(&quot;Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co.| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation&quot;) %&gt;% 
+trim &lt;- . %&gt;%
+  str_remove_all(&quot;Companies of |Village of |\\(.*|,.*| -.*| Pipe.*| Company.*| Corp.*| Energy.*| Holdings.*| Gas$| Project.*| Co\\.| Co$| Gen.| LLC| L.L.C.|  L.P.| Inc.| L.P.| Ltd.| LP| Limited Partnership| Limited Liability| Transportation and Storage| Storage and Transportation| Arkansas$&quot;) %&gt;% 
   str_remove_all(&quot;^, &quot;) %&gt;%
   trimws()  # filter out names less than 2 characters 
-}
 
 FERC_corps$company_short &lt;- trim(FERC_corps$company) %&gt;% trim()
 
 FERC_corps %&lt;&gt;% filter(nchar(company_short)&gt;1,
                        company_short != &quot;Â&quot;)
 
-head(FERC_corps)</code></pre>
-<pre><code>## # A tibble: 6 x 3
-##   company                                industry company_short          
-##   &lt;chr&gt;                                  &lt;chr&gt;    &lt;chr&gt;                  
-## 1 Alpine Transportation Company          oil      Alpine Transportation  
-## 2 Anadarko Gulf of Mexico Pipeline, Inc. oil      Anadarko Gulf of Mexico
-## 3 Anschutz Ranch East Pipeline, Inc.     oil      Anschutz Ranch East    
-## 4 Apache Corporation                     oil      Apache                 
-## 5 Apache GOM Pipeline, Inc.              oil      Apache GOM             
-## 6 Barclays Bank PLC                      oil      Barclays Bank PLC</code></pre>
+head(FERC_corps %&gt;% select(company_short, everything()))</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   company_short     company           industry contacts                    
+##   &lt;chr&gt;             &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;                       
+## 1 Alpine Transport… Alpine Transport… oil      &quot;Edward R. Hendrickson &lt;br&gt;…
+## 2 Anadarko Gulf of… Anadarko Gulf of… oil      &quot;Bradley E. Boister &lt;br&gt; Ma…
+## 3 Anschutz Ranch E… Anschutz Ranch E… oil      &quot;Richard M. Jones &lt;br&gt; Vice…
+## 4 Apache            Apache Corporati… oil      &quot;Stephen S. Williams&lt;br&gt; Se…
+## 5 Apache GOM        Apache GOM Pipel… oil      &quot;Stephen S. Williams&lt;br&gt; Se…
+## 6 Barclays Bank PLC Barclays Bank PLC oil      &quot;Mark D. Higgins&lt;br&gt; Direct…</code></pre>
+<p>Inspect especially short and long company names:</p>
 <pre class="r"><code>## Short to long names refrence variable
-FERC_corps %&lt;&gt;% group_by(company_short) %&gt;% mutate(company_short_refs = str_c(company, collapse = &quot;; &quot;)) %&gt;% ungroup()
+FERC_corps %&lt;&gt;% group_by(company_short) %&gt;% 
+  mutate(company_short_refs = str_c(company, collapse = &quot;; &quot;),
+         contacts_refs = str_c(contacts, collapse = &quot;; &quot;)) %&gt;% 
+  ungroup() %&gt;% 
+  distinct()
 
-FERC_corps %&gt;% group_by(company_short) %&gt;% mutate(n=n()) %&gt;% arrange(-n)</code></pre>
-<pre><code>## # A tibble: 2,136 x 5
-## # Groups:   company_short [1,848]
-##    company         industry company_short company_short_refs              n
-##    &lt;chr&gt;           &lt;chr&gt;    &lt;chr&gt;         &lt;chr&gt;                       &lt;int&gt;
-##  1 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  2 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  3 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  4 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  5 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  6 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  7 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  8 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-##  9 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-## 10 Emera Energy S… electric Emera         Emera Energy Services Inc.…    18
-## # … with 2,126 more rows</code></pre>
+FERC_corps %&gt;% count(company_short, company_short_refs) %&gt;% arrange(-n)</code></pre>
+<pre><code>## # A tibble: 1,873 x 3
+##    company_short    company_short_refs                                    n
+##    &lt;chr&gt;            &lt;chr&gt;                                             &lt;int&gt;
+##  1 Emera            Emera Energy Services Inc.; Emera Energy Service…    18
+##  2 Duke             Duke Energy Carolinas, LLC; Duke Energy Indiana,…    13
+##  3 South Jersey     South Jersey Energy Company; South Jersey Energy…    10
+##  4 Stream Energy    Stream Energy Columbia, LLC; Stream Energy Conne…    10
+##  5 Dominion         Dominion Energy Cove Point LNG, LP; Dominion Ene…     9
+##  6 American Ref-Fu… American Ref-Fuel Company; American Ref-Fuel Com…     8
+##  7 DC Energy        DC Energy California, LLC; DC Energy Dakota, LLC…     8
+##  8 Liberty Utiliti… Liberty Utilities (EnergyNorth Natural Gas) Corp…     8
+##  9 AP Gas &amp; Electr… AP Gas &amp; Electric (TX), LLC; AP Gas &amp; Electric (…     7
+## 10 Direct Energy    Direct Energy Business, LLC; Direct Energy Servi…     6
+## # … with 1,863 more rows</code></pre>
+</div>
+<div id="get-congressional-districts-by-company-zipcode" class="section level2">
+<h2>Get congressional districts by company zipcode</h2>
+<p>Here we use <code>psvR</code> to access VoteSmart data via their API (this requires an API key)</p>
+<p>These data are saved as <code>DOE_FERC-corps.Rdata</code> in the <code>data</code> folder of this repository.</p>
 <pre class="r"><code># Save 
 save(FERC_corps, file = here(&quot;data&quot;, &quot;DOE_FERC-corps.Rdata&quot;))</code></pre>
 </div>
