@@ -66,7 +66,7 @@ clean <- function(file.name) {
   
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
+  data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr\\. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
   
   # clean from
   data %<>%
@@ -130,24 +130,24 @@ clean <- function(file.name) {
  
 data %<>%
   filter( ! FROM %in% c("\\[no org\\]", "Rec\\/Create Date:", "Office:","\\[no person\\]", "BE3H","BE3^^H","Ino orgl", "UNITED STATES",
-                        "SENATE", "fno orgl", "BS", "\\)", ".", "BE", "H", "^^H", "CONGRESS", "reiBi" ))
+                        "SENATE", "fno orgl", "BS", "\\)", "\\.", "BE", "H", "^^H", "CONGRESS", "reiBi" ))
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U.S. Food and Drug Administration", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U\\\\.S. Food and Drug Administration", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Dutcher, Michael Minneapolis District Office"), "Minneapolis District Office", ERROR)) %>%
     mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER", 
                                       "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
                                       "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS"), "Not Member of Congress", ERROR)) %>%
-    mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U. S. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
+    mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U\\. S\\. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
     mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR))
     
   
 #Filter while working (Comment out) 
   data %<>%
-   filter( ! FROM %in% c("U\\.S\\.-China Economic, \\.", "Ireland, Jeanne", "Addtional", "E&C Committee, U\\. S\\. Congress", "von Eschenbach, Andrew C", "ST\\.JOHN ST\\. JOHN MEDICAL CENTER", "[no orq]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
+   filter( ! FROM %in% c("U\\.S\\.-China Economic, \\.", "Ireland, Jeanne", "Addtional", "E&C Committee, U\\. S\\. Congress", "von Eschenbach, Andrew C", "ST\\.JOHN ST\\. JOHN MEDICAL CENTER", "\\[no orq\\]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
   "GINGREY, PHILLIP","INDIANA UNIVERSITY SCHOOL OF MEDICINE","Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC\\.","Unknown, Unknown", "Dutcher, Michael Minneapolis District Office", "CONSTITUENT", "Additional",
-  "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "CTMG, NA","FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION", "Liston, Larry", "Jackson, Brent, Constituent"))
+  "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "CTMG, NA","FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION", "Liston, Larry", "Jackson, Brent, Constituent"))
  data %<>%
    filter(! str_detect(FROM, "Addtional|Constituent|BJORKLUND, CYBELE"))
 
