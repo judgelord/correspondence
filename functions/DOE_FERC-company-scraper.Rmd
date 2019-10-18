@@ -330,8 +330,9 @@ zips <- list(d$zip)
 
 # install.packages("pvsR")
 library(pvsR)
-pvs.key <- ""
-districts <- District.getByZip(zips)
+source("assets/pvs-key.R")
+
+district <- District.getByZip(list(10001,10002))
 
 d$districts <- districts 
 
