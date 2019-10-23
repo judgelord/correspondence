@@ -38,16 +38,16 @@ clean <- function(file.name) {
   
   # chamber 
   data %<>% 
-    mutate(chamber = ifelse(grepl("Senate|SENATE|Senator|SENATOR|MAJORITY LEADER", FROM), "Senate", NA)) %>%
-    mutate(chamber = ifelse(grepl("House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP ", FROM), "House", chamber))
+    mutate(chamber = ifelse(str_detect(FROM,"Senate|SENATE|Senator|SENATOR|MAJORITY LEADER"), "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |CONGRESSMAN"), "House", chamber))
   
   # state
   # data$state <- gsub(" ","", data$state)
  
- data %<>% select(ID, DATE,  FROM, everything())
+ data %<>% select(ID, DATE,  FROM, chamber, everything())
   
  # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|\\[norg\\]|norgl|\\[no orgl|\\[no org\\]|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
   data %<>%
     mutate(FROM = str_replace(FROM, "Addtional", "Addtional;")) %>%
@@ -57,12 +57,9 @@ clean <- function(file.name) {
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   data %<>%
-    mutate(FROM = str_split(FROM, ";|\\[norg\\]|norgl|\\[no orgl|\\[no org\\]")) %>%
+    mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM)
   
-  #Filter while working
-  #data %<>%
-    #filter( ! FROM %in% c("HAMBURG, MARGARET Commissioner U.S. Food and Drug Administration", "HAMBURG, M.D., MARGARET Food and Drug Administration"))
   
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
   data <- data[!data$FROM == "",] # removes blank observations
