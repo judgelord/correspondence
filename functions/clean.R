@@ -158,20 +158,20 @@ clean.agency <- function(agency, status, coders) {
     
   #
     # 
-    if (sum(c("last_name", "first_name", "state", "congress") %in% names(data)) == 4) {
-      data %<>%
-        # first, last, and congress are correct but state is present and partially missing
-        mutate(state = ifelse(
-          is.na(state) &
-            !is.na(last_name) & !is.na(congress) & !is.na(first_name) &
-            last_name == members$last_name[i] &
-            congress == members$congress[i] &
-            first_name == members$first_name[i],
-          members$state[i],
-          state
-        ))
+    # if (sum(c("last_name", "first_name", "state", "congress") %in% names(data)) == 4) {
+    #   data %<>%
+    #     # first, last, and congress are correct but state is present and partially missing
+    #     mutate(state = ifelse(
+    #       is.na(state) &
+    #         !is.na(last_name) & !is.na(congress) & !is.na(first_name) &
+    #         last_name == members$last_name[i] &
+    #         congress == members$congress[i] &
+    #         first_name == members$first_name[i],
+    #       members$state[i],
+    #       state
+    #     ))
       
-    }
+  #  }
     
     
     
