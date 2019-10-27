@@ -1,0 +1,50 @@
+---
+title: "Getting PAC codes from Center for Responsive Politics Data"
+author: "Devin Judge-Lord"
+date: "10/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Get PAC id - industry code crosswalk from CRP
+(notice industry codes included and excluded)
+```{r CRP-data}
+read_crp <- . %>% {read_delim(file = here(str_c("CRP Data/cmtes/", .)),
+                  delim = ",", 
+                  quote = "|",
+                  col_names = c("Cycle", "CmteID", "PACShort","Affiliate",
+                    "UltOrg","RecipID","RecipCode", "FECCandID",
+                    "Party", "PrimCode","Source", "Sensitive", 
+                    "Foreign", "Active"))}
+
+crp <- map_dfr(list.files(here("CRP Data/cmtes")), read_crp)
+
+## INDUSTRY CODES
+
+industry <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "CRP Industry Codes")
+names(industry) <- industry[5,]
+
+industry %<>% 
+  filter(Sector %in% "Energy/Nat Resource",
+         !Industry %in% c("Mining", "Waste Management" , "Fisheries & Wildlife", "Misc. Energy"),
+         !Catname %in% c("Nuclear energy", 
+                         "Nuclear plant construction, equipment & svcs",
+                         "Water Utilities",
+                         "Oilfield service, equipment & exploration"))
+
+
+crpEnergy <- crp %>% 
+  filter(PrimCode %in% industry$Catcode) %>% 
+  mutate(comid = CmteID) %>% 
+  select(comid, UltOrg, Affiliate, PACShort) %>% 
+  distinct() %>% 
+  group_by(comid) %>%
+  summarise(UltOrg = str_c(unique(UltOrg), collapse = "; "),
+            Affiliate = paste(unique(Affiliate), collapse = "; "),
+            PACShort = str_c(unique(PACShort), collapse = "; ")) %>%
+  distinct()
+
+write_csv(crpEnergy, path = "data/crpEnergy.csv")
+```
