@@ -4,12 +4,16 @@ author: "Devin Judge-Lord"
 output: html_document
 ---
 
-```{r setup, echo = FALSE}
+```{echo = FALSE, eval = FALSE}
 ssh -Y judgelord@linstat.ssc.wisc.edu
 cd ../../../project/judgelord/correspondence
 ls
 git pull
 R
+```
+
+```{r setup, echo = FALSE}
+
 source("setup.R")
 
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
@@ -139,7 +143,7 @@ save(pac_amounts, file = "data/pac_amounts.Rdata")
 q()
 n
 git pull
-Rscript -e 'library(rmarkdown); rmarkdown::render("/functions/read-dime.Rmd", "html_document")'
+Rscript -e 'library(rmarkdown); rmarkdown::render("functions/read-dime.Rmd", "html_document")'
 git add "data/pac_amounts.Rdata"
 git add "functions/read-dime.html"
 git commit -m "add pac data"
