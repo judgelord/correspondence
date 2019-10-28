@@ -59,7 +59,7 @@ d %>%
 ```
 
 ```{r negative}
-d %>% filter(amount < 0) %>% knitr::kable()
+d %>% filter(amount < 0)
 
 # FIXME WHY NEGATIVES? 
 # Change to positive
