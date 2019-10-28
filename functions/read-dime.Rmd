@@ -161,7 +161,27 @@ d %>%
 ```
 
 
+```{r }
+d %<>% 
+  distinct() %>%
+  full_join(members %>% select(icpsr, congress, party_name)) %>% 
+  # rename(party = party_name) %>% 
+  distinct()
 
+# inspect coverage 
+d %>%
+  group_by(cycle, icpsr, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
+  ungroup() %>% 
+  group_by(cycle, party_name, industry) %>% 
+  summarise(mean = mean(total)) %>% 
+  ggplot() + 
+  aes(x = factor(cycle), y = mean, fill = party_name) + 
+  geom_col() + 
+  facet_grid(. ~ "industry") %>% 
+  labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
+       x = "FEC Electoral Cycle")
+```
 
 
 # Save results
