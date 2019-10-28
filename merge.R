@@ -174,7 +174,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DOE_FERC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
