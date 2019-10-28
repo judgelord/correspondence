@@ -60,7 +60,7 @@ d <- all_contacts %>%
   # define d as just FERC
   filter(agency=="DOE_FERC") %>% 
   # FIXME 
-  mutate(ID = NOTES) %>% 
+  mutate(ID = NOTES) %>% filter(nchar(ID)>8) %>%
   select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
   # FIXME 
@@ -86,7 +86,7 @@ FERC_letters %<>%
 
 # merge in coded letters
 # FIXME THIS IS FAILING DUE TO LACK OF ID IN DATA
-d %<>% left_join(FERC_letters) %>% filter(year <2019)
+d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID)) 
 
 # Add hand-coding to auto-coding of letter type 
 d %<>%  
@@ -112,7 +112,7 @@ d %<>%
   # FIXME
   # rounding years up is approximate, rewrite to go Nov-Nov?
   #mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, cycle)) 
+  mutate(icpsryear = str_c(icpsr, congress)) 
 ```
 
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`. 
@@ -603,7 +603,7 @@ pac_amounts %>%
 letters_money <- d %>% 
   filter(letter_position == "ProBusiness") %>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(name_state, congress, icpsr, chamber, oversight_committee) %>%
+  group_by(name_state, congress, icpsr, icpsryear, chamber, oversight_committee) %>%
   summarise(ProBusiness_Letters = n()) %>% 
   distinct()
 
@@ -673,10 +673,10 @@ Count anti-business and anti-project letters:
 ```{r antibusiness}
 Antiletters_money <- d %>%
   #FIXME
-  filter(cycle <2014) %>% 
+  #filter(cycle <2014) %>% 
   filter(!is.na(AntiBusiness)|!is.na(AntiProject))%>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>% distinct() %>% 
+  group_by(icpsryear, name_state, party, congress, icpsr, chamber, oversight_committee) %>% distinct() %>% 
   summarise(AntiBusiness_Letters = n())
 
 nrow(Antiletters_money)
