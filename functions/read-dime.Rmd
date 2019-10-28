@@ -4,7 +4,7 @@ author: "Devin Judge-Lord"
 output: html_document
 ---
 
-```{echo = FALSE, eval = FALSE}
+```{r, echo = FALSE, eval = FALSE}
 ssh -Y judgelord@linstat.ssc.wisc.edu
 cd ../../../project/judgelord/correspondence
 ls
@@ -13,7 +13,9 @@ R
 ```
 
 ```{r setup, echo = FALSE}
-source(here::here("setup.R"))
+library(tidyverse)
+library(here)
+library(magrittr)
 
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 dime <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
@@ -61,6 +63,12 @@ d %<>%
 
 # Merge with voteview data
 ```{r voteview}
+  
+  #source(here("members/nameCongress.R")) # augments voteview member names
+  ## Load augmented member names without having to load voteview package
+  load(here("members/members.Rdata"))
+
+
 # merge with voteview data 
 join_members <- . %>% 
   mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
@@ -138,7 +146,7 @@ save(pac_amounts, file = "data/pac_amounts.Rdata")
 ```
 
 
-```{r echo = FALSE, eval = FALSE, include = FALSE}
+```{r, echo = FALSE, eval = FALSE, include = FALSE}
 q()
 n
 git pull
