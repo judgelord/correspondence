@@ -47,14 +47,19 @@ dime <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
 names(dime) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
 
 d <- dime
+```
 
+### Are 2012 and 2014 cycles really so much larger? 
+```{r sum}
 d %>% 
-  filter(cycle >2000) %>%
+  filter(cycle >1990) %>%
   group_by(cycle) %>% 
   tally(amount) %>% 
   knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
+```
 
-d %>% filter(amount >0)
+```{r negative}
+d %>% filter(amount < 0) %>% knitr::kable()
 
 # FIXME WHY NEGATIVES? 
 # Change to positive
