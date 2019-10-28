@@ -72,7 +72,17 @@ d %>%
   head() %>% 
   knitr::kable()
 
+
+```
+
+### Drop contributions over $1 billion
+```{r}
 d %<>% filter(amount < 1000000000)
+
+d %>% 
+  arrange(-amount) %>% 
+  head() %>% 
+  knitr::kable()
 ```
 
 ### Drop negative contributions
