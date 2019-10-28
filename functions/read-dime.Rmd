@@ -55,7 +55,6 @@ For example, [this is what the 2014 cycle looks like](https://transition.fec.gov
 
 ```{r sum}
 d %>% 
-  filter(cycle >1990) %>%
   group_by(cycle) %>% 
   tally(amount) %>% 
   knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
@@ -68,9 +67,10 @@ d %>%
   head() %>% 
   knitr::kable()
 
-d %<>% filter()
+d %<>% filter(amount < 1000000000)
 ```
 
+### Drop negative contributions
 ```{r negative}
 d %<>% filter(amount > -1)
 
@@ -78,9 +78,23 @@ d %<>% filter(amount > -1)
 
 ## Select Industry PACs
 
+
 (see money-matching script for now)
 
 For all contributions, skip this step.
+
+Missing contributor data for recent cycles:
+```{r}
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
+
+# delete NA contributors for now
+d %<>% filter(!is.na(contributor_ext_id))
+```
+
+Total industry PAC contributions per cycle
 ```{r crp}
 # Energy sector PACs
 crp <- read_csv(here("CRP Data/crpEnergy.csv"))
@@ -92,7 +106,7 @@ d %<>%
   mutate(industry = "energy")
 
 d %>% 
-  filter(cycle >1990) %>%
+  #filter(cycle >1990) %>%
   group_by(cycle) %>% 
   tally(amount) %>% 
   knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
@@ -131,6 +145,7 @@ head(d)
 # sum up by ICPSR
 d %<>%
   group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
+  mutate(industry = "energy") %>% 
   tally(amount) %>%
   ungroup()
 nrow(d)
@@ -155,7 +170,8 @@ d %>%
   filter(amounts == 0) %>%
   arrange(bioname)
 
-
+# Make sure we have equal numbers of observations per industry
+d %>% count(industry)
 
 # inspect
 head(d)  
