@@ -1,7 +1,13 @@
 ---
-title: "Tidy campaign contributions by industry (using CRP and DIME data"
-author: "Devin Judge-Lord"
-output: html_document
+title: "Tidy campaign contributions by industry (using CRP and DIME data)"
+author:
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, echo = FALSE, eval = FALSE}
@@ -17,8 +23,15 @@ library(tidyverse)
 library(here)
 library(magrittr)
 
-# https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
-dime <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
+  knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
+                        warning = FALSE,
+                        message = FALSE,
+                        fig.align = "center", 
+                        fig.path= 'Figs/', ## where to save figures
+                        fig.height = 3,
+                        fig.width = 3)
+  
+
 ```
 
 # Compaign contributions from DIME
@@ -28,6 +41,9 @@ SELECT cycle, recipient_icpsr, recipient_type, recipient_name, recipient_icpsr, 
 ```
 
 ```{r data}
+# https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
+dime <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
+
 names(dime) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
 
 d <- dime
@@ -35,7 +51,8 @@ d <- dime
 d %>% 
   filter(cycle >2000) %>%
   group_by(cycle) %>% 
-  tally(amount) # %>% ggplot() + geom_col(x = cycle, y = n)
+  tally(amount) %>% 
+  knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
 
 d %>% filter(amount >0)
 
@@ -83,7 +100,7 @@ join_members <- . %>%
 d %<>% join_members() %>% distinct()
 
 # incpect 
-nrow(d)
+# nrow(d)
 head(d)
 ```
 
@@ -108,7 +125,7 @@ d_other <- dime %>%
   tally(amount) %>%
   ungroup()
 
-nrow(d)
+# nrow(d)
 
 d %<>% full_join(d_other) %>% 
   mutate(amounts = n)
@@ -122,8 +139,11 @@ d %>%
 
 # inspect
 head(d)  
-nrow(d)
+# nrow(d)
+```
 
+## Voteview-DIME ICPSR name mismatches
+```{r names}
 # problem names
 d %>% 
   ungroup() %>% 
@@ -156,4 +176,5 @@ git add "functions/read-dime.html"
 git commit -m "add pac data"
 git pull
 git push
+judgelord
 ```
