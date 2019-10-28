@@ -30,8 +30,6 @@ library(magrittr)
                         fig.path= 'Figs/', ## where to save figures
                         fig.height = 3,
                         fig.width = 3)
-  
-
 ```
 
 # Compaign contributions from DIME
@@ -49,22 +47,33 @@ names(dime) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name",
 d <- dime
 ```
 
-### Are 2012 and 2014 cycles really so much larger? 
+### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
+
+[FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml)
+
+For example, [this is what the 2014 cycle looks like](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
+
 ```{r sum}
 d %>% 
   filter(cycle >1990) %>%
   group_by(cycle) %>% 
   tally(amount) %>% 
   knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
+
+d %>% 
+  arrange(-amount)
+
+d %>% 
+  arrange(-amount) %>% 
+  head() %>% 
+  knitr::kable()
+
+d %<>% filter()
 ```
 
 ```{r negative}
-d %>% filter(amount < 0)
+d %<>% filter(amount > -1)
 
-# FIXME WHY NEGATIVES? 
-# Change to positive
-d %<>% 
-  mutate(amount = abs(amount))
 ```
 
 ## Select Industry PACs
@@ -81,6 +90,12 @@ head(crp)
 d %<>%
   filter(contributor_ext_id %in% crp$comid) %>%
   mutate(industry = "energy")
+
+d %>% 
+  filter(cycle >1990) %>%
+  group_by(cycle) %>% 
+  tally(amount) %>% 
+  knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
 ```
 
 # Merge with voteview data
@@ -115,7 +130,7 @@ head(d)
 ```{r sumarize}
 # sum up by ICPSR
 d %<>%
-  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
+  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   tally(amount) %>%
   ungroup()
 nrow(d)
@@ -126,7 +141,7 @@ d_other <- dime %>%
   filter(!contributor_ext_id %in% crp$comid) %>%
   mutate(industry = "other") %>% 
   join_members() %>% 
-  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
+  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   tally(amount) %>%
   ungroup()
 
@@ -161,7 +176,7 @@ d %>%
 ```
 
 
-```{r }
+```{r}
 d %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
