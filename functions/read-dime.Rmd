@@ -142,10 +142,10 @@ head(d)
 
 # Tally contributions per member per cycle per industry 
 ```{r sumarize}
-# sum up by ICPSR
+# sum up by ICPSR and cycle
 d %<>%
-  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   mutate(industry = "energy") %>% 
+  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   tally(amount) %>%
   ungroup()
 nrow(d)
