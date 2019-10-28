@@ -117,7 +117,7 @@ crp <- read_csv(here("CRP Data/crpEnergy.csv"))
 head(crp)
 
 # New data just of contributions from selected industries
-d1 %<>%
+d1 <- d %<>%
   filter(contributor_ext_id %in% crp$comid) %>%
   mutate(industry = "energy")
 
@@ -147,7 +147,7 @@ join_members <- . %>%
   # where a member is not observed in a cycle in DIME, replace ammount with na
   mutate(amount = replace_na(amount, 0))
 
-d1 <- d %>% join_members() %>% distinct()
+d1 %<>% join_members() %>% distinct()
 
 # incpect 
 # nrow(d)
