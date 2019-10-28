@@ -24,7 +24,7 @@ R
                         message = FALSE,
                         fig.align = "center", 
                         fig.path= 'Figs/', ## where to save figures
-                        fig.height = 3,
+                        fig.height = 4,
                         fig.width = 8)
 ```
 
@@ -216,7 +216,7 @@ d %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-  facet_grid(. ~ "industry") %>% 
+  facet_grid(. ~ industry, scales = "free_y") %>% 
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 ```
