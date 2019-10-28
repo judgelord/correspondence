@@ -117,11 +117,11 @@ crp <- read_csv(here("CRP Data/crpEnergy.csv"))
 head(crp)
 
 # New data just of contributions from selected industries
-d %<>%
+d1 %<>%
   filter(contributor_ext_id %in% crp$comid) %>%
   mutate(industry = "energy")
 
-d %>% 
+d1 %>% 
   #filter(cycle >1990) %>%
   group_by(cycle) %>% 
   tally(amount) %>% 
@@ -147,11 +147,11 @@ join_members <- . %>%
   # where a member is not observed in a cycle in DIME, replace ammount with na
   mutate(amount = replace_na(amount, 0))
 
-d %<>% join_members() %>% distinct()
+d1 <- d %>% join_members() %>% distinct()
 
 # incpect 
 # nrow(d)
-head(d)
+head(d1)
 ```
 
 
@@ -159,16 +159,12 @@ head(d)
 # Tally contributions per member per cycle per industry 
 ```{r sumarize}
 # sum up by ICPSR and cycle
-d %<>%
+d1 %<>%
   group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
   tally(amount) %>%
-  ungroup() %>% 
-  mutate(industry = "energy") 
+  ungroup() 
 
-# nrow(d)
-
-
-d_other <- dime %>%
+d_other <- d %>%
   # PACs not in industry
   filter(!contributor_ext_id %in% crp$comid) %>%
   join_members() %>% 
@@ -179,26 +175,26 @@ d_other <- dime %>%
 
 # nrow(d)
 
-d %<>% full_join(d_other) %>% 
+d1 %<>% full_join(d_other) %>% 
   mutate(amounts = n)
 
 # Make sure there are indeed 0 counts if we expect them
-d %>% 
+d1 %>% 
   filter(amounts == 0) %>%
   arrange(bioname)
 
 # Make sure we have equal numbers of observations per industry
-d %>% count(industry)
+d1 %>% count(industry)
 
 # inspect
-head(d)  
+head(d1)  
 # nrow(d)
 ```
 
 ## Voteview-DIME ICPSR name mismatches
 ```{r names}
 # problem names
-d %>% 
+d1 %>% 
   ungroup() %>% 
   mutate(bioname = toupper(bioname),
          recipient_name = toupper(recipient_name)) %>% 
@@ -210,14 +206,14 @@ d %>%
 
 
 ```{r FERC-DIME-new}
-d %<>% 
+d1 %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
   # rename(party = party_name) %>% 
   distinct()
 
 # inspect coverage 
-d %>%
+d1 %>%
   group_by(cycle, icpsr, party_name, industry) %>% 
   summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
   ungroup() %>% 
@@ -234,7 +230,7 @@ d %>%
 
 # Save results
 ```{r save}
-pac_amounts <- d
+pac_amounts <- d1
 save(pac_amounts, file = here("data/pac_amounts.Rdata"))
 ```
 
