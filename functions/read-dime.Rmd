@@ -52,7 +52,7 @@ d %<>%
 For all contributions, skip this step.
 ```{r crp}
 # Energy sector PACs
-crp <- read_csv("CRP Data/crpEnergy.csv")
+crp <- read_csv(here("CRP Data/crpEnergy.csv"))
 head(crp)
 
 # New data just of contributions from selected industries
@@ -142,7 +142,7 @@ d %>%
 # Save results
 ```{r save}
 pac_amounts <- d
-save(pac_amounts, file = "data/pac_amounts.Rdata")
+save(pac_amounts, file = here("data/pac_amounts.Rdata"))
 ```
 
 
