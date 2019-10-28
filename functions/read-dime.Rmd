@@ -19,17 +19,13 @@ R
 ```
 
 ```{r setup, echo = FALSE}
-library(tidyverse)
-library(here)
-library(magrittr)
-
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,
                         message = FALSE,
                         fig.align = "center", 
                         fig.path= 'Figs/', ## where to save figures
                         fig.height = 3,
-                        fig.width = 3)
+                        fig.width = 8)
 ```
 
 # Compaign contributions from DIME
@@ -39,8 +35,16 @@ SELECT cycle, recipient_icpsr, recipient_type, recipient_name, recipient_icpsr, 
 ```
 
 ```{r data}
+options(stringsAsFactors = F)
+library(magrittr)
+library(tidyverse)
+library(here)
+
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 dime <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
+
+# Alternative parsing 
+# dime <- read.csv(here("data/GrimQuery.csv"), col.names = c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount"))
 
 names(dime) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
 
@@ -53,14 +57,15 @@ d <- dime
 
 For example, [this is what the 2014 cycle looks like](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
 
+
 ```{r sum}
-d %>% 
-  group_by(cycle) %>% 
-  tally(amount) %>% 
-  knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
+d %<>% as_tibble()
+d$amount %<>% as.numeric()
 
 d %>% 
-  arrange(-amount)
+  group_by(cycle) %>% 
+  summarise(total_amount = sum(amount)) %>% 
+  knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
 
 d %>% 
   arrange(-amount) %>% 
@@ -83,18 +88,19 @@ d %<>% filter(amount > -1)
 
 For all contributions, skip this step.
 
-Missing contributor data for recent cycles:
+### Missing contributor data for recent cycles:
 ```{r}
 d %>% 
   filter(cycle > 1999) %>% 
   count(is.na(contributor_ext_id), cycle) %>% 
+  arrange(cycle) %>% 
   knitr::kable()
 
 # delete NA contributors for now
 d %<>% filter(!is.na(contributor_ext_id))
 ```
 
-Total industry PAC contributions per cycle
+### Total industry PAC contributions per cycle
 ```{r crp}
 # Energy sector PACs
 crp <- read_csv(here("CRP Data/crpEnergy.csv"))
@@ -144,21 +150,22 @@ head(d)
 ```{r sumarize}
 # sum up by ICPSR and cycle
 d %<>%
-  mutate(industry = "energy") %>% 
-  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
+  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
   tally(amount) %>%
-  ungroup()
-nrow(d)
+  ungroup() %>% 
+  mutate(industry = "energy") 
+
+# nrow(d)
 
 
 d_other <- dime %>%
   # PACs not in industry
   filter(!contributor_ext_id %in% crp$comid) %>%
-  mutate(industry = "other") %>% 
   join_members() %>% 
-  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
+  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
   tally(amount) %>%
-  ungroup()
+  ungroup() %>% 
+  mutate(industry = "other") 
 
 # nrow(d)
 
@@ -192,7 +199,7 @@ d %>%
 ```
 
 
-```{r}
+```{r FERC-DIME-new}
 d %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
