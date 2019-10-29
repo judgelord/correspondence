@@ -53,11 +53,9 @@ d <- dime
 
 ### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
-[FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml)
+See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
 
-For example, [this is what the 2014 cycle looks like](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
-
-
+DIME data: 
 ```{r sum}
 # Make sure amount is numeric
 d$amount %<>% as.numeric()
@@ -94,32 +92,29 @@ d %>%
 d %<>% filter(amount > -1)
 ```
 
-## Select Industry PACs
-
-(see pacs-from-crp for now)
-
-For all contributions, skip this step.
-
 ### Missing contributor data for recent cycles:
 ```{r}
 d %>% 
   filter(cycle > 1999) %>% 
   count(is.na(contributor_ext_id), cycle) %>% 
-  # arrange(cycle) %>% 
   knitr::kable()
 
 # delete NA contributors for now
-d %<>% filter(!is.na(contributor_ext_id))
+# d %<>% filter(!is.na(contributor_ext_id))
 ```
+# Select Industry PACs
 
+(see pacs-from-crp for now)
 
+For all contributions, skip this step.
 
-# Top PAC donations in a cycle
+## Top PAC donations in a cycle
 ```{r}
 d %<>% 
   left_join(crp %>% 
               rename(contributor_ext_id = comid)) %>% 
   distinct() %>% 
+  mutate(contributor_ext_id = replace_na(contributor_ext_id, "MISSSING"))
   arrange(-n) 
 
 d %>%
@@ -127,7 +122,7 @@ d %>%
   knitr::kable()
 ```
 
-# Top PACs
+## Top PACs
 ```{r}
 d %>% 
   group_by(UltOrg) %>% 
