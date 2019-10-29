@@ -27,7 +27,6 @@ requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magritt
 
 ```{r, include=FALSE}
   library(tidyverse)
-  library(ineq)
   library(ggplot2); theme_set(theme_bw())
   library(magrittr)
   library(maps)
@@ -112,7 +111,9 @@ d %<>%
   # FIXME
   # rounding years up is approximate, rewrite to go Nov-Nov?
   #mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, congress)) 
+  mutate(icpsryear = str_c(icpsr, congress)) %>% 
+  # FIXME 
+  mutate(bioname != "GOODE, Virgil H., Jr.")
 ```
 
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`. 
@@ -578,21 +579,23 @@ pac_amounts %>%
     geom_col(aes(x = cycle, y = n)) +
     facet_grid()
 
-##########
-# FIXME # DROPING ALL 0 OBSERVATIONS TO SEE IF RESULTS ARE THE SAME AS BEFORE 
-#########
-pac_amounts %<>% filter(PAC_contributions > 0)
+
 
 load(here::here("members/members.Rdata"))
 
 pac_amounts %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
-  # rename(party = party_name) %>% 
+  mutate(party_name = str_remove(party_name, " Party")) %>%
   distinct()
 
 # FIXME in read-dime script
+##########
+# FIXME # DROPING ALL 0 OBSERVATIONS TO SEE IF RESULTS ARE THE SAME AS BEFORE 
+#########
+# pac_amounts %<>% filter(PAC_contributions > 0)
 
+pac_amounts %<>% filter(industry == "energy")
 
 # inspect coverage 
 pac_amounts %>%
@@ -604,9 +607,11 @@ pac_amounts %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-  facet_grid(. ~ "industry") %>% 
+  facet_grid(. ~ industry, scales = "free") %>% 
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
+
+
 
 # THe letters data
 letters_money <- d %>% 
@@ -734,6 +739,8 @@ All_Letters_money <- d %>%
 All_Letters_money %<>% 
   ungroup() %>% 
   full_join(pac_amounts) %>% 
+    # FIXME there should be no NA 
+  drop_na(PAC_contributions) %>% 
   group_by(icpsr) %>% 
   # FIXME
   # one party per member, need to deal with party switchers
@@ -975,6 +982,8 @@ nrow(Antiletters_money)
 
 ### All Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
 ```{r all-letters-per-cycle-model, fig.height=1}
+library(broom)
+library(tidyverse)
 mplot <- function(m){m %>%
   tidy(conf.int = TRUE) %>%
     filter(term!="(Intercept)") %>%
@@ -1174,6 +1183,7 @@ tidy(mAntiParty)
 mplot(mAntiParty) +
   labs(x="", y="Additional anti-business  letters per congress")
 ```
+
 Democrats send an additional `r -round(mAntiParty$coefficients[2], 1)` Anti-Business letters per Congress, on average.
 
 ```{r money-Antiletters-per-cycle-model-party, fig.height=1, include=TRUE}
@@ -1186,8 +1196,8 @@ mAnti_pacXparty <- glm(AntiBusiness_Letters ~ PAC_contributions*party,
 
 tidy(mAnti_pacXparty)
 
-mplot(mAnti_pacXparty)+
-  labs(x="", y="Additional anti-business letters per congress")
+# FIXME odd error
+# mplot(mAnti_pacXparty)+ labs(x="", y="Additional anti-business letters per congress")
 ```
 
 

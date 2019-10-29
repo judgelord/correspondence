@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 read_crp <- . %>% {read_delim(file = here(str_c("CRP Data/cmtes/", .)),
                   delim = ",", 
                   quote = "|",
-                  col_names = c("Cycle", "CmteID", "PACShort","Affiliate",
+                  col_names = c("Cycle", "CmteID", "PACShort", "Affiliate",
                     "UltOrg","RecipID","RecipCode", "FECCandID",
                     "Party", "PrimCode","Source", "Sensitive", 
                     "Foreign", "Active"))}
