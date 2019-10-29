@@ -52,7 +52,7 @@ dim(dime.read_csv)
 
 d <- dime.read_csv
 
-names(d) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount", "dasdfasdf")
+names(d) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
 ```
 
 ### Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs. 
