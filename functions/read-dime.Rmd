@@ -62,15 +62,27 @@ dime.read.lines %<>%
 
 dime.read.lines[problemlines,] %>% head()
 
+# Make sure cycle is numeric
+#head(d$cycle)
+dime.read.lines$cycle %<>% 
+  str_sub(2,5) %>% 
+  # str_extract("[0-9]*") %>%
+  as.numeric()
+# head(d$cycle)
+
+sum(is.na(dime.read.lines$contributor_ext_id))
+
 ## FAILED PARSING METHODS: 
-dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"")
+dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
 
 dim(dime.read.table)
+sum(is.na(dime.read.table$contributor_ext_id))
 
 # Alternative parsing 
-dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
+dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = dime_vars, quote = "\"")
 
 dim(dime.read_csv)
+sum(is.na(dime.read_csv$contributor_ext_id))
 
 d <- dime.read.lines
 # dim(d)
@@ -82,7 +94,7 @@ names(d) <- dime_vars
 
 This is due to "EOF within quoted strings."
 
-`read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns)
+`read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns, `read.lines` gets fewer observations)
 
 In python with pandas, `read.csv` is stoped by EOF errors unless I include `error_bad_lines=False`.
 ```
@@ -105,22 +117,18 @@ See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_stat
 
 DIME data: 
 ```{r sum}
-head(d$amount)
 # Make sure amount is numeric
+head(d$amount)
 d$amount %<>% 
   str_extract("[0-9]*") %>%
   as.numeric()
 head(d$amount)
 nrow(d)
 
-head(d$cycle)
-# Make sure cycle is numeric
-d$cycle %<>% 
-  str_extract("[0-9]*") %>%
-  as.numeric()
-head(d$cycle)
+d$cycle %<>% as.numeric()
 
 # drop NA amounts 
+sum(is.na(d$amount))
 d %<>% as_tibble() %>%
   filter(!is.na(amount))
 
@@ -154,7 +162,7 @@ d %>%
 d %<>% filter(amount > -1)
 ```
 
-### Missing contributor data for recent cycles:
+### Missing contributor data for recent cycles?
 ```{r}
 d %>% 
   filter(cycle > 1999) %>% 
