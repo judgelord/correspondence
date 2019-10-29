@@ -148,8 +148,7 @@ d %>%
   ## Load augmented member names without having to load voteview package
   load(here("members/members.Rdata"))
 
-
-# merge with voteview data 
+# function to merge DIME with voteview data 
 join_members <- . %>% 
   mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
   right_join(members %>% 
@@ -161,31 +160,14 @@ join_members <- . %>%
   mutate(amount = replace_na(amount, 0))
 ```
 
-### Total industry PAC contributions per cycle
-```{r crp}
+## Sum contributions per member per cycle per industry 
+```{r sumarize}
 # New data just of contributions from selected industries
 d1 <- d %<>%
   filter(contributor_ext_id %in% crp$comid) %>%
-  mutate(industry = "energy")
-
-d1 %>% 
-  #filter(cycle >1990) %>%
-  group_by(cycle) %>% 
-  tally(amount) %>% 
-  knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
-```
-
-# Tally contributions per member per cycle per industry 
-```{r sumarize}
-d1 %<>% 
+  # Tally contributions per member per cycle per industry 
   join_members() %>% 
-  distinct()
-
-# inspect
-head(d1)
-
-# sum up by ICPSR and cycle
-d1 %<>%
+  distinct() %>%
   group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
   tally(amount) %>%
   ungroup() %>% 
@@ -200,13 +182,13 @@ d_other <- d %>%
   ungroup() %>% 
   mutate(industry = "other") 
 
-
-# nrow(d)
-
 d1 %<>% full_join(d_other) %>% 
   rename(amounts = n) %>% 
   distinct()
+```
 
+Check for zero counts and duplication
+```{r zero}
 # Make sure there are indeed 0 counts if we expect them
 d1 %>% 
   filter(amounts == 0) %>%
@@ -215,6 +197,7 @@ d1 %>%
 # Make sure we have equal numbers of observations per industry
 d1 %>% count(industry)
 
+# count observations (there should be one per industry)
 d1 %>% count(bioname, icpsr, congress) %>% 
   arrange(-n)
 
