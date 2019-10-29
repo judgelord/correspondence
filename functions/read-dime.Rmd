@@ -120,12 +120,14 @@ d %<>%
               rename(contributor_ext_id = comid)) %>% 
   distinct() %>% 
   mutate(contributor_ext_id = replace_na(contributor_ext_id, "MISSSING"))
-  arrange(-n) 
 
 d %>%
   head() %>% 
   knitr::kable()
 ```
+
+
+## There are  `r unique(d$contributor_ext_id) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
 
 ## Top PACs
 ```{r}
@@ -198,8 +200,7 @@ d_other <- d %>%
   ungroup() %>% 
   mutate(industry = "other") 
 
-unique(d$contributor_ext_id)
-unique(crp$comid)
+
 # nrow(d)
 
 d1 %<>% full_join(d_other) %>% 
@@ -276,7 +277,7 @@ git pull
 Rscript -e 'library(rmarkdown); rmarkdown::render("functions/read-dime.Rmd", "html_document")'
 git add "data/pac_amounts.Rdata"
 git add "functions/read-dime.html"
-git commit -m "add pac data"
+git commit -m "update pac data"
 git pull
 git push
 judgelord
