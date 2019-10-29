@@ -102,6 +102,7 @@ d %>%
 # delete NA contributors for now
 # d %<>% filter(!is.na(contributor_ext_id))
 ```
+
 # Select Industry PACs
 
 (see pacs-from-crp for now)
@@ -110,6 +111,10 @@ For all contributions, skip this step.
 
 ## Top PAC donations in a cycle
 ```{r}
+# Energy sector PACs
+crp <- read_csv(here("CRP Data/crpEnergy.csv"))
+head(crp)
+
 d %<>% 
   left_join(crp %>% 
               rename(contributor_ext_id = comid)) %>% 
@@ -156,10 +161,6 @@ join_members <- . %>%
 
 ### Total industry PAC contributions per cycle
 ```{r crp}
-# Energy sector PACs
-crp <- read_csv(here("CRP Data/crpEnergy.csv"))
-head(crp)
-
 # New data just of contributions from selected industries
 d1 <- d %<>%
   filter(contributor_ext_id %in% crp$comid) %>%
