@@ -587,9 +587,7 @@ pac_amounts %<>%
   distinct()
 
 # FIXME in read-dime script
-pac_amounts$amounts <- pac_amounts$n
-pac_amounts$industry <- "energy"
-pac_amounts$amounts <- abs(pac_amounts$amounts)
+
 
 # inspect coverage 
 pac_amounts %>%
