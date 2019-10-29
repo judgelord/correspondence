@@ -1605,9 +1605,14 @@ names(d) &lt;- c(&quot;cycle&quot;, &quot;recipient_icpsr&quot;, &quot;recipient
 <h3>Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs.</h3>
 <p>This is due to “EOF within quoted strings.”</p>
 <p><code>read_csv</code> is the only R function that gets anything past 2012 (<code>read.delim</code> got a few more observations but not the right columns)</p>
+<p>In python with pandas, <code>read.csv</code> is stoped by EOF errors unless I include <code>error_bad_lines=False</code>.</p>
+<pre><code>import pandas as pd 
+
+data = pd.read_csv(&quot;GrimQuery.csv&quot;, delimiter=&quot;,&quot;, header = None, quoting=3, error_bad_lines=False)</code></pre>
 <p>The only special strings I’ve found are in names, indicating parenthesis around nicknames:</p>
 <pre><code>SMYSER, CHARLES A \SKIP\&quot;&quot;
 BOUCHER, FREDERICK C \RICK\&quot;&quot;</code></pre>
+<p>Also, the SQL call has <code>LINES TERMINATED BY &#39;\n&#39;</code>, but I am not seeing in the raw text.</p>
 </div>
 <div id="and-2014-cycles-are-not-correct-due-to-some-incorrect-numbers-for-grayson-alan-mark" class="section level3">
 <h3>2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK</h3>
