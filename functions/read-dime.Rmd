@@ -34,13 +34,35 @@ DIME SQL Query:
 SELECT cycle, recipient_icpsr, recipient_type, recipient_name, recipient_icpsr, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount) AS sum_amount FROM newconts WHERE  recipient_type = 'CAND' AND seat IN ('federal:house', 'federal:senate') GROUP BY cycle, contributor_ext_id, recipient_icpsr INTO OUTFILE '/home/groups/andyhall/np_dime/GrimQuery.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
 ```
 
-```{r data}
+```{r libraries}
 options(stringsAsFactors = F)
 library(magrittr)
 library(tidyverse)
 library(here)
+```
 
+```{r data, warning=TRUE}
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
+
+dime_vars <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
+
+dime.read.lines <- readLines(here("data/GrimQuery.csv"))
+dime.read.lines %>%
+  length()
+
+# problem lines
+problemlines <- c(317397, 317398, 317399, 317400, 317401, 580138, 580139, 665253, 1588208, 3105970, 3238566, 3238567, 3238568, 3238569, 3238570, 3238571, 3238572, 3238573, 3238574, 3551218)
+
+dime.read.lines[problemlines]
+
+dime.read.lines %<>%
+  as_tibble() %>% 
+  # head() %>% 
+  separate(col = value, into= dime_vars, sep = "\",\"") # %>% .[1:100,]
+
+dime.read.lines[problemlines,] %>% head()
+
+## FAILED PARSING METHODS: 
 dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"")
 
 dim(dime.read.table)
@@ -50,9 +72,10 @@ dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
 
 dim(dime.read_csv)
 
-d <- dime.read_csv
+d <- dime.read.lines
+# dim(d)
 
-names(d) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
+names(d) <- dime_vars
 ```
 
 ### Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs. 
@@ -74,7 +97,7 @@ SMYSER, CHARLES A \SKIP\""
 BOUCHER, FREDERICK C \RICK\""
 ```
 
-Also, the SQL call has `LINES TERMINATED BY '\n'`, but I am not seeing \n in the raw text. 
+
 
 ### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
@@ -82,12 +105,26 @@ See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_stat
 
 DIME data: 
 ```{r sum}
+head(d$amount)
 # Make sure amount is numeric
-d$amount %<>% as.numeric()
+d$amount %<>% 
+  str_extract("[0-9]*") %>%
+  as.numeric()
+head(d$amount)
+nrow(d)
+
+head(d$cycle)
+# Make sure cycle is numeric
+d$cycle %<>% 
+  str_extract("[0-9]*") %>%
+  as.numeric()
+head(d$cycle)
 
 # drop NA amounts 
 d %<>% as_tibble() %>%
   filter(!is.na(amount))
+
+nrow(d)
 
 # Largest amounts
 d %>% 
