@@ -50,14 +50,19 @@ dime.read.lines <- readLines(here("data/GrimQuery.csv"))
 dime.read.lines %>%
   length()
 
+dime.read.lines %>% tail()
+
 # problem lines
 problemlines <- c(317397, 317398, 317399, 317400, 317401, 580138, 580139, 665253, 1588208, 3105970, 3238566, 3238567, 3238568, 3238569, 3238570, 3238571, 3238572, 3238573, 3238574, 3551218)
 
 dime.read.lines[problemlines]
 
 dime.read.lines %<>%
+  #remove quotes at the begining and end of lines
+  str_remove_all("^\"|\"$")
   as_tibble() %>% 
   # head() %>% 
+    # split out columns by quote comma quote
   separate(col = value, into= dime_vars, sep = "\",\"") # %>% .[1:100,]
 
 dime.read.lines[problemlines,] %>% head()
@@ -72,7 +77,7 @@ dime.read.lines$cycle %<>%
 
 sum(is.na(dime.read.lines$contributor_ext_id))
 
-## FAILED PARSING METHODS: 
+## WORSE PARSING METHODS: 
 dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
 
 dim(dime.read.table)
@@ -82,12 +87,10 @@ sum(is.na(dime.read.table$contributor_ext_id))
 dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = dime_vars, quote = "\"")
 
 dim(dime.read_csv)
+tail(dime.read_csv) %>% select(cycle, recipient_name, contributor_ext_id, amount)
 sum(is.na(dime.read_csv$contributor_ext_id))
 
-d <- dime.read.lines
-# dim(d)
-
-names(d) <- dime_vars
+d <- dime.read_csv
 ```
 
 ### Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs. 
@@ -124,8 +127,6 @@ d$amount %<>%
   as.numeric()
 head(d$amount)
 nrow(d)
-
-d$cycle %<>% as.numeric()
 
 # drop NA amounts 
 sum(is.na(d$amount))
@@ -167,6 +168,12 @@ d %<>% filter(amount > -1)
 d %>% 
   filter(cycle > 1999) %>% 
   count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
+
+d %>% 
+  filter(cycle > 1999) %>% 
+  group_by(cycle) %>%
+  summarise(unique_pacs = length(unique(contributor_ext_id))) %>%
   knitr::kable()
 
 # delete NA contributors for now
@@ -307,7 +314,7 @@ d1 %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-  facet_grid(. ~ industry, scales = "free_y") +
+  facet_grid(. ~ industry, scales = "free") +
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 ```
