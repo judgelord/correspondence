@@ -163,7 +163,7 @@ join_members <- . %>%
 ## Sum contributions per member per cycle per industry 
 ```{r sumarize}
 # New data just of contributions from selected industries
-d1 <- d %<>%
+d1 <- d %>%
   filter(contributor_ext_id %in% crp$comid) %>%
   # Tally contributions per member per cycle per industry 
   join_members() %>% 
