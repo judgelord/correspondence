@@ -59,7 +59,7 @@ dime.read.lines[problemlines]
 
 dime.read.lines %<>%
   #remove quotes at the begining and end of lines
-  str_remove_all("^\"|\"$")
+  # str_remove_all("^\"|\"$") %>% 
   as_tibble() %>% 
   # head() %>% 
     # split out columns by quote comma quote
