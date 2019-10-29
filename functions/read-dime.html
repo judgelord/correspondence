@@ -1589,14 +1589,26 @@ library(tidyverse)
 library(here)
 
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
-dime &lt;- read_csv(here(&quot;data/GrimQuery.csv&quot;), col_names = FALSE)
+dime.read.table &lt;- read.table(here(&quot;data/GrimQuery.csv&quot;), header = FALSE, sep = &quot;,&quot;, quote = &quot;\&quot;&quot;)
 
-# Alternative parsing 
-# dime &lt;- read.csv(here(&quot;data/GrimQuery.csv&quot;), col.names = c(&quot;cycle&quot;, &quot;recipient_icpsr&quot;, &quot;recipient_type&quot;, &quot;recipient_name&quot;, &quot;recipient_icpsr1&quot;, &quot;contributor_ext_id&quot;, &quot;bonica_rid&quot;, &quot;bonica_id2&quot;, &quot;contributor_category&quot;, &quot;amount&quot;))
+dim(dime.read.table)</code></pre>
+<pre><code>## [1] 7969530      10</code></pre>
+<pre class="r"><code># Alternative parsing 
+dime.read_csv &lt;- read_csv(here(&quot;data/GrimQuery.csv&quot;), col_names = FALSE)
 
-names(dime) &lt;- c(&quot;cycle&quot;, &quot;recipient_icpsr&quot;, &quot;recipient_type&quot;, &quot;recipient_name&quot;, &quot;recipient_icpsr1&quot;, &quot;contributor_ext_id&quot;, &quot;bonica_rid&quot;, &quot;bonica_id2&quot;, &quot;contributor_category&quot;, &quot;amount&quot;)
+dim(dime.read_csv)</code></pre>
+<pre><code>## [1] 8159514      10</code></pre>
+<pre class="r"><code>d &lt;- dime.read_csv
 
-d &lt;- dime</code></pre>
+names(d) &lt;- c(&quot;cycle&quot;, &quot;recipient_icpsr&quot;, &quot;recipient_type&quot;, &quot;recipient_name&quot;, &quot;recipient_icpsr1&quot;, &quot;contributor_ext_id&quot;, &quot;bonica_rid&quot;, &quot;bonica_id2&quot;, &quot;contributor_category&quot;, &quot;amount&quot;)</code></pre>
+<div id="post-2012-lines-are-failing-to-parse-correctly-resulting-in-there-being-no-contributor-ids." class="section level3">
+<h3>Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs.</h3>
+<p>This is due to “EOF within quoted strings.”</p>
+<p><code>read_csv</code> is the only R function that gets anything past 2012 (<code>read.delim</code> got a few more observations but not the right columns)</p>
+<p>The only special strings I’ve found are in names, indicating parenthesis around nicknames:</p>
+<pre><code>SMYSER, CHARLES A \SKIP\&quot;&quot;
+BOUCHER, FREDERICK C \RICK\&quot;&quot;</code></pre>
+</div>
 <div id="and-2014-cycles-are-not-correct-due-to-some-incorrect-numbers-for-grayson-alan-mark" class="section level3">
 <h3>2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK</h3>
 <p>See <a href="https://transition.fec.gov/press/campaign_finance_statistics.shtml">FEC cycle summaries</a>, e.g. <a href="https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml">2014</a></p>
