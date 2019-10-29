@@ -115,7 +115,7 @@ d %<>% filter(!is.na(contributor_ext_id))
 
 
 # Top PAC donations in a cycle
-```{r pacs}
+```{r}
 d %<>% 
   left_join(crp %>% 
               rename(contributor_ext_id = comid)) %>% 
@@ -128,7 +128,7 @@ d %>%
 ```
 
 # Top PACs
-```{r pacs}
+```{r}
 d %>% 
   group_by(UltOrg) %>% 
   summarise(number_of_contributions = n(),
