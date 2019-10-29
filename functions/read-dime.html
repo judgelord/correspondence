@@ -2322,7 +2322,7 @@ d1 %&gt;%
          recipient_name = toupper(recipient_name)) %&gt;% 
   filter(str_sub(bioname, 1,3) != str_sub(recipient_name,1 , 3),
          cycle &gt; 1999) %&gt;% 
-  filter(!str_detect(recipient_name, &quot;SANCHEZ&quot;)) %&gt;% 
+  filter(!str_detect(recipient_name, &quot;SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MATO&quot;)) %&gt;% 
   knitr::kable()</code></pre>
 <table>
 <thead>
@@ -2347,15 +2347,6 @@ d1 %&gt;%
 <td align="left">energy</td>
 </tr>
 <tr class="even">
-<td align="right">29573</td>
-<td align="right">113</td>
-<td align="right">2012</td>
-<td align="left">JACKSON LEE, SHEILA</td>
-<td align="left">LEE, SHEILA JACKSON</td>
-<td align="right">21500.0</td>
-<td align="left">energy</td>
-</tr>
-<tr class="odd">
 <td align="right">20528</td>
 <td align="right">115</td>
 <td align="right">2016</td>
@@ -2364,7 +2355,7 @@ d1 %&gt;%
 <td align="right">846471.0</td>
 <td align="left">other</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="right">21109</td>
 <td align="right">112</td>
 <td align="right">2010</td>
@@ -2373,7 +2364,7 @@ d1 %&gt;%
 <td align="right">457437.0</td>
 <td align="left">other</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="right">21109</td>
 <td align="right">113</td>
 <td align="right">2012</td>
@@ -2382,7 +2373,7 @@ d1 %&gt;%
 <td align="right">3750.0</td>
 <td align="left">other</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="right">21122</td>
 <td align="right">112</td>
 <td align="right">2010</td>
@@ -2391,7 +2382,7 @@ d1 %&gt;%
 <td align="right">260795.7</td>
 <td align="left">other</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="right">21301</td>
 <td align="right">114</td>
 <td align="right">2014</td>
@@ -2400,76 +2391,13 @@ d1 %&gt;%
 <td align="right">9540404.3</td>
 <td align="left">other</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="right">21301</td>
 <td align="right">115</td>
 <td align="right">2016</td>
 <td align="left">COTTON, TOM</td>
 <td align="left">WESTERMAN, BRUCE MR.</td>
 <td align="right">893039.3</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">21309</td>
-<td align="right">113</td>
-<td align="right">2012</td>
-<td align="left">CÁRDENAS, TONY</td>
-<td align="left">CARDENAS, TONY</td>
-<td align="right">7.0</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">21309</td>
-<td align="right">114</td>
-<td align="right">2014</td>
-<td align="left">CÁRDENAS, TONY</td>
-<td align="left">CARDENAS, TONY</td>
-<td align="right">1005308.9</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">21309</td>
-<td align="right">115</td>
-<td align="right">2016</td>
-<td align="left">CÁRDENAS, TONY</td>
-<td align="left">CARDENAS, TONY</td>
-<td align="right">2268351.1</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">21309</td>
-<td align="right">116</td>
-<td align="right">2018</td>
-<td align="left">CÁRDENAS, TONY</td>
-<td align="left">CARDENAS, TONY</td>
-<td align="right">2188805.7</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">21341</td>
-<td align="right">114</td>
-<td align="right">2014</td>
-<td align="left">LUJAN GRISHAM, MICHELLE</td>
-<td align="left">GRISHAM, MICHELLE LUJAN</td>
-<td align="right">1110222.3</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">21361</td>
-<td align="right">114</td>
-<td align="right">2014</td>
-<td align="left">O’ROURKE, BETO</td>
-<td align="left">O ROURKE, ROBERT (BETO)</td>
-<td align="right">241676.1</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">21361</td>
-<td align="right">115</td>
-<td align="right">2016</td>
-<td align="left">O’ROURKE, BETO</td>
-<td align="left">O ROURKE, ROBERT BETO</td>
-<td align="right">699055.4</td>
 <td align="left">other</td>
 </tr>
 <tr class="even">
@@ -2482,87 +2410,6 @@ d1 %&gt;%
 <td align="left">other</td>
 </tr>
 <tr class="odd">
-<td align="right">21538</td>
-<td align="right">114</td>
-<td align="right">2014</td>
-<td align="left">WATSON COLEMAN, BONNIE</td>
-<td align="left">COLEMAN, BONNIE WATSON</td>
-<td align="right">1927636.8</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">21538</td>
-<td align="right">115</td>
-<td align="right">2016</td>
-<td align="left">WATSON COLEMAN, BONNIE</td>
-<td align="left">COLEMAN, BONNIE WATSON</td>
-<td align="right">1373098.4</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">21538</td>
-<td align="right">116</td>
-<td align="right">2018</td>
-<td align="left">WATSON COLEMAN, BONNIE</td>
-<td align="left">COLEMAN, BONNIE WATSON</td>
-<td align="right">1347515.9</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">21739</td>
-<td align="right">116</td>
-<td align="right">2018</td>
-<td align="left">O’HALLERAN, THOMAS C.</td>
-<td align="left">O HALLERAN, TOM</td>
-<td align="right">2932924.0</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">29573</td>
-<td align="right">109</td>
-<td align="right">2004</td>
-<td align="left">JACKSON LEE, SHEILA</td>
-<td align="left">LEE, SHEILA JACKSON</td>
-<td align="right">500.0</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">29573</td>
-<td align="right">113</td>
-<td align="right">2012</td>
-<td align="left">JACKSON LEE, SHEILA</td>
-<td align="left">LEE, SHEILA JACKSON</td>
-<td align="right">674249.0</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">29573</td>
-<td align="right">114</td>
-<td align="right">2014</td>
-<td align="left">JACKSON LEE, SHEILA</td>
-<td align="left">LEE, SHEILA JACKSON</td>
-<td align="right">417788.8</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
-<td align="right">29573</td>
-<td align="right">115</td>
-<td align="right">2016</td>
-<td align="left">JACKSON LEE, SHEILA</td>
-<td align="left">LEE, SHEILA JACKSON</td>
-<td align="right">474970.3</td>
-<td align="left">other</td>
-</tr>
-<tr class="odd">
-<td align="right">29573</td>
-<td align="right">116</td>
-<td align="right">2018</td>
-<td align="left">JACKSON LEE, SHEILA</td>
-<td align="left">LEE, SHEILA JACKSON</td>
-<td align="right">901007.7</td>
-<td align="left">other</td>
-</tr>
-<tr class="even">
 <td align="right">41700</td>
 <td align="right">116</td>
 <td align="right">2018</td>
