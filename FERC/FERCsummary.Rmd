@@ -572,7 +572,13 @@ library(dplyr)
 #     mutate(cycle = str_sub(ICPSR, -4)) %>% 
 #   filter(cycle < 2014) %>% distinct()
   
-load("data/pac_amounts.Rdata")
+load(here("data/pac_amounts.Rdata"))
+
+pac_amounts %>% 
+  arrange(-n)
+  filter(cycle  == "2014") %>% 
+  
+  ggplot() + geom_histogram(aes(x = n)) + facet_grid()
 
 pac_amounts %<>% 
   distinct() %>%
