@@ -41,14 +41,30 @@ library(tidyverse)
 library(here)
 
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
-dime <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
+dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"")
+
+dim(dime.read.table)
 
 # Alternative parsing 
-# dime <- read.csv(here("data/GrimQuery.csv"), col.names = c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount"))
+dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = FALSE)
 
-names(dime) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
+dim(dime.read_csv)
 
-d <- dime
+d <- dime.read_csv
+
+names(d) <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount", "dasdfasdf")
+```
+
+### Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs. 
+
+This is due to "EOF within quoted strings."
+
+`read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns)
+
+The only special strings I've found are in names, indicating parenthesis around nicknames:
+```
+SMYSER, CHARLES A \SKIP\""
+BOUCHER, FREDERICK C \RICK\""
 ```
 
 ### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
@@ -264,4 +280,4 @@ git commit -m "update pac data"
 git pull
 git push
 judgelord
-    ```
+```
