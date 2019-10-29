@@ -61,11 +61,20 @@ This is due to "EOF within quoted strings."
 
 `read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns)
 
+In python with pandas, `read.csv` is stoped by EOF errors unless I include `error_bad_lines=False`.
+```
+import pandas as pd 
+
+data = pd.read_csv("GrimQuery.csv", delimiter=",", header = None, quoting=3, error_bad_lines=False)
+```
+
 The only special strings I've found are in names, indicating parenthesis around nicknames:
 ```
 SMYSER, CHARLES A \SKIP\""
 BOUCHER, FREDERICK C \RICK\""
 ```
+
+Also, the SQL call has `LINES TERMINATED BY '\n'`, but I am not seeing \n in the raw text. 
 
 ### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
