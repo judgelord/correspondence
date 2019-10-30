@@ -331,7 +331,7 @@ name mismatches after correcting DIME ICPSRs (WE ARE ASSUMING DIME NAMES ARE COR
 ```{r corrections}
 icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
 
-dime %>% select(icpsr, recipient_name) %>% filter(icpsr %in% icpsr_errors) %>% distinct()
+d %>% select(icpsr, recipient_name) %>% filter(icpsr %in% icpsr_errors) %>% distinct()
 
 # correct problem names
 DIME_corrections <- tribble(
