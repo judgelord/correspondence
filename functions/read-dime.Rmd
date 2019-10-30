@@ -41,6 +41,7 @@ library(tidyverse)
 library(here)
 ```
 
+# DIME Data
 ```{r data, warning=TRUE}
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 
@@ -93,17 +94,19 @@ sum(is.na(dime.read_csv$contributor_ext_id))
 d <- dime.read_csv
 ```
 
-### Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs. 
+### Parsing errors
+
+Some lines are failing to parse correctly. 
 
 This is due to "EOF within quoted strings."
 
 `read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns, `read.lines` gets fewer observations)
 
-In python with pandas, `read.csv` is stoped by EOF errors unless I include `error_bad_lines=False`.
+In python, pandas' `read.csv` has EOF errors unless I include `error_bad_lines=False`.
 ```
 import pandas as pd 
 
-data = pd.read_csv("GrimQuery.csv", delimiter=",", header = None, quoting=3, error_bad_lines=False)
+data = pd.read_csv("data/GrimQuery.csv", delimiter=",", header = None, quoting=3, error_bad_lines=False)
 ```
 
 The only special strings I've found are in names, indicating parenthesis around nicknames:
@@ -114,7 +117,26 @@ BOUCHER, FREDERICK C \RICK\""
 
 
 
-### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
+There are a few odd strings that cause parsing errors, but they don't explain the missing IDs:
+
+```
+"2016","20712","CAND","JOHNSON, HENRY C \"HANK\" JR","20712","","cand977","4044287089","X1200","445689.40000000055"
+
+"2016","H0CA00082","CAND","PORTANTINO, ANTHONY","H0CA00082","",\N,"33334775774","","288494.78
+```
+
+Notice the empty `contributor_id` before `cand_id`: 
+
+```
+"2014","UT9458","CAND","ROBLES, LUZ M","UT9458","","cand143616","33309085731","X1200","500"
+"2014","VA412936","CAND","SARVIS, ROBERT CHRISTOPHER","VA412936","","cand192377","4143347693","X1200","2580.4700000000003"
+"2016","","CAND","crowley for congress nys","","","cand1529","3787846060","","110546.11000000002"
+"2016","10713","CAND","CONYERS, JOHN JR","10713","","cand53","33489434680","","638116.7000000033"
+```
+
+### Ammount errors
+
+2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
 See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
 
@@ -148,7 +170,7 @@ d %>%
   knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
 ```
 
-### Drop contributions over $1 billion
+### Solution: Drop contributions over $1 billion
 ```{r}
 d %<>% filter(amount < 1000000000)
 
@@ -164,6 +186,8 @@ d %<>% filter(amount > -1)
 ```
 
 ### Missing contributor data for recent cycles?
+
+`contributor_id` is missing post 2012. This is not a parsing error. 
 ```{r}
 d %>% 
   filter(cycle > 1999) %>% 
@@ -269,7 +293,7 @@ Check for zero counts and duplication
 # Make sure there are indeed 0 counts if we expect them
 d1 %>% 
   filter(amounts == 0) %>%
-  arrange(bioname) 
+  count(industry)
 
 # Make sure we have equal numbers of observations per industry
 d1 %>% count(industry)
@@ -280,7 +304,7 @@ Duplicated names
 ```{r duplicated_names}
 # count observations (there should be one per industry)
 d1 %>% group_by(bioname, icpsr, congress, industry) %>% 
-  mutate(n = n())
+  mutate(n = n()) %>% 
   arrange(bioname) %>%
   filter(n > 1) %>% 
   knitr::kable()
