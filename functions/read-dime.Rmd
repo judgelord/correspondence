@@ -5,7 +5,7 @@ output:
     html_document:
       toc: true
       toc_float: true
-      code_folding: hide
+      # code_folding: hide
 editor_options: 
   chunk_output_type: console
 ---
@@ -314,7 +314,7 @@ d1 %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-  facet_grid(. ~ industry, scales = "free") +
+  facet_grid(. ~ industry, scales = "free_y") +
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 ```
