@@ -64,8 +64,7 @@ clean <- function(file.name) {
   #Fix state space
    data %<>%
      mutate(FROM = str_replace(FROM, "Murkowski, Lisa   R\\/KS  United States Senate", "Murkowski, Lisa  R\\/AK  United States Senate")) %>%
-     mutate(FROM = str_replace(FROM, "Rogers, Mike  R-MI|Rogers, Mike  R\\/MI|Rogers, Mike J  R\\/MI|Rogers, Mike R-MI|Rogers, Mike J R\\/MI", "Mike J Rogers R-MI")) %>%
-     mutate(FROM = str_replace(FROM, "Rogers, Mike J   R\\/MI", "Mike J Rogers R\\/MI")) %>%
+     mutate(FROM = str_replace(FROM, "Rogers, Mike J   R\\/MI|Rogers, Mike  R-MI|Rogers, Mike  R\\/MI|Rogers, Mike J  R\\/MI|Rogers, Mike R-MI|Rogers, Mike J R\\/MI", "Mike J Rogers R\\/MI")) %>%
      mutate(FROM = str_replace(FROM, "Rogers, Mike  D\\/AL", "Rogers, Mike D\\/AL"))
   
   #Match on state
@@ -180,7 +179,7 @@ clean <- function(file.name) {
     filter(! is.na(ERROR))
   
   data %>%
-    filter(ID == 555) %>%
+    filter(ID == 5024) %>%
     select(FROM)
 
   return(data)
