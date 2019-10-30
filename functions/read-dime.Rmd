@@ -1,0 +1,344 @@
+---
+title: "Tidy campaign contributions by industry (using CRP and DIME data)"
+author:
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      # code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, echo = FALSE, eval = FALSE}
+ssh -Y judgelord@linstat.ssc.wisc.edu
+cd ../../../project/judgelord/correspondence
+ls
+git pull
+R
+```
+
+```{r setup, echo = FALSE}
+  knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
+                        warning = FALSE,
+                        message = FALSE,
+                        fig.align = "center", 
+                        fig.path= 'Figs/', ## where to save figures
+                        fig.height = 4,
+                        fig.width = 8)
+```
+
+# Compaign contributions from DIME
+DIME SQL Query:
+```{}
+SELECT cycle, recipient_icpsr, recipient_type, recipient_name, recipient_icpsr, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount) AS sum_amount FROM newconts WHERE  recipient_type = 'CAND' AND seat IN ('federal:house', 'federal:senate') GROUP BY cycle, contributor_ext_id, recipient_icpsr INTO OUTFILE '/home/groups/andyhall/np_dime/GrimQuery.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+```
+
+```{r libraries}
+options(stringsAsFactors = F)
+library(magrittr)
+library(tidyverse)
+library(here)
+```
+
+```{r data, warning=TRUE}
+# https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
+
+dime_vars <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
+
+dime.read.lines <- readLines(here("data/GrimQuery.csv"))
+dime.read.lines %>%
+  length()
+
+dime.read.lines %>% tail()
+
+# problem lines
+problemlines <- c(317397, 317398, 317399, 317400, 317401, 580138, 580139, 665253, 1588208, 3105970, 3238566, 3238567, 3238568, 3238569, 3238570, 3238571, 3238572, 3238573, 3238574, 3551218)
+
+dime.read.lines[problemlines]
+
+dime.read.lines %<>%
+  #remove quotes at the begining and end of lines
+  # str_remove_all("^\"|\"$") %>% 
+  as_tibble() %>% 
+  # head() %>% 
+    # split out columns by quote comma quote
+  separate(col = value, into= dime_vars, sep = "\",\"") # %>% .[1:100,]
+
+dime.read.lines[problemlines,] %>% head()
+
+# Make sure cycle is numeric
+#head(d$cycle)
+dime.read.lines$cycle %<>% 
+  str_sub(2,5) %>% 
+  # str_extract("[0-9]*") %>%
+  as.numeric()
+# head(d$cycle)
+
+sum(is.na(dime.read.lines$contributor_ext_id))
+
+## WORSE PARSING METHODS: 
+dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
+
+dim(dime.read.table)
+sum(is.na(dime.read.table$contributor_ext_id))
+
+# Alternative parsing 
+dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = dime_vars, quote = "\"")
+
+dim(dime.read_csv)
+tail(dime.read_csv) %>% select(cycle, recipient_name, contributor_ext_id, amount)
+sum(is.na(dime.read_csv$contributor_ext_id))
+
+d <- dime.read_csv
+```
+
+### Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs. 
+
+This is due to "EOF within quoted strings."
+
+`read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns, `read.lines` gets fewer observations)
+
+In python with pandas, `read.csv` is stoped by EOF errors unless I include `error_bad_lines=False`.
+```
+import pandas as pd 
+
+data = pd.read_csv("GrimQuery.csv", delimiter=",", header = None, quoting=3, error_bad_lines=False)
+```
+
+The only special strings I've found are in names, indicating parenthesis around nicknames:
+```
+SMYSER, CHARLES A \SKIP\""
+BOUCHER, FREDERICK C \RICK\""
+```
+
+
+
+### 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
+
+See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
+
+DIME data: 
+```{r sum}
+# Make sure amount is numeric
+head(d$amount)
+d$amount %<>% 
+  str_extract("[0-9]*") %>%
+  as.numeric()
+head(d$amount)
+nrow(d)
+
+# drop NA amounts 
+sum(is.na(d$amount))
+d %<>% as_tibble() %>%
+  filter(!is.na(amount))
+
+nrow(d)
+
+# Largest amounts
+d %>% 
+  arrange(-amount) %>% 
+  head() %>% 
+  knitr::kable()
+
+# total contributions by cycle
+d %>% 
+  group_by(cycle) %>% 
+  summarise(total_amount = sum(amount)) %>% 
+  knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
+```
+
+### Drop contributions over $1 billion
+```{r}
+d %<>% filter(amount < 1000000000)
+
+d %>% 
+  arrange(-amount) %>% 
+  head() %>% 
+  knitr::kable()
+```
+
+### Drop negative contributions
+```{r negative}
+d %<>% filter(amount > -1)
+```
+
+### Missing contributor data for recent cycles?
+```{r}
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
+
+d %>% 
+  filter(cycle > 1999) %>% 
+  group_by(cycle) %>%
+  summarise(unique_pacs = length(unique(contributor_ext_id))) %>%
+  knitr::kable()
+
+# delete NA contributors for now
+# d %<>% filter(!is.na(contributor_ext_id))
+```
+
+# Select Industry PACs
+
+(see pacs-from-crp for now)
+
+For all contributions, skip this step.
+
+## Top PAC donations in a cycle
+```{r}
+# Energy sector PACs
+crp <- read_csv(here("CRP Data/crpEnergy.csv"))
+head(crp)
+
+d %<>% 
+  left_join(crp %>% 
+              rename(contributor_ext_id = comid)) %>% 
+  distinct() %>% 
+  mutate(contributor_ext_id = replace_na(contributor_ext_id, "MISSSING"))
+
+d %>%
+  head() %>% 
+  knitr::kable()
+```
+
+
+## There are  `r unique(d$contributor_ext_id) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
+
+## Top PACs
+```{r}
+d %>% 
+  group_by(UltOrg) %>% 
+  summarise(number_of_contributions = n(),
+            total_spending = sum(amount)) %>% 
+  distinct() %>% 
+  arrange(-total_spending) %>% 
+  head() %>% 
+  knitr::kable()
+```
+
+
+# Merge with voteview data
+```{r voteview}
+  #source(here("members/nameCongress.R")) # augments voteview member names
+  ## Load augmented member names without having to load voteview package
+  load(here("members/members.Rdata"))
+
+# function to merge DIME with voteview data 
+join_members <- . %>% 
+  mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
+  right_join(members %>% 
+               select(icpsr, bioname, congress) %>% 
+               mutate(cycle = (congress - 107)*2 + 2000) %>% 
+               distinct()
+             ) %>% 
+  # where a member is not observed in a cycle in DIME, replace ammount with na
+  mutate(amount = replace_na(amount, 0))
+```
+
+## Sum contributions per member per cycle per industry 
+```{r sumarize}
+# New data just of contributions from selected industries
+d1 <- d %>%
+  filter(contributor_ext_id %in% crp$comid) %>%
+  # Tally contributions per member per cycle per industry 
+  join_members() %>% 
+  distinct() %>%
+  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
+  tally(amount) %>%
+  ungroup() %>% 
+  mutate(industry = "energy")
+
+d_other <- d %>%
+  # PACs not in industry
+  filter(!contributor_ext_id %in% crp$comid) %>%
+  join_members() %>% 
+  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
+  tally(amount) %>%
+  ungroup() %>% 
+  mutate(industry = "other") 
+
+d1 %<>% full_join(d_other) %>% 
+  rename(amounts = n) %>% 
+  distinct()
+```
+
+Check for zero counts and duplication
+```{r zero}
+# Make sure there are indeed 0 counts if we expect them
+d1 %>% 
+  filter(amounts == 0) %>%
+  arrange(bioname) 
+
+# Make sure we have equal numbers of observations per industry
+d1 %>% count(industry)
+
+# count observations (there should be one per industry)
+d1 %>% count(bioname, icpsr, congress) %>% 
+  arrange(-n)
+
+# inspect
+head(d1)  
+# nrow(d)
+```
+
+## Voteview-DIME ICPSR name mismatches
+```{r names}
+# problem names
+d1 %>% 
+  ungroup() %>% 
+  mutate(bioname = toupper(bioname),
+         recipient_name = toupper(recipient_name)) %>% 
+  filter(str_sub(bioname, 1,3) != str_sub(recipient_name,1 , 3),
+         cycle > 1999) %>% 
+  filter(!str_detect(recipient_name, "SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MATO")) %>% 
+  knitr::kable()
+```
+
+
+```{r FERC-DIME-new}
+d1 %<>% 
+  distinct() %>%
+  full_join(members %>% select(icpsr, congress, party_name)) %>% 
+  # rename(party = party_name) %>% 
+  distinct()
+
+# inspect coverage 
+d1 %>%
+  group_by(cycle, icpsr, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
+  ungroup() %>% 
+  group_by(cycle, party_name, industry) %>% 
+  summarise(mean = mean(total)) %>% 
+  ggplot() + 
+  aes(x = factor(cycle), y = mean, fill = party_name) + 
+  geom_col() + 
+  facet_grid(. ~ industry, scales = "free_y") +
+  labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
+       x = "FEC Electoral Cycle")
+```
+
+
+# Save results
+```{r save}
+pac_contributions <- d
+save(pac_contributions, file = here("data/pac_contributions.Rdata"))
+
+pac_amounts <- d1
+save(pac_amounts, file = here("data/pac_amounts.Rdata"))
+```
+
+
+```{r, echo = FALSE, eval = FALSE, include = FALSE}
+q()
+n
+git pull
+Rscript -e 'library(rmarkdown); rmarkdown::render("functions/read-dime.Rmd", "html_document")'
+git add "data/pac_amounts.Rdata"
+git add "functions/read-dime.html"
+git commit -m "update pac data"
+git pull
+git push
+judgelord
+```

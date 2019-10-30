@@ -9,6 +9,9 @@ clean <- function(file.name) {
   load("data/DOE_FERC-letters-coded.Rdata")
  
   data <- ungroup(FERC_letters)
+  
+  # keep id 
+  data$NOTES <- data$ID
  
    # create agency column
   data$agency <- "DOE_FERC"
@@ -84,10 +87,6 @@ mutate(FROM = str_replace(FROM, "Bob Graham", "Daniel Graham")) %>%
  
  data %<>% extractMemberName(members, "FROM") %<>% distinct()
 
-  # d1 <- data %>% filter(congress>109) %>% extractMemberName(members = members, col_name = "FROM")
-  # d2 <- data %>% filter(congress<110) %>% extractMemberName(members = members_106to109th, col_name = "FROM")
-  # 
-  # data <- full_join(d1, d2)
   
 #   
 # # # # Testing 
@@ -843,4 +842,7 @@ fixingDistrict <- data %>%
 fixingDistrict1 <- data %>% 
   select(ID, SUBJECT, TYPE, Place_State,ProProject, Place_District, url, ProBusiness, Freelancer) %>% 
   filter(is.na(Place_State), str_detect(Place_District, "yes"), str_detect(ProProject, "."))
+
+
 }
+

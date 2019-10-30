@@ -39,7 +39,7 @@
   library(googledrive)
   library(gmailr)
   library(stringi)
-  library(pdftools)
+  # library(pdftools)
   library(here)
   library(rvest)
   library(tidyr)

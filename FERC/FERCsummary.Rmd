@@ -27,7 +27,6 @@ requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magritt
 
 ```{r, include=FALSE}
   library(tidyverse)
-  library(ineq)
   library(ggplot2); theme_set(theme_bw())
   library(magrittr)
   library(maps)
@@ -59,6 +58,8 @@ d <- all_contacts %>%
   ungroup() %>% 
   # define d as just FERC
   filter(agency=="DOE_FERC") %>% 
+  # FIXME 
+  mutate(ID = NOTES) %>% filter(nchar(ID)>8) %>%
   select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
   # FIXME 
@@ -83,7 +84,8 @@ FERC_letters %<>%
   distinct()
 
 # merge in coded letters
-d %<>% left_join(FERC_letters) %>% filter(year <2019)
+# FIXME THIS IS FAILING DUE TO LACK OF ID IN DATA
+d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID)) 
 
 # Add hand-coding to auto-coding of letter type 
 d %<>%  
@@ -108,8 +110,10 @@ d %<>%
 d %<>% 
   # FIXME
   # rounding years up is approximate, rewrite to go Nov-Nov?
-  mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, cycle)) 
+  #mutate(cycle = congress*2+1786 ) %>% 
+  mutate(icpsryear = str_c(icpsr, congress)) %>% 
+  # FIXME 
+  mutate(bioname != "GOODE, Virgil H., Jr.")
 ```
 
 In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`. 
@@ -561,63 +565,60 @@ Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-le
 
 ```{r letters_money}
 library(tidyverse)
-library(dplyr)
-# load data 
-load(here("data/contrib_total.rds"))
-
-contrib_total %<>% 
-    mutate(cycle = str_sub(ICPSR, -4)) %>% 
-  filter(cycle < 2014) %>% distinct()
   
+load(here::here("data/pac_amounts.Rdata"))
+
+pac_amounts %<>% 
+  rename(PAC_contributions = amounts) 
+
+pac_amounts %>%
+  arrange(-PAC_contributions) %>% 
+  group_by(cycle) %>% 
+  tally(PAC_contributions) %>% 
+  ggplot() + 
+    geom_col(aes(x = cycle, y = n)) +
+    facet_grid()
+
+
+
+load(here::here("members/members.Rdata"))
+
+pac_amounts %<>% 
+  distinct() %>%
+  full_join(members %>% select(icpsr, congress, party_name)) %>% 
+  mutate(party_name = str_remove(party_name, " Party")) %>%
+  distinct()
+
+# FIXME in read-dime script
+##########
+# FIXME # DROPING ALL 0 OBSERVATIONS TO SEE IF RESULTS ARE THE SAME AS BEFORE 
+#########
+# pac_amounts %<>% filter(PAC_contributions > 0)
+
+pac_amounts %<>% filter(industry == "energy")
 
 # inspect coverage 
-contrib_total %>% 
-  group_by(cycle, ICPSR) %>% 
-  summarise(total = sum(value, na.rm = TRUE)/1000000) %>% 
+pac_amounts %>%
+  group_by(cycle, icpsr, party_name, industry) %>% 
+  summarise(total = sum(PAC_contributions, na.rm = TRUE)/1000000) %>% 
   ungroup() %>% 
-  group_by(cycle) %>% 
+  group_by(cycle, party_name, industry) %>% 
   summarise(mean = mean(total)) %>% 
   ggplot() + 
-  aes(x = factor(cycle), y = mean) + 
+  aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
+  facet_grid(. ~ industry, scales = "free") %>% 
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 
-# merge with letters data, d
-contrib_total %<>% 
-  dplyr::rename(icpsryear = ICPSR,
-         PAC_contributions = value) %>% 
-  mutate(cycle = str_sub(icpsryear, -4),
-         icpsr = as.numeric(str_remove(icpsryear, cycle)),
-         cycle = as.numeric(cycle)) %>% 
-  filter(cycle > 1989) %>% 
-  left_join(d %>% dplyr::select(icpsr, name_state, party) %>% distinct())
 
-# inspect for coverage
-contrib_total %>% 
-  drop_na(party) %>% 
-  group_by(cycle, party, icpsr) %>% 
-  summarise(total = sum(PAC_contributions, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  group_by(cycle, party) %>% 
-  summarise(mean = mean(total)) %>% 
-  ggplot() + 
-  aes(x = factor(cycle), y = mean, fill = party) + 
-  geom_col() + 
-  scale_fill_grey() + 
-  labs(y = "Average Energy-sector PAC contributions \n (ommitting energy extraction companies)", 
-       fill = "Party", 
-       x = "FEC Electoral Cycle")
 
+# THe letters data
 letters_money <- d %>% 
-  #FIXME
-  filter(cycle <2014) %>% 
-  filter(!is.na(ProBusiness)|!is.na(ProProject))%>% 
+  filter(letter_position == "ProBusiness") %>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>%
+  group_by(name_state, congress, icpsr, icpsryear, chamber, oversight_committee) %>%
   summarise(ProBusiness_Letters = n()) %>% 
-  #FIXME
-  filter(cycle <2014) %>% 
   distinct()
 
 nrow(letters_money)
@@ -625,15 +626,16 @@ nrow(letters_money)
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
 letters_money %<>% 
   ungroup() %>% 
-  full_join(contrib_total) %>% 
+  full_join(pac_amounts) %>% 
   group_by(icpsr) %>% 
   # FIXME
   # one party per member, need to deal with party switchers
-  mutate(party = paste(unique(party), collapse = ";")) %>% 
+  mutate(party = paste(unique(party_name), collapse = ";")) %>% 
   mutate(party = str_remove(party, ";.*")) %>% 
   ungroup()%>% distinct()
 
 nrow(letters_money)
+head(letters_money)
 
 # top 10 by contributions in a cycle 
 letters_money %>% 
@@ -645,7 +647,8 @@ letters_money %>%
 Add zero-letter-cycle observations:
 ```{r add-zeros}
 letters_money %<>% 
- mutate(ProBusiness_Letters = ifelse(is.na(ProBusiness_Letters) & cycle > 1997, 0, ProBusiness_Letters)) %>% distinct()
+ mutate(ProBusiness_Letters = ifelse(is.na(ProBusiness_Letters) & cycle > 1997, 0, ProBusiness_Letters)) %>% 
+  distinct()
 
 nrow(letters_money)
 ```
@@ -659,6 +662,7 @@ U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Na
 Count pro-business and pro-project letters:
 ```{r letters_money_total}
 letters_money_total <- letters_money %>% 
+  # FIXME should be no NA PAC_contributions
   filter(!is.na(PAC_contributions)) %>% 
   group_by(icpsr, name_state, party) %>% 
   summarise(ProBusiness_Letters_Per_Cycle = mean(ProBusiness_Letters, na.rm = TRUE),
@@ -667,22 +671,26 @@ letters_money_total <- letters_money %>%
 
 # add zeros 
 letters_money_total %<>% 
- mutate(ProBusiness_Letters_Per_Cycle = ifelse(is.na(ProBusiness_Letters_Per_Cycle), 0, ProBusiness_Letters_Per_Cycle)) %>% distinct()
+ mutate(ProBusiness_Letters_Per_Cycle = ifelse(is.na(ProBusiness_Letters_Per_Cycle), 0, ProBusiness_Letters_Per_Cycle)) %>% 
+  distinct()
 
 nrow(letters_money_total)
 
 
-letters_money_total %>% filter(!is.na(name_state)) %>%  top_n(10, PAC_contributions) %>% knitr::kable()
+letters_money_total %>% 
+  filter(!is.na(name_state)) %>%  
+  top_n(10, PAC_contributions) %>% 
+  knitr::kable()
 ```
 
 Count anti-business and anti-project letters:
 ```{r antibusiness}
 Antiletters_money <- d %>%
   #FIXME
-  filter(cycle <2014) %>% 
+  #filter(cycle <2014) %>% 
   filter(!is.na(AntiBusiness)|!is.na(AntiProject))%>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>% distinct() %>% 
+  group_by(icpsryear, name_state, party, congress, icpsr, chamber, oversight_committee) %>% distinct() %>% 
   summarise(AntiBusiness_Letters = n())
 
 nrow(Antiletters_money)
@@ -691,7 +699,7 @@ nrow(Antiletters_money)
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
 Antiletters_money %<>% 
   ungroup() %>% 
-  full_join(contrib_total) %>% 
+  full_join(pac_amounts) %>% 
   group_by(icpsr) %>% 
   # FIXME
   # one party per member, need to deal with party switchers
@@ -708,6 +716,7 @@ Antiletters_money %<>%
  mutate(AntiBusiness_Letters = ifelse(is.na(AntiBusiness_Letters) & cycle > 1997, 0, AntiBusiness_Letters)) 
 
 Antiletters_money_total <- Antiletters_money %>% 
+  # FIXME there should be no NA PAC_contributions
   filter(!is.na(PAC_contributions)) %>% 
   group_by(icpsr, name_state, party) %>% 
   summarise(AntiBusiness_Letters_Per_Cycle = mean(AntiBusiness_Letters, na.rm = TRUE),
@@ -722,14 +731,16 @@ Count all letters:
 # constituent letters
 All_Letters_money <- d %>% 
   #FIXME
-  filter(cycle <2014) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>%
+  #filter(cycle <2014) %>% 
+  group_by(name_state, party, congress, icpsr, chamber, oversight_committee) %>%
   summarise(All_Letters = n()) %>% distinct()
 
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
 All_Letters_money %<>% 
   ungroup() %>% 
-  full_join(contrib_total) %>% 
+  full_join(pac_amounts) %>% 
+    # FIXME there should be no NA 
+  drop_na(PAC_contributions) %>% 
   group_by(icpsr) %>% 
   # FIXME
   # one party per member, need to deal with party switchers
@@ -743,6 +754,7 @@ All_Letters_money %<>%
 
 # Sum all donations since 1990
 All_Letters_money_total <- All_Letters_money %>% 
+  # FIXME there should be no NA 
   drop_na(PAC_contributions) %>% 
   group_by(icpsr, name_state, party) %>% 
   summarise(All_Letters_Per_Cycle = mean(All_Letters, na.rm = TRUE),
@@ -755,16 +767,16 @@ Count non-constituent letters:
 # constituent letters
 Non_Constituent_money <- d %>% 
   #FIXME
-  filter(cycle <2014) %>% 
+  # filter(cycle <2014) %>% 
   drop_na(Constituent) %>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, cycle, name_state, party, congress, icpsr, chamber, oversight_committee) %>%
+  group_by(name_state, party, congress, icpsr, chamber, oversight_committee) %>%
   summarise(Non_Constituent_Letters = n()) %>% distinct()
 
 # join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
 Non_Constituent_money %<>% 
   ungroup() %>% 
-  full_join(contrib_total) %>% 
+  full_join(pac_amounts) %>% 
   group_by(icpsr) %>% 
   # FIXME
   # one party per member, need to deal with party switchers
@@ -777,6 +789,7 @@ Non_Constituent_money %<>%
  mutate(Non_Constituent_Letters = ifelse(is.na(Non_Constituent_Letters) & cycle > 1997, 0, Non_Constituent_Letters)) %>% distinct()
 
 Non_Constituent_money_total <- Non_Constituent_money %>% 
+  # FIXME should be no NAs
   drop_na(PAC_contributions) %>% 
   group_by(icpsr, name_state, party) %>% 
   summarise(Non_Constituent_Letters_Per_Cycle = mean(Non_Constituent_Letters, na.rm = TRUE),
@@ -785,20 +798,12 @@ Non_Constituent_money_total <- Non_Constituent_money %>%
 ```
 
 ## PAC-specific contributions
-```{r letters_PACs-data, fig.width=9.5}
-# load DIME data 
-load(here("data/contrib_matrix.rds"))
+```{r letters_PACs-data, fig.width=9.5, eval=FALSE}
 
-contrib_matrix %<>% 
-  mutate(cycle = str_sub(ICPSR, -4)) %>% 
-  filter(cycle < 2014)
-
-contrib_matrix %>% 
-  mutate(cycle = str_sub(ICPSR, -4)) %>% 
-  # FIXME 
-  filter(cycle <2014) %>% 
-  group_by(cycle, ICPSR) %>% 
-  summarise(total = sum(value, na.rm = TRUE)/1000000) %>% 
+# check to make sure it looks the same as the agregate data 
+pac_amounts %>% 
+  group_by(cycle, icpsr) %>% 
+  summarise(total = sum(PAC_contributions, na.rm = TRUE)/1000000) %>% 
   ungroup() %>% 
   group_by(cycle) %>% 
   summarise(mean = mean(total)) %>% 
@@ -809,9 +814,6 @@ contrib_matrix %>%
        x = "FEC Electoral Cycle")
 
 contrib_matrix %>% 
-  mutate(cycle = str_sub(ICPSR, -4)) %>% 
-  # FIXME
-  filter(cycle < 2014) %>% 
   group_by(cycle, PACShort) %>% 
   summarise(total = sum(value, na.rm = TRUE)/1000000) %>%  # millions 
   ungroup() %>% 
@@ -852,12 +854,12 @@ contrib_matrix %<>%
   left_join(d %>% select(icpsr, name_state, party) %>% distinct())
 ```
 
-We identify `r length(unique(contrib_matrix$comid))` PACs in the energy sector (oil, gas, and electricity) and match their PAC contributions to each member of congress. 
+We identify r length(unique(pac_amounts$comid)) PACs in the energy sector (oil, gas, and electricity) and match their PAC contributions to each member of congress. 
 
 For example:
 
 ### The top PAC recipient in a single cycle
-```{r letters_PACs}
+```{r letters_PACs, eval=FALSE}
 letters_PACs <- d %>% 
   #FIXME
   filter(cycle <2014) %>% 
@@ -980,6 +982,8 @@ nrow(Antiletters_money)
 
 ### All Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
 ```{r all-letters-per-cycle-model, fig.height=1}
+library(broom)
+library(tidyverse)
 mplot <- function(m){m %>%
   tidy(conf.int = TRUE) %>%
     filter(term!="(Intercept)") %>%
@@ -1047,7 +1051,7 @@ Republicans send an additional `r round(mProParty$coefficients[2], 1)` letters p
 
 ```{r multivariate_model, fig.height=1, include =TRUE}
 # PAC + party:
-mPro_pac_party<- glm(ProBusiness_Letters ~ PAC_contributions + party, 
+mPro_pac_party <- glm(ProBusiness_Letters ~ PAC_contributions + party, 
                      data = letters_money %>% 
                        filter(!party %in% c("NA","(I)", "Independent"))%>% 
                        mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )
@@ -1120,6 +1124,7 @@ tidy(mPro_Fullx)
 mplot(mPro_Fullx)+
   labs(x="", y="Additional letters per congress")
 
+
 mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_contributions + party, data = Antiletters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
 
 tidy(mAnti_Full)
@@ -1178,17 +1183,21 @@ tidy(mAntiParty)
 mplot(mAntiParty) +
   labs(x="", y="Additional anti-business  letters per congress")
 ```
+
 Democrats send an additional `r -round(mAntiParty$coefficients[2], 1)` Anti-Business letters per Congress, on average.
-
-
-
 
 ```{r money-Antiletters-per-cycle-model-party, fig.height=1, include=TRUE}
 #PAC*party interaction:
-mAnti_pacXparty <-glm(AntiBusiness_Letters ~ PAC_contributions*party, data = Antiletters_money %>% filter(party !="NA")%>% mutate(PAC_contributions = PAC_contributions/1000000), family = "poisson" )  
+mAnti_pacXparty <- glm(AntiBusiness_Letters ~ PAC_contributions*party, 
+                       data = Antiletters_money %>% 
+                         filter(party !="NA")%>% 
+                         mutate(PAC_contributions = PAC_contributions/1000000), 
+                       family = "poisson" )  
+
 tidy(mAnti_pacXparty)
-mplot(mAnti_pacXparty)+
-  labs(x="", y="Additional anti-business letters per congress")
+
+# FIXME odd error
+# mplot(mAnti_pacXparty)+ labs(x="", y="Additional anti-business letters per congress")
 ```
 
 
@@ -1351,6 +1360,10 @@ dplot(models) +
 write_lines(
   stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx, float=F),
   path = here("FERC/tables/mFull.tex"))
+
+table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
+                type = "html",
+                notes = "FERC/tables/mFull.tex")
 
 table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
                 type = "html",
