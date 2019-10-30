@@ -206,6 +206,55 @@ d %>%
 # d %<>% filter(!is.na(contributor_ext_id))
 ```
 
+
+### Multiple `recipient_name`s per `icpsr`
+```{r}
+d %>% 
+  group_by(icpsr) %>% 
+  count(recipient_name) %>% 
+  filter(n > 1)
+```
+
+### Solution: Consolidate names by icpsr
+```{r} 
+d %<>% 
+  group_by(icpsr) %>% 
+  mutate(recipient_name = str_c(unique(recipient_name), sep = ";"))
+```
+
+
+### Correct incorrect ICPSRs to match voteview (TO DO)
+
+Assuming DIME names are correct and ICPSRs are wrong.
+```{r corrections}
+icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
+
+d %>% 
+  mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
+  select(icpsr, recipient_name) %>% 
+  filter(icpsr %in% icpsr_errors) %>% 
+  distinct()
+
+# correct problem names
+DIME_corrections <- tribble(
+  ~recipient_name, ~icpsr_correct,
+"BABIN, BRIAN", "",              
+"POE, TED","",                  
+"DENHAM, JEFF","",              
+"HICE, JODY B MR", "",          
+"DESAULNIER, MARK","",          
+"WOODALL, ROB","",              
+"WOODALL, ROB REP.","",         
+"WESTERMAN, BRUCE","",          
+"MCALLISTER, VANCE MICHAEL","", 
+"WESTERMAN, BRUCE MR.","",      
+"BRAHAM, RALPH LEE DR. JR.","",
+"COTTON, THOMAS  ","",          
+"MASTO, CATHERINE CORTEZ","",
+)
+
+```
+
 # Select Industry PACs
 
 (see pacs-from-crp for now)
@@ -294,8 +343,8 @@ Check for zero counts and duplication
 ```{r zero}
 # Make sure there are indeed 0 counts if we expect them
 d1 %>% 
-  filter(amounts == 0) %>%
-  count(industry)
+  mutate(zeros = amounts == 0) %>%
+  count(industry, zeros)
 
 # Make sure we have equal numbers of observations per industry
 d1 %>% count(industry)
@@ -330,22 +379,7 @@ d1 %>%
 ```
 
 name mismatches after correcting DIME ICPSRs (WE ARE ASSUMING DIME NAMES ARE CORRECT, RIGHT?)
-```{r corrections}
-icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
 
-d %>% 
-  mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
-  select(icpsr, recipient_name) %>% 
-  filter(icpsr %in% icpsr_errors) %>% 
-  distinct()
-
-# correct problem names
-DIME_corrections <- tribble(
-  ~recipient_name, ~icpsr_correct,
-  "DESAULNIER, MARK", "01234"
-)
-
-```
 
 
 ```{r FERC-DIME-new}
