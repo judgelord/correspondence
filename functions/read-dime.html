@@ -1516,6 +1516,11 @@ div.tocify {
 library(magrittr)
 library(tidyverse)
 library(here)</code></pre>
+</div>
+<div id="dime-data" class="section level1">
+<h1>DIME Data</h1>
+<div id="different-results-from-different-parsing-functions" class="section level2">
+<h2>Different results from different parsing functions</h2>
 <pre class="r"><code># https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 
 dime_vars &lt;- c(&quot;cycle&quot;, &quot;recipient_icpsr&quot;, &quot;recipient_type&quot;, &quot;recipient_name&quot;, &quot;recipient_icpsr1&quot;, &quot;contributor_ext_id&quot;, &quot;bonica_rid&quot;, &quot;bonica_id2&quot;, &quot;contributor_category&quot;, &quot;amount&quot;)
@@ -1626,20 +1631,31 @@ dime.read_csv &lt;- read_csv(here(&quot;data/GrimQuery.csv&quot;), col_names = d
 <pre class="r"><code>sum(is.na(dime.read_csv$contributor_ext_id))</code></pre>
 <pre><code>## [1] 26605</code></pre>
 <pre class="r"><code>d &lt;- dime.read_csv</code></pre>
-<div id="post-2012-lines-are-failing-to-parse-correctly-resulting-in-there-being-no-contributor-ids." class="section level3">
-<h3>Post 2012 lines are failing to parse correctly, resulting in there being no contributor IDs.</h3>
+<div id="parsing-errors" class="section level3">
+<h3>Parsing errors</h3>
+<p>Some lines are failing to parse correctly.</p>
 <p>This is due to “EOF within quoted strings.”</p>
 <p><code>read_csv</code> is the only R function that gets anything past 2012 (<code>read.delim</code> got a few more observations but not the right columns, <code>read.lines</code> gets fewer observations)</p>
-<p>In python with pandas, <code>read.csv</code> is stoped by EOF errors unless I include <code>error_bad_lines=False</code>.</p>
+<p>In python, pandas’ <code>read.csv</code> has EOF errors unless I include <code>error_bad_lines=False</code>.</p>
 <pre><code>import pandas as pd 
 
-data = pd.read_csv(&quot;GrimQuery.csv&quot;, delimiter=&quot;,&quot;, header = None, quoting=3, error_bad_lines=False)</code></pre>
-<p>The only special strings I’ve found are in names, indicating parenthesis around nicknames:</p>
+data = pd.read_csv(&quot;data/GrimQuery.csv&quot;, delimiter=&quot;,&quot;, header = None, quoting=3, error_bad_lines=False)</code></pre>
+<p>The only special strings I’ve found are in empty strings <code>,\N,</code> or in names, indicating parenthesis around nicknames:</p>
 <pre><code>SMYSER, CHARLES A \SKIP\&quot;&quot;
 BOUCHER, FREDERICK C \RICK\&quot;&quot;</code></pre>
+<p>There are a few odd strings that cause parsing errors, but they don’t explain the missing IDs:</p>
+<pre><code>&quot;2016&quot;,&quot;20712&quot;,&quot;CAND&quot;,&quot;JOHNSON, HENRY C \&quot;HANK\&quot; JR&quot;,&quot;20712&quot;,&quot;&quot;,&quot;cand977&quot;,&quot;4044287089&quot;,&quot;X1200&quot;,&quot;445689.40000000055&quot;
+
+&quot;2016&quot;,&quot;H0CA00082&quot;,&quot;CAND&quot;,&quot;PORTANTINO, ANTHONY&quot;,&quot;H0CA00082&quot;,&quot;&quot;,\N,&quot;33334775774&quot;,&quot;&quot;,&quot;288494.78</code></pre>
+<p>Notice the empty <code>contributor_id</code> before <code>cand_id</code>:</p>
+<pre><code>&quot;2014&quot;,&quot;UT9458&quot;,&quot;CAND&quot;,&quot;ROBLES, LUZ M&quot;,&quot;UT9458&quot;,&quot;&quot;,&quot;cand143616&quot;,&quot;33309085731&quot;,&quot;X1200&quot;,&quot;500&quot;
+&quot;2014&quot;,&quot;VA412936&quot;,&quot;CAND&quot;,&quot;SARVIS, ROBERT CHRISTOPHER&quot;,&quot;VA412936&quot;,&quot;&quot;,&quot;cand192377&quot;,&quot;4143347693&quot;,&quot;X1200&quot;,&quot;2580.4700000000003&quot;
+&quot;2016&quot;,&quot;&quot;,&quot;CAND&quot;,&quot;crowley for congress nys&quot;,&quot;&quot;,&quot;&quot;,&quot;cand1529&quot;,&quot;3787846060&quot;,&quot;&quot;,&quot;110546.11000000002&quot;
+&quot;2016&quot;,&quot;10713&quot;,&quot;CAND&quot;,&quot;CONYERS, JOHN JR&quot;,&quot;10713&quot;,&quot;&quot;,&quot;cand53&quot;,&quot;33489434680&quot;,&quot;&quot;,&quot;638116.7000000033&quot;</code></pre>
 </div>
-<div id="and-2014-cycles-are-not-correct-due-to-some-incorrect-numbers-for-grayson-alan-mark" class="section level3">
-<h3>2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK</h3>
+<div id="ammount-errors" class="section level3">
+<h3>Ammount errors</h3>
+<p>2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK</p>
 <p>See <a href="https://transition.fec.gov/press/campaign_finance_statistics.shtml">FEC cycle summaries</a>, e.g. <a href="https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml">2014</a></p>
 <p>DIME data:</p>
 <pre class="r"><code># Make sure amount is numeric
@@ -1859,8 +1875,8 @@ d %&gt;%
 </tbody>
 </table>
 </div>
-<div id="drop-contributions-over-1-billion" class="section level3">
-<h3>Drop contributions over $1 billion</h3>
+<div id="solution-drop-contributions-over-1-billion" class="section level3">
+<h3>Solution: Drop contributions over $1 billion</h3>
 <pre class="r"><code>d %&lt;&gt;% filter(amount &lt; 1000000000)
 
 d %&gt;% 
@@ -1964,6 +1980,7 @@ d %&gt;%
 </div>
 <div id="missing-contributor-data-for-recent-cycles" class="section level3">
 <h3>Missing contributor data for recent cycles?</h3>
+<p><code>contributor_id</code> is missing post 2012. This is not a parsing error.</p>
 <pre class="r"><code>d %&gt;% 
   filter(cycle &gt; 1999) %&gt;% 
   count(is.na(contributor_ext_id), cycle) %&gt;% 
@@ -2130,6 +2147,7 @@ d %&gt;%
 </table>
 <pre class="r"><code># delete NA contributors for now
 # d %&lt;&gt;% filter(!is.na(contributor_ext_id))</code></pre>
+</div>
 </div>
 </div>
 <div id="select-industry-pacs" class="section level1">
@@ -2372,21 +2390,12 @@ d1 %&lt;&gt;% full_join(d_other) %&gt;%
 <pre class="r"><code># Make sure there are indeed 0 counts if we expect them
 d1 %&gt;% 
   filter(amounts == 0) %&gt;%
-  arrange(bioname) </code></pre>
-<pre><code>## # A tibble: 2,808 x 7
-##    icpsr congress cycle bioname             recipient_name amounts industry
-##    &lt;dbl&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;               &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;   
-##  1 21522      114  2014 ABRAHAM, Ralph      &lt;NA&gt;                 0 energy  
-##  2 21522      115  2016 ABRAHAM, Ralph      &lt;NA&gt;                 0 energy  
-##  3 21522      116  2018 ABRAHAM, Ralph      &lt;NA&gt;                 0 energy  
-##  4 15000      112  2010 ACKERMAN, Gary Leo… &lt;NA&gt;                 0 energy  
-##  5 21545      113  2012 ADAMS, Alma         &lt;NA&gt;                 0 energy  
-##  6 21545      114  2014 ADAMS, Alma         &lt;NA&gt;                 0 energy  
-##  7 21545      115  2016 ADAMS, Alma         &lt;NA&gt;                 0 energy  
-##  8 21545      116  2018 ADAMS, Alma         &lt;NA&gt;                 0 energy  
-##  9 21545      113  2012 ADAMS, Alma         &lt;NA&gt;                 0 other   
-## 10 21120      112  2010 ADAMS, Sandra (San… &lt;NA&gt;                 0 energy  
-## # … with 2,798 more rows</code></pre>
+  count(industry)</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   industry     n
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 energy    2363
+## 2 other      445</code></pre>
 <pre class="r"><code># Make sure we have equal numbers of observations per industry
 d1 %&gt;% count(industry)</code></pre>
 <pre><code>## # A tibble: 2 x 2
@@ -2394,35 +2403,1172 @@ d1 %&gt;% count(industry)</code></pre>
 ##   &lt;chr&gt;    &lt;int&gt;
 ## 1 energy    6576
 ## 2 other     6589</code></pre>
+<p>Duplicated names</p>
 <pre class="r"><code># count observations (there should be one per industry)
-d1 %&gt;% count(bioname, icpsr, congress) %&gt;% 
-  arrange(-n)</code></pre>
-<pre><code>## # A tibble: 6,554 x 4
-##    bioname                      icpsr congress     n
-##    &lt;chr&gt;                        &lt;dbl&gt;    &lt;int&gt; &lt;int&gt;
-##  1 BACHMANN, Michele            20728      113     4
-##  2 BARTON, Joe Linus            15085      113     4
-##  3 BAUCUS, Max Sieben           14203      113     4
-##  4 CASTOR, Kathy                20708      113     4
-##  5 CONYERS, John, Jr.           10713      113     4
-##  6 ENGEL, Eliot Lance           15603      113     4
-##  7 GILLIBRAND, Kirsten          20735      113     4
-##  8 GRAHAM, Lindsey O.           29566      113     4
-##  9 HARKIN, Thomas Richard (Tom) 14230      113     4
-## 10 HATCH, Orrin Grant           14503      113     4
-## # … with 6,544 more rows</code></pre>
+d1 %&gt;% group_by(bioname, icpsr, congress, industry) %&gt;% 
+  mutate(n = n()) %&gt;% 
+  arrange(bioname) %&gt;%
+  filter(n &gt; 1) %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">icpsr</th>
+<th align="right">congress</th>
+<th align="right">cycle</th>
+<th align="left">bioname</th>
+<th align="left">recipient_name</th>
+<th align="right">amounts</th>
+<th align="left">industry</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">20728</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BACHMANN, Michele</td>
+<td align="left">BACHMANN, MICHELE</td>
+<td align="right">6500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20728</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BACHMANN, Michele</td>
+<td align="left">BACHMANN, MICHELE M</td>
+<td align="right">10000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20728</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BACHMANN, Michele</td>
+<td align="left">BACHMANN, MICHELE</td>
+<td align="right">296285</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20728</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BACHMANN, Michele</td>
+<td align="left">BACHMANN, MICHELE M</td>
+<td align="right">15202543</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">15085</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BARTON, Joe Linus</td>
+<td align="left">BARTON, JOE LINUS</td>
+<td align="right">23500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">15085</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BARTON, Joe Linus</td>
+<td align="left">BARTON, JOSEPH LINUS</td>
+<td align="right">285500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">15085</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BARTON, Joe Linus</td>
+<td align="left">BARTON, JOE LINUS</td>
+<td align="right">128614</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">15085</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BARTON, Joe Linus</td>
+<td align="left">BARTON, JOSEPH LINUS</td>
+<td align="right">2085190</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14203</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BAUCUS, Max Sieben</td>
+<td align="left">BAUCUS, MAX</td>
+<td align="right">129000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14203</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BAUCUS, Max Sieben</td>
+<td align="left">BAUCUS, MAX S.</td>
+<td align="right">42000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14203</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BAUCUS, Max Sieben</td>
+<td align="left">BAUCUS, MAX</td>
+<td align="right">2603906</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14203</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BAUCUS, Max Sieben</td>
+<td align="left">BAUCUS, MAX S.</td>
+<td align="right">385699</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21141</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BENISHEK, Dan</td>
+<td align="left">BENISHEK, DANIEL J</td>
+<td align="right">1282384</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21141</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">BENISHEK, Dan</td>
+<td align="left">BENISHEK, DANIEL J. M.D.</td>
+<td align="right">3910543</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20708</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CASTOR, Kathy</td>
+<td align="left">CASTOR, KATHERINE ANNE</td>
+<td align="right">8000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20708</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CASTOR, Kathy</td>
+<td align="left">CASTOR, KATHY</td>
+<td align="right">2000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20708</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CASTOR, Kathy</td>
+<td align="left">CASTOR, KATHERINE ANNE</td>
+<td align="right">1291348</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20708</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CASTOR, Kathy</td>
+<td align="left">CASTOR, KATHY</td>
+<td align="right">87680</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">10713</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CONYERS, John, Jr.</td>
+<td align="left">CONYERS, JOHN J.</td>
+<td align="right">7000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">10713</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CONYERS, John, Jr.</td>
+<td align="left">CONYERS, JOHN JR.</td>
+<td align="right">1000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">10713</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CONYERS, John, Jr.</td>
+<td align="left">CONYERS, JOHN J.</td>
+<td align="right">1488550</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">10713</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">CONYERS, John, Jr.</td>
+<td align="left">CONYERS, JOHN JR.</td>
+<td align="right">298685</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21109</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">DENHAM, Jeff</td>
+<td align="left">DENHAM, JEFF</td>
+<td align="right">35718</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21109</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">DENHAM, Jeff</td>
+<td align="left">DESAULNIER, MARK</td>
+<td align="right">457437</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21109</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">DENHAM, Jeff</td>
+<td align="left">DENHAM, JEFF</td>
+<td align="right">6850324</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21109</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">DENHAM, Jeff</td>
+<td align="left">DESAULNIER, MARK</td>
+<td align="right">3750</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">15603</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ENGEL, Eliot Lance</td>
+<td align="left">ENGEL, ELIOT L</td>
+<td align="right">750</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">15603</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ENGEL, Eliot Lance</td>
+<td align="left">ENGEL, ELIOT LANCE</td>
+<td align="right">5000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">15603</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ENGEL, Eliot Lance</td>
+<td align="left">ENGEL, ELIOT L</td>
+<td align="right">82573</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">15603</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ENGEL, Eliot Lance</td>
+<td align="left">ENGEL, ELIOT LANCE</td>
+<td align="right">1420983</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21165</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GIBBS, Bob</td>
+<td align="left">GIBBS, BOB</td>
+<td align="right">557959</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21165</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GIBBS, Bob</td>
+<td align="left">GIBBS, ROBERT</td>
+<td align="right">662259</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21156</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GIBSON, Christopher</td>
+<td align="left">GIBSON, CHRIS P</td>
+<td align="right">1159542</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21156</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GIBSON, Christopher</td>
+<td align="left">GIBSON, CHRISTOPHER P</td>
+<td align="right">3257355</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20735</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GILLIBRAND, Kirsten</td>
+<td align="left">GILLIBRAND, KIRSTEN E MRS.</td>
+<td align="right">113500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20735</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GILLIBRAND, Kirsten</td>
+<td align="left">GILLIBRAND, KIRSTEN ELIZABETH MRS</td>
+<td align="right">15000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20735</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GILLIBRAND, Kirsten</td>
+<td align="left">GILLIBRAND, KIRSTEN E MRS.</td>
+<td align="right">13902103</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20735</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GILLIBRAND, Kirsten</td>
+<td align="left">GILLIBRAND, KIRSTEN ELIZABETH MRS</td>
+<td align="right">1159689</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29566</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GRAHAM, Lindsey O.</td>
+<td align="left">GRAHAM, LINDSEY</td>
+<td align="right">25000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29566</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GRAHAM, Lindsey O.</td>
+<td align="left">GRAHAM, LINDSEY OLIN</td>
+<td align="right">20500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29566</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GRAHAM, Lindsey O.</td>
+<td align="left">GRAHAM, LINDSEY</td>
+<td align="right">140676</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29566</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GRAHAM, Lindsey O.</td>
+<td align="left">GRAHAM, LINDSEY OLIN</td>
+<td align="right">1809382</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20529</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GREEN, Al</td>
+<td align="left">GREEN, ALEXANDER</td>
+<td align="right">33050</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20529</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">GREEN, Al</td>
+<td align="left">GREEN, RAYMOND E. ‘GENE’</td>
+<td align="right">411804</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14230</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HARKIN, Thomas Richard (Tom)</td>
+<td align="left">HARKIN, THOMAS</td>
+<td align="right">19000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14230</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HARKIN, Thomas Richard (Tom)</td>
+<td align="left">HARKIN, THOMAS RICHARD</td>
+<td align="right">2500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14230</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HARKIN, Thomas Richard (Tom)</td>
+<td align="left">HARKIN, THOMAS</td>
+<td align="right">997088</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14230</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HARKIN, Thomas Richard (Tom)</td>
+<td align="left">HARKIN, THOMAS RICHARD</td>
+<td align="right">98799</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14503</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HATCH, Orrin Grant</td>
+<td align="left">HATCH, ORRIN G.</td>
+<td align="right">458496</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14503</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HATCH, Orrin Grant</td>
+<td align="left">HATCH, ORRIN GRANT</td>
+<td align="right">46000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14503</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HATCH, Orrin Grant</td>
+<td align="left">HATCH, ORRIN G.</td>
+<td align="right">12125461</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14503</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">HATCH, Orrin Grant</td>
+<td align="left">HATCH, ORRIN GRANT</td>
+<td align="right">838332</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20107</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ISSA, Darrell</td>
+<td align="left">ISSA, DARRELL E</td>
+<td align="right">87250</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20107</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ISSA, Darrell</td>
+<td align="left">ISSA, DARRELL EDWARD</td>
+<td align="right">17500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20107</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ISSA, Darrell</td>
+<td align="left">ISSA, DARRELL E</td>
+<td align="right">4355687</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20107</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ISSA, Darrell</td>
+<td align="left">ISSA, DARRELL EDWARD</td>
+<td align="right">173667</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29546</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">JONES, Walter Beaman, Jr.</td>
+<td align="left">JONES, WALTER B JR</td>
+<td align="right">15750</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29546</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">JONES, Walter Beaman, Jr.</td>
+<td align="left">JONES, WALTER JR</td>
+<td align="right">4500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29546</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">JONES, Walter Beaman, Jr.</td>
+<td align="left">JONES, WALTER B JR</td>
+<td align="right">899736</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29546</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">JONES, Walter Beaman, Jr.</td>
+<td align="left">JONES, WALTER JR</td>
+<td align="right">40000</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20926</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">LUETKEMEYER, Blaine</td>
+<td align="left">LUETKEMEYER, W BLAINE</td>
+<td align="right">1000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20926</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">LUETKEMEYER, Blaine</td>
+<td align="left">LUETKEMEYER, W. BLAINE</td>
+<td align="right">28000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20926</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">LUETKEMEYER, Blaine</td>
+<td align="left">LUETKEMEYER, W BLAINE</td>
+<td align="right">304798</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20926</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">LUETKEMEYER, Blaine</td>
+<td align="left">LUETKEMEYER, W. BLAINE</td>
+<td align="right">2064709</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14435</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MARKEY, Edward John</td>
+<td align="left">MARKEY, EDWARD J.</td>
+<td align="right">49626</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14435</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MARKEY, Edward John</td>
+<td align="left">MARKEY, EDWARD JOHN</td>
+<td align="right">3000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14435</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MARKEY, Edward John</td>
+<td align="left">MARKEY, EDWARD J.</td>
+<td align="right">1534762</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14435</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MARKEY, Edward John</td>
+<td align="left">MARKEY, EDWARD JOHN</td>
+<td align="right">51681</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29776</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MEEKS, Gregory W.</td>
+<td align="left">MEEKS, GREGORY W</td>
+<td align="right">6500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29776</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MEEKS, Gregory W.</td>
+<td align="left">MEEKS, GREGORY WELDON</td>
+<td align="right">1000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29776</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MEEKS, Gregory W.</td>
+<td align="left">MEEKS, GREGORY W</td>
+<td align="right">1305669</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29776</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">MEEKS, Gregory W.</td>
+<td align="left">MEEKS, GREGORY WELDON</td>
+<td align="right">69160</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29377</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">NADLER, Jerrold Lewis</td>
+<td align="left">NADLER, JERROLD L MR.</td>
+<td align="right">32519</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29377</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">NADLER, Jerrold Lewis</td>
+<td align="left">NADLER, JERROLD LEWIS</td>
+<td align="right">1591405</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20337</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PEARCE, Stevan</td>
+<td align="left">PEARCE, STEVAN E.</td>
+<td align="right">30500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20337</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PEARCE, Stevan</td>
+<td align="left">PEARCE, STEVE</td>
+<td align="right">70000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20337</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PEARCE, Stevan</td>
+<td align="left">PEARCE, STEVAN E.</td>
+<td align="right">73506</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20337</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PEARCE, Stevan</td>
+<td align="left">PEARCE, STEVE</td>
+<td align="right">1832831</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20705</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PERLMUTTER, Ed</td>
+<td align="left">PERLMUTTER, EDWIN</td>
+<td align="right">23000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20705</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PERLMUTTER, Ed</td>
+<td align="left">PERLMUTTER, EDWIN G</td>
+<td align="right">24500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20705</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PERLMUTTER, Ed</td>
+<td align="left">PERLMUTTER, EDWIN</td>
+<td align="right">4327303</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20705</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PERLMUTTER, Ed</td>
+<td align="left">PERLMUTTER, EDWIN G</td>
+<td align="right">1064352</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29127</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PETERSON, Collin Clark</td>
+<td align="left">PETERSON, COLLIN C</td>
+<td align="right">56500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29127</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PETERSON, Collin Clark</td>
+<td align="left">PETERSON, COLLIN CLARK</td>
+<td align="right">19500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29127</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PETERSON, Collin Clark</td>
+<td align="left">PETERSON, COLLIN C</td>
+<td align="right">1883176</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29127</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PETERSON, Collin Clark</td>
+<td align="left">PETERSON, COLLIN CLARK</td>
+<td align="right">119616</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20920</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PINGREE, Chellie</td>
+<td align="left">PINGREE, CHELLIE M</td>
+<td align="right">1398402</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20920</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">PINGREE, Chellie</td>
+<td align="left">PINGREE, ROCHELLE MARIE</td>
+<td align="right">57049</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">13035</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">RANGEL, Charles B.</td>
+<td align="left">RANGEL, CHARLES B</td>
+<td align="right">2000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">13035</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">RANGEL, Charles B.</td>
+<td align="left">RANGEL, CHARLES B.</td>
+<td align="right">9000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">13035</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">RANGEL, Charles B.</td>
+<td align="left">RANGEL, CHARLES B</td>
+<td align="right">189751</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">13035</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">RANGEL, Charles B.</td>
+<td align="left">RANGEL, CHARLES B.</td>
+<td align="right">1635026</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29142</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">REED, John F. (Jack)</td>
+<td align="left">REED, JACK</td>
+<td align="right">2808</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29142</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">REED, John F. (Jack)</td>
+<td align="left">REED, JOHN F</td>
+<td align="right">243425</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14852</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">ROBERTS, Charles Patrick (Pat)</td>
+<td align="left">ROBERTS, C PATRICK</td>
+<td align="right">315862</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14852</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">ROBERTS, Charles Patrick (Pat)</td>
+<td align="left">ROBERTS, PAT</td>
+<td align="right">5944</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14922</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ROCKEFELLER, John Davison IV (Jay)</td>
+<td align="left">ROCKEFELLER, JAY</td>
+<td align="right">9000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14922</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ROCKEFELLER, John Davison IV (Jay)</td>
+<td align="left">ROCKEFELLER, JOHN DAVISON IV</td>
+<td align="right">2500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">14922</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ROCKEFELLER, John Davison IV (Jay)</td>
+<td align="left">ROCKEFELLER, JAY</td>
+<td align="right">571482</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">14922</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">ROCKEFELLER, John Davison IV (Jay)</td>
+<td align="left">ROCKEFELLER, JOHN DAVISON IV</td>
+<td align="right">101061</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20525</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">SCHWARTZ, Allyson Y.</td>
+<td align="left">SCHWARTZ, ALLYSON</td>
+<td align="right">24500</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20525</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">SCHWARTZ, Allyson Y.</td>
+<td align="left">SCHWARTZ, ALLYSON Y</td>
+<td align="right">5000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20525</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">SCHWARTZ, Allyson Y.</td>
+<td align="left">SCHWARTZ, ALLYSON</td>
+<td align="right">2930404</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20525</td>
+<td align="right">112</td>
+<td align="right">2010</td>
+<td align="left">SCHWARTZ, Allyson Y.</td>
+<td align="left">SCHWARTZ, ALLYSON Y</td>
+<td align="right">137252</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">20525</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">SCHWARTZ, Allyson Y.</td>
+<td align="left">SCHWARTZ, ALLYSON</td>
+<td align="right">4556942</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">20525</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">SCHWARTZ, Allyson Y.</td>
+<td align="left">SCHWARTZ, ALLYSON Y</td>
+<td align="right">129989</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29906</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">UDALL, Mark</td>
+<td align="left">UDALL, MARK E</td>
+<td align="right">17000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29906</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">UDALL, Mark</td>
+<td align="left">UDALL, MARK EMERY</td>
+<td align="right">83000</td>
+<td align="left">energy</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">29906</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">UDALL, Mark</td>
+<td align="left">UDALL, MARK E</td>
+<td align="right">202110</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">29906</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">UDALL, Mark</td>
+<td align="left">UDALL, MARK EMERY</td>
+<td align="right">1774734</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21118</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">WILSON, Frederica</td>
+<td align="left">WILSON, FREDERICA S</td>
+<td align="right">343260</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21118</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">WILSON, Frederica</td>
+<td align="left">WILSON, FREDERICA S.</td>
+<td align="right">247423</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">21135</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">YODER, Kevin</td>
+<td align="left">YODER, KEVIN</td>
+<td align="right">346222</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">21135</td>
+<td align="right">113</td>
+<td align="right">2012</td>
+<td align="left">YODER, Kevin</td>
+<td align="left">YODER, KEVIN W</td>
+<td align="right">466048</td>
+<td align="left">other</td>
+<td align="right">2</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code># inspect
-head(d1)  </code></pre>
-<pre><code>## # A tibble: 6 x 7
-##   icpsr congress cycle bioname              recipient_name amounts industry
-##   &lt;dbl&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;                &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;   
-## 1  1366      105  1996 BYRD, Robert Carlyle &lt;NA&gt;                 0 energy  
-## 2  1366      106  1998 BYRD, Robert Carlyle BYRD, ROBERT …    1000 energy  
-## 3  1366      107  2000 BYRD, Robert Carlyle BYRD, ROBERT …   35000 energy  
-## 4  1366      108  2002 BYRD, Robert Carlyle &lt;NA&gt;                 0 energy  
-## 5  1366      109  2004 BYRD, Robert Carlyle &lt;NA&gt;                 0 energy  
-## 6  1366      110  2006 BYRD, Robert Carlyle BYRD, ROBERT …   59947 energy</code></pre>
-<pre class="r"><code># nrow(d)</code></pre>
+# head(d1)  
+# nrow(d)</code></pre>
 </div>
 <div id="voteview-dime-icpsr-name-mismatches" class="section level2">
 <h2>Voteview-DIME ICPSR name mismatches</h2>
@@ -2433,7 +3579,7 @@ d1 %&gt;%
          recipient_name = toupper(recipient_name)) %&gt;% 
   filter(str_sub(bioname, 1,3) != str_sub(recipient_name,1 , 3),
          cycle &gt; 1999) %&gt;% 
-  filter(!str_detect(recipient_name, &quot;SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MATO&quot;)) %&gt;% 
+  filter(!str_detect(recipient_name, &quot;SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MASTO&quot;)) %&gt;% 
   knitr::kable()</code></pre>
 <table>
 <thead>
@@ -2520,17 +3666,37 @@ d1 %&gt;%
 <td align="right">2365392</td>
 <td align="left">other</td>
 </tr>
-<tr class="odd">
-<td align="right">41700</td>
-<td align="right">116</td>
-<td align="right">2018</td>
-<td align="left">CORTEZ MASTO, CATHERINE MARIE</td>
-<td align="left">MASTO, CATHERINE CORTEZ</td>
-<td align="right">1220608</td>
-<td align="left">other</td>
-</tr>
 </tbody>
 </table>
+<p>name mismatches after correcting DIME ICPSRs (WE ARE ASSUMING DIME NAMES ARE CORRECT, RIGHT?)</p>
+<pre class="r"><code>icpsr_errors &lt;- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
+
+d %&gt;% 
+  mutate(icpsr = as.numeric(recipient_icpsr)) %&gt;% 
+  select(icpsr, recipient_name) %&gt;% 
+  filter(icpsr %in% icpsr_errors) %&gt;% 
+  distinct()</code></pre>
+<pre><code>## # A tibble: 13 x 2
+##    icpsr recipient_name            
+##    &lt;dbl&gt; &lt;chr&gt;                     
+##  1 20528 BABIN, BRIAN              
+##  2 20528 POE, TED                  
+##  3 21109 DENHAM, JEFF              
+##  4 21122 HICE, JODY B MR           
+##  5 21109 DESAULNIER, MARK          
+##  6 21122 WOODALL, ROB              
+##  7 21122 WOODALL, ROB REP.         
+##  8 21301 WESTERMAN, BRUCE          
+##  9 21522 MCALLISTER, VANCE MICHAEL 
+## 10 21301 WESTERMAN, BRUCE MR.      
+## 11 21522 ABRAHAM, RALPH LEE DR. JR.
+## 12 21301 COTTON, THOMAS            
+## 13 41700 MASTO, CATHERINE CORTEZ</code></pre>
+<pre class="r"><code># correct problem names
+DIME_corrections &lt;- tribble(
+  ~recipient_name, ~icpsr_correct,
+  &quot;DESAULNIER, MARK&quot;, &quot;01234&quot;
+)</code></pre>
 <pre class="r"><code>d1 %&lt;&gt;% 
   distinct() %&gt;%
   full_join(members %&gt;% select(icpsr, congress, party_name)) %&gt;% 
