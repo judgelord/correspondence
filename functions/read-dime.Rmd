@@ -42,6 +42,8 @@ library(here)
 ```
 
 # DIME Data
+
+## Different results from different parsing functions
 ```{r data, warning=TRUE}
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 
@@ -109,7 +111,7 @@ import pandas as pd
 data = pd.read_csv("data/GrimQuery.csv", delimiter=",", header = None, quoting=3, error_bad_lines=False)
 ```
 
-The only special strings I've found are in names, indicating parenthesis around nicknames:
+The only special strings I've found are in empty strings `,\N,` or in names, indicating parenthesis around nicknames:
 ```
 SMYSER, CHARLES A \SKIP\""
 BOUCHER, FREDERICK C \RICK\""
