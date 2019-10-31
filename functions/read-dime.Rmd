@@ -211,7 +211,8 @@ d %>%
 ```{r}
 d %>% 
   group_by(recipient_icpsr) %>% 
-  count(recipient_name) %>% 
+  summarise(n = length(unique(recipient_name)),
+            names = str_c(unique(recipient_name),  collapse = ";")) %>% 
   filter(n > 1)
 ```
 
@@ -219,7 +220,7 @@ d %>%
 ```{r icpsr_names} 
 d %<>% 
   group_by(recipient_icpsr) %>% 
-  mutate(recipient_name = str_c(unique(recipient_name), sep = ";"))
+  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";"))
 ```
 
 
