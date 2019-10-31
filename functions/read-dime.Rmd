@@ -213,7 +213,8 @@ d %>%
   group_by(recipient_icpsr) %>% 
   summarise(n = length(unique(recipient_name)),
             names = str_c(unique(recipient_name),  collapse = ";")) %>% 
-  filter(n > 1)
+  filter(n > 1)  %>% 
+  distinct()
 ```
 
 ### Solution: Consolidate names by icpsr
@@ -250,8 +251,7 @@ DIME_corrections <- tribble(
 "MCALLISTER, VANCE MICHAEL","", 
 "WESTERMAN, BRUCE MR.","",      
 "BRAHAM, RALPH LEE DR. JR.","",
-"COTTON, THOMAS  ","",          
-"MASTO, CATHERINE CORTEZ","",
+"COTTON, THOMAS  ",""
 )
 
 ```
@@ -376,6 +376,7 @@ d1 %>%
   filter(str_sub(bioname, 1,3) != str_sub(recipient_name,1 , 3),
          cycle > 1999) %>% 
   filter(!str_detect(recipient_name, "SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MASTO")) %>% 
+  select(icpsr, bioname, recipient_name) %>% 
   knitr::kable()
 ```
 
@@ -401,7 +402,7 @@ d1 %>%
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
   facet_grid(. ~ industry, scales = "free_y") +
-  labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
+  labs(y = "Average Industry PAC contributions (millions)", 
        x = "FEC Electoral Cycle")
 ```
 
