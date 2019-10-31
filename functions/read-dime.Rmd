@@ -210,15 +210,15 @@ d %>%
 ### Multiple `recipient_name`s per `icpsr`
 ```{r}
 d %>% 
-  group_by(icpsr) %>% 
+  group_by(recipient_icpsr) %>% 
   count(recipient_name) %>% 
   filter(n > 1)
 ```
 
 ### Solution: Consolidate names by icpsr
-```{r} 
+```{r icpsr_names} 
 d %<>% 
-  group_by(icpsr) %>% 
+  group_by(recipient_icpsr) %>% 
   mutate(recipient_name = str_c(unique(recipient_name), sep = ";"))
 ```
 
@@ -262,7 +262,7 @@ DIME_corrections <- tribble(
 For all contributions, skip this step.
 
 ## Top PAC donations in a cycle
-```{r}
+```{r crp}
 # Energy sector PACs
 crp <- read_csv(here("CRP Data/crpEnergy.csv"))
 head(crp)
