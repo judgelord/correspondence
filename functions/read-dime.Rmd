@@ -140,8 +140,6 @@ Notice the empty `contributor_id` before `cand_id`:
 
 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
-See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
-
 DIME data: 
 ```{r sum, echo= FALSE, include=FALSE}
 head(d$amount)
@@ -165,7 +163,10 @@ d %>%
   arrange(-amount) %>% 
   head() %>% 
   knitr::kable()
+```
 
+Compare these totals to [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml). 
+```{r}
 # total contributions by cycle
 d %>% 
   group_by(cycle) %>% 
@@ -175,13 +176,20 @@ d %>%
 
 ### Solution: Drop contributions > $1 billion
 
-Largest contributions afer dropping those over :1 billion:
+Largest contributions afer dropping those over $1 billion:
 ```{r}
 d %<>% filter(amount < 1000000000)
 
 d %>% 
   arrange(-amount) %>% 
   head() %>% 
+  knitr::kable()
+
+# total contributions by cycle
+d %>% 
+  filter(cycle>1999) %>% 
+  group_by(cycle) %>% 
+  summarise(total_amount = sum(amount)) %>% 
   knitr::kable()
 ```
 
@@ -196,17 +204,16 @@ d %<>% filter(amount > -1)
 ```{r}
 d %>% 
   filter(cycle > 1999) %>% 
-  count(is.na(contributor_ext_id), cycle) %>% 
-  knitr::kable()
-
-d %>% 
-  filter(cycle > 1999) %>% 
   group_by(cycle) %>%
   summarise(unique_pacs = length(unique(contributor_ext_id))) %>%
   knitr::kable()
 
-# delete NA contributors for now
-# d %<>% filter(!is.na(contributor_ext_id))
+
+# Count NA contributor IDs
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
 ```
 
 
@@ -240,21 +247,16 @@ d %>%
   filter(icpsr %in% icpsr_errors) %>% 
   distinct()
 
-# correct problem names
+# correct problem ICPSRs
 DIME_corrections <- tribble(
   ~recipient_name, ~icpsr_correct,
-"BABIN, BRIAN", "",              
-"POE, TED","",                  
-"DENHAM, JEFF","",              
-"HICE, JODY B MR", "",          
-"DESAULNIER, MARK","",          
-"WOODALL, ROB","",              
-"WOODALL, ROB REP.","",         
+"BABIN, BRIAN", "",   
+"CLAWSON, CURTIS J","",
+"DESAULNIER, MARK","",  
+"HICE, JODY B MR", "",   
 "WESTERMAN, BRUCE","",          
-"MCALLISTER, VANCE MICHAEL","", 
-"WESTERMAN, BRUCE MR.","",      
-"BRAHAM, RALPH LEE DR. JR.","",
-"COTTON, THOMAS  ",""
+"WESTERMAN, BRUCE MR.","",     
+"MCALLISTER, VANCE MICHAEL",""
 )
 
 ```
@@ -393,7 +395,7 @@ name mismatches after correcting DIME ICPSRs (WE ARE ASSUMING DIME NAMES ARE COR
 
 
 
-```{r FERC-DIME-new}
+```{r FERC-DIME-new, fig.width=10}
 d1 %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
