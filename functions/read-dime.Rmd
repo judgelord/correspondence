@@ -119,7 +119,7 @@ BOUCHER, FREDERICK C \RICK\""
 
 
 
-There are a few odd strings that cause parsing errors, but they don't explain the missing IDs:
+These strings cause parsing errors but don't explain the missing IDs:
 
 ```
 "2016","20712","CAND","JOHNSON, HENRY C \"HANK\" JR","20712","","cand977","4044287089","X1200","445689.40000000055"
@@ -140,31 +140,33 @@ Notice the empty `contributor_id` before `cand_id`:
 
 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
-See [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml)
-
 DIME data: 
-```{r sum}
-# Make sure amount is numeric
+```{r sum, echo= FALSE, include=FALSE}
 head(d$amount)
+# Make sure amount is numeric if using read.lines
 d$amount %<>% 
   str_extract("[0-9]*") %>%
   as.numeric()
 head(d$amount)
 nrow(d)
+```
 
+Inspect for `NA` contribution amounts, very large amounts, and annual totals.
+```{r}
 # drop NA amounts 
 sum(is.na(d$amount))
 d %<>% as_tibble() %>%
   filter(!is.na(amount))
-
-nrow(d)
 
 # Largest amounts
 d %>% 
   arrange(-amount) %>% 
   head() %>% 
   knitr::kable()
+```
 
+Compare these totals to [FEC cycle summaries](https://transition.fec.gov/press/campaign_finance_statistics.shtml), e.g. [2014](https://transition.fec.gov/press/summaries/2014/ElectionCycle/24m_CongCand.shtml). 
+```{r}
 # total contributions by cycle
 d %>% 
   group_by(cycle) %>% 
@@ -172,13 +174,23 @@ d %>%
   knitr::kable() # %>% ggplot() + geom_col(x = cycle, y = n)
 ```
 
+
 ### Solution: Drop contributions over $1 billion
-```{r drop_big_amounts}
+
+Largest contributions afer dropping those over $1 billion:
+```{r}
 d %<>% filter(amount < 1000000000)
 
 d %>% 
   arrange(-amount) %>% 
   head() %>% 
+  knitr::kable()
+
+# total contributions by cycle
+d %>% 
+  filter(cycle>1999) %>% 
+  group_by(cycle) %>% 
+  summarise(total_amount = sum(amount)) %>% 
   knitr::kable()
 ```
 
@@ -193,33 +205,38 @@ d %<>% filter(amount > -1)
 ```{r missing_data}
 d %>% 
   filter(cycle > 1999) %>% 
-  count(is.na(contributor_ext_id), cycle) %>% 
-  knitr::kable()
-
-d %>% 
-  filter(cycle > 1999) %>% 
   group_by(cycle) %>%
   summarise(unique_pacs = length(unique(contributor_ext_id))) %>%
   knitr::kable()
 
-# delete NA contributors for now
-# d %<>% filter(!is.na(contributor_ext_id))
+
+# Count NA contributor IDs
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
 ```
 
 
 ### Multiple `recipient_name`s per `icpsr`
 ```{r icpsrXnamesPx}
 d %>% 
-  group_by(icpsr) %>% 
-  count(recipient_name) %>% 
-  filter(n > 1)
+  group_by(recipient_icpsr) %>% 
+  summarise(n = length(unique(recipient_name)),
+            names = str_c(unique(recipient_name),  collapse = ";")) %>% 
+  filter(n > 1)  %>% 
+  distinct()
 ```
 
 ### Solution: Consolidate names by icpsr
+<<<<<<< HEAD
 ```{r icpsrXnamesRx} 
+=======
+```{r icpsr_names} 
+>>>>>>> d17781fe5c5e509b10ee6ef5d562b7c6b8472c7b
 d %<>% 
-  group_by(icpsr) %>% 
-  mutate(recipient_name = str_c(unique(recipient_name), sep = ";"))
+  group_by(recipient_icpsr) %>% 
+  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";"))
 ```
 
 
@@ -235,22 +252,16 @@ d %>%
   filter(icpsr %in% icpsr_errors) %>% 
   distinct()
 
-# correct problem names
+# correct problem ICPSRs
 DIME_corrections <- tribble(
   ~recipient_name, ~icpsr_correct,
-"BABIN, BRIAN", "",              
-"POE, TED","",                  
-"DENHAM, JEFF","",              
-"HICE, JODY B MR", "",          
-"DESAULNIER, MARK","",          
-"WOODALL, ROB","",              
-"WOODALL, ROB REP.","",         
+"BABIN, BRIAN", "",   
+"CLAWSON, CURTIS J","",
+"DESAULNIER, MARK","",  
+"HICE, JODY B MR", "",   
 "WESTERMAN, BRUCE","",          
-"MCALLISTER, VANCE MICHAEL","", 
-"WESTERMAN, BRUCE MR.","",      
-"BRAHAM, RALPH LEE DR. JR.","",
-"COTTON, THOMAS  ","",          
-"MASTO, CATHERINE CORTEZ","",
+"WESTERMAN, BRUCE MR.","",     
+"MCALLISTER, VANCE MICHAEL",""
 )
 
 ```
@@ -339,7 +350,7 @@ d1 %<>% full_join(d_other) %>%
   distinct()
 ```
 
-Check for zero counts and duplication
+Check for zero counts
 ```{r zero}
 # Make sure there are indeed 0 counts if we expect them
 d1 %>% 
@@ -351,14 +362,13 @@ d1 %>% count(industry)
 ```
 
 
-Duplicated names
+Duplicated member-year total observations?
 ```{r duplicated_names}
 # count observations (there should be one per industry)
 d1 %>% group_by(bioname, icpsr, congress, industry) %>% 
   mutate(n = n()) %>% 
   arrange(bioname) %>%
-  filter(n > 1) %>% 
-  knitr::kable()
+  filter(n > 1)
 
 # inspect
 # head(d1)  
@@ -370,11 +380,19 @@ d1 %>% group_by(bioname, icpsr, congress, industry) %>%
 # problem names
 d1 %>% 
   ungroup() %>% 
+  # split back out recipient name to compare to bioname
+  mutate(recipient_name = str_split(recipient_name, ";")) %>% 
+  unnest(recipient_name) %>% 
+  # match cases
   mutate(bioname = toupper(bioname),
          recipient_name = toupper(recipient_name)) %>% 
+  # identify cases where the first three letters don't match
   filter(str_sub(bioname, 1,3) != str_sub(recipient_name,1 , 3),
          cycle > 1999) %>% 
+  # drop cases where mismatch is due to name formatting (usually maiden name)
   filter(!str_detect(recipient_name, "SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MASTO")) %>% 
+  select(icpsr, bioname, recipient_name) %>% 
+  distinct() %>% 
   knitr::kable()
 ```
 
@@ -382,7 +400,7 @@ name mismatches after correcting DIME ICPSRs (WE ARE ASSUMING DIME NAMES ARE COR
 
 
 
-```{r FERC-DIME-new}
+```{r FERC-DIME-new, fig.width=10}
 d1 %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
@@ -399,8 +417,13 @@ d1 %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
+<<<<<<< HEAD
   facet_grid(. ~ industry, scales = "free") +
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
+=======
+  facet_grid(. ~ industry, scales = "free_y") +
+  labs(y = "Average Industry PAC contributions (millions)", 
+>>>>>>> d17781fe5c5e509b10ee6ef5d562b7c6b8472c7b
        x = "FEC Electoral Cycle")
 ```
 
