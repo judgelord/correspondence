@@ -173,7 +173,7 @@ d %>%
 ```
 
 ### Solution: Drop contributions over $1 billion
-```{r}
+```{r drop_big_amounts}
 d %<>% filter(amount < 1000000000)
 
 d %>% 
@@ -190,7 +190,7 @@ d %<>% filter(amount > -1)
 ### Missing contributor data for recent cycles?
 
 `contributor_id` is missing post 2012. This is not a parsing error. 
-```{r}
+```{r missing_data}
 d %>% 
   filter(cycle > 1999) %>% 
   count(is.na(contributor_ext_id), cycle) %>% 
@@ -208,7 +208,7 @@ d %>%
 
 
 ### Multiple `recipient_name`s per `icpsr`
-```{r}
+```{r icpsrXnamesPx}
 d %>% 
   group_by(icpsr) %>% 
   count(recipient_name) %>% 
@@ -216,7 +216,7 @@ d %>%
 ```
 
 ### Solution: Consolidate names by icpsr
-```{r} 
+```{r icpsrXnamesRx} 
 d %<>% 
   group_by(icpsr) %>% 
   mutate(recipient_name = str_c(unique(recipient_name), sep = ";"))
@@ -226,7 +226,7 @@ d %<>%
 ### Correct incorrect ICPSRs to match voteview (TO DO)
 
 Assuming DIME names are correct and ICPSRs are wrong.
-```{r corrections}
+```{r icpsr_corrections}
 icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
 
 d %>% 
@@ -262,7 +262,7 @@ DIME_corrections <- tribble(
 For all contributions, skip this step.
 
 ## Top PAC donations in a cycle
-```{r}
+```{r crp}
 # Energy sector PACs
 crp <- read_csv(here("CRP Data/crpEnergy.csv"))
 head(crp)
@@ -282,7 +282,7 @@ d %>%
 ## There are  `r unique(d$contributor_ext_id) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
 
 ## Top PACs
-```{r}
+```{r top_pacs}
 d %>% 
   group_by(UltOrg) %>% 
   summarise(number_of_contributions = n(),
@@ -399,7 +399,7 @@ d1 %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-  facet_grid(. ~ industry, scales = "free_y") +
+  facet_grid(. ~ industry, scales = "free") +
   labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 ```
