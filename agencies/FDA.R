@@ -32,12 +32,6 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # paste all relevent info into subject col
-  # data %<>% 
-  #   mutate(SUBJECT = paste(SUBJECT)) 
-  
-
-  
   # state
   # data$state <- gsub(" ","", data$state)
  
@@ -45,15 +39,6 @@ clean <- function(file.name) {
  
  data %<>%
    mutate(FROM = str_remove_all(FROM, "\\[norg\\]|norgl|\\[no orgl|\\[no org\\]"))
-  
- # Add semi colons in rows with multiple congressman
-  #data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
-
-
-  
- # data %<>%
-  #  mutate(FROM = str_replace(FROM, "Addtional", "Addtional;"))
- 
 
   
   ###############    
@@ -71,17 +56,12 @@ clean <- function(file.name) {
   
   
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  #data <- data[!data$FROM == "",] # removes blank observations
-  #data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr\\. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
+
   
   data %<>%
     mutate(FROM = str_remove_all(FROM, "Honorable"))
-  # clean from
-  #data %<>%
-    #mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et\\.al|et\\. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
-                              #ASSOCIATE.*| SENATOR.*| HOUSE OF REPRESENTATIVES.*| ASSOCIATE COMMISSIONER.*| HOUSE OF REPRESENTATIVES.*| CONGRESS.*|fno orgl |Ino orgl |\\[no orgl | U.S. Senate|FDA\\/OC\\/OPP\\/| G FDA\\/OPPLA\\/OL\\/|Mr\\. |Ms\\. |
-                              #Dr\\. |Inc | Honorable| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
-                                  #anonymous |anonymous, anonymous | Ino orgl|\\)| FDA\\/OO\\/OHR\\/DPPER\\/|FDA\\/OMPT\\/CDER\\/OND\\/OAP\\/DAIP\\/|\\(b \\(|FDA\\/OGROP\\/ORA\\/OEIO\\/DFDT\\/|Naturals|Dr. |Sen |Senate|Sen | District.*| State.*")))
+ 
+
   data %<>%
     mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\.|Mr\\.|Ms\\.|Mrs\\.|Dr\\."))
   
@@ -119,7 +99,6 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
   
-  #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
   
   # trim extra white space before or after name
   data$FROM %<>% trimws()
@@ -132,29 +111,17 @@ clean <- function(file.name) {
   # #extract member names
   data <-  extractMemberName(data,members,"FROM") 
   
-  #Check for Duplicates
-  #sample2data<- data
-  
-  #sample2data %<>%
-    #group_by(ID, SUBJECT, DATE) %>%
-    #mutate(n = n(),
-           #last_name = str_c(last_name, collapse = "; "))
-
- 
-#data %<>%
- # filter( ! FROM %in% c("\\[no org\\]", "Rec\\/Create Date:", "Office:","\\[no person\\]", "BE3H","BE3^^H","Ino orgl", "UNITED STATES",
-                        #"SENATE", "fno orgl", "BS", "\\)", "\\.", "BE", "H", "^^H", "CONGRESS", "reiBi" ))
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U\\\\.S. Food and Drug Administration", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Dutcher, Michael Minneapolis District Office"), "Minneapolis District Office", ERROR)) %>%
-    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER", 
-                                      "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
-                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS|HOWARD, SALLY A FDA\\/OC\\/OPP\\/"), "Not Member of Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER","INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
+                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS", "HOWARD, SALLY A FDA\\/OC\\/OPP\\/", "VITALE, JOSEPH"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U\\. S\\. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
     mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "WARNER, CAITLIN"), "Agency staff", ERROR))
     
   
   
