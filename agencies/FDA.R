@@ -74,6 +74,8 @@ clean <- function(file.name) {
   #data <- data[!data$FROM == "",] # removes blank observations
   #data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr\\. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
   
+  data %<>%
+    mutate(FROM = str_remove_all(FROM, "Honorable"))
   # clean from
   #data %<>%
     #mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et\\.al|et\\. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
@@ -82,6 +84,8 @@ clean <- function(file.name) {
                                   #anonymous |anonymous, anonymous | Ino orgl|\\)| FDA\\/OO\\/OHR\\/DPPER\\/|FDA\\/OMPT\\/CDER\\/OND\\/OAP\\/DAIP\\/|\\(b \\(|FDA\\/OGROP\\/ORA\\/OEIO\\/DFDT\\/|Naturals|Dr. |Sen |Senate|Sen | District.*| State.*")))
   data %<>%
     mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\."))
+  
+
   
   data %<>%
     mutate(FROM = str_replace(FROM, "Warner, Mark R US", "Warner, Mark R")) %>%
