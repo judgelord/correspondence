@@ -83,7 +83,7 @@ clean <- function(file.name) {
                               #Dr\\. |Inc | Honorable| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
                                   #anonymous |anonymous, anonymous | Ino orgl|\\)| FDA\\/OO\\/OHR\\/DPPER\\/|FDA\\/OMPT\\/CDER\\/OND\\/OAP\\/DAIP\\/|\\(b \\(|FDA\\/OGROP\\/ORA\\/OEIO\\/DFDT\\/|Naturals|Dr. |Sen |Senate|Sen | District.*| State.*")))
   data %<>%
-    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\."))
+    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\.|Mr\\.|Ms\\.|Mrs\\."))
   
 
   
