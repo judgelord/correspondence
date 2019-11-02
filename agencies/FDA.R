@@ -33,32 +33,41 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   # paste all relevent info into subject col
-  data %<>% 
-    mutate(SUBJECT = paste(SUBJECT)) 
+  # data %<>% 
+  #   mutate(SUBJECT = paste(SUBJECT)) 
   
-  # chamber 
-  data %<>% 
-    mutate(chamber = ifelse(str_detect(FROM,"Senate|SENATE|Senator|SENATOR|MAJORITY LEADER"), "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |CONGRESSMAN"), "House", chamber))
+
   
   # state
   # data$state <- gsub(" ","", data$state)
  
  data %<>% select(ID, DATE,  FROM, chamber, everything())
+ 
+ data %<>%
+   mutate(FROM = str_remove_all(FROM, "\\[norg\\]|norgl|\\[no orgl|\\[no org\\]"))
   
  # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|\\[norg\\]|norgl|\\[no orgl|\\[no org\\]|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
+  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
+
+  
   data %<>%
-    mutate(FROM = str_replace(FROM, "Addtional", "Addtional;")) %>%
-    mutate(FROM = str_replace(FROM, "[0-9]+", ";"))
+    mutate(FROM = str_replace(FROM, "Addtional", "Addtional;"))
  
+
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
   data %<>%
     mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM)
+  
+  
+  # chamber 
+  data %<>% 
+    mutate(chamber = ifelse(str_detect(FROM,"Senate|SENATE|Senator|SENATOR|MAJORITY LEADER"), "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |CONGRESSMAN"), "House", chamber))
+  
   
   
   data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
@@ -137,19 +146,10 @@ data %<>%
                                       "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
                                       "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U\\. S\\. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
-    mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR))
+    mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR))
     
   
-#Filter while working (Comment out) 
-  data %<>%
-   filter( ! FROM %in% c("U\\.S\\.-China Economic, \\.", "Ireland, Jeanne", "Addtional", "E&C Committee, U\\. S\\. Congress", "von Eschenbach, Andrew C", "ST\\.JOHN ST\\. JOHN MEDICAL CENTER", "\\[no orq\\]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
-  "GINGREY, PHILLIP","INDIANA UNIVERSITY SCHOOL OF MEDICINE","Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC\\.","Unknown, Unknown", "Dutcher, Michael Minneapolis District Office", "CONSTITUENT", "Additional",
-  "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "CTMG, NA","FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION", "Liston, Larry", "Jackson, Brent, Constituent"))
- data %<>%
-   filter(! str_detect(FROM, "Addtional|Constituent|BJORKLUND, CYBELE"))
-
-  
- data <- data[!data$FROM == "",] # removes blank observations
   
   unfoundnames<- data %>%
    filter(is.na(last_name) & is.na(ERROR))
