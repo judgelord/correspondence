@@ -83,7 +83,7 @@ clean <- function(file.name) {
                               #Dr\\. |Inc | Honorable| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
                                   #anonymous |anonymous, anonymous | Ino orgl|\\)| FDA\\/OO\\/OHR\\/DPPER\\/|FDA\\/OMPT\\/CDER\\/OND\\/OAP\\/DAIP\\/|\\(b \\(|FDA\\/OGROP\\/ORA\\/OEIO\\/DFDT\\/|Naturals|Dr. |Sen |Senate|Sen | District.*| State.*")))
   data %<>%
-    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\.|Mr\\.|Ms\\.|Mrs\\."))
+    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\.|Mr\\.|Ms\\.|Mrs\\.|Dr\\."))
   
 
   
@@ -112,7 +112,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Alexander, Chairman Lamar", "Alexander, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "Bryne, Bradley", "Byrne, Bradley")) %>%
     mutate(FROM = str_replace(FROM, "BUSCHON,  LARRY", "Larry BUCSHON")) %>%
-    mutate(FROM = str_replace(FROM, "Bono Mack, Mary|Mack, Mary B", "BONO, Mary"))
+    mutate(FROM = str_replace(FROM, "Bono Mack, Mary|Mack, Mary B", "BONO, Mary")) %>%
+    mutate(FROM = str_replace(FROM, "Bryne,  Bradley", "BYRNE, Bradley")) %>%
+    mutate(FROM = str_replace(FROM, "Stefank, Elise", "STEFANIK, Elise"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
@@ -149,7 +151,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Dutcher, Michael Minneapolis District Office"), "Minneapolis District Office", ERROR)) %>%
     mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER", 
                                       "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
-                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS"), "Not Member of Congress", ERROR)) %>%
+                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS|HOWARD, SALLY A FDA\\/OC\\/OPP\\/"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U\\. S\\. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
     mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR))
