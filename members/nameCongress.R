@@ -606,6 +606,7 @@ members %<>%
                      last_comma_common,
                      #last_comma_first_maiden, # this seems redundent
                      firstinitial_middleinitial_last
+                     
   ) %>%
     unique() %>%
     str_subset("404error", negate = T) %>%
