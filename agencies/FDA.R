@@ -92,9 +92,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Alexander, Chairman Lamar", "Alexander, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "Bryne, Bradley", "Byrne, Bradley")) %>%
     mutate(FROM = str_replace(FROM, "BUSCHON,  LARRY", "Larry BUCSHON")) %>%
-    mutate(FROM = str_replace(FROM, "Bono Mack, Mary|Mack, Mary B", "BONO, Mary")) %>%
     mutate(FROM = str_replace(FROM, "Bryne,  Bradley", "BYRNE, Bradley")) %>%
-    mutate(FROM = str_replace(FROM, "Stefank, Elise", "STEFANIK, Elise"))
+    mutate(FROM = str_replace(FROM, "Stefank, Elise", "STEFANIK, Elise")) %>%
+    mutate(FROM = str_replace(FROM, "Torres-Small,  Xochitl", "Torres Small, Xochitl"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
@@ -127,6 +127,10 @@ clean <- function(file.name) {
   
   unfoundnames<- data %>%
    filter(is.na(last_name) & is.na(ERROR))
+  
+  data %>%
+    filter(LetterID == 000674)%>%
+    select()
   
   unfoundnames %<>%
     select(ID, DATE, FROM, SUBJECT, last_name, everything())
