@@ -537,6 +537,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
   members$first_addlast <- paste(members$first_name, members$add_last_name, sep = " ")
+  members$first_last_addlast <- paste(members$first_name, members$last_name, members$add_last_name, sep = " ")
   #members$firstinitial_middleinitial_last <- paste(members$first_initial, members$middle_initial, members$last_name, sep = " ")
  
   
@@ -551,6 +552,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_commoninitial = paste0("^", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
            last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
+           last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
+           addlast_comma_first = paste0(add_last_name, ", ", first_name),
            chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
@@ -607,7 +610,9 @@ members %<>%
                      last_comma_common,
                      #last_comma_first_maiden, # this seems redundent
                      firstinitial_middleinitial_last,
-                     first_addlast
+                     first_addlast,
+                     first_last_addlast,
+                     last_addlast_comma_first
                      
                      
   ) %>%
