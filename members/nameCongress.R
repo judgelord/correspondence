@@ -36,12 +36,13 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
     mutate(first_initial = gsub("^(\\w).*",  "\\1", first_name)) %>% 
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
-    
-     # additional last names
-     mutate(additional_last_name = ifelse(bioname == "BONO, Mary", "Mack", additional_last_name)) %>%
      
+     # additional last names
+     mutate(additional_last_name = "404error") %>%
+     mutate(additional_last_name = ifelse(bioname == "BONO, Mary", "Mack", additional_last_name)) %>%
+   
      # maiden names
-     mutate(maiden_name = "404error") %>%
+    mutate(maiden_name = "404error") %>%
     mutate(maiden_name = ifelse(bioname == "HUTCHISON, Kathryn Ann Bailey (Kay)", "Bailey", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "KUSTER, Ann McLane", "McLane", maiden_name)) %>% 
@@ -470,7 +471,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "CONAWAY, K. Michael", "Kenneth", first_name)) %>%
     mutate(first_name = ifelse(bioname == "BONNER, Jr., Josiah Robins (Jo)", "Josiah", first_name)) %>%
-    mutate(first_name = ifelse(bioname == "GRUCCI, Jr., Felix J.)", "Felix", first_name))
+    mutate(first_name = ifelse(bioname == "GRUCCI, Jr., Felix J.)", "Felix", first_name)) %>%
+   
+  
      
   
   
