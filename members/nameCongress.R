@@ -37,6 +37,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_initial = gsub("^(\\w).*",  "\\1", first_name)) %>% 
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
     
+     # additional last names
+     mutate(additional_last_name = ifelse(bioname == "BONO, Mary", "Mack", additional_last_name)) %>%
      
      # maiden names
      mutate(maiden_name = "404error") %>%
