@@ -425,8 +425,9 @@ d %>% group_by(cycle, industry) %>%
     knitr::kable()
 
 d %>% filter(cycle == 2012) %>% distinct() %>% 
-  arrange(-amount) %>% head() %>% 
-  select(cycle, recipient_name, bonica_cid, amount)
+  arrange(-amount) %>% 
+  head() %>% 
+  select(cycle, recipient_name, bonica_cid, amount) %>% 
   kable()
 
 # Tally contributions per member per cycle per industry 
