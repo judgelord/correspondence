@@ -333,7 +333,6 @@ crosswalk %<>%
   group_by(bonica_cid) %>% 
   top_n(1) %>% 
   ungroup()
-
 # now how many FEC_IDs have the same bonica_cid? Should be 1 to 1
 crosswalk %>% # filter(!is.na(PACShort)) %>% 
   count(bonica_cid, sort = T) %>% 
