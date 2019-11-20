@@ -20,6 +20,8 @@ R
 ```
 
 ```{r setup, echo = FALSE}
+library(knitr)
+
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,
                         message = FALSE,
@@ -428,7 +430,7 @@ d %>% filter(cycle == 2012) %>% distinct() %>%
   arrange(-amount) %>% 
   head() %>% 
   select(cycle, recipient_name, bonica_cid, amount) %>% 
-  kable()
+  knitr::kable()
 
 # Tally contributions per member per cycle per industry 
 d1 <- d %>%
