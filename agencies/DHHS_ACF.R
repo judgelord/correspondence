@@ -100,8 +100,12 @@ clean <- function(file.name) {
   return(data)
 }
 
-
-
-
+data %<>%
+mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "grant support"), 3, TYPE)) %>%
+mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant support"), 3, TYPE)) %>%
+mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant Support"), 3, TYPE)) %>%
+mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "grant support"), "grant", POLICY_EVENT)) %>%
+mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "Grant support"), "grant", POLICY_EVENT)) %>%
+mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "Grant Support"), "grant", POLICY_EVENT))
 
 
