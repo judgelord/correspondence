@@ -12,6 +12,7 @@ editor_options:
 
 ```{r, echo = FALSE, eval = FALSE}
 ssh -Y judgelord@linstat.ssc.wisc.edu
+
 cd ../../../project/judgelord/correspondence
 ls
 git pull
@@ -31,7 +32,7 @@ R
 # Compaign contributions from DIME
 DIME SQL Query:
 ```{}
-SELECT cycle, recipient_icpsr, recipient_type, recipient_name, recipient_icpsr, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount) AS sum_amount FROM newconts WHERE  recipient_type = 'CAND' AND seat IN ('federal:house', 'federal:senate') GROUP BY cycle, contributor_ext_id, recipient_icpsr INTO OUTFILE '/home/groups/andyhall/np_dime/GrimQuery.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+SELECT cycle, recipient_type, recipient_name, recipient_icpsr, bonica_cid, contributor_crp_id, contributor_nimsp_id, contributor_type, contributor_name, contributor_city, contributor_address, contributor_employer, contributor_occupation, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount) AS sum_amount FROM newconts WHERE  recipient_type = 'CAND' AND seat IN ('federal:house', 'federal:senate') GROUP BY cycle, bonica_cid, bonica_rid INTO OUTFILE '/home/groups/andyhall/np_dime/GrimQuery.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
 ```
 
 ```{r libraries}
@@ -44,12 +45,16 @@ library(here)
 # DIME Data
 
 ## Different results from different parsing functions
-```{r data, warning=TRUE}
+```{r sql}
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 
-dime_vars <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
+dime_vars <- "cycle, recipient_type, recipient_name, recipient_icpsr, bonica_cid, contributor_crp_or_nimsp_id, contributor_type, contributor_name, contributor_city, contributor_address, contributor_employer, contributor_occupation, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount)"
 
-dime.read.lines <- readLines(here("data/GrimQuery.csv"))
+dime_vars %<>% str_split(", ", simplify = T)
+```
+
+```{r read_lines, eval=FALSE, warning=TRUE}
+dime.read.lines <- readLines(here("data/GrimQuery2.csv"))
 dime.read.lines %>%
   length()
 
@@ -81,30 +86,34 @@ dime.read.lines$cycle %<>%
 sum(is.na(dime.read.lines$contributor_ext_id))
 
 ## WORSE PARSING METHODS: 
-dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
+dime.read.table <- read.table(here("data/GrimQuery2.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
 
 dim(dime.read.table)
 sum(is.na(dime.read.table$contributor_ext_id))
+```
 
+
+```{r read_csv}
 # Alternative parsing 
-dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = dime_vars, quote = "\"")
+dime.read_csv <- read_csv(here("data/GrimQuery2.csv"), 
+                          col_names = dime_vars,
+                          quote = "\"")
 
 dim(dime.read_csv)
-tail(dime.read_csv) %>% select(cycle, recipient_name, contributor_ext_id, amount)
-sum(is.na(dime.read_csv$contributor_ext_id))
+tail(dime.read_csv) 
+sum(is.na(dime.read_csv$contributor_crp_or_nimsp_id)) # CRP ID 
+sum(is.na(dime.read_csv$contributor_ext_id)) # FEC ID
+sum(is.na(dime.read_csv$bonica_cid)) # Bonica ID 
 
-d <- dime.read_csv
+d <- dime.read_csv %>% rename("amount" = "sum(amount)")
 ```
 
 ### Parsing errors
 
 Some lines are failing to parse correctly. 
 
-This is due to "EOF within quoted strings."
+This is due to "EOF within quoted strings." (In python, pandas' `read.csv` has EOF errors unless I include `error_bad_lines=False`).
 
-`read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns, `read.lines` gets fewer observations)
-
-In python, pandas' `read.csv` has EOF errors unless I include `error_bad_lines=False`.
 ```
 import pandas as pd 
 
@@ -117,9 +126,7 @@ SMYSER, CHARLES A \SKIP\""
 BOUCHER, FREDERICK C \RICK\""
 ```
 
-
-
-These strings cause parsing errors but don't explain the missing IDs:
+These strings cause parsing errors but don't explain the missing contributor FEC IDs (`contributor_ext_id`):
 
 ```
 "2016","20712","CAND","JOHNSON, HENRY C \"HANK\" JR","20712","","cand977","4044287089","X1200","445689.40000000055"
@@ -202,11 +209,13 @@ d %<>% filter(amount > -1)
 ### Missing contributor data for recent cycles?
 
 `contributor_id` is missing post 2012. This is not a parsing error. 
+
+Thus we need to merge in FEC IDs from elsewhere crosswalked with `bonica_cid`.
 ```{r missing_data}
 d %>% 
   filter(cycle > 1999) %>% 
   group_by(cycle) %>%
-  summarise(unique_pacs = length(unique(contributor_ext_id))) %>%
+  summarise(unique_pacs = length(unique(bonica_cid))) %>%
   knitr::kable()
 
 
@@ -214,6 +223,18 @@ d %>%
 d %>% 
   filter(cycle > 1999) %>% 
   count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
+
+# Count NA contributor IDs
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(contributor_crp_or_nimsp_id), cycle) %>% 
+  knitr::kable()
+
+# Count NA contributor IDs
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(bonica_cid), cycle) %>% 
   knitr::kable()
 ```
 
@@ -229,14 +250,11 @@ d %>%
 ```
 
 ### Solution: Consolidate names by icpsr
-<<<<<<< HEAD
-```{r icpsrXnamesRx} 
-=======
 ```{r icpsr_names} 
->>>>>>> d17781fe5c5e509b10ee6ef5d562b7c6b8472c7b
 d %<>% 
   group_by(recipient_icpsr) %>% 
-  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";"))
+  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";")) %>% 
+  ungroup()
 ```
 
 
@@ -270,7 +288,7 @@ DIME_corrections <- tribble(
 
 (see pacs-from-crp for now)
 
-For all contributions, skip this step.
+For total contributions, skip this step.
 
 ## Top PAC donations in a cycle
 ```{r crp}
@@ -278,11 +296,22 @@ For all contributions, skip this step.
 crp <- read_csv(here("CRP Data/crpEnergy.csv"))
 head(crp)
 
-d %<>% 
+# Crosswalk CRP ID--FEC ID--Bonica ID
+crosswalk <- d %>% 
+  select(contributor_ext_id, bonica_cid) %>% 
+  distinct() %>% 
   left_join(crp %>% 
               rename(contributor_ext_id = comid)) %>% 
   distinct() %>% 
   mutate(contributor_ext_id = replace_na(contributor_ext_id, "MISSSING"))
+
+crosswalk %>% filter(!is.na(PACShort))
+
+# join in crosswalk
+d %<>% 
+  select(-contributor_ext_id) %>% # drop the incomplete FEC ID
+  left_join(crosswalk) %>%  # fill in with more complete version
+  distinct() 
 
 d %>%
   head() %>% 
@@ -297,6 +326,15 @@ d %>%
 d %>% 
   group_by(UltOrg) %>% 
   summarise(number_of_contributions = n(),
+            total_spending = sum(amount)) %>% 
+  distinct() %>% 
+  arrange(-total_spending) %>% 
+  head() %>% 
+  knitr::kable()
+
+d %>%   
+  group_by(cycle) %>% 
+  summarise(number_of_PACs = length(unique(UltOrg)),
             total_spending = sum(amount)) %>% 
   distinct() %>% 
   arrange(-total_spending) %>% 
