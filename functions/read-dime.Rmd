@@ -313,8 +313,18 @@ d %<>%
   left_join(crosswalk) %>%  # fill in with more complete version
   distinct() 
 
+# We now have new variables
 d %>%
   head() %>% 
+  knitr::kable()
+
+# check to make sure there are reasonable numbers of packs per cycle
+d %>%   
+  group_by(cycle) %>% 
+  filter(contributor_ext_id == "MISSING") %>% 
+  summarise(number_of_PACs = length(unique(d$UltOrg)),
+            total_spending = sum(amount)) %>% 
+  distinct() %>% 
   knitr::kable()
 ```
 
@@ -332,14 +342,9 @@ d %>%
   head() %>% 
   knitr::kable()
 
-d %>%   
-  group_by(cycle) %>% 
-  summarise(number_of_PACs = length(unique(UltOrg)),
-            total_spending = sum(amount)) %>% 
-  distinct() %>% 
-  arrange(-total_spending) %>% 
-  head() %>% 
-  knitr::kable()
+
+
+d %>% filter(cycle == 2016) %>% select(UltOrg) %>% filter(!is.na(UltOrg)) %>%  distinct()
 ```
 
 
@@ -455,13 +460,8 @@ d1 %>%
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-<<<<<<< HEAD
   facet_grid(. ~ industry, scales = "free") +
-  labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
-=======
-  facet_grid(. ~ industry, scales = "free_y") +
   labs(y = "Average Industry PAC contributions (millions)", 
->>>>>>> d17781fe5c5e509b10ee6ef5d562b7c6b8472c7b
        x = "FEC Electoral Cycle")
 ```
 
