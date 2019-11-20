@@ -56,7 +56,7 @@ clean <- function(file.name) {
   
   #Typo  
   data %<>%
-    mutate(FROM = str_replace(FROM, "M. Mulvaney", "Mick Mulvaney"))
+    mutate(FROM = str_replace(FROM, "M\\. Mulvaney", "Mick Mulvaney"))
   
 
   #extracts member names

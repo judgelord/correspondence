@@ -83,7 +83,7 @@ data_list <- tribble(
 # "DOL_OALJ", "not coded", NA,
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
-"DOL_SOL", "not coded", NA, 
+"DOL_SOL", "coded", "Rochelle", 
 "DOL_VETS", "not coded", NA,
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
