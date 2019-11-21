@@ -12,6 +12,11 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r, eval=FALSE, include=FALSE}
+git pull
+Rscript -e 'library(rmarkdown); rmarkdown::render("FERC/FERCsummary.Rmd", "html_document")'
+```
+
 ```{r setup, include=FALSE}
 # Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
 
@@ -67,10 +72,10 @@ d <- all_contacts %>%
   filter(!(last_name == "GOODE"&party == "(I)"))
   
 
-# one obs per member per letter per committee for all agencies
-load(here("data/all_contacts_committees.RData"))
-# define dcommittees as just FERC
-dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
+## one obs per member per letter per committee for all agencies
+# load(here("data/all_contacts_committees.RData"))
+## define dcommittees as just FERC
+#dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
 # Coded letters, one obs per member per letter 
 load(here("data/DOE_FERC-letters-coded.RData")) 
@@ -465,7 +470,7 @@ The parent companies of these projects spend millions of dollars on lobbying (Lo
 
 ## Committee Leadership
 
-```{r committeechiars_barcode, fig.height=5}
+```{r committeechiars_barcode, fig.height=5, eval=FALSE}
 dcommittees %>%  
   mutate(chair = str_remove(chair,"[0-9]* |^NA "),
          committee = paste(chamber, committee))%>% 
