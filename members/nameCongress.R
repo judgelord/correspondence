@@ -478,8 +478,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   
   # make blank common names NA
-  members %<>%
-    mutate(common_name = ifelse(common_name=="", NA,  common_name))
+  #members %<>%
+    #mutate(common_name = ifelse(common_name=="", NA,  common_name))
   
   # # Creates new rows in member dataset. These are not actual members, but common names that we know shouldn't be matching
   # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JEWELL"; members$first_name[nrow(members)] <- "Sally"
@@ -511,7 +511,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Replace blanks with NA 
   members %<>% 
     mutate(middle_initial = ifelse(middle_initial == "", NA, middle_initial)) %>% 
-    mutate(middle_name = ifelse(middle_name == "", NA, middle_name)) #%>% 
+    mutate(middle_name = ifelse(middle_name == "", NA, middle_name)) %>% 
+    mutate(common_name = ifelse(common_name=="", NA,  common_name))
   # seo middle names don't get us anything, and this just ends up filling in middle names with last names 
     #mutate(middle_name = ifelse(is.na(middle_initial), str_remove_all(seo_name, ".*?-|-.*"), middle_name))
   
