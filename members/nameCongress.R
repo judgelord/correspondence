@@ -52,7 +52,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
      
     # common names
      # NOTE, as written this will overwrite existing common names. 
-     # FIXME by adding "common_name == "" &" unless we want to overwrite 
+     # FIXME by adding "common_name == "" &" unless we want to overwrite
+    mutate(common_name = "404error") %>%
     mutate(common_name = ifelse( first_name == "Daniel", "Dan", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Andrew", "Andy", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Gregory", "Greg", common_name)) %>%
