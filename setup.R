@@ -91,3 +91,5 @@
       base::message(green("Merge complete"))
     }
   }
+
+  

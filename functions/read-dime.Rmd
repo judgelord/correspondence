@@ -12,6 +12,7 @@ editor_options:
 
 ```{r, echo = FALSE, eval = FALSE}
 ssh -Y judgelord@linstat.ssc.wisc.edu
+
 cd ../../../project/judgelord/correspondence
 ls
 git pull
@@ -19,6 +20,8 @@ R
 ```
 
 ```{r setup, echo = FALSE}
+library(knitr)
+
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,
                         message = FALSE,
@@ -31,7 +34,7 @@ R
 # Compaign contributions from DIME
 DIME SQL Query:
 ```{}
-SELECT cycle, recipient_icpsr, recipient_type, recipient_name, recipient_icpsr, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount) AS sum_amount FROM newconts WHERE  recipient_type = 'CAND' AND seat IN ('federal:house', 'federal:senate') GROUP BY cycle, contributor_ext_id, recipient_icpsr INTO OUTFILE '/home/groups/andyhall/np_dime/GrimQuery.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+SELECT cycle, recipient_type, recipient_name, recipient_icpsr, bonica_cid, contributor_crp_id, contributor_nimsp_id, contributor_type, contributor_name, contributor_city, contributor_address, contributor_employer, contributor_occupation, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount) AS sum_amount FROM newconts WHERE  recipient_type = 'CAND' AND seat IN ('federal:house', 'federal:senate') GROUP BY cycle, bonica_cid, bonica_rid INTO OUTFILE '/home/groups/andyhall/np_dime/GrimQuery.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
 ```
 
 ```{r libraries}
@@ -44,12 +47,16 @@ library(here)
 # DIME Data
 
 ## Different results from different parsing functions
-```{r data, warning=TRUE}
+```{r sql}
 # https://www.dropbox.com/s/m4bz7sbxebzowhp/GrimQuery.csv?dl=0
 
-dime_vars <- c("cycle", "recipient_icpsr", "recipient_type", "recipient_name", "recipient_icpsr1", "contributor_ext_id", "bonica_rid", "bonica_id2", "contributor_category", "amount")
+dime_vars <- "cycle, recipient_type, recipient_name, recipient_icpsr, bonica_cid, contributor_crp_or_nimsp_id, contributor_type, contributor_name, contributor_city, contributor_address, contributor_employer, contributor_occupation, contributor_ext_id, bonica_rid, bonica_id2, contributor_category, sum(amount)"
 
-dime.read.lines <- readLines(here("data/GrimQuery.csv"))
+dime_vars %<>% str_split(", ", simplify = T)
+```
+
+```{r read_lines, eval=FALSE, warning=TRUE}
+dime.read.lines <- readLines(here("data/GrimQuery2.csv"))
 dime.read.lines %>%
   length()
 
@@ -81,30 +88,34 @@ dime.read.lines$cycle %<>%
 sum(is.na(dime.read.lines$contributor_ext_id))
 
 ## WORSE PARSING METHODS: 
-dime.read.table <- read.table(here("data/GrimQuery.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
+dime.read.table <- read.table(here("data/GrimQuery2.csv"), header = FALSE, sep = ",", quote = "\"", col.names = dime_vars)
 
 dim(dime.read.table)
 sum(is.na(dime.read.table$contributor_ext_id))
+```
 
+
+```{r read_csv}
 # Alternative parsing 
-dime.read_csv <- read_csv(here("data/GrimQuery.csv"), col_names = dime_vars, quote = "\"")
+dime.read_csv <- read_csv(here("data/GrimQuery2.csv"), 
+                          col_names = dime_vars,
+                          quote = "\"")
 
 dim(dime.read_csv)
-tail(dime.read_csv) %>% select(cycle, recipient_name, contributor_ext_id, amount)
-sum(is.na(dime.read_csv$contributor_ext_id))
+tail(dime.read_csv) 
+sum(is.na(dime.read_csv$contributor_crp_or_nimsp_id)) # CRP ID 
+sum(is.na(dime.read_csv$contributor_ext_id)) # FEC ID
+sum(is.na(dime.read_csv$bonica_cid)) # Bonica ID 
 
-d <- dime.read_csv
+d <- dime.read_csv %>% rename("amount" = "sum(amount)") %>% as_tibble()
 ```
 
 ### Parsing errors
 
 Some lines are failing to parse correctly. 
 
-This is due to "EOF within quoted strings."
+This is due to "EOF within quoted strings." (In python, pandas' `read.csv` has EOF errors unless I include `error_bad_lines=False`).
 
-`read_csv` is the only R function that gets anything past 2012 (`read.delim` got a few more observations but not the right columns, `read.lines` gets fewer observations)
-
-In python, pandas' `read.csv` has EOF errors unless I include `error_bad_lines=False`.
 ```
 import pandas as pd 
 
@@ -117,9 +128,7 @@ SMYSER, CHARLES A \SKIP\""
 BOUCHER, FREDERICK C \RICK\""
 ```
 
-
-
-These strings cause parsing errors but don't explain the missing IDs:
+These strings cause parsing errors but don't explain the missing contributor FEC IDs (`contributor_ext_id`):
 
 ```
 "2016","20712","CAND","JOHNSON, HENRY C \"HANK\" JR","20712","","cand977","4044287089","X1200","445689.40000000055"
@@ -153,10 +162,12 @@ nrow(d)
 
 Inspect for `NA` contribution amounts, very large amounts, and annual totals.
 ```{r}
+d %>% count(is.na(amount))
+
 # drop NA amounts 
-sum(is.na(d$amount))
-d %<>% as_tibble() %>%
-  filter(!is.na(amount))
+d %<>% filter(!is.na(amount))
+
+dim(d)
 
 # Largest amounts
 d %>% 
@@ -180,6 +191,7 @@ d %>%
 Largest contributions afer dropping those over $1 billion:
 ```{r}
 d %<>% filter(amount < 1000000000)
+dim(d)
 
 d %>% 
   arrange(-amount) %>% 
@@ -197,16 +209,23 @@ d %>%
 ### Drop negative contributions
 ```{r negative}
 d %<>% filter(amount > -1)
+dim(d)
 ```
 
 ### Missing contributor data for recent cycles?
 
 `contributor_id` is missing post 2012. This is not a parsing error. 
+
+Thus we need to merge in FEC IDs from elsewhere crosswalked with `bonica_cid`.
 ```{r missing_data}
+# drop bonica cid "-1" because these seem to be errors
+d %<>% filter(bonica_cid != "-1")
+dim(d)
+
 d %>% 
   filter(cycle > 1999) %>% 
   group_by(cycle) %>%
-  summarise(unique_pacs = length(unique(contributor_ext_id))) %>%
+  summarise(unique_pacs = length(unique(bonica_cid))) %>%
   knitr::kable()
 
 
@@ -214,6 +233,18 @@ d %>%
 d %>% 
   filter(cycle > 1999) %>% 
   count(is.na(contributor_ext_id), cycle) %>% 
+  knitr::kable()
+
+# Count NA contributor IDs
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(contributor_crp_or_nimsp_id), cycle) %>% 
+  knitr::kable()
+
+# Count NA contributor IDs
+d %>% 
+  filter(cycle > 1999) %>% 
+  count(is.na(bonica_cid), cycle) %>% 
   knitr::kable()
 ```
 
@@ -229,14 +260,12 @@ d %>%
 ```
 
 ### Solution: Consolidate names by icpsr
-<<<<<<< HEAD
-```{r icpsrXnamesRx} 
-=======
 ```{r icpsr_names} 
->>>>>>> d17781fe5c5e509b10ee6ef5d562b7c6b8472c7b
 d %<>% 
   group_by(recipient_icpsr) %>% 
-  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";"))
+  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";")) %>% 
+  ungroup()
+dim(d)
 ```
 
 
@@ -270,22 +299,72 @@ DIME_corrections <- tribble(
 
 (see pacs-from-crp for now)
 
-For all contributions, skip this step.
+For total contributions, skip this step.
 
-## Top PAC donations in a cycle
-```{r crp}
-# Energy sector PACs
-crp <- read_csv(here("CRP Data/crpEnergy.csv"))
+## Crosswalk CRP ID--FEC ID--Bonica ID
+
+> Why is `bonica_cid` "0" so often? (for 67 different FEC IDs)
+
+```{r crp crosswalk}
+# Sector PACs
+CRPindustry = "energy"
+crp <- read_csv(here("CRP Data/crpEnergy.csv")) #FIXME make general path for any industry code. This script should just load in a universal crosswalk
 head(crp)
 
-d %<>% 
-  left_join(crp %>% 
-              rename(contributor_ext_id = comid)) %>% 
+# Crosswalk CRP ID--FEC ID--Bonica ID
+crosswalk <- d %>% 
+  select(contributor_ext_id, bonica_cid) %>% 
+  distinct() %>% 
+  left_join(crp %>% rename(contributor_ext_id = comid)) %>% 
   distinct() %>% 
   mutate(contributor_ext_id = replace_na(contributor_ext_id, "MISSSING"))
 
+crosswalk %>% filter(!is.na(PACShort))
+
+# how many FEC_IDs have the same bonica_cid?
+crosswalk %>% # filter(!is.na(PACShort)) %>% 
+  count(bonica_cid, sort = T)  %>% 
+  filter(n >1)
+
+#FIXME why is bonica ID is 0 for these FEC IDs
+crosswalk %>% filter(bonica_cid == 0)
+crosswalk %<>% filter(bonica_cid != 0)
+
+# FIXME for now take take only the top 1 FEC ID per bonica ID
+crosswalk %<>% 
+  group_by(bonica_cid) %>% 
+  top_n(1) %>% 
+  ungroup()
+# now how many FEC_IDs have the same bonica_cid? Should be 1 to 1
+crosswalk %>% # filter(!is.na(PACShort)) %>% 
+  count(bonica_cid, sort = T) %>% 
+  filter(n >1)
+
+# number of observations before merge
+dim(d)
+
+# join in crosswalk
+d %<>% 
+  select(-contributor_ext_id) %>% # drop the incomplete FEC ID
+  left_join(crosswalk, by = "bonica_cid") %>%  # fill in with more complete version
+  distinct() 
+
+# check number of observations
+dim(d)
+dim(d %>% filter(amount >0))
+
+# We now have new variables for select PACs
 d %>%
   head() %>% 
+  knitr::kable()
+
+# check to make sure there are reasonable numbers of packs per cycle
+d %>%   
+  group_by(cycle) %>% 
+  filter(contributor_ext_id == "MISSING") %>% 
+  summarise(number_of_PACs = length(unique(d$UltOrg)),
+            total_spending = sum(amount)) %>% 
+  distinct() %>% 
   knitr::kable()
 ```
 
@@ -302,6 +381,8 @@ d %>%
   arrange(-total_spending) %>% 
   head() %>% 
   knitr::kable()
+
+d %>% filter(cycle == 2016) %>% select(UltOrg) %>% filter(!is.na(UltOrg)) %>%  distinct()
 ```
 
 
@@ -321,31 +402,41 @@ join_members <- . %>%
              ) %>% 
   # where a member is not observed in a cycle in DIME, replace ammount with na
   mutate(amount = replace_na(amount, 0))
+
+# add in voteview data
+d %<>% join_members() %>% distinct()
+
+# check number of observations
+dim(d)
 ```
 
 ## Sum contributions per member per cycle per industry 
 ```{r sumarize}
-# New data just of contributions from selected industries
+# Make industry variable based on CRP industry codes
+d %<>% mutate(industry = ifelse(contributor_ext_id %in% crp$comid, CRPindustry, "other"))
+
+# Number of distinct pacs 
+d %>% group_by(cycle, industry) %>%
+  summarise(PACs = length(unique(contributor_ext_id))) %>% 
+  filter(cycle > 2000) %>% 
+    knitr::kable()
+
+d %>% group_by(cycle, industry) %>%
+  summarise(total_contributions = sum(amount)) %>% 
+    filter(cycle > 2000) %>% 
+    knitr::kable()
+
+d %>% filter(cycle == 2012) %>% distinct() %>% 
+  arrange(-amount) %>% 
+  head() %>% 
+  select(cycle, recipient_name, bonica_cid, amount) %>% 
+  knitr::kable()
+
+# Tally contributions per member per cycle per industry 
 d1 <- d %>%
-  filter(contributor_ext_id %in% crp$comid) %>%
-  # Tally contributions per member per cycle per industry 
-  join_members() %>% 
-  distinct() %>%
-  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
+  group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   tally(amount) %>%
   ungroup() %>% 
-  mutate(industry = "energy")
-
-d_other <- d %>%
-  # PACs not in industry
-  filter(!contributor_ext_id %in% crp$comid) %>%
-  join_members() %>% 
-  group_by(icpsr, congress, cycle, bioname, recipient_name) %>%
-  tally(amount) %>%
-  ungroup() %>% 
-  mutate(industry = "other") 
-
-d1 %<>% full_join(d_other) %>% 
   rename(amounts = n) %>% 
   distinct()
 ```
@@ -390,7 +481,7 @@ d1 %>%
   filter(str_sub(bioname, 1,3) != str_sub(recipient_name,1 , 3),
          cycle > 1999) %>% 
   # drop cases where mismatch is due to name formatting (usually maiden name)
-  filter(!str_detect(recipient_name, "SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MASTO")) %>% 
+  filter(!str_detect(recipient_name, "SANCHEZ|CARDENAS|JACKSON|LUJAN|BETO|WATSON|O HALLERAN|MASTO|WASSERMAN")) %>% 
   select(icpsr, bioname, recipient_name) %>% 
   distinct() %>% 
   knitr::kable()
@@ -404,8 +495,10 @@ name mismatches after correcting DIME ICPSRs (WE ARE ASSUMING DIME NAMES ARE COR
 d1 %<>% 
   distinct() %>%
   full_join(members %>% select(icpsr, congress, party_name)) %>% 
-  # rename(party = party_name) %>% 
   distinct()
+
+d1 %>% group_by(cycle, industry, party_name) %>% 
+  summarise(total = sum(amounts)) %>% filter(cycle >2010, industry == "energy") %>% arrange(party_name)
 
 # inspect coverage 
 d1 %>%
@@ -413,17 +506,12 @@ d1 %>%
   summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
   ungroup() %>% 
   group_by(cycle, party_name, industry) %>% 
-  summarise(mean = mean(total)) %>% 
+  summarise(mean = mean(total)) %>% # filter(cycle >2008, industry == "energy") %>% arrange(party_name)
   ggplot() + 
   aes(x = factor(cycle), y = mean, fill = party_name) + 
   geom_col() + 
-<<<<<<< HEAD
-  facet_grid(. ~ industry, scales = "free") +
-  labs(y = "Average Energy-sector PAC contributions (millions) \n (ommitting energy extraction companies)", 
-=======
-  facet_grid(. ~ industry, scales = "free_y") +
+  facet_wrap("industry", scales = "free") +
   labs(y = "Average Industry PAC contributions (millions)", 
->>>>>>> d17781fe5c5e509b10ee6ef5d562b7c6b8472c7b
        x = "FEC Electoral Cycle")
 ```
 
@@ -437,6 +525,14 @@ pac_amounts <- d1
 save(pac_amounts, file = here("data/pac_amounts.Rdata"))
 ```
 
+```{r load, include=FALSE, eval=FALSE}
+
+load(here("data/pac_contributions.Rdata"))
+d <- pac_contributions
+
+load(here("data/pac_amounts.Rdata"))
+d1 <- pac_amounts
+```
 
 ```{r, echo = FALSE, eval = FALSE, include = FALSE}
 q()

@@ -89,8 +89,8 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT))%>%
   mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(SUBJECT, "COUNTY"), 3, TYPE))%>%
-  mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(SUBJECT, "COUNTY"),1, CERTAINTY))
- 
+  mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(SUBJECT, "COUNTY"),1, CERTAINTY))%>%
+  
      return(data)  
   
 }
