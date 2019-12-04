@@ -32,27 +32,14 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # paste all relevent info into subject col
-  data %<>% 
-    mutate(SUBJECT = paste(SUBJECT)) 
-  
-  # chamber 
-  data %<>% 
-    mutate(chamber = ifelse(str_detect(FROM,"Senate|SENATE|Senator|SENATOR|MAJORITY LEADER"), "Senate", NA)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |CONGRESSMAN"), "House", chamber))
-  
   # state
   # data$state <- gsub(" ","", data$state)
  
- data %<>% select(ID, DATE,  FROM, chamber, everything())
-  
- # Add semi colons in rows with multiple congressman
-  data$FROM <- gsub("(.*?)(REPRESENTATIVES|SENATOR|OF THE UNITED STATES|UNITED STATES SENATE|SENATE|LLC|\\[norg\\]|norgl|\\[no orgl|\\[no org\\]|Inc\\.,|Inc\\.) (\\w+)",'\\1\\2; \\3',data$FROM, ignore.case = T)
 
-  data %<>%
-    mutate(FROM = str_replace(FROM, "Addtional", "Addtional;")) %>%
-    mutate(FROM = str_replace(FROM, "[0-9]+", ";"))
  
+ data %<>%
+   mutate(FROM = str_remove_all(FROM, "\\[norg\\]|norgl|\\[no orgl|\\[no org\\]"))
+
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
@@ -61,18 +48,24 @@ clean <- function(file.name) {
     unnest(FROM)
   
   
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
-  data <- data[!data$FROM == "",] # removes blank observations
-  data <- data[-grep("^(Originator/ Org|Constituent|\\[norg\\]|\\[norg\\] \\[norg\\]|Corr\\. Date:|Due Date:|Signature Level:|Source:|Status Date:)$",data$FROM),] # removes observations
+  # chamber 
+  data %<>% 
+    mutate(chamber = ifelse(str_detect(FROM,"Senate|SENATE|Senator|SENATOR|MAJORITY LEADER"), "Senate", NA)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "House|HOUSE|Representative|REPRESENTATIVE|REPRESENTATIAVE|^REP |CONGRESSMAN"), "House", chamber))
   
-  # clean from
+  
+  
+  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM)
+
+  
   data %<>%
-    mutate(FROM = (str_remove_all(FROM, " UNITED.*| SENATE.*| HOUSE.*|\\[no org\\] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et\\.al|et\\. al|Honorable|\\[No Org\\]|Mr.|\\[NO ORG\\]| House of Representatives| OFFICE.*| \\[no org\\]| \\[no orgl|
-                              ASSOCIATE.*| SENATOR.*| HOUSE OF REPRESENTATIVES.*| ASSOCIATE COMMISSIONER.*| HOUSE OF REPRESENTATIVES.*| CONGRESS.*|fno orgl |Ino orgl |\\[no orgl | U.S. Senate|FDA\\/OC\\/OPP\\/| G FDA\\/OPPLA\\/OL\\/|Mr\\. |Ms\\. |
-                              Dr\\. |Inc | Honorable| CONGRESSIONAL.*| Food & Drug Administration| LIBRARY OF| SUBCMTE.*| NEW MEXICO STATE| GenPak Solutions, LLC| Commissioner of Food and Drugs|United States.*| District 47, Florida|
-                                  anonymous |anonymous, anonymous | Ino orgl|\\)| FDA\\/OO\\/OHR\\/DPPER\\/|FDA\\/OMPT\\/CDER\\/OND\\/OAP\\/DAIP\\/|\\(b \\(|FDA\\/OGROP\\/ORA\\/OEIO\\/DFDT\\/|Naturals|Dr. |Sen |Senate|Sen | District.*| State.*")))
+    mutate(FROM = str_remove_all(FROM, "Honorable"))
+ 
+
   data %<>%
-    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\."))
+    mutate(FROM = str_remove_all(FROM, "JR,|Jr,|jr,|JR\\.|Jr\\.|Mr\\.|Ms\\.|Mrs\\.|Dr\\."))
+  
+
   
   data %<>%
     mutate(FROM = str_replace(FROM, "Warner, Mark R US", "Warner, Mark R")) %>%
@@ -98,12 +91,16 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Schwartz, Ms Allyson Y", "Schwartz, Allyson Y")) %>%
     mutate(FROM = str_replace(FROM, "Alexander, Chairman Lamar", "Alexander, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "Bryne, Bradley", "Byrne, Bradley")) %>%
-    mutate(FROM = str_replace(FROM, "BUSCHON,  LARRY", "Larry BUCSHON"))
+    mutate(FROM = str_replace(FROM, "BUSCHON,  LARRY", "Larry BUCSHON")) %>%
+    mutate(FROM = str_replace(FROM, "Bryne,  Bradley", "BYRNE, Bradley")) %>%
+    mutate(FROM = str_replace(FROM, "Stefank, Elise", "STEFANIK, Elise")) %>%
+    mutate(FROM = str_replace(FROM, "Torres-Small,  Xochitl", "Torres Small, Xochitl")) %>%
+    mutate(FROM = str_replace(FROM, "Coleman Watson, Barbara", "Watson Coleman, Barbara")) %>%
+    mutate(FROM = str_replace(FROM, "Enzi, Sen Mke", "Enzi, Mike"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
   
-  #data$FROM <- gsub(" UNITED.*| SENATE.*| SENATOR.*| HOUSE.*|[no org] |OF THE UNITED STATES|\\(b\\) \\(6\\)| House.*|et. al|et.al","", data$FROM)
   
   # trim extra white space before or after name
   data$FROM %<>% trimws()
@@ -116,43 +113,27 @@ clean <- function(file.name) {
   # #extract member names
   data <-  extractMemberName(data,members,"FROM") 
   
-  #Check for Duplicates
-  sample2data<- data
-  
-  sample2data %<>%
-    group_by(ID, SUBJECT, DATE) %>%
-    mutate(n = n(),
-           last_name = str_c(last_name, collapse = "; "))
-
- 
-data %<>%
-  filter( ! FROM %in% c("\\[no org\\]", "Rec\\/Create Date:", "Office:","\\[no person\\]", "BE3H","BE3^^H","Ino orgl", "UNITED STATES",
-                        "SENATE", "fno orgl", "BS", "\\)", "\\.", "BE", "H", "^^H", "CONGRESS", "reiBi" ))
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U\\\\.S. Food and Drug Administration", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Dutcher, Michael Minneapolis District Office"), "Minneapolis District Office", ERROR)) %>%
-    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER", 
-                                      "INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
-                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS"), "Not Member of Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER","INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
+                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS", "HOWARD, SALLY A FDA\\/OC\\/OPP\\/","HOWARD, SALLY A", "VITALE, JOSEPH", "BJORKLUND, CYBELE"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U\\. S\\. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
-    mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR))
+    mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "WARNER, CAITLIN"), "Agency staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "CLINTON, HILLARY RODHAM") & congress %in% 114, "No longer in congress", ERROR))
     
   
-#Filter while working (Comment out) 
-  data %<>%
-   filter( ! FROM %in% c("U\\.S\\.-China Economic, \\.", "Ireland, Jeanne", "Addtional", "E&C Committee, U\\. S\\. Congress", "von Eschenbach, Andrew C", "ST\\.JOHN ST\\. JOHN MEDICAL CENTER", "\\[no orq\\]", "UNIVERSITY OF ROCHESTER MEDICAL CENTER",
-  "GINGREY, PHILLIP","INDIANA UNIVERSITY SCHOOL OF MEDICINE","Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC\\.","Unknown, Unknown", "Dutcher, Michael Minneapolis District Office", "CONSTITUENT", "Additional",
-  "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "CTMG, NA","FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION", "Liston, Larry", "Jackson, Brent, Constituent"))
- data %<>%
-   filter(! str_detect(FROM, "Addtional|Constituent|BJORKLUND, CYBELE"))
-
-  
- data <- data[!data$FROM == "",] # removes blank observations
   
   unfoundnames<- data %>%
    filter(is.na(last_name) & is.na(ERROR))
+  
+  data %>%
+    filter(LetterID == 000674)%>%
+    select()
   
   unfoundnames %<>%
     select(ID, DATE, FROM, SUBJECT, last_name, everything())
