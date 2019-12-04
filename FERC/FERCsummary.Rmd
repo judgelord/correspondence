@@ -617,7 +617,7 @@ pac_amounts %>%
 letters_money <- d %>% 
   filter(letter_position == "ProBusiness") %>% 
   #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(name_state, congress, icpsr, icpsryear, chamber, oversight_committee) %>%
+  group_by(name_state, congress, icpsr, icpsryear, chamber, oversight_committee, party) %>%
   summarise(ProBusiness_Letters = n()) %>% 
   distinct()
 
@@ -630,9 +630,10 @@ letters_money %<>%
   group_by(icpsr) %>% 
   # FIXME
   # one party per member, need to deal with party switchers
-  mutate(party = paste(unique(party_name), collapse = ";")) %>% 
+  mutate(party = paste(unique(party), collapse = ";")) %>% 
   mutate(party = str_remove(party, ";.*")) %>% 
-  ungroup()%>% distinct()
+  ungroup()%>% 
+  distinct()
 
 nrow(letters_money)
 head(letters_money)
@@ -705,7 +706,8 @@ Antiletters_money %<>%
   # one party per member, need to deal with party switchers
   mutate(party = paste(unique(party), collapse = ";")) %>% 
   mutate(party = str_remove(party, ";.*")) %>% 
-  ungroup() %>% distinct()
+  ungroup() %>% 
+  distinct()
 
 nrow(Antiletters_money)
 unique(Antiletters_money$party)
@@ -1304,7 +1306,7 @@ models <- tidy(mProParty) %>%
   mutate(model = "Pro-business Letters per Cycle") %>%
   full_join(tidy(mAntiParty) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
-  mutate(term = str_replace(term, "party\\(R\\)", "Republican")) %>% 
+  # mutate(term = str_replace(term, "party\\(R\\)", "Republican")) %>% 
   filter(term != "party(I)")
 
 dplot(models) + 
@@ -1351,8 +1353,7 @@ models <- tidy(mAll_Full) %>%
   full_join(tidy(mPro_Fullx) %>% mutate(model = "Pro-business Letters per Cycle, with interaction")) %>%
   full_join(tidy(mAnti_Full) %>%
               mutate(model = "Anti-business Letters per Cycle")) %>%
-  full_join(tidy(mAnti_Fullx) %>% mutate(model = "Anti-business Letters per Cycle, with interaction")) %>%
-  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
+  full_join(tidy(mAnti_Fullx) %>% mutate(model = "Anti-business Letters per Cycle, with interaction")) # %>%  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
 
 dplot(models) + 
     labs(x = "Additional letters per cycle")
