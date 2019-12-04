@@ -231,7 +231,8 @@ d %>%
 ```{r icpsr_names} 
 d %<>% 
   group_by(recipient_icpsr) %>% 
-  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";"))
+  mutate(recipient_name = str_c(unique(recipient_name), collapse = ";")) %>% 
+  ungroup()
 ```
 
 
@@ -241,10 +242,9 @@ Assuming DIME names are correct and ICPSRs are wrong.
 ```{r corrections}
 icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
 
-d %>% 
-  mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
+d %>%
   select(icpsr, recipient_name) %>% 
-  filter(icpsr %in% icpsr_errors) %>% 
+  filter(recipient_icpsr %in% icpsr_errors) %>% 
   distinct()
 
 # correct problem ICPSRs
