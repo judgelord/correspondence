@@ -10,14 +10,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r, echo = FALSE, eval = FALSE}
-ssh -Y judgelord@linstat.ssc.wisc.edu
-
-cd ../../../project/judgelord/correspondence
-ls
-git pull
-R
-```
 
 ```{r setup, echo = FALSE}
 library(knitr)
