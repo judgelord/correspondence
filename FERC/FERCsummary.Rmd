@@ -14,7 +14,7 @@ editor_options:
 
 ```{r, eval=FALSE, include=FALSE}
 git pull
-Rscript -e 'library(rmarkdown); rmarkdown::render("FERC/FERCsummary.Rmd", "html_document")'
+Rscript -e 'library(rmarkdown);rmarkdown::render("FERC/FERCsummary.Rmd", "html_document")'
 ```
 
 ```{r setup, include=FALSE}
