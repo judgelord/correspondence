@@ -10,14 +10,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r, echo = FALSE, eval = FALSE}
-ssh -Y judgelord@linstat.ssc.wisc.edu
-
-cd ../../../project/judgelord/correspondence
-ls
-git pull
-R
-```
 
 ```{r setup, echo = FALSE}
 library(knitr)
@@ -42,6 +34,7 @@ options(stringsAsFactors = F)
 library(magrittr)
 library(tidyverse)
 library(here)
+library(knitr)
 ```
 
 # DIME Data
@@ -108,6 +101,15 @@ sum(is.na(dime.read_csv$contributor_ext_id)) # FEC ID
 sum(is.na(dime.read_csv$bonica_cid)) # Bonica ID 
 
 d <- dime.read_csv %>% rename("amount" = "sum(amount)") %>% as_tibble()
+
+# do we have contributor type for all cycles 
+d %>% select(cycle, contributor_type, bonica_cid) %>% distinct() %>% count(cycle, contributor_type)  %>% filter(cycle > 2004) %>% arrange(contributor_type)
+
+# select corporate contributors
+d %<>% filter(contributor_type == "C")
+
+# select post 2000 cycles 
+d %<>% filter(cycle > 2000)
 ```
 
 ### Parsing errors
@@ -265,20 +267,20 @@ d %<>%
   group_by(recipient_icpsr) %>% 
   mutate(recipient_name = str_c(unique(recipient_name), collapse = ";")) %>% 
   ungroup()
-dim(d)
+
+
 ```
 
 
 ### Correct incorrect ICPSRs to match voteview (TO DO)
 
 Assuming DIME names are correct and ICPSRs are wrong.
-```{r icpsr_corrections}
+```{r icpsr_corrections, eval=FALSE}
 icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
 
-d %>% 
-  mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
+d %>%
   select(icpsr, recipient_name) %>% 
-  filter(icpsr %in% icpsr_errors) %>% 
+  filter(recipient_icpsr %in% icpsr_errors) %>% 
   distinct()
 
 # correct problem ICPSRs
@@ -366,6 +368,43 @@ d %>%
             total_spending = sum(amount)) %>% 
   distinct() %>% 
   knitr::kable()
+```
+
+## Do PACs have consistant `bonica_cid`s?
+
+No.
+
+> Note: `contributor_ext_id` is FEC id from dime
+
+```{r inspect_cids}
+# Exxon
+
+
+# many exxon contributions have no FEC id and have different bonica IDs
+d %>% filter(str_detect(contributor_name, "exxon")) %>% count(contributor_name, cycle, bonica_cid, contributor_ext_id, contributor_category) %>% arrange(cycle) %>% kable()
+
+# nothing for this bonica id matched to exxon's fec id
+d %>% filter(bonica_cid == 100031515) %>% count(cycle)
+d %>% filter(contributor_ext_id=="C00121368") %>% count(cycle)
+
+
+# oddly, the bonica ids that do match post-2012 are correct, why does API keep the same bonica ID but EXXON get a new one? 
+d %>% filter(cycle > 2012, !is.na(PACShort)) %>% count(contributor_ext_id, bonica_cid, UltOrg, PACShort, sort = T) %>% distinct()
+
+#  like FEC ids, CRP categories are also missing post 2012
+d %>% count(is.na(contributor_category), cycle) 
+
+###################################################
+# testing the idea that we can match CRP data with DIME on name (PACShort ~~> contributor_name)
+
+# are contributor names missing too? no they are not
+d %>% count(is.na(contributor_name), cycle) 
+
+# to match by names, these are the names we will be able to search for
+crp %>% filter(str_detect(PACShort, "Exxon")) %>% count(PACShort) %>% kable()
+
+# these are the names we will hope to match
+d %>% filter(str_detect(contributor_name, "exxon"))%>% count(contributor_name, sort = TRUE) %>% kable()
 ```
 
 

@@ -52,7 +52,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
      
     # common names
      # NOTE, as written this will overwrite existing common names. 
-     # FIXME by adding "common_name == "" &" unless we want to overwrite 
+     # FIXME by adding "common_name == "" &" unless we want to overwrite
     mutate(common_name = ifelse( first_name == "Daniel", "Dan", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Andrew", "Andy", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Gregory", "Greg", common_name)) %>%
@@ -471,15 +471,15 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(bioname == "MACK, Connie, IV", "Connie", first_name)) %>% 
     mutate(first_name = ifelse(bioname == "CONAWAY, K. Michael", "Kenneth", first_name)) %>%
     mutate(first_name = ifelse(bioname == "BONNER, Jr., Josiah Robins (Jo)", "Josiah", first_name)) %>%
-    mutate(first_name = ifelse(bioname == "GRUCCI, Jr., Felix J.)", "Felix", first_name)) %>%
+    mutate(first_name = ifelse(bioname == "GRUCCI, Jr., Felix J.)", "Felix", first_name))
    
   
      
   
   
   # make blank common names NA
-  members %<>%
-    mutate(common_name = ifelse(members$common_name=="", NA,  members$common_name))
+  #members %<>%
+    #mutate(common_name = ifelse(common_name=="", NA,  common_name))
   
   # # Creates new rows in member dataset. These are not actual members, but common names that we know shouldn't be matching
   # members[nrow(members)+1,] <- NA; members$last_name[nrow(members)] <- "JEWELL"; members$first_name[nrow(members)] <- "Sally"
@@ -511,7 +511,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   # Replace blanks with NA 
   members %<>% 
     mutate(middle_initial = ifelse(middle_initial == "", NA, middle_initial)) %>% 
-    mutate(middle_name = ifelse(middle_name == "", NA, middle_name)) #%>% 
+    mutate(middle_name = ifelse(middle_name == "", NA, middle_name)) %>% 
+    mutate(common_name = ifelse(common_name=="", NA,  common_name))
   # seo middle names don't get us anything, and this just ends up filling in middle names with last names 
     #mutate(middle_name = ifelse(is.na(middle_initial), str_remove_all(seo_name, ".*?-|-.*"), middle_name))
   
