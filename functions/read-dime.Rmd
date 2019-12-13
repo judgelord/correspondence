@@ -34,6 +34,7 @@ options(stringsAsFactors = F)
 library(magrittr)
 library(tidyverse)
 library(here)
+library(knitr)
 ```
 
 # DIME Data
@@ -106,6 +107,9 @@ d %>% select(cycle, contributor_type, bonica_cid) %>% distinct() %>% count(cycle
 
 # select corporate contributors
 d %<>% filter(contributor_type == "C")
+
+# select post 2000 cycles 
+d %<>% filter(cycle > 2000)
 ```
 
 ### Parsing errors
@@ -271,7 +275,7 @@ d %<>%
 ### Correct incorrect ICPSRs to match voteview (TO DO)
 
 Assuming DIME names are correct and ICPSRs are wrong.
-```{r icpsr_corrections}
+```{r icpsr_corrections, eval=FALSE}
 icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
 
 d %>%
@@ -369,6 +373,9 @@ d %>%
 ## Do PACs have consistant `bonica_cid`s?
 
 No.
+
+> Note: `contributor_ext_id` is FEC id from dime
+
 ```{r inspect_cids}
 # Exxon
 d %>% filter(bonica_cid == 100031515) %>% count(cycle)
@@ -389,7 +396,11 @@ d %>% count(is.na(contributor_category), cycle)
 # are contributor names missing too? no they are not
 d %>% count(is.na(contributor_name), cycle) 
 
+# to match by names, these are the names we will be able to search for
+crp %>% filter(str_detect(PACShort, "exxon")) %>% count(PACShort)
 
+# these are the names we will hope to match
+d %>% filter(str_detect(contributor_name, "exxon"))%>% count(contributor_name)
 
 
 
