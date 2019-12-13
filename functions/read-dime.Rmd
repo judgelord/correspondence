@@ -151,17 +151,6 @@ Notice the empty `contributor_id` before `cand_id`:
 
 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
 
-DIME data: 
-```{r sum, echo= FALSE, include=FALSE}
-head(d$amount)
-# Make sure amount is numeric if using read.lines
-d$amount %<>% 
-  str_extract("[0-9]*") %>%
-  as.numeric()
-head(d$amount)
-nrow(d)
-```
-
 Inspect for `NA` contribution amounts, very large amounts, and annual totals.
 ```{r}
 d %>% count(is.na(amount))
@@ -337,6 +326,7 @@ crosswalk %<>%
   group_by(bonica_cid) %>% 
   top_n(1) %>% 
   ungroup()
+
 # now how many FEC_IDs have the same bonica_cid? Should be 1 to 1
 crosswalk %>% # filter(!is.na(PACShort)) %>% 
   count(bonica_cid, sort = T) %>% 
@@ -394,21 +384,99 @@ d %>% filter(cycle > 2012, !is.na(PACShort)) %>% count(contributor_ext_id, bonic
 #  like FEC ids, CRP categories are also missing post 2012
 d %>% count(is.na(contributor_category), cycle) 
 
+# are contributor names missing as well? no they are not missing, good
+d %>% count(is.na(contributor_name), cycle) 
+```
+
+## Matching on PAC name
+```{r matching_pac_names}
 ###################################################
 # testing the idea that we can match CRP data with DIME on name (PACShort ~~> contributor_name)
-
-# are contributor names missing too? no they are not
-d %>% count(is.na(contributor_name), cycle) 
 
 # to match by names, these are the names we will be able to search for
 crp %>% filter(str_detect(PACShort, "Exxon")) %>% count(PACShort) %>% kable()
 
+# this is what will match
+c <- crp %>% filter(str_detect(PACShort, "Exxon")) %>% 
+  mutate(PACShort = str_split(PACShort, "; ")) %>% unnest(PACShort) %>% distinct()
+c
+
+## Collapsing without word boundaries (risks over matching)
+# pacs <- str_c(unique(c$PACShort), collapse = "\\b|\\b") %>% tolower()
+pacs <- str_c(unique(c$PACShort), collapse = "|") %>% tolower()
+pacs
+
 # these are the names we will hope to match
-d %>% filter(str_detect(contributor_name, "exxon"))%>% count(contributor_name, sort = TRUE) %>% kable()
+d %>% filter(str_detect(contributor_name, "exxon")) %>% 
+  count(contributor_name, sort = TRUE) %>% 
+  mutate(matched = str_detect(contributor_name, pacs))
+  kable()
+
+# unlist crp table
+c <- crp %>% 
+  mutate(PACShort = str_split(PACShort, "; ")) %>% 
+  unnest(PACShort) %>% select(PACShort, comid) %>% distinct()
+c
+
+pacs <- str_c(unique(c$PACShort), collapse = "|") %>% tolower()
+
+# detect corps that contain a PACShort string (or that have an FEC ID)
+d %<>% mutate(matched = str_detect(contributor_name, pacs))
+
+# how many more are we captureing with name matching
+d %>% count(matched, !is.na(contributor_ext_id))
+
+# which categories are we capturing (i.e. are they the ones we want?)
+industries <- c("E0000", "E1000", "E1100", "E1110", "E1120", "E1140", "E1160", "E1170", "E1180", "E1190", "E1500", "E1600", "E1610", "E1620", "E1630", "E1700", "E2000")
+
+d %>% count(contributor_category %in% industries, matched)
+
+# PACS we are failing to match
+d %>% filter(contributor_category %in% industries, !matched) %>% count(contributor_name, sort = T)
+
+# PACS we are matching but probably should not (actually these look right, why do they not have energy-sector industry codes?)
+d %>% filter(!contributor_category %in% industries, matched, !is.na(contributor_category)) %>% count(contributor_name, contributor_category, sort = T) %>% mutate(detected = str_extract(contributor_name, pacs))
+
+# how many of the pacs we match have an FEC ID
+d %>% count(!is.na(contributor_ext_id), matched, cycle) %>% arrange(cycle)
 ```
 
 
-## There are  `r unique(d$contributor_ext_id) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
+A function to match FEC IDs by PAC name 
+```{r, eval = FALSE}
+#####################################
+# ALTERNATIVELY, write a function 
+getPACid <- function(name){ 
+  id <- c %>% mutate(name = name) %>% 
+    filter(str_detect(name, tolower(PACShort))) %>% 
+    .$comid %>% 
+    unique() %>% 
+    str_c(collapse = ";")
+  return(id)
+}
+
+# test function 
+name = "exxon mobile"
+getPACid(name)
+
+d %>% #filter(str_detect(contributor_name, "exxon")) %>% head() %>% select(contributor_name) %>%
+  mutate(comids = map(contributor_name, getPACid) %>% unlist())
+
+# method 2
+d %>% filter(!is.na(comids)) %>% count(contributor_category, sort = T)
+
+
+d %>% count(is.na(contributor_ext_id), !is.na(comids), cycle)
+
+
+# how many contributors do we find
+d %>% count(contributor_name, sort = TRUE)
+
+# look for CRP comids that doe not appear post 2012 
+```
+
+
+There are  `r unique(d$contributor_name) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
 
 ## Top PACs
 ```{r top_pacs}
@@ -451,8 +519,8 @@ dim(d)
 
 ## Sum contributions per member per cycle per industry 
 ```{r sumarize}
-# Make industry variable based on CRP industry codes
-d %<>% mutate(industry = ifelse(contributor_ext_id %in% crp$comid, CRPindustry, "other"))
+# Make industry variable based on CRP industry codes 3 ways (comid match, name match, or industry code match)
+d %<>% mutate(industry = ifelse(contributor_ext_id %in% crp$comid|matched|contributor_category %in% industries, CRPindustry, "other"))
 
 # Number of distinct pacs 
 d %>% group_by(cycle, industry) %>%
