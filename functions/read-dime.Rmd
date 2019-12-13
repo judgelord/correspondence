@@ -406,10 +406,10 @@ c
 pacs <- str_c(unique(c$PACShort), collapse = "|") %>% tolower()
 pacs
 
-# these are the names we will hope to match
+# how does this method perform? 
 d %>% filter(str_detect(contributor_name, "exxon")) %>% 
   count(contributor_name, sort = TRUE) %>% 
-  mutate(matched = str_detect(contributor_name, pacs))
+  mutate(matched = str_detect(contributor_name, pacs)) %>% 
   kable()
 
 # unlist crp table
