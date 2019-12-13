@@ -378,15 +378,19 @@ No.
 
 ```{r inspect_cids}
 # Exxon
+
+
+# many exxon contributions have no FEC id and have different bonica IDs
+d %>% filter(str_detect(contributor_name, "exxon")) %>% count(contributor_name, cycle, bonica_cid, contributor_ext_id, contributor_category) %>% arrange(cycle) %>% kable()
+
+# nothing for this bonica id matched to exxon's fec id
 d %>% filter(bonica_cid == 100031515) %>% count(cycle)
 d %>% filter(contributor_ext_id=="C00121368") %>% count(cycle)
-d %>% filter(str_detect(contributor_name, "exxon")) %>% count(contributor_name, cycle, bonica_cid, contributor_ext_id) %>% arrange(cycle) %>% kable()
 
 
 # oddly, the bonica ids that do match post-2012 are correct, why does API keep the same bonica ID but EXXON get a new one? 
 d %>% filter(cycle > 2012, !is.na(PACShort)) %>% count(contributor_ext_id, bonica_cid, UltOrg, PACShort, sort = T) %>% distinct()
 
-d %<>% filter(cycle > 1999)
 #  like FEC ids, CRP categories are also missing post 2012
 d %>% count(is.na(contributor_category), cycle) 
 
@@ -397,14 +401,10 @@ d %>% count(is.na(contributor_category), cycle)
 d %>% count(is.na(contributor_name), cycle) 
 
 # to match by names, these are the names we will be able to search for
-crp %>% filter(str_detect(PACShort, "exxon")) %>% count(PACShort)
+crp %>% filter(str_detect(PACShort, "Exxon")) %>% count(PACShort) %>% kable()
 
 # these are the names we will hope to match
-d %>% filter(str_detect(contributor_name, "exxon"))%>% count(contributor_name)
-
-
-
-
+d %>% filter(str_detect(contributor_name, "exxon"))%>% count(contributor_name, sort = TRUE) %>% kable()
 ```
 
 
