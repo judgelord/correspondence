@@ -100,6 +100,12 @@ sum(is.na(dime.read_csv$contributor_ext_id)) # FEC ID
 sum(is.na(dime.read_csv$bonica_cid)) # Bonica ID 
 
 d <- dime.read_csv %>% rename("amount" = "sum(amount)") %>% as_tibble()
+
+# do we have contributor type for all cycles 
+d %>% select(cycle, contributor_type, bonica_cid) %>% distinct() %>% count(cycle, contributor_type)  %>% filter(cycle > 2004) %>% arrange(contributor_type)
+
+# select corporate contributors
+d %<>% filter(contributor_type == "C")
 ```
 
 ### Parsing errors
@@ -358,6 +364,36 @@ d %>%
             total_spending = sum(amount)) %>% 
   distinct() %>% 
   knitr::kable()
+```
+
+## Do PACs have consistant `bonica_cid`s?
+
+No.
+```{r inspect_cids}
+# Exxon
+d %>% filter(bonica_cid == 100031515) %>% count(cycle)
+d %>% filter(contributor_ext_id=="C00121368") %>% count(cycle)
+d %>% filter(str_detect(contributor_name, "exxon")) %>% count(contributor_name, cycle, bonica_cid, contributor_ext_id) %>% arrange(cycle) %>% kable()
+
+
+# oddly, the bonica ids that do match post-2012 are correct, why does API keep the same bonica ID but EXXON get a new one? 
+d %>% filter(cycle > 2012, !is.na(PACShort)) %>% count(contributor_ext_id, bonica_cid, UltOrg, PACShort, sort = T) %>% distinct()
+
+d %<>% filter(cycle > 1999)
+#  like FEC ids, CRP categories are also missing post 2012
+d %>% count(is.na(contributor_category), cycle) 
+
+###################################################
+# testing the idea that we can match CRP data with DIME on name (PACShort ~~> contributor_name)
+
+# are contributor names missing too? no they are not
+d %>% count(is.na(contributor_name), cycle) 
+
+
+
+
+
+
 ```
 
 
