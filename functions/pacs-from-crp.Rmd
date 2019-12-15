@@ -34,16 +34,19 @@ industry %<>%
                          "Water Utilities",
                          "Oilfield service, equipment & exploration"))
 
+crpEnergycodes <- industry$Catcode
 
-crpEnergy <- crp %>% 
-  filter(PrimCode %in% industry$Catcode) %>% 
+
+crp <- crpEnergy <- industry %>%
+  left_join(crp, by = c( "Catcode" = "PrimCode")) %>% 
   mutate(comid = CmteID) %>% 
-  select(comid, UltOrg, Affiliate, PACShort) %>% 
+  select(comid, UltOrg, Affiliate, PACShort, Catcode) %>% 
   distinct() %>% 
   group_by(comid) %>%
   summarise(UltOrg = str_c(unique(UltOrg), collapse = "; "),
             Affiliate = paste(unique(Affiliate), collapse = "; "),
-            PACShort = str_c(unique(PACShort), collapse = "; ")) %>%
+            PACShort = str_c(unique(PACShort), collapse = "; "),
+            Catcode = str_c(unique(Catcode), collapse = "; ")) %>%
   distinct()
 
 write_csv(crpEnergy, path = "data/crpEnergy.csv")

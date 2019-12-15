@@ -99,7 +99,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Coleman Watson, Barbara", "Watson Coleman, Barbara")) %>%
     mutate(FROM = str_replace(FROM, "Enzi, Sen Mke", "Enzi, Mike")) %>%
     mutate(FROM = str_replace(FROM, "BOOKER,  COREY", "BOOKER, CORY")) %>%
-    mutate(FROM = str_replace(FROM, "CONAWAY, K\\. MICHAEL", "CONAWAY, MICHAEL"))
+    mutate(FROM = str_replace(FROM, "CONAWAY, K\\. MICHAEL", "CONAWAY, MICHAEL")) %>%
+    mutate(FROM = str_replace(FROM, "PRICE, TOM", "Tom Edmunds PRICE"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
@@ -110,8 +111,7 @@ clean <- function(file.name) {
   
 
   ################
-  
-  
+
 
   # #extract member names
   data <-  extractMemberName(data,members,"FROM") 
@@ -141,6 +141,7 @@ clean <- function(file.name) {
   unfoundnames %<>%
     select(ID, DATE, FROM, SUBJECT, last_name, everything())
   
+    
   data %<>%
     arrange(-nchar(FROM))
   

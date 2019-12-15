@@ -10,8 +10,10 @@ clean <- function(file.name) {
  
   data <- ungroup(FERC_letters)
   
+  # keep notes 
+  data$NOTES <- data$Notes
   # keep id 
-  data$NOTES <- data$ID
+  data$Notes <- data$ID
  
    # create agency column
   data$agency <- "DOE_FERC"
@@ -752,13 +754,11 @@ data %<>%
 #sample <- data %>%
 #filter(is.na(last_name))  
 #View(sample)
-
+FERC_letters <- data
+save(FERC_letters, file = "data/DOE_FERC-letters-clean.Rdata")
   return(data)
 
 } ## END CLEAN FUNCTION
-
-
-
 
 
 
