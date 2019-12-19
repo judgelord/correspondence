@@ -5780,7 +5780,9 @@ d1 &lt;- d %&gt;%
     complete(industry, congress, icpsr, 
              fill = list(n = 0)) %&gt;% 
     rename(amounts = n) %&gt;% 
-  distinct()</code></pre>
+  distinct() %&gt;% 
+  # add back in cycle
+  left_join(d %&gt;% select(congress, cycle) %&gt;% distinct())</code></pre>
 <p>Check for zero counts</p>
 <pre class="r"><code># Make sure there are indeed 0 counts if we expect them
 d1 %&gt;% 
