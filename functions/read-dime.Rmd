@@ -576,7 +576,9 @@ d1 <- d %>%
     complete(industry, congress, icpsr, 
              fill = list(n = 0)) %>% 
     rename(amounts = n) %>% 
-  distinct()
+  distinct() %>% 
+  # add back in cycle
+  left_join(d %>% select(congress, cycle) %>% distinct())
 
 ```
 
