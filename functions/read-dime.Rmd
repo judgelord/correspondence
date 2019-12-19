@@ -110,6 +110,12 @@ d %<>% filter(contributor_type == "C")
 
 # select post 2000 cycles 
 d %<>% filter(cycle > 2000)
+
+# contributor_ext_id is missing post 2012 and where it is missing the other id is also
+d %>% count(contributor_crp_or_nimsp_id, contributor_ext_id,cycle, sort = T) %>% filter(!is.na(contributor_crp_or_nimsp_id))
+
+# contributor_ext_id  is the same as contributor_crp_or_nimsp_id
+d %>% filter(contributor_ext_id  != contributor_crp_or_nimsp_id)
 ```
 
 ### Parsing errors
@@ -250,41 +256,62 @@ d %>%
   distinct()
 ```
 
-### Solution: Consolidate names by icpsr
+### Solution: Correct incorrect ICPSRs to match voteview
+
+Assuming DIME names are correct and ICPSRs are wrong.
+```{r icpsr_corrections}
+# drop non-icpsrs (e.g. state legislators)
+d %<>% filter(!str_detect(recipient_icpsr, "[A-z]"))
+
+
+
+icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522)
+
+# errors
+d %>%
+  select(recipient_icpsr, recipient_name) %>% 
+  filter(recipient_icpsr %in% icpsr_errors) %>% 
+  select(recipient_icpsr, recipient_name) %>% 
+  distinct() %>% arrange(recipient_icpsr)
+
+# correct problem ICPSRs
+DIME_corrections <- tribble(
+  ~recipient_name, ~icpsr_correct,
+"BABIN, BRIAN", "21551",   
+"CLAWSON, CURTIS J","21377",
+"DESAULNIER, MARK","21504",  
+"HICE, JODY B MR", "21514",   
+"WESTERMAN, BRUCE","21563",          
+"WESTERMAN, BRUCE MR.","21563",     
+"MCALLISTER, VANCE MICHAEL","21374"
+)
+
+d %<>% left_join(DIME_corrections)
+
+# errors
+d %>% filter(recipient_icpsr %in% icpsr_errors| !is.na(icpsr_correct)) %>% 
+  select(recipient_icpsr, recipient_name, icpsr_correct) %>% 
+  distinct() %>% arrange(recipient_icpsr) %>% kable()
+
+d %<>% mutate(recipient_icpsr = ifelse(recipient_name %in% DIME_corrections$recipient_name, icpsr_correct, recipient_icpsr))
+
+# corrected icpsrs 
+d %>% filter(recipient_icpsr %in% icpsr_errors| !is.na(icpsr_correct)) %>% 
+  select(recipient_icpsr, recipient_name, icpsr_correct) %>% 
+  distinct() %>% arrange(recipient_icpsr) %>% kable()
+```
+
+
+Consolidate remaining name varients by icpsr
 ```{r icpsr_names} 
 d %<>% 
   group_by(recipient_icpsr) %>% 
   mutate(recipient_name = str_c(unique(recipient_name), collapse = ";")) %>% 
   ungroup()
-
-
 ```
 
 
-### Correct incorrect ICPSRs to match voteview (TO DO)
 
-Assuming DIME names are correct and ICPSRs are wrong.
-```{r icpsr_corrections, eval=FALSE}
-icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
-
-d %>%
-  select(icpsr, recipient_name) %>% 
-  filter(recipient_icpsr %in% icpsr_errors) %>% 
-  distinct()
-
-# correct problem ICPSRs
-DIME_corrections <- tribble(
-  ~recipient_name, ~icpsr_correct,
-"BABIN, BRIAN", "",   
-"CLAWSON, CURTIS J","",
-"DESAULNIER, MARK","",  
-"HICE, JODY B MR", "",   
-"WESTERMAN, BRUCE","",          
-"WESTERMAN, BRUCE MR.","",     
-"MCALLISTER, VANCE MICHAEL",""
-)
-
-```
 
 # Select Industry PACs
 
