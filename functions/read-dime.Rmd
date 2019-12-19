@@ -576,6 +576,7 @@ d1 <- d %>%
     complete(industry, congress, icpsr, 
              fill = list(n = 0)) %>% 
     rename(amounts = n) %>% 
+  distinct()
 
 ```
 
