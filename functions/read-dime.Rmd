@@ -571,8 +571,12 @@ d1 <- d %>%
   group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   tally(amount) %>%
   ungroup() %>% 
-  rename(amounts = n) %>% 
-  distinct()
+  distinct() %>% 
+   ungroup() %>%
+    complete(industry, congress, icpsr, 
+             fill = list(n = 0)) %>% 
+    rename(amounts = n) %>% 
+
 ```
 
 Check for zero counts
