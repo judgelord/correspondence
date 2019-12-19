@@ -259,11 +259,10 @@ d %>%
 ### Solution: Correct incorrect ICPSRs to match voteview
 
 Assuming DIME names are correct and ICPSRs are wrong.
+
 ```{r icpsr_corrections}
 # drop non-icpsrs (e.g. state legislators)
 d %<>% filter(!str_detect(recipient_icpsr, "[A-z]"))
-
-
 
 icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522)
 
@@ -274,7 +273,7 @@ d %>%
   select(recipient_icpsr, recipient_name) %>% 
   distinct() %>% arrange(recipient_icpsr)
 
-# correct problem ICPSRs
+# correct ICPSRs
 DIME_corrections <- tribble(
   ~recipient_name, ~icpsr_correct,
 "BABIN, BRIAN", "21551",   
@@ -300,6 +299,7 @@ d %>% filter(recipient_icpsr %in% icpsr_errors| !is.na(icpsr_correct)) %>%
   select(recipient_icpsr, recipient_name, icpsr_correct) %>% 
   distinct() %>% arrange(recipient_icpsr) %>% kable()
 ```
+
 
 
 Consolidate remaining name varients by icpsr
