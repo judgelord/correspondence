@@ -95,7 +95,7 @@ sum(is.na(dime.read.table$contributor_ext_id))
 ```
 
 
-```{r read_csv}
+```{r read_csv, warning=T}
 # Alternative parsing 
 dime.read_csv <- read_csv(here("data/GrimQuery2.csv"), 
                           col_names = dime_vars,
@@ -209,6 +209,12 @@ d %>%
 ### Drop negative contributions
 ```{r negative}
 d %<>% filter(amount > -1)
+dim(d)
+```
+
+### Limit to 2000 cycle onward for now
+```{r negative}
+d %<>% filter(cycle>2000)
 dim(d)
 ```
 

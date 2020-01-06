@@ -64,7 +64,9 @@ d <- all_contacts %>%
   # define d as just FERC
   filter(agency=="DOE_FERC") %>% 
   # FIXME 
-  mutate(ID = NOTES) %>% filter(nchar(ID)>8) %>%
+  #mutate(ID = NOTES) %>% 
+  # FIXME
+  # filter(nchar(ID)>8) %>%
   select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
   # FIXME 
@@ -78,7 +80,7 @@ d <- all_contacts %>%
 #dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
 # Coded letters, one obs per member per letter 
-load(here("data/DOE_FERC-letters-coded.RData")) 
+load(here("data/DOE_FERC-letters-coded.Rdata")) 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
 FERC_letters %<>% 
   select(ID, SUBJECT, 
@@ -96,13 +98,14 @@ d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID))
 d %<>%  
   mutate(Type = as.character(Type)) %>% 
   mutate(Type = ifelse(tolower(Constituent) == "yes", "Indiv. Constituent", Type)) %>% 
-  mutate(Type = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "Corp. Constituent", Type))%>%
+  mutate(Type = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "Corp. Constituent", Type)) %>%
   # define Constituent as "Indiv. Constituent"
   mutate(Constituent = ifelse(Type == "Indiv. Constituent", "Indiv. Constituent", "Non_constituent"),
          Constituent = replace_na(Constituent, "Not coded") ) 
   
 
 # For this analysis, treat corp policy letters as Policy
+d$Type %>% unique()
 all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
 d$Type %<>% fct_recode(Policy = "Corp. Policy")
 
