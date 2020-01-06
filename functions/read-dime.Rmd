@@ -10,14 +10,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r, echo = FALSE, eval = FALSE}
-ssh -Y judgelord@linstat.ssc.wisc.edu
-
-cd ../../../project/judgelord/correspondence
-ls
-git pull
-R
-```
 
 ```{r setup, echo = FALSE}
 library(knitr)
@@ -42,6 +34,7 @@ options(stringsAsFactors = F)
 library(magrittr)
 library(tidyverse)
 library(here)
+library(knitr)
 ```
 
 # DIME Data
@@ -108,6 +101,21 @@ sum(is.na(dime.read_csv$contributor_ext_id)) # FEC ID
 sum(is.na(dime.read_csv$bonica_cid)) # Bonica ID 
 
 d <- dime.read_csv %>% rename("amount" = "sum(amount)") %>% as_tibble()
+
+# do we have contributor type for all cycles 
+d %>% select(cycle, contributor_type, bonica_cid) %>% distinct() %>% count(cycle, contributor_type)  %>% filter(cycle > 2004) %>% arrange(contributor_type)
+
+# select corporate contributors
+d %<>% filter(contributor_type == "C")
+
+# select post 2000 cycles 
+d %<>% filter(cycle > 2000)
+
+# contributor_ext_id is missing post 2012 and where it is missing the other id is also
+d %>% count(contributor_crp_or_nimsp_id, contributor_ext_id,cycle, sort = T) %>% filter(!is.na(contributor_crp_or_nimsp_id))
+
+# contributor_ext_id  is the same as contributor_crp_or_nimsp_id
+d %>% filter(contributor_ext_id  != contributor_crp_or_nimsp_id)
 ```
 
 ### Parsing errors
@@ -148,17 +156,6 @@ Notice the empty `contributor_id` before `cand_id`:
 ### Ammount errors
 
 2012 and 2014 cycles are not correct due to some incorrect numbers for GRAYSON, ALAN MARK
-
-DIME data: 
-```{r sum, echo= FALSE, include=FALSE}
-head(d$amount)
-# Make sure amount is numeric if using read.lines
-d$amount %<>% 
-  str_extract("[0-9]*") %>%
-  as.numeric()
-head(d$amount)
-nrow(d)
-```
 
 Inspect for `NA` contribution amounts, very large amounts, and annual totals.
 ```{r}
@@ -265,41 +262,62 @@ d %>%
   distinct()
 ```
 
-### Solution: Consolidate names by icpsr
+### Solution: Correct incorrect ICPSRs to match voteview
+
+Assuming DIME names are correct and ICPSRs are wrong.
+
+```{r icpsr_corrections}
+# drop non-icpsrs (e.g. state legislators)
+d %<>% filter(!str_detect(recipient_icpsr, "[A-z]"))
+
+icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522)
+
+# errors
+d %>%
+  select(recipient_icpsr, recipient_name) %>% 
+  filter(recipient_icpsr %in% icpsr_errors) %>% 
+  select(recipient_icpsr, recipient_name) %>% 
+  distinct() %>% arrange(recipient_icpsr)
+
+# correct ICPSRs
+DIME_corrections <- tribble(
+  ~recipient_name, ~icpsr_correct,
+"BABIN, BRIAN", "21551",   
+"CLAWSON, CURTIS J","21377",
+"DESAULNIER, MARK","21504",  
+"HICE, JODY B MR", "21514",   
+"WESTERMAN, BRUCE","21563",          
+"WESTERMAN, BRUCE MR.","21563",     
+"MCALLISTER, VANCE MICHAEL","21374"
+)
+
+d %<>% left_join(DIME_corrections)
+
+# errors
+d %>% filter(recipient_icpsr %in% icpsr_errors| !is.na(icpsr_correct)) %>% 
+  select(recipient_icpsr, recipient_name, icpsr_correct) %>% 
+  distinct() %>% arrange(recipient_icpsr) %>% kable()
+
+d %<>% mutate(recipient_icpsr = ifelse(recipient_name %in% DIME_corrections$recipient_name, icpsr_correct, recipient_icpsr))
+
+# corrected icpsrs 
+d %>% filter(recipient_icpsr %in% icpsr_errors| !is.na(icpsr_correct)) %>% 
+  select(recipient_icpsr, recipient_name, icpsr_correct) %>% 
+  distinct() %>% arrange(recipient_icpsr) %>% kable()
+```
+
+
+
+Consolidate remaining name varients by icpsr
 ```{r icpsr_names} 
 d %<>% 
   group_by(recipient_icpsr) %>% 
   mutate(recipient_name = str_c(unique(recipient_name), collapse = ";")) %>% 
   ungroup()
-dim(d)
 ```
 
 
-### Correct incorrect ICPSRs to match voteview (TO DO)
 
-Assuming DIME names are correct and ICPSRs are wrong.
-```{r icpsr_corrections}
-icpsr_errors <- c(21109, 20528, 21109, 21122, 21301, 21522, 41700)
-
-d %>% 
-  mutate(icpsr = as.numeric(recipient_icpsr)) %>% 
-  select(icpsr, recipient_name) %>% 
-  filter(icpsr %in% icpsr_errors) %>% 
-  distinct()
-
-# correct problem ICPSRs
-DIME_corrections <- tribble(
-  ~recipient_name, ~icpsr_correct,
-"BABIN, BRIAN", "",   
-"CLAWSON, CURTIS J","",
-"DESAULNIER, MARK","",  
-"HICE, JODY B MR", "",   
-"WESTERMAN, BRUCE","",          
-"WESTERMAN, BRUCE MR.","",     
-"MCALLISTER, VANCE MICHAEL",""
-)
-
-```
 
 # Select Industry PACs
 
@@ -341,6 +359,7 @@ crosswalk %<>%
   group_by(bonica_cid) %>% 
   top_n(1) %>% 
   ungroup()
+
 # now how many FEC_IDs have the same bonica_cid? Should be 1 to 1
 crosswalk %>% # filter(!is.na(PACShort)) %>% 
   count(bonica_cid, sort = T) %>% 
@@ -374,8 +393,123 @@ d %>%
   knitr::kable()
 ```
 
+## Do PACs have consistant `bonica_cid`s?
 
-## There are  `r unique(d$contributor_ext_id) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
+No.
+
+> Note: `contributor_ext_id` is FEC id from dime
+
+```{r inspect_cids}
+# Exxon
+
+
+# many exxon contributions have no FEC id and have different bonica IDs
+d %>% filter(str_detect(contributor_name, "exxon")) %>% count(contributor_name, cycle, bonica_cid, contributor_ext_id, contributor_category) %>% arrange(cycle) %>% kable()
+
+# nothing for this bonica id matched to exxon's fec id
+d %>% filter(bonica_cid == 100031515) %>% count(cycle)
+d %>% filter(contributor_ext_id=="C00121368") %>% count(cycle)
+
+
+# oddly, the bonica ids that do match post-2012 are correct, why does API keep the same bonica ID but EXXON get a new one? 
+d %>% filter(cycle > 2012, !is.na(PACShort)) %>% count(contributor_ext_id, bonica_cid, UltOrg, PACShort, sort = T) %>% distinct()
+
+#  like FEC ids, CRP categories are also missing post 2012
+d %>% count(is.na(contributor_category), cycle) 
+
+# are contributor names missing as well? no they are not missing, good
+d %>% count(is.na(contributor_name), cycle) 
+```
+
+## Matching on PAC name
+```{r matching_pac_names}
+###################################################
+# testing the idea that we can match CRP data with DIME on name (PACShort ~~> contributor_name)
+
+# to match by names, these are the names we will be able to search for
+crp %>% filter(str_detect(PACShort, "Exxon")) %>% count(PACShort) %>% kable()
+
+# this is what will match
+c <- crp %>% filter(str_detect(PACShort, "Exxon")) %>% 
+  mutate(PACShort = str_split(PACShort, "; ")) %>% unnest(PACShort) %>% distinct()
+c
+
+## Collapsing without word boundaries (risks over matching)
+# pacs <- str_c(unique(c$PACShort), collapse = "\\b|\\b") %>% tolower()
+pacs <- str_c(unique(c$PACShort), collapse = "|") %>% tolower()
+pacs
+
+# how does this method perform? 
+d %>% filter(str_detect(contributor_name, "exxon")) %>% 
+  count(contributor_name, sort = TRUE) %>% 
+  mutate(matched = str_detect(contributor_name, pacs)) %>% 
+  kable()
+
+# unlist crp table
+c <- crp %>% 
+  mutate(PACShort = str_split(PACShort, "; ")) %>% 
+  unnest(PACShort) %>% select(PACShort, comid) %>% distinct()
+c
+
+pacs <- str_c(unique(c$PACShort), collapse = "|") %>% tolower()
+
+# detect corps that contain a PACShort string (or that have an FEC ID)
+d %<>% mutate(matched = str_detect(contributor_name, pacs))
+
+# how many more are we captureing with name matching
+d %>% count(matched, !is.na(contributor_ext_id))
+
+# which categories are we capturing (i.e. are they the ones we want?)
+industries <- c("E0000", "E1000", "E1100", "E1110", "E1120", "E1140", "E1160", "E1170", "E1180", "E1190", "E1500", "E1600", "E1610", "E1620", "E1630", "E1700", "E2000")
+
+d %>% count(contributor_category %in% industries, matched)
+
+# PACS we are failing to match
+d %>% filter(contributor_category %in% industries, !matched) %>% count(contributor_name, sort = T)
+
+# PACS we are matching but probably should not (actually these look right, why do they not have energy-sector industry codes?)
+d %>% filter(!contributor_category %in% industries, matched, !is.na(contributor_category)) %>% count(contributor_name, contributor_category, sort = T) %>% mutate(detected = str_extract(contributor_name, pacs))
+
+# how many of the pacs we match have an FEC ID
+d %>% count(!is.na(contributor_ext_id), matched, cycle) %>% arrange(cycle)
+```
+
+
+A function to match FEC IDs by PAC name 
+```{r, eval = FALSE}
+#####################################
+# ALTERNATIVELY, write a function 
+getPACid <- function(name){ 
+  id <- c %>% mutate(name = name) %>% 
+    filter(str_detect(name, tolower(PACShort))) %>% 
+    .$comid %>% 
+    unique() %>% 
+    str_c(collapse = ";")
+  return(id)
+}
+
+# test function 
+name = "exxon mobile"
+getPACid(name)
+
+d %>% #filter(str_detect(contributor_name, "exxon")) %>% head() %>% select(contributor_name) %>%
+  mutate(comids = map(contributor_name, getPACid) %>% unlist())
+
+# method 2
+d %>% filter(!is.na(comids)) %>% count(contributor_category, sort = T)
+
+
+d %>% count(is.na(contributor_ext_id), !is.na(comids), cycle)
+
+
+# how many contributors do we find
+d %>% count(contributor_name, sort = TRUE)
+
+# look for CRP comids that doe not appear post 2012 
+```
+
+
+There are  `r unique(d$contributor_name) %>% length()` PACs in the DIME data and `r unique(crp$comid)%>% length()` PACs in the CRP energy-sector data.
 
 ## Top PACs
 ```{r top_pacs}
@@ -418,8 +552,8 @@ dim(d)
 
 ## Sum contributions per member per cycle per industry 
 ```{r sumarize}
-# Make industry variable based on CRP industry codes
-d %<>% mutate(industry = ifelse(contributor_ext_id %in% crp$comid, CRPindustry, "other"))
+# Make industry variable based on CRP industry codes 3 ways (comid match, name match, or industry code match)
+d %<>% mutate(industry = ifelse(contributor_ext_id %in% crp$comid|matched|contributor_category %in% industries, CRPindustry, "other"))
 
 # Number of distinct pacs 
 d %>% group_by(cycle, industry) %>%
@@ -443,8 +577,15 @@ d1 <- d %>%
   group_by(icpsr, congress, cycle, bioname, recipient_name, industry) %>%
   tally(amount) %>%
   ungroup() %>% 
-  rename(amounts = n) %>% 
-  distinct()
+  distinct() %>% 
+   ungroup() %>%
+    complete(industry, congress, icpsr, 
+             fill = list(n = 0)) %>% 
+    rename(amounts = n) %>% 
+  distinct() %>% 
+  # add back in cycle
+  left_join(d %>% select(congress, cycle) %>% distinct())
+
 ```
 
 Check for zero counts

@@ -128,6 +128,20 @@ Willie Simmons, State Senator of Mississpi|Daphne Campell, RN, State Representat
  Noted <- data %>%
    filter(! is.na(NOTES))
   
+ data %<>%
+   mutate(TYPE = ifelse(str_detect(SUBJECT, "^\\(b\\)\\(6\\)$"),1, TYPE))%>%
+   mutate(CERTAINTY = ifelse(str_detect(SUBJECT, "^\\(b\\)\\(6\\)$"),1, CERTAINTY))%>%
+   mutate(TYPE = ifelse(str_detect(SUBJECT, "^\\(Fax\\) \\(b\\)\\(6\\)$"),1, TYPE))%>%
+   mutate(CERTAINTY = ifelse(str_detect(SUBJECT, "^\\(Fax\\) \\(b\\)\\(6\\)$"),1, CERTAINTY))%>%
+   mutate(TYPE = ifelse(str_detect(SUBJECT, "nomination"),6, TYPE))%>%
+   mutate(CERTAINTY = ifelse(str_detect(SUBJECT, "nomination"),2, CERTAINTY))%>%
+   mutate(ALT_TYPE = ifelse(str_detect(SUBJECT, "nomination"),1, ALT_TYPE))%>% 
+   mutate(TYPE = ifelse(str_detect(SUBJECT, "Inc."),2, TYPE))%>%
+   mutate(CERTAINTY = ifelse(str_detect(SUBJECT, "Inc."),1, CERTAINTY))%>%
+   mutate(TYPE = ifelse(str_detect(SUBJECT, "non-profit"),3,TYPE))%>%
+   mutate(CERTAINTY = ifelse(str_detect(SUBJECT, "non-profit"),1,CERTAINTY))%>%
+   mutate(TYPE = ifelse(str_detect(SUBJECT, "\\(b\\)\\(6\\)")& !str_detect(SUBJECT, "non-profit")& !str_detect(SUBJECT, "Inc."),1, TYPE))
+   
   
   # unfoundmerge <- d %>%
   #   filter(is.na(bioname), is.na(ERROR))

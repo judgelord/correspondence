@@ -82,7 +82,13 @@ clean <- function(file.name) {
   
  
   data %<>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Committee"), "Committee", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Committee"), "Committee", NOTES))%>%
+    mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(Action,"Congressional Report FY"),5,TYPE ))%>%
+    mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(Action, "Congressional Report FY"),1,CERTAINTY))%>% 
+    mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT,"[:alnum:]")& str_detect(Action, "Congressional Report FY"),"budget allocation", POLICY_EVENT))%>%
+    mutate(DATE = ifelse(!str_detect(DATE,"[:alnum;]")& str_detect(Action, "Congressional Report FY"),"future",DATE ))%>%
+    mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& !str_detect(Addressee,"[:alnum:]")& !str_detect(SUBJECT,"[:alnum:]"),0,TYPE))%>%
+    mutate(CERTAINTY=ifelse(!str_detect(CERTAINTY,"[0-9]")& !str_detect(Addressee,"[:alnum:]") & !str_detect(SUBJECT,"[:alnum:]"),0,CERTAINTY))
   
    data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
    
@@ -92,8 +98,8 @@ clean <- function(file.name) {
    #Check after run through merge
    #Unfoundnames <- d %>%
    #filter(is.na(bioname))
-   
   
   
   return(data)
 }
+

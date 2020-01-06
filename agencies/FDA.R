@@ -39,6 +39,7 @@ clean <- function(file.name) {
  
  data %<>%
    mutate(FROM = str_remove_all(FROM, "\\[norg\\]|norgl|\\[no orgl|\\[no org\\]"))
+ 
 
   
   ###############    
@@ -96,7 +97,10 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Stefank, Elise", "STEFANIK, Elise")) %>%
     mutate(FROM = str_replace(FROM, "Torres-Small,  Xochitl", "Torres Small, Xochitl")) %>%
     mutate(FROM = str_replace(FROM, "Coleman Watson, Barbara", "Watson Coleman, Barbara")) %>%
-    mutate(FROM = str_replace(FROM, "Enzi, Sen Mke", "Enzi, Mike"))
+    mutate(FROM = str_replace(FROM, "Enzi, Sen Mke", "Enzi, Mike")) %>%
+    mutate(FROM = str_replace(FROM, "BOOKER,  COREY", "BOOKER, CORY")) %>%
+    mutate(FROM = str_replace(FROM, "CONAWAY, K\\. MICHAEL", "CONAWAY, MICHAEL")) %>%
+    mutate(FROM = str_replace(FROM, "PRICE, TOM", "Tom Edmunds PRICE"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
@@ -107,8 +111,7 @@ clean <- function(file.name) {
   
 
   ################
-  
-  
+
 
   # #extract member names
   data <-  extractMemberName(data,members,"FROM") 
@@ -119,9 +122,9 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U\\\\.S. Food and Drug Administration", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Dutcher, Michael Minneapolis District Office"), "Minneapolis District Office", ERROR)) %>%
     mutate(ERROR = ifelse(FROM %in% c("U.S.-China Economic, .", "Ireland, Jeanne", "ST.JOHN ST. JOHN MEDICAL CENTER", "UNIVERSITY OF ROCHESTER MEDICAL CENTER","INDIANA UNIVERSITY SCHOOL OF MEDICINE", "Hyde, Marleice", "SIPOS, TIBOR DIGESTIVE CARE, INC.", "Unknown, Unknown",
-                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS", "HOWARD, SALLY A FDA\\/OC\\/OPP\\/","HOWARD, SALLY A", "VITALE, JOSEPH", "BJORKLUND, CYBELE"), "Not Member of Congress", ERROR)) %>%
+                                      "CONSTITUENT", "Constituent", "CTMG, NA", "FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|CONSTITUENTS", "HOWARD, SALLY A FDA\\/OC\\/OPP\\/","HOWARD, SALLY A", "VITALE, JOSEPH", "BJORKLUND, CYBELE", "Boyd, Patrick", "Conrady-Brown, Michelle"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(FROM %in% c("Addtional", "E&C Committee, U\\. S\\. Congress","Additional", "CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS", "Help Committee", "SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
-    mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A"), "State Legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(FROM %in% c("Liston, Larry", "Jackson, Brent", "Nozzolio, Michael", "Hannon, Kemp", "Miller, Mike", "GRIFFO, JOSEPH A", "Brown, Kate"), "State Legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "WARNER, CAITLIN"), "Agency staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "CLINTON, HILLARY RODHAM") & congress %in% 114, "No longer in congress", ERROR))
@@ -137,6 +140,10 @@ clean <- function(file.name) {
   
   unfoundnames %<>%
     select(ID, DATE, FROM, SUBJECT, last_name, everything())
+  
+    
+  data %<>%
+    arrange(-nchar(FROM))
   
   # Dropping this for now because it is incomplete and we get more observations without it
   # If we rewrite Clean.R, we may be able to add chamber back in

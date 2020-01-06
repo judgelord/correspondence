@@ -87,10 +87,11 @@ clean <- function(file.name) {
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("SUPERFUND", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT)) 
-  mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(SUBJECT, "COUNTY"), "3", TYPE))%>%
-  mutate(CERTAINTY = ifelse(!str_detect("[0-9]"), CERTAINTY)& str_detect("COUNTY"),"1", CERTAINTY)%>%
- 
+  mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("EXTEND THE DETAIL", SUBJECT, ignore.case = TRUE), "DECISION", POLICY_EVENT))%>%
+  mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(SUBJECT, "COUNTY"), 3, TYPE))%>%
+  mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(SUBJECT, "COUNTY"),1, CERTAINTY))%>%
+  mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT, "[:alnum:]")& str_detect(SUBJECT, "COUNTY"),"grant", POLICY_EVENT))
+  
      return(data)  
   
 }
