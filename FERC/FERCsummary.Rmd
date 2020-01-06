@@ -79,7 +79,7 @@ d <- all_contacts %>%
 #dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
 # Coded letters, one obs per member per letter 
-load(here("data/DOE_FERC-letters-coded.Rdata")) 
+load(here("data/DOE_FERC-letters-clean.Rdata")) 
 
 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
@@ -108,6 +108,7 @@ d %<>%
 
 # For this analysis, treat corp policy letters as Policy
 d$Type %>% unique()
+d$Constituent %>% unique()
 all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
 d$Type %<>% fct_recode(Policy = "Corp. Policy")
 
@@ -116,6 +117,8 @@ d %<>%
   mutate(letter_position = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "ProBusiness", "Other"),
          letter_position = ifelse(!is.na(AntiBusiness)|!is.na(AntiProject), "AntiBusiness", letter_position),
          letter_position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", letter_position)) 
+
+unique(d$letter_position)
 
 d %<>% 
   # FIXME
@@ -590,10 +593,12 @@ pac_amounts %<>%
 # join in members data
 load("members/members.Rdata")
 
+members %<>% filter(congress > 106)
+
 # chamber switchers
 members %<>% group_by(congress, icpsr) %>% mutate(icpsrs_per_congress = n()) 
 
-# chamber switchers
+# chamber or party switchers
 members %>% filter(icpsrs_per_congress>1)
 
 # drop independents who were also part of a major party 
@@ -639,7 +644,7 @@ pac_amounts %<>% group_by(bioname, congress, industry) %>% mutate(parties = n() 
 pac_amounts %>% filter(parties>1)  %>% arrange(bioname)
 
 # select the party with the most contributions
-pac_amounts %<>% ungroup() %>% group_by(bioname, congress, industry) %>%  top_n(1, PAC_contributions)
+pac_amounts %<>% ungroup() %>% group_by(bioname, congress, industry) %>%  top_n(1, PAC_contributions) %>% ungroup()
 
 pac_amounts %<>% filter(parties < 2 | party_name!="Independent")
 
@@ -647,55 +652,71 @@ pac_amounts %>% filter(party_name=="Independent") %>% arrange(-PAC_contributions
 
 d %>% select(letter_position, congress, icpsr) %>% distinct() %>%  count(letter_position, congress, icpsr, sort= T)
 
+d %>% count(letter_position, congress)
+
+d$letter_position %<>% replace_na("other")
+
 # letters data
-letters_money <- d %>% 
-  # filter(letter_position == "ProBusiness") %>% 
-  #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
+letters <- d %>% 
   # modify_if(is.character, as.factor) %>% 
   # modify_if(is.double, as.factor) %>%  
   count(letter_position, congress, icpsr) %>% 
-  ungroup() %>%
-    complete(letter_position, congress, icpsr, 
-             fill = list(n = 0))
+  ungroup() 
 
-letters_money %>% arrange(icpsr)
+members %<>%  filter(congress >106) %>% filter(chamber %in% c("House", "Sentate")) 
 
-letters_money %<>% left_join(members %>% select(congress, icpsr, bioname) %>% distinct()) %>%
+unique(d$letter_position)
+unique(letters$letter_position)
+
+# add letters to members file to get zero counts
+letters <- members %>% select(congress, icpsr) %>% distinct() %>% 
+  left_join(letters) %>% # introduces NA letter position, which we can remove after completing
+  ungroup() %>% 
+  # mutate(letter_position = as.factor(letter_position)) %>% 
+    complete(letter_position, nesting(congress, icpsr),
+             fill = list(n = 0)) %>% 
+  ungroup() %>% 
+  filter(!is.na(letter_position)) %>% 
+  distinct() 
+
+# should be the same icpsrs
+members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+letters %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+
+
+
+# merge with PAC amounts
+letters_money <-  letters %>% 
+  left_join(pac_amounts %>% ungroup()) %>% 
+  left_join(letters %>% ungroup() ) %>%
+  left_join(members %>% select(congress, icpsr, bioname, chamber)) %>% 
   # drop observations that don't match in members file
-  filter(!is.na(bioname))
+  filter(!is.na(bioname)) %>% distinct()
+
+letters_money %>%  top_n(1, icpsr) %>% arrange(-icpsr) %>% kable()
+
 
 # inspect for 0 counts 
 letters_money %>% count(n, sort = T)
 
 # pull out counts for models 
 letters_money %<>%
-  mutate(ProBusiness_Letters = ifelse(letter_position == "ProBusiness", n, NA))
+  mutate(ProBusiness_Letters = ifelse(letter_position == "ProBusiness", n, NA)) %>%
+  mutate(AntiBusiness_Letters = ifelse(letter_position == "AntiBusiness", n, NA))
 
-
-# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
-letters_money %<>% 
-  ungroup() %>% 
-  left_join(pac_amounts) %>% 
-  group_by(icpsr) %>% 
-  # FIXME
-  # one party per member, need to deal with party switchers
-  # mutate(party = paste(unique(party), collapse = ";")) %>% 
-  # mutate(party = str_remove(party, ";.*")) %>% 
-  ungroup()%>% 
-  distinct()
 
 # should be twice as many obs with both industries 
 nrow(letters_money)
 head(letters_money)
 
-# inspect for 0 counts (should be equal across years per industry)
+# inspect for correct 0 counts (should be equal across years per industry)
 letters_money %>% count(congress, industry, letter_position) %>% arrange(industry)
 
-# compare to memebers 
-members%>% left_join(letters_money) %>% ungroup() %>%  count(congress, industry, letter_position ) 
+# compare to memebers data counts #FIXME we are losing a few obs
+members %>% ungroup() %>% count(congress) 
 
 # members that are not in the pac data 
-members%>% left_join(letters_money) %>% ungroup() %>% filter(is.na(industry))
+members %>% anti_join(letters_money) 
 
 # top 10 by contributions in a cycle 
 letters_money %>% 
@@ -720,7 +741,7 @@ letters_money %<>%
   # FIXME should be no NA PAC_contributions
   # FIXME make sure we are only counting congresses in which members served 
   ungroup() %>% 
-  group_by(icpsr) %>% 
+  group_by(icpsr, industry) %>% 
   mutate(ProBusiness_Letters_Per_Cycle = mean(ProBusiness_Letters, na.rm = TRUE),
          PAC_contributions_total = sum(PAC_contributions, na.rm = TRUE)) %>% 
   ungroup()
@@ -732,88 +753,11 @@ letters_money %>%
   knitr::kable()
 ```
 
-Count anti-business and anti-project letters:
-```{r antibusiness}
-Antiletters_money <- d %>%
-  #FIXME
-  #filter(cycle <2014) %>% 
-  filter(!is.na(AntiBusiness)|!is.na(AntiProject))%>% 
-  #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(icpsryear, name_state, party, congress, icpsr, chamber, oversight_committee) %>% distinct() %>% 
-  summarise(AntiBusiness_Letters = n())
 
-nrow(Antiletters_money)
-
-
-# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
-Antiletters_money %<>% 
-  ungroup() %>% 
-  full_join(pac_amounts) %>% 
-  group_by(icpsr) %>% 
-  # FIXME
-  # one party per member, need to deal with party switchers
-  mutate(party = paste(unique(party), collapse = ";")) %>% 
-  mutate(party = str_remove(party, ";.*")) %>% 
-  ungroup() %>% 
-  distinct()
-
-nrow(Antiletters_money)
-unique(Antiletters_money$party)
-
-
-# Add zero-letter-cycle observations:
-Antiletters_money %<>% 
- mutate(AntiBusiness_Letters = ifelse(is.na(AntiBusiness_Letters) & cycle > 1997, 0, AntiBusiness_Letters)) 
-
-Antiletters_money_total <- Antiletters_money %>% 
-  # FIXME there should be no NA PAC_contributions
-  filter(!is.na(PAC_contributions)) %>% 
-  group_by(icpsr, name_state, party) %>% 
-  summarise(AntiBusiness_Letters_Per_Cycle = mean(AntiBusiness_Letters, na.rm = TRUE),
-            PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
-  ungroup()%>% distinct()
-
-nrow(Antiletters_money)
-```
-
-Count all letters:
-```{r all_letters_money}
-# constituent letters
-All_Letters_money <- d %>% 
-  #FIXME
-  #filter(cycle <2014) %>% 
-  group_by(name_state, party, congress, icpsr, chamber, oversight_committee) %>%
-  summarise(All_Letters = n()) %>% distinct()
-
-# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
-All_Letters_money %<>% 
-  ungroup() %>% 
-  full_join(pac_amounts) %>% 
-    # FIXME there should be no NA 
-  drop_na(PAC_contributions) %>% 
-  group_by(icpsr) %>% 
-  # FIXME
-  # one party per member, need to deal with party switchers
-  mutate(party = paste(unique(party), collapse = ";")) %>% 
-  mutate(party = str_remove(party, ";.*")) %>% 
-  ungroup()%>% distinct()
-
-# Add zero-letter-cycle observations:
-All_Letters_money %<>% 
- mutate(All_Letters = ifelse(is.na(All_Letters) & cycle > 1997, 0, All_Letters)) 
-
-# Sum all donations since 1990
-All_Letters_money_total <- All_Letters_money %>% 
-  # FIXME there should be no NA 
-  drop_na(PAC_contributions) %>% 
-  group_by(icpsr, name_state, party) %>% 
-  summarise(All_Letters_Per_Cycle = mean(All_Letters, na.rm = TRUE),
-            PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
-  ungroup()
-```
 
 Count non-constituent letters:
 ```{r constituent}
+#FIXME
 # constituent letters
 Non_Constituent_money <- d %>% 
   #FIXME
