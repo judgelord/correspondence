@@ -84,17 +84,22 @@ load(here("data/DOE_FERC-letters-clean.Rdata"))
 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
 FERC_letters %<>% 
-  select(ID, SUBJECT, 
-         Freelancer, Cosigned_House, Cosigned_Senate,
+  select(ID, SUBJECT, Notes, #last_name, 
+         Freelancer, 
+         Cosigned_House, Cosigned_Senate,
          text_clean, Constituent, year,
-         Place_State, Place_District, Place_District, 
-         ProBusiness, AntiBusiness, ProProject, AntiProject) %>% 
+         Place_State, Place_District, Place_District,
+         ProBusiness, AntiBusiness, ProProject, AntiProject) %>%
   mutate(ID = ID %>% as.character()) %>% 
   distinct()
 
+## Make sure FERC letter IDs are the same as in the main data
+# FERC_letters %>% filter(ID %in% d$ID)
+
 # merge in coded letters
-# FIXME THIS IS FAILING DUE TO LACK OF ID IN DATA
+
 d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID)) 
+
 
 # Add hand-coding to auto-coding of letter type 
 d %<>%  
@@ -107,31 +112,29 @@ d %<>%
   
 
 # For this analysis, treat corp policy letters as Policy
-d$Type %>% unique()
-d$Constituent %>% unique()
+# d$Type %>% unique()
+# d$Constituent %>% unique()
 all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
 d$Type %<>% fct_recode(Policy = "Corp. Policy")
 
-# make a variable for the pro or anti business position of each letter
+# make a variable for the pro or anti-business position of each letter
 d %<>% 
   mutate(letter_position = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "ProBusiness", "Other"),
          letter_position = ifelse(!is.na(AntiBusiness)|!is.na(AntiProject), "AntiBusiness", letter_position),
          letter_position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", letter_position)) 
 
-unique(d$letter_position)
+# unique(d$letter_position)
 
 d %<>% 
   # FIXME
   # rounding years up is approximate, rewrite to go Nov-Nov?
   #mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, congress)) %>% 
-  # FIXME 
-  mutate(bioname != "GOODE, Virgil H., Jr.")
+  mutate(icpsryear = str_c(icpsr, congress))
 ```
 
-In all, we have `r nrow(distinct(FERC_letters %>% select(ID)))` letters received by FERC and marked "congressional" since 1990. Most, but not all of these are from Members of the U.S. Congress. For this paper, we focus on `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`. 
+In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` letters received by FERC and marked "congressional" since `r min(FERC_letters$year)`. Most, but not all of these are from Members of the U.S. Congress. Of the `r FERC_letters %>% filter(year >1999) %>% select(Notes) %>% distinct() %>% nrow()` letters from 2000-`r max(d$year)`, we identified Members of Congress in 3908. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
 
-Of the `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from `r min(d$year)`-`r max(d$year)`, we identified Members of Congress in `r length(unique(d$ID))`. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
+<!-- we identified Members of Congress in `r FERC_letters %>% filter(!is.na(last_name)) %>% select(Notes) %>% distinct() %>% nrow()`-->
 
 ---
 
@@ -164,7 +167,7 @@ d %>%
   theme(panel.grid.major.x  = element_blank())
 ```
 
-Looking at letters that are explicitly pro- or anti- business, Democrats write more Anti-business letters, whereas, for Republicans, it depends on chamber control. Whe in the majority, Republicans write more pro-business letters. 
+Looking at letters that are explicitly pro- or anti-business, Democrats write more anti-business letters, whereas, for Republicans, it depends on chamber control. When in the majority, Republicans write more pro-business letters. 
 ```{r part-business, fig.height=3, fig.width=4}
 d %>% 
   count(party_name, letter_position, majority) %>% 
@@ -189,9 +192,9 @@ d %>%
 ---
 
 ## Coding of constituent type 
-Our coding of letter type is a mix of hand coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders using [inductively-developed coding rules](https://github.com/judgelord/correspondence/blob/master/agencies/DOE_FERC.R).
+Our coding of letter type is a mix of hand-coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders using [inductively-developed coding rules](https://github.com/judgelord/correspondence/blob/master/agencies/DOE_FERC.R).
 
-FERC has an especially high ratio of letters written on behalf of businesses compared other agencies that mostly recieve letters from legislators on behalf of their constituents. 
+FERC has an especially high ratio of letters written on behalf of businesses compared to other agencies that mostly receive letters from legislators on behalf of their constituents. 
 
 ```{r data-by-type, fig.width=7, fig.height=4}
 all_percent <- all_contacts %>% 
@@ -451,17 +454,17 @@ all_contacts %>%
 
 ## Interesting cases
 
-From [Sen. Dianne Feinstein's website section on accomplishements in the 107th congress](https://www.feinstein.senate.gov/public/index.cfm?p=107th-congress):
+From [Sen. Dianne Feinstein's website section on accomplishments in the 107th Congress](https://www.feinstein.senate.gov/public/index.cfm?p=107th-congress):
 
 "**Significant Negotiations:**
 
-Just and Reasonable Electricity Rates – With the electricity rates skyrocketing because of market manipulation during the California energy crisis, Senator Feinstein lobbied the President, other members of Congress and the Federal Energy Regulatory Commission to cap electricity and natural gas rates.  She also introduced S.26, which would have authorized the Department of Energy to impose price caps, S.287, to direct FERC to impose cost of service based rates on electricity and S.764 to give FERC the choice of either price caps based on demand or cost of service rates.  While the bills did not come up for a vote, Senator Feinstein was finally successful in convincing FERC, after new commissioners were sworn in, to impose price caps on their own."
+Just and Reasonable Electricity Rates – With the electricity rates skyrocketing because of market manipulation during the California energy crisis, Senator Feinstein lobbied the President, other members of Congress, and the Federal Energy Regulatory Commission to cap electricity and natural gas rates.  She also introduced S.26, which would have authorized the Department of Energy to impose price caps, S.287, to direct FERC to impose the cost of service-based rates on electricity and S.764 to give FERC the choice of either price caps based on demand or cost of service rates.  While the bills did not come up for a vote, Senator Feinstein was finally successful in convincing FERC, after new commissioners were sworn in, to impose price caps on their own."
 
 ---
 
 From the [West Virginia Gazette](https://www.wvgazettemail.com/news/politics/wv-republican-congressmen-s-funding-dwarfs-challengers/article_2e9bcb96-9021-56a6-ac0f-57f2917a6bef.html):
 
-In an article titled "Republican congressmen’s funding dwarfs challengers’", the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
+In an article titled "Republican congressmen’s funding dwarfs challengers’," the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
 In 2017, he wrote on behalf of the 
 Dominion Energy Supply Header Project,
 National Fuel Gas Distribution Corporation's [Northern Access Project](https://www.natfuel.com/supply/NorthernAccess2016/default.aspx),
@@ -517,6 +520,7 @@ dcommittees %>%
 
 ## Many letters to FERC are cosigned
 
+For each member, we have letter counts by Congress and letter position, as well as contributions by energy and non-energy sector PACs: 
 ```{r cosigned_estimated, eval=FALSE}
 #A rough under-estimate based on whether "et al" or "&" appears in the summary:
 
@@ -541,10 +545,10 @@ FERC_letters %>%
   filter(!is.na(Freelancer),
          year>1999,
          year<2019) %>% 
-  mutate(Cosigned = ifelse(!is.na(Cosigned_House)|!is.na(Cosigned_Senate),
+    mutate(Cosigned = ifelse(!is.na(Cosigned_House)|!is.na(Cosigned_Senate),
                                  T, F)) %>%
-  group_by(year, Cosigned) %>% 
-  tally %>% 
+  select(Cosigned, year, Notes) %>% distinct() %>% 
+  count(year, Cosigned) %>% 
   ggplot() + 
   aes(x = year, y = n, fill = Cosigned) +
   geom_col() +
@@ -574,46 +578,42 @@ FERC_letters %>%
 ---
 
 # PAC Contributions from the Energy Sector
-Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by memeber per cycle, matching a congress with the cycle when it was elected (e.g. 116th congress = 2018 cycle). 
+Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by a member per cycle, matching a congress with the cycle when it was elected (e.g., 116th Congress = 2018 cycle). 
 
 ```{r pac_amounts}
 library(tidyverse)
   
 load(here::here("data/pac_amounts.Rdata"))
 
-# drop NA industry
-pac_amounts %<>% filter(!is.na(industry)) %>% select(icpsr, party_name, congress, cycle, industry, amounts) %>% distinct()
+pac_amounts %<>% 
+  # select useful vars 
+  select(icpsr, party_name, congress, cycle, industry, amounts) %>% distinct() %>% 
+  # fix cycle 
+  mutate(cycle = (congress - 107)*2 + 2000)
 
-# pac_amounts %>% arrange(-amounts)
+pac_amounts %<>% filter(cycle>1997)
+
+# drop NA industry
+pac_amounts %<>% filter(!is.na(industry)) 
 
 pac_amounts %<>% 
   rename(PAC_contributions = amounts) 
 
-
 # join in members data
 load(here::here("members/members.Rdata"))
 
-members %<>% filter(congress > 106)
 
-# chamber switchers
-members %<>% group_by(congress, icpsr) %>% mutate(icpsrs_per_congress = n()) 
+# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
+members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Sentate")) 
 
-# chamber or party switchers
-# members %>% filter(icpsrs_per_congress>1)
+pac_amounts %>% count(icpsr, congress, industry) %>% filter(n >1)
+members %>% count(icpsr, congress) %>% filter(n >1)
 
-# drop independents who were also part of a major party 
-members %<>% filter(icpsrs_per_congress<2 | party_name != "Independent")
+pac_amounts %<>% left_join(members %>% select(congress, icpsr, bioname) %>% distinct() )  %>% distinct()
 
-
-pac_amounts %<>% left_join(members %>% select(congress, icpsr, bioname) %>% distinct()) 
-
-# drop any member-congress observations not in members file (i.e. outside timerange )
+# any member-congress observations not in members file (i.e. outside timerange )
 pac_amounts %<>%  filter(!is.na(bioname)) %>% distinct()
 
-pac_amounts %<>% mutate(cycle = (congress - 107)*2 + 2000)
-
-
-pac_amounts %>% arrange(icpsr)
 
 # inspect coverage 
 pac_amounts %>%
@@ -630,7 +630,7 @@ pac_amounts %>%
   labs(y = "Average Energy-sector PAC contributions per member \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 
-pac_amounts %<>% distinct()
+
 
 # problems with duplicate icpsrs? 
 # pac_amounts %>% group_by(icpsr, congress,  industry) %>% mutate(n = n() ) %>% filter(n>1)  %>% arrange(icpsr)
@@ -646,27 +646,29 @@ pac_amounts %<>% group_by(bioname, congress, industry) %>% mutate(parties = n() 
 # select the party with the most contributions
 pac_amounts %<>% ungroup() %>% group_by(bioname, congress, industry) %>%  top_n(1, PAC_contributions) %>% ungroup()
 
+# drop Independents
 pac_amounts %<>% filter(parties < 2 | party_name!="Independent")
 
+pac_amounts %<>% select(-parties)
 # pac_amounts %>% filter(party_name=="Independent") %>% arrange(-PAC_contributions, bioname)
+```
 
+
+## Count letters by member by year (including zero counts)
+```{r zeros}
 # d %>% select(letter_position, congress, icpsr) %>% distinct() %>%  count(letter_position, congress, icpsr, sort= T)
 
 # d %>% count(letter_position, congress)
 
-d$letter_position %<>% replace_na("other")
+d$letter_position %<>% replace_na("other") 
 
-# letters data
+# letter counts by position
 letters <- d %>% 
-  # modify_if(is.character, as.factor) %>% 
-  # modify_if(is.double, as.factor) %>%  
   count(letter_position, congress, icpsr) %>% 
-  ungroup() 
+  ungroup() # %>% tally(n)
 
-members %<>%  filter(congress >106) %>% filter(chamber %in% c("House", "Sentate")) 
-
-# unique(d$letter_position)
-# unique(letters$letter_position)
+# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
+members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Sentate")) 
 
 # add letters to members file to get zero counts
 letters <- members %>% select(congress, icpsr) %>% distinct() %>% 
@@ -679,9 +681,9 @@ letters <- members %>% select(congress, icpsr) %>% distinct() %>%
   filter(!is.na(letter_position)) %>% 
   distinct() 
 
-# should be the same icpsrs
-members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
-letters %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+# # should be the same icpsrs
+# members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+# letters %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
 ```
 
 # Merge letters with PAC contribution data
@@ -694,7 +696,7 @@ letters_money <-  letters %>%
   # drop observations that don't match in members file
   filter(!is.na(bioname)) %>% distinct()
 
-letters_money %>%  top_n(1, icpsr) %>% arrange(-icpsr) %>% kable()
+letters_money %>%  top_n(1, icpsr) %>% arrange(congress, -icpsr) %>% kable()
 
 
 # inspect for 0 counts 
@@ -719,16 +721,11 @@ letters_money %<>%
 # members that are not in the pac data 
 # members %>% anti_join(letters_money) 
 
-# top 10 by contributions in a cycle 
-letters_money %>% 
-  filter(!is.na(ProBusiness_Letters), industry == "energy" ) %>% 
-  dplyr::select(-icpsr, -congress) %>% arrange(-PAC_contributions) %>% 
-  top_n(10, PAC_contributions) %>% knitr::kable()
 ```
 
 
 
-## Overall top ten PAC recepients.
+## Overall top ten PAC recipients.
 
 Fred Upton (R-Mich.) was chair of the House Energy and Commerce Committee 2011-2017.
 
@@ -748,11 +745,17 @@ letters_money %<>%
          PAC_contributions_total = sum(PAC_contributions, na.rm = TRUE)) %>% 
   ungroup()
 
-
 letters_money %>% 
+  filter(industry == "other") %>% 
   select(ProBusiness_Letters_Per_Cycle, PAC_contributions_total, bioname) %>% distinct( )%>% 
   top_n(10, PAC_contributions_total) %>% 
-  knitr::kable()
+  knitr::kable(caption = "Members receiving the most Non-Energy Sector PAC Money")
+
+letters_money %>% 
+  filter(industry == "energy") %>% 
+  select(ProBusiness_Letters_Per_Cycle, PAC_contributions_total, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions_total) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money")
 ```
 
 
@@ -798,8 +801,6 @@ Non_Constituent_money_total <- Non_Constituent_money %>%
 
 ### Pro-business letters per cycle
 ```{r, letter_money}
-letters_money %<>% filter(bioname != "GOODE, Virgil H., Jr.")
-
 letters_money %<>% left_join(members %>% select(icpsr, congress, state_abbrev)) %>% 
   mutate(name_state = str_c(str_remove(bioname, " .*"), state_abbrev))
 
@@ -896,24 +897,23 @@ mAll %>% mplot()+
 ```{r non-constituent models, fig.height=1}
 Non_Constituent_money %<>% mutate(PAC_Millions = PAC_contributions/10000)
 
-mNonConstituent <- glm(Non_Constituent_Letters ~ PAC_Millions, 
+mNonConstituent <- lm(Non_Constituent_Letters ~ PAC_Millions, 
                        data = Non_Constituent_money %>%
                          filter(industry == "energy") %>% 
                          select(icpsr, congress, PAC_Millions, Non_Constituent_Letters)%>% 
-                         distinct() , 
-                       family = poisson  ) 
+                         distinct() ) 
 # tidy(mNonConstituent)
 mNonConstituent %>% mplot()+
   labs(x="", y="Additional non-constituent letters per congress per million dollars")
 
-mNonConstituentLog <- glm(Non_Constituent_Letters ~ Log_PAC_contributions, 
+# FIXME - why not poisson?
+mNonConstituentLog <- lm(Non_Constituent_Letters ~ Log_PAC_contributions, 
                           data = Non_Constituent_money %>% 
                             filter(industry == "energy") %>% 
                             select(icpsr, congress, PAC_contributions, Non_Constituent_Letters)%>%
                             distinct() %>% 
-                            filter(!is.na(PAC_contributions)) %>% #FIXME why is this NA
-                            mutate(Log_PAC_contributions = log(PAC_contributions+1)),
-                          family = poisson  ) 
+                            filter(!is.na(PAC_contributions)) %>% #FIXME why is this ever NA
+                            mutate(Log_PAC_contributions = log(PAC_contributions+1))) 
 # tidy(mNonConstituent)
 mNonConstituentLog %>% mplot()+
   labs(x="", y="Additional non-constituent letters per congress per logged million dollars")
@@ -1255,7 +1255,7 @@ models <- tidy(mProLog) %>% mutate(model = "Pro-business Letters per Cycle") %>%
 full_join(tidy(mAntiLog) %>% mutate(model = "Anti-business Letters per Cycle")) 
 
 dplot(models)+ 
-    labs(x = "Additional letters per million dollars per cycle")
+    labs(x = "Additional letters per logged dollars per cycle")
 
 write_lines(
   stargazer::stargazer(mProLog, mAntiLog,
@@ -1386,7 +1386,7 @@ htmltools::HTML(table)
 
 # About FERC 
 
-FERC regulates electricity markets, oil and gas pipelines, and hydropower and gas export projects. Many of these decisions have major implications for business profets. For example, because many natual gas pipelines cross state lines, FERC largely controls pipeline market entry. Similarly, because electricity grids are regional. 
+FERC regulates electricity markets, oil and gas pipelines, and hydropower and gas export projects. Many of these decisions have major implications for business profits. For example, because many natural gas pipelines cross state lines, FERC largely controls pipeline market entry. Similarly,  electricity grids are regional. 
 
 
 ## Letters on behalf of projects in their districts
@@ -1419,9 +1419,9 @@ d %>%
 - add clean text from scraper to google sheet 
 - fix clean function to pull and combine new data
 - link industry codes to CRP PAC committee classification: 
- 1. Identify relevent industry codes 
+ 1. Identify relevant industry codes 
  2. Get cycle-specific PAC classification for those industry codes 
- 3. Subset dime to those PAC classification 
+ 3. Subset DIME to those PAC classifications 
 - Add 2015-2018 DIME
 - Fix DIME ICPSRs 
 
@@ -1433,7 +1433,7 @@ d %>%
 
 ## FERC Paper 2 
 - letters per company 
-- letters per company pac (before and after merging in partent companies)
+- letters per company PAC (before and after merging in parent companies)
 - add company names from company scraper to google sheet
 - template to match company names to donation (lobbyview, DIME)
 - template match company names to industry codes (center for responsive politics)

@@ -1,24 +1,29 @@
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Mon, Jan 06, 2020 - 16:04:51
+% Date and time: Tue, Jan 07, 2020 - 14:24:29
 \begin{tabular}{@{\extracolsep{5pt}}lcccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
  & \multicolumn{4}{c}{\textit{Dependent variable:}} \\ 
 \cline{2-5} 
 \\[-1.8ex] & total\_letters & ProBusiness\_Letters & AntiBusiness\_Letters & Non\_Constituent\_Letters \\ 
+\\[-1.8ex] & \textit{Poisson} & \textit{Poisson} & \textit{Poisson} & \textit{OLS} \\ 
 \\[-1.8ex] & (1) & (2) & (3) & (4)\\ 
 \hline \\[-1.8ex] 
- PAC\_Millions & $-$0.095 & 1.955$^{***}$ & $-$9.049$^{***}$ & $-$10.966$^{**}$ \\ 
-  & (0.337) & (0.384) & (1.263) & (5.257) \\ 
+ PAC\_Millions & 0.866$^{***}$ & 2.014$^{***}$ & $-$2.984$^{***}$ & $-$0.0001 \\ 
+  & (0.262) & (0.378) & (0.875) & (0.0001) \\ 
   & & & & \\ 
- Constant & $-$0.322$^{***}$ & $-$1.975$^{***}$ & $-$1.252$^{***}$ & $-$3.873$^{***}$ \\ 
-  & (0.020) & (0.042) & (0.040) & (0.180) \\ 
+ Constant & $-$0.353$^{***}$ & $-$1.996$^{***}$ & $-$1.370$^{***}$ & 0.001$^{*}$ \\ 
+  & (0.019) & (0.040) & (0.038) & (0.001) \\ 
   & & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 4,429 & 4,429 & 4,205 & 5,461 \\ 
-Log Likelihood & $-$6,676.610 & $-$2,110.181 & $-$2,845.450 & $-$177.432 \\ 
-Akaike Inf. Crit. & 13,357.220 & 4,224.361 & 5,694.901 & 358.864 \\ 
+Observations & 4,870 & 4,870 & 4,615 & 4,870 \\ 
+R$^{2}$ &  &  &  & 0.0002 \\ 
+Adjusted R$^{2}$ &  &  &  & $-$0.00003 \\ 
+Log Likelihood & $-$7,700.727 & $-$2,353.937 & $-$3,329.871 &  \\ 
+Akaike Inf. Crit. & 15,405.450 & 4,711.873 & 6,663.742 &  \\ 
+Residual Std. Error &  &  &  & 0.035 (df = 4868) \\ 
+F Statistic &  &  &  & 0.850 (df = 1; 4868) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{4}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
