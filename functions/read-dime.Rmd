@@ -109,7 +109,7 @@ d %>% select(cycle, contributor_type, bonica_cid) %>% distinct() %>% count(cycle
 d %<>% filter(contributor_type == "C")
 
 # select post 2000 cycles 
-d %<>% filter(cycle > 2000)
+d %<>% filter(cycle > 1997)
 
 # contributor_ext_id is missing post 2012 and where it is missing the other id is also
 d %>% count(contributor_crp_or_nimsp_id, contributor_ext_id,cycle, sort = T) %>% filter(!is.na(contributor_crp_or_nimsp_id))
@@ -211,7 +211,7 @@ dim(d)
 
 ### Limit to 2000 cycle onward for now
 ```{r negative}
-d %<>% filter(cycle>2000)
+d %<>% filter(cycle>1997)
 dim(d)
 ```
 
