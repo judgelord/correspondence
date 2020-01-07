@@ -66,7 +66,7 @@ d <- all_contacts %>%
   #mutate(ID = NOTES) %>% 
   # FIXME
   # filter(nchar(ID)>8) %>%
-  select(-SUBJECT) %>% 
+  #select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
   # FIXME 
   # GOODE needs to be fixed in party switchers portion of merge.R
@@ -84,22 +84,24 @@ load(here("data/DOE_FERC-letters-clean.Rdata"))
 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
 FERC_letters %<>% 
-  select(ID, SUBJECT, Notes, #last_name, 
+  select(SUBJECT, Notes, DATE, last_name, # last_name is aparently slightly different in d and FERC_letters
          Freelancer, 
          Cosigned_House, Cosigned_Senate,
          text_clean, Constituent, year,
          Place_State, Place_District, Place_District,
          ProBusiness, AntiBusiness, ProProject, AntiProject) %>%
-  mutate(ID = ID %>% as.character()) %>% 
+  #mutate(ID = ID %>% as.character()) %>% 
   distinct()
 
 ## Make sure FERC letter IDs are the same as in the main data
-# FERC_letters %>% filter(ID %in% d$ID)
+# FERC_letters %>% filter(year < 2019, !ID %in% d$ID)
 
 # merge in coded letters
 
 d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID)) 
 
+# how many failed to merge?
+d %>% count(is.na(Freelancer))
 
 # Add hand-coding to auto-coding of letter type 
 d %<>%  
@@ -123,6 +125,7 @@ d %<>%
          letter_position = ifelse(!is.na(AntiBusiness)|!is.na(AntiProject), "AntiBusiness", letter_position),
          letter_position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", letter_position)) 
 
+
 # unique(d$letter_position)
 
 d %<>% 
@@ -132,9 +135,18 @@ d %<>%
   mutate(icpsryear = str_c(icpsr, congress))
 ```
 
+Rep. Virgil Goode (R-VA) is an outlier who affects results, especially for Anti-business letters. A few members forward a lot of mail. 
+```{r forwards}
+
+d %>% count(bioname, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to FERC")
+d %>% count(bioname, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
+
+d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(28, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Legislators who forward the most letters")
+
+```
+
 In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` letters received by FERC and marked "congressional" since `r min(FERC_letters$year)`. Most, but not all of these are from Members of the U.S. Congress. Of the `r FERC_letters %>% filter(year >1999) %>% select(Notes) %>% distinct() %>% nrow()` letters from 2000-`r max(d$year)`, we identified Members of Congress in 3908. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
 
-<!-- we identified Members of Congress in `r FERC_letters %>% filter(!is.na(last_name)) %>% select(Notes) %>% distinct() %>% nrow()`-->
 
 ---
 
@@ -259,8 +271,6 @@ d  %>%
 # Members
 
 
-
-Of the `r nrow(distinct(FERC_letters %>% filter(year >1999) %>% select(ID) ) )` letters from 2000-2018, we identified Members of Congress in `r length(unique(d$ID))`. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
 
 ### Senators vs. state population 
 
