@@ -209,8 +209,8 @@ d %<>% filter(amount > -1)
 dim(d)
 ```
 
-### Limit to 2000 cycle onward for now
-```{r negative}
+### Limit to 1998 cycle onward for now
+```{r cycle}
 d %<>% filter(cycle>1997)
 dim(d)
 ```
