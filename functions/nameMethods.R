@@ -475,7 +475,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
   # FIXME with purrr error handeling?
   
   # if congress not in members file 
-  if(!congress_i %in% members$congress){
+  if(!congress_i %in% members$congress & "DATE" %in% names(data)){
     
     top5 <- nrow(data)
     if(top5>5){top5<-5}
@@ -591,7 +591,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     # New ID since function may split out multiple members if found
     data$ID <- 1:nrow(data)
     
-    data %<>% select(LetterID, ID, DATE, congress, string, typos, correct, pattern, everything())
+    data %<>% select(LetterID, ID, congress, string, typos, correct, pattern, everything())
     
     return(data)
 }
