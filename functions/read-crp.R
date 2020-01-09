@@ -108,6 +108,7 @@ crosswalk %>% arrange(icpsr) %>%
   select(-congress) %>%
   distinct() %>% 
   filter(n>1) %>%
+  # select(CID, CRPName, Party, Office, icpsr, bioname) %>%
   kable()
 
 # missing CRP members 
