@@ -2,91 +2,97 @@
 source("setup.R")
 
 
-# CRP has sheets for the 13th, 14th, and 15th congresses, and then one called "Candidate IDs - 2012" for prior congresses.
-# The first 5 rows of each sheet are header
-# The 6th row is names
+# metadata here: https://www.opensecrets.org/resources/datadictionary/Data%20Dictionary%20Candidates%20Data.htm
+
+# check for files
+list.files("CRP Data/pmoney")
 
 
-# 115th 
-c115th <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "Members 115th")
+# initialize
+load(here(str_c("CRP Data/pmoney/pmoney", 0, ".RData")))
 
-names(c115th) <- c115th[5,]
+d <- pmoney %>% mutate(cycle = "2000")
 
-c115th %<>% mutate(congress = 115) %>% select("CID", "CRPName", "Party", "Office", "FECCandID","congress")
+for(file in list.files("CRP Data/pmoney")){
+  load(here(str_c("CRP Data/pmoney/", file, ".RData")))
+  
+  d %<>% full_join(pmoney)
+  
+}
+
+pac_money <- d
+save(pac_money, file = here("CRP Data/pac_money.RData"))
+
+nrow(d)
+
+unique(d$Type)
+
+# subset to corp pacs 
+# d %<>% filter(type = "c")
+
+head(d) 
+
+# drop losing candidates
+d %<>% filter(!str_detect(RecipCode, "L"))
+
+# filter to house and senate only
+d %>% filter(str_detect(FECCandID, "^H|^S"))
+
+d %<>% as_tibble() %>% select(FECCandID, CID, Cycle, FirstLastP, CycleCand) %>% distinct()
+
+# get congress from cycle
+d %<>% mutate(congress = (Cycle - 2000)/2 + 107)
+
+# inspect the number of cands per cycle 
+d %>% count(Cycle, congress)
+d %>% select(Cycle, congress, FirstLastP) %>% distinct() %>% count(Cycle, congress)
+d %>% distinct(FirstLastP)
+
+# make sure other susan davis was dropped
+d %>% filter(str_detect(FirstLastP, "Susan.*Davis"))
+
+# Match names with ICPSR 
+d %<>% extractMemberName(members = members, col_name = "FirstLastP")
+
+d %<>%   
+  group_by(FirstLastP) %>% 
+  mutate(congresses = str_c(unique(congress), collapse = ";") ) %>% 
+  ungroup() 
+
+# Names not matched
+missed <- d %>% 
+  filter(pattern == "404error") %>% 
+  count(FirstLastP, string, congresses, sort = T) 
+
+# top
+missed  %>% top_n(50) %>% kable() 
+
+missed <- d %>% 
+  filter(pattern == "404error",
+         str_detect(string, str_c(tolower(members$last_name), collapse = "|") ) ) %>% 
+  count(FirstLastP, string, congresses, sort = T) 
+
+# last names 
+missed  %>% kable() 
+
+missed <- d %>% 
+  filter(pattern == "404error",
+         str_detect(string, str_c(tolower(members$first_name), collapse = "|") )) %>% 
+  count(FirstLastP, string, congresses, sort = T) 
+
+# first names 
+missed  %>% filter(n>1) %>% kable() 
 
 
-# 114th 
-c114th <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "Members 114th")
-
-names(c114th) <- c114th[5,]
-
-c114th %<>% mutate(congress = 114) %>% select("CID", "CRPName", "Party", "Office", "FECCandID","congress")
-
-
-# 113th 
-c113th <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "Members 113th")
-
-names(c113th) <- c113th[5,]
-
-c113th %<>% mutate(congress = 113) %>% select("CID", "CRPName", "Party", "Office", "FECCandID","congress")
-
-# prior 
-c2012 <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "Candidate IDs - 2012")
-                  
-names(c2012) <- c2012[5,]
-
-c2012 %<>% rename(Office = DistIDRunFor) %>% select("CID", "CRPName", "Party", "Office", "FECCandID")
-
-c112th <- c2012 %>% mutate(congress = 112) 
-
-c111th <- c2012 %>% mutate(congress = 111)
-
-c110th <- c2012 %>% mutate(congress = 110)
-
-c109th <- c2012 %>% mutate(congress = 109)
-
-c108th <- c2012 %>% mutate(congress = 108)
-
-c107th <- c2012 %>% mutate(congress = 107)
-
-c106th <- c2012 %>% mutate(congress = 106)
-
-c105th <- c2012 %>% mutate(congress = 105)
-
-congresses <- c(c107th, c108th, c109th)
-
-d <- rbind(c105th,
-           c106th,
-           c107th, 
-           c108th, 
-           c109th, 
-           c110th, 
-           c111th, 
-           c112th, 
-           c113th, 
-           c114th, 
-           c115th)
-
-crpOriginal <- d
-
-# nonmembers with the same names as members
-nonmembers <- c("Davis, Susan")
-d %<>% filter(!CRPName %in% nonmembers)
-
-d %<>% extractMemberName(members = members, col_name = "CRPName")
-
-missed <- d %>% filter(congress > 112, pattern == "404error", !is.na(CRPName), CRPName != "CRPName") %>% 
-  select(CRPName, string) %>% distinct() 
-
-missed %>% kable()
-
-
-crosswalk <- d %>% select(CID, CRPName, Party, Office, FECCandID, pattern, congress) %>% 
+crosswalk <- d %>% select(CID, FirstLastP, FECCandID, pattern, congress, congresses, Cycle) %>% 
   filter(pattern != "404error") %>% 
   distinct() %>% left_join(members %>% select(pattern, icpsr, bioname, congress) %>% distinct()) %>% 
   select(-pattern) %>% 
   distinct()
 
+
+
+# FIXME in issue #1 or #62
 # corrections
 crosswalk %<>% 
   mutate(
@@ -108,43 +114,43 @@ crosswalk %>% arrange(icpsr) %>%
   select(-congress) %>%
   distinct() %>% 
   filter(n>1) %>%
-  # select(CID, CRPName, Party, Office, icpsr, bioname) %>%
+  # select(CID, FirstLastP, Party, Office, icpsr, bioname) %>%
   kable()
 
 # missing CRP members 
-missed_CRP <- d %>% filter(!CRPName %in% crosswalk$CRPName) %>% select(CID, CRPName, Party, Office) %>% distinct()
-missed_CRP$CRPName
+missed_CRP <- d %>% filter(!FirstLastP %in% crosswalk$FirstLastP) %>% count(CID, FirstLastP, sort = T) 
+missed_CRP
 
 # missing VOTEVIEW members 
 missed <- members %>% filter(!icpsr %in% crosswalk$icpsr, 
                              chamber %in% c("House", "Senate"),
-                             congress > 112, # looks like CRP 2012 file is super incomplete, does not cover the 112th or before
+                             #congress > 112, # looks like CRP 2012 file is super incomplete, does not cover the 112th or before
                              congress < 116) %>%
-  select(icpsr, bioname, last_name) %>% distinct()
-missed$bioname
+  select(icpsr, bioname, last_name, congresses) %>% distinct()
+missed 
 
-# For example, there is no Joe Lieberman, who served until the 112th
-d %>% filter(str_detect(CRPName, "Lieberman")) %>% select(congress, string, pattern, CID, CRPName)
+# Joe Lieberman, who served until the 112th, so the error for the 113th is correct
+d %>% filter(str_detect(FirstLastP, "Lieberman")) %>% select(congress, string, pattern, CID, FirstLastP)
 
-missed_CRP %>% filter(str_detect(toupper(CRPName), missed$last_name))
-
+# duplicates 
 crosswalk %>% 
   add_count(CID, congress, sort = T) %>% 
   select(-congress) %>%
   distinct() %>% 
+  arrange(FirstLastP) %>% 
   filter(n>1) %>%
   kable()
 
 # Inspect for false positives
 crosswalk %>% 
-  filter(str_sub(str_to_upper(bioname), 1,4) != str_sub(str_to_upper(CRPName), 1, 4)) %>% 
+  filter(str_sub(str_to_upper(bioname), 1,4) != str_sub(str_to_upper(FirstLastP), 1, 4)) %>% 
   select(-congress) %>% distinct() %>% 
   kable()
 
 missed_CRP <- d %>% 
   filter(!CID %in% crosswalk$CID,
-         !CRPName %in% missed$CRPName,
+         !FirstLastP %in% missed$FirstLastP,
          congress < 113) %>% 
-  select(CRPName, Party, Office) %>% 
+  select(FirstLastP, Party, Office) %>% 
   distinct()
 missed_CRP
