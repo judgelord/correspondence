@@ -52,6 +52,7 @@ d %>% distinct(FirstLastP)
 d %>% filter(str_detect(FirstLastP, "Susan.*Davis"))
 
 # Match names with ICPSR 
+members %<>% filter(chamber %in% c("House", "Senate"))
 d %<>% extractMemberName(members = members, col_name = "FirstLastP")
 
 d %<>%   
@@ -59,29 +60,7 @@ d %<>%
   mutate(congresses = str_c(unique(congress), collapse = ";") ) %>% 
   ungroup() 
 
-# Names not matched
-missed <- d %>% 
-  filter(pattern == "404error") %>% 
-  count(FirstLastP, string, congresses, sort = T) 
 
-# top
-missed  %>% top_n(50) %>% kable() 
-
-missed <- d %>% 
-  filter(pattern == "404error",
-         str_detect(string, str_c(tolower(members$last_name), collapse = "|") ) ) %>% 
-  count(FirstLastP, string, congresses, sort = T) 
-
-# last names 
-missed  %>% kable() 
-
-missed <- d %>% 
-  filter(pattern == "404error",
-         str_detect(string, str_c(tolower(members$first_name), collapse = "|") )) %>% 
-  count(FirstLastP, string, congresses, sort = T) 
-
-# first names 
-missed  %>% filter(n>1) %>% kable() 
 
 
 crosswalk <- d %>% select(CID, FirstLastP, FECCandID, pattern, congress, congresses, Cycle) %>% 
@@ -117,20 +96,45 @@ crosswalk %>% arrange(icpsr) %>%
   # select(CID, FirstLastP, Party, Office, icpsr, bioname) %>%
   kable()
 
-# missing CRP members 
-missed_CRP <- d %>% filter(!FirstLastP %in% crosswalk$FirstLastP) %>% count(CID, FirstLastP, sort = T) 
-missed_CRP
+# # missing CRP members 
+# missed_CRP <- d %>% filter(!FirstLastP %in% crosswalk$FirstLastP) %>% count(CID, FirstLastP, sort = T) 
+# missed_CRP
 
 # missing VOTEVIEW members 
 missed <- members %>% filter(!icpsr %in% crosswalk$icpsr, 
-                             chamber %in% c("House", "Senate"),
                              #congress > 112, # looks like CRP 2012 file is super incomplete, does not cover the 112th or before
-                             congress < 116) %>%
-  select(icpsr, bioname, last_name, congresses) %>% distinct()
-missed 
+                             congress > 106) %>%
+  count(icpsr, bioname, last_name,pattern, sort = T)
+missed %>% top_n(10) %>%  kable()
 
 # Joe Lieberman, who served until the 112th, so the error for the 113th is correct
 d %>% filter(str_detect(FirstLastP, "Lieberman")) %>% select(congress, string, pattern, CID, FirstLastP)
+
+
+# last names 
+missed_crp <- d %>% 
+  filter(pattern == "404error",
+         str_detect(string, str_c(tolower(missed$last_name), collapse = "|") ) ) %>% 
+  count(FirstLastP, string, congresses, sort = T) 
+
+missed_crp
+
+# to fix 
+brian higgans needs middle initial
+WHITE, Richard Alan (Rick)?
+  Douglas L Lamborn
+)
+
+# first names 
+missed <- d %>% 
+  filter(pattern == "404error",
+         str_detect(string, str_c(tolower(members$first_name), collapse = "|") )) %>% 
+  count(FirstLastP, string, congresses, sort = T) 
+
+missed  %>% filter(n>1) %>% kable() 
+
+
+
 
 # duplicates 
 crosswalk %>% 
