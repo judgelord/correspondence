@@ -36,6 +36,10 @@ nrow(d)
 d %<>%  select(FECCandID, CID, Cycle, FirstLastP, CycleCand) %>% distinct()
 d
 
+# load crp xls data to get members that did not donate (right now this is donw in the crosswalk scrip, but that is clunky)
+load("data/members_crp_xls.Rdata")
+# FIXME integrate 
+
 # get congress from cycle
 d %<>% mutate(congress = (Cycle - 2000)/2 + 107)
 

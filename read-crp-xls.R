@@ -80,7 +80,16 @@ d %<>% filter(!CRPName %in% nonmembers)
 
 
 # Match names with ICPSR 
-d %<>% extractMemberName(members = members, col_name = "FirstLastP")
+d %<>% extractMemberName(members = members, col_name = "CRPName")
+
+
+
+
+d %>% select(CID, CRPName, FECCandID, congress, pattern)
+
+members_crp_xls <- d
+save(members_crp_xls, file = "data/members_crp_xls.Rdata")
+
 
 missed <- d %>% filter(congress > 112, pattern == "404error", !is.na(CRPName), CRPName != "CRPName") %>% 
   select(CRPName, string) %>% distinct() 

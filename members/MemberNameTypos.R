@@ -49,15 +49,14 @@ typos_clear <- tribble(
   "CANTWELL, MARIA","CANTWELL MARIA",
   "YOUNG, DON","YOUNG. DON",
   "Van Hollen, Chris","Hollen, Chris Van",
+  "Chip Pickering", "\\(Chip\\) Pickering",
+  "Butch Otter", "\\(Butch\\) Otter",
+  "Kit Bond", "\"Kit\" Bond",
+  "Duke Cunningham", "\\(Duke\\) Cunningham",
   
 
-  
-
-  
-
-
-  #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
-  
+  #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason 
+  #FIXME
   
   ###############################
   
