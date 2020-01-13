@@ -94,6 +94,10 @@ crosswalk %<>% group_by(icpsr, congress) %>%
   ungroup() %>% 
   distinct()
 
+# Save 
+icpsr_crosswalk_crp <- crosswalk
+save(icpsr_crosswalk_crp, file = "data/icpsr_crosswalk_crp.Rdata")
+
 # Problems 
 crosswalk %>% 
   filter(str_detect(FirstLastP, ";"),
@@ -149,6 +153,12 @@ crosswalk %>%
 # corrected in nameCongres.R file Allen, McCotter, Hastert, Sutton, GutKnecht, Ford, Douglas L Lamborn, brian M higgans middle initial, 
 # corrected in MemberNameTypos.R: "Kit" Bond, (Chip) Pickering, (Butch) Otter, 
 
+# missing from CRP: SEKULA GIBBS, Shelley for the 109th where she served only a few weeks. She won the special election to fill the 22nd Congressional seat on November 7, 2006, for the remaining weeks of the 109th United States Congress. On the same day, she also lost in the general election for that seat in the 110th United States Congress.[3] 
+
+# Donald J. Cazayoux (D) did not serve in the 112th 
+# MURPHY, Scott only served in the 11th
+# DJOU, Charles is not in the 116th
+
 # VOTEVIEW members still missing from crosswalk
 missed <- members %>% filter(!icpsr %in% crosswalk$icpsr, 
                              !bioname %in% crosswalk$bioname,
@@ -169,4 +179,4 @@ missed_crp %<>% extractMemberName(col_name = "FirstLastP", members = members)
 
 # results
 found <- missed_crp %>% filter(pattern != "404error") %>% distinct(pattern) #%>% kable()
-missed %>% filter(!pattern %in% found$pattern)  %>% select(bioname) %>% kable()
+missed %>% filter(!pattern %in% found$pattern)  %>% select(bioname, n) %>% kable()
