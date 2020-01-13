@@ -607,7 +607,7 @@ pac_amounts %<>% filter(cycle>1997)
 pac_amounts %<>% filter(!is.na(industry)) 
 
 pac_amounts %<>% 
-  rename(PAC_contributions = amounts) 
+  mutate(PAC_contributions = amounts) 
 
 # join in members data
 load(here::here("members/members.Rdata"))
@@ -626,18 +626,32 @@ pac_amounts %<>%  filter(!is.na(bioname)) %>% distinct()
 
 
 # inspect coverage 
+pac_amounts %<>% mutate(Cycle = cycle)
+
+# total
 pac_amounts %>%
-  group_by(cycle, icpsr, party_name, industry) %>% 
-  summarise(total = sum(PAC_contributions, na.rm = TRUE)) %>% 
+  group_by(Cycle, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
   ungroup() %>% 
-  group_by(cycle, party_name, industry) %>% 
-  summarise(mean = mean(total)) %>%  
-  filter(!is.na(industry)) %>% 
   ggplot() + 
-  aes(x = factor(cycle), y = mean, fill = party_name) + 
+  aes(x = factor(Cycle), y = total, fill = party_name) + 
   geom_col() + 
-  facet_wrap(. ~ industry, scales = "free") +
-  labs(y = "Average Energy-sector PAC contributions per member \n (ommitting energy extraction companies)", 
+  facet_wrap("industry", scales = "free") +
+  labs(y = "Total Industry PAC contributions (millions)", 
+       x = "FEC Electoral Cycle")
+
+# average per member 
+pac_amounts %>%
+  group_by(Cycle, icpsr, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
+  ungroup() %>% 
+  group_by(Cycle, party_name, industry) %>% 
+  summarise(mean = mean(total)) %>% 
+  ggplot() + 
+  aes(x = factor(Cycle), y = mean, fill = party_name) + 
+  geom_col(position = "dodge") + 
+  facet_wrap("industry", scales = "free") +
+  labs(y = "Average Energy-sector PAC contributions per member (millions) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 
 

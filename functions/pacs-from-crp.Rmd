@@ -72,12 +72,11 @@ crp <- industry %>%
             Catcode = str_c(unique(Catcode), collapse = "; ")) %>%
   distinct()
 
-crp %>% head() %>% kable()
-
 # Energy industry 
 industry %>% kable()
 
-crp %>% filter(Catcode %in% crpEnergycodes) %>%  head() %>% kable()
+# Energy company PACs
+crp %>% head() %>% kable()
 
 # write_csv(crpEnergy, path = "data/crpEnergy.csv")
 ```
@@ -86,15 +85,13 @@ crp %>% filter(Catcode %in% crpEnergycodes) %>%  head() %>% kable()
 ```{r pac_money}
 load(here("CRP Data/pac_money.RData"))
 d <- pac_money
-d %>% head() %>% kable() # ~4 million observations  
+d  # ~4 million observations  
 
 # drop losing candidates
 d %<>% filter(!str_detect(RecipCode, "L"))
-nrow(d)
 
 # drop negative
 d %<>% filter(Amount>-1)
-d %>% head() %>% kable()
 
 # identify industry 
 d %<>% mutate(industry = ifelse(PrimCode %in% crpEnergycodes, "energy", "other") %>% as.factor())
@@ -105,10 +102,11 @@ d %>% select(industry, everything()) %>% head() %>% kable()
 # Unique PACs per cycle
 ```{r unique pacs}
 # Number of distinct pacs 
-d %>% group_by(Cycle, industry) %>%
+d %>% 
+  group_by(Cycle, industry) %>%
   summarise(PACs = length(unique(PACID))) %>% 
-  filter(Cycle > 2000) %>% 
-    knitr::kable()
+  arrange(industry) %>% 
+  knitr::kable()
 ```
 
 
@@ -169,8 +167,10 @@ d1 %>% head() %>% kable()
 ```{r zero}
 # Make sure there are indeed 0 counts if we expect them
 d1 %>% 
-  mutate(zeros = amounts == 0) %>%
-  count(industry, zeros) %>% kable()
+  group_by(industry) %>%
+  count(amounts == 0) %>% 
+  mutate(industry_total = sum(n)) %>% 
+  kable()
 
 # Make sure we have equal numbers of observations per industry
 d1 %>% count(industry) %>% kable()

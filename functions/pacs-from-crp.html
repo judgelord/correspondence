@@ -1625,63 +1625,7 @@ crp &lt;- industry %&gt;%
             Catcode = str_c(unique(Catcode), collapse = &quot;; &quot;)) %&gt;%
   distinct()
 
-crp %&gt;% head() %&gt;% kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">comid</th>
-<th align="left">UltOrg</th>
-<th align="left">Affiliate</th>
-<th align="left">PACShort</th>
-<th align="left">Catcode</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">C00001289</td>
-<td align="left">Chevron Corp; Union Oil; Unocal Corp</td>
-<td align="left">Chevron Corp; NA</td>
-<td align="left">Unocal Corp; Union Oil</td>
-<td align="left">E1110; E1120</td>
-</tr>
-<tr class="even">
-<td align="left">C00002972</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">E1610</td>
-</tr>
-<tr class="odd">
-<td align="left">C00004952</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">Mississippi ACRE</td>
-<td align="left">E1610</td>
-</tr>
-<tr class="even">
-<td align="left">C00004960</td>
-<td align="left">Burlington Resources; ConocoPhillips</td>
-<td align="left">NA; ConocoPhillips</td>
-<td align="left">Burlington Resources</td>
-<td align="left">E1120</td>
-</tr>
-<tr class="odd">
-<td align="left">C00007450</td>
-<td align="left">American Gas Assn</td>
-<td align="left">NA</td>
-<td align="left">American Gas Assn</td>
-<td align="left">E1140</td>
-</tr>
-<tr class="even">
-<td align="left">C00007849</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">Speak Up for Rural Electrification</td>
-<td align="left">E1610</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code># Energy industry 
+# Energy industry 
 industry %&gt;% kable()</code></pre>
 <table>
 <thead>
@@ -1833,7 +1777,8 @@ industry %&gt;% kable()</code></pre>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>crp %&gt;% filter(Catcode %in% crpEnergycodes) %&gt;%  head() %&gt;% kable()</code></pre>
+<pre class="r"><code># Energy company PACs
+crp %&gt;% head() %&gt;% kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -1846,45 +1791,45 @@ industry %&gt;% kable()</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
+<td align="left">C00001289</td>
+<td align="left">Chevron Corp; Union Oil; Unocal Corp</td>
+<td align="left">Chevron Corp; NA</td>
+<td align="left">Unocal Corp; Union Oil</td>
+<td align="left">E1110; E1120</td>
+</tr>
+<tr class="even">
 <td align="left">C00002972</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">E1610</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C00004952</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">Mississippi ACRE</td>
 <td align="left">E1610</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">C00004960</td>
 <td align="left">Burlington Resources; ConocoPhillips</td>
 <td align="left">NA; ConocoPhillips</td>
 <td align="left">Burlington Resources</td>
 <td align="left">E1120</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C00007450</td>
 <td align="left">American Gas Assn</td>
 <td align="left">NA</td>
 <td align="left">American Gas Assn</td>
 <td align="left">E1140</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">C00007849</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">National Rural Electric Cooperative Assn</td>
 <td align="left">Speak Up for Rural Electrification</td>
-<td align="left">E1610</td>
-</tr>
-<tr class="even">
-<td align="left">C00008169</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">National Rural Electric Cooperative Assn</td>
-<td align="left">Missouri ACRE</td>
 <td align="left">E1610</td>
 </tr>
 </tbody>
@@ -1895,461 +1840,33 @@ industry %&gt;% kable()</code></pre>
 <h1>PAC totals</h1>
 <pre class="r"><code>load(here(&quot;CRP Data/pac_money.RData&quot;))
 d &lt;- pac_money
-d %&gt;% head() %&gt;% kable() # ~4 million observations  </code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">PACID</th>
-<th align="left">CID</th>
-<th align="left">FECRecNo</th>
-<th align="right">Amount</th>
-<th align="left">Date</th>
-<th align="left">RealCode</th>
-<th align="left">Type</th>
-<th align="left">DI</th>
-<th align="left">FirstLastP</th>
-<th align="left">DistIDRunFor</th>
-<th align="left">DistIDCurr</th>
-<th align="left">CurrCand</th>
-<th align="left">CycleCand</th>
-<th align="left">CRPICO</th>
-<th align="left">No Pacs</th>
-<th align="left">PACShort</th>
-<th align="left">Affiliate</th>
-<th align="left">Ultorg</th>
-<th align="left">RecipID</th>
-<th align="left">PrimCode</th>
-<th align="left">Source</th>
-<th align="left">Sensitive</th>
-<th align="left">Foreign</th>
-<th align="left">Active</th>
-<th align="right">Cycle</th>
-<th align="left">RecipCode</th>
-<th align="left">Party</th>
-<th align="left">FECCandID</th>
-<th align="left">cycle</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">C00000042</td>
-<td align="left">N00004964</td>
-<td align="left">1258633</td>
-<td align="right">2000</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Mark Baker (R)</td>
-<td align="left">IL17</td>
-<td align="left"></td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">C</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RL</td>
-<td align="left">R</td>
-<td align="left">H6IL17106</td>
-<td align="left">2000</td>
-</tr>
-<tr class="even">
-<td align="left">C00000042</td>
-<td align="left">N00001925</td>
-<td align="left">1525884</td>
-<td align="right">500</td>
-<td align="left">08/09/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Bob Ehrlich (R)</td>
-<td align="left">MD02</td>
-<td align="left">MD02</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H4MD02059</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">C00000042</td>
-<td align="left">N00004781</td>
-<td align="left">1258638</td>
-<td align="right">3000</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Dennis Hastert (R)</td>
-<td align="left">IL14</td>
-<td align="left">IL14</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H6IL14095</td>
-<td align="left">2000</td>
-</tr>
-<tr class="even">
-<td align="left">C00000042</td>
-<td align="left">N00002791</td>
-<td align="left">1525890</td>
-<td align="right">1000</td>
-<td align="left">08/09/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Bill McCollum (R)</td>
-<td align="left">FLS1</td>
-<td align="left">FL08</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">O</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RL</td>
-<td align="left">R</td>
-<td align="left">S8FL00075</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">C00000042</td>
-<td align="left">N00002791</td>
-<td align="left">1525890</td>
-<td align="right">1000</td>
-<td align="left">08/09/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Bill McCollum (R)</td>
-<td align="left">FLS1</td>
-<td align="left">FL08</td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left">O</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RL</td>
-<td align="left">R</td>
-<td align="left">S8FL00075</td>
-<td align="left">2000</td>
-</tr>
-<tr class="even">
-<td align="left">C00000042</td>
-<td align="left">N00004391</td>
-<td align="left">1258636</td>
-<td align="right">1000</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Mark Green (R)</td>
-<td align="left">WI08</td>
-<td align="left">WI08</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H8WI00026</td>
-<td align="left">2000</td>
-</tr>
-</tbody>
-</table>
+d  # ~4 million observations  </code></pre>
+<pre><code>## # A tibble: 4,261,052 x 29
+##    PACID CID   FECRecNo Amount Date  RealCode Type  DI    FirstLastP
+##    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;     
+##  1 C000… N000… 1258633    2000 06/0… M2300    24K   D     Mark Bake…
+##  2 C000… N000… 1525884     500 08/0… M2300    24K   D     Bob Ehrli…
+##  3 C000… N000… 1258638    3000 06/0… M2300    24K   D     Dennis Ha…
+##  4 C000… N000… 1525890    1000 08/0… M2300    24K   D     Bill McCo…
+##  5 C000… N000… 1525890    1000 08/0… M2300    24K   D     Bill McCo…
+##  6 C000… N000… 1258636    1000 06/0… M2300    24K   D     Mark Gree…
+##  7 C000… N000… 1258641     500 06/0… M2300    24K   D     Denny Reh…
+##  8 C000… N000… 1525894     500 08/0… M2300    24K   D     John M Sh…
+##  9 C000… N000… 1258639     500 06/0… M2300    24K   D     Connie Mo…
+## 10 C000… N000… 1258634     500 06/0… M2300    24K   D     Tom Barre…
+## # … with 4,261,042 more rows, and 20 more variables: DistIDRunFor &lt;chr&gt;,
+## #   DistIDCurr &lt;chr&gt;, CurrCand &lt;chr&gt;, CycleCand &lt;chr&gt;, CRPICO &lt;chr&gt;, `No
+## #   Pacs` &lt;chr&gt;, PACShort &lt;chr&gt;, Affiliate &lt;chr&gt;, Ultorg &lt;chr&gt;,
+## #   RecipID &lt;chr&gt;, PrimCode &lt;chr&gt;, Source &lt;chr&gt;, Sensitive &lt;chr&gt;,
+## #   Foreign &lt;chr&gt;, Active &lt;chr&gt;, Cycle &lt;dbl&gt;, RecipCode &lt;chr&gt;,
+## #   Party &lt;chr&gt;, FECCandID &lt;chr&gt;, cycle &lt;chr&gt;</code></pre>
 <pre class="r"><code># drop losing candidates
 d %&lt;&gt;% filter(!str_detect(RecipCode, &quot;L&quot;))
-nrow(d)</code></pre>
-<pre><code>## [1] 3321105</code></pre>
-<pre class="r"><code># drop negative
+
+# drop negative
 d %&lt;&gt;% filter(Amount&gt;-1)
-d %&gt;% head() %&gt;% kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">PACID</th>
-<th align="left">CID</th>
-<th align="left">FECRecNo</th>
-<th align="right">Amount</th>
-<th align="left">Date</th>
-<th align="left">RealCode</th>
-<th align="left">Type</th>
-<th align="left">DI</th>
-<th align="left">FirstLastP</th>
-<th align="left">DistIDRunFor</th>
-<th align="left">DistIDCurr</th>
-<th align="left">CurrCand</th>
-<th align="left">CycleCand</th>
-<th align="left">CRPICO</th>
-<th align="left">No Pacs</th>
-<th align="left">PACShort</th>
-<th align="left">Affiliate</th>
-<th align="left">Ultorg</th>
-<th align="left">RecipID</th>
-<th align="left">PrimCode</th>
-<th align="left">Source</th>
-<th align="left">Sensitive</th>
-<th align="left">Foreign</th>
-<th align="left">Active</th>
-<th align="right">Cycle</th>
-<th align="left">RecipCode</th>
-<th align="left">Party</th>
-<th align="left">FECCandID</th>
-<th align="left">cycle</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">C00000042</td>
-<td align="left">N00001925</td>
-<td align="left">1525884</td>
-<td align="right">500</td>
-<td align="left">08/09/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Bob Ehrlich (R)</td>
-<td align="left">MD02</td>
-<td align="left">MD02</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H4MD02059</td>
-<td align="left">2000</td>
-</tr>
-<tr class="even">
-<td align="left">C00000042</td>
-<td align="left">N00004781</td>
-<td align="left">1258638</td>
-<td align="right">3000</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Dennis Hastert (R)</td>
-<td align="left">IL14</td>
-<td align="left">IL14</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H6IL14095</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">C00000042</td>
-<td align="left">N00004391</td>
-<td align="left">1258636</td>
-<td align="right">1000</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Mark Green (R)</td>
-<td align="left">WI08</td>
-<td align="left">WI08</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H8WI00026</td>
-<td align="left">2000</td>
-</tr>
-<tr class="even">
-<td align="left">C00000042</td>
-<td align="left">N00004645</td>
-<td align="left">1258641</td>
-<td align="right">500</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Denny Rehberg (R)</td>
-<td align="left">MT01</td>
-<td align="left"></td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">O</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H0MT00033</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">C00000042</td>
-<td align="left">N00004961</td>
-<td align="left">1525894</td>
-<td align="right">500</td>
-<td align="left">08/09/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">John M Shimkus (R)</td>
-<td align="left">IL20</td>
-<td align="left">IL20</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H2IL20042</td>
-<td align="left">2000</td>
-</tr>
-<tr class="even">
-<td align="left">C00000042</td>
-<td align="left">N00001805</td>
-<td align="left">1258639</td>
-<td align="right">500</td>
-<td align="left">06/05/2000</td>
-<td align="left">M2300</td>
-<td align="left">24K</td>
-<td align="left">D</td>
-<td align="left">Connie Morella (R)</td>
-<td align="left">MD08</td>
-<td align="left">MD08</td>
-<td align="left">Y</td>
-<td align="left">Y</td>
-<td align="left">I</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left"></td>
-<td align="left">Illinois Tool Works</td>
-<td align="left">C00000042</td>
-<td align="left">M2300</td>
-<td align="left">Hoovers</td>
-<td align="left">N</td>
-<td align="left">0</td>
-<td align="left">1</td>
-<td align="right">2000</td>
-<td align="left">RW</td>
-<td align="left">R</td>
-<td align="left">H0MD08021</td>
-<td align="left">2000</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code># identify industry 
+
+# identify industry 
 d %&lt;&gt;% mutate(industry = ifelse(PrimCode %in% crpEnergycodes, &quot;energy&quot;, &quot;other&quot;) %&gt;% as.factor())
 d %&gt;% select(industry, everything()) %&gt;% head() %&gt;% kable()</code></pre>
 <table>
@@ -2586,10 +2103,11 @@ d %&gt;% select(industry, everything()) %&gt;% head() %&gt;% kable()</code></pre
 <div id="unique-pacs-per-cycle" class="section level1">
 <h1>Unique PACs per cycle</h1>
 <pre class="r"><code># Number of distinct pacs 
-d %&gt;% group_by(Cycle, industry) %&gt;%
+d %&gt;% 
+  group_by(Cycle, industry) %&gt;%
   summarise(PACs = length(unique(PACID))) %&gt;% 
-  filter(Cycle &gt; 2000) %&gt;% 
-    knitr::kable()</code></pre>
+  arrange(industry) %&gt;% 
+  knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -2600,9 +2118,89 @@ d %&gt;% group_by(Cycle, industry) %&gt;%
 </thead>
 <tbody>
 <tr class="odd">
+<td align="right">1994</td>
+<td align="left">energy</td>
+<td align="right">251</td>
+</tr>
+<tr class="even">
+<td align="right">1996</td>
+<td align="left">energy</td>
+<td align="right">255</td>
+</tr>
+<tr class="odd">
+<td align="right">1998</td>
+<td align="left">energy</td>
+<td align="right">250</td>
+</tr>
+<tr class="even">
+<td align="right">2000</td>
+<td align="left">energy</td>
+<td align="right">230</td>
+</tr>
+<tr class="odd">
 <td align="right">2002</td>
 <td align="left">energy</td>
 <td align="right">200</td>
+</tr>
+<tr class="even">
+<td align="right">2004</td>
+<td align="left">energy</td>
+<td align="right">178</td>
+</tr>
+<tr class="odd">
+<td align="right">2006</td>
+<td align="left">energy</td>
+<td align="right">176</td>
+</tr>
+<tr class="even">
+<td align="right">2008</td>
+<td align="left">energy</td>
+<td align="right">195</td>
+</tr>
+<tr class="odd">
+<td align="right">2010</td>
+<td align="left">energy</td>
+<td align="right">200</td>
+</tr>
+<tr class="even">
+<td align="right">2012</td>
+<td align="left">energy</td>
+<td align="right">203</td>
+</tr>
+<tr class="odd">
+<td align="right">2014</td>
+<td align="left">energy</td>
+<td align="right">205</td>
+</tr>
+<tr class="even">
+<td align="right">2016</td>
+<td align="left">energy</td>
+<td align="right">219</td>
+</tr>
+<tr class="odd">
+<td align="right">2018</td>
+<td align="left">energy</td>
+<td align="right">209</td>
+</tr>
+<tr class="even">
+<td align="right">1994</td>
+<td align="left">other</td>
+<td align="right">3197</td>
+</tr>
+<tr class="odd">
+<td align="right">1996</td>
+<td align="left">other</td>
+<td align="right">3409</td>
+</tr>
+<tr class="even">
+<td align="right">1998</td>
+<td align="left">other</td>
+<td align="right">3368</td>
+</tr>
+<tr class="odd">
+<td align="right">2000</td>
+<td align="left">other</td>
+<td align="right">3547</td>
 </tr>
 <tr class="even">
 <td align="right">2002</td>
@@ -2611,18 +2209,8 @@ d %&gt;% group_by(Cycle, industry) %&gt;%
 </tr>
 <tr class="odd">
 <td align="right">2004</td>
-<td align="left">energy</td>
-<td align="right">178</td>
-</tr>
-<tr class="even">
-<td align="right">2004</td>
 <td align="left">other</td>
 <td align="right">3997</td>
-</tr>
-<tr class="odd">
-<td align="right">2006</td>
-<td align="left">energy</td>
-<td align="right">176</td>
 </tr>
 <tr class="even">
 <td align="right">2006</td>
@@ -2631,18 +2219,8 @@ d %&gt;% group_by(Cycle, industry) %&gt;%
 </tr>
 <tr class="odd">
 <td align="right">2008</td>
-<td align="left">energy</td>
-<td align="right">195</td>
-</tr>
-<tr class="even">
-<td align="right">2008</td>
 <td align="left">other</td>
 <td align="right">4153</td>
-</tr>
-<tr class="odd">
-<td align="right">2010</td>
-<td align="left">energy</td>
-<td align="right">200</td>
 </tr>
 <tr class="even">
 <td align="right">2010</td>
@@ -2651,18 +2229,8 @@ d %&gt;% group_by(Cycle, industry) %&gt;%
 </tr>
 <tr class="odd">
 <td align="right">2012</td>
-<td align="left">energy</td>
-<td align="right">203</td>
-</tr>
-<tr class="even">
-<td align="right">2012</td>
 <td align="left">other</td>
 <td align="right">4057</td>
-</tr>
-<tr class="odd">
-<td align="right">2014</td>
-<td align="left">energy</td>
-<td align="right">205</td>
 </tr>
 <tr class="even">
 <td align="right">2014</td>
@@ -2671,18 +2239,8 @@ d %&gt;% group_by(Cycle, industry) %&gt;%
 </tr>
 <tr class="odd">
 <td align="right">2016</td>
-<td align="left">energy</td>
-<td align="right">219</td>
-</tr>
-<tr class="even">
-<td align="right">2016</td>
 <td align="left">other</td>
 <td align="right">4555</td>
-</tr>
-<tr class="odd">
-<td align="right">2018</td>
-<td align="left">energy</td>
-<td align="right">209</td>
 </tr>
 <tr class="even">
 <td align="right">2018</td>
@@ -2869,14 +2427,17 @@ d1 %&gt;% head() %&gt;% kable()</code></pre>
 <h2>Check for zero counts</h2>
 <pre class="r"><code># Make sure there are indeed 0 counts if we expect them
 d1 %&gt;% 
-  mutate(zeros = amounts == 0) %&gt;%
-  count(industry, zeros) %&gt;% kable()</code></pre>
+  group_by(industry) %&gt;%
+  count(amounts == 0) %&gt;% 
+  mutate(industry_total = sum(n)) %&gt;% 
+  kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th align="left">industry</th>
-<th align="left">zeros</th>
+<th align="left">amounts == 0</th>
 <th align="right">n</th>
+<th align="right">industry_total</th>
 </tr>
 </thead>
 <tbody>
@@ -2884,21 +2445,25 @@ d1 %&gt;%
 <td align="left">energy</td>
 <td align="left">FALSE</td>
 <td align="right">5930</td>
+<td align="right">6551</td>
 </tr>
 <tr class="even">
 <td align="left">energy</td>
 <td align="left">TRUE</td>
 <td align="right">621</td>
+<td align="right">6551</td>
 </tr>
 <tr class="odd">
 <td align="left">other</td>
 <td align="left">FALSE</td>
 <td align="right">6313</td>
+<td align="right">6551</td>
 </tr>
 <tr class="even">
 <td align="left">other</td>
 <td align="left">TRUE</td>
 <td align="right">238</td>
+<td align="right">6551</td>
 </tr>
 </tbody>
 </table>
