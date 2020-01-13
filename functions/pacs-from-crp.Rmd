@@ -192,6 +192,7 @@ d1 %>% group_by(bioname, icpsr, congress, chamber, industry) %>%
 d %<>% mutate(cycle = Cycle)
 d1 %<>% mutate(cycle = Cycle)
 
+# total
 d1 %>%
   group_by(Cycle, party_name, industry) %>% 
   summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
@@ -203,16 +204,16 @@ d1 %>%
   labs(y = "Total Industry PAC contributions (millions)", 
        x = "FEC Electoral Cycle")
 
-# inspect coverage 
+# average per member 
 d1 %>%
   group_by(Cycle, icpsr, party_name, industry) %>% 
   summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
   ungroup() %>% 
   group_by(Cycle, party_name, industry) %>% 
-  summarise(mean = mean(total)) %>% # filter(cycle >2008, industry == "energy") %>% arrange(party_name)
+  summarise(mean = mean(total)) %>% 
   ggplot() + 
   aes(x = factor(Cycle), y = mean, fill = party_name) + 
-  geom_col() + 
+  geom_col(position = "dodge") + 
   facet_wrap("industry", scales = "free") +
   labs(y = "Average Industry PAC contributions (millions)", 
        x = "FEC Electoral Cycle")
