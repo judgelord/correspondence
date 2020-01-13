@@ -23,14 +23,6 @@ d %>% filter(is.na(icpsr) & pattern != "404error")
 # much of this is redundant after matching on party and state, but worth fixing overmatching in extractMemberNames
 # FIXME in issue #1 or #62
 d %<>% 
-  # mutate(
-  #   icpsr = case_when(
-  #     CID == "N00033091" ~ 21319, # murphy
-  #     # CID == "N00026160" ~ 20505, # price 
-  #     # CID == "N00033832" ~ 21359, # rice 
-  #     TRUE ~ as.double(icpsr))
-  # ) %>% 
-  # drop overmatched false positivees
   filter(!(icpsr == 20505 & CID != "N00026160"), # price
          !(icpsr == 21359 & CID != "N00033832"), # rice
          !(icpsr == 20301 & CID != "N00024759"),# mike D rogers
@@ -47,16 +39,20 @@ d %<>%
          !(icpsr == 15063 & CID != "N00007799"), # SMITH, Robert Freeman OR, not HN or PA
          !(icpsr == 15116 & CID != "N00008957"), # SMITH, Robert C.
          !(icpsr == 14066 & CID != "N00007999"), # YOUNG, Donald Edwin AK, not CA 
-         !(icpsr == 29373 & CID != "N00000699") # MENENDEZ, Robert
-         !(icpsr == 15431 & CID != "N00007214"), # John R Lewis (R) 
+         !(icpsr == 29373 & CID != "N00000699"), # MENENDEZ, Robert
+         !(icpsr == 15431 & CID != "N00002577"), # John R Lewis (R) 
          !(icpsr == 15116 & CID != "N00008957"), # SMITH, Robert C. (R)
          !(icpsr == 21364 & CID != "N00030602"), # WILLIAMS, Roger
-         !(icpsr == 20346 & CID != "N00033469"), # MURPHY, Timothy
+         !(icpsr == 20346 & CID != "N00024992"), # MURPHY, Timothy
          !(icpsr == 21720 & CID != "N00039330"), # GALLAGHER, Michael  
+         !(icpsr == 20147 & CID != "N00012460"), # CLAY, William Lacy, Jr.
+         !(icpsr == 31103 & CID != "N00034639"), # 31103 PAYNE, Donald, Jr.
+         !(icpsr == 21335 & CID != "N00034044"), # 21335 KENNEDY, Joseph P. III
+         !(icpsr == 29756 & CID != "N00003218"), # 29756 FORD, Harold, Jr.
+         !(CID == "N00000716" & icpsr != 15619) # PAYNE, Donald Milford, not Jr
   )
          
-         
-# chamber switchers
+
 members %>% add_count(icpsr, bioname, congress, sort = T) %>% 
   filter(n>1) %>% 
   select(icpsr, bioname, congress, chamber)
@@ -74,10 +70,15 @@ members %<>% mutate(party = str_sub(party_name,1,1))
 
 #################################
 # Crosswalk CRP IDs with ICPSRs # 
-crosswalk <- d %>% select(CID, FirstLastP, CRPName, FECCandID, pattern, congress, Cycle, chamber, state_abbrev, party) %>% 
+crosswalk <- d %>% 
+  select(CID, FirstLastP, CRPName, FECCandID, pattern, congress, Cycle, chamber, state_abbrev, party) %>% 
   filter(pattern != "404error") %>% 
   distinct() %>% 
-  left_join(members %>% select(pattern, icpsr, bioname, congress, chamber, state_abbrev, first_name, last_name, party) %>% distinct()) %>% 
+  left_join(members %>% 
+              select(pattern, icpsr, bioname, congress, chamber, state_abbrev, first_name, last_name, party) %>% 
+              distinct() 
+            ) %>% 
+  filter(!(CID == "N00000716" & icpsr != 15619) ) %>% # PAYNE, Donald Milford, not Jr
   select(-pattern) %>% 
   distinct() 
 
@@ -153,7 +154,8 @@ crosswalk %>%
 # corrected in nameCongres.R file Allen, McCotter, Hastert, Sutton, GutKnecht, Ford, Douglas L Lamborn, brian M higgans middle initial, 
 # corrected in MemberNameTypos.R: "Kit" Bond, (Chip) Pickering, (Butch) Otter, 
 
-# missing from CRP: SEKULA GIBBS, Shelley for the 109th where she served only a few weeks. She won the special election to fill the 22nd Congressional seat on November 7, 2006, for the remaining weeks of the 109th United States Congress. On the same day, she also lost in the general election for that seat in the 110th United States Congress.[3] 
+# missing from CRP: 
+# SEKULA GIBBS, Shelley for the 109th where she served only a few weeks. She won the special election to fill the 22nd Congressional seat on November 7, 2006, for the remaining weeks of the 109th United States Congress. On the same day, she also lost in the general election for that seat in the 110th United States Congress.[3] 
 
 # Donald J. Cazayoux (D) did not serve in the 112th 
 # MURPHY, Scott only served in the 11th
@@ -170,15 +172,3 @@ missed <- members %>% filter(!icpsr %in% crosswalk$icpsr,
 
 missed %>% select(-pattern) %>% kable()
 
-
-missed_crp <- members_crp %>% 
-  filter(#str_detect(toupper(FirstLastP), str_c(toupper(missed$last_name), collapse = "|") ),
-         pattern == "404error") %>% 
-  select(FECCandID, congress, FirstLastP, string)
-  
-# try extractmembername again
-missed_crp %<>% extractMemberName(col_name = "FirstLastP", members = members) 
-
-# results
-found <- missed_crp %>% filter(pattern != "404error") %>% distinct(pattern) #%>% kable()
-missed %>% filter(!pattern %in% found$pattern)  %>% select(bioname, n) %>% kable()
