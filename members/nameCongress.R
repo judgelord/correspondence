@@ -80,7 +80,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(  (first_name == "Jim")&(common_name==""), "James", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Pete")&(common_name==""), "Peter", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Peter")&(common_name==""), "Pete", common_name)) %>% 
-    # mutate(common_name = ifelse(  (first_name == "Richard")&(common_name==""), "(Rich|Rick|Dick)", common_name)) %>% # these should be done one by one
+    mutate(common_name = ifelse(  (first_name == "Richard")&(common_name==""), "Rich", common_name)) %>% #FIXME these should be done one by one
     mutate(common_name = ifelse(  (first_name == "Chris")&(common_name==""), "Christopher", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Christopher")&(common_name==""), "Chris", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Robert")&(common_name==""), "Bob", common_name)) %>% 
@@ -568,7 +568,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>%
     # add any missing middle initials
-    mutate(middle_initial = ifelse(is.na(middle_initial) & ! is.na(middle_name),
+    mutate(middle_initial = ifelse(is.na(middle_initial) & !is.na(middle_name),
                                    str_sub(middle_name, 1,1),
                                    middle_initial)) %>%   
     # add any missing first initials

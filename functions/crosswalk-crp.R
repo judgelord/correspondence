@@ -159,6 +159,7 @@ crosswalk %>%
 # MURPHY, Scott only served in the 11th
 # DJOU, Charles is not in the 116th
 # RENZI did not serve in the 111, 112, 113th
+# Doug Ose is not in the 109th or 115th
 
 # VOTEVIEW members still missing from crosswalk
 missed <- members %>% filter(!icpsr %in% crosswalk$icpsr, 
