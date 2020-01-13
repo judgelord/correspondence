@@ -54,6 +54,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
      # NOTE, as written this will overwrite existing common names. 
      # FIXME by adding "common_name == "" &" unless we want to overwrite
      mutate(common_name = ifelse(first_name == "Gilbert" & common_name == "", "Gil", common_name)) %>%
+     mutate(common_name = ifelse(first_name == "Doug" & common_name == "", "Dounglas", common_name)) %>%
      mutate(common_name = ifelse(first_name == "Thaddeus" & common_name == "", "Thad", common_name)) %>%
     mutate(common_name = ifelse( first_name == "Daniel" & common_name == "", "Dan", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Andrew" & common_name == "", "Andy", common_name)) %>%
@@ -341,10 +342,17 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_name = ifelse(bioname == "BARLETTA, Lou", "James", middle_name)) %>%
     mutate(middle_name = ifelse(bioname == "HIRONO, Mazie", "Keiko", middle_name)) %>%
     mutate(middle_name = ifelse(bioname == "MURPHY, Patrick" & state == "florida", "Erin", middle_name)) %>%
+     mutate(middle_name = ifelse(bioname == "GOHMERT, Louie", "Buller", middle_name)) %>%
+     mutate(middle_name = ifelse(bioname == "YARMUTH, John", "Allen", middle_name)) %>%
+     mutate(middle_name = ifelse(bioname == "LUMMIS, Cynthia M.", "Marie", middle_name)) %>%
+     mutate(middle_name = ifelse(bioname == "FRANKEL, Lois.", "Jane", middle_name)) %>%
+   mutate(middle_name = ifelse(bioname == "WAGNER, Ann", "Louise", middle_name)) %>%
+     
     
    
     # middle initials
-    mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
+    mutate(middle_initial = ifelse(bioname == "HIGGINS, Brian", "M", middle_initial)) %>% 
+     mutate(middle_initial = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "P", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "FRANKEN, Al", "S", middle_initial)) %>%
     mutate(middle_initial = ifelse(bioname == "ESHOO, Anna", "G", middle_initial)) %>%
     mutate(middle_initial = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", "E", middle_initial)) %>% 

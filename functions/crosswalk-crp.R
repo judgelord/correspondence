@@ -20,6 +20,7 @@ d %<>% left_join(members %>% select(pattern, congress, bioname, icpsr) %>% disti
 d %>% filter(is.na(icpsr) & pattern != "404error")
 
 # corrections (where extracMemberNames matched the wrong person)
+# much of this is redundant after matching on party and state, but worth fixing overmatching in extractMemberNames
 # FIXME in issue #1 or #62
 d %<>% 
   # mutate(
@@ -52,16 +53,6 @@ d %<>%
          !(icpsr == 21364 & CID != "N00030602"), # WILLIAMS, Roger
          !(icpsr == 20346 & CID != "N00033469"), # MURPHY, Timothy
          !(icpsr == 21720 & CID != "N00039330"), # GALLAGHER, Michael  
-         !(icpsr ==  & CID != ""), # BANKS, James E.  
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         !(icpsr ==  & CID != ""), # 
-         )
   )
          
          
@@ -123,23 +114,6 @@ crosswalk %>% arrange(icpsr) %>%
   #kable()
 
 
-# to fix 
-# brian higgans needs middle initial
-# Douglas L Lamborn
-
-# corrected in nameCongres.R file Allen, McCotter, Hastert, Sutton, GutKnecht, Ford, Douglas L Lamborn, 
-# corrected in MemberNameTypos.R: "Kit" Bond, (Chip) Pickering, (Butch) Otter, 
-
-# VOTEVIEW members still missing from crosswalk
-missed <- members %>% filter(!icpsr %in% crosswalk$icpsr, 
-                             #congress > 112, # looks like CRP 2012 file is super incomplete, does not cover the 112th or before
-                             congress > 106) %>%
-  count(icpsr, bioname, last_name, pattern, sort = T)
-
-missed %>% select(-pattern) %>% kable()
-
-
-
 
 
 # Joe Lieberman served until the 112th, so the error for the 113th is correct
@@ -169,3 +143,30 @@ crosswalk %>%
   select(CID, FirstLastP, FECCandID, state_abbrev, CRPName, chamber, icpsr, bioname) %>% 
   distinct()
 
+
+
+# FIXME 
+# corrected in nameCongres.R file Allen, McCotter, Hastert, Sutton, GutKnecht, Ford, Douglas L Lamborn, brian M higgans middle initial, 
+# corrected in MemberNameTypos.R: "Kit" Bond, (Chip) Pickering, (Butch) Otter, 
+
+# VOTEVIEW members still missing from crosswalk
+missed <- members %>% filter(!icpsr %in% crosswalk$icpsr, 
+                             !bioname %in% crosswalk$bioname,
+                             #congress > 112, # looks like CRP 2012 file is super incomplete, does not cover the 112th or before
+                             congress > 106) %>%
+  count(icpsr, bioname, last_name, pattern, sort = T)
+
+missed %>% select(-pattern) %>% kable()
+
+
+missed_crp <- members_crp %>% 
+  filter(#str_detect(toupper(FirstLastP), str_c(toupper(missed$last_name), collapse = "|") ),
+         pattern == "404error") %>% 
+  select(FECCandID, congress, FirstLastP, string)
+  
+# try extractmembername again
+missed_crp %<>% extractMemberName(col_name = "FirstLastP", members = members) 
+
+# results
+found <- missed_crp %>% filter(pattern != "404error") %>% distinct(pattern) #%>% kable()
+missed %>% filter(!pattern %in% found$pattern)  %>% select(bioname) %>% kable()
