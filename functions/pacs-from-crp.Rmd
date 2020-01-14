@@ -1,14 +1,37 @@
 ---
-title: "Getting PAC codes from Center for Responsive Politics Data"
-author: "Devin Judge-Lord"
-date: "10/27/2019"
-output: html_document
+title: "PAC contributions from Center for Responsive Politics Data"
+author:
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r setup, echo = FALSE}
+library(knitr)
+
+  knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
+                        warning = FALSE,
+                        message = FALSE,
+                        fig.align = "center", 
+                        fig.path= 'Figs/', ## where to save figures
+                        fig.height = 4,
+                        fig.width = 8)
 ```
-## Get PAC id - industry code crosswalk from CRP
+
+```{r libraries}
+options(stringsAsFactors = F)
+library(magrittr)
+library(tidyverse)
+library(here)
+library(knitr)
+```
+
+## Get PAC ID--industry code crosswalk from CRP
 (notice industry codes included and excluded)
 ```{r CRP-data}
 read_crp <- . %>% {read_delim(file = here(str_c("CRP Data/cmtes/", .)),
@@ -22,7 +45,6 @@ read_crp <- . %>% {read_delim(file = here(str_c("CRP Data/cmtes/", .)),
 crp <- map_dfr(list.files(here("CRP Data/cmtes")), read_crp)
 
 ## INDUSTRY CODES
-
 industry <- readxl::read_xls(here("CRP Data/CRP_IDs.xls"), sheet = "CRP Industry Codes")
 names(industry) <- industry[5,]
 
@@ -34,10 +56,11 @@ industry %<>%
                          "Water Utilities",
                          "Oilfield service, equipment & exploration"))
 
+
+
 crpEnergycodes <- industry$Catcode
 
-
-crp <- crpEnergy <- industry %>%
+crp <- industry %>%
   left_join(crp, by = c( "Catcode" = "PrimCode")) %>% 
   mutate(comid = CmteID) %>% 
   select(comid, UltOrg, Affiliate, PACShort, Catcode) %>% 
@@ -49,5 +72,182 @@ crp <- crpEnergy <- industry %>%
             Catcode = str_c(unique(Catcode), collapse = "; ")) %>%
   distinct()
 
-write_csv(crpEnergy, path = "data/crpEnergy.csv")
+# Energy industry 
+industry %>% kable()
+
+# Energy company PACs
+crp %>% head() %>% kable()
+
+# write_csv(crpEnergy, path = "data/crpEnergy.csv")
+```
+
+# PAC totals 
+```{r pac_money}
+load(here("CRP Data/pac_money.RData"))
+d <- pac_money
+d  # ~4 million observations  
+
+# drop losing candidates
+d %<>% filter(!str_detect(RecipCode, "L"))
+
+# drop negative
+d %<>% filter(Amount>-1)
+
+# identify industry 
+d %<>% mutate(industry = ifelse(PrimCode %in% crpEnergycodes, "energy", "other") %>% as.factor())
+d %>% select(industry, everything()) %>% head() %>% kable()
+```
+
+
+# Unique PACs per cycle
+```{r unique pacs}
+# Number of distinct pacs 
+d %>% 
+  group_by(Cycle, industry) %>%
+  summarise(PACs = length(unique(PACID))) %>% 
+  arrange(industry) %>% 
+  knitr::kable()
+```
+
+
+# Total by member and industry code
+```{r industry totals}
+# consolidate by industry, dropping PrimCode
+# Contributions total by member and industry code
+d1 <- d %>%
+  group_by(CID, industry, Cycle) %>%
+  tally(Amount) %>%
+  ungroup() %>% 
+  rename(amounts = n) %>% 
+  distinct()
+d1 %>% head() %>% kable()
+```
+
+# Crosswalk CRP IDs with ICPSR 
+```{r crosswalk}
+load(here("data/icpsr_crosswalk_crp.Rdata"))
+icpsr_crosswalk_crp$Cycle %<>% as.numeric()
+
+d1 %<>% left_join(icpsr_crosswalk_crp) %>% distinct()
+
+
+#source(here("members/nameCongress.R")) # augments voteview member names
+## Load augmented member names without having to load voteview package
+load(here("members/members.Rdata"))
+members %<>% filter(chamber %in% c("House", "Senate"))
+
+# merge with voteview 
+d1 <- members %>% 
+  select(congress, icpsr, party_name, state_abbrev, chamber, bioname) %>% 
+  left_join(d1) 
+
+# add 0s
+d1 %<>% 
+  mutate(industry= replace_na(industry, "other") )%>% # assume missing members are 0 (this is reasonable, but should check in crosswalk-crp.R)
+   ungroup() %>%
+    complete(industry, congress, icpsr, chamber,
+             fill = list(amounts = 0)) %>% 
+  distinct() 
+
+# remerge with voteview
+d1 <- members %>% select(congress, icpsr, chamber, bioname, party_name) %>% 
+  left_join(d1 %>% select(industry, congress, icpsr, chamber, amounts)) 
+
+# add back in cycle
+d1 %<>% mutate(Cycle = (congress - 107)*2 + 2000) 
+
+# members failing to match
+# d1 %>% filter(is.na(industry)) %>% distinct(bioname)
+
+d1 %>% head() %>% kable()
+```
+
+
+## Check for zero counts
+```{r zero}
+# Make sure there are indeed 0 counts if we expect them
+d1 %>% 
+  group_by(industry) %>%
+  count(amounts == 0) %>% 
+  mutate(industry_total = sum(n)) %>% 
+  kable()
+
+# Make sure we have equal numbers of observations per industry
+d1 %>% count(industry) %>% kable()
+```
+
+
+## Duplicated member-year total observations?
+```{r duplicated_names}
+# count observations (there should be one per industry)
+d1 %>% group_by(bioname, icpsr, congress, chamber, industry) %>% 
+  add_count() %>% 
+  arrange(bioname) %>%
+  filter(n > 1) %>% kable()
+```
+
+
+# Total and average PAC contributions per member
+```{r inspect, fig.width=10}
+d %<>% mutate(cycle = Cycle)
+d1 %<>% mutate(cycle = Cycle)
+
+# total
+d1 %>%
+  group_by(Cycle, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
+  ungroup() %>% 
+  ggplot() + 
+  aes(x = factor(Cycle), y = total, fill = party_name) + 
+  geom_col() + 
+  facet_wrap("industry", scales = "free") +
+  labs(y = "Total Industry PAC contributions (millions)", 
+       x = "FEC Electoral Cycle")
+
+# average per member 
+d1 %>%
+  group_by(Cycle, icpsr, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/1000000) %>% 
+  ungroup() %>% 
+  group_by(Cycle, party_name, industry) %>% 
+  summarise(mean = mean(total)) %>% 
+  ggplot() + 
+  aes(x = factor(Cycle), y = mean, fill = party_name) + 
+  geom_col(position = "dodge") + 
+  facet_wrap("industry", scales = "free") +
+  labs(y = "Average Industry PAC contributions (millions)", 
+       x = "FEC Electoral Cycle")
+```
+
+
+# Save results
+```{r save}
+
+pac_contributions <- d
+save(pac_contributions, file = here("data/pac_contributions.Rdata"))
+
+pac_amounts <- d1
+save(pac_amounts, file = here("data/pac_amounts.Rdata"))
+```
+
+```{r load, include=FALSE, eval=FALSE}
+
+load(here("data/pac_contributions.Rdata"))
+d <- pac_contributions
+
+load(here("data/pac_amounts.Rdata"))
+d1 <- pac_amounts
+```
+
+```{r, echo = FALSE, eval = FALSE, include = FALSE}
+q()
+n
+git pull
+Rscript -e 'library(rmarkdown); rmarkdown::render("functions/read-dime.Rmd", "html_document")'
+git add "data/pac_amounts.Rdata"
+git add "functions/read-dime.html"
+git commit -m "update pac data"
+git pull
+git push
+judgelord
 ```
