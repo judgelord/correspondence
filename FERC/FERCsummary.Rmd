@@ -392,7 +392,7 @@ d %>%
   coord_map() +
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Contacts Per thousand Residents from Members of the", Chamber)) +
+  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
   scale_fill_viridis_c(option = "C", end = .8) +
   theme(legend.position = "bottom", 
         legend.title = element_blank() )#+facet_grid(. ~ Constituent)
@@ -428,7 +428,7 @@ d %>%
   coord_map() +
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Contacts Per thousand Residents from Members of the", Chamber)) +
+  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
   scale_fill_viridis_c(option = "C", end = .8) +
   theme(legend.position = "bottom", 
         legend.title = element_blank() )+
@@ -708,7 +708,7 @@ pac_amounts %>%
   aes(x = factor(Cycle), y = total, fill = party_name) + 
   geom_col() + 
   facet_wrap("industry", scales = "free") +
-  labs(y = "Total Industry PAC contributions (hundreds of thousands)", 
+  labs(y = "Total Industry PAC contributions (hundred of thousand)", 
        x = "FEC Electoral Cycle")
 
 # average per member 
@@ -722,7 +722,7 @@ pac_amounts %>%
   aes(x = factor(Cycle), y = mean, fill = party_name) + 
   geom_col(position = "dodge") + 
   facet_wrap("industry", scales = "free") +
-  labs(y = "Average Energy-sector PAC contributions per member (hundreds of thousands) \n (ommitting energy extraction companies)", 
+  labs(y = "Average Energy-sector PAC contributions per member (hundred of thousand) \n (ommitting energy extraction companies)", 
        x = "FEC Electoral Cycle")
 
 
@@ -1077,6 +1077,8 @@ letters_money %<>%
 ) %>% distinct()
 
 letters_money
+
+save(letters_money, file = "data/letters_money.Rdata")
 ```
 
 # Models
@@ -1111,7 +1113,7 @@ mAll <- glm(total_letters ~ PAC_100k,
          family = poisson)  
 # tidy(mAll)
 mAll %>% mplot()+
-  labs(x="", y="Total additional letters per congress per thousand dollars")
+  labs(x="", y="Total additional letters per congress per hundred thousand dollars")
 ```
 
 ## Non-Constituent Letters
@@ -1125,7 +1127,7 @@ mNonConstituent <- lm(Non_Constituent_Letters ~ PAC_100k,
                          distinct() ) 
 # tidy(mNonConstituent)
 mNonConstituent %>% mplot()+
-  labs(x="", y="Additional non-constituent letters per congress per thousand dollars")
+  labs(x="", y="Additional non-constituent letters per congress per hundred thousand dollars")
 
 # FIXME - why not poisson?
 mNonConstituentLog <- lm(Non_Constituent_Letters ~ Log_PAC_contributions, 
@@ -1137,7 +1139,7 @@ mNonConstituentLog <- lm(Non_Constituent_Letters ~ Log_PAC_contributions,
                             mutate(Log_PAC_contributions = log(PAC_contributions+1))) 
 # tidy(mNonConstituent)
 mNonConstituentLog %>% mplot()+
-  labs(x="", y="Additional non-constituent letters per congress per logged thousand dollars")
+  labs(x="", y="Additional non-constituent letters per congress per logged hundred thousand dollars")
 ```
 
 ## Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2018
@@ -1150,7 +1152,7 @@ mPro <- glm(ProBusiness_Letters ~ PAC_100k,
             family = poisson)  
 
 mPro %>% mplot()+
-  labs(x="", y="Additional pro-business letters per congress per thousand dollars")
+  labs(x="", y="Additional pro-business letters per congress per hundred thousand dollars")
 
 
 mProLog <- glm(ProBusiness_Letters ~ Log_PAC_contributions, 
@@ -1338,7 +1340,7 @@ mProTotal <- glm(ProBusiness_Letters_Per_Cycle ~ PAC_100k_total,
 
 # tidy(mProTotal)
 mplot(mProTotal)+
-  labs(x="", y="Average additional letters per cycle per thousand dollars 1990-2014")
+  labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
 ```
 
 ## Anti-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
@@ -1352,7 +1354,7 @@ mAnti <- glm(AntiBusiness_Letters ~ PAC_100k,
             family = poisson)
 # tidy(mAnti)
 mAnti %>% mplot()+
-  labs(x="", y="Additional anti-buisness letters per congress per thousand dollars")
+  labs(x="", y="Additional anti-buisness letters per congress per hundred thousand dollars")
 
 mAntiLog <- glm(AntiBusiness_Letters ~ Log_PAC_contributions, 
                                   data = letters_money %>% 
@@ -1426,7 +1428,7 @@ mAntiTotal <- glm(AntiBusiness_Letters_Per_Cycle ~ PAC_100k_total,
 
 # tidy(mProTotal)
 mplot(mAntiTotal)+
-  labs(x="", y="Average additional letters per cycle per thousand dollars 1990-2014")
+  labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
 ```
 
 # Combined models 
@@ -1452,7 +1454,7 @@ models <- full_join(
 dplot(models)+ 
     labs(color = "Dependent Variable",
          shape = "Dependent Variable",
-         x = "Additional letters per thousand dollars per cycle")
+         x = "Additional letters per hundred thousand dollars per cycle")
 
 library(stargazer)
 library(dplyr)
@@ -1500,7 +1502,7 @@ models <- tidy(mProTotal) %>%
   full_join(tidy(mAntiTotal) %>% mutate(model = "Anti-business Letters per Cycle")) 
 
 dplot(models) + 
-    labs(x = "Average additional letters per cycle per thousand dollars 1990-2014")
+    labs(x = "Average additional letters per cycle per hundred thousand dollars 1990-2014")
 
 write_lines(
   stargazer::stargazer(mProTotal, mAntiTotal, float=F),
