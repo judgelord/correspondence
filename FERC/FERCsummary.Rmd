@@ -66,6 +66,10 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 
 # Data
+
+The full dataset of congressional correspondence can be found at `"data/all_contacts.RData"`.
+More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`.
+
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
@@ -83,7 +87,7 @@ d <- all_contacts %>%
   filter(!(last_name == "GOODE"& party == "(I)"))
   
 
-## one obs per member per letter per committee for all agencies
+## one obs per member per letter per committee for all agencies # DEPRECIATED 
 # load(here("data/all_contacts_committees.RData"))
 ## define dcommittees as just FERC
 #dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
@@ -145,32 +149,45 @@ d %<>%
   mutate(icpsryear = str_c(icpsr, congress))
 ```
 
+
+
+In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` letters received by FERC and marked "congressional" since `r min(FERC_letters$year)`. Most, but not all of these are from Members of the U.S. Congress. Of the `r FERC_letters %>% filter(year >1999) %>% select(Notes) %>% distinct() %>% nrow()` letters from 2000-`r max(d$year)`, we identified Members of Congress in 3908. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
+
+---
+
+# Outlier
+
 Rep. Virgil Goode (R-VA) is an outlier who affects results, especially for Anti-business letters. A few members forward a lot of mail. 
 ```{r forwards}
+# top overall
+d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to FERC")
 
-d %>% count(bioname, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to FERC")
-d %>% count(bioname, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
+# most with a given position
+d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
 
-d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(10, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Legislators who forward the most letters")
+# most with a given position in a cycle
+d %>% count(bioname, party, cqlabel, letter_position, congress, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator in a cycle")
+
+# d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(1, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Letters from the legislator who forwards the most letters")
 
 d %>%
   ggplot() +
   aes(x = congress, fill = letter_position) + 
   geom_bar(position = "dodge") + 
   facet_grid(party_name ~ chamber)
+```
 
-# outlier
+## Because Goode in the 107th is such an outlier, we drop these 117 letters
+```{r goode}
+# Because it Goode in the 107th is such an outlier, we drop these 177 letters
 d %>% filter(bioname == "GOODE, Virgil H., Jr.", congress == 107) %>% select(ID, bioname, SUBJECT, AntiBusiness, AntiProject) %>% kable()
 
 d %<>% filter(!(bioname =="GOODE, Virgil H., Jr." & congress == 107))
 ```
 
-In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` letters received by FERC and marked "congressional" since `r min(FERC_letters$year)`. Most, but not all of these are from Members of the U.S. Congress. Of the `r FERC_letters %>% filter(year >1999) %>% select(Notes) %>% distinct() %>% nrow()` letters from 2000-`r max(d$year)`, we identified Members of Congress in 3908. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
-
-
 ---
 
-## By party 
+## By party and majority status
 
 
 ```{r part-constituent, fig.height=3, fig.width=4}
@@ -208,19 +225,18 @@ d %>%
          For != "Not coded",
          For != "Other",
          !is.na(majority)) %>% 
-  group_by(party_name, majority) %>% 
-  mutate(percent = n / sum(n) * 100 ) %>% 
   ggplot() + 
-  aes(y = percent, x = congress, fill = For) + 
+  aes(y = n, x = congress, fill = For) + 
   geom_col(position = "stack") + 
   #geom_text(aes(label = n)) +
   facet_grid(majority ~ party_name) + 
   scale_fill_viridis_d(option = "C", end = .8) + 
     labs(x = "",
        fill = "Advocating for",
-       y = "Percent") + 
+       y = "n") + 
   theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank())
+  theme(panel.grid.major.x  = element_blank(),
+        axis.text = element_text(angle = 45))
 ```
 
 Looking at letters that are explicitly pro- or anti-business, Democrats write more anti-business letters, whereas, for Republicans, it depends on chamber control. When in the majority, Republicans write more pro-business letters. 
@@ -244,24 +260,22 @@ d %>%
   theme_minimal() + 
   theme(panel.grid.major.x  = element_blank())
 
-d %>% 
+d %>% filter(party_name != "Independent",
+             letter_position != "Other",
+             !is.na(letter_position),
+             !is.na(majority)) %>% 
   count(party_name, letter_position, majority, congress) %>% 
-    filter(party_name != "Independent",
-           letter_position != "Other",
-         !is.na(letter_position),
-         !is.na(majority)) %>% 
-  group_by(party_name, majority, congress) %>% 
-  mutate(percent = n / sum(n) * 100 ) %>% 
   ggplot() + 
-  aes(y = percent, x = factor(congress), fill = letter_position) + 
+  aes(y = n, x = factor(congress), fill = letter_position) + 
   geom_col(position = "stack") + 
   facet_grid(majority ~ party_name)+ 
   scale_fill_viridis_d(option = "C", end = .8) + 
   labs(x = "",
        fill = "",
-       y = "Percent") + 
+       y = "n") + 
   theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank())
+  theme(panel.grid.major.x  = element_blank(),
+        axis.text.x = element_text(angle = 45))
 ```
 
 ---
@@ -332,8 +346,6 @@ d  %>%
 ---
 
 # Members
-
-
 
 ### Senators vs. state population 
 
@@ -440,7 +452,7 @@ d %>%
 
 ### Members who contact FERC more than average: 
 
-```{r members_barcoded, fig.height=4, fig.width=9}
+```{r members_barcoded, fig.height=5, fig.width=9}
 # barcode plot of committee members 
  
 # member by year by agency 
@@ -491,37 +503,32 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 ```
 
-### Members who contact FERC more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
 all_contacts %>%
+  filter(congress >109) %>% 
   mutate(FERC = agency == "DOE_FERC") %>%
-  group_by(chamber, FERC, name_state, state) %>%
-  summarise(n = n() ) %>%
-  ungroup() %>%
-  spread(key = "FERC", value = "n") %>% 
+  count(chamber, FERC, name_state, state) %>%
+  spread(key = "FERC", value = "n", 0) %>% 
   mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, chamber, total, ShareToFERC) %>% 
   filter(ShareToFERC>.3) %>%
-  knitr::kable()
-```
+  knitr::kable(caption = "Members who contact FERC more, relative to other agencies" )
 
 
-### Members who contact FERC more in a Congress, relative to other agencies: 
-```{r ferc_vs_all_rate_committees}
-all_contacts %>%
+all_contacts %>% 
+  filter(congress >109) %>% 
   mutate(FERC = agency == "DOE_FERC") %>%
-  group_by(congress, chamber, committees, FERC, name_state, state) %>%
-  summarise(n = n() ) %>%
-  ungroup() %>%
-  spread(key = "FERC", value = "n") %>% 
-  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>% 
+  count(chamber, congress, FERC, name_state, state) %>%
+  spread(key = "FERC", value = "n", 0) %>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
   arrange(-ShareToFERC) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
-  select(name_state, congress, chamber, committees, total, ShareToFERC) %>% 
-  filter(ShareToFERC>.5, total>5) %>%
-  knitr::kable()
+  select(name_state, chamber, congress, total, ShareToFERC) %>% 
+    filter(total >10) %>% 
+  top_n(10) %>%
+  knitr::kable(caption = "Members who contact FERC more in a Congress, relative to other agencies")
 ```
 
 
@@ -643,15 +650,13 @@ FERC_letters %>%
 
 
 
----
-
-# Companies 
-(see company-crosswalk.Rmd)
 
 ---
 
 # PAC Contributions from the Energy Sector
-Using CRP industry codes for PACs and DIME contribution matrix, sum up sector-level contributions by a member per cycle, matching a congress with the cycle when it was elected (e.g., 116th Congress = 2018 cycle). 
+Using CRP industry codes and contribution data, sum up sector-level contributions by a member per cycle, matching a congress with the cycle when it was elected (e.g., 116th Congress = 2018 cycle). Code to get PAC contributions from CRP data [here](https://judgelord.github.io/correspondence/functions/pacs-from-crp.html). PAC contributions per cycle are saved as [data/pac_amounts.Rdata](https://github.com/judgelord/correspondence/blob/master/data/pac_amounts.Rdata).
+
+(For the next paper, we will look at specific company-legislator diads, see company-crosswalk.Rmd)
 
 ```{r pac_amounts}
 library(tidyverse)
@@ -675,7 +680,7 @@ pac_amounts %<>%
 pac_amounts %>% top_n(10) %>% kable()
 pac_amounts %>% filter(industry =="energy") %>% top_n(10, amounts) %>% kable()
 
-# join in members data
+# join in members data from VoteView 
 load(here::here("members/members.Rdata"))
 
 
@@ -814,7 +819,7 @@ letters_money %>% count(industry, letter_position) %>% kable()
 ```
 
 
-## Outliers other than Virgil H. Goode, Jr. for the 107th
+## Outliers other than Virgil H. Goode?
 ```{r outlier}
 letters_money %>%
   filter(industry == "energy") %>% 
@@ -1062,23 +1067,12 @@ letters_money %>%
 
 
 
+# Save data as `data/letters_money.Rdata`
+```{r, save letters_money}
+# note these data are stacked by letter position and industry 
+letters_money %>% count(letter_position, industry) %>% kable()
 
-```{r, eval=FALSE}
-library(dplyr)
-
-# MERGE IN LETTERS DATA TO PRO-BUSINESS LETTERS
-# FIXME 
-# CALLE THIS Pro_letters and Antiletters Anti_letters 
-nrow(letters_money)
-letters_money %<>% 
-           left_join(d %>% dplyr::select(icpsr, congress, # nominate.dim1, #chair_since_2007,
-              #oversight_committee, 
-              chamber) %>% distinct() #%>% dplyr::rename(chair_since_2000 = chair_since_2007)
-) %>% distinct()
-
-letters_money
-
-save(letters_money, file = "data/letters_money.Rdata")
+save(letters_money, file = here("data/letters_money.Rdata"))
 ```
 
 # Models
@@ -1135,7 +1129,7 @@ mNonConstituentLog <- lm(Non_Constituent_Letters ~ Log_PAC_contributions,
                             filter(industry == "energy") %>% 
                             select(icpsr, congress, PAC_contributions, Non_Constituent_Letters)%>%
                             distinct() %>% 
-                            filter(!is.na(PAC_contributions)) %>% #FIXME why is this ever NA
+                            filter(!is.na(PAC_contributions)) %>% #FIXME is this ever NA?
                             mutate(Log_PAC_contributions = log(PAC_contributions+1))) 
 # tidy(mNonConstituent)
 mNonConstituentLog %>% mplot()+
@@ -1230,7 +1224,7 @@ mplot(mPro_pacXparty)+
 # mplot(mPro_pac_nominate)+ labs(x="", y="Additional letters per congress")
 ```
 
-#### Full (multivariate) models 
+### Multivariate models 
 ```{r full-model, fig.height=1}
 # Full model, all letters
 mAll_Full <- glm(total_letters ~ PAC_100k + party_name, 
@@ -1326,7 +1320,7 @@ mplot(mAnti_Fullx)+
 
 
 
-## Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
+### Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
 ```{r money-letters-total, fig.height=1}
 # many fewer observations over time period (about 1000 members served)
 mProTotal <- glm(ProBusiness_Letters_Per_Cycle ~ PAC_100k_total, 
@@ -1368,7 +1362,7 @@ mAntiLog %>% mplot()+
   labs(x="", y="Additional anti-business Letters per congress per Log(PAC Contributions)")
 ```
 
-#### By party:
+#### Anti-business letters by party
 ```{r Antiletters-per-cycle-model-party, fig.height=1}
 mAntiParty <- glm(AntiBusiness_Letters ~ party_name,
                                   data = letters_money %>% 
@@ -1545,7 +1539,7 @@ htmltools::HTML(table)
 
 
 
-### All univariate models 
+### Univariate models 
 ```{r models-ALL, fig.height=2, results='hide'}
 # All models 
 write_lines(
@@ -1563,7 +1557,7 @@ htmltools::HTML(table)
 
 
 
-### All Full (multivariate) Models
+### Multivariate Models
 ```{r models-full, fig.height=2, results='hide'}
 ## Full models
 models <- tidy(mAll_Full) %>% 
