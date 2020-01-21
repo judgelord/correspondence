@@ -87,14 +87,33 @@ load(here("CRP Data/pac_money.RData"))
 d <- pac_money
 d  # ~4 million observations  
 
+# instructions for corp pacs 
+# https://www.opensecrets.org/resources/datadictionary/UserGuide.pdf pages 8-9
+
 # drop losing candidates
 d %<>% filter(!str_detect(RecipCode, "L"))
 
-# drop negative
-d %<>% filter(Amount>-1)
+# drop presidential candidates
+d %<>% filter(!str_detect(FECCandID, "^P"))
+
+#  eliminate transfers and joint fund raising committees
+d %<>% filter(!str_detect(RealCode, "Z4|Z9|z4|z9"))
+
+# direct contributions to candidates, DI == "D". Drops DI == "I", indirect expenditures made for/against cands
+d %<>% filter(DI == "D")
 
 # identify industry 
 d %<>% mutate(industry = ifelse(PrimCode %in% crpEnergycodes, "energy", "other") %>% as.factor())
+
+# # drop negative?
+d %>% filter(industry == "energy") %>% group_by(CID, PACID, FECCandID, Cycle, FirstLastP) %>% tally(Amount) %>% arrange(n) 
+
+# yes, most of these look like refunds from previous cycles 
+
+# # drop negative?
+d %<>% filter(Amount > -1)
+
+
 d %>% select(industry, everything()) %>% head() %>% kable()
 ```
 
