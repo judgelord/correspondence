@@ -327,14 +327,17 @@ full_join( all_percent, d_percent)%>%
 d  %>% 
   filter(Constituent != "Not coded") %>% 
   ggplot() + 
+      theme_minimal() +
   aes(x = letter_position) + 
   geom_bar() + 
   facet_wrap("Constituent") +
+  
   labs(x = "",
        y = paste("Letters 2000-2018, N =", as.character(d%>%drop_na(letter_position, Constituent) %>% nrow() %>% as.character() )))
 
 d  %>% 
   ggplot() + 
+      theme_minimal() +
   aes(x = letter_position) + 
   geom_bar() + 
   facet_wrap("Constituent") +
@@ -658,7 +661,7 @@ Using CRP industry codes and contribution data, sum up sector-level contribution
 
 (For the next paper, we will look at specific company-legislator diads, see company-crosswalk.Rmd)
 
-```{r pac_amounts}
+```{r pac_amounts, fig.height= 3.6}
 library(tidyverse)
   
 load(here::here("data/pac_amounts.Rdata"))
@@ -706,6 +709,7 @@ pac_amounts %<>% mutate(Cycle = cycle)
 
 # total
 pac_amounts %>%
+    mutate(industry = ifelse(industry == "energy", "Energy Sector PACs", "Non-Energy Sector PACs")) %>% 
   group_by(Cycle, party_name, industry) %>% 
   summarise(total = sum(amounts, na.rm = TRUE)/100000) %>% 
   ungroup() %>% 
@@ -713,11 +717,16 @@ pac_amounts %>%
   aes(x = factor(Cycle), y = total, fill = party_name) + 
   geom_col() + 
   facet_wrap("industry", scales = "free") +
-  labs(y = "Total Industry PAC contributions (hundred of thousand)", 
-       x = "FEC Electoral Cycle")
+  labs(y = "Total Industry PAC contributions\n(hundreds of thousand)", 
+       x = "FEC Electoral Cycle",
+       fill = "") + 
+    scale_fill_discrete(option="magma", begin =.15, end = .65) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45))
 
 # average per member 
 pac_amounts %>%
+  mutate(industry = ifelse(industry == "energy", "Energy Sector PACs", "Non-Energy Sector PACs")) %>% 
   group_by(Cycle, icpsr, party_name, industry) %>% 
   summarise(total = sum(amounts, na.rm = TRUE)/100000) %>% 
   ungroup() %>% 
@@ -727,9 +736,12 @@ pac_amounts %>%
   aes(x = factor(Cycle), y = mean, fill = party_name) + 
   geom_col(position = "dodge") + 
   facet_wrap("industry", scales = "free") +
-  labs(y = "Average Energy-sector PAC contributions per member (hundred of thousand) \n (ommitting energy extraction companies)", 
-       x = "FEC Electoral Cycle")
-
+  labs(y = "Average PAC contributions per member\n (hundreds of thousand)", 
+       x = "FEC Electoral Cycle",
+       fill = "") + 
+  scale_fill_discrete(option="magma", begin =.15, end = .65) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45))
 
 
 # problems with duplicate icpsrs? 
@@ -752,6 +764,32 @@ pac_amounts %>%
 # 
 # pac_amounts %<>% select(-parties)
 # pac_amounts %>% filter(party_name=="Independent") %>% arrange(-PAC_contributions, bioname)
+
+load(here("data/pac_contributions.Rdata"))
+
+pac_contributions %>%
+  filter(cycle >1996) %>% 
+  filter(industry == "energy") %>% 
+  group_by(PACID) %>% 
+  mutate(PACShort = str_c(unique(PACShort), collapse = "/")) %>% 
+  # count(PACShort, sort = T) %>% 
+  mutate(cycle = Cycle) %>% 
+  group_by(cycle, PACShort) %>% 
+  summarise(total = sum(Amount, na.rm = TRUE)/100000) %>%  # 100k
+  ungroup() %>% 
+    group_by(PACShort) %>% 
+  mutate(PACtotal = sum(total, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(PAC = ifelse(PACtotal > quantile(PACtotal, .95), PACShort, NA)) %>% 
+  ggplot() + 
+  aes(x = factor(cycle), y = total, fill= PAC) + 
+  geom_col() + 
+  labs(y = "Energy-sector PAC contributions \n (hundreds of thousands) \n ", 
+       x = "FEC Electoral Cycle",
+       fill = "Energy-sector PACs in top 2% \n(omitting energy extraction)") + 
+  scale_fill_viridis_d(option = "C", na.value = "grey50") + 
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45))
 ```
 
 
@@ -1429,7 +1467,9 @@ mplot(mAntiTotal)+
 
 ```{r models, fig.height=2, results='hide'}
 library(dplyr)
-dplot <- function(x){dwplot(x) +
+dplot <- function(x){dwplot(x %>% 
+                              mutate(term = str_remove(term, "party_name"))
+                            ) +
     aes(shape = model) + 
     geom_vline(xintercept = 0, linetype = 2) +
     scale_color_viridis_d(option = "C", end = .8) + 
