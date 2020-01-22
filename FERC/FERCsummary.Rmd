@@ -1136,8 +1136,8 @@ save(letters_money, file = here("data/letters_money.Rdata"))
 
 # Models
 ```{r mplot_function}
-letters_money %<>% mutate(party_name != "Independent")
-constituents_money %<>% mutate(party_name != "Independent")
+letters_money %<>% filter(party_name != "Independent") %>% ungroup()
+constituents_money %<>% filter(party_name != "Independent") %>% ungroup()
 
 library(broom)
 library(tidyverse)
@@ -1266,7 +1266,7 @@ mProParty <- glm(ProBusiness_Letters ~ party_name,
                  data = letters_money %>% 
                    filter(industry == "energy") %>% 
                    filter(party_name != "Independent") %>% 
-                   select(icpsr, congress, party_name, chamber,ProBusiness_Letters) %>% 
+                   select(icpsr, congress, party_name, chamber,ProBusiness_Letters, PAC_100k) %>% 
               distinct(),
             family = poisson) 
 
