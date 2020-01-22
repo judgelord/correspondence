@@ -962,39 +962,60 @@ letters_money %>%
 
 Count non-constituent letters:
 ```{r constituent}
+# letter counts by position
+constituent_counts <- d %>% 
+  mutate(constituent_position = Constituent) %>% 
+  count(constituent_position, congress, chamber, icpsr) %>% 
+  ungroup() # %>% tally(n)
 
-#FIXME
-# constituent letters
-Non_Constituent_money <- d %>% 
-  #FIXME
-  # filter(cycle <2014) %>% 
-  drop_na(Constituent) %>% 
-  #filter(Type %in% c("Corp. Constituent", "Policy")) %>% 
-  group_by(name_state, party, congress, icpsr, chamber, oversight_committee) %>%
-  mutate(Non_Constituent_Letters = n()) %>% distinct()
+# constituent_counts %>% filter(is.na(constituent_position))
 
-# join letters and DIME data by ICPSR, adding a sum of sector PAC contributions per member
-Non_Constituent_money %<>% 
+# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
+members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Senate")) 
+
+# add letters to members file to get zero counts
+constituents <- members %>% select(congress, icpsr, chamber, cqlabel) %>% distinct() %>% 
+  left_join(constituent_counts) %>% # introduces NA constituent position because not all members are in constituent_counts
+  mutate(n = replace_na(n,0)) %>% 
   ungroup() %>% 
-  full_join(pac_amounts) %>% 
-  group_by(icpsr) %>% 
-  # FIXME
-  # one party per member, need to deal with party switchers
-  mutate(party = paste(unique(party), collapse = ";")) %>% 
-  mutate(party = str_remove(party, ";.*")) %>% 
-  ungroup()%>% distinct()
+  # mutate(constituent_position = as.factor(constituent_position)) %>% 
+    complete(constituent_position, nesting(congress, icpsr, chamber, cqlabel),
+             fill = list(n = 0)) %>% 
+  ungroup() %>% 
+  filter(!is.na(constituent_position)) %>% 
+  distinct() 
 
-# Add zero-letter-cycle observations:
-Non_Constituent_money %<>% 
- mutate(Non_Constituent_Letters = ifelse(is.na(Non_Constituent_Letters) & cycle > 1997, 0, Non_Constituent_Letters)) %>% distinct()
+# constituents %>% count(constituent_position)
 
-Non_Constituent_money_total <- Non_Constituent_money %>% 
-  # FIXME should be no NAs
-  drop_na(PAC_contributions) %>% 
-  group_by(icpsr, name_state, party) %>% 
-  summarise(Non_Constituent_Letters_Per_Cycle = mean(Non_Constituent_Letters, na.rm = TRUE),
-            PAC_contributions = sum(PAC_contributions, na.rm = TRUE)) %>% 
-  ungroup()%>% distinct()
+# # should be the same icpsrs
+# members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+# constituents %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+
+# merge with PAC amounts
+constituents_money <-  constituents %>% 
+  full_join(pac_amounts %>% ungroup())  %>% distinct()
+
+# constituents %>% filter(!icpsr %in% pac_amounts$icpsr)
+# members %>% filter(!icpsr %in% pac_amounts$icpsr)
+# pac_amounts %>% filter(!icpsr %in% constituents$icpsr)
+
+# constituents_money %>% count(constituent_position)
+
+constituents_money %<>% filter(!is.na(bioname))
+
+constituents_money %>%  top_n(1, icpsr) %>% arrange(congress, -icpsr) %>% kable()
+
+# make sure we have all members and no more 
+# members %>% select(icpsr, congress, chamber) %>% left_join(constituents_money) %>% distinct()
+
+# inspect for 0 counts 
+# constituents_money %>% count(n, sort = T)
+
+# inspect for correct 0 counts (should be equal across years per industry)
+constituents_money %>% count(industry, constituent_position) %>% kable()
+
+Non_Constituent_money <- constituents_money %>% filter(industry == "energy", constituent_position == "Non_constituent") %>% mutate(Non_Constituent_Letters = n)
+
 ```
 
 
@@ -1152,11 +1173,25 @@ mAll %>% mplot()+
 ```{r non-constituent models, fig.height=1}
 Non_Constituent_money %<>% mutate(PAC_100k = PAC_contributions/100000)
 
+Non_Constituent_money %>%
+                         filter(industry == "energy") %>% 
+                         select(icpsr, congress, PAC_100k, Non_Constituent_Letters)%>% 
+                         distinct()%>% arrange(icpsr)
+
 mNonConstituent <- lm(Non_Constituent_Letters ~ PAC_100k, 
                        data = Non_Constituent_money %>%
                          filter(industry == "energy") %>% 
                          select(icpsr, congress, PAC_100k, Non_Constituent_Letters)%>% 
                          distinct() ) 
+
+# FIXME 
+mNonConstituent <-glm(Non_Constituent_Letters ~ PAC_100k, 
+                       data = Non_Constituent_money %>%
+                         filter(industry == "energy") %>% 
+                         select(icpsr, congress, PAC_100k, Non_Constituent_Letters)%>% 
+                         distinct(),
+         family = poisson) 
+
 # tidy(mNonConstituent)
 mNonConstituent %>% mplot()+
   labs(x="", y="Additional non-constituent letters per congress per hundred thousand dollars")
