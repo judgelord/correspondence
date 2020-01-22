@@ -1,9 +1,19 @@
+\title{Campaign Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission}
+
+\author{Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison} \and Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Professor, Stanford University}}
+
+\date{\today}
+
 \documentclass{article}
-\usepackage{lmodern, amssymb,amsmath, graphicx, hyperref}
+\usepackage[margin=1in]{geometry}
+
 % === bibliography package ===
 \usepackage{natbib}
+
+% === to do notes===
 \usepackage[colorinlistoftodos, prependcaption]{todonotes} % to use \todo 
-\usepackage[margin=1in]{geometry}
+
+% === fonts, captions, and spacing===
 \usepackage{csquotes}
 \usepackage{rotating}
 \usepackage{setspace}
@@ -11,6 +21,7 @@
 \usepackage[labelformat=empty]{caption}
 \usepackage[title]{appendix}
 \usepackage{subcaption}
+\usepackage{lmodern, amssymb,amsmath, graphicx, hyperref}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -19,13 +30,9 @@
     citecolor = black
 }
 \urlstyle{same}  % don't use monospace font for urls
-
-  \title{Campaign Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission}
-    \author{Eleanor Neff Powell\thanks{Booth Fowler Associate Professor, University of Wisconsin-Madison} \and Devin Judge-Lord\thanks{Ph.D. Candidate, University of Wisconsin-Madison}\and Justin Grimmer\thanks{Professor, Stanford University}}
-    \date{\today}
     
+% === figures===
 \graphicspath{{Figs/}}
-
 
 \begin{document}
 
@@ -33,7 +40,7 @@
 % \tableofcontents
 
 % \bigskip
-% \href{https://judgelord.github.io/correspondence/gh-pages/summary.html}{Project Summary} | 
+% \href{https://judgelord.github.io/correspondence/gh-pages/FERCsummary.html}{Project Summary} | 
 % \href{https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit}{Codebook} |
 % \bigskip
 
@@ -43,7 +50,7 @@
 \begin{abstract}
 \noindent 
 
-We use letters legislators write to a bureaucratic agency (the Federal Energy Regulatory Commission) to study congressional attempts to influence bureaucratic decisions. Drawing on thousands of letters from legislators to the agency sent over nearly two decades, we find that these letters are filled with specific references to companies that legislators seek to assist or about which the legislator's constituents have complaints.  We explore which legislators seek to influence the agency, on whose behalf they make requests, and what outcome they attempt to influence.  Finally, we match these letters with campaign finance records to see whether legislators' behavior correlates with the campaign contributions they receive from the energy industry.  We find that Republicans and those who receive money from the energy-sector write relatively more letters on behalf of energy companies, but not on behalf of constituents, while Democrats write comparatively more letters in opposition to energy companies. %To some extent, these results capture a general focus on energy issues, but there is some evidence that elected officials who receive more money from the industry in a cycle write advocate more on behalf of companies in the following legislative session. 
+We use letters legislators that write to a bureaucratic agency (the Federal Energy Regulatory Commission) to study congressional attempts to influence bureaucratic decisions. Drawing on thousands of letters from legislators to the agency sent over nearly two decades, we find that these letters are filled with specific references to companies that legislators seek to assist or about which the legislator's constituents have complaints.  We explore which legislators seek to influence the agency, on whose behalf they make requests, and what outcomes they attempt to influence.  Finally, we match these letters with campaign finance records to see whether legislators' behavior correlates with the campaign contributions they receive from the energy industry.  We find that Republicans and those who receive money from the energy-sector write relatively more letters on behalf of energy companies, but not on behalf of constituents, while Democrats write comparatively more letters in opposition to energy companies. %To some extent, these results capture a general focus on energy issues, but there is some evidence that elected officials who receive more money from the industry in a cycle write advocate more on behalf of companies in the following legislative session. 
 
 \end{abstract}
 
@@ -52,19 +59,21 @@ We use letters legislators write to a bureaucratic agency (the Federal Energy Re
 \doublespacing
 \section{Introduction}
 
-Concern over the potential for campaign contributions to influence elected officials has been a central question in American politics for several decades.  Much of the academic research in this area has focused on whether campaign contributions influence legislators' roll call votes.  While these numerous studies have produced somewhat mixed results, on the whole, the answer appears to be no: that, most of the time, campaign contributions don't influence how a member votes in the context of a roll call vote.  While the focus on roll call votes is perhaps unsurprising given the availability of the data, this precise availability and visibility make them a poor vehicle for those seeking to quietly influence the government decisions without drawing scrutiny from journalists, activists, or constituents. 
+Concern over the potential for campaign contributions to influence elected officials has been a central question in American politics for several decades.  Much of the academic research in this area has focused on whether campaign contributions influence legislators' roll call votes.  These numerous studies have produced somewhat mixed results. On the whole, however, the answer appears to be no: that, most of the time, campaign contributions don't influence how a member votes in the context of a roll call vote.  The focus on roll call votes is unsurprising given the availability of the data, but the availability and visibility of roll call votes also make them a poor vehicle for those seeking to quietly influence the government decisions without drawing scrutiny from journalists, activists, or constituents. 
 
-Compared to the intense scrutiny to roll call votes, scholars have paid much less attention to congressional advocacy and oversight activities, such as when legislators write letters or emails to government bureaucrats urging them toward or against some decision.\footnote{This has begun to change in the last few years with recent studies by  \citet{MillsKalafHuges2015, Ritchie2017, Lowande2018JOP, LowandeRitchieLauterbach2018}.} While these letters are technically subject to federal open records act requirements, the disclosure process is often slow and inaccessible, meaning that, in practice, these letters rarely see the light of day and are highly unlikely to draw public scrutiny. Thus, letters from individual legislators may be a preferred vehicle for those seeking to quietly influence specific government decisions through campaign contributions.  
+Compared to the intense scrutiny of roll call votes, scholars have paid much less attention to congressional advocacy and oversight activities, such as when legislators write letters or emails to government bureaucrats urging them toward or against some decision.\footnote{This has begun to change in the last few years with recent studies by  \citet{MillsKalafHuges2015, Ritchie2017, Lowande2018JOP, LowandeRitchieLauterbach2018, JudgeLordGrimmerPowell2018}.} While these letters are technically subject to federal open records laws, the disclosure process is often slow and difficult, meaning that, in practice, these letters rarely see the light of day and are highly unlikely to draw public scrutiny. Thus, securing a letter from an individual legislator may be a preferred vehicle for those seeking to quietly influence specific government decisions through campaign contributions.  
 
-In this paper, we deeply examine one agency -- the Federal Energy Regulatory Commission.  We explore whether legislators' letters to the commission appear motivated by constituency service or campaign contributions.  Specifically, we investigate whether corporate campaign contributions from political action committees in the energy sector to legislators are correlated with legislator's letter-writing to the agency on behalf of those companies.  We find that Republicans and those who receive money from energy-sector write relatively more letters on behalf of energy companies, but not on behalf of constituents, while Democrats write comparatively more often in opposition to energy companies. To some extent, these results capture a general focus on energy issues; writing all kinds of letters, not just pro-business letters, is positively correlated with energy-sector campaign contributions both in particular electoral cycles and legislative sessions and over a legislator's career. Yet, there is some evidence that elected officials who receive more money from the industry in a cycle write more on behalf of companies than against them in the following legislative session. % TODO, directly test this hypothesis 
+In this paper, we deeply examine legislators' letters written to one agency -- the Federal Energy Regulatory Commission (FERC).  We explore whether these letters to the commission appear motivated by constituency service or campaign contributions. Specifically, we investigate whether campaign contributions from political action committees of corporations in the energy sector are correlated with legislator's letter-writing to the commission on behalf of those companies. We find that Republicans and those who receive money from energy-sector write relatively more letters on behalf of energy companies, but not on behalf of constituents, while Democrats write comparatively more often in opposition to energy companies. To some extent, these results capture a general focus on energy issues; writing all kinds of letters, not just pro-business letters, is positively correlated with energy-sector campaign contributions both in particular electoral cycles and legislative sessions and over a legislator's career. Yet, there is some evidence that elected officials who receive more money from the industry in a cycle write more on behalf of companies than against them in the following legislative session. % TODO, directly test this hypothesis with "ratio of pro-business letters" as the DV
 
 \section{Studying the Influence of Campaign Contributions on Congressional-Bureaucratic Relations}
 
 Attempting to study the influence of campaign contributions on political outcomes is fraught with methodological and observational challenges.  As two of us (Powell and Grimmer) have written previously, two of the primary challenges to studying the influence of money on the most visible form of congressional behavior (roll call votes) are legality and visibility \citep{PowellGrimmer2016}. Regarding legality, as the \citet{USOGE2013} describes, if something of value is given, offered, or promised with the intent ``to influence any official act,'' it is illegal behavior on the part of the contributor. Similarly, on the recipient side, if a public official demands, seeks, receives, or accepts an item of value, it is illegal behavior on the part of the legislator.  Given threats of prosecution and jail time, we might expect both contributors and politicians to avoid public actions that could be construed in such a way.  
 
-And even if an action is legal, it might still create the appearance of impropriety and therefore create an incentive for legislators to obscure the action.  To the extent that both campaign contributors who might be seeking favors and elected officials who seek campaign contributions are concerned about appearances, we might expect elected officials to avoid taking visible public actions that could be viewed as corrupt.  Rather, both the elected officials and contributors should prefer actions that achieve the same end but through less observable means. As we elaborate in the following section, much of the research on money in politics has focused on highly visible outcomes such as roll call votes---the least likely places that these protagonists would want to connect themselves.  In contrast, congressional letter-writing to bureaucratic agencies is much less visible and thus a better place to look for the influence of money in politics.  These letters, which we have obtained through laborious Freedom of Information Act requests and web scraping, are not generally available to the public, and both legislators and campaign contributors may reasonably assume that these documents will never be subject to public scrutiny.  Certainly, they are rarely accessed, and thus those actors hoping to fly under the radar may prefer them to more overt legislative acts. 
+And even if an action is legal, it might still create the appearance of impropriety and therefore create an incentive for legislators to obscure it.  To the extent that both campaign contributors who might be seeking favors and elected officials who seek campaign contributions are concerned about appearances, we might expect elected officials to avoid taking visible public actions that could be viewed as corrupt.  Rather, both the elected officials and contributors should prefer actions that achieve the same end but through less observable means. As we elaborate in the following section, much of the research on money in politics has focused on highly visible outcomes such as roll call votes---the least likely places that these actors would want to connect themselves.  In contrast, congressional letter-writing to bureaucratic agencies is much less visible and thus a better place to look for the influence of money in politics.  These letters, which we have obtained through laborious Freedom of Information Act requests and web scraping, are not easily accessible to the public, and both legislators and campaign contributors may reasonably assume that these documents will never be subject to public scrutiny.  Certainly, they are rarely accessed, and thus those actors hoping to fly under the radar may prefer them to more overt legislative acts. 
 
-Finally, before reviewing previous research on the influence of money in American politics, we must add a necessary note of caution about the conclusions we can draw in this paper.  This project is an observational study that looks at the correlation between campaign contributions and attempts to influence the Federal Energy Regulatory Commission through legislative letters.  We are limited by our data and only are able to use cross-sectional designs.  That said, our results suggest interesting patterns that deserve to be interrogated with more data that enables more robust research designs. %Given our research design, we cannot draw conclusive causal findings but rather can explore relationships that might be promising areas for future research with a more robust causal design.  
+Furthermore, many government decisions that affect businesses are made by agencies rather than Congress. If legislators aim to help a donor, their oversight powers may thus often be more useful then their legislating powers. As an independent commission with broad discretion over policy, permitting, and enforcement ranging from price controls on electricity markets to the construction interstate natural gas pipelines, FERC decisions major consequences to the energy sector.
+
+Finally, before reviewing previous research on the influence of money in American politics, we must add a necessary note of caution about the conclusions we can draw in this paper.  This project is an observational study that looks at the correlation between campaign contributions and attempts to influence the Federal Energy Regulatory Commission through legislative letters.  We are limited by our data and can only use cross-sectional designs.  That said, our results suggest interesting patterns that deserve to be interrogated with data that enables more robust research designs. %Given our research design, we cannot draw conclusive causal findings but rather can explore relationships that might be promising areas for future research with a more robust causal design.  
 
 \subsection{The Uneven Evidence for the Influence of Money in American Politics}
 
@@ -262,38 +271,38 @@ Figure \ref{f:lettersmoney1} below shows the average amount a member received in
  \begin{figure}[ht!]
 \centering
 \caption{}\label{f:lettersmoney1}
-\includegraphics[width = \textwidth]{pac_amounts-1.png}
+\includegraphics[width = \textwidth]{pac_amounts-2.png}
 \caption*{\textbf{Figure \ref{f:lettersmoney1}: Average Energy Sector PAC Contributions Per Member Per Cycle.}}
 \end{figure}
 
-The data in Figure \ref{f:lettersmoney1} suggests that the average legislator receives considerable support for their campaigns from energy-sector PACs.  This figure, however, masks the variation across parties in campaign donations from the energy industry.  Figure \ref{f:lettersmoney2} below shows the dramatic cross-party variation in support from the energy industry.  Figure \ref{f:lettersmoney2} shows that Democrats received substantially less money from the energy sector.  For example, in the 2012 election cycle, Democrats received approximately a third of what Republicans did from the energy sector.
+The data in Figure \ref{f:lettersmoney1} suggests that the average legislator receives considerable support for their campaigns from energy-sector PACs.  Figure \ref{f:lettersmoney2} below shows the dramatic cross-party variation in support from the energy industry.  Figure \ref{f:lettersmoney2} shows that Democrats received substantially less money from the energy sector.  For example, in the 2012 election cycle, Democrats received approximately a third of what Republicans did from the energy sector.
  
  \begin{figure}[ht!]
 \centering
 \caption{}\label{f:lettersmoney2}
-\includegraphics[width = \textwidth]{pac_amounts-2.png}
+\includegraphics[width = \textwidth]{pac_amounts-1.png}
 \caption*{\textbf{Figure \ref{f:lettersmoney2}: Cross-Party Differences in Campaign Contributions from Energy Sector PACs (left) and Non-energy Sector PACs (right).} Note: The y-scales differ. }
 \end{figure} 
 
 \begin{figure}[ht!]
 \centering
-\caption{}\label{f:lettersPACsmoney2}
+\caption{}\label{f:pac_amounts-3}
 \includegraphics[width = \textwidth]{pac_amounts-3.png}
-\caption*{\textbf{Figure \ref{f:lettersPACsmoney2}: Unequal Money Across Energy Sector PACs}. The ten PACs that comprise the top 2\% of energy PACs (omitting energy extraction) contribute a disproportionate share of the energy industry's contributions.  The contribution activity of those PACs across election cycles is highlighted in individual colors.}
+\caption*{\textbf{Figure \ref{f:pac_amounts-3}: Unequal Money Across Energy Sector PACs}. The ten PACs that comprise the top 2\% of energy PACs (omitting energy extraction) contribute a disproportionate share of the energy industry's contributions.  The contribution activity of those PACs across election cycles is highlighted in individual colors.}
 \end{figure} 
 
-We also observe substantial inequality across energy-sector PACs in how much money they contribute to congressional campaigns.  Figure \ref{f:lettersPACsmoney2} highlights the money that the ten PACs that comprise the top 2\% of energy PACs.  The most active energy sector PAC in the 2012 cycle was the Bechtel Company PAC, which contributed well over half a million dollars to members of Congress in that cycle. These differences across energy PACs and the often diverging goals of competitor companies suggest that linking a company's PAC contributions to the companies and projects mentioned in the congressional letters to FERC may be a promising area for future research.  In the concluding section of this paper, we discuss how we plan to pursue this line of research in the future.
+We also observe substantial inequality across energy-sector PACs in how much money they contribute to congressional campaigns.  Figure \ref{f:pac_amounts-3} highlights the money that the ten PACs that comprise the top 2\% of energy PACs.  The most active energy-sector PAC in the 2012 cycle was the Bechtel Company PAC, which contributed well over half a million dollars to members of Congress in that cycle. The energy-sector PACs with the largest contributions in the 2018 cycle were the National Rural Electric Cooperative, Koch Industries, and Exxon. These differences across PACs and the often diverging goals of competing companies suggest that linking specific PACs to the companies and projects mentioned in the congressional letters to FERC may be a promising area for future research.  In the concluding section, we discuss how we plan to pursue this line of research.
 
-Having established that energy sector political action committees spend substantial sums of money on congressional campaigns, we now ask whether member-level variation in campaign funding from the energy sector is correlated with variation in legislator's letter-writing to FERC in terms of number of letters, whom the legislator is advocating on behalf of, and what the letters are about. In Figure \ref{f:model1}, we see the coefficient and 95\% confidence intervals for energy industry PAC contributions on letter-writing activity to FERC.  These models are bivariate Poisson regression models in which each color represents a different dependent variable (the type of letter).\footnote{All models presented in this paper are Poisson regression since all dependent variables are counts of different types of letters.  We obtain nearly identical substantive results } The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.\footnote{Frequently, the literature on campaign contributions posits non-linear relationships, and in particular, we often see natural log transformation implying diminishing effects of money as the amount increase.  Table \ref{tab:bilogmoney} in the Appendix shows the same bivariate contribution models, but with the contribution amounts transformed using natural logs.  Table \ref{tab:bicareermoney} in the Appendix shows the same bivariate contribution models, but with the total amount of money received from the industry over a member's entire career. }
+Having established that energy sector political action committees spend substantial sums of money on congressional campaigns, we now ask whether member-level variation in campaign funding from the energy sector is correlated with variation in legislator's letter-writing to FERC. The dependent variable in each model is the number of letters written by a legislator in a congress, either on behalf of energy-sector businesses, opposing energy-sector businesses, on behalf of individual constituents, or all of the above (i.e., the "type" of letter). In Figure \ref{f:model1}, we see the coefficient and 95\% confidence intervals for energy industry PAC contributions on letter-writing activity to FERC.  These models are bivariate Poisson regression models in which each color represents a different dependent variable (the type of letter).\footnote{All models presented in this paper are Poisson regression since all dependent variables are counts of different types of letters.  We obtain nearly identical substantive results with OLS regression.} The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.\footnote{Frequently, the literature on campaign contributions posits non-linear relationships, and in particular, we often see natural log transformation implying diminishing effects of money as the amount increase.  Table \ref{tab:bilogmoney} in the Appendix shows the same bivariate contribution models, but with the contribution amounts transformed using natural logs.  Table \ref{tab:bicareermoney} in the Appendix shows the same bivariate contribution models, but with the total amount of money received from the industry over a member's entire career. } 
 
 \begin{figure}[ht!]
 \centering
 \caption{}\label{f:model1}
 \includegraphics[width = \textwidth]{models-1.png}
-\caption*{\textbf{Figure \ref{f:model1}: Bivariate Models - Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (type of letter). The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.}
+\caption*{\textbf{Figure \ref{f:model1}: Bivariate Models - Campaign Contributions and Letter-writing to FERC.} These figures show the point estimate and 95\% confidence intervals for the energy industry PAC contributions on letter-writing activity to FERC.  Each color represents a different dependent variable (a different type of letter). The full regression tables for this model are in Table \ref{tab:bimoney} in the Appendix.}
 \end{figure}
 
-The bivariate campaign contribution and letter-writing regression results in Figure \ref{f:model1} show a positive relationship for overall letter-writing to FERC per cycle and Pro-Business Letter-writing to FERC per cycle. They show a somewhat weaker relationship between Anti-Business Letter-writing to FERC and no evidence of a relationship between non-constituent letters and campaign contributions.  In terms of the magnitude of the effect size, the model suggests that a \$1 million dollars in contributions from the energy sector PACs would yield 3.5 letters written to FERC in that cycle.  We obtain a nearly identical estimate when we include a measure of the number of employees in the district (3.4 letters). 
+The bivariate campaign contribution and letter-writing regression results in Figure \ref{f:model1} show a positive relationship for overall letter-writing to FERC per cycle and Pro-Business Letter-writing to FERC per cycle. They show a somewhat weaker relationship between Anti-Business Letter-writing to FERC and no evidence of a relationship between non-constituent letters and campaign contributions.  In terms of the magnitude of the effect size, the model suggests that $100,000 dollars in contributions from energy sector PACs in a cycle correlates with 0.35 additional pro-business letters written to FERC in the following congress. We obtain a nearly identical estimate when we include a measure of the number of employees in the district (0.34 letters).
 
 %Frequently, the literature on campaign contributions posits non-linear relationships, and in particular, we often see natural log transformations implying diminishing effects of money as the amount increases.  Figure \ref{f:model2} below shows the same bivariate contribution models, but with the contribution amounts transformed using natural logs. 
 
