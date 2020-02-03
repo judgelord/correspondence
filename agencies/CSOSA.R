@@ -65,7 +65,8 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "M\\. Mulvaney|Mulvaney", "Mick Mulvaney")) %>%
     mutate(FROM = str_replace(FROM, "Waxman|Waxman,", "WAXMAN, Henry")) %>%
-    mutate(FROM = str_replace(FROM, "Donovan", "Daniel DONOVAN"))
+    mutate(FROM = str_replace(FROM, "Donovan", "Daniel DONOVAN")) %>%
+    mutate(FROM = str_replace(FROM, "Senator \\\nCoons ", "Christopher COONS"))
   
 
   #extracts member names
@@ -99,6 +100,9 @@ clean <- function(file.name) {
    data %<>%
      mutate(ERROR = ifelse(str_detect(FROM, "Daniel DONOVAN") & congress %in% 113, "Not yet in congress", ERROR))
   
+   data %>%
+     filter(ID == 6) %>%
+     select(FROM)
    #Check after run through merge
    #Unfoundnames <- d %>%
    #filter(is.na(bioname))
