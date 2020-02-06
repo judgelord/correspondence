@@ -435,7 +435,8 @@ typos_first <- tribble(
   "Orrin", "Hatch", "Orin",
   "Joseph", "Heck", "Joesph",
   "Jerry", "McNerney", "Jerr",
-  "Cory", "Booker", "Corey"
+  "Cory", "Booker", "Corey",
+  "Pramila", "Jayapal", "Primila" 
  
 
  
