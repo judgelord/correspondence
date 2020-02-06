@@ -100,7 +100,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Houlihan,  Chrissy", "Christina HOULAHAN")) %>%
     mutate(FROM = str_replace(FROM, "Hyde -Smith, Cindy", "Hyde-Smith, Cindy")) %>%
     mutate(FROM = str_replace(FROM, "MORGAN, GRIFFITH", "GRIFFITH, MORGAN")) %>%
-    mutate(FROM = str_replace(FROM, "O\\' Halleran, Tom", "O\\'Halleran, Tom"))
+    mutate(FROM = str_replace(FROM, "O\\' Halleran, Tom", "O\\'Halleran, Tom")) %>%
+    mutate(FROM = str_replace(FROM, "RODGERS, MIKE", "ROGERS, MIKE"))
   
   data %<>%
     mutate(FROM = str_replace(FROM, "\\.,", ","))
@@ -126,7 +127,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Liston, Larry|Jackson, Brent|Nozzolio, Michael|Hannon, Kemp|Miller, Mike|GRIFFO, JOSEPH A|Brown, Kate|Jacobs, Kristin|Nozzolio,  Michael"), "State Legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "WARNER, CAITLIN|Stuntz, Grace"), "Agency staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "CLINTON, HILLARY RODHAM|WAXMAN, HENRY|KILDEE, DALE") & congress %in% 114, "No longer in congress", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "CLINTON, HILLARY RODHAM|WAXMAN, HENRY|KILDEE, DALE|SARBANES, PAUL") & congress %in% 114, "No longer in congress", ERROR))
     
   
   
