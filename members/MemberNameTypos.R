@@ -173,7 +173,7 @@ typos_last <- tribble(
   "Trent", "Kelly", "Key",
   "Robin", "Kelly", "Key",
   "Mike", "Kelly", "Key",
-  "Jon","Kyl", "Kyi",
+  "Jon","Kyl", "Kyi|Kyle",
   "Cliff", "Stearns","Steams",
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
