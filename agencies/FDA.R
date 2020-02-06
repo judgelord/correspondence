@@ -81,7 +81,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "LAUTENBERG, FRANKR", "Lautenberg, Frank R")) %>%
     mutate(FROM = str_replace(FROM, "LEAHY, PATRICKJ", "Leahy, Patrick J")) %>%
     mutate(FROM = str_replace(FROM, "ROBACH, JOSEPH THE", "ROBACH, JOSEPH")) %>%
-    mutate(FROM = str_replace(FROM, "SCOTT, DESJARLAIS", "Desjarlais, Scott")) %>%
+    mutate(FROM = str_replace(FROM, "SCOTT, DESJARLAIS|SCOTT,  DESJARLAIS", "Desjarlais, Scott")) %>%
     mutate(FROM = str_replace(FROM, "Cantwell, Ms Maria", "Cantwell, Maria")) %>%
     mutate(FROM = str_replace(FROM, "SENSENBRENNER, F\\. JAMES", "Frank SENSENBRENNER")) %>%
     mutate(FROM = str_replace(FROM, "BUTTERFIELD, G\\.K\\.", "George BUTTERFIELD")) %>%
@@ -121,11 +121,11 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HAMBURG, MARGARET"), "Commissioner U\\\\.S\\. Food and Drug Administration", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Dutcher, Michael Minneapolis District Office"), "Minneapolis District Office", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "U\\.S\\.-China Economic, \\.|Ireland, Jeanne|ST\\.JOHN ST\\. JOHN MEDICAL CENTER|UNIVERSITY OF ROCHESTER MEDICAL CENTER|INDIANA UNIVERSITY SCHOOL OF MEDICINE|Hyde, Marleice|SIPOS, TIBOR DIGESTIVE CARE, INC\\.|Unknown, Unknown|CTMG, NA|FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|HOWARD, SALLY A|VITALE, JOSEPH|BJORKLUND, CYBELE|Boyd, Patrick|Conrady-Brown, Michelle|^\\(b\\) \\(6\\)$|^\\(b\\)\\(6\\)$|^\\(b\\) \\(6\\) CONSTITUENT$|^\\(b\\) \\(6\\) CONSTITUENT \\(b\\) \\(6\\) CONSTITUENT \\(b\\) \\(6\\) CONSTITUENT$|ALEXANDER, UCHENNA|Johnson, Renee|Kinzer,  Janet|Carell, Scott|MEISTER, KAREN|O\\'CONNOR, SEAN"), "Not Member of Congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "U\\.S\\.-China Economic, \\.|Ireland, Jeanne|ST\\.JOHN ST\\. JOHN MEDICAL CENTER|UNIVERSITY OF ROCHESTER MEDICAL CENTER|INDIANA UNIVERSITY SCHOOL OF MEDICINE|Hyde, Marleice|SIPOS, TIBOR DIGESTIVE CARE, INC\\.|Unknown, Unknown|CTMG, NA|FOOD AND DRUG ADMINISTRATION\\/CENTER FOR FOOD SAFETY AND APPLIED NUTRITION|HOWARD, SALLY A|VITALE, JOSEPH|BJORKLUND, CYBELE|Boyd, Patrick|Conrady-Brown, Michelle|^\\(b\\) \\(6\\)$|^\\(b\\)\\(6\\)$|^\\(b\\) \\(6\\) CONSTITUENT$|^\\(b\\) \\(6\\) CONSTITUENT \\(b\\) \\(6\\) CONSTITUENT \\(b\\) \\(6\\) CONSTITUENT$|ALEXANDER, UCHENNA|Johnson, Renee|Kinzer,  Janet|Carell, Scott|MEISTER, KAREN|O\\'CONNOR, SEAN|WILLIAMS, PAUL|Tehan, Rita"), "Not Member of Congress", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Addtional|E&C Committee, U\\. S\\. Congress|Additional|CMTE ON HEALTH, EDUCATION, LABOR & PENSIONS|Help Committee|SPECIAL COMMITTEE ON AGING"), "Multiple unnamed Members of Congress", NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Liston, Larry|Jackson, Brent|Nozzolio, Michael|Hannon, Kemp|Miller, Mike|GRIFFO, JOSEPH A|Brown, Kate|Jacobs, Kristin|Nozzolio,  Michael"), "State Legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "FALEOMAVAEGA, ENI F\\.H\\.|Sablan, Kilili"), "Non voting member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "WARNER, CAITLIN"), "Agency staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "WARNER, CAITLIN|Stuntz, Grace"), "Agency staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "CLINTON, HILLARY RODHAM|WAXMAN, HENRY|KILDEE, DALE") & congress %in% 114, "No longer in congress", ERROR))
     
   
