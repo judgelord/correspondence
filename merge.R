@@ -1,7 +1,8 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
 # load required functions
-source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+source("setup.R") # clean.agency() cleans data and adds a sheet of unre
+ved intercoder discrepencies to google drive
 Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
@@ -33,10 +34,9 @@ data_list <- tribble(
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
 "CSOSA", "not coded", NA,
-"DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
+"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
-"DHHS_CMS", "not coded", "Rochelle",
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
 # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
@@ -67,9 +67,9 @@ data_list <- tribble(
 "DOE_FERC", "not coded", NA,
 # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
-"DOI_BSEE", "not coded", NA,
+"DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
-"DOI_USGS", "not coded", NA,
+"DOI_USGS", "coded", "Hope",
 # DOJ 
 "DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "coded", "Julia",
@@ -78,13 +78,13 @@ data_list <- tribble(
 # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA, 
+"DOL_MSHA", "coded", "Hope", 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 # "DOL_OALJ", "not coded", NA,
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
-"DOL_SOL", "coded", "Rochelle", 
+"DOL_", "coded", "Rochelle", 
 "DOL_VETS", "not coded", NA,
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
