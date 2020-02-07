@@ -1,8 +1,7 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
 
 # load required functions
-source("setup.R") # clean.agency() cleans data and adds a sheet of unre
-ved intercoder discrepencies to google drive
+source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
@@ -33,8 +32,8 @@ data_list <- tribble(
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
-"CSOSA", "not coded", NA,
-"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
+"CSOSA", "coded", "Julia", NA,
+"DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 "DHHS_HRSA", "not coded", NA,
@@ -67,24 +66,24 @@ data_list <- tribble(
 "DOE_FERC", "not coded", NA,
 # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
-"DOI_BSEE", "coded", "Hope",
+"DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
-"DOI_USGS", "coded", "Hope",
+"DOI_USGS", "coded", "Julia", NA,
 # DOJ 
 "DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "coded", "Julia",
-"DOJ_EOIR", "not coded", NA,
+"DOJ_EOIR", "coded", "Julia", NA,
 # "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
 # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "coded", "Hope", 
+"DOL_MSHA", "not coded", NA, 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 # "DOL_OALJ", "not coded", NA,
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
-"DOL_", "coded", "Rochelle", 
+"DOL_SOL", "coded", "Rochelle", 
 "DOL_VETS", "not coded", NA,
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
@@ -143,7 +142,7 @@ data_list <- tribble(
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
-"Treasury_Fiscal", "not coded", NA,
+"Treasury_Fiscal", "coded", "Julia", NA,
 # "Treasury_Mint", "coded", "Rochelle", # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
 "TVA", "not coded", NA,
