@@ -45,7 +45,7 @@ data_list <- tribble(
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
 "DOC_EDA", "not coded", NA,  
-"DOC_IOS", "coded", "Aaron", "Julia, 
+"DOC_IOS", "coded", "Aaron", "Julia", 
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text # Missing most dates
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
