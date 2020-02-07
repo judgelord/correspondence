@@ -69,6 +69,7 @@ data_list <- tribble(
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
 "DOI_USGS", "coded", "Julia", NA,
+# "DOI_SOL", "coding", "Hope", #no clean script
 # DOJ 
 "DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "coded", "Julia",
