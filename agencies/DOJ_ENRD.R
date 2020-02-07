@@ -61,12 +61,18 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_split(FROM, ",| and |&")) %>%
     unnest(FROM)
+  
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
  
   #Paste Chamber into FROM
   data %<>%
     mutate(FROM = str_trim(FROM)) %>%
     mutate(FROM =ifelse(! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM))
+  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "Senator Young", "Representative Young"))
   
   #Typos 
   data %<>%
@@ -78,7 +84,6 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Hon. Mary LANDRIEU United States te Washington", "Mary LANDRIEU")) %>%
     mutate(FROM = str_replace(FROM, "Cong. Carolyn Kilpatrick", "Carolyn KILPATRICK")) %>%
     mutate(FROM = str_replace_all(FROM, "Honorable John McCain United States te Washington|Hon. John McCain United States te Washington|John McCain United States Senate Washington", "John McCAIN")) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO"))
     
@@ -89,15 +94,6 @@ clean <- function(file.name) {
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
  
-   #Check for duplicates
-  sample2data<- data
-  
-  sample2data %<>%
-    group_by(ID, SUBJECT, DATE) %>%
-    mutate(n = n(),
-           last_name = str_c(last_name, collapse = "; ")) %>%
-    distinct()
-  
   
   NoChamber <- data %>%
     filter(is.na(chamber))
@@ -112,9 +108,13 @@ clean <- function(file.name) {
      mutate(NOTES = ifelse(str_detect(FROM, "Davis") & is.na(first_name), "Multiple Davis' FOIA", NOTES)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "Mike Rogers"), "Multiple Mike Rogers' FOIA", NOTES)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "Emanuel") & is.na(last_name), "Multiple Emanuel's FOIA", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Senator Nelson") & is.na(last_name), "Multiple Nelson's FOIA", NOTES)) %>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Representative Young") & is.na(last_name), "Multiple Young's FOIA", NOTES)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Governor"), "State Governor", ERROR)) %>%
      mutate(NOTES = ifelse(str_detect(FROM, "committee|Committee|Cmte|Comte"), "Committee", NOTES)) %>%
-     mutate(NOTES = ifelse(str_detect(FROM, "other Members of Congress"), "Multiple unnamed members", NOTES))
+     mutate(NOTES = ifelse(str_detect(FROM, "other Members of Congress"), "Multiple unnamed members", NOTES)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Mary Landrieu") & congress %in% 114, "No longer in congress", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Carolyn KILPATRICK") & congress %in% 112, "No longer in congress", ERROR))
     
    unfoundnames2 <- data %>%
      filter(is.na(last_name))
