@@ -32,10 +32,11 @@ data_list <- tribble(
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
-"CSOSA", "not coded", NA,
+"CSOSA", "coded", "Julia",
 "DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
+# "DHHS_CMS", "not coded", "Rochelle", # no clean script yet
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
 # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
@@ -44,7 +45,7 @@ data_list <- tribble(
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
 "DOC_EDA", "not coded", NA,  
-"DOC_IOS", "coded", "Aaron",
+"DOC_IOS", "coded", "Aaron", "Julia", 
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text # Missing most dates
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
@@ -68,11 +69,11 @@ data_list <- tribble(
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "not coded", NA,
 "DOI_NPS", "not coded", NA,
-"DOI_USGS", "not coded", NA,
+"DOI_USGS", "coded", "Julia",
 # DOJ 
 "DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "coded", "Julia",
-"DOJ_EOIR", "not coded", NA,
+"DOJ_EOIR", "coded", "Julia", 
 # "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
 # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
 # DOL 
@@ -142,7 +143,7 @@ data_list <- tribble(
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
-"Treasury_Fiscal", "not coded", NA,
+"Treasury_Fiscal", "coded", "Julia", 
 # "Treasury_Mint", "coded", "Rochelle", # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
 "TVA", "not coded", NA,

@@ -49,15 +49,14 @@ typos_clear <- tribble(
   "CANTWELL, MARIA","CANTWELL MARIA",
   "YOUNG, DON","YOUNG. DON",
   "Van Hollen, Chris","Hollen, Chris Van",
+  "Chip Pickering", "\\(Chip\\) Pickering",
+  "Butch Otter", "\\(Butch\\) Otter",
+  "Kit Bond", "\"Kit\" Bond",
+  "Duke Cunningham", "\\(Duke\\) Cunningham",
   
 
-  
-
-  
-
-
-  #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason
-  
+  #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason 
+  #FIXME
   
   ###############################
   
@@ -174,7 +173,7 @@ typos_last <- tribble(
   "Trent", "Kelly", "Key",
   "Robin", "Kelly", "Key",
   "Mike", "Kelly", "Key",
-  "Jon","Kyl", "Kyi",
+  "Jon","Kyl", "Kyi|Kyle",
   "Cliff", "Stearns","Steams",
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
@@ -191,7 +190,7 @@ typos_last <- tribble(
   "Bonnie", "Watson Coleman", "(Watson|Coleman)",
   "Beto", "O'Rourke", "(O Rourke|O.Rourke|Rourke|Orourke|O'Rouke)",
   "Barbara", "Boxer", "Baxter",
-  "David", "Dreier", "Reier",
+  "David", "Dreier", "Reier|Drier",
   "Kelly", "Ayotte", "Aytotte",
   "Steve", "King", "Kiing",
   "Peter", "King", "Kiing",
@@ -238,7 +237,7 @@ typos_last <- tribble(
   "Mike", "Crapo", "Carpo",
   "Mark", "Desaulnier", "Desauliner",
   "Nanette", "Diaz Barragan", "Diaz-Barragan",
-  "Bonnie", "Watson Coleman", "Watson-Coleman",
+  "Bonnie", "Watson Coleman", "Watson-Coleman|Coleman Watson",
   "Adriano", "Espaillat", "Espaillet",
   "Tom", "O'Halleran", "O'Holleran",
   "Anthony", "BRINDISI", "Brindis",
@@ -301,7 +300,12 @@ typos_last <- tribble(
   "Ander", "Crenshaw", "Creshaw",
   "Mike", "FITZPATRICK", "Fitzpatick",
   "Brian", "Schatz", "Schartz",
-  "Brian", "Bilbray", "Billbray"
+  "Brian", "Bilbray", "Billbray",
+  "Bradley", "Byrne", "Bryne",
+  "Elise", "Stefanik", "Stefank",
+  "John", "Delaney", "Delany",
+  "Elizabeth", "Esty", "Etsy",
+  "Thomas", "Tillis", "Tills"
   
   
  
@@ -429,7 +433,12 @@ typos_first <- tribble(
   "Lisa", "Murkowski", "Usa",
   "Donald", "MCEACHIN", "McEachin, A.Donald",
   "Byron", "Dorgan", "Bryon",
-  "Orrin", "Hatch", "Orin"
+  "Orrin", "Hatch", "Orin",
+  "Joseph", "Heck", "Joesph",
+  "Jerry", "McNerney", "Jerr",
+  "Cory", "Booker", "Corey",
+  "Pramila", "Jayapal", "Primila",
+  "Sander", "Levin", "Sandy"
  
 
  

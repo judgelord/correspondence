@@ -51,54 +51,70 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "\\/|&")) %>%
     unnest(FROM)
   
+  #Paste Chamber into FROM
   data %<>%
-    mutate(FROM = str_remove(FROM, "Senate|House|. Chair|V. Chair|Chair|, OMB| OMB|Sender's Information"))
+    mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
+  
+
+  
+  data %<>%
+    mutate(FROM = str_remove(FROM, "Senate|House|\\. Chair|V\\. Chair|Chair|, OMB| OMB|Sender\\'s Information"))
   
   #Typo  
   data %<>%
-    mutate(FROM = str_replace(FROM, "M\\. Mulvaney", "Mick Mulvaney"))
+    mutate(FROM = str_replace(FROM, "M\\. Mulvaney|Mulvaney", "Mick Mulvaney")) %>%
+    mutate(FROM = str_replace(FROM, "Waxman|Waxman,", "WAXMAN, Henry")) %>%
+    mutate(FROM = str_replace(FROM, "Donovan", "Daniel DONOVAN")) %>%
+    mutate(FROM = str_replace(FROM, "Senator \\\nCoons ", "Christopher COONS"))
   
 
   #extracts member names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
   
-  data %<>%
-    mutate(FROM = str_trim(FROM)) %>%
-    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
+  #data %<>%
+    #mutate(FROM = str_trim(FROM)) %>%
+    #mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
  
 
   
-  NoFirst <- data %>%
-    filter(is.na(first_name) & ! is.na(last_name))
+  #NoFirst <- data %>%
+    #filter(is.na(first_name) & ! is.na(last_name))
   
   #Add first name 
-  data %<>%
-    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
+  #data %<>%
+    #mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
   #Create ID
   data %<>%
     mutate(ID = row_number())
-  
- 
-  data %<>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Committee"), "Committee", NOTES))%>%
-    mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(Action,"Congressional Report FY"),5,TYPE ))%>%
-    mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(Action, "Congressional Report FY"),1,CERTAINTY))%>% 
-    mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT,"[:alnum:]")& str_detect(Action, "Congressional Report FY"),"budget allocation", POLICY_EVENT))%>%
-    mutate(DATE = ifelse(!str_detect(DATE,"[:alnum;]")& str_detect(Action, "Congressional Report FY"),"future",DATE ))%>%
-    mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& !str_detect(Addressee,"[:alnum:]")& !str_detect(SUBJECT,"[:alnum:]"),0,TYPE))%>%
-    mutate(CERTAINTY=ifelse(!str_detect(CERTAINTY,"[0-9]")& !str_detect(Addressee,"[:alnum:]") & !str_detect(SUBJECT,"[:alnum:]"),0,CERTAINTY))
+
   
    data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
    
    Unfound <- data %>%
      filter(is.na(last_name))
+   
+   #Errors
+   data %<>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Daniel DONOVAN") & congress %in% 113, "Not yet in congress", ERROR))
   
+   data %>%
+     filter(ID == 6) %>%
+     select(FROM)
    #Check after run through merge
    #Unfoundnames <- d %>%
    #filter(is.na(bioname))
   
+   data %<>%
+     mutate(NOTES = ifelse(str_detect(FROM, "Committee"), "Committee", NOTES))%>%
+     mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(Action,"Congressional Report FY"),5,TYPE ))%>%
+     mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(Action, "Congressional Report FY"),1,CERTAINTY))%>% 
+     mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT,"[:alnum:]")& str_detect(Action, "Congressional Report FY"),"budget allocation", POLICY_EVENT))%>%
+     mutate(DATE = ifelse(!str_detect(DATE,"[:alnum;]")& str_detect(Action, "Congressional Report FY"),"future",DATE ))%>%
+     mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& !str_detect(Addressee,"[:alnum:]")& !str_detect(SUBJECT,"[:alnum:]"),0,TYPE))%>%
+     mutate(CERTAINTY=ifelse(!str_detect(CERTAINTY,"[0-9]")& !str_detect(Addressee,"[:alnum:]") & !str_detect(SUBJECT,"[:alnum:]"),0,CERTAINTY))
   
   return(data)
 }
