@@ -33,7 +33,7 @@ data_list <- tribble(
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
 "CSOSA", "coded", "Julia",
-"DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
+"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 # "DHHS_CMS", "not coded", "Rochelle", # no clean script yet
@@ -67,8 +67,9 @@ data_list <- tribble(
 "DOE_FERC", "not coded", NA,
 # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 "DOI_BOEM", "coded", "Aaron",
-"DOI_BSEE", "not coded", NA,
+"DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
+"DOI_SOL", "coded", "Hope",
 "DOI_USGS", "coded", "Julia",
 # DOJ 
 "DOJ_CIV", "not coded", NA,
@@ -78,7 +79,7 @@ data_list <- tribble(
 # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA, 
+"DOL_MSHA", "coded", "Hope", 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "not coded", NA,
 # "DOL_OALJ", "not coded", NA,
