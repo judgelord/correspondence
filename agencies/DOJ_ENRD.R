@@ -79,14 +79,15 @@ clean <- function(file.name) {
    # mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN")) %>%
    # mutate(FROM = str_replace(FROM, "essman j gresham barrett", "Representative BARRETT")) %>%
     mutate(FROM = str_replace(FROM, " . McCain", " John McCAIN")) %>%
-    mutate(FROM = str_replace(FROM, "Charles B. Rangel", "Charles B Rangel")) %>%
+    mutate(FROM = str_replace(FROM, "Charles B. Rangel", "Charles RANGEL")) %>%
     #mutate(FROM = str_replace(FROM, "essman J. Gresham Barrett", "Representative BARRETT")) %>%
     mutate(FROM = str_replace(FROM, "E. Benjamin Nelson", "Earl B NELSON")) %>%
     mutate(FROM = str_replace(FROM, "Hon. Mary LANDRIEU United States te Washington", "Mary LANDRIEU")) %>%
     mutate(FROM = str_replace(FROM, "Cong. Carolyn Kilpatrick", "Carolyn KILPATRICK")) %>%
     mutate(FROM = str_replace_all(FROM, "Honorable John McCain United States te Washington|Hon. John McCain United States te Washington|John McCain United States Senate Washington", "John McCAIN")) %>%
     mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
-    mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO"))
+    mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
+    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters"))
     
     # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     #mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
