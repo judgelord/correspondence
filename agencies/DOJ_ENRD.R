@@ -67,7 +67,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Albio Sires") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Earl Blumenauer") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Emanuel Cleaver II") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Emanuel Cleaver II") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Charles B\\. Rangel") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Fred Upton") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
  
   #Paste Chamber into FROM
   data %<>%
@@ -83,7 +85,6 @@ clean <- function(file.name) {
    # mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN")) %>%
     mutate(FROM = str_replace(FROM, "J\\. Gresham Barrett", "James Gresham BARRETT")) %>%
     mutate(FROM = str_replace(FROM, " \\. McCain", " John McCAIN")) %>%
-    mutate(FROM = str_replace(FROM, "Charles B\\. Rangel", "Charles RANGEL")) %>%
     #mutate(FROM = str_replace(FROM, "essman J. Gresham Barrett", "Representative BARRETT")) %>%
     mutate(FROM = str_replace(FROM, "E\\. Benjamin Nelson", "Earl B NELSON")) %>%
     mutate(FROM = str_replace(FROM, "Hon\\. Mary LANDRIEU United States te Washington", "Mary LANDRIEU")) %>%
