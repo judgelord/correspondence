@@ -51,8 +51,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Cong\\. Timothy Ryan Cong\\. Betty Sutton", "Cong\\. Timothy Ryan, Cong\\. Betty Sutton"))
   
   data %<>%
-    mutate(FROM = str_replace(FROM, "congressman |Congressman |Rep\\.|Con\\. |con\\. |Congresswoman |MCs |Cong\\. |congress |cong\\.|Reresentatives|Congressmen |House of Reps\\.", "Representative ")) %>%
-    mutate(FROM = str_replace(FROM, "Sen |Sen\\.|Senators |Sens\\. ", "Senator "))
+    mutate(FROM = str_remove(FROM, "congressman |Congressman |Rep\\.|Con\\. |con\\. |Congresswoman |MCs |Cong\\. |congress |cong\\.|Reresentatives|Congressmen |House of Reps\\.")) %>%
+    mutate(FROM = str_remove(FROM, "Sen |Sen\\.|Senators |Sens\\. "))
   
   data %<>%
      mutate(FROM = str_remove_all(FROM, ", DC.*|, WA.*|, TN.*|, CT.*|, NY.*|, D.C..*|FL|CO"))
@@ -87,7 +87,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace_all(FROM, "Honorable John McCain United States te Washington|Hon. John McCain United States te Washington|John McCain United States Senate Washington", "John McCAIN")) %>%
     mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
-    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters"))
+    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters")) #%>%
+    #mutate(FROM = str_replace(FROM, "Representative  Albio Sires", "Representative Sires"))
     
     # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     #mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
@@ -122,7 +123,7 @@ clean <- function(file.name) {
      filter(is.na(last_name))
    
    data %>%
-     filter(ID == 238) %>%
+     filter(ID == 67) %>%
      select(FROM)
   #Filter to use after merge
  # Unmatched <- d %>%
