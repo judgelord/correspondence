@@ -69,7 +69,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Earl Blumenauer") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Emanuel Cleaver II") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(chamber = ifelse(str_detect(FROM, "Charles B\\. Rangel") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Fred Upton") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Fred Upton") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Jerry Moran") & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROm, "Don Young") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
  
   #Paste Chamber into FROM
   data %<>%
