@@ -95,7 +95,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace_all(FROM, "Honorable John McCain United States te Washington|Hon\\. John McCain United States te Washington|John McCain United States Senate Washington", "John McCAIN")) %>%
     mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
-    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters"))
+    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters")) %>%
+    mutate(FROM = str_replace(FROM, "Conyers asChairman of the Judiciary committee", "John Conyers")) %>%
+    mutate(FROM = str_replace(FROM, "DOJ - Cobell letter From McCain", "John McCain"))
     
     # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     #mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
