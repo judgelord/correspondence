@@ -84,11 +84,9 @@ clean <- function(file.name) {
   
   #Typos 
   data %<>%
-   # mutate(FROM = str_replace(FROM, "tors Wyden", "Senator WYDEN")) %>%
     mutate(FROM = str_replace(FROM, "Senator Don Young", "Don Young")) %>%
     mutate(FROM = str_replace(FROM, "J\\. Gresham Barrett", "James Gresham BARRETT")) %>%
     mutate(FROM = str_replace(FROM, " \\. McCain", " John McCAIN")) %>%
-    #mutate(FROM = str_replace(FROM, "essman J. Gresham Barrett", "Representative BARRETT")) %>%
     mutate(FROM = str_replace(FROM, "E\\. Benjamin Nelson", "Earl B NELSON")) %>%
     mutate(FROM = str_replace(FROM, "Hon\\. Mary LANDRIEU United States te Washington", "Mary LANDRIEU")) %>%
     mutate(FROM = str_replace(FROM, "Cong\\. Carolyn Kilpatrick", "Carolyn KILPATRICK")) %>%
@@ -131,12 +129,6 @@ clean <- function(file.name) {
    unfoundnames2 <- data %>%
      filter(is.na(last_name))
    
-   data %>%
-     filter(ID == 143) %>%
-     select(FROM)
-  #Filter to use after merge
- # Unmatched <- d %>%
-  #  filter(is.na(bioname))
   
   return(data)
   
