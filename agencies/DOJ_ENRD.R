@@ -97,7 +97,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
     mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters")) %>%
     mutate(FROM = str_replace(FROM, "Conyers asChairman of the Judiciary committee", "John Conyers")) %>%
-    mutate(FROM = str_replace(FROM, "DOJ - Cobell letter From McCain", "John McCain"))
+    mutate(FROM = str_replace(FROM, "DOJ - Cobell letter\nFrom McCain", "John McCain"))
     
     # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     #mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
@@ -132,7 +132,7 @@ clean <- function(file.name) {
      filter(is.na(last_name))
    
    data %>%
-     filter(ID == 67) %>%
+     filter(ID == 143) %>%
      select(FROM)
   #Filter to use after merge
  # Unmatched <- d %>%
