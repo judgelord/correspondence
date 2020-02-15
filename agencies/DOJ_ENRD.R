@@ -63,7 +63,9 @@ clean <- function(file.name) {
     unnest(FROM)
   
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Rahall") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Albio Sires") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Earl Blumenauer") & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber))
  
   #Paste Chamber into FROM
   data %<>%
@@ -87,8 +89,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace_all(FROM, "Honorable John McCain United States te Washington|Hon. John McCain United States te Washington|John McCain United States Senate Washington", "John McCAIN")) %>%
     mutate(chamber = ifelse(FROM == "Young" & congress == 109 & str_detect(chamber, "Senate"), str_replace(chamber, "Senate", "House"), chamber)) %>%
     mutate(FROM = str_replace(FROM, "Bono Mack", "Mary Mack BONO")) %>%
-    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters")) #%>%
-    #mutate(FROM = str_replace(FROM, "Representative  Albio Sires", "Representative Sires"))
+    mutate(FROM = str_replace(FROM, "Representative Water", "Representative Waters"))
     
     # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     #mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
