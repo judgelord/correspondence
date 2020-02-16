@@ -1,4 +1,4 @@
-###########First Part/Data##################
+###########First Part/Data###################
 
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
