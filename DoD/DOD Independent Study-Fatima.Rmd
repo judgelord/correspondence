@@ -1,0 +1,1792 @@
+---
+title: "DoD Independent Study"
+subtitle: "Insert Something Insightful Here"
+author: "Fatima Ali"
+output:
+  #pdf_document
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, eval=FALSE, include=FALSE}
+git pull
+Rscript -e 'library(rmarkdown);rmarkdown::render("FERC/FERCsummary.Rmd", "html_document")'
+```
+
+```{r setup, include=FALSE}
+# Rscript -e 'library(rmarkdown); rmarkdown::render("gh-pages/summary.Rmd", "html_document")'
+
+requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magrittr", "stargazer", "maps", "fiftystater", "mapproj", "dotwhisker", "here", "devtools")
+  to_install <- c(!requires %in% rownames(installed.packages() ) )
+  install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
+
+  if(!"fiftystater" %in% rownames(installed.packages())){
+    devtools::install_github("wmurphyrd/fiftystater")
+  }
+
+```
+
+```{r, include=FALSE}
+  library(tidyverse)
+  library(ggplot2); theme_set(theme_bw())
+  options(
+    ggplot2.continuous.color = "viridis",
+    ggplot2.continuous.fill = "viridis"
+  )
+  scale_color_discrete <- function(...)
+    scale_color_viridis_d(...)
+  scale_fill_discrete <- function(...)
+    scale_fill_viridis_d(...)
+  library(magrittr)
+  library(maps)
+  library(fiftystater)
+  library(mapproj)
+  library(knitr)
+  library(broom)
+  library(dotwhisker)
+  library(here)
+  library(dplyr)
+
+# source(here("setup.R"))
+```
+
+```{r global.options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      cache = FALSE, 
+                      fig.width=8.5, 
+                      split = T,
+                      fig.align = 'center', 
+                      fig.path='Figs/',
+                      warning=FALSE, 
+                      message=FALSE)
+```
+
+# Data
+
+The full dataset of congressional correspondence can be found at `"data/all_contacts.RData"`.
+More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`.
+
+```{r data}
+load(here("data/all_contacts.RData"))
+# one obs per member per letter for all agencies
+d <- all_contacts %>%
+  ungroup() %>% 
+  # define d as just FERC
+  filter(agency=="DOE_FERC") %>% 
+  #mutate(ID = NOTES) %>% 
+  # FIXME
+  # filter(nchar(ID)>8) %>%
+  #select(-SUBJECT) %>% 
+  mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
+  # FIXME 
+  # GOODE needs to be fixed in party switchers portion of merge.R
+  filter(!(last_name == "GOODE"& party == "(I)"))
+  
+
+## one obs per member per letter per committee for all agencies # DEPRECIATED 
+# load(here("data/all_contacts_committees.RData"))
+## define dcommittees as just FERC
+#dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
+
+# Coded letters, one obs per member per letter 
+load(here("data/DOE_FERC-letters-clean.Rdata")) 
+
+
+# TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
+FERC_letters %<>% 
+  select(SUBJECT, Notes, DATE, last_name, # last_name is aparently slightly different in d and FERC_letters
+         Freelancer, 
+         Cosigned_House, Cosigned_Senate,
+         text_clean, Constituent, year,
+         Place_State, Place_District, Place_District,
+         ProBusiness, AntiBusiness, ProProject, AntiProject) %>%
+  #mutate(ID = ID %>% as.character()) %>% 
+  distinct()
+
+## Make sure FERC letter IDs are the same as in the main data
+# FERC_letters %>% filter(year < 2019, !ID %in% d$ID)
+
+# merge in coded letters
+
+d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID)) 
+
+# how many failed to merge?
+d %>% count(is.na(Freelancer))
+
+# Add hand-coding to auto-coding of letter type 
+d %<>%  
+  mutate(Type = as.character(Type)) %>% 
+  mutate(Type = ifelse(tolower(Constituent) == "yes", "Indiv. Constituent", Type)) %>% 
+  mutate(Type = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "Corp. Constituent", Type)) %>%
+  # define Constituent as "Indiv. Constituent"
+  mutate(Constituent = ifelse(Type == "Indiv. Constituent", "Indiv. Constituent", "Non_constituent"),
+         Constituent = replace_na(Constituent, "Not coded") ) 
+  
+
+# For this analysis, treat corp policy letters as Policy
+# d$Type %>% unique()
+# d$Constituent %>% unique()
+all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
+d$Type %<>% fct_recode(Policy = "Corp. Policy")
+
+# make a variable for the pro or anti-business position of each letter
+d %<>% 
+  mutate(letter_position = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "ProBusiness", "Other"),
+         letter_position = ifelse(!is.na(AntiBusiness)|!is.na(AntiProject), "AntiBusiness", letter_position),
+         letter_position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", letter_position)) 
+
+
+# unique(d$letter_position)
+
+d %<>% 
+  # FIXME
+  # rounding years up is approximate, rewrite to go Nov-Nov?
+  #mutate(cycle = congress*2+1786 ) %>% 
+  mutate(icpsryear = str_c(icpsr, congress))
+```
+
+
+
+In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` letters received by FERC and marked "congressional" since `r min(FERC_letters$year)`. Most, but not all of these are from Members of the U.S. Congress. Of the `r FERC_letters %>% filter(year >1999) %>% select(Notes) %>% distinct() %>% nrow()` letters from 2000-`r max(d$year)`, we identified Members of Congress in 3908. Because many are cosigned, this yeild `r nrow(d)` instances of a member writing to FERC.
+
+---
+
+# Outlier
+
+Rep. Virgil Goode (R-VA) is an outlier who affects results, especially for Anti-business letters. A few members forward a lot of mail. 
+```{r forwards}
+# top overall
+d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to FERC")
+
+# most with a given position
+d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
+
+# most with a given position in a cycle
+d %>% count(bioname, party, cqlabel, letter_position, congress, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator in a cycle")
+
+# d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(1, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Letters from the legislator who forwards the most letters")
+
+d %>%
+  ggplot() +
+  aes(x = congress, fill = letter_position) + 
+  geom_bar(position = "dodge") + 
+  facet_grid(party_name ~ chamber)
+```
+
+## Because Goode in the 107th is such an outlier, we drop these 117 letters
+```{r goode}
+# Because it Goode in the 107th is such an outlier, we drop these 177 letters
+d %>% filter(bioname == "GOODE, Virgil H., Jr.", congress == 107) %>% select(ID, bioname, SUBJECT, AntiBusiness, AntiProject) %>% kable()
+
+d %<>% filter(!(bioname =="GOODE, Virgil H., Jr." & congress == 107))
+```
+
+---
+
+## By party and majority status
+
+
+```{r part-constituent, fig.height=3, fig.width=4}
+d %>% 
+  mutate(For = Constituent,
+         For = ifelse(letter_position == "ProBusiness", "Pro-Business", For),
+         For = ifelse(For == "Non_constituent", "Other", For)) %>% 
+  count(party_name, For, majority) %>% 
+  filter(party_name != "Independent",
+         !is.na(For),
+         For != "Not coded",
+         For != "Other",
+         !is.na(majority)) %>% 
+  group_by(party_name, majority) %>% 
+  mutate(percent = n / sum(n) * 100 ) %>% 
+  ggplot() + 
+  aes(y = percent, x = "", fill = For) + 
+  geom_col(position = "stack") + 
+  #geom_text(aes(label = n)) +
+  facet_grid(majority ~ party_name) + 
+  scale_fill_viridis_d(option = "C", end = .8) + 
+    labs(x = "",
+       fill = "Advocating for",
+       y = "Percent") + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank())
+
+d %>% 
+  mutate(For = Constituent,
+         For = ifelse(letter_position == "ProBusiness", "Pro-Business", For),
+         For = ifelse(For == "Non_constituent", "Other", For)) %>% 
+  count(party_name, For, majority, congress) %>% 
+  filter(party_name != "Independent",
+         !is.na(For),
+         For != "Not coded",
+         For != "Other",
+         !is.na(majority)) %>% 
+  ggplot() + 
+  aes(y = n, x = congress, fill = For) + 
+  geom_col(position = "stack") + 
+  #geom_text(aes(label = n)) +
+  facet_grid(majority ~ party_name) + 
+  scale_fill_viridis_d(option = "C", end = .8) + 
+    labs(x = "",
+       fill = "Advocating for",
+       y = "n") + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank(),
+        axis.text = element_text(angle = 45))
+```
+
+Looking at letters that are explicitly pro- or anti-business, Democrats write more anti-business letters, whereas, for Republicans, it depends on chamber control. When in the majority, Republicans write more pro-business letters. 
+```{r part-business, fig.height=3, fig.width=4}
+d %>% 
+  count(party_name, letter_position, majority) %>% 
+    filter(party_name != "Independent",
+           letter_position != "Other",
+         !is.na(letter_position),
+         !is.na(majority)) %>% 
+  group_by(party_name, majority) %>% 
+  mutate(percent = n / sum(n) * 100 ) %>% 
+  ggplot() + 
+  aes(y = percent, x = "", fill = letter_position) + 
+  geom_col(position = "stack") + 
+  facet_grid(majority ~ party_name)+ 
+  scale_fill_viridis_d(option = "C", end = .8) + 
+  labs(x = "",
+       fill = "",
+       y = "Percent") + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank())
+
+d %>% filter(party_name != "Independent",
+             letter_position != "Other",
+             !is.na(letter_position),
+             !is.na(majority)) %>% 
+  count(party_name, letter_position, majority, congress) %>% 
+  ggplot() + 
+  aes(y = n, x = factor(congress), fill = letter_position) + 
+  geom_col(position = "stack") + 
+  facet_grid(majority ~ party_name)+ 
+  scale_fill_viridis_d(option = "C", end = .8) + 
+  labs(x = "",
+       fill = "",
+       y = "n") + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank(),
+        axis.text.x = element_text(angle = 45))
+```
+
+---
+
+## Coding of constituent type 
+Our coding of letter type is a mix of hand-coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders using [inductively-developed coding rules](https://github.com/judgelord/correspondence/blob/master/agencies/DOE_FERC.R).
+
+FERC has an especially high ratio of letters written on behalf of businesses compared to other agencies that mostly receive letters from legislators on behalf of their constituents. 
+
+```{r data-by-type, fig.width=7, fig.height=4}
+all_percent <- all_contacts %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = 100*round(nT/total, 2) ) %>% 
+  mutate(agency = "Overall") %>% 
+  ungroup()
+
+
+d_percent <- d %>% 
+  filter(Type != "To be coded") %>%  
+  mutate(total = n()) %>% 
+  group_by(Type, total) %>% summarise(nT = n()) %>% 
+  mutate(percent = 100*round(nT/total, 2) ) %>% 
+  mutate(agency = "DOE FERC") %>% 
+  ungroup()
+
+full_join( all_percent, d_percent)%>% 
+  ggplot() + 
+  aes(x = Type, y = percent, fill = agency, color = agency, label = nT) + 
+  geom_col(position = "dodge") + 
+  geom_text(vjust = -.1,
+            aes(hjust = ifelse(agency == "Overall", 0,1))) +
+  labs(x = "",
+       fill = "",
+       color = "",
+       y = "Percent", #paste("Number of Contacts, N =", sum(nrow(all_contacts))),
+       title = "Legislator Contacts with FERC") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_text()) + 
+  scale_color_viridis_d(option = "C", end = .8) +
+  scale_fill_viridis_d(option = "C", end = .8) + 
+    theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank())
+```
+
+```{r constituent-non-constituent, fig.height=3, fig.width=7}
+d  %>% 
+  filter(Constituent != "Not coded") %>% 
+  ggplot() + 
+      theme_minimal() +
+  aes(x = letter_position) + 
+  geom_bar() + 
+  facet_wrap("Constituent") +
+  
+  labs(x = "",
+       y = paste("Letters 2000-2018, N =", as.character(d%>%drop_na(letter_position, Constituent) %>% nrow() %>% as.character() )))
+
+d  %>% 
+  ggplot() + 
+      theme_minimal() +
+  aes(x = letter_position) + 
+  geom_bar() + 
+  facet_wrap("Constituent") +
+  labs(title = "Including letters without constituent coding", 
+       x = "",
+       y = paste("Letters 2000-2018, N =", as.character(d %>% nrow() %>% as.character() )))
+```
+
+---
+
+# Members
+
+### Senators vs. state population 
+
+```{r population, fig.height= 3.7, fig.width=6}
+d %>% 
+  filter(chamber == "Senate") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
+  labs(title = "Senator Requests per Year by State Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+
+```
+
+```{r senate_percapita_map}
+Chamber = "Senate"
+
+d %>% 
+  ungroup() %>%
+  filter(chamber == Chamber) %>% 
+  group_by(state) %>% summarise(n = n()) %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) # + facet_grid(. ~ Constituent)
+
+d %>% 
+  ungroup() %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(state, pop2010) %>% summarise(n = n()) %>% ungroup() %>% 
+  mutate(Per_Capita = n/pop2010*1000000) %>% 
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank() )#+facet_grid(. ~ Constituent)
+
+# By type2
+d %>% 
+  filter(chamber == Chamber) %>% 
+  filter(Constituent != "Not coded") %>% 
+  group_by(state, Constituent) %>% summarise(n = n()) %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) + facet_grid(. ~ Constituent)
+
+d %>% 
+  filter(chamber == Chamber) %>%
+  filter(Constituent != "Not coded") %>% 
+  group_by(state, pop2010, Constituent) %>% summarise(n = n()) %>% ungroup() %>% 
+  mutate(Per_Capita = n/pop2010*1000000) %>% 
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank() )+
+  facet_grid(. ~ Constituent)
+```
+
+
+---
+
+### Members who contact FERC more than average: 
+
+```{r members_barcoded, fig.height=5, fig.width=9}
+# barcode plot of committee members 
+ 
+# member by year by agency 
+d %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+  filter(n > mean(n)) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(name_state, n) ), 
+    # alpha = .6,
+    shape = 73,
+    size=2
+  ) +  
+  labs(title = paste(Chamber),
+       y = paste("Members by", "Total Number of Letters"), 
+       x = "Date of Correspondence" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5)
+  ) + 
+    guides(fill=guide_legend(ncol=1)) 
+
+
+Chamber <- "House" # "House" #  
+ 
+# member by year by agency 
+d %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+  filter(n > mean(n)) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(name_state, n) ), 
+    # alpha = .6,
+    shape = 73,
+    size=2
+  ) +  
+  labs(title = paste(Chamber),
+       y = paste("Members by", "Total Number of Letters"), 
+       x = "Date of Correspondence" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5)
+  ) + 
+    guides(fill=guide_legend(ncol=1)) 
+```
+
+```{r ferc_vs_all_rate}
+all_contacts %>%
+  filter(congress >109) %>% 
+  mutate(FERC = agency == "DOE_FERC") %>%
+  count(chamber, FERC, name_state, state) %>%
+  spread(key = "FERC", value = "n", 0) %>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
+  arrange(-ShareToFERC) %>% 
+  mutate(total = `TRUE` + `FALSE`) %>% 
+  select(name_state, chamber, total, ShareToFERC) %>% 
+  filter(ShareToFERC>.3) %>%
+  knitr::kable(caption = "Members who contact FERC more, relative to other agencies" )
+
+
+all_contacts %>% 
+  filter(congress >109) %>% 
+  mutate(FERC = agency == "DOE_FERC") %>%
+  count(chamber, congress, FERC, name_state, state) %>%
+  spread(key = "FERC", value = "n", 0) %>% 
+  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
+  arrange(-ShareToFERC) %>% 
+  mutate(total = `TRUE` + `FALSE`) %>% 
+  select(name_state, chamber, congress, total, ShareToFERC) %>% 
+    filter(total >10) %>% 
+  top_n(10) %>%
+  knitr::kable(caption = "Members who contact FERC more in a Congress, relative to other agencies")
+```
+
+
+## Interesting cases
+
+From [Sen. Dianne Feinstein's website section on accomplishments in the 107th Congress](https://www.feinstein.senate.gov/public/index.cfm?p=107th-congress):
+
+"**Significant Negotiations:**
+
+Just and Reasonable Electricity Rates – With the electricity rates skyrocketing because of market manipulation during the California energy crisis, Senator Feinstein lobbied the President, other members of Congress, and the Federal Energy Regulatory Commission to cap electricity and natural gas rates.  She also introduced S.26, which would have authorized the Department of Energy to impose price caps, S.287, to direct FERC to impose the cost of service-based rates on electricity and S.764 to give FERC the choice of either price caps based on demand or cost of service rates.  While the bills did not come up for a vote, Senator Feinstein was finally successful in convincing FERC, after new commissioners were sworn in, to impose price caps on their own."
+
+---
+
+From the [West Virginia Gazette](https://www.wvgazettemail.com/news/politics/wv-republican-congressmen-s-funding-dwarfs-challengers/article_2e9bcb96-9021-56a6-ac0f-57f2917a6bef.html):
+
+In an article titled "Republican congressmen’s funding dwarfs challengers’," the Charleston Gazee-Mail noted how energy companies backed Representative Alex Mooney (R-WV). Indeed, Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
+In 2017, he wrote on behalf of the 
+Dominion Energy Supply Header Project,
+National Fuel Gas Distribution Corporation's [Northern Access Project](https://www.natfuel.com/supply/NorthernAccess2016/default.aspx),
+Transcontinental Gas Pipe Line Company's [Atlantic Sunrise Project](https://blog.williams.com/projects-and-operations/atlantic-sunrise/atlantic-sunrise-project-placed-into-full-service/), 
+Columbia Gas Transmission's proposed Eastern Panhandle Expansion project,
+Columbia's WB Xpress Project to build new compressor stations,
+In 2015 he wrote on behalf of the
+Columbia s Mountaineer XPress Project,
+Atlantic Coast Pipeline ACP project. 
+The parent companies of these projects spend millions of dollars on lobbying (Lobbyview). The WV Gazette reports funding from Dominion that is not included in Lobbyview totals. 
+
+
+---
+
+## Committee Leadership
+
+```{r committeechiars_barcode, fig.height=5, eval=FALSE}
+dcommittees %>%  
+  mutate(chair = str_remove(chair,"[0-9]* |^NA "),
+         committee = paste(chamber, committee))%>% 
+  dplyr::select(committee, position, chair, DATE, assigneddate, terminationdate) %>% 
+  distinct() %>% 
+  filter(str_detect(committee, "ENERGY$|ENVIRONMENT|NATURAL")) %>% 
+  mutate(position = ifelse(position == "Other", NA, position)) %>%
+  #filter(# !is.na(position),chair_since_2007 == T) %>%
+  drop_na(chair) %>% 
+  dplyr::select(DATE, chair, position, assigneddate, terminationdate, committee) %>% 
+  distinct() %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = assigneddate, xend = terminationdate, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste("Letters to FERC from Committee Leadership"),
+       y = "", 
+       x = "",
+       linetype = "Leadership position") +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    # legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+```
+
+## Many letters to FERC are cosigned
+
+For each member, we have letter counts by Congress and letter position, as well as contributions by energy and non-energy sector PACs: 
+```{r cosigned_estimated, eval=FALSE}
+#A rough under-estimate based on whether "et al" or "&" appears in the summary:
+
+FERC_letters %>% 
+  filter(year>1999,
+         year<2019) %>% 
+  group_by(ID) %>% 
+  top_n(1) %>% 
+  mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, probably_cosigned) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = probably_cosigned) +
+  geom_col() +
+  scale_fill_viridis_d(option = "C", end = .8)
+```
+
+Cosigned letters identified by coders
+```{r cosigned_coded}
+FERC_letters %>% 
+  filter(!is.na(Freelancer),
+         year>1999,
+         year<2019) %>% 
+    mutate(Cosigned = ifelse(!is.na(Cosigned_House)|!is.na(Cosigned_Senate),
+                                 T, F)) %>%
+  select(Cosigned, year, Notes) %>% distinct() %>% 
+  count(year, Cosigned) %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = Cosigned) +
+  geom_col() +
+  scale_fill_viridis_d(option = "C", end = .8)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+# PAC Contributions from the Energy Sector
+Using CRP industry codes and contribution data, sum up sector-level contributions by a member per cycle, matching a congress with the cycle when it was elected (e.g., 116th Congress = 2018 cycle). Code to get PAC contributions from CRP data [here](https://judgelord.github.io/correspondence/functions/pacs-from-crp.html). PAC contributions per cycle are saved as [data/pac_amounts.Rdata](https://github.com/judgelord/correspondence/blob/master/data/pac_amounts.Rdata).
+
+(For the next paper, we will look at specific company-legislator diads, see company-crosswalk.Rmd)
+
+```{r pac_amounts, fig.height= 3.6}
+library(tidyverse)
+  
+load(here::here("data/pac_amounts.Rdata"))
+
+pac_amounts %<>% 
+  # select useful vars 
+  select(icpsr, party_name, congress, cycle, industry, amounts) %>% distinct() %>% 
+  # fix cycle 
+  mutate(cycle = (congress - 107)*2 + 2000)
+
+pac_amounts %<>% filter(cycle>1997)
+
+# drop NA industry
+pac_amounts %<>% filter(!is.na(industry)) 
+
+pac_amounts %<>% 
+  mutate(PAC_contributions = amounts) 
+
+pac_amounts %>% top_n(10) %>% kable()
+pac_amounts %>% filter(industry =="energy") %>% top_n(10, amounts) %>% kable()
+
+# join in members data from VoteView 
+load(here::here("members/members.Rdata"))
+
+
+# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
+members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Senate")) 
+
+pac_amounts %>% count(icpsr, congress, industry) %>% filter(n >1)
+members %>% count(icpsr, congress) %>% filter(n >1)
+
+
+pac_amounts %<>% left_join(members %>% select(congress, icpsr, bioname, chamber) %>% distinct() )  %>% distinct()
+
+pac_amounts %>% top_n(10, amounts) %>% kable()
+pac_amounts %>% filter(industry =="energy") %>%  top_n(10, amounts) %>% kable()
+
+
+# any member-congress observations not in members file (i.e. outside timerange )
+pac_amounts %<>%  filter(!is.na(bioname)) %>% distinct()
+
+
+# inspect coverage 
+pac_amounts %<>% mutate(Cycle = cycle)
+
+# total
+pac_amounts %>%
+    mutate(industry = ifelse(industry == "energy", "Energy Sector PACs", "Non-Energy Sector PACs")) %>% 
+  group_by(Cycle, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/100000) %>% 
+  ungroup() %>% 
+  ggplot() + 
+  aes(x = factor(Cycle), y = total, fill = party_name) + 
+  geom_col() + 
+  facet_wrap("industry", scales = "free") +
+  labs(y = "Total Industry PAC contributions\n(hundreds of thousand)", 
+       x = "FEC Electoral Cycle",
+       fill = "") + 
+    scale_fill_discrete(option="magma", begin =.15, end = .65) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45))
+
+# average per member 
+pac_amounts %>%
+  mutate(industry = ifelse(industry == "energy", "Energy Sector PACs", "Non-Energy Sector PACs")) %>% 
+  group_by(Cycle, icpsr, party_name, industry) %>% 
+  summarise(total = sum(amounts, na.rm = TRUE)/100000) %>% 
+  ungroup() %>% 
+  group_by(Cycle, party_name, industry) %>% 
+  summarise(mean = mean(total)) %>% 
+  ggplot() + 
+  aes(x = factor(Cycle), y = mean, fill = party_name) + 
+  geom_col(position = "dodge") + 
+  facet_wrap("industry", scales = "free") +
+  labs(y = "Average PAC contributions per member\n (hundreds of thousand)", 
+       x = "FEC Electoral Cycle",
+       fill = "") + 
+  scale_fill_discrete(option="magma", begin =.15, end = .65) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45))
+
+
+# problems with duplicate icpsrs? 
+# pac_amounts %>% group_by(icpsr, congress,  industry) %>% mutate(n = n() ) %>% filter(n>1)  %>% arrange(icpsr)
+
+# problems with dupliate bioname + party
+# pac_amounts %>% group_by(bioname, congress, party_name,  industry) %>% mutate(n = n() ) %>% filter(n>1)  %>% arrange(bioname)
+
+# party switchers 
+# pac_amounts %<>% group_by(bioname, congress, chamber, industry) %>% mutate(parties = n() ) 
+# 
+# # pac_amounts %>% filter(parties>1)  %>% arrange(bioname)
+# 
+# # drop Independents
+# pac_amounts %<>% filter(parties < 2 | party_name!="Independent")
+# 
+# pac_amounts %<>% group_by(bioname, congress, chamber, industry) %>% mutate(parties = n() ) 
+# 
+# pac_amounts %>% filter(parties >1)
+# 
+# pac_amounts %<>% select(-parties)
+# pac_amounts %>% filter(party_name=="Independent") %>% arrange(-PAC_contributions, bioname)
+
+load(here("data/pac_contributions.Rdata"))
+
+pac_contributions %>%
+  filter(cycle >1996) %>% 
+  filter(industry == "energy") %>% 
+  group_by(PACID) %>% 
+  mutate(PACShort = str_c(unique(PACShort), collapse = "/")) %>% 
+  # count(PACShort, sort = T) %>% 
+  mutate(cycle = Cycle) %>% 
+  group_by(cycle, PACShort) %>% 
+  summarise(total = sum(Amount, na.rm = TRUE)/100000) %>%  # 100k
+  ungroup() %>% 
+    group_by(PACShort) %>% 
+  mutate(PACtotal = sum(total, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(PAC = ifelse(PACtotal > quantile(PACtotal, .95), PACShort, NA)) %>% 
+  ggplot() + 
+  aes(x = factor(cycle), y = total, fill= PAC) + 
+  geom_col() + 
+  labs(y = "Energy-sector PAC contributions \n (hundreds of thousands) \n ", 
+       x = "FEC Electoral Cycle",
+       fill = "Energy-sector PACs in top 2% \n(omitting energy extraction)") + 
+  scale_fill_viridis_d(option = "C", na.value = "grey50") + 
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45))
+```
+
+
+## Count letters by member by year (including zero counts)
+```{r zeros}
+# d %>% select(letter_position, congress, icpsr) %>% distinct() %>%  count(letter_position, congress, icpsr, sort= T)
+
+# d %>% count(letter_position, congress)
+
+d$letter_position %<>% replace_na("other") 
+
+# letter counts by position
+letter_counts <- d %>% 
+  count(letter_position, congress, chamber, icpsr) %>% 
+  ungroup() # %>% tally(n)
+
+# letter_counts %>% filter(is.na(letter_position))
+
+# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
+members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Senate")) 
+
+# add letters to members file to get zero counts
+letters <- members %>% select(congress, icpsr, chamber, cqlabel) %>% distinct() %>% 
+  left_join(letter_counts) %>% # introduces NA letter position because not all members are in letter_counts
+  mutate(n = replace_na(n,0)) %>% 
+  ungroup() %>% 
+  # mutate(letter_position = as.factor(letter_position)) %>% 
+    complete(letter_position, nesting(congress, icpsr, chamber, cqlabel),
+             fill = list(n = 0)) %>% 
+  ungroup() %>% 
+  filter(!is.na(letter_position)) %>% 
+  distinct() 
+
+# letters %>% count(letter_position)
+
+# # should be the same icpsrs
+# members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+# letters %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+```
+
+# Merge letters with PAC contribution data
+```{r, letters_money}
+# merge with PAC amounts
+letters_money <-  letters %>% 
+  full_join(pac_amounts %>% ungroup())  %>% distinct()
+
+# letters %>% filter(!icpsr %in% pac_amounts$icpsr)
+# members %>% filter(!icpsr %in% pac_amounts$icpsr)
+# pac_amounts %>% filter(!icpsr %in% letters$icpsr)
+
+# letters_money %>% count(letter_position)
+
+letters_money %<>% filter(!is.na(bioname))
+
+letters_money %>%  top_n(1, icpsr) %>% arrange(congress, -icpsr) %>% kable()
+
+# make sure we have all members and no more 
+# members %>% select(icpsr, congress, chamber) %>% left_join(letters_money) %>% distinct()
+
+# inspect for 0 counts 
+# letters_money %>% count(n, sort = T)
+
+# inspect for correct 0 counts (should be equal across years per industry)
+letters_money %>% count(industry, letter_position) %>% kable()
+```
+
+
+## Outliers other than Virgil H. Goode?
+```{r outlier}
+letters_money %>%
+  filter(industry == "energy") %>% 
+  group_by(congress, letter_position, chamber, party_name) %>%
+  mutate(n = sum(n)) %>% 
+  ggplot() +
+  aes(x = congress, y = n, fill = letter_position) + 
+  geom_col(position = "dodge") + 
+  facet_grid(party_name ~ chamber)
+
+letters_money %>% arrange(-n) %>% select(n, letter_position, bioname, party_name, congress) %>% distinct() %>% head() %>% kable()
+
+# without Goode at all
+letters_money %>%
+  filter(bioname != "GOODE, Virgil H., Jr.", industry == "energy") %>% 
+    group_by(congress, letter_position, chamber, party_name) %>%
+  mutate(n = sum(n)) %>% 
+  ggplot() +
+  aes(x = congress, y = n, fill = letter_position) + 
+  geom_col(position = "dodge") + 
+  facet_grid(party_name ~ chamber)
+
+# compare to memebers data counts #FIXME we are losing a few obs
+# members %>% ungroup() %>% count(congress) 
+
+# members that are not in the pac data 
+# members %>% anti_join(letters_money) 
+
+```
+
+
+
+## Overall top ten PAC recipients.
+
+Fred Upton (R-Mich.) was chair of the House Energy and Commerce Committee 2011-2017.
+
+U.S. Senator Mary L. Landrieu was Chair of the Senate Committee on Energy and Natural Resources 2014-2015.
+
+Count pro-business and pro-project letters:
+```{r letters_money_total}
+# pull out counts for models 
+letters_money %<>%
+  mutate(ProBusiness_Letters = ifelse(letter_position == "ProBusiness", n, NA)) %>%
+  mutate(AntiBusiness_Letters = ifelse(letter_position == "AntiBusiness", n, NA))
+
+# total 2000-2018
+letters_money %<>% 
+  # FIXME should be no NA PAC_contributions
+  # FIXME make sure we are only counting congresses in which members served 
+  ungroup() %>% 
+  group_by(icpsr, industry) %>% 
+  mutate(ProBusiness_Letters_Per_Cycle = mean(ProBusiness_Letters, na.rm = TRUE),
+         AntiBusiness_Letters_Per_Cycle = mean(AntiBusiness_Letters, na.rm = TRUE),
+         PAC_contributions_total = sum(PAC_contributions, na.rm = TRUE)) %>% 
+  ungroup()
+
+letters_money %>% 
+  filter(industry == "other") %>% 
+  select(ProBusiness_Letters_Per_Cycle, PAC_contributions_total, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions_total) %>% arrange(-PAC_contributions_total) %>% 
+  knitr::kable(caption = "Members receiving the most Non-Energy Sector PAC Money")
+
+letters_money %>% 
+  filter(industry == "energy") %>% 
+  select(ProBusiness_Letters_Per_Cycle, PAC_contributions_total, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions_total) %>% arrange(-PAC_contributions_total) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money")
+```
+
+## Top 10 Recipients in a cycle 
+```{r top in a cycle}
+letters_money %>% 
+  filter(industry == "other", !is.na(ProBusiness_Letters)) %>% 
+  select(industry, ProBusiness_Letters, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% arrange(-PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Non-Energy Sector PAC Money")
+
+letters_money %>% 
+  filter(industry == "energy", !is.na(ProBusiness_Letters)) %>% 
+  select(industry, ProBusiness_Letters_Per_Cycle, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% arrange(-PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money")
+
+
+# in 2018
+letters_money %>% 
+  filter(industry == "energy", cycle == 2018) %>% 
+  select(industry, ProBusiness_Letters_Per_Cycle, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% 
+  arrange(-PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money")
+
+# in hoyer
+letters_money %>% 
+  filter(industry == "energy", cycle == 2018) %>% 
+  select(industry, ProBusiness_Letters_Per_Cycle, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% 
+  arrange(-PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money")
+```
+
+
+Count non-constituent letters:
+```{r constituent}
+# letter counts by position
+constituent_counts <- d %>% 
+  mutate(constituent_position = Constituent) %>% 
+  count(constituent_position, congress, chamber, icpsr) %>% 
+  ungroup() # %>% tally(n)
+
+# constituent_counts %>% filter(is.na(constituent_position))
+
+# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
+members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Senate")) 
+
+# add letters to members file to get zero counts
+constituents <- members %>% select(congress, icpsr, chamber, cqlabel) %>% distinct() %>% 
+  left_join(constituent_counts) %>% # introduces NA constituent position because not all members are in constituent_counts
+  mutate(n = replace_na(n,0)) %>% 
+  ungroup() %>% 
+  # mutate(constituent_position = as.factor(constituent_position)) %>% 
+    complete(constituent_position, nesting(congress, icpsr, chamber, cqlabel),
+             fill = list(n = 0)) %>% 
+  ungroup() %>% 
+  filter(!is.na(constituent_position)) %>% 
+  distinct() 
+
+# constituents %>% count(constituent_position)
+
+# # should be the same icpsrs
+# members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+# constituents %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
+
+# merge with PAC amounts
+constituents_money <-  constituents %>% 
+  full_join(pac_amounts %>% ungroup())  %>% distinct()
+
+# constituents %>% filter(!icpsr %in% pac_amounts$icpsr)
+# members %>% filter(!icpsr %in% pac_amounts$icpsr)
+# pac_amounts %>% filter(!icpsr %in% constituents$icpsr)
+
+# constituents_money %>% count(constituent_position)
+
+constituents_money %<>% filter(!is.na(bioname))
+
+constituents_money %>%  top_n(1, icpsr) %>% arrange(congress, -icpsr) %>% kable()
+
+# make sure we have all members and no more 
+# members %>% select(icpsr, congress, chamber) %>% left_join(constituents_money) %>% distinct()
+
+# inspect for 0 counts 
+# constituents_money %>% count(n, sort = T)
+
+constituents_money %<>%
+  mutate(Non_Constituent_Letters = ifelse(constituent_position == "Non_constituent", n, NA), #FIXME 
+         Constituent_Letters = ifelse(constituent_position == "Indiv. Constituent", n, NA))
+# inspect for correct 0 counts (should be equal across years per industry)
+constituents_money %>% count(industry, constituent_position) %>% kable()
+```
+
+
+
+### Pro-business letters per cycle
+```{r, Pro-business letters per cycle}
+letters_money %<>% mutate(name_state = str_c(str_remove(bioname, " .*"), cqlabel))
+
+top1 <- top_n(letters_money %>% ungroup(), 50, PAC_contributions) %>%
+  .$name_state %>% unique()
+
+top2 <- top_n(letters_money, 50, ProBusiness_Letters_Per_Cycle) %>% 
+  .$name_state %>% unique()
+
+letters_money %>% 
+  mutate(name_state = as.character(name_state)) %>%
+  ggplot() + 
+  aes(x = PAC_contributions, 
+      y = ProBusiness_Letters) + 
+  geom_point(alpha = .2) + 
+  geom_text(aes(label = ifelse(name_state %in% top2,
+                               name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
+  labs(x = "PAC Contributions in a cycle",
+       y = "Pro-Business Letters sent to FERC in single Cycle") + 
+  facet_wrap("industry", scales= "free")
+
+letters_money %>% 
+  mutate(name_state = as.character(name_state)) %>%
+  ggplot() + 
+  coord_flip() + 
+  aes(x = PAC_contributions, 
+      y = ProBusiness_Letters) + 
+  geom_point(alpha = .2) + 
+  geom_text(aes(label = ifelse(name_state %in% top1, name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
+  labs(x = "PAC Contributions in a cycle",
+       y = "Pro-Business Letters sent to FERC in a cycle") + 
+  facet_wrap("industry", scales= "free")
+  
+
+
+```
+
+
+## Top 10 Recipients in a cycle 
+```{r top in a cycle again}
+letters_money %>% 
+  filter(industry == "other", !is.na(ProBusiness_Letters)) %>% 
+  select(industry, ProBusiness_Letters, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Non-Energy Sector PAC Money")
+
+letters_money %>% 
+  filter(industry == "energy", !is.na(ProBusiness_Letters)) %>% 
+  select(industry, ProBusiness_Letters, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money")
+
+
+# in 2018
+letters_money %>% 
+  filter(industry == "energy", cycle == 2018) %>% 
+  select(industry, ProBusiness_Letters, PAC_contributions, cycle, bioname) %>% distinct( )%>% 
+  top_n(10, PAC_contributions) %>% 
+  arrange(-PAC_contributions) %>% 
+  knitr::kable(caption = "Members receiving the most Energy Sector PAC Money in 2018")
+```
+
+### Average Pro-business letters per cycle
+```{r, letter_money}
+
+letters_money %>% 
+  mutate(name_state = as.character(name_state)) %>%
+  ggplot() + 
+  aes(x = PAC_contributions, 
+      y = ProBusiness_Letters_Per_Cycle) + 
+  geom_point(alpha = .5) + 
+  geom_text(aes(label = ifelse(name_state %in% top2,
+                               name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
+  labs(x = "PAC Contributions in a cycle",
+       y = "Average Pro-Business Letters sent to FERC per Cycle") + 
+  facet_wrap("industry", scales= "free")
+
+letters_money %>% 
+  mutate(name_state = as.character(name_state)) %>%
+  ggplot() + 
+  coord_flip() + 
+  aes(x = PAC_contributions, 
+      y = ProBusiness_Letters_Per_Cycle) + 
+  geom_point(alpha = .5) + 
+  geom_text(aes(label = ifelse(name_state %in% top1, name_state, NA)), 
+            check_overlap = TRUE, 
+            hjust = 0, 
+            color = "blue") + 
+  labs(x = "PAC Contributions in a cycle",
+       y = "Average Pro-Business Letters sent to FERC per Cycle") + 
+  facet_wrap("industry", scales= "free")
+  
+```
+
+
+
+# Save data as `data/letters_money.Rdata`
+```{r, save letters_money}
+# note these data are stacked by letter position and industry 
+letters_money %>% count(letter_position, industry) %>% kable()
+
+save(letters_money, file = here("data/letters_money.Rdata"))
+```
+
+# Models
+```{r mplot_function}
+letters_money %<>% filter(party_name != "Independent") %>% ungroup()
+constituents_money %<>% filter(party_name != "Independent") %>% ungroup()
+
+library(broom)
+library(tidyverse)
+mplot <- function(m){m %>%
+  tidy(conf.int = TRUE) %>%
+    filter(term!="(Intercept)") %>%
+ggplot() + 
+  aes(x = term,
+      y = estimate, 
+      ymin = conf.low, 
+      ymax = conf.high)+ 
+    geom_hline(yintercept = 0, linetype =2) + 
+  geom_pointrange() + coord_flip() }
+
+letters_money %<>% 
+  group_by(icpsr, congress, industry) %>% 
+  mutate(Log_PAC_contributions = log(PAC_contributions+1),
+         PAC_100k = PAC_contributions/100000,
+         total_letters = sum(n) ) %>% 
+  ungroup()
+```
+
+## Energy Sector-level Models (Arnold book chapter models)
+
+## All Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
+```{r all-letters-per-cycle-model, fig.height=1}
+mAll <- glm(total_letters ~ PAC_100k, 
+            data = letters_money %>% filter(industry == "energy") %>% select(icpsr,party_name, chamber,congress, PAC_100k, total_letters) %>% distinct(), 
+         family = poisson)  
+# tidy(mAll)
+mAll %>% mplot()+
+  labs(x="", y="Total additional letters per congress per hundred thousand dollars")
+```
+
+## Constituent and Non-Constituent Letters
+```{r non-constituent models, fig.height=1}
+constituents_money %<>% mutate(PAC_100k = PAC_contributions/100000)
+
+constituents_money %>%
+                         filter(industry == "energy") %>% 
+                         select(icpsr, congress, party_name,chamber,PAC_100k, Non_Constituent_Letters)%>% 
+                         distinct()%>% arrange(icpsr)
+
+# constituent letters
+mConstituent <-glm(Constituent_Letters ~ PAC_100k, 
+                       data = constituents_money %>%
+                         filter(industry == "energy") %>% 
+                         select(icpsr, congress,party_name,chamber, PAC_100k, Constituent_Letters)%>% 
+                         distinct(),
+         family = poisson) 
+
+# tidy(mNonConstituent)
+mConstituent %>% mplot()+
+  labs(x="", y="Additional constituent letters per congress per hundred thousand dollars")
+
+mConstituentLog <- glm(Constituent_Letters ~ Log_PAC_contributions, 
+                          data = constituents_money %>% 
+                            filter(industry == "energy") %>% 
+                            select(icpsr, congress, party_name,chamber,PAC_contributions, Constituent_Letters)%>%
+                            distinct() %>% 
+                            filter(!is.na(PAC_contributions)) %>% #FIXME is this ever NA?
+                            mutate(Log_PAC_contributions = log(PAC_contributions+1)),
+         family = poisson)  
+# tidy(mNonConstituent)
+mConstituentLog %>% mplot()+
+  labs(x="", y="Additional constituent letters per congress per logged hundred thousand dollars")
+
+
+
+
+
+
+# NON-constituent letters 
+mNonConstituent <-glm(Non_Constituent_Letters ~ PAC_100k, 
+                       data = constituents_money %>%
+                         filter(industry == "energy") %>% 
+                         select(icpsr, congress,party_name, chamber,PAC_100k, Non_Constituent_Letters)%>% 
+                         distinct(),
+         family = poisson) 
+
+# tidy(mNonConstituent)
+mNonConstituent %>% mplot()+
+  labs(x="", y="Additional non-constituent letters per congress per hundred thousand dollars")
+
+mNonConstituentLog <- glm(Non_Constituent_Letters ~ Log_PAC_contributions, 
+                          data = constituents_money %>% 
+                            filter(industry == "energy") %>% 
+                            select(icpsr, congress, party_name,chamber,PAC_contributions, Non_Constituent_Letters)%>%
+                            distinct() %>% 
+                            filter(!is.na(PAC_contributions)) %>% #FIXME is this ever NA?
+                            mutate(Log_PAC_contributions = log(PAC_contributions+1)),
+         family = poisson)  
+# tidy(mNonConstituent)
+mNonConstituentLog %>% mplot()+
+  labs(x="", y="Additional non-constituent letters per congress per logged hundred thousand dollars")
+```
+
+## Pro-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2018
+```{r money-letters-per-cycle-model, fig.height=1}
+mPro <- glm(ProBusiness_Letters ~ PAC_100k,
+            data = letters_money %>% 
+              filter(industry == "energy") %>% 
+              select(icpsr, congress, party_name,PAC_100k, chamber,ProBusiness_Letters) %>% 
+              distinct(),
+            family = poisson)  
+
+mPro %>% mplot()+
+  labs(x="", y="Additional pro-business letters per congress per hundred thousand dollars")
+
+
+mProLog <- glm(ProBusiness_Letters ~ Log_PAC_contributions, 
+              data = letters_money %>% 
+              filter(industry == "energy") %>% 
+              select(icpsr, congress,party_name, chamber,Log_PAC_contributions, ProBusiness_Letters) %>% 
+              distinct(),
+            family = poisson) 
+mProLog %>% mplot()+
+  labs(x="", y="Additional letters per congress per Log(PAC Contributions)")
+```
+
+
+
+### Pro-business letters by party
+```{r letters-per-cycle-model-party, fig.height=1}
+mProParty <- glm(ProBusiness_Letters ~ party_name,
+                 data = letters_money %>% 
+                   filter(industry == "energy") %>% 
+                   filter(party_name != "Independent") %>% 
+                   select(icpsr, congress, party_name, chamber,ProBusiness_Letters, PAC_100k) %>% 
+              distinct(),
+            family = poisson) 
+
+# tidy(mProParty)
+mplot(mProParty) +
+  labs(x="", y="Additional pro-business letters per congress")
+```
+Republicans send an additional `r round(mProParty$coefficients[2], 1)` letters per Congress, on average.
+
+
+
+### Pro-business letters ~ Party + PAC
+```{r multivariate_model, fig.height=1, include =TRUE}
+# PAC + party:
+mPro_pac_party <- glm(ProBusiness_Letters ~ PAC_100k + party_name,
+                      data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>% 
+              distinct(),
+            family = poisson)
+
+# tidy(mPro_pac_party)
+
+mplot(mPro_pac_party)+
+  labs(x="", y="Additional letters per congress")
+
+# PAC*party interaction:
+mPro_pacXparty <- glm(ProBusiness_Letters ~ PAC_100k * party_name, 
+                      data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mPro_pacXparty)
+
+mplot(mPro_pacXparty)+
+  labs(x="", y="Additional letters per congress")
+
+
+
+# DW NOMINATE 
+#mPro_nominate <-glm(ProBusiness_Letters ~  nominate.dim1, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/100000), family = "poisson" )  
+#tidy(mPro_nominate)
+#mplot(mPro_nominate)+labs(x="", y="Additional letters per congress")
+
+# PAC + ideology:
+# mPro_pac_nominate <-glm(ProBusiness_Letters ~ PAC_contributions * nominate.dim1, data = letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/100000), family = "poisson" )  
+
+# tidy(mPro_pac_nominate)
+
+# mplot(mPro_pac_nominate)+ labs(x="", y="Additional letters per congress")
+```
+
+### Multivariate models 
+```{r full-model, fig.height=1}
+# Full model, all letters
+mAll_Full <- glm(total_letters ~ PAC_100k + party_name, 
+                 data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, total_letters) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mAll_Full)
+
+mplot(mAll_Full)+
+  labs(x="", y="Additional letters per congress")
+
+# Full model with interaction:
+mAll_Fullx <- glm(total_letters ~ PAC_100k*party_name, 
+                                   data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, total_letters) %>%
+                      distinct(),
+            family = poisson)
+# tidy(mAll_Fullx)
+
+mplot(mAll_Fullx)+
+  labs(x="", y="Additional letters per congress")
+
+
+
+# Full model, pro business letters 
+mPro_Full <- glm(ProBusiness_Letters ~ PAC_100k + party_name, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mPro_Full)
+
+mplot(mPro_Full)+
+  labs(x="", y="Additional letters per congress")
+
+# Full model with interaction:
+mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_100k * party_name, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy",
+                               party_name != "Independent",
+                               !is.na(ProBusiness_Letters)) %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mPro_Fullx)
+
+mplot(mPro_Fullx)+
+  labs(x="", y="Additional letters per congress")
+
+
+mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_100k + party_name, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mAnti_Full)
+
+mplot(mAnti_Full)+
+  labs(x="", y="Additional letters per congress")
+
+# full model with interaction 
+mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_100k * party_name, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+
+letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        #filter(!is.na(AntiBusiness_Letters)) %>% 
+                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters, letter_position) %>%
+                      distinct() %>% count(letter_position) #%>% filter(is.na(icpsr)|is.na(congress)|is.na(PAC_100k)|is.na(party_name)|is.na(AntiBusiness_Letters)&is.na(ProBusiness_Letters))
+
+# tidy(mAnti_Fullx)
+mplot(mAnti_Fullx)+
+  labs(x="", y="Additional letters per congress")
+
+# FULL MODEL WITH NON- CONSTITUENT 
+# FIXME
+#mNonConstituent_Fullx <- glm(NonConstituent_Letters ~ PAC_contributions*party, data = NonConstituent_letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/100000), family = "poisson" )  
+#tidy(mNonConstituent_Fullx)
+#mplot(mNonConstituent_Fullx)+labs(x="", y="Additional non-constituent letters per congress")
+```
+
+
+
+### Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
+```{r money-letters-total, fig.height=1}
+# many fewer observations over time period (about 1000 members served)
+mProTotal <- glm(ProBusiness_Letters_Per_Cycle ~ PAC_100k_total, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr,PAC_contributions_total, ProBusiness_Letters_Per_Cycle) %>%
+                   mutate(PAC_100k_total = PAC_contributions_total/100000) %>% 
+                      distinct(),
+            family = poisson)
+
+# tidy(mProTotal)
+mplot(mProTotal)+
+  labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
+```
+
+## Anti-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
+```{r money-Antiletters-per-cycle-model, fig.height=1}
+mAnti <- glm(AntiBusiness_Letters ~ PAC_100k, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress,party_name, chamber,PAC_100k, AntiBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+# tidy(mAnti)
+mAnti %>% mplot()+
+  labs(x="", y="Additional anti-buisness letters per congress per hundred thousand dollars")
+
+mAntiLog <- glm(AntiBusiness_Letters ~ Log_PAC_contributions, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        # filter(party_name != "Independent") %>% 
+                        select(icpsr,congress,party_name, chamber,Log_PAC_contributions, AntiBusiness_Letters) %>%
+                      distinct(),
+            family = poisson)
+# tidy(mAntiLog)
+mAntiLog %>% mplot()+
+  labs(x="", y="Additional anti-business Letters per congress per Log(PAC Contributions)")
+```
+
+#### Anti-business letters by party
+```{r Antiletters-per-cycle-model-party, fig.height=1}
+mAntiParty <- glm(AntiBusiness_Letters ~ party_name,
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,AntiBusiness_Letters, party_name) %>%
+                      distinct(),
+            family = poisson)
+# tidy(mAntiParty)
+mplot(mAntiParty) +
+  labs(x="", y="Additional anti-business  letters per congress")
+```
+
+Democrats send an additional `r -round(mAntiParty$coefficients[2], 1)` Anti-Business letters per Congress, on average.
+
+```{r money-Antiletters-per-cycle-model-party, fig.height=1, include=TRUE}
+#PAC*party interaction:
+mAnti_pac_party <- glm(AntiBusiness_Letters ~ PAC_100k + party_name, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr,congress,PAC_100k, chamber,AntiBusiness_Letters, party_name) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mAnti_pac_party)
+mplot(mAnti_pac_party)+ labs(x="", y="Additional anti-business letters per congress")
+
+
+#PAC*party interaction:
+mAnti_pacXparty <- glm(AntiBusiness_Letters ~ PAC_100k*party_name, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress,chamber,PAC_100k, AntiBusiness_Letters, party_name) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mAnti_pacXparty)
+
+# FIXME odd error
+mplot(mAnti_pacXparty)+ labs(x="", y="Additional anti-business letters per congress")
+```
+
+
+
+#### Average Anti-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
+```{r money-Antiletters-total, fig.height=1}
+mAntiTotal <- glm(AntiBusiness_Letters_Per_Cycle ~ PAC_100k_total, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, PAC_contributions_total, AntiBusiness_Letters_Per_Cycle) %>%
+                   mutate(PAC_100k_total = PAC_contributions_total/100000) %>% 
+                      distinct(),
+            family = poisson)
+
+# tidy(mProTotal)
+mplot(mAntiTotal)+
+  labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
+```
+
+# Combined models 
+
+```{r models, fig.height=2, results='hide'}
+library(dplyr)
+dplot <- function(x){dwplot(x %>% 
+                              mutate(term = str_remove(term, "party_name"))
+                            ) +
+    aes(shape = model) + 
+    geom_vline(xintercept = 0, linetype = 2) +
+    scale_color_viridis_d(option = "C", end = .8) + 
+    labs(color = "Dependent Variable",
+         shape = "Dependent Variable") +
+  theme(panel.grid.major.y  = element_blank())
+}
+
+# Basic PAC money models 
+models <- full_join(
+  tidy(mAll) %>% mutate(model = "All Letters per Cycle"),
+  tidy(mPro) %>% mutate(model = "Pro-business Letters per Cycle") ) %>% 
+  full_join(tidy(mConstituent) %>% mutate(model = "Constituent Letters per Cycle")) %>%
+  full_join(tidy(mAnti)  %>% mutate(model = "Anti-business Letters per Cycle")) 
+
+dplot(models)+ 
+    labs(color = "Dependent Variable",
+         shape = "Dependent Variable",
+         x = "Additional letters per hundred thousand dollars per cycle")
+
+library(stargazer)
+library(dplyr)
+write_lines(stargazer(mAll, mPro, mAnti, mConstituent, float=F),
+  path = here("FERC/tables/All-mPro-mAnti-mConstituent.tex"))
+
+table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
+                type = "html",
+                notes = "FERC/tables/All-mPro-mAnti-mConstituent.tex")
+
+# with non-constituents
+models <- full_join(
+  tidy(mAll) %>% mutate(model = "All Letters per Cycle"),
+  tidy(mPro) %>% mutate(model = "Pro-business Letters per Cycle") ) %>% 
+  full_join(tidy(mConstituent) %>% mutate(model = "Constituent Letters per Cycle")) %>%
+  full_join(tidy(mNonConstituent) %>% mutate(model = "Non-constituent Letters per Cycle")) %>%
+  full_join(tidy(mAnti)  %>% mutate(model = "Anti-business Letters per Cycle")) 
+
+dplot(models)+ 
+    labs(color = "Dependent Variable",
+         shape = "Dependent Variable",
+         x = "Additional letters per hundred thousand dollars per cycle")
+
+library(stargazer)
+library(dplyr)
+write_lines(stargazer(mAll, mPro, mAnti, mNonConstituent, float=F),
+  path = here("FERC/tables/All-mPro-mAnti-mNonConstituent.tex"))
+
+table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
+                type = "html",
+                notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex")
+```
+
+
+```{r, results="asis"}
+htmltools::HTML(table)
+```
+
+### logged PAC money models 
+```{r models-log, fig.height=2, results='hide'}
+## logged PAC money models 
+models <- tidy(mProLog) %>% mutate(model = "Pro-business Letters per Cycle") %>%  
+full_join(tidy(mAntiLog) %>% mutate(model = "Anti-business Letters per Cycle")) 
+
+dplot(models)+ 
+    labs(x = "Additional letters per logged dollars per cycle")
+
+write_lines(
+  stargazer::stargazer(mProLog, mAntiLog,
+                       float=F),
+  path = here("FERC/tables/mProLog-mAntiLog.tex"))
+
+table <- stargazer(mProLog, mAntiLog, 
+                type = "html",
+                notes = "FERC/tables/mProLog-mAntiLog.tex")
+```
+
+```{r, results="asis"}
+htmltools::HTML(table)
+```
+
+### PAC contributions over entire time period 
+```{r models-total, fig.height=2, results = 'hide'}
+## PAC contributions over entire time period 
+models <- tidy(mProTotal) %>% 
+  mutate(model = "Pro-business Letters per Cycle") %>% 
+  full_join(tidy(mAntiTotal) %>% mutate(model = "Anti-business Letters per Cycle")) 
+
+dplot(models) + 
+    labs(x = "Average additional letters per cycle per hundred thousand dollars 1990-2014")
+
+write_lines(
+  stargazer::stargazer(mProTotal, mAntiTotal, float=F),
+  path = here("FERC/tables/mProTotal-mAntiTotal.tex"))
+
+table <- stargazer(mProTotal, mAntiTotal, 
+                type = "html",
+                notes = "FERC/tables/mProTotal-mAntiTotal.tex")
+```
+
+```{r, results="asis"}
+htmltools::HTML(table)
+```
+
+### Party
+```{r models-party, fig.height=2, results='hide'}
+## With party IV 
+models <- tidy(mProParty) %>% 
+  mutate(model = "Pro-business Letters per Cycle") %>%
+  full_join(tidy(mAntiParty) %>%
+              mutate(model = "Anti-business Letters per Cycle")) %>%
+  # mutate(term = str_replace(term, "party\\(R\\)", "Republican")) %>% 
+  filter(term != "party(I)")
+
+dplot(models) + 
+    labs(x = "Additional letters per cycle")
+
+write_lines(
+  stargazer::stargazer(mProParty, mAntiParty, float=F),
+  path = here("FERC/tables/mProParty-mAntiParty.tex"))
+
+table <- stargazer(mProParty, mAntiParty, 
+                type = "html",
+                notes = "FERC/tables/mProParty-mAntiParty.tex")
+```
+
+```{r, results="asis"}
+htmltools::HTML(table)
+```
+
+
+
+### Univariate models 
+```{r models-ALL, fig.height=2, results='hide'}
+# All models 
+write_lines(
+  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
+  path = here("FERC/tables/mUnivariate.tex"))
+
+table <-stargazer(mAll, mPro, mAnti, mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
+                type = "html",
+                notes = "FERC/tables/mUnivariate.tex")
+```
+
+```{r, results="asis"}
+htmltools::HTML(table)
+```
+
+
+
+### Multivariate Models
+```{r models-full, fig.height=2, results='hide'}
+## Full models
+models <- tidy(mAll_Full) %>% 
+  mutate(model = "Total Letters per Cycle") %>%
+  full_join(tidy(mPro_Full) %>%
+              mutate(model = "Pro-business Letters per Cycle")) %>%
+  full_join(tidy(mAnti_Full) %>%
+              mutate(model = "Anti-business Letters per Cycle"))
+dplot(models) + 
+    labs(x = "Additional letters per cycle")
+
+## Full models + interactions
+models <- tidy(mAll_Full) %>% 
+  mutate(model = "Total Letters per Cycle") %>%
+  full_join(tidy(mPro_Full) %>%
+              mutate(model = "Pro-business Letters per Cycle")) %>%
+  full_join(tidy(mPro_Fullx) %>% mutate(model = "Pro-business Letters per Cycle, with interaction")) %>%
+  full_join(tidy(mAnti_Full) %>%
+              mutate(model = "Anti-business Letters per Cycle")) %>%
+  full_join(tidy(mAnti_Fullx) %>% mutate(model = "Anti-business Letters per Cycle, with interaction")) # %>%  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
+
+dplot(models) + 
+    labs(x = "Additional letters per cycle")
+
+write_lines(
+  stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx, float=F),
+  path = here("FERC/tables/mFull.tex"))
+
+table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
+                type = "html",
+                notes = "FERC/tables/mFull.tex")
+
+table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
+                type = "html",
+                notes = "FERC/tables/mFull.tex")
+```
+
+```{r, results="asis"}
+htmltools::HTML(table)
+```
+
+
+
+# About FERC 
+
+FERC regulates electricity markets, oil and gas pipelines, and hydropower and gas export projects. Many of these decisions have major implications for business profits. For example, because many natural gas pipelines cross state lines, FERC largely controls pipeline market entry. Similarly,  electricity grids are regional. 
+
+
+## Letters on behalf of projects in their districts
+TODO
+
+```{r}
+d %>% 
+  mutate(Place_District = tolower(Place_District)) %>% 
+  # FIXME 
+  # dropping odd observations, will correct in DOE_FERC.R script 
+  filter(Place_District %in% c("yes", "no", NA)) %>% 
+  filter(letter_position %in% c("AntiBusiness", "ProBusiness")) %>% 
+  filter(Constituent != "Not coded") %>% 
+  count(Place_District, letter_position, Constituent) %>% 
+  ggplot() +
+  aes(x = Place_District, y = n, fill = letter_position) +
+  geom_col(position = "dodge") + 
+  facet_grid(Constituent ~ .)+ 
+  labs(x = "Is the proposed project in the member's district?",
+       y = "Number of letters",
+       fill = "")
+```
+
+
+
+
+# TO DO 
+
+## DONE
+- add clean text from scraper to google sheet 
+- fix clean function to pull and combine new data
+- link industry codes to CRP PAC committee classification: 
+ 1. Identify relevant industry codes 
+ 2. Get cycle-specific PAC classification for those industry codes 
+ 3. Subset DIME to those PAC classifications 
+- Add 2015-2018 DIME
+- Fix DIME ICPSRs 
+
+ 
+ ## FERC Paper 1
+- Fix Goode, and other party switchers who are double counted as an R and I (dropped for now)
+- Identify companies that did not match a PAC and see if they match a parent company 
+
+
+## FERC Paper 2 
+- letters per company 
+- letters per company PAC (before and after merging in parent companies)
+- add company names from company scraper to google sheet
+- template to match company names to donation (lobbyview, DIME)
+- template match company names to industry codes (center for responsive politics)
+
+- Letters are on behalf of donors
+TODO
+
+- Comparing FERC to other agencies
+TODO 

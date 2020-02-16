@@ -1,4 +1,5 @@
-###########First Part/Data##################
+###########First Part/Data###################
+
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
 d <- all_contacts %>% 
@@ -55,7 +56,7 @@ d %<>%
   # FIXME
   # rounding years up is approximate, rewrite to go Nov-Nov?
   mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, cycle)) 
+  mutate(icpsryear = str_c(icpsr, cycle))
 
 ################Second Part/ By Party#########################
 
@@ -120,7 +121,7 @@ d_percent <- d%>%
   mutate(total = n()) %>% 
   group_by(Type, total) %>% summarise(nT = n()) %>% 
   mutate(percent = 100*round(nT/total, 2) ) %>% 
-  mutate(agency = "DOE FERC") %>% 
+  mutate(agency = "DOD") %>% 
   ungroup()
 
 full_join( all_percent, d_percent)%>% 
@@ -133,7 +134,7 @@ full_join( all_percent, d_percent)%>%
        fill = "",
        color = "",
        y = "Percent", #paste("Number of Contacts, N =", sum(nrow(all_contacts))),
-       title = "Legislator Contacts with FERC") +
+       title = "Legislator Contacts with DOD") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text()) + 
@@ -322,13 +323,13 @@ d %>%
 #############Members Who Contact FERC More###################
 
 all_contacts %>%
-  mutate(FERC = agency == "DOE_FERC") %>%
-  group_by(chamber, FERC, name_state, state) %>%
+  mutate(DOD = agency == "DOD") %>%
+  group_by(chamber, DOD, name_state, state) %>%
   summarise(n = n() ) %>%
   ungroup() %>%
-  spread(key = "FERC", value = "n") %>% 
-  mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
-  arrange(-ShareToFERC) %>% 
+  spread(key = "DOD", value = "n") %>% 
+  mutate(ShareToDOD= round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
+  arrange(-ShareToDOD) %>% 
   mutate(total = `TRUE` + `FALSE`) %>% 
   select(name_state, chamber, total, ShareToFERC) %>% 
   filter(ShareToFERC>.3) %>%
@@ -1284,7 +1285,7 @@ dpacs %<>%
   filter(!is.na(ID), !is.na(comid)) %>% 
   select(ID, icpsryear, cycle, name_state, position, company_short, pacs, comid, PAC_contributions) %>% 
   distinct()
-Pro-business letters linked to PAC contributions:
+#####Pro-business letters linked to PAC contributions:
   dpacs %>% 
   filter(position %in% c("ProBusiness", "ProProject")) %>% 
   # select letters with an identified person
@@ -1298,7 +1299,7 @@ Pro-business letters linked to PAC contributions:
   group_by(position)  %>%
   top_n(10, PAC_contributions) %>% 
   knitr::kable()
-Anti-business letters linked to PAC contributions:
+####Anti-business letters linked to PAC contributions:
   dpacs %>% 
   filter(position %in% c("AntiBusiness", "AntiProject")) %>% 
   left_join(d %>% select(ID, Constituent) %>% distinct() ) %>% 
