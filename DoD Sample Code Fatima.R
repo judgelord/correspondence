@@ -1286,7 +1286,7 @@ dpacs %<>%
   filter(!is.na(ID), !is.na(comid)) %>% 
   select(ID, icpsryear, cycle, name_state, position, company_short, pacs, comid, PAC_contributions) %>% 
   distinct()
-Pro-business letters linked to PAC contributions:
+#####Pro-business letters linked to PAC contributions:
   dpacs %>% 
   filter(position %in% c("ProBusiness", "ProProject")) %>% 
   # select letters with an identified person
@@ -1300,7 +1300,7 @@ Pro-business letters linked to PAC contributions:
   group_by(position)  %>%
   top_n(10, PAC_contributions) %>% 
   knitr::kable()
-Anti-business letters linked to PAC contributions:
+####Anti-business letters linked to PAC contributions:
   dpacs %>% 
   filter(position %in% c("AntiBusiness", "AntiProject")) %>% 
   left_join(d %>% select(ID, Constituent) %>% distinct() ) %>% 
