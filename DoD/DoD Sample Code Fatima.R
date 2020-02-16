@@ -5,21 +5,20 @@ load(here("data/all_contacts.RData"))
 d <- all_contacts %>% 
   ungroup() %>% 
   # define d as just FERC
-  filter(agency=="DOE_FERC") %>% 
+  filter(agency=="DOD") %>% 
   select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
-  # FIXME 
-  # GOODE needs to be fixed in party switchers portion of merge.R
-  filter(!(last_name == "GOODE"&party == "(I)"))
+
 
 
 # one obs per member per letter per committee for all agencies
-load(here("data/all_contacts_committees.RData"))
+#load(here("data/all_contacts_committees.RData"))
+  
 # define dcommittees as just FERC
-dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
+#dcommittees <- all_contacts_committees %<>% filter(agency == "DOD")
 
 # Coded letters, one obs per member per letter 
-load(here("data/DOE_FERC-letters-coded.RData")) 
+load(here("data/DOD-letters-coded.RData")) 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
 FERC_letters %<>% 
   select(ID, SUBJECT, 
