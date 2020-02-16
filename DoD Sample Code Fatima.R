@@ -5,10 +5,9 @@ load(here("data/all_contacts.RData"))
 d <- all_contacts %>% 
   ungroup() %>% 
   # define d as just FERC
-  filter(agency=="DOD") %>% 
+  filter(agency=="DOE_FERC") %>% 
   select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
-  
   # FIXME 
   # GOODE needs to be fixed in party switchers portion of merge.R
   filter(!(last_name == "GOODE"&party == "(I)"))
@@ -17,12 +16,12 @@ d <- all_contacts %>%
 # one obs per member per letter per committee for all agencies
 load(here("data/all_contacts_committees.RData"))
 # define dcommittees as just FERC
-dcommittees <- all_contacts_committees %<>% filter(agency == "DOD")
+dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
 # Coded letters, one obs per member per letter 
-load(here("data/DOD-letters-coded.RData")) 
+load(here("data/DOE_FERC-letters-coded.RData")) 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
-DOD_letters %<>% 
+FERC_letters %<>% 
   select(ID, SUBJECT, 
          Freelancer, Cosigned_House, Cosigned_Senate,
          text_clean, Constituent, year,
@@ -31,7 +30,7 @@ DOD_letters %<>%
   distinct()
 
 # merge in coded letters
-d %<>% left_join(DOD_letters) %>% filter(year <2019)
+d %<>% left_join(FERC_letters) %>% filter(year <2019)
 
 # Add hand-coding to auto-coding of letter type 
 d %<>%  
@@ -57,7 +56,7 @@ d %<>%
   # FIXME
   # rounding years up is approximate, rewrite to go Nov-Nov?
   mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, cycle)) 
+  mutate(icpsryear = str_c(icpsr, cycle))
 
 ################Second Part/ By Party#########################
 
@@ -135,7 +134,7 @@ full_join( all_percent, d_percent)%>%
        fill = "",
        color = "",
        y = "Percent", #paste("Number of Contacts, N =", sum(nrow(all_contacts))),
-       title = "Legislator Contacts with FERC") +
+       title = "Legislator Contacts with DOD") +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text()) + 
