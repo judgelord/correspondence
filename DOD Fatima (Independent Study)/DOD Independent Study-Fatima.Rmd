@@ -72,7 +72,8 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ##Is there a way we can get this updated??
 The full dataset of congressional correspondence can be found at `"data/all_contacts.RData"`.
-More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`.
+More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`. ##How do I do this for DOD agencies
+
 
 ```{r data}
 load(here("data/all_contacts.RData"))
@@ -80,28 +81,28 @@ load(here("data/all_contacts.RData"))
 d <- all_contacts %>%
   ungroup() %>% 
   # define d as just FERC
-  filter(agency=="DOE_FERC") %>% 
+  filter(agency=="DOD"|"VA") %>% 
   #mutate(ID = NOTES) %>% 
   # FIXME
   # filter(nchar(ID)>8) %>%
   #select(-SUBJECT) %>% 
   mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
   # FIXME 
-  # GOODE needs to be fixed in party switchers portion of merge.R
-  filter(!(last_name == "GOODE"& party == "(I)"))
+  
   
 
 ## one obs per member per letter per committee for all agencies # DEPRECIATED 
 # load(here("data/all_contacts_committees.RData"))
 ## define dcommittees as just FERC
-#dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
+#dcommittees <- all_contacts_committees %<>% filter(agency == "DOD"|"VA")
 
 # Coded letters, one obs per member per letter 
-load(here("data/DOE_FERC-letters-clean.Rdata")) 
+
+#load(here("data/DOE_FERC-letters-clean.Rdata"))  ##Change this to DOD and VA
 
 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
-FERC_letters %<>% 
+DOD_letters %<>% 
   select(SUBJECT, Notes, DATE, last_name, # last_name is aparently slightly different in d and FERC_letters
          Freelancer, 
          Cosigned_House, Cosigned_Senate,
@@ -111,15 +112,15 @@ FERC_letters %<>%
   #mutate(ID = ID %>% as.character()) %>% 
   distinct()
 
-## Make sure FERC letter IDs are the same as in the main data
-# FERC_letters %>% filter(year < 2019, !ID %in% d$ID)
+## Make sure DOD  letter IDs are the same as in the main data
+# DOD_letters %>% filter(year < 2019, !ID %in% d$ID)
 
 # merge in coded letters
 
-d %<>% left_join(FERC_letters) %>% filter(year <2019, !is.na(ID)) 
+d %<>% left_join(DOD_letters) %>% filter(year <2017, !is.na(ID))  ##is this where I input 2007-2017?
 
 # how many failed to merge?
-d %>% count(is.na(Freelancer))
+d %>% count(is.na())  ##not sure why Freelancer was inside there
 
 # Add hand-coding to auto-coding of letter type 
 d %<>%  
@@ -131,17 +132,6 @@ d %<>%
          Constituent = replace_na(Constituent, "Not coded") ) 
   
 
-# For this analysis, treat corp policy letters as Policy
-# d$Type %>% unique()
-# d$Constituent %>% unique()
-all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
-d$Type %<>% fct_recode(Policy = "Corp. Policy")
-
-# make a variable for the pro or anti-business position of each letter
-d %<>% 
-  mutate(letter_position = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "ProBusiness", "Other"),
-         letter_position = ifelse(!is.na(AntiBusiness)|!is.na(AntiProject), "AntiBusiness", letter_position),
-         letter_position = ifelse(!is.na(AntiBusiness)&!is.na(ProBusiness), "Both", letter_position)) 
 
 
 # unique(d$letter_position)
