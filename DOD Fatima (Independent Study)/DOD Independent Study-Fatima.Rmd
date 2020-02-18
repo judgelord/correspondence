@@ -13,8 +13,11 @@ editor_options:
 ---
 
 ```{r, eval=FALSE, include=FALSE}
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 git pull
-Rscript -e 'library(rmarkdown);rmarkdown::render("FERC/FERCsummary.Rmd", "html_document")'
+Rscript -e 'library(rmarkdown);rmarkdown::render("DOD Fatima (Independent Study).Rmd", "html_document")'
+##why does this not work
 ```
 
 ```{r setup, include=FALSE}
@@ -51,7 +54,7 @@ requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magritt
   library(here)
   library(dplyr)
 
-# source(here("setup.R"))
+  #source(here("setup.R")) ##we want to do source.setup here right??
 ```
 
 ```{r global.options, include=FALSE}
@@ -67,6 +70,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 # Data
 
+##Is there a way we can get this updated??
 The full dataset of congressional correspondence can be found at `"data/all_contacts.RData"`.
 More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`.
 
