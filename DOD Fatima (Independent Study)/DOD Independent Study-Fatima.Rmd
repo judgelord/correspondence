@@ -151,10 +151,10 @@ In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` let
 
 # Outlier
 
-Rep. Virgil Goode (R-VA) is an outlier who affects results, especially for Anti-business letters. A few members forward a lot of mail. 
+ 
 ```{r forwards}
 # top overall
-d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to FERC")
+d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD and VA")
 
 # most with a given position
 d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
@@ -171,13 +171,6 @@ d %>%
   facet_grid(party_name ~ chamber)
 ```
 
-## Because Goode in the 107th is such an outlier, we drop these 117 letters
-```{r goode}
-# Because it Goode in the 107th is such an outlier, we drop these 177 letters
-d %>% filter(bioname == "GOODE, Virgil H., Jr.", congress == 107) %>% select(ID, bioname, SUBJECT, AntiBusiness, AntiProject) %>% kable()
-
-d %<>% filter(!(bioname =="GOODE, Virgil H., Jr." & congress == 107))
-```
 
 ---
 
@@ -294,7 +287,7 @@ d_percent <- d %>%
   mutate(total = n()) %>% 
   group_by(Type, total) %>% summarise(nT = n()) %>% 
   mutate(percent = 100*round(nT/total, 2) ) %>% 
-  mutate(agency = "DOE FERC") %>% 
+  mutate(agency = "DOD"|"VA") %>% 
   ungroup()
 
 full_join( all_percent, d_percent)%>% 
@@ -327,7 +320,7 @@ d  %>%
   facet_wrap("Constituent") +
   
   labs(x = "",
-       y = paste("Letters 2000-2018, N =", as.character(d%>%drop_na(letter_position, Constituent) %>% nrow() %>% as.character() )))
+       y = paste("Letters 2007-2017, N =", as.character(d%>%drop_na(letter_position, Constituent) %>% nrow() %>% as.character() )))
 
 d  %>% 
   ggplot() + 
@@ -337,7 +330,7 @@ d  %>%
   facet_wrap("Constituent") +
   labs(title = "Including letters without constituent coding", 
        x = "",
-       y = paste("Letters 2000-2018, N =", as.character(d %>% nrow() %>% as.character() )))
+       y = paste("Letters 2007-2017, N =", as.character(d %>% nrow() %>% as.character() )))
 ```
 
 ---
