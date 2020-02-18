@@ -1,6 +1,6 @@
 ---
-title: "DoD Independent Study"
-subtitle: "Insert Something Insightful Here"
+title: "DOD Independent Study"
+subtitle: "Insert Something Insightful Soon"
 author: "Fatima Ali"
 output:
   #pdf_document
