@@ -13,21 +13,22 @@ editor_options:
 ---
 
 
-
 # Data
 
 
 ```{r data}
+source("setup.R") ##do we need this as well?
+##THIS IS NOT KNITTING
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
 d <- all_contacts %>% filter(str_detect(agency, "DOD|VA")) ##Added VA and DOD
 
 # how many failed to merge?
-d %>% count(is.na())  ##none
+#d %>% count(is.na())  ##Is this wrong or did they all merge??
 
 d %<>% 
   # FIXME
-  # rounding years up is approximate, rewrite to go Nov-Nov?
+  # rounding years up is approximate, rewrite to go Nov-Nov? ##do we do this as well?
   #mutate(cycle = congress*2+1786 ) %>% 
   mutate(icpsryear = str_c(icpsr, congress))
 ```
@@ -43,19 +44,8 @@ d %<>%
 ```{r forwards}
 # top overall
 d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD and VA")
-
-
 ```
-
-
----
-
-## By party and majority status
-
-
-
-
----
+--
 
 # Members
 
@@ -225,224 +215,12 @@ all_contacts %>%
 ```
 
 
-### Multivariate models 
-```{r full-model, fig.height=1}
-# Full model, all letters
-mAll_Full <- glm(total_letters ~ PAC_100k + party_name, 
-                 data = letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        select(icpsr, congress, PAC_100k, chamber,party_name, total_letters) %>%
-                      distinct(),
-            family = poisson)
-
-# tidy(mAll_Full)
-
-mplot(mAll_Full)+
-  labs(x="", y="Additional letters per congress")
-
-# Full model with interaction:
-mAll_Fullx <- glm(total_letters ~ PAC_100k*party_name, 
-                                   data = letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        select(icpsr, congress, PAC_100k, chamber,party_name, total_letters) %>%
-                      distinct(),
-            family = poisson)
-# tidy(mAll_Fullx)
-
-mplot(mAll_Fullx)+
-  labs(x="", y="Additional letters per congress")
-
-
-
-# Full model, pro business letters 
-mPro_Full <- glm(ProBusiness_Letters ~ PAC_100k + party_name, 
-                                  data = letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>%
-                      distinct(),
-            family = poisson)
-
-# tidy(mPro_Full)
-
-mplot(mPro_Full)+
-  labs(x="", y="Additional letters per congress")
-
-# Full model with interaction:
-mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_100k * party_name, 
-                                  data = letters_money %>% 
-                        filter(industry == "energy",
-                               party_name != "Independent",
-                               !is.na(ProBusiness_Letters)) %>% 
-                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>%
-                      distinct(),
-            family = poisson)
-
-# tidy(mPro_Fullx)
-
-mplot(mPro_Fullx)+
-  labs(x="", y="Additional letters per congress")
-
-
-mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_100k + party_name, 
-                                  data = letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters) %>%
-                      distinct(),
-            family = poisson)
-
-# tidy(mAnti_Full)
-
-mplot(mAnti_Full)+
-  labs(x="", y="Additional letters per congress")
-
-# full model with interaction 
-mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_100k * party_name, 
-                                  data = letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters) %>%
-                      distinct(),
-            family = poisson)
-
-letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        #filter(!is.na(AntiBusiness_Letters)) %>% 
-                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters, letter_position) %>%
-                      distinct() %>% count(letter_position) #%>% filter(is.na(icpsr)|is.na(congress)|is.na(PAC_100k)|is.na(party_name)|is.na(AntiBusiness_Letters)&is.na(ProBusiness_Letters))
-
-# tidy(mAnti_Fullx)
-mplot(mAnti_Fullx)+
-  labs(x="", y="Additional letters per congress")
-
-# FULL MODEL WITH NON- CONSTITUENT 
-# FIXME
-#mNonConstituent_Fullx <- glm(NonConstituent_Letters ~ PAC_contributions*party, data = NonConstituent_letters_money %>% filter(!party %in% c("NA","(I)", "Independent"))%>% mutate(PAC_contributions = PAC_contributions/100000), family = "poisson" )  
-#tidy(mNonConstituent_Fullx)
-#mplot(mNonConstituent_Fullx)+labs(x="", y="Additional non-constituent letters per congress")
-```
-
-
-
-#### Edit Everything Below Accordingly
-### Party
-```{r models-party, fig.height=2, results='hide'}
-## With party IV 
-models <- tidy(mProParty) %>% 
-  mutate(model = "Pro-business Letters per Cycle") %>%
-  full_join(tidy(mAntiParty) %>%
-              mutate(model = "Anti-business Letters per Cycle")) %>%
-  # mutate(term = str_replace(term, "party\\(R\\)", "Republican")) %>% 
-  filter(term != "party(I)")
-
-dplot(models) + 
-    labs(x = "Additional letters per cycle")
-
-write_lines(
-  stargazer::stargazer(mProParty, mAntiParty, float=F),
-  path = here("FERC/tables/mProParty-mAntiParty.tex"))
-
-table <- stargazer(mProParty, mAntiParty, 
-                type = "html",
-                notes = "FERC/tables/mProParty-mAntiParty.tex")
-```
-
-```{r, results="asis"}
-htmltools::HTML(table)
-```
-
-
-
-### Univariate models 
-```{r models-ALL, fig.height=2, results='hide'}
-# All models 
-write_lines(
-  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, float = F),
-  path = here("FERC/tables/mUnivariate.tex"))
-
-table <-stargazer(mAll, mPro, mAnti, mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
-                type = "html",
-                notes = "FERC/tables/mUnivariate.tex")
-```
-
-```{r, results="asis"}
-htmltools::HTML(table)
-```
-
-
-
-### Multivariate Models
-```{r models-full, fig.height=2, results='hide'}
-## Full models
-models <- tidy(mAll_Full) %>% 
-  mutate(model = "Total Letters per Cycle") %>%
-  full_join(tidy(mPro_Full) %>%
-              mutate(model = "Pro-business Letters per Cycle")) %>%
-  full_join(tidy(mAnti_Full) %>%
-              mutate(model = "Anti-business Letters per Cycle"))
-dplot(models) + 
-    labs(x = "Additional letters per cycle")
-
-## Full models + interactions
-models <- tidy(mAll_Full) %>% 
-  mutate(model = "Total Letters per Cycle") %>%
-  full_join(tidy(mPro_Full) %>%
-              mutate(model = "Pro-business Letters per Cycle")) %>%
-  full_join(tidy(mPro_Fullx) %>% mutate(model = "Pro-business Letters per Cycle, with interaction")) %>%
-  full_join(tidy(mAnti_Full) %>%
-              mutate(model = "Anti-business Letters per Cycle")) %>%
-  full_join(tidy(mAnti_Fullx) %>% mutate(model = "Anti-business Letters per Cycle, with interaction")) # %>%  mutate(term = str_replace(term, "party\\(R\\)", "Republican"))
-
-dplot(models) + 
-    labs(x = "Additional letters per cycle")
-
-write_lines(
-  stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx, float=F),
-  path = here("FERC/tables/mFull.tex"))
-
-table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
-                type = "html",
-                notes = "FERC/tables/mFull.tex")
-
-table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
-                type = "html",
-                notes = "FERC/tables/mFull.tex")
-```
-
-```{r, results="asis"}
-htmltools::HTML(table)
-```
-
 
 
 # About DOD and VA
 
 
 
-## Letters on behalf of projects in their districts
-###Fix to make relevant
-
-```{r}
-d %>% 
-  mutate(Place_District = tolower(Place_District)) %>% 
-  # FIXME 
-  # dropping odd observations, will correct in DOE_FERC.R script 
-  filter(Place_District %in% c("yes", "no", NA)) %>% 
-  filter(letter_position %in% c("AntiBusiness", "ProBusiness")) %>% 
-  filter(Constituent != "Not coded") %>% 
-  count(Place_District, letter_position, Constituent) %>% 
-  ggplot() +
-  aes(x = Place_District, y = n, fill = letter_position) +
-  geom_col() + 
-  facet_grid(Constituent ~ .)+ 
-  labs(x = "Is the proposed project in the member's district?",
-       y = "Number of letters",
-       fill = "")
-```
 
 
 
