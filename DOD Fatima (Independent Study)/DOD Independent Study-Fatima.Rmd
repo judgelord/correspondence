@@ -174,7 +174,7 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 
 
-Chamber <- "House" # "House" #  
+Chamber <- "House" # "House"  
  
 # member by year by agency 
 d %>% 
