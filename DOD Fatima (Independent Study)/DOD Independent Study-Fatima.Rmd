@@ -16,71 +16,14 @@ editor_options:
 
 # Data
 
-##Is there a way we can get this updated??
-The full dataset of congressional correspondence can be found at `"data/all_contacts.RData"`.
-More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`. ##How do I do this for DOD agencies
-
 
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
-d <- all_contacts %>%
-  ungroup() %>% 
-  # define d as just FERC
-  filter(agency=="DOD"|"VA") %>% 
-  #mutate(ID = NOTES) %>% 
-  # FIXME
-  # filter(nchar(ID)>8) %>%
-  #select(-SUBJECT) %>% 
-  mutate(majority = ifelse(majority == 1, "Majority", "Minority")) %>%
-  # FIXME 
-  
-  
-
-## one obs per member per letter per committee for all agencies # DEPRECIATED 
-# load(here("data/all_contacts_committees.RData"))
-## define dcommittees as just FERC
-#dcommittees <- all_contacts_committees %<>% filter(agency == "DOD"|"VA")
-
-# Coded letters, one obs per member per letter 
-
-#load(here("data/DOE_FERC-letters-clean.Rdata"))  ##Change this to DOD and VA
-
-
-# TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
-DOD_letters %<>% 
-  select(SUBJECT, Notes, DATE, last_name, # last_name is aparently slightly different in d and FERC_letters
-         Freelancer, 
-         Cosigned_House, Cosigned_Senate,
-         text_clean, Constituent, year,
-         Place_State, Place_District, Place_District,
-         ProBusiness, AntiBusiness, ProProject, AntiProject) %>%
-  #mutate(ID = ID %>% as.character()) %>% 
-  distinct()
-
-## Make sure DOD  letter IDs are the same as in the main data
-# DOD_letters %>% filter(year < 2019, !ID %in% d$ID)
-
-# merge in coded letters
-
-d %<>% left_join(DOD_letters) %>% filter(year <2017, !is.na(ID))  ##is this where I input 2007-2017?
+d <- all_contacts %>% filter(str_detect(agency, "DOD|VA")) ##Added VA and DOD
 
 # how many failed to merge?
-d %>% count(is.na())  ##not sure why Freelancer was inside there
-
-# Add hand-coding to auto-coding of letter type 
-d %<>%  
-  mutate(Type = as.character(Type)) %>% 
-  mutate(Type = ifelse(tolower(Constituent) == "yes", "Indiv. Constituent", Type)) %>% 
-  mutate(Type = ifelse(!is.na(ProBusiness)|!is.na(ProProject), "Corp. Constituent", Type)) %>%
-  # define Constituent as "Indiv. Constituent"
-  mutate(Constituent = ifelse(Type == "Indiv. Constituent", "Indiv. Constituent", "Non_constituent"),
-         Constituent = replace_na(Constituent, "Not coded") ) 
-  
-
-
-
-# unique(d$letter_position)
+d %>% count(is.na())  ##none
 
 d %<>% 
   # FIXME
@@ -102,19 +45,7 @@ In all, we have `r FERC_letters %>% select(Notes) %>% distinct() %>% nrow()` let
 # top overall
 d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD and VA")
 
-# most with a given position
-d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
 
-# most with a given position in a cycle
-d %>% count(bioname, party, cqlabel, letter_position, congress, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator in a cycle")
-
-# d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(1, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Letters from the legislator who forwards the most letters")
-
-d %>%
-  ggplot() +
-  aes(x = congress, fill = letter_position) + 
-  geom_bar(position = "dodge") + 
-  facet_grid(party_name ~ chamber)
 ```
 
 
@@ -211,73 +142,6 @@ d %>% filter(party_name != "Independent",
         axis.text.x = element_text(angle = 45))
 ```
 
----
-
-## Coding of constituent type 
-Our coding of letter type is a mix of hand-coding "Pro-business" and "Constituent" letters, as well as some coding rules applied to letters that were not put in either group by human coders using [inductively-developed coding rules](https://github.com/judgelord/correspondence/blob/master/agencies/DOE_FERC.R).
-
-FERC has an especially high ratio of letters written on behalf of businesses compared to other agencies that mostly receive letters from legislators on behalf of their constituents. 
-
-```{r data-by-type, fig.width=7, fig.height=4}
-all_percent <- all_contacts %>% 
-  filter(Type != "To be coded") %>%  
-  mutate(total = n()) %>% 
-  group_by(Type, total) %>% summarise(nT = n()) %>% 
-  mutate(percent = 100*round(nT/total, 2) ) %>% 
-  mutate(agency = "Overall") %>% 
-  ungroup()
-
-
-d_percent <- d %>% 
-  filter(Type != "To be coded") %>%  
-  mutate(total = n()) %>% 
-  group_by(Type, total) %>% summarise(nT = n()) %>% 
-  mutate(percent = 100*round(nT/total, 2) ) %>% 
-  mutate(agency = "DOD"|"VA") %>% 
-  ungroup()
-
-full_join( all_percent, d_percent)%>% 
-  ggplot() + 
-  aes(x = Type, y = percent, fill = agency, color = agency, label = nT) + 
-  geom_col(position = "dodge") + 
-  geom_text(vjust = -.1,
-            aes(hjust = ifelse(agency == "Overall", 0,1))) +
-  labs(x = "",
-       fill = "",
-       color = "",
-       y = "Percent", #paste("Number of Contacts, N =", sum(nrow(all_contacts))),
-       title = "Legislator Contacts with FERC") +
-  theme(panel.background = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text.x.top = element_text()) + 
-  scale_color_viridis_d(option = "C", end = .8) +
-  scale_fill_viridis_d(option = "C", end = .8) + 
-    theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank())
-```
-
-```{r constituent-non-constituent, fig.height=3, fig.width=7}
-d  %>% 
-  filter(Constituent != "Not coded") %>% 
-  ggplot() + 
-      theme_minimal() +
-  aes(x = letter_position) + 
-  geom_bar() + 
-  facet_wrap("Constituent") +
-  
-  labs(x = "",
-       y = paste("Letters 2007-2017, N =", as.character(d%>%drop_na(letter_position, Constituent) %>% nrow() %>% as.character() )))
-
-d  %>% 
-  ggplot() + 
-      theme_minimal() +
-  aes(x = letter_position) + 
-  geom_bar() + 
-  facet_wrap("Constituent") +
-  labs(title = "Including letters without constituent coding", 
-       x = "",
-       y = paste("Letters 2007-2017, N =", as.character(d %>% nrow() %>% as.character() )))
-```
 
 ---
 
@@ -345,23 +209,7 @@ d %>%
   theme(legend.position = "bottom", 
         legend.title = element_blank() )#+facet_grid(. ~ Constituent)
 
-# By type2
-d %>% 
-  filter(chamber == Chamber) %>% 
-  filter(Constituent != "Not coded") %>% 
-  group_by(state, Constituent) %>% summarise(n = n()) %>%
-# map_id creates the aesthetic mapping to the state name column
-ggplot() + 
-  # map points to the fifty_states shape data
-  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
-  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-  coord_map() +
-  scale_x_continuous(breaks = NULL) + 
-  scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
-  scale_fill_viridis_c(option = "C", end = .8) +
-  theme(legend.position = "bottom", legend.title = element_blank(),
-        panel.background = element_blank()) + facet_grid(. ~ Constituent)
+
 
 d %>% 
   filter(chamber == Chamber) %>%
