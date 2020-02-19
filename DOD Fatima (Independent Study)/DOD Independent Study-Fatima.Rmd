@@ -37,13 +37,27 @@ d %<>%
 
 ---
 
-# Outlier
-##How do we figure this out??
+# Top 10 Legislators who wrote to DoD and VA combined
  
 ```{r forwards}
 # top overall
 d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD and VA")
 ```
+
+
+|bioname                        |party |cqlabel |    n|
+|:------------------------------|:-----|:-------|----:|
+|McCAIN, John Sidney, III       |(R)   |(AZ)    | 2281|
+|SHELBY, Richard C.             |(R)   |(AL)    | 1687|
+|SCHUMER, Charles Ellis (Chuck) |(D)   |(NY)    | 1444|
+|TOOMEY, Patrick Joseph         |(R)   |(PA)    | 1170|
+|MANCHIN, Joe, III              |(D)   |(WV)    | 1144|
+|McCAUL, Michael T.             |(R)   |(TX-10) | 1144|
+|MIKULSKI, Barbara Ann          |(D)   |(MD)    | 1095|
+|WOLF, Frank Rudolph            |(R)   |(VA-10) | 1006|
+|DURBIN, Richard Joseph         |(D)   |(IL)    |  988|
+|GRAHAM, Lindsey O.             |(R)   |(SC)    |  903|
+
 --
 
 # Members
@@ -113,7 +127,7 @@ d %>%
 
 
 d  %>% 
-  mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME
+  mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME non-numeric argument to binary operator
   # map_id creates the aesthetic mapping to the state name column in your data
   ggplot() + 
   # map points to the fifty_states shape data
@@ -185,34 +199,40 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 ```
 
-```{r ferc_vs_all_rate}
-all_contacts %>%
-  filter(congress >109) %>% 
-  mutate(FERC = agency == "DOD"|"VA") %>%
-  count(chamber, DOD|VA, name_state, state) %>%
-  spread(key = "DOD"|"VA", value = "n", 0) %>% 
-  mutate(ShareToDOD_VA = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
-  arrange(-ShareToDOD_VA) %>% 
-  mutate(total = `TRUE` + `FALSE`) %>% 
-  select(name_state, chamber, total, ShareToDOD_VA) %>% 
-  filter(ShareToDOD_VA>.3) %>%
-  knitr::kable(caption = "Members who contact DOD and VA more, relative to other agencies" )
 
-
-all_contacts %>% 
-  filter(congress >109) %>% 
-  mutate(FERC = agency == "DOD"|"VA") %>%
-  count(chamber, congress, FERC, name_state, state) %>%
-  spread(key = "DOD"|"VA", value = "n", 0) %>% 
-  mutate(ShareToDOD_VA = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
-  arrange(-ShareToDOD_VA) %>% 
-  mutate(total = `TRUE` + `FALSE`) %>% 
-  select(name_state, chamber, congress, total, ShareToDOD_VA) %>% 
-    filter(total >10) %>% 
-  top_n(10) %>%
-  knitr::kable(caption = "Members who contact DOD and VA more, relative to other agencies")
+####Not able to get bottom two to work
+### Members who contact FERC more, relative to other agencies: 
+# ```{r ferc_vs_all_rate}
+# all_contacts %>%
+#   mutate(DOD = agency == "DOD$") %>%
+#   group_by(chamber, DOD, name_state, state) %>%
+#   summarise(n = n() ) %>%
+#   ungroup() %>%
+#   spread(key = "DOD", value = "n") %>% 
+#   mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
+#   arrange(-ShareToDOD) %>% 
+#   mutate(total = `TRUE` + `FALSE`) %>% 
+#   select(name_state, chamber, total, ShareToFERC) %>% 
+#   filter(ShareToDOD>.3) %>%
+#   knitr::kable()
 ```
 
+
+### Members who contact FERC more in a Congress, relative to other agencies:
+```{r ferc_vs_all_rate_committees}
+#all_contacts %>%
+#  mutate(FERC = agency == "DOE_FERC") %>%
+#  group_by(congress, chamber, committees, FERC, name_state, state) %>%
+#  summarise(n = n() ) %>%
+#  ungroup() %>%
+#  spread(key = "FERC", value = "n") %>%
+# mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>%
+#  arrange(-ShareToFERC) %>%
+#  mutate(total = `TRUE` + `FALSE`) %>%
+#  select(name_state, congress, chamber, committees, total, ShareToFERC) %>%
+#  filter(ShareToFERC>.5, total>5) %>%
+#  knitr::kable()
+```
 
 
 
