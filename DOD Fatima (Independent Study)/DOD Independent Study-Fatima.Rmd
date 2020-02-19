@@ -1,6 +1,6 @@
 ---
-title: "DOD Independent Study"
-subtitle: "Insert Something Insightful Soon"
+title: "PS 699 Independent Study"
+subtitle: "An analysis on the Department of Defense and the Department of Veteran Affairs"
 author: "Fatima Ali"
 output:
   #pdf_document
@@ -15,6 +15,7 @@ editor_options:
 
 # Data
 
+In all, we have 84,365 letters received by the DoD and VA and marked “congressional” since 2003. All of these are from Members of the U.S. Congress. I chose to combine the VA and DOD data because they are agencies that work together quite frequently, as proven through my handcoding of various agencies.
 
 ```{r data}
 source("setup.R") ##do we need this as well?
@@ -27,10 +28,8 @@ d <- all_contacts %>% filter(str_detect(agency, "DOD|VA")) ##Added VA and DOD
 #d %>% count(is.na())  ##Is this wrong or did they all merge??
 
 d %<>% 
-  # FIXME
-  # rounding years up is approximate, rewrite to go Nov-Nov? ##do we do this as well?
-  #mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, congress))
+  mutate(cycle = congress*2+1786 ) %>% 
+  mutate(icpsryear = str_c(icpsr, congress)) ##What does this do??
 ```
 
 
