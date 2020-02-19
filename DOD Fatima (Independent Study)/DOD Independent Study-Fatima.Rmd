@@ -223,6 +223,48 @@ all_contacts %>%
 
 
 
+#References
+
+Amos A. Jordan, William J. Taylor, Jr. and Michael J. Mazar, American National Security (Baltimore: Johns Hopkins University Press, 2009)
+ 
+John Kingdon. 1973. Congressmen’s voting decisions.
+ 
+Keith T. Poole and Howard Rosenthal. 2007. Ideology and Congress, Transaction Publishers.
+ 
+Kingdon, John W. “Models of Legislative Voting.” The Journal of Politics, vol. 39, no. 3, 1977, pp. 563–595. JSTOR, www.jstor.org/stable/2129644. Accessed 22 Jan. 2020.
+ 
+Lawrence J. Korb, et al, Building a Military for the 21st Century
+ 
+Nolan M. McCarty, Keith T. Poole, and Howard Rosenthal. 2006. Polarized America: The dance of ideology and unequal riches, MIT Press.
+ 
+David W. Rohde. 1991. Parties and leaders in the post-reform House of Representatives, University of Chicago Press.
+ 
+Fenno, Richard F., “U.S. House Members in Their Constituencies: An Exploration.” American Political Science Review 71 (3, 1977): 883-917.
+ 
+Fenno, Richard F., The Challenge of Congressional Representation (Cambridge, MA: Harvard University Press, 2013), 138-184.
+ 
+Congressional Procedures and the Policy Analysis, by Walter J. Oleszek, Congressional Quarterly Press, Ninth Edition, 2013
+ 
+Laurance, Edward J. “The Changing Role of Congress in Defense Policy-Making.” The Journal of Conflict Resolution, vol. 20, no. 2, 1976, pp. 213–253. JSTOR, www.jstor.org/stable/173398. Accessed 22 Jan. 2020.
+ 
+Lindsay, James M., and Randall B. Ripley. “How Congress Influences Foreign and Defense Policy.” Bulletin of the American Academy of Arts and Sciences, vol. 47, no. 6, 1994, pp. 7–32. JSTOR, www.jstor.org/stable/3824424. Accessed 22 Jan. 2020.
+ 
+Lindsay, James M., and Randall B. Ripley. “Foreign and Defense Policy in Congress: A Research Agenda for the 1990s.” Legislative Studies Quarterly, vol. 17, no. 3, 1992, pp. 417–449. JSTOR, www.jstor.org/stable/439739. Accessed 22 Jan. 2020.
+ 
+ 
+REIF, KINGSTON. “Congress Rewrites Missile Defense Policy.” Arms Control Today, vol. 47, no. 1, 2017, pp. 40–42. JSTOR, www.jstor.org/stable/90004330. Accessed 22 Jan. 2020.
+  
+Lowande, K. (2018). Who Polices the Administrative State? American Political Science Review, 112(4), 874–890. doi: 10.1017/s0003055418000497
+ 
+Lowande, K. (2019). Politicization and Responsiveness in Executive Agencies. The Journal of Politics, 81(1), 33–48. doi: 10.1086/700270
+ 
+Ritchie, M.N. and You, H.Y. (2019), Legislators as Lobbyists. Legislative Studies Quarterly, 44: 65-95. doi:10.1111/lsq.12221
+ 
+Ritchie, M. N. (2018). Back-Channel Representation: A Study of the Strategic Communication of Senators with the US Department of Labor. The Journal of Politics, 80(1), 240–253. doi: 10.1086/694395
+
+Mia Costa Paper
+
+FERC Paper
 
 
 
