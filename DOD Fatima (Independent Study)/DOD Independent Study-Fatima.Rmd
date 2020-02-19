@@ -53,93 +53,6 @@ d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption
 ## By party and majority status
 
 
-```{r part-constituent, fig.height=3, fig.width=4}
-d %>% 
-  mutate(For = Constituent,
-         For = ifelse(letter_position == "ProBusiness", "Pro-Business", For),
-         For = ifelse(For == "Non_constituent", "Other", For)) %>% 
-  count(party_name, For, majority) %>% 
-  filter(party_name != "Independent",
-         !is.na(For),
-         For != "Not coded",
-         For != "Other",
-         !is.na(majority)) %>% 
-  group_by(party_name, majority) %>% 
-  mutate(percent = n / sum(n) * 100 ) %>% 
-  ggplot() + 
-  aes(y = percent, x = "", fill = For) + 
-  geom_col(position = "stack") + 
-  #geom_text(aes(label = n)) +
-  facet_grid(majority ~ party_name) + 
-  scale_fill_viridis_d(option = "C", end = .8) + 
-    labs(x = "",
-       fill = "Advocating for",
-       y = "Percent") + 
-  theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank())
-
-d %>% 
-  mutate(For = Constituent,
-         For = ifelse(letter_position == "ProBusiness", "Pro-Business", For),
-         For = ifelse(For == "Non_constituent", "Other", For)) %>% 
-  count(party_name, For, majority, congress) %>% 
-  filter(party_name != "Independent",
-         !is.na(For),
-         For != "Not coded",
-         For != "Other",
-         !is.na(majority)) %>% 
-  ggplot() + 
-  aes(y = n, x = congress, fill = For) + 
-  geom_col(position = "stack") + 
-  #geom_text(aes(label = n)) +
-  facet_grid(majority ~ party_name) + 
-  scale_fill_viridis_d(option = "C", end = .8) + 
-    labs(x = "",
-       fill = "Advocating for",
-       y = "n") + 
-  theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank(),
-        axis.text = element_text(angle = 45))
-```
-
-Looking at letters that are explicitly pro- or anti-business, Democrats write more anti-business letters, whereas, for Republicans, it depends on chamber control. When in the majority, Republicans write more pro-business letters. 
-```{r part-business, fig.height=3, fig.width=4}
-d %>% 
-  count(party_name, letter_position, majority) %>% 
-    filter(party_name != "Independent",
-           letter_position != "Other",
-         !is.na(letter_position),
-         !is.na(majority)) %>% 
-  group_by(party_name, majority) %>% 
-  mutate(percent = n / sum(n) * 100 ) %>% 
-  ggplot() + 
-  aes(y = percent, x = "", fill = letter_position) + 
-  geom_col(position = "stack") + 
-  facet_grid(majority ~ party_name)+ 
-  scale_fill_viridis_d(option = "C", end = .8) + 
-  labs(x = "",
-       fill = "",
-       y = "Percent") + 
-  theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank())
-
-d %>% filter(party_name != "Independent",
-             letter_position != "Other",
-             !is.na(letter_position),
-             !is.na(majority)) %>% 
-  count(party_name, letter_position, majority, congress) %>% 
-  ggplot() + 
-  aes(y = n, x = factor(congress), fill = letter_position) + 
-  geom_col(position = "stack") + 
-  facet_grid(majority ~ party_name)+ 
-  scale_fill_viridis_d(option = "C", end = .8) + 
-  labs(x = "",
-       fill = "",
-       y = "n") + 
-  theme_minimal() + 
-  theme(panel.grid.major.x  = element_blank(),
-        axis.text.x = element_text(angle = 45))
-```
 
 
 ---
@@ -210,11 +123,8 @@ d %>%
 
 
 
-d %>% 
-  filter(chamber == Chamber) %>%
-  filter(Constituent != "Not coded") %>% 
-  group_by(state, pop2010, Constituent) %>% summarise(n = n()) %>% ungroup() %>% 
-  mutate(Per_Capita = n/pop2010*1000000) %>% 
+d  %>% 
+  mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME
   # map_id creates the aesthetic mapping to the state name column in your data
   ggplot() + 
   # map points to the fifty_states shape data
@@ -313,79 +223,6 @@ all_contacts %>%
   top_n(10) %>%
   knitr::kable(caption = "Members who contact DOD and VA more, relative to other agencies")
 ```
-
-
-## Interesting cases
-
-
----
-
-
-
----
-
-
-
-
-##Count non-constituent letters:
-```{r constituent}
-# letter counts by position
-constituent_counts <- d %>% 
-  mutate(constituent_position = Constituent) %>% 
-  count(constituent_position, congress, chamber, icpsr) %>% 
-  ungroup() # %>% tally(n)
-
-# constituent_counts %>% filter(is.na(constituent_position))
-
-# use voteview members file as base to make sure we are not missing anyone who wrote 0 letters
-members %<>%  filter(congress >105) %>% filter(chamber %in% c("House", "Senate")) 
-
-# add letters to members file to get zero counts
-constituents <- members %>% select(congress, icpsr, chamber, cqlabel) %>% distinct() %>% 
-  left_join(constituent_counts) %>% # introduces NA constituent position because not all members are in constituent_counts
-  mutate(n = replace_na(n,0)) %>% 
-  ungroup() %>% 
-  # mutate(constituent_position = as.factor(constituent_position)) %>% 
-    complete(constituent_position, nesting(congress, icpsr, chamber, cqlabel),
-             fill = list(n = 0)) %>% 
-  ungroup() %>% 
-  filter(!is.na(constituent_position)) %>% 
-  distinct() 
-
-# constituents %>% count(constituent_position)
-
-# # should be the same icpsrs
-# members %>% select(congress, icpsr) %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
-# constituents %>% ungroup() %>% top_n(10, icpsr) %>% arrange(-icpsr) %>% kable()
-
-# merge with PAC amounts
-constituents_money <-  constituents %>% 
-  full_join(pac_amounts %>% ungroup())  %>% distinct()
-
-# constituents %>% filter(!icpsr %in% pac_amounts$icpsr)
-# members %>% filter(!icpsr %in% pac_amounts$icpsr)
-# pac_amounts %>% filter(!icpsr %in% constituents$icpsr)
-
-# constituents_money %>% count(constituent_position)
-
-constituents_money %<>% filter(!is.na(bioname))
-
-constituents_money %>%  top_n(1, icpsr) %>% arrange(congress, -icpsr) %>% kable()
-
-# make sure we have all members and no more 
-# members %>% select(icpsr, congress, chamber) %>% left_join(constituents_money) %>% distinct()
-
-# inspect for 0 counts 
-# constituents_money %>% count(n, sort = T)
-
-constituents_money %<>%
-  mutate(Non_Constituent_Letters = ifelse(constituent_position == "Non_constituent", n, NA), #FIXME 
-         Constituent_Letters = ifelse(constituent_position == "Indiv. Constituent", n, NA))
-# inspect for correct 0 counts (should be equal across years per industry)
-constituents_money %>% count(industry, constituent_position) %>% kable()
-```
-
-
 
 
 ### Multivariate models 
