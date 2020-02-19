@@ -201,8 +201,8 @@ d %>%
 
 
 ####Not able to get bottom two to work
-### Members who contact FERC more, relative to other agencies: 
-# ```{r ferc_vs_all_rate}
+### Members who contact DOD more, relative to other agencies: 
+```{r ferc_vs_all_rate}
 # all_contacts %>%
 #   mutate(DOD = agency == "DOD$") %>%
 #   group_by(chamber, DOD, name_state, state) %>%
@@ -215,6 +215,8 @@ d %>%
 #   select(name_state, chamber, total, ShareToFERC) %>% 
 #   filter(ShareToDOD>.3) %>%
 #   knitr::kable()
+```
+
 ```
 
 
