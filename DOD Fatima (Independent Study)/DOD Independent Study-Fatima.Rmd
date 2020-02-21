@@ -33,7 +33,7 @@ d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
  
 ```{r forwards}
 # top overall
-d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD and VA")
+d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 ```
 
 
