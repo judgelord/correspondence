@@ -193,6 +193,31 @@ d %>%
     axis.text.y = element_text(size=5)
   ) + 
     guides(fill=guide_legend(ncol=1)) 
+
+
+Chamber <- "Senate" # "House"  
+ 
+# member by year by agency 
+d %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+  filter(n > mean(n)) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(name_state, n) ), 
+    # alpha = .6,
+    shape = 73,
+    size=2
+  ) +  
+  labs(title = paste(Chamber),
+       y = paste("Members by", "Total Number of Letters"), 
+       x = "Date of Correspondence" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5)
+  ) + 
+    guides(fill=guide_legend(ncol=1)) 
 ```
 
 
