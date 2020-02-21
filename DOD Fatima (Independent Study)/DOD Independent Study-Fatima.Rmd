@@ -1,6 +1,6 @@
 ---
 title: "PS 699 Independent Study"
-subtitle: "An analysis on the Department of Defense and the Department of Veteran Affairs"
+subtitle: "An analysis on the Department of Defense"
 author: "Fatima Ali"
 output:
   #pdf_document
@@ -22,14 +22,11 @@ source("setup.R") ##do we need this as well?
 ##THIS IS NOT KNITTING
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
-d <- all_contacts %>% filter(str_detect(agency, "DOD|VA")) ##Added VA and DOD
+d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
 
 # how many failed to merge?
 #d %>% count(is.na())  ##Is this wrong or did they all merge??
 
-d %<>% 
-  mutate(cycle = congress*2+1786 ) %>% 
-  mutate(icpsryear = str_c(icpsr, congress)) ##What does this do??
 ```
 
 
