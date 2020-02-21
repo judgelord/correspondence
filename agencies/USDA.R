@@ -24,6 +24,15 @@ clean <- function(file.name){
   data$DATE <- gsub("/201", "/1", data$DATE) 
   data$DATE <- gsub("/200", "/0", data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
+  
+  #Fill NA dates with Date Signed
+  data %<>%
+    mutate(tempDATE = `Date Signed`) 
+  data$tempDATE %<>% as.Date("%m/%d/%Y")
+  data %<>%
+    mutate(DATE = if_else(is.na(DATE), tempDATE, DATE))
+  
+    
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001  
   
