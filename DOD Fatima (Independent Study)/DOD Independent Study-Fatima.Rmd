@@ -15,7 +15,7 @@ editor_options:
 
 # Data
 
-In all, we have 84,365 letters received by the DoD and VA and marked “congressional” since 2003. All of these are from Members of the U.S. Congress. I chose to combine the VA and DOD data because they are agencies that work together quite frequently, as proven through my handcoding of various agencies.
+In all, we have 8005 letters received by the DoD and VA and marked “congressional” since 2003. All of these are from Members of the U.S. Congress. I chose to combine the VA and DOD data because they are agencies that work together quite frequently, as proven through my handcoding of various agencies.
 
 ```{r data}
 source("setup.R") ##do we need this as well?
@@ -23,10 +23,6 @@ source("setup.R") ##do we need this as well?
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
 d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
-
-# how many failed to merge?
-#d %>% count(is.na())  ##Is this wrong or did they all merge??
-
 ```
 
 
@@ -195,7 +191,7 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 
 
-Chamber <- "Senate" # "House"  
+Chamber <- "Senate" # "Senate"  
  
 # member by year by agency 
 d %>% 
@@ -229,13 +225,13 @@ d %>%
 #   group_by(chamber, DOD, name_state, state) %>%
 #   summarise(n = n() ) %>%
 #   ungroup() %>%
-#   spread(key = "DOD", value = "n") %>% 
-#   mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
-#   arrange(-ShareToDOD) %>% 
-#   mutate(total = `TRUE` + `FALSE`) %>% 
-#   select(name_state, chamber, total, ShareToFERC) %>% 
-#   filter(ShareToDOD>.3) %>%
-#   knitr::kable()
+#   spread(key = "DOD", value = "n") %>%
+#   # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
+#   # arrange(-ShareToDOD) %>%
+#   # mutate(total = `TRUE` + `FALSE`) %>%
+#   # select(name_state, chamber, total, ShareToFERC) %>%
+#   # filter(ShareToDOD>.3) %>%
+#   # knitr::kable()
 ```
 
 ```
@@ -259,7 +255,7 @@ d %>%
 
 
 
-# About DOD and VA
+# About DOD 
 
 
 
