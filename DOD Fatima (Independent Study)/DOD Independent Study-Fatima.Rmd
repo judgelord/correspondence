@@ -280,6 +280,9 @@ d %>%
 ####Fix this, right now visualization is very messy
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
+
+chamber <- "Senate" # "Senate" ##still is bringing in House members
+
 all_contacts %>%
   mutate(DOD = agency == "DOD$") %>%
   group_by(chamber, DOD, name_state, state) %>%
