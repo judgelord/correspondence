@@ -126,6 +126,27 @@ ggplot() +
 ##House Contacts per State
 
 ```{r}
+
+d %>% 
+  filter(chamber == "House") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
+  labs(title = "House Requests per Year by State Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+
+
 Chamber = "House"
 
 d %>% 
