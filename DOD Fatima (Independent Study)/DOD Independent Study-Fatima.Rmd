@@ -277,21 +277,21 @@ d %>%
 ```
 
 
-####Not able to get bottom two to work
+####Fix this, right now visualization is very messy
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
-# all_contacts %>%
-#   mutate(DOD = agency == "DOD$") %>%
-#   group_by(chamber, DOD, name_state, state) %>%
-#   summarise(n = n() ) %>%
-#   ungroup() %>%
-#   spread(key = "DOD", value = "n") %>%
-#   # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
-#   # arrange(-ShareToDOD) %>%
-#   # mutate(total = `TRUE` + `FALSE`) %>%
-#   # select(name_state, chamber, total, ShareToFERC) %>%
-#   # filter(ShareToDOD>.3) %>%
-#   # knitr::kable()
+all_contacts %>%
+  mutate(DOD = agency == "DOD$") %>%
+  group_by(chamber, DOD, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  spread(key = "DOD", value = "n") %>%
+  #mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
+  #arrange(-ShareToDOD) %>%
+  # mutate(total = `TRUE` + `FALSE`) %>%
+  # select(name_state, chamber, total, ShareToDOD) %>%
+  # filter(ShareToDOD>.3) %>%
+  knitr::kable()
 ```
 
 ```
@@ -299,18 +299,18 @@ d %>%
 
 ### Members who contact FERC more in a Congress, relative to other agencies:
 ```{r ferc_vs_all_rate_committees}
-#all_contacts %>%
-#  mutate(FERC = agency == "DOE_FERC") %>%
-#  group_by(congress, chamber, committees, FERC, name_state, state) %>%
-#  summarise(n = n() ) %>%
-#  ungroup() %>%
-#  spread(key = "FERC", value = "n") %>%
+all_contacts %>%
+  mutate(FERC = agency == "DOE_FERC") %>%
+  group_by(congress, chamber, committees, FERC, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  spread(key = "FERC", value = "n") %>%
 # mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>%
 #  arrange(-ShareToFERC) %>%
 #  mutate(total = `TRUE` + `FALSE`) %>%
 #  select(name_state, congress, chamber, committees, total, ShareToFERC) %>%
-#  filter(ShareToFERC>.5, total>5) %>%
-#  knitr::kable()
+#filter(ShareToFERC>.5, total>5) %>%
+knitr::kable()
 ```
 
 
