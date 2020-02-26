@@ -36,9 +36,30 @@ d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
 d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 ```
 
+###Senators and Veteran Population
+###Still Working On this!!!!
 
+```{r}
+d %>% 
+  filter(chamber == "Senate") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
+  labs(title = "Senator Requests per Year by Veteran Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+```
 
-# Members
 
 ### Senators vs. state population 
 
