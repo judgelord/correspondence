@@ -37,20 +37,6 @@ d %>% count(bioname,party, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption
 ```
 
 
-|bioname                        |party |cqlabel |    n|
-|:------------------------------|:-----|:-------|----:|
-|McCAIN, John Sidney, III       |(R)   |(AZ)    | 2281|
-|SHELBY, Richard C.             |(R)   |(AL)    | 1687|
-|SCHUMER, Charles Ellis (Chuck) |(D)   |(NY)    | 1444|
-|TOOMEY, Patrick Joseph         |(R)   |(PA)    | 1170|
-|MANCHIN, Joe, III              |(D)   |(WV)    | 1144|
-|McCAUL, Michael T.             |(R)   |(TX-10) | 1144|
-|MIKULSKI, Barbara Ann          |(D)   |(MD)    | 1095|
-|WOLF, Frank Rudolph            |(R)   |(VA-10) | 1006|
-|DURBIN, Richard Joseph         |(D)   |(IL)    |  988|
-|GRAHAM, Lindsey O.             |(R)   |(SC)    |  903|
-
---
 
 # Members
 
@@ -78,6 +64,8 @@ d %>%
 
 ```
 
+
+
 ```{r senate_percapita_map}
 Chamber = "Senate"
 
@@ -98,43 +86,64 @@ ggplot() +
   theme(legend.position = "bottom", legend.title = element_blank(),
         panel.background = element_blank()) # + facet_grid(. ~ Constituent)
 
-d %>% 
-  ungroup() %>% 
-  filter(chamber == Chamber) %>% 
-  group_by(state, pop2010) %>% summarise(n = n()) %>% ungroup() %>% 
-  mutate(Per_Capita = n/pop2010*1000000) %>% 
-  # map_id creates the aesthetic mapping to the state name column in your data
-  ggplot() + 
-  # map points to the fifty_states shape data
-  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
-  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-  coord_map() +
-  scale_x_continuous(breaks = NULL) +
-  scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
-  scale_fill_viridis_c(option = "C", end = .8) +
-  theme(legend.position = "bottom", 
-        legend.title = element_blank() )#+facet_grid(. ~ Constituent)
+# d %>% 
+#   ungroup() %>% 
+#   filter(chamber == Chamber) %>% 
+#   group_by(state, pop2010) %>% summarise(n = n()) %>% ungroup() %>% 
+#   mutate(Per_Capita = n/pop2010*1000000) %>% 
+#   # map_id creates the aesthetic mapping to the state name column in your data
+#   ggplot() + 
+#   # map points to the fifty_states shape data
+#   geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+#   expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+#   coord_map() +
+#   scale_x_continuous(breaks = NULL) +
+#   scale_y_continuous(breaks = NULL) +
+#   labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+#   scale_fill_viridis_c(option = "C", end = .8) +
+#   theme(legend.position = "bottom", 
+#         legend.title = element_blank() )#+facet_grid(. ~ Constituent)
 
 
 
-d  %>% 
-  mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME non-numeric argument to binary operator
-  # map_id creates the aesthetic mapping to the state name column in your data
-  ggplot() + 
-  # map points to the fifty_states shape data
-  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
-  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-  coord_map() +
-  scale_x_continuous(breaks = NULL) +
-  scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
-  scale_fill_viridis_c(option = "C", end = .8) +
-  theme(legend.position = "bottom", 
-        legend.title = element_blank() )+
-  facet_grid(. ~ Constituent)
+# d  %>% 
+#   mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME non-numeric argument to binary operator
+#   # map_id creates the aesthetic mapping to the state name column in your data
+#   ggplot() + 
+#   # map points to the fifty_states shape data
+#   geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+#   expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+#   coord_map() +
+#   scale_x_continuous(breaks = NULL) +
+#   scale_y_continuous(breaks = NULL) +
+#   labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+#   scale_fill_viridis_c(option = "C", end = .8) +
+#   theme(legend.position = "bottom", 
+#         legend.title = element_blank() )+
+#   facet_grid(. ~ Constituent)
 ```
 
+
+```{r}
+Chamber = "House"
+
+d %>% 
+  ungroup() %>%
+  filter(chamber == Chamber) %>% 
+  group_by(state) %>% summarise(n = n()) %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) # + facet_grid(. ~ Constituent)
+```
 
 ---
 
