@@ -1,0 +1,344 @@
+---
+title: "PS 699 Independent Study"
+subtitle: "An analysis on the Department of Defense"
+author: "Fatima Ali"
+output:
+  #pdf_document
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Data
+
+In all, we have 8005 letters received by the DoD and VA and marked “congressional” since 2003. All of these are from Members of the U.S. Congress. I chose to combine the VA and DOD data because they are agencies that work together quite frequently, as proven through my handcoding of various agencies.
+
+```{r, include=FALSE}
+  library(tidyverse)
+  library(ggplot2); theme_set(theme_bw())
+  options(
+    ggplot2.continuous.color = "viridis",
+    ggplot2.continuous.fill = "viridis"
+  )
+  scale_color_discrete <- function(...)
+    scale_color_viridis_d(...)
+  scale_fill_discrete <- function(...)
+    scale_fill_viridis_d(...)
+  library(magrittr)
+  library(maps)
+  library(fiftystater)
+  library(mapproj)
+  library(knitr)
+  library(broom)
+  library(dotwhisker)
+  library(here)
+  library(dplyr)
+
+# source(here("setup.R"))
+```
+
+```{r data}
+load(here("data/all_contacts.RData"))
+# one obs per member per letter for all agencies
+d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
+```
+
+
+
+---
+
+# Top 10 Legislators who wrote to DoD and VA combined
+ 
+```{r forwards}
+# top overall
+d %>% count(bioname,party,cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
+```
+
+
+```{r}
+d %>% count(TYPE,sort = T) %>% top_n(10, n) %>% kable(caption = "Most Common Policy Areas")
+
+##Types of Policy each member dealt with
+d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
+```
+
+###Senators and Veteran Population
+###Still Working On this!!!!
+
+```{r}
+d %>% 
+  filter(chamber == "Senate") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
+  labs(title = "Senator Requests per Year by Veteran Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+```
+
+
+### Senators vs. state population 
+
+```{r population, fig.height= 3.7, fig.width=6}
+d %>% 
+  filter(chamber == "Senate") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
+  labs(title = "Senator Requests per Year by State Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+
+```
+
+
+
+```{r senate_percapita_map}
+Chamber = "Senate"
+
+d %>% 
+  ungroup() %>%
+  filter(chamber == Chamber) %>% 
+  group_by(state) %>% summarise(n = n()) %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) # + facet_grid(. ~ Constituent)
+
+# d %>% 
+#   ungroup() %>% 
+#   filter(chamber == Chamber) %>% 
+#   group_by(state, pop2010) %>% summarise(n = n()) %>% ungroup() %>% 
+#   mutate(Per_Capita = n/pop2010*1000000) %>% 
+#   # map_id creates the aesthetic mapping to the state name column in your data
+#   ggplot() + 
+#   # map points to the fifty_states shape data
+#   geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+#   expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+#   coord_map() +
+#   scale_x_continuous(breaks = NULL) +
+#   scale_y_continuous(breaks = NULL) +
+#   labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+#   scale_fill_viridis_c(option = "C", end = .8) +
+#   theme(legend.position = "bottom", 
+#         legend.title = element_blank() )#+facet_grid(. ~ Constituent)
+
+
+
+# d  %>% 
+#   mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME non-numeric argument to binary operator
+#   # map_id creates the aesthetic mapping to the state name column in your data
+#   ggplot() + 
+#   # map points to the fifty_states shape data
+#   geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+#   expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+#   coord_map() +
+#   scale_x_continuous(breaks = NULL) +
+#   scale_y_continuous(breaks = NULL) +
+#   labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+#   scale_fill_viridis_c(option = "C", end = .8) +
+#   theme(legend.position = "bottom", 
+#         legend.title = element_blank() )+
+#   facet_grid(. ~ Constituent)
+```
+
+##House Contacts per State
+
+```{r}
+
+d %>% 
+  filter(chamber == "House") %>% 
+    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    ggplot() + 
+    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
+  geom_smooth(aes(x = log(pop2010), y = mean)) + 
+  geom_text(aes(x = log(pop2010), 
+                y = mean, 
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+                               member_state, "")), 
+            check_overlap = TRUE, 
+            size = 2.5, 
+            hjust = 0) + 
+  theme_bw() +
+  labs(title = "House Requests per Year by State Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
+
+
+ Chamber = "House"
+
+d %>% 
+  ungroup() %>%
+  filter(chamber == Chamber) %>% 
+  group_by(state) %>% summarise(n = n()) %>%
+# map_id creates the aesthetic mapping to the state name column
+ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) # + facet_grid(. ~ Constituent)
+```
+
+---
+
+### Members who contact DOD and VA more than average: 
+
+```{r members_barcoded, fig.height=5, fig.width=9}
+# barcode plot of committee members 
+ 
+# member by year by agency 
+d %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+  filter(n > mean(n)) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(name_state, n) ), 
+    # alpha = .6,
+    shape = 73,
+    size=2
+  ) +  
+  labs(title = paste(Chamber),
+       y = paste("Members by", "Total Number of Letters"), 
+       x = "Date of Correspondence" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5)
+  ) + 
+    guides(fill=guide_legend(ncol=1)) 
+
+
+Chamber <- "Senate" # "Senate"  
+ 
+# member by year by agency 
+d %>% 
+  filter(chamber == Chamber) %>% 
+  group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+  filter(n > mean(n)) %>%
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = reorder(name_state, n) ), 
+    # alpha = .6,
+    shape = 73,
+    size=2
+  ) +  
+  labs(title = paste(Chamber),
+       y = paste("Members by", "Total Number of Letters"), 
+       x = "Date of Correspondence" ) +
+  theme(
+    legend.title = element_blank(),
+    axis.text.y = element_text(size=5)
+  ) + 
+    guides(fill=guide_legend(ncol=1)) 
+
+
+# Chamber <- "Senate" # "Senate"  
+#  
+# # member by year by agency 
+# d %>% 
+#   filter(chamber == Chamber) %>% 
+#   group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
+#   filter(n > mean(n)) %>%
+#   ggplot() +
+#   geom_point(
+#     aes(x = DATE, 
+#         y = reorder(name_state, n) ), 
+#     # alpha = .6,
+#     shape = 73,
+#     size=2
+#   ) +  
+#   labs(title = paste(Chamber),
+#        y = paste("Members by", "Total Number of Letters"), 
+#        x = "Date of Correspondence" ) +
+#   theme(
+#     legend.title = element_blank(),
+#     axis.text.y = element_text(size=5)
+#   ) + 
+#     guides(fill=guide_legend(ncol=1)) 
+```
+
+
+####Fix this, right now visualization is very messy
+### Members who contact DOD more, relative to other agencies: 
+```{r ferc_vs_all_rate}
+
+chamber <- "Senate" # "Senate" ##still is bringing in House members
+
+all_contacts %>%
+  mutate(DOD = agency == "DOD$") %>%
+  group_by(chamber, DOD, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  spread(key = "DOD", value = "n") %>%
+  #mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
+  #arrange(-ShareToDOD) %>%
+  # mutate(total = `TRUE` + `FALSE`) %>%
+  # select(name_state, chamber, total, ShareToDOD) %>%
+  # filter(ShareToDOD>.3) %>%
+  knitr::kable()
+```
+
+```
+
+
+### Members who contact FERC more in a Congress, relative to other agencies:
+```{r ferc_vs_all_rate_committees}
+all_contacts %>%
+  mutate(FERC = agency == "DOE_FERC") %>%
+  group_by(congress, chamber, committees, FERC, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  spread(key = "FERC", value = "n") %>%
+# mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>%
+#  arrange(-ShareToFERC) %>%
+#  mutate(total = `TRUE` + `FALSE`) %>%
+#  select(name_state, congress, chamber, committees, total, ShareToFERC) %>%
+#filter(ShareToFERC>.5, total>5) %>%
+knitr::kable()
+```
+
+
+
+
+
