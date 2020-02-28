@@ -17,9 +17,31 @@ editor_options:
 
 In all, we have 8005 letters received by the DoD and VA and marked “congressional” since 2003. All of these are from Members of the U.S. Congress. I chose to combine the VA and DOD data because they are agencies that work together quite frequently, as proven through my handcoding of various agencies.
 
+```{r, include=FALSE}
+  library(tidyverse)
+  library(ggplot2); theme_set(theme_bw())
+  options(
+    ggplot2.continuous.color = "viridis",
+    ggplot2.continuous.fill = "viridis"
+  )
+  scale_color_discrete <- function(...)
+    scale_color_viridis_d(...)
+  scale_fill_discrete <- function(...)
+    scale_fill_viridis_d(...)
+  library(magrittr)
+  library(maps)
+  library(fiftystater)
+  library(mapproj)
+  library(knitr)
+  library(broom)
+  library(dotwhisker)
+  library(here)
+  library(dplyr)
+
+# source(here("setup.R"))
+```
+
 ```{r data}
-source("setup.R") ##do we need this as well?
-##THIS IS NOT KNITTING
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
 d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
