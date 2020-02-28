@@ -115,7 +115,8 @@ data %<>%
   mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
   mutate(ERROR = ifelse(NonMembers, "Non Member", ERROR)) %>%
   mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR)) %>%
-  mutate(ERROR = ifelse(str_detect(FROM, "Eva Clayton|Eva M\\. Clayton") & congress %in% c(114|115), "No longer in congress", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Eva Clayton|Eva M\\. Clayton") & congress %in% 112, "No longer in congress", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Eva Clayton|Eva M\\. Clayton") & congress %in% 113, "No longer in congress", ERROR)) %>%
   mutate(ERROR = ifelse(str_detect(FROM, "Dale Kildee") & congress %in% 114, "No longer in congress", ERROR)) %>%
   mutate(ERROR = ifelse(str_detect(FROM, "Frank H\\. Murkowski") & congress %in% 111, "No longer in congress", ERROR)) %>%
   mutate(ERROR = ifelse(str_detect(FROM, "Lynn Jenkins") & congress %in% 110, "Not yet in congress", ERROR))
@@ -124,7 +125,9 @@ data %<>%
 Unfoundnames <- data %>%
   filter(is.na(last_name),
          is.na(ERROR))
-
+data %>%
+  filter(ID == 2846) %>%
+  select(FROM)
 
 
   
