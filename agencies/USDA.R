@@ -100,7 +100,7 @@ sample2data %<>%
 
 #Membership Errors
 NonMembers <- data$FROM %>%
-  str_detect("Gregg Engles|Gregg L\\. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue|Calvin Covington|David M\\. Gibbons|David M\\. Pomerantz|Doug Maddox|Alicia Molt|Alyssa Kennedy|Andrew Zabel|Bill Northey|Charles W\\. Bryant|Cheyenne Clements|Conae Black|Thyen|Daniel Wunderlich|Dave Chapman|DeLisa Lay|William H\\. Wigton|Wayne Palla|Tim Nisly|Thomas Mumey|Stephen P\\. Ashkin|Stephen Pearce|Shelley Hearne|Ron McCormick|Rreginald Kerns|Rudolph C\\. Cane|Sam Casella|Scott Simon|Shawna Johnson|Dennis Fife|Dennis Webb|DuBoise White|Errol Rice|Eunice Beal|G\\. Joe Lyon|Joe Lyon|Gail Watson\\. Chlang|Garry McGrath|Gerald Heatwole|J\\. Pat Mohan|James Ricky Williams|James Ricky\\. Williams|Jeff Johnson|Jeff Schmidt|JON CASPERS|Jonathan L\\. Healy|Judy Sanchez|Kelly Rudd|Ken Nobis|Kevin Phillips|Louis R\\. Zemek|Martha Torres|Melissa Greenbacker|Michael Doctor|Michael Platt|Mike and Kathy Poff|Patricia D\\. Stroup|Randy Mooney|Randy Shuring|Robert Redding|Robert Starr|Roger L\\. Richardson|Peter Sorenson|Nancy Sutley|Michael L\\. Bruhn|Mary Dean\\. Eckrote|Marc Brinkmeyer|Lyle Peterson|John W\\. Oliver|John M\\. Meyer|Jodi Kuhn|Jerry Nelson|Jerry C\\. Washburn|James Dain|James D\\. Wilson|James D\\. Wilson|Michael J\\. Schewel|Michael Lewis|Michael P\\. Botticelli|Robert Manchin|Lance Price|Kimberly Pitts|Julie Decker|John E\\. Townsend|Gregory Mignon|John Triune|Michael L. Young|Glenn Simon|Mike Strain|Parks Shackelford")
+  str_detect("Larry Taylor|Home In Partnership|Cape and Islands Community Develpoment|Gregg Engles|Gregg L\\. Engles|Gregg Leslie|Ray Souza|Robyn O'Brien|Roger Thomas|Sonny Perdue|Calvin Covington|David M\\. Gibbons|David M\\. Pomerantz|Doug Maddox|Alicia Molt|Alyssa Kennedy|Andrew Zabel|Bill Northey|Charles W\\. Bryant|Cheyenne Clements|Conae Black|Thyen|Daniel Wunderlich|Dave Chapman|DeLisa Lay|William H\\. Wigton|Wayne Palla|Tim Nisly|Thomas Mumey|Stephen P\\. Ashkin|Stephen Pearce|Shelley Hearne|Ron McCormick|Rreginald Kerns|Rudolph C\\. Cane|Sam Casella|Scott Simon|Shawna Johnson|Dennis Fife|Dennis Webb|DuBoise White|Errol Rice|Eunice Beal|G\\. Joe Lyon|Joe Lyon|Gail Watson\\. Chlang|Garry McGrath|Gerald Heatwole|J\\. Pat Mohan|James Ricky Williams|James Ricky\\. Williams|Jeff Johnson|Jeff Schmidt|JON CASPERS|Jonathan L\\. Healy|Judy Sanchez|Kelly Rudd|Ken Nobis|Kevin Phillips|Louis R\\. Zemek|Martha Torres|Melissa Greenbacker|Michael Doctor|Michael Platt|Mike and Kathy Poff|Patricia D\\. Stroup|Randy Mooney|Randy Shuring|Robert Redding|Robert Starr|Roger L\\. Richardson|Peter Sorenson|Nancy Sutley|Michael L\\. Bruhn|Mary Dean\\. Eckrote|Marc Brinkmeyer|Lyle Peterson|John W\\. Oliver|John M\\. Meyer|Jodi Kuhn|Jerry Nelson|Jerry C\\. Washburn|James Dain|James D\\. Wilson|James D\\. Wilson|Michael J\\. Schewel|Michael Lewis|Michael P\\. Botticelli|Robert Manchin|Lance Price|Kimberly Pitts|Julie Decker|John E\\. Townsend|Gregory Mignon|John Triune|Michael L. Young|Glenn Simon|Mike Strain|Parks Shackelford")
 
 
 StatePoliticians <- data$FROM %>%
@@ -114,7 +114,11 @@ data %<>%
   mutate(ERROR = ifelse(str_detect(FROM, "Trumka, Richard L\\."), "AFL-CIO President", ERROR)) %>%
   mutate(ERROR = ifelse(StatePoliticians, "State Politician", ERROR)) %>%
   mutate(ERROR = ifelse(NonMembers, "Non Member", ERROR)) %>%
-  mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR))
+  mutate(ERROR = ifelse(NonVotingMember, "Non Voting Member", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Eva Clayton|Eva M\\. Clayton") & congress %in% c(114|115), "No longer in congress", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Dale Kildee") & congress %in% 114, "No longer in congress", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Frank H\\. Murkowski") & congress %in% 111, "No longer in congress", ERROR)) %>%
+  mutate(ERROR = ifelse(str_detect(FROM, "Lynn Jenkins") & congress %in% 110, "Not yet in congress", ERROR))
 
 
 Unfoundnames <- data %>%
