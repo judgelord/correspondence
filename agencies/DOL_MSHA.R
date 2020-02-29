@@ -50,6 +50,9 @@ clean <- function(file.name) {
     mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
   
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim \\(Sen\\)") & congress %in% 112, str_replace(FROM, "Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON")))
+  
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
   # # remove these observations from the original
