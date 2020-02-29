@@ -41,10 +41,11 @@ In all, we have 8005 letters received by the DoD and VA and marked “congressio
 # source(here("setup.R"))
 ```
 
+
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
-d <- all_contacts %>% filter(str_detect(agency, "DOD")) ##AddedDOD
+d <- all_contacts %>% filter(str_detect(agency, "DOD")) 
 ```
 
 
