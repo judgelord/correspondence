@@ -23,6 +23,13 @@ clean <- function(file.name) {
   data$DATE <- gsub("/201", "/1", data$DATE) 
   data$DATE <- gsub("/200", "/0", data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
+  data %<>%
+    mutate(tempDATE = `DueDate`) 
+  data$tempDATE <- gsub("/201", "/1", data$tempDATE) 
+  data$tempDATE <- gsub("/200", "/0", data$tempDATE)
+  data$tempDATE %<>% as.Date("%m/%d/%y")
+  data %<>%
+    mutate(DATE = if_else(is.na(DATE), tempDATE, DATE))
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
@@ -38,6 +45,10 @@ clean <- function(file.name) {
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senat", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong|\\(Song.\\)|Congressman", FROM), "House", chamber)) 
+  
+  data %<>%
+    mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
