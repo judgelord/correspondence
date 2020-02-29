@@ -199,7 +199,7 @@ d %>%
        y = "Average Number of Requests per Year")
 
 
- Chamber = "House"
+Chamber = "House"
 
 d %>% 
   ungroup() %>%
@@ -340,7 +340,7 @@ knitr::kable()
 ```
 
 
-#References 
+# References 
 
 Amos A. Jordan, William J. Taylor, Jr. and Michael J. Mazar, American National Security (Baltimore: Johns Hopkins University Press, 2009)
  
@@ -373,7 +373,7 @@ REIF, KINGSTON. “Congress Rewrites Missile Defense Policy.” Arms Control Tod
   
 Lowande, K. (2018). Who Polices the Administrative State? American Political Science Review, 112(4), 874–890. doi: 10.1017/s0003055418000497
  
-Lowande, K. (2019). Politicization and Responsiveness in Executive Agencies. The Journal of Politics, 81(1), 33–48. doi: 10.1086/700270
+Lowande, Kenneth (2018). Politicization and Responsiveness in Executive Agencies. *Journal of Politics*.
  
 Ritchie, M.N. and You, H.Y. (2019), Legislators as Lobbyists. Legislative Studies Quarterly, 44: 65-95. doi:10.1111/lsq.12221
  
