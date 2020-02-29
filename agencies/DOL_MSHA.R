@@ -38,7 +38,7 @@ clean <- function(file.name) {
   
   
   data %<>% 
-    mutate(FROM = str_split(FROM, "/|;|&| and")) %>% 
+    mutate(FROM = str_split(FROM, "/|;|&| and ")) %>% 
     unnest(FROM)
   
   #Create variable for chamber position  (Senator or Representative)
