@@ -72,24 +72,24 @@ d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(c
 ###Still Working On this!!!!
 
 ```{r}
-d %>% 
-  filter(chamber == "Senate") %>% 
-    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
-    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
-    ggplot() + 
-    geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
-  geom_smooth(aes(x = log(pop2010), y = mean)) + 
-  geom_text(aes(x = log(pop2010), 
-                y = mean, 
-                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
-                               member_state, "")), 
-            check_overlap = TRUE, 
-            size = 2.5, 
-            hjust = 0) + 
-  theme_bw() +
-  labs(title = "Senator Requests per Year by Veteran Population",
-       x = "Log State Population",
-       y = "Average Number of Requests per Year")
+# d %>% 
+#   filter(chamber == "Senate") %>% 
+#     group_by(state, year, population) %>% summarise(n = n()) %>%
+#     group_by(state, population) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+#     ggplot() + 
+#     geom_point(aes(x = log(population), y = mean), color = "light blue") + 
+#   geom_smooth(aes(x = log(population), y = mean)) + 
+#   geom_text(aes(x = log(population), 
+#                 y = mean, 
+#                 label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
+#                                state, "")), 
+#             check_overlap = TRUE, 
+#             size = 2.5, 
+#             hjust = 0) + 
+#   theme_bw() +
+#   labs(title = "Senator Requests per Year by Veteran Population",
+#        x = "Log State Population",
+#        y = "Average Number of Requests per Year")
 ```
 
 
@@ -116,6 +116,9 @@ d %>%
        y = "Average Number of Requests per Year")
 
 ```
+
+
+
 
 
 
