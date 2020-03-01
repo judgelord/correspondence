@@ -1,21 +1,22 @@
 ---
 title: "PS 699 Independent Study"
-subtitle: "An analysis on the Department of Defense"
 author: "Fatima Ali"
 output:
-  #pdf_document
-    html_document:
-      toc: true
-      toc_float: true
-      code_folding: hide
-editor_options: 
+  pdf_document:
+    toc: yes
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_float: yes
+subtitle: An analysis on the Department of Defense
+editor_options:
   chunk_output_type: console
 ---
 
 
 # Data
 
-In all, we have 8005 letters received by the DoD and VA and marked “congressional” since 2003. All of these are from Members of the U.S. Congress. I chose to combine the VA and DOD data because they are agencies that work together quite frequently, as proven through my handcoding of various agencies.
+In all, we have 8005 letters received by the DoD marked “congressional” since 2003. All of these are from Members of the U.S. Congress. 
 
 ```{r, include=FALSE}
   library(tidyverse)
@@ -311,7 +312,7 @@ all_contacts %>%
   group_by(chamber, DOD, name_state, state) %>%
   summarise(n = n() ) %>%
   ungroup() %>%
-  spread(key = "DOD", value = "n") %>%
+  spread(key = "DOD", value = n) %>%
   #mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
   #arrange(-ShareToDOD) %>%
   # mutate(total = `TRUE` + `FALSE`) %>%
