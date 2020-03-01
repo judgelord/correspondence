@@ -52,7 +52,11 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim \\(Sen\\)") & congress %in% 112, str_replace(FROM, "Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON"), FROM)) %>%
-    mutate(FROM = str_replace(FROM, "Capito, Shelley Moore \\(Cong\\)", "Shelley Moore Capito"))
+    mutate(FROM = str_replace(FROM, "Capito, Shelley Moore \\(Cong\\)", "Shelley Moore Capito")) %>%
+    mutate(FROM = str_replace(FROM, "Harkin Tom", "Harkin, Tom")) %>%
+    mutate(FROM = str_replace(FROM, "Johann6, Mike \\(Sen\\)", "Johanns, Mike")) %>%
+    mutate(FROM = str_replace(FROM, "Rand, Paul \\(Sen\\)", "Paul, Rand")) %>%
+    mutate(FROM = str_replace(FROM, "Senator  Johanns \\(Senators\\)|Senator Johanns \\(Sens\\)", "Mike JOHANNS"))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
@@ -76,11 +80,17 @@ clean <- function(file.name) {
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR)) 
+           is.na(ERROR),
+           !is.na(FROM),
+           !is.na(DATE)) 
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
+  
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Horsford, Steven A\\. \\(Sen\\.\\)") & congress %in% 112, "Not yet in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N"), "Non member", ERROR))
   
   
   # data%<>%
