@@ -1,5 +1,5 @@
 ---
-title: "PS 699 Independent Study"
+title: "The Department of Defense and its relationship with Legislators"
 author: "Fatima Ali"
 output:
   pdf_document:
@@ -8,7 +8,7 @@ output:
     code_folding: hide
     toc: yes
     toc_float: yes
-subtitle: An analysis on the Department of Defense
+subtitle: PS 699: Independent Study-Spring 2020
 editor_options:
   chunk_output_type: console
 ---
@@ -305,20 +305,20 @@ d %>%
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
 
-chamber <- "Senate" # "Senate" ##still is bringing in House members
-
-all_contacts %>%
-  mutate(DOD = agency == "DOD$") %>%
-  group_by(chamber, DOD, name_state, state) %>%
-  summarise(n = n() ) %>%
-  ungroup() %>%
-  spread(key = "DOD", value = n) %>%
-  #mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
-  #arrange(-ShareToDOD) %>%
-  # mutate(total = `TRUE` + `FALSE`) %>%
-  # select(name_state, chamber, total, ShareToDOD) %>%
-  # filter(ShareToDOD>.3) %>%
-  knitr::kable()
+# chamber <- "Senate" # "Senate" ##still is bringing in House members
+# 
+# all_contacts %>%
+#   mutate(DOD = agency == "DOD$") %>%
+#   group_by(chamber, DOD, name_state, state) %>%
+#   summarise(n = n() ) %>%
+#   ungroup() %>%
+#   spread(key = "DOD", value = n) %>%
+#   #mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
+#   #arrange(-ShareToDOD) %>%
+#   # mutate(total = `TRUE` + `FALSE`) %>%
+#   # select(name_state, chamber, total, ShareToDOD) %>%
+#   # filter(ShareToDOD>.3) %>%
+#   knitr::kable()
 ```
 
 ```
@@ -326,12 +326,12 @@ all_contacts %>%
 
 ### Members who contact FERC more in a Congress, relative to other agencies:
 ```{r ferc_vs_all_rate_committees}
-all_contacts %>%
-  mutate(FERC = agency == "DOE_FERC") %>%
-  group_by(congress, chamber, committees, FERC, name_state, state) %>%
-  summarise(n = n() ) %>%
-  ungroup() %>%
-  spread(key = "FERC", value = "n") %>%
+#all_contacts %>%
+#  mutate(FERC = agency == "DOE_FERC") %>%
+#  group_by(congress, chamber, committees, FERC, name_state, state) %>%
+#  summarise(n = n() ) %>%
+#  ungroup() %>%
+#  spread(key = "FERC", value = "n") %>%
 # mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>%
 #  arrange(-ShareToFERC) %>%
 #  mutate(total = `TRUE` + `FALSE`) %>%
@@ -340,6 +340,9 @@ all_contacts %>%
 knitr::kable()
 ```
 
+# Limitations
+
+Throughout the course of this independent study, there were a few challanges and limitations I faced.
 
 # References 
 
