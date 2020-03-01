@@ -56,7 +56,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Harkin Tom", "Harkin, Tom")) %>%
     mutate(FROM = str_replace(FROM, "Johann6, Mike \\(Sen\\)", "Johanns, Mike")) %>%
     mutate(FROM = str_replace(FROM, "Rand, Paul \\(Sen\\)", "Paul, Rand")) %>%
-    mutate(FROM = str_replace(FROM, "Senator  Johanns \\(Senators\\)|Senator Johanns \\(Sens\\)", "Mike JOHANNS"))
+    mutate(FROM = str_replace(FROM, "Senator  Johanns \\(Senators\\)|Senator Johanns \\(Sens\\)", "Mike JOHANNS")) %>%
+    mutate(FROM = str_replace(FROM, "Aderholt Robert B \\(Cong\\,", "Aderholt, Robert"))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
@@ -90,7 +91,7 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Horsford, Steven A\\. \\(Sen\\.\\)") & congress %in% 112, "Not yet in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N"), "Non member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\."), "Non member", ERROR))
   
   
   # data%<>%
