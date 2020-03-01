@@ -8,7 +8,7 @@ output:
     code_folding: hide
     toc: yes
     toc_float: yes
-subtitle: PS 699: Independent Study-Spring 2020
+subtitle: 'PS 699: Independent Study'
 editor_options:
   chunk_output_type: console
 ---
@@ -321,24 +321,6 @@ d %>%
 #   knitr::kable()
 ```
 
-```
-
-
-### Members who contact FERC more in a Congress, relative to other agencies:
-```{r ferc_vs_all_rate_committees}
-#all_contacts %>%
-#  mutate(FERC = agency == "DOE_FERC") %>%
-#  group_by(congress, chamber, committees, FERC, name_state, state) %>%
-#  summarise(n = n() ) %>%
-#  ungroup() %>%
-#  spread(key = "FERC", value = "n") %>%
-# mutate(ShareToFERC = round(`TRUE`/(`TRUE`+`FALSE`),2) )%>%
-#  arrange(-ShareToFERC) %>%
-#  mutate(total = `TRUE` + `FALSE`) %>%
-#  select(name_state, congress, chamber, committees, total, ShareToFERC) %>%
-#filter(ShareToFERC>.5, total>5) %>%
-knitr::kable()
-```
 
 # Limitations
 
