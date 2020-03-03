@@ -53,7 +53,7 @@ d <- all_contacts %>% filter(str_detect(agency, "DOD"))
 
 ---
 
-# Top 10 Legislators who wrote to DoD and VA combined
+# Top 10 Legislators who wrote to DoD combined
  
 ```{r forwards}
 # top overall

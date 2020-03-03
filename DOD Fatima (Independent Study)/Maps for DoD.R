@@ -5,7 +5,7 @@ library(fiftystater)
 library(mapproj)
 
 
-states <- read.csv("/Veteran.Population.2010.csv") 
+states <- read.csv("DOD Fatima (Independent Study)/Veteran_Population_2010_.csv") 
 states$state %<>% tolower() 
 states$pop2010 <- gsub(",","",states$pop2010)
 states$pop2010 %<>% as.numeric()
