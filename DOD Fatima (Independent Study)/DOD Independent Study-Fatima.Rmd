@@ -327,7 +327,7 @@ d %>%
 
 # Limitations
 
-Throughout the course of this independent study, there were a few challanges and limitations I faced.
+Throughout the course of this independent study, there were a few challenges and limitations I faced.
 
 # References 
 
