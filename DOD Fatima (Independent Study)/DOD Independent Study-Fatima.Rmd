@@ -325,7 +325,19 @@ all_contacts %>%
   # mutate(total = `TRUE` + `FALSE`) %>%
   # select(name_state, chamber, total, ShareToDOD) %>%
   # filter(ShareToDOD>.3) %>%
-  
+
+
+# chamber <- "House" # "Senate" ##still is bringing in House members
+# 
+# all_contacts %>%
+#   mutate(DOD = agency == "DOD$") %>%
+#   group_by(chamber, DOD, name_state, state) %>%
+#   summarise(n = n() ) %>%
+#   ungroup() %>%
+#   #spread(key = "DOD", value = n) %>%
+#   top_n(10, n) %>%
+#   knitr::kable()
+#   
   
 ```
 
