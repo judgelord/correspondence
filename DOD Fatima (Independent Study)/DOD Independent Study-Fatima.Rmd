@@ -74,22 +74,23 @@ d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(c
 ```{r}
 # d %>% 
 #   filter(chamber == "Senate") %>% 
-#     group_by(state, year, population) %>% summarise(n = n()) %>%
-#     group_by(state, population) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
-#     ggplot() + 
-#     geom_point(aes(x = log(population), y = mean), color = "light blue") + 
-#   geom_smooth(aes(x = log(population), y = mean)) + 
-#   geom_text(aes(x = log(population), 
+#     group_by(member_state, year, vetpop2010) %>% summarise(n = n()) %>%
+#     group_by(member_state, vetpop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>%
+#   ggplot() + 
+#     geom_point(aes(x = log(vetpop2010), y = mean), color = "light blue") + 
+#   geom_smooth(aes(x = log(vetpop2010), y = mean)) + 
+#   geom_text(aes(x = log(vetpop2010), 
 #                 y = mean, 
 #                 label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
-#                                state, "")), 
+#                                member_state, "")), 
 #             check_overlap = TRUE, 
 #             size = 2.5, 
 #             hjust = 0) + 
 #   theme_bw() +
-#   labs(title = "Senator Requests per Year by Veteran Population",
+#   labs(title = "Senator Requests per Year by State Population",
 #        x = "Log State Population",
 #        y = "Average Number of Requests per Year")
+
 ```
 
 
@@ -308,20 +309,24 @@ d %>%
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
 
-# chamber <- "Senate" # "Senate" ##still is bringing in House members
-# 
-# all_contacts %>%
-#   mutate(DOD = agency == "DOD$") %>%
-#   group_by(chamber, DOD, name_state, state) %>%
-#   summarise(n = n() ) %>%
-#   ungroup() %>%
-#   spread(key = "DOD", value = n) %>%
-#   #mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
-#   #arrange(-ShareToDOD) %>%
-#   # mutate(total = `TRUE` + `FALSE`) %>%
-#   # select(name_state, chamber, total, ShareToDOD) %>%
-#   # filter(ShareToDOD>.3) %>%
-#   knitr::kable()
+chamber <- "Senate" # "Senate" ##still is bringing in House members
+
+all_contacts %>%
+  mutate(DOD = agency == "DOD$") %>%
+  group_by(chamber, DOD, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  #spread(key = "DOD", value = n) %>%
+  top_n(10, n) %>%
+  knitr::kable()
+  
+  # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
+  # arrange(-ShareToDOD) %>%
+  # mutate(total = `TRUE` + `FALSE`) %>%
+  # select(name_state, chamber, total, ShareToDOD) %>%
+  # filter(ShareToDOD>.3) %>%
+  
+  
 ```
 
 
@@ -332,14 +337,14 @@ Throughout the course of this independent study, there were a few challenges and
 # References 
 
 Amos A. Jordan, William J. Taylor, Jr. and Michael J. Mazar, American National Security (Baltimore: Johns Hopkins University Press, 2009)
+
+Costa, Mia. 2020. “Citizen Evaluations of Legislator–Constituent Communication.” *British Journal of Political Science*: 1–8.
  
 John Kingdon. 1973. Congressmen’s voting decisions.
  
 Keith T. Poole and Howard Rosenthal. 2007. Ideology and Congress, Transaction Publishers.
  
 Kingdon, John W. “Models of Legislative Voting.” The Journal of Politics, vol. 39, no. 3, 1977, pp. 563–595. JSTOR, www.jstor.org/stable/2129644. Accessed 22 Jan. 2020.
- 
-Lawrence J. Korb, et al, Building a Military for the 21st Century
  
 Nolan M. McCarty, Keith T. Poole, and Howard Rosenthal. 2006. Polarized America: The dance of ideology and unequal riches, MIT Press.
  
@@ -355,21 +360,26 @@ Laurance, Edward J. “The Changing Role of Congress in Defense Policy-Making.�
  
 Lindsay, James M., and Randall B. Ripley. “How Congress Influences Foreign and Defense Policy.” Bulletin of the American Academy of Arts and Sciences, vol. 47, no. 6, 1994, pp. 7–32. JSTOR, www.jstor.org/stable/3824424. Accessed 22 Jan. 2020.
  
-Lindsay, James M., and Randall B. Ripley. “Foreign and Defense Policy in Congress: A Research Agenda for the 1990s.” Legislative Studies Quarterly, vol. 17, no. 3, 1992, pp. 417–449. JSTOR, www.jstor.org/stable/439739. Accessed 22 Jan. 2020.
+Lindsay, James M., and Randall B. Ripley (1992). Foreign and Defense Policy in Congress: A Research Agenda for the 1990s. *Legislative Studies Quarterly* 417–449. 
  
- 
-REIF, KINGSTON. “Congress Rewrites Missile Defense Policy.” Arms Control Today, vol. 47, no. 1, 2017, pp. 40–42. JSTOR, www.jstor.org/stable/90004330. Accessed 22 Jan. 2020.
-  
-Lowande, K. (2018). Who Polices the Administrative State? American Political Science Review, 112(4), 874–890. doi: 10.1017/s0003055418000497
+Lowande, K. (2018). Who Polices the Administrative State? *American Political Science Review* 874–890. 
  
 Lowande, Kenneth (2018). Politicization and Responsiveness in Executive Agencies. *Journal of Politics*.
- 
-Ritchie, M.N. and You, H.Y. (2019), Legislators as Lobbyists. Legislative Studies Quarterly, 44: 65-95. doi:10.1111/lsq.12221
- 
-Ritchie, M. N. (2018). Back-Channel Representation: A Study of the Strategic Communication of Senators with the US Department of Labor. The Journal of Politics, 80(1), 240–253. doi: 10.1086/694395
 
-Mia Costa Paper
+Powell, Eleanor Neff and Justin Grimmer (2016). Money in Exile: Campaign Contributions and Committee Access. *The Journal of Politics 78(4)* 974–88.
 
-FERC Paper
+Reif, Kingston (2017). Congress Rewrites Missile Defense Policy. *Arms Control Today, vol. 47* 40–42. 
+
+Ritchie, Melinda N (2017). Back-Channel Representation: A Study of the Strategic Communication of Senators with the US Department of Labor. *Journal of Politics*.
+ 
+Ritchie, M.N. and You, H.Y. (2019). Legislators as Lobbyists. *Legislative Studies Quarterly* 65-95.
+ 
+
+
+
+
+
+
+
 
 

@@ -5,13 +5,13 @@ library(fiftystater)
 library(mapproj)
 
 
-states <- read.csv("DOD Fatima (Independent Study)/Veteran_Population_2010_.csv") 
-states$state %<>% tolower() 
-states$pop2010 <- gsub(",","",states$pop2010)
-states$pop2010 %<>% as.numeric()
-write.csv(states, "districts/states.csv")
+vet_states <- read.csv("DOD Fatima (Independent Study)/vetpop2010.csv") 
+vet_states$state %<>% tolower() 
+vet_states$vetpop2010 <- gsub(",","",vet_states$vetpop2010)
+vet_states$vetpop2010 %<>% as.numeric()
+write.csv(vet_states, "DOD Fatima (Independent Study)/vetpop2010.csv")
 
-df %>% 
+df %>%   ##why is group_by not working?
   group_by(state) %>% tally() %>%
   # map_id creates the aesthetic mapping to the state name column
   ggplot() + 
