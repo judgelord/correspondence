@@ -279,29 +279,6 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 
 
-# Chamber <- "Senate" # "Senate"  
-#  
-# # member by year by agency 
-# d %>% 
-#   filter(chamber == Chamber) %>% 
-#   group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
-#   filter(n > mean(n)) %>%
-#   ggplot() +
-#   geom_point(
-#     aes(x = DATE, 
-#         y = reorder(name_state, n) ), 
-#     # alpha = .6,
-#     shape = 73,
-#     size=2
-#   ) +  
-#   labs(title = paste(Chamber),
-#        y = paste("Members by", "Total Number of Letters"), 
-#        x = "Date of Correspondence" ) +
-#   theme(
-#     legend.title = element_blank(),
-#     axis.text.y = element_text(size=5)
-#   ) + 
-#     guides(fill=guide_legend(ncol=1)) 
 ```
 
 
@@ -309,10 +286,11 @@ d %>%
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
 
-chamber <- "Senate" # "Senate" ##still is bringing in House members
+chamber <- "Senate" # "Senate" #why does it say False?
 
 all_contacts %>%
-  mutate(DOD = agency == "DOD$") %>%
+  filter(chamber == "Senate") %>%  #
+  mutate(DOD = agency == "DOD") %>%
   group_by(chamber, DOD, name_state, state) %>%
   summarise(n = n() ) %>%
   ungroup() %>%
@@ -327,17 +305,18 @@ all_contacts %>%
   # filter(ShareToDOD>.3) %>%
 
 
-# chamber <- "House" # "Senate" ##still is bringing in House members
-# 
-# all_contacts %>%
-#   mutate(DOD = agency == "DOD$") %>%
-#   group_by(chamber, DOD, name_state, state) %>%
-#   summarise(n = n() ) %>%
-#   ungroup() %>%
-#   #spread(key = "DOD", value = n) %>%
-#   top_n(10, n) %>%
-#   knitr::kable()
-#   
+chamber <- "House" 
+
+all_contacts %>%
+  filter(chamber == "House") %>%  #why is this working this way??
+  mutate(DOD = agency == "DOD$") %>%
+  group_by(chamber, DOD, name_state, state) %>%
+  summarise(n = n() ) %>%
+  ungroup() %>%
+  #spread(key = "DOD", value = n) %>%
+  top_n(10, n) %>%
+  knitr::kable()
+
   
 ```
 
