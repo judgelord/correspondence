@@ -2,12 +2,12 @@
 title: "The Department of Defense and its relationship with Legislators"
 author: "Fatima Ali"
 output:
-  pdf_document:
-    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
+  pdf_document:
+    toc: yes
 subtitle: 'PS 699: Independent Study'
 editor_options:
   chunk_output_type: console
@@ -409,6 +409,8 @@ d %>%
 Throughout the course of this independent study, there were a few challenges and limitations I faced.
 
 # References 
+
+##Spacing
 
 Amos A. Jordan, William J. Taylor, Jr. and Michael J. Mazar. 2009. , American National Security (Baltimore: Johns Hopkins University Press, 2009)
 
