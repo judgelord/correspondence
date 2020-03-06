@@ -4,12 +4,12 @@ author: "Fatima Ali"
 #header-includes:
    # - \usepackage{setspace}\doublespacing
 output:
+  pdf_document:
+    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 subtitle: 'PS 699: Independent Study'
 editor_options:
   chunk_output_type: console
