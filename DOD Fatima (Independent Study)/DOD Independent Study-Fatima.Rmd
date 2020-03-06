@@ -1,13 +1,15 @@
 ---
 title: "The Department of Defense and its relationship with Legislators"
 author: "Fatima Ali"
+#header-includes:
+   # - \usepackage{setspace}\doublespacing
 output:
+  pdf_document:
+    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 subtitle: 'PS 699: Independent Study'
 editor_options:
   chunk_output_type: console
@@ -442,11 +444,10 @@ Fenno, Richard F., The Challenge of Congressional Representation (Cambridge, MA:
 Congressional Procedures and the Policy Analysis, by Walter J. Oleszek, Congressional Quarterly Press, Ninth Edition, 2013
 
 
-Laurance, Edward J. “The Changing Role of Congress in Defense Policy-Making.” The Journal of Conflict Resolution, vol. 20, no. 2, 1976, pp. 213–253. JSTOR, www.jstor.org/stable/173398. Accessed 22 Jan. 2020.
+Laurance, Edward J. The Changing Role of Congress in Defense Policy-Making. *The Journal of Conflict Resolution (20)* 213–253. 
 
 
-Lindsay, James M., and Randall B. Ripley. “How Congress Influences Foreign and Defense Policy.” Bulletin of the American Academy of Arts and Sciences, vol. 47, no. 6, 1994, pp. 7–32. JSTOR, www.jstor.org/stable/3824424. Accessed 22 Jan. 2020.
-
+Lindsay, James M., and Randall B. Ripley (1994). How Congress Influences Foreign and Defense Policy. *Bulletin of the American Academy of Arts and Sciences, 47* 7–32. 
 
 Lindsay, James M., and Randall B. Ripley (1992). Foreign and Defense Policy in Congress: A Research Agenda for the 1990s. *Legislative Studies Quarterly* 417–449. 
 
