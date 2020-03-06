@@ -365,40 +365,40 @@ d %>%
 ##How to fix this committee Code
 
 ```{r}
-d %>%  
-  mutate(chair = str_remove(chair,"[0-9]* |^NA "),
-         committee = paste(chamber, committees))%>% 
-  dplyr::select(committee, position, chair, DATE, assigneddate, terminationdate) %>% 
-  distinct() %>% 
-  filter(str_detect(committee, "ENERGY$|ENVIRONMENT|NATURAL")) %>% 
-  mutate(position = ifelse(position == "Other", NA, position)) %>%
-  #filter(# !is.na(position),chair_since_2007 == T) %>%
-  drop_na(chair) %>% 
-  dplyr::select(DATE, chair, position, assigneddate, terminationdate, committee) %>% 
-  distinct() %>% 
-  ggplot() +
-  geom_point(
-    aes(x = DATE, 
-        y = chair),
-    shape = 73,
-    size=2 
-  ) +
-  geom_segment(aes(y = chair, yend = chair, 
-                   x = date, xend = date, 
-                   linetype = factor(position)),
-               position = position_nudge(y = -0.3)) +
-  labs(title = paste("Letters to FERC from Committee Leadership"),
-       y = "", 
-       x = "",
-       linetype = "Leadership position") +
-  scale_y_discrete(position = "right") +
-  theme(
-    strip.text.y = element_text(angle = 180, size = 5),
-    # legend.title = element_blank(),
-    axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 0)
-  ) + 
-  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
+# d %>%  
+#   mutate(chair = str_remove(chair,"[0-9]* |^NA "),
+#          committee = paste(chamber, committees))%>% 
+#   dplyr::select(committee, position, chair, DATE, assigneddate, terminationdate) %>% 
+#   distinct() %>% 
+#   filter(str_detect(committee, "ENERGY$|ENVIRONMENT|NATURAL")) %>% 
+#   mutate(position = ifelse(position == "Other", NA, position)) %>%
+#   #filter(# !is.na(position),chair_since_2007 == T) %>%
+#   drop_na(chair) %>% 
+#   dplyr::select(DATE, chair, position, assigneddate, terminationdate, committee) %>% 
+#   distinct() %>% 
+#   ggplot() +
+#   geom_point(
+#     aes(x = DATE, 
+#         y = chair),
+#     shape = 73,
+#     size=2 
+#   ) +
+#   geom_segment(aes(y = chair, yend = chair, 
+#                    x = date, xend = date, 
+#                    linetype = factor(position)),
+#                position = position_nudge(y = -0.3)) +
+#   labs(title = paste("Letters to FERC from Committee Leadership"),
+#        y = "", 
+#        x = "",
+#        linetype = "Leadership position") +
+#   scale_y_discrete(position = "right") +
+#   theme(
+#     strip.text.y = element_text(angle = 180, size = 5),
+#     # legend.title = element_blank(),
+#     axis.text.y = element_text(size=5),
+#     axis.text.x = element_text(angle = 0)
+#   ) + 
+#   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```
 
 
