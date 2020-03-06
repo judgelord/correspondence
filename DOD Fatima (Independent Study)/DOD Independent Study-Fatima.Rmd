@@ -93,7 +93,7 @@ d %>%
 
 ###Senators and Veteran Population
 ###HELP WITH THIS
-#Represenative per district??
+#Representative per district??
 
 ```{r}
 # d %>% 
