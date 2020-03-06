@@ -63,6 +63,8 @@ d %>% count(bioname,party,cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption 
 ```
 
 
+##FILTER OUT NA??
+
 ```{r}
 d %>% count(TYPE,sort = T) %>% top_n(10, n) %>% kable(caption = "Most Common Policy Areas")
 
@@ -70,8 +72,26 @@ d %>% count(TYPE,sort = T) %>% top_n(10, n) %>% kable(caption = "Most Common Pol
 d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 ```
 
+##COULD ANYTHING BE DONE HERE
+
+```{r}
+# # most with a given position
+# d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
+# 
+# # most with a given position in a cycle
+# d %>% count(bioname, party, cqlabel, letter_position, congress, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator in a cycle")
+# 
+# # d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(1, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Letters from the legislator who forwards the most letters")
+# 
+# d %>%
+#   ggplot() +
+#   aes(x = congress, fill = letter_position) + 
+#   geom_bar(position = "dodge") + 
+#   facet_grid(party_name ~ chamber)
+```
+
 ###Senators and Veteran Population
-###Still Working On this!!!!
+###HELP WITH THIS
 
 ```{r}
 # d %>% 
@@ -321,7 +341,64 @@ all_contacts %>%
   top_n(10, n) %>%
   knitr::kable()
 
+ ## Members who contact FERC more in a Congress, relative to other agencies
   
+```
+
+## Many letters to DOD are cosigned
+#A rough under-estimate based on whether "et al" or "&" appears in the summary:
+# INVESTIGATE
+
+```{r}
+d %>% 
+  group_by(ID) %>% 
+  mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
+                                 ifelse(str_detect(SUBJECT, "&"), "&", " neither"))) %>%
+  group_by(year, probably_cosigned) %>% 
+  tally %>% 
+  ggplot() + 
+  aes(x = year, y = n, fill = probably_cosigned) +
+  geom_col() +
+  scale_fill_viridis_d(option = "C", end = .8)
+```
+
+##How to fix this committee Code
+
+```{r}
+d %>%  
+  mutate(chair = str_remove(chair,"[0-9]* |^NA "),
+         committee = paste(chamber, committees))%>% 
+  dplyr::select(committee, position, chair, DATE, assigneddate, terminationdate) %>% 
+  distinct() %>% 
+  filter(str_detect(committee, "ENERGY$|ENVIRONMENT|NATURAL")) %>% 
+  mutate(position = ifelse(position == "Other", NA, position)) %>%
+  #filter(# !is.na(position),chair_since_2007 == T) %>%
+  drop_na(chair) %>% 
+  dplyr::select(DATE, chair, position, assigneddate, terminationdate, committee) %>% 
+  distinct() %>% 
+  ggplot() +
+  geom_point(
+    aes(x = DATE, 
+        y = chair),
+    shape = 73,
+    size=2 
+  ) +
+  geom_segment(aes(y = chair, yend = chair, 
+                   x = date, xend = date, 
+                   linetype = factor(position)),
+               position = position_nudge(y = -0.3)) +
+  labs(title = paste("Letters to FERC from Committee Leadership"),
+       y = "", 
+       x = "",
+       linetype = "Leadership position") +
+  scale_y_discrete(position = "right") +
+  theme(
+    strip.text.y = element_text(angle = 180, size = 5),
+    # legend.title = element_blank(),
+    axis.text.y = element_text(size=5),
+    axis.text.x = element_text(angle = 0)
+  ) + 
+  facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```
 
 
@@ -392,6 +469,18 @@ FERC Paper
 
 
 US Veteran Census
+
+#Notes:
+
+1. Count letters by member by year (including zero counts)
+2. Policy Stuff
+3. Divide by years--annualized by years
+4. Control with Gender--how long they’re in congress
+5. Veterans--More likely to write, shared Veteran status. Veterans-gender-bias
+6. What Kind of Variate Models??
+
+
+
 
 
 
