@@ -13,7 +13,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 # Data
 
 In all, we have 8005 letters received by the DoD marked “congressional” since 2003. All of these are from Members of the U.S. Congress. 
@@ -477,8 +476,10 @@ US Veteran Census
 3. Divide by years--annualized by years
 4. Control with Gender--how long they’re in congress
 5. Veterans--More likely to write, shared Veteran status. Veterans-gender-bias
-6. What Kind of Variate Models??
-
+6. What Kind of Variate Models??--Pro-business/anti-business/Constituent vs. everyone else/
+  Party Explanatory
+7. Best way to present paper..like this or should I hide code??
+8. Electoral Interests?--how to measure that?
 
 
 
