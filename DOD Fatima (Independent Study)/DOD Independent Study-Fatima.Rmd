@@ -76,21 +76,24 @@ d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(c
 ```{r}
 # # most with a given position
 # d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
-# 
-# # most with a given position in a cycle
-# d %>% count(bioname, party, cqlabel, letter_position, congress, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator in a cycle")
+
+# most with a given position in a cycle
+d %>% count(bioname, party, cqlabel, TYPE, congress, sort = T) %>% filter(TYPE != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator in a cycle")
+
 # 
 # # d %>%   filter(str_detect(SUBJECT, "forwards")) %>% add_count(bioname, sort = T) %>% top_n(1, n) %>% select(bioname, SUBJECT) %>% kable(caption = "Letters from the legislator who forwards the most letters")
 # 
-# d %>%
-#   ggplot() +
-#   aes(x = congress, fill = letter_position) + 
-#   geom_bar(position = "dodge") + 
-#   facet_grid(party_name ~ chamber)
+
+d %>%
+  ggplot() +
+  aes(x = congress, fill = TYPE) +
+  geom_bar(position = "dodge") +
+  facet_grid(party_name ~ chamber)
 ```
 
 ###Senators and Veteran Population
 ###HELP WITH THIS
+#Represenative per district??
 
 ```{r}
 # d %>% 
