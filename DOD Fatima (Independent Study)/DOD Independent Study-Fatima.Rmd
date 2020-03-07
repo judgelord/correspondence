@@ -1,16 +1,16 @@
 ---
-title: "The Department of Defense and its relationship with Legislators"
+title: "The Department of Defense and its relationship with Legislators" ##TITLE
 author: "Fatima Ali"
 #header-includes:
    # - \usepackage{setspace}\doublespacing
 output:
-  pdf_document:
-    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
-subtitle: 'PS 699: Independent Study'
+  pdf_document:
+    toc: yes
+subtitle: 'PS 699: Independent Study (Spring 2020)'
 editor_options:
   chunk_output_type: console
 ---
@@ -496,64 +496,77 @@ Throughout the course of this independent study, there were a few challenges and
 
 # References 
 
-Costa, Mia (2020). Citizen Evaluations of Legislator–Constituent Communication. *British Journal of Political Science*.
+Costa, Mia (2020). Citizen Evaluations of Legislator–Constituent Communication. *British Journal of  Political Science*.
 
 
-Fenno, Richard F. (1977). U.S. House Members in Their Constituencies: An Exploration. *American Political Science Review*, 883-917.
+Fenno, Richard F. (1977). U.S. House Members in Their Constituencies: An Exploration. *American     Political Science Review*, 883-917.
 
 
-Fenno, Richard F. (2013). *The Challenge of Congressional Representation.* Harvard University Press, 138-184.
+Fenno, Richard F. (2013). *The Challenge of Congressional Representation.* Harvard University    
+ Press, 138-184.
 
 
-Jordan, Amos A, William J. Taylor, Jr, and Michael J. Mazar (2009).  *American National Security*, Johns Hopkins University Press.
+Jordan, Amos A, William J. Taylor, Jr, and Michael J. Mazar (2009).  *American National Security*, 
+ Johns Hopkins University Press.
 
 
-Judge-Lord, Devin, Eleanor Neff Powell, and Justin Grimmer (2020). Campaign Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission. Unpublished Working Paper. Presented at the Accountability and Public Policy Conference 2019.
+Judge-Lord, Devin, Eleanor Neff Powell, and Justin Grimmer (2020). Campaign Contributions and  
+ Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission. Unpublished  
+ Working Paper. Presented at the Accountability and Public Policy Conference 2019.
 
 
 Kingdon, John W (1977). Models of Legislative Voting. *The Journal of Politics (39)*, 563–595.
 
 
-Laurance, Edward J (1976). The Changing Role of Congress in Defense Policy-Making. *The Journal of Conflict Resolution (20)*, 213–253. 
+Laurance, Edward J (1976). The Changing Role of Congress in Defense Policy-Making. *The Journal of  Conflict Resolution (20)*, 213–253. 
 
 
-Lindsay, James M., and Randall B. Ripley (1992). Foreign and Defense Policy in Congress: A Research Agenda for the 1990s. *Legislative Studies Quarterly*, 417–449. 
+Lindsay, James M., and Randall B. Ripley (1992). Foreign and Defense Policy in Congress: A Research  Agenda for the 1990s. *Legislative Studies Quarterly*, 417–449. 
 
 
-Lindsay, James M., and Randall B. Ripley (1994). How Congress Influences Foreign and Defense Policy. *Bulletin of the American Academy of Arts and Sciences, 47*, 7–32. 
+Lindsay, James M., and Randall B. Ripley (1994). How Congress Influences Foreign and Defense 
+ Policy. *Bulletin of the American Academy of Arts and Sciences, 47*, 7–32. 
 
 
-Lowande, Kenneth (2018). Politicization and Responsiveness in Executive Agencies. *Journal of Politics*.
+Lowande, Kenneth (2018). Politicization and Responsiveness in Executive Agencies. *Journal of  
+ Politics*.
 
 
-Lowande, Kenneth (2018). Who Polices the Administrative State? *American Political Science Review*, 874–890. 
+Lowande, Kenneth (2018). Who Polices the Administrative State? *American Political Science Review*,  874–890. 
 
 
-McCarty, Nolan, Keith T. Poole, and Howard Rosenthal (2006). *Polarized America: The dance of ideology and unequal riches*, MIT Press.
+McCarty, Nolan, Keith T. Poole, and Howard Rosenthal (2006). *Polarized America: The dance of 
+ ideology and unequal riches*, MIT Press.
 
 
-Oleszek, Walter J (2013). *Congressional Procedures and the Policy Process*, Congressional Quarterly Press.
+Oleszek, Walter J (2013). *Congressional Procedures and the Policy Process*, Congressional 
+ Quarterly Press.
 
 
 Poole, Keith T.  and Howard Rosenthal (2007) *Ideology and Congress*, Transaction Publishers.
 
 
-Powell, Eleanor Neff and Justin Grimmer (2016). Money in Exile: Campaign Contributions and Committee Access. *The Journal of Politics 78(4)*, 974–88.
+Powell, Eleanor Neff and Justin Grimmer (2016). Money in Exile: Campaign Contributions and 
+ Committee Access. *The Journal of Politics 78(4)*, 974–88.
 
 
 Reif, Kingston (2017). Congress Rewrites Missile Defense Policy. *Arms Control Today, 47*, 40–42.
 
 
-Ritchie, Melinda N (2017). Back-Channel Representation: A Study of the Strategic Communication of Senators with the US Department of Labor. *Journal of Politics*.
+Ritchie, Melinda N (2017). Back-Channel Representation: A Study of the Strategic Communication of  
+ Senators with the US Department of Labor. *Journal of Politics*.
 
 
-Ritchie, M.N. and You, H.Y (2019). Legislators as Lobbyists. *Legislative Studies Quarterly*, 65-95.
+Ritchie, M.N. and You, H.Y (2019). Legislators as Lobbyists. *Legislative Studies Quarterly*, 
+ 65-95.
 
 
-Rohde, David W (1991). *Parties and leaders in the post-reform House of Representatives.* University of Chicago Press.
+Rohde, David W (1991). *Parties and leaders in the post-reform House of Representatives.* 
+ University of Chicago Press.
 
 
-US Census Bureau (2018). Veterans Statistics. *The United States Census Bureau*. https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html. Date accessed: February 14, 2020.
+US Census Bureau (2018). Veterans Statistics. *The United States Census Bureau*.  
+ https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html. Date accessed:   February 14, 2020.
 
 
 #Notes:
