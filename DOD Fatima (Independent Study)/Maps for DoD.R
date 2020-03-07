@@ -14,7 +14,7 @@ write.csv(vet_states, "DOD Fatima (Independent Study)/vetpop2010.csv")
 vet_states %<>% select(state, vetpop2010)
 d %<>% left_join(vet_states)
 
-df %>%   ##why is group_by not working?
+d %>%   ##why is group_by not working?
   group_by(state) %>% tally() %>%
   # map_id creates the aesthetic mapping to the state name column
   ggplot() + 
@@ -28,9 +28,9 @@ df %>%   ##why is group_by not working?
   theme(legend.position = "bottom", legend.title = element_blank(),
         panel.background = element_blank())
 
-df %>% 
-  filter(chamber == "Senate") %>% group_by(state, pop2010) %>% tally() %>%
-  mutate(Per_Capita = n/pop2010) %>% 
+d %>% 
+  filter(chamber == "Senate") %>% group_by(state, vetpop2010) %>% tally() %>%
+  mutate(Per_Capita = n/vetpop2010) %>% 
   # map_id creates the aesthetic mapping to the state name column in your data
   ggplot() + 
   # map points to the fifty_states shape data
@@ -49,7 +49,7 @@ df %>%
 
 
 # not log pop
-policy <- lm(permemberyear ~ pop2010 + position + partystatus, data = df %>%
+policy <- lm(permemberyear ~ vetpop2010 + position + partystatus, data = df %>%
                filter(partystatus != "All Others") %>%
                #filter(Type2 == "Constituent Service") 
                filter(Type2 == "Policy")
