@@ -11,6 +11,9 @@ vet_states$vetpop2010 <- gsub(",","",vet_states$vetpop2010)
 vet_states$vetpop2010 %<>% as.numeric()
 write.csv(vet_states, "DOD Fatima (Independent Study)/vetpop2010.csv")
 
+vet_states %<>% select(state, vetpop2010)
+d %<>% left_join(vet_states)
+
 df %>%   ##why is group_by not working?
   group_by(state) %>% tally() %>%
   # map_id creates the aesthetic mapping to the state name column

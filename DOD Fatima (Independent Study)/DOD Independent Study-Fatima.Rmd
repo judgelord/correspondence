@@ -47,9 +47,10 @@ In all, we have 8005 letters received by the DoD marked “congressional” sinc
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
-d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(!(last_name == "GRASSLEY"& party == "(R)")) %>% filter(year <2018, year >2006, !is.na(ID)) 
-#would Grassley be considered a good outlier?? 
+d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(!(last_name == "GRASSLEY"& party == "(R)")) %>% filter(year <2018, year >2006, !is.na(ID))
+# would Grassley be considered a good outlier?? 
 # 2007-2017 Data Points
+# NA State that they have been coded but not implemented
 ```
 
 
@@ -98,24 +99,24 @@ d %>%
 #Representative per district??
 
 ```{r}
-# d %>% 
-#   filter(chamber == "Senate") %>% 
-#     group_by(member_state, year, vetpop2010) %>% summarise(n = n()) %>%
-#     group_by(member_state, vetpop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>%
-#   ggplot() + 
-#     geom_point(aes(x = log(vetpop2010), y = mean), color = "light blue") + 
-#   geom_smooth(aes(x = log(vetpop2010), y = mean)) + 
-#   geom_text(aes(x = log(vetpop2010), 
-#                 y = mean, 
-#                 label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
-#                                member_state, "")), 
-#             check_overlap = TRUE, 
-#             size = 2.5, 
-#             hjust = 0) + 
-#   theme_bw() +
-#   labs(title = "Senator Requests per Year by State Population",
-#        x = "Log State Population",
-#        y = "Average Number of Requests per Year")
+d %>%
+  filter(chamber == "Senate") %>%
+    group_by(member_state, year, vetpop2010) %>% summarise(n = n()) %>%
+    group_by(member_state, vetpop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>%
+  ggplot() +
+    geom_point(aes(x = log(vetpop2010), y = mean), color = "light blue") +
+  geom_smooth(aes(x = log(vetpop2010), y = mean)) +
+  geom_text(aes(x = log(vetpop2010),
+                y = mean,
+                label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5,
+                               member_state, "")),
+            check_overlap = TRUE,
+            size = 2.5,
+            hjust = 0) +
+  theme_bw() +
+  labs(title = "Senator Requests per Year by State Population",
+       x = "Log State Population",
+       y = "Average Number of Requests per Year")
 
 ```
 
@@ -170,45 +171,45 @@ ggplot() +
 
 ##What on earth is happening here?
 
-# d %>% 
-#   ungroup() %>% 
-#   filter(chamber == Chamber) %>% 
-#   group_by(state, pop2010) %>% summarise(n = n()) %>% ungroup() %>% 
-#   mutate(Per_Capita = n/pop2010*1000000) %>% 
-#   # map_id creates the aesthetic mapping to the state name column in your data
-#   ggplot() + 
-#   # map points to the fifty_states shape data
-#   geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
-#   expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-#   coord_map() +
-#   scale_x_continuous(breaks = NULL) +
-#   scale_y_continuous(breaks = NULL) +
-#   labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
-#   scale_fill_viridis_c(option = "C", end = .8) +
-#   theme(legend.position = "bottom", 
-#         legend.title = element_blank() )#+facet_grid(. ~ Constituent)
+d %>%
+  ungroup() %>%
+  filter(chamber == Chamber) %>%
+  group_by(state, pop2010) %>% summarise(n = n()) %>% ungroup() %>%
+  mutate(Per_Capita = n/pop2010*1000000) %>%
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() +
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank() )#+facet_grid(. ~ Constituent)
 
+##Copy. Add constitutent for type 1
 
-
-# d  %>% 
-#   mutate(Per_Capita = n/pop2010*1000000) %>% ##FIXME non-numeric argument to binary operator
-#   # map_id creates the aesthetic mapping to the state name column in your data
-#   ggplot() + 
-#   # map points to the fifty_states shape data
-#   geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
-#   expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-#   coord_map() +
-#   scale_x_continuous(breaks = NULL) +
-#   scale_y_continuous(breaks = NULL) +
-#   labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
-#   scale_fill_viridis_c(option = "C", end = .8) +
-#   theme(legend.position = "bottom", 
-#         legend.title = element_blank() )+
-#   facet_grid(. ~ Constituent)
+d  %>%
+  mutate(Per_Capita = (pop2010)*1000000) %>% ##FIXME non-numeric argument to binary operator
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() +
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Contacts Per hundred thousand Residents from Members of the", Chamber)) +
+  scale_fill_viridis_c(option = "C", end = .8) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank() )+
+  facet_grid(. ~ Constituent)
 ```
 
 ##House Contacts per State
-
+##Contacts per district
 ##Would this be relevannt??
 
 ```{r}
@@ -313,6 +314,7 @@ d %>%
 
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
+# facet on agency, how does it differ across agencies
 
 chamber <- "Senate" # "Senate" #why does it say False?
 
@@ -368,6 +370,13 @@ d %>%
 
 ##How to fix this committee Code
 
+#Left join committees into all_contacts
+#Group by ICPSR and Congress
+#Summarize committees = paste committee
+#Full join of all contacts and committees, larger data set
+
+# Modify committees variable, ICPSR, Congress, Committee= Armed Services 
+
 ```{r}
 # d %>%  
 #   mutate(chair = str_remove(chair,"[0-9]* |^NA "),
@@ -406,6 +415,25 @@ d %>%
 ```
 
 
+```{r}
+# MEMBER DEMOGRAPHICS 
+
+# gender for those where we have the data from LEP # WE HAVE BETTER DATA, NEEDS TO BE MERGED IN 
+d %<>% 
+  # merge LEP data into df 
+  left_join(
+    # read in the LEP data 
+    read_csv("members/LEP111to113.csv") %>% 
+      # just grabbing female variable for now
+      select(icpsr, female) %>% 
+      # distinct icpsr-gender combinations
+      distinct() %>% 
+      #make ICPSR numbers numeric to merge with df
+      mutate(icpsr = as.numeric(icpsr))
+  )
+
+```
+
 # Limitations
 
 Throughout the course of this independent study, there were a few challenges and limitations I faced.
@@ -420,7 +448,7 @@ Fenno, Richard F. (2013). *The Challenge of Congressional Representation.* Harva
 
 Jordan, Amos A, William J. Taylor, Jr, and Michael J. Mazar (2009).  *American National Security*, Johns Hopkins University Press.
 
-# Judge-Lord, Devin, Eleanor Neff Powell, and Justin Grimmer (2020). Campaign Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission. Unpublished Working Paper. Presented at APSA 2018.
+Judge-Lord, Devin, Eleanor Neff Powell, and Justin Grimmer (2020). Campaign Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission. Unpublished Working Paper. May 16-17, 2019 Accountability and Public Policy Conference:Festschrift in honor of R. Douglas Arnold .
 
 Kingdon, John W (1977). Models of Legislative Voting. *The Journal of Politics (39)*, 563–595. 
 
@@ -456,12 +484,21 @@ US Census Bureau (2018). Veterans Statistics. *The United States Census Bureau*.
 #Notes:
 
 1. Count letters by member by year (including zero counts)
+
 2. Policy Stuff
+
 3. Divide by years--annualized by years
+
 4. Control with Gender--how long they’re in congress
+
 5. Veterans--More likely to write, shared Veteran status. Veterans-gender-bias
+
 6. What Kind of Variate Models??--Pro-business/anti-business/Constituent vs. everyone else/
-  Party Explanatory
-7. Best way to present paper..like this or should I hide code??
+  Party Explanatory #Party # constituent vs non constituent
+  
+7. Best way to present paper..like this or should I hide code?? #HTML
+
 8. Electoral Interests?--how to measure that?
+ #Most important issue data
+ #State
 
