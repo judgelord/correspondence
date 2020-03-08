@@ -48,7 +48,7 @@ editor_options:
 
 Altogether we have 7635 letters received by the Department of Defense that are marked as “congressional” from 2007-2017. All of these letters are from Members of the U.S. Congress. Note: During my independent study, I handcoded approzimately 3,492 letters from a variety of Department of Defense agencise. Unfortunately, we were not able to implement these observations into the final data set. Thus, observations that are missing a Policy Type Category have a current Type of NA.
 
-```{r, include=FALSE}
+```{r}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
 d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, year >2006) # 2007-2017 Data Points
@@ -59,7 +59,7 @@ d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, y
 
 In this analysis, Senator Grassley (R-IA) is considered to be an outlier. He wrote 188 letters to the Department of Defense, the most out of any other members of congress. However, he was never a part of any committee that actively work for the Department of Defense. Although at this point, we are unable to see what are the policy categories of the letters he wrote to the Department of Defense, based off of the hand-coding I did, Grassley wrote a majority of his letters on behalf of constituents, specifically for Veterans in Iowa. On further analysis, Grassley's campaign has largely been based on providing veterans in Iowa opportunities to present their legacy to other residents in Iowa and the US, and more within the realm of congressional agencies, aid with ensuring that veterans receive their benefits after retiring or being discharged from the military. These benefits include disability compensation, education programs, health benefits, and more. A majority of these concerns would be best addressed via the Department of Veteran Affairs versus most of the Department of Defense agencies, however, many of the issues, such as Military Pay complaints as well as sexual harrassment allegations can indeed be addressed with the Department of Defense agencies, such as the Department of Defense and Accounting Service (DFAS) as well as the Office of the Inspector General, U.S. Department of Defense (DOD_OIG). Thus, at this time, I am not considering Senator Grassley to be an outlier in my analysis.
 
-```{r, echo=FALSE}
+```{r}
 dc <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, year >2006) %>% filter(last_name == "GRASSLEY")
 
 dc %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Top Policy Categories within Grassley's Letters to the DOD")
@@ -69,7 +69,7 @@ dc %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(
 
 Except for Senator Grassley, many of the legislators who most frequently wrote letters to the DOD were 
 
-```{r, echo=FALSE}
+```{r}
 # top overall
 d %>% count(bioname,party,chamber,cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 
@@ -82,7 +82,7 @@ d %>% count(bioname,party, chamber, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>
 
 ##FILTER OUT NA??
 
-```{r, echo=FALSE}
+```{r}
 d %>% count(TYPE,sort = T) %>% filter(!(is.na(TYPE))) %>% top_n(10, n) %>% kable(caption = "Most Common Policy Areas")
 
 ##Types of Policy each member dealt with
@@ -91,7 +91,7 @@ d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(c
 
 ##COULD ANYTHING BE DONE HERE
 
-```{r, echo=FALSE}
+```{r}
 # most with a given position
 # d %>% count(bioname, party, cqlabel, letter_position, sort = T) %>% filter(letter_position != "Other") %>% top_n(10, n) %>% kable(caption = "Most frequent letter positions for a given legislator")
 
@@ -113,7 +113,7 @@ d %>%
 ###HELP WITH THIS
 #Representative per district??
 
-```{r, echo=FALSE}
+```{r}
 vet_states <- read.csv(here("vetpop2010.csv"))
 #vet_states <- read.csv("DOD Fatima (Independent Study)/vetpop2010.csv") 
 vet_states$state %<>% tolower() 
@@ -167,7 +167,7 @@ ggplot() +
 ```
 
 
-```{r, echo=FALSE}
+```{r}
 Chamber = "Senate"
 
 d %>% 
@@ -191,7 +191,7 @@ ggplot() +
 
 ### Senators vs. state population 
 
-```{r, echo=FALSE}
+```{r}
 d %>% 
   filter(chamber == "Senate") %>% 
     group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
@@ -217,7 +217,7 @@ d %>%
 
 
 
-```{r, echo=FALSE}
+```{r}
 Chamber = "Senate"
 
 d %>% 
@@ -280,7 +280,7 @@ ggplot() +
 ##Contacts per district
 ##Would this be relevannt??
 
-```{r, echo=FALSE}
+```{r}
 
 d %>% 
   filter(chamber == "House") %>% 
@@ -326,7 +326,7 @@ ggplot() +
 
 ### Members who contact DOD more than average: 
 
-```{r, echo=FALSE}
+```{r}
 # barcode plot of committee members 
  
 # member by year by agency 
@@ -381,7 +381,7 @@ d %>%
 
 
 ### Members who contact DOD more, relative to other agencies: 
-```{r, echo=FALSE}
+```{r}
 
 # all_contacts %>%
 #   filter(congress >109) %>% 
@@ -438,7 +438,7 @@ d %>%
 #A rough under-estimate based on whether "et al" or "&" appears in the summary:
 # INVESTIGATE
 
-```{r, echo=FALSE}
+```{r}
 d %>% 
   group_by(ID) %>% 
   mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
@@ -460,7 +460,7 @@ d %>%
 
 # Modify committees variable, ICPSR, Congress, Committee= Armed Services 
 
-```{r, echo=FALSE}
+```{r}
 # d %>%  
 #   mutate(chair = str_remove(chair,"[0-9]* |^NA "),
 #          committee = paste(chamber, committees))%>% 
@@ -498,7 +498,7 @@ d %>%
 ```
 
 
-```{r, echo=FALSE}
+```{r}
 # MEMBER DEMOGRAPHICS 
 
 
