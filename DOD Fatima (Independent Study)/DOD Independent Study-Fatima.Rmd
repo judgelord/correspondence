@@ -368,54 +368,54 @@ d %>%
 ### Members who contact DOD more, relative to other agencies: 
 ```{r ferc_vs_all_rate}
 
-all_contacts %>%
-  filter(congress >109) %>% 
-  mutate(DOD = agency == "DOD_OSDJS") %>%
-  count(chamber, OSDJS, name_state, state) %>%
-  spread(key = "OSDJS", value = "n", 0) %>% 
-  mutate(ShareToOSDJS = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
-  arrange(-ShareToOSDJS) %>% 
-  mutate(total = `TRUE` + `FALSE`) %>% 
-  select(name_state, chamber, total, ShareToFERC) %>% 
-  filter(ShareToOSDJS>.3) %>%
-  knitr::kable(caption = "Members who contact FERC more, relative to other agencies" )
-
-
-# facet on agency, how does it differ across agencies
-
-chamber <- "Senate" # "Senate" #why does it say False?
-
-all_contacts %>%
-  filter(chamber == "Senate") %>% 
-  #filter(str_detect(agency, "DOD")) %>% 
-  mutate(DOD = agency == "DOD_OSDJS") %>%
-  group_by(chamber, Department, name_state, state) %>%
-  summarise(n = n() ) %>%
-  ungroup() %>%
-  #spread(key = "DOD", value = n) %>%
-  top_n(10, n) %>%
-  knitr::kable()
-  
-  # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
-  # arrange(-ShareToDOD) %>%
-  # mutate(total = `TRUE` + `FALSE`) %>%
-  # select(name_state, chamber, total, ShareToDOD) %>%
-  # filter(ShareToDOD>.3) %>%
-
-
-chamber <- "House" 
-
-all_contacts %>%
-  filter(chamber == "House") %>%  #why is this working this way??
-  mutate(DOD = agency == "DOD$") %>%
-  group_by(chamber, DOD, name_state, state) %>%
-  summarise(n = n() ) %>%
-  ungroup() %>%
-  #spread(key = "DOD", value = n) %>%
-  top_n(10, n) %>%
-  knitr::kable()
-
- ## Members who contact FERC more in a Congress, relative to other agencies
+# all_contacts %>%
+#   filter(congress >109) %>% 
+#   mutate(DOD = agency == "DOD_OSDJS") %>%
+#   count(chamber, OSDJS, name_state, state) %>%
+#   spread(key = "OSDJS", value = "n", 0) %>% 
+#   mutate(ShareToOSDJS = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>% 
+#   arrange(-ShareToOSDJS) %>% 
+#   mutate(total = `TRUE` + `FALSE`) %>% 
+#   select(name_state, chamber, total, ShareToFERC) %>% 
+#   filter(ShareToOSDJS>.3) %>%
+#   knitr::kable(caption = "Members who contact FERC more, relative to other agencies" )
+# 
+# 
+# # facet on agency, how does it differ across agencies
+# 
+# chamber <- "Senate" # "Senate" #why does it say False?
+# 
+# all_contacts %>%
+#   filter(chamber == "Senate") %>% 
+#   #filter(str_detect(agency, "DOD")) %>% 
+#   mutate(DOD = agency == "DOD_OSDJS") %>%
+#   group_by(chamber, Department, name_state, state) %>%
+#   summarise(n = n() ) %>%
+#   ungroup() %>%
+#   #spread(key = "DOD", value = n) %>%
+#   top_n(10, n) %>%
+#   knitr::kable()
+#   
+#   # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %>%
+#   # arrange(-ShareToDOD) %>%
+#   # mutate(total = `TRUE` + `FALSE`) %>%
+#   # select(name_state, chamber, total, ShareToDOD) %>%
+#   # filter(ShareToDOD>.3) %>%
+# 
+# 
+# chamber <- "House" 
+# 
+# all_contacts %>%
+#   filter(chamber == "House") %>%  #why is this working this way??
+#   mutate(DOD = agency == "DOD$") %>%
+#   group_by(chamber, DOD, name_state, state) %>%
+#   summarise(n = n() ) %>%
+#   ungroup() %>%
+#   #spread(key = "DOD", value = n) %>%
+#   top_n(10, n) %>%
+#   knitr::kable()
+# 
+#  ## Members who contact FERC more in a Congress, relative to other agencies
   
 ```
 
