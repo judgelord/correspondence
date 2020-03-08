@@ -78,7 +78,8 @@ clean <- function(file.name) {
   data %<>% extractMemberName(members, col_name = "FROM") %>%
     mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
     select(-ID) %>%
-    mutate(LetterID = origID)
+    mutate(LetterID = origID) %>%
+    distinct()
   
 data %<>%
   select(first_name, last_name, everything())
@@ -97,7 +98,7 @@ data %<>%
     extractMemberName(members, col_name = "Titles") %>%
     mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
     select(-ID) %>%
-    mutate(LetterID = origID)
+    mutate(LetterID = origID) 
   
   dataSUBJECT <- data %>%
     select(-first_name, -last_name, -LetterID) %>%
@@ -109,6 +110,8 @@ data %<>%
   data %<>%
     full_join(dataTitles) %>%
     full_join(dataSUBJECT) %>%
+    
+    data %<>%
     mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
     mutate(LetterID = origID) %>%
     distinct()
