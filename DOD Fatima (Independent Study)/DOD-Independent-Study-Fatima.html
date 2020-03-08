@@ -1581,7 +1581,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">The Department of Defense and its relationship with Legislators</h1>
-<h3 class="subtitle">PS 699: Independent Study</h3>
+<h3 class="subtitle">PS 699: Independent Study (Spring 2020)</h3>
 <h4 class="author">Fatima Ali</h4>
 
 </div>
@@ -1676,7 +1676,7 @@ d %&gt;% count(bioname,party,cqlabel, sort = T) %&gt;% top_n(10, n) %&gt;% kable
 </tbody>
 </table>
 <p>##FILTER OUT NA??</p>
-<pre class="r"><code>d %&gt;% count(TYPE,sort = T) %&gt;% top_n(10, n) %&gt;% kable(caption = &quot;Most Common Policy Areas&quot;)</code></pre>
+<pre class="r"><code>d %&gt;% count(TYPE,sort = T) %&gt;% filter(!(is.na(TYPE))) %&gt;% top_n(10, n) %&gt;% kable(caption = &quot;Most Common Policy Areas&quot;)</code></pre>
 <table>
 <caption>Most Common Policy Areas</caption>
 <thead>
@@ -1691,30 +1691,26 @@ d %&gt;% count(bioname,party,cqlabel, sort = T) %&gt;% top_n(10, n) %&gt;% kable
 <td align="right">3779</td>
 </tr>
 <tr class="even">
-<td align="left">NA</td>
-<td align="right">3326</td>
-</tr>
-<tr class="odd">
 <td align="left">5</td>
 <td align="right">148</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">6</td>
 <td align="right">88</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">0</td>
 <td align="right">43</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">2</td>
 <td align="right">35</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">3</td>
 <td align="right">25</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">4</td>
 <td align="right">3</td>
 </tr>
@@ -1807,7 +1803,7 @@ d %&gt;% count(bioname,party, TYPE, cqlabel, sort = T) %&gt;% top_n(10, n) %&gt;
 </tbody>
 </table>
 <p>##COULD ANYTHING BE DONE HERE</p>
-<pre class="r"><code># # most with a given position
+<pre class="r"><code># most with a given position
 # d %&gt;% count(bioname, party, cqlabel, letter_position, sort = T) %&gt;% filter(letter_position != &quot;Other&quot;) %&gt;% top_n(10, n) %&gt;% kable(caption = &quot;Most frequent letter positions for a given legislator&quot;)
 
 # most with a given position in a cycle
@@ -2168,204 +2164,54 @@ d %&gt;%
 </div>
 <div id="members-who-contact-dod-more-relative-to-other-agencies" class="section level3">
 <h3>Members who contact DOD more, relative to other agencies:</h3>
-<pre class="r"><code># facet on agency, how does it differ across agencies
-
-chamber &lt;- &quot;Senate&quot; # &quot;Senate&quot; #why does it say False?
-
-all_contacts %&gt;%
-  filter(chamber == &quot;Senate&quot;) %&gt;%  #
-  mutate(DOD = agency == &quot;DOD&quot;) %&gt;%
-  group_by(chamber, DOD, name_state, state) %&gt;%
-  summarise(n = n() ) %&gt;%
-  ungroup() %&gt;%
-  #spread(key = &quot;DOD&quot;, value = n) %&gt;%
-  top_n(10, n) %&gt;%
-  knitr::kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">chamber</th>
-<th align="left">DOD</th>
-<th align="left">name_state</th>
-<th align="left">state</th>
-<th align="right">n</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">WARNER, Mark (D) - VA</td>
-<td align="left">virginia</td>
-<td align="right">2811</td>
-</tr>
-<tr class="even">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">SCHUMER, Charles Ellis (Chuck) (D) - NY</td>
-<td align="left">new york</td>
-<td align="right">5561</td>
-</tr>
-<tr class="odd">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">NELSON, Clarence William (Bill) (D) - FL</td>
-<td align="left">florida</td>
-<td align="right">5154</td>
-</tr>
-<tr class="even">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">MIKULSKI, Barbara Ann (D) - MD</td>
-<td align="left">maryland</td>
-<td align="right">3382</td>
-</tr>
-<tr class="odd">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">McCAIN, John Sidney, III (R) - AZ</td>
-<td align="left">arizona</td>
-<td align="right">4300</td>
-</tr>
-<tr class="even">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">GRASSLEY, Charles Ernest (R) - IA</td>
-<td align="left">iowa</td>
-<td align="right">3763</td>
-</tr>
-<tr class="odd">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">GILLIBRAND, Kirsten (D) - NY</td>
-<td align="left">new york</td>
-<td align="right">3648</td>
-</tr>
-<tr class="even">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">FEINSTEIN, Dianne (D) - CA</td>
-<td align="left">california</td>
-<td align="right">2867</td>
-</tr>
-<tr class="odd">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">DURBIN, Richard Joseph (D) - IL</td>
-<td align="left">illinois</td>
-<td align="right">3010</td>
-</tr>
-<tr class="even">
-<td align="left">Senate</td>
-<td align="left">FALSE</td>
-<td align="left">CORNYN, John (R) - TX</td>
-<td align="left">texas</td>
-<td align="right">3125</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>  # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %&gt;%
-  # arrange(-ShareToDOD) %&gt;%
-  # mutate(total = `TRUE` + `FALSE`) %&gt;%
-  # select(name_state, chamber, total, ShareToDOD) %&gt;%
-  # filter(ShareToDOD&gt;.3) %&gt;%
-
-
-chamber &lt;- &quot;House&quot; 
-
-all_contacts %&gt;%
-  filter(chamber == &quot;House&quot;) %&gt;%  #why is this working this way??
-  mutate(DOD = agency == &quot;DOD$&quot;) %&gt;%
-  group_by(chamber, DOD, name_state, state) %&gt;%
-  summarise(n = n() ) %&gt;%
-  ungroup() %&gt;%
-  #spread(key = &quot;DOD&quot;, value = n) %&gt;%
-  top_n(10, n) %&gt;%
-  knitr::kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">chamber</th>
-<th align="left">DOD</th>
-<th align="left">name_state</th>
-<th align="left">state</th>
-<th align="right">n</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">WOLF, Frank Rudolph (R) - VA</td>
-<td align="left">virginia</td>
-<td align="right">2574</td>
-</tr>
-<tr class="even">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">VISCLOSKY, Peter (D) - IN</td>
-<td align="left">indiana</td>
-<td align="right">1264</td>
-</tr>
-<tr class="odd">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">VAN HOLLEN, Christopher (D) - MD</td>
-<td align="left">maryland</td>
-<td align="right">1303</td>
-</tr>
-<tr class="even">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">THOMPSON, Bennie (D) - MS</td>
-<td align="left">mississippi</td>
-<td align="right">1373</td>
-</tr>
-<tr class="odd">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">SHIMKUS, John M. (R) - IL</td>
-<td align="left">illinois</td>
-<td align="right">1759</td>
-</tr>
-<tr class="even">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">PALLONE, Frank, Jr. (D) - NJ</td>
-<td align="left">new jersey</td>
-<td align="right">1149</td>
-</tr>
-<tr class="odd">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">McCAUL, Michael T. (R) - TX</td>
-<td align="left">texas</td>
-<td align="right">1944</td>
-</tr>
-<tr class="even">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">HOYER, Steny Hamilton (D) - MD</td>
-<td align="left">maryland</td>
-<td align="right">1197</td>
-</tr>
-<tr class="odd">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">GOODLATTE, Robert William (R) - VA</td>
-<td align="left">virginia</td>
-<td align="right">1566</td>
-</tr>
-<tr class="even">
-<td align="left">House</td>
-<td align="left">FALSE</td>
-<td align="left">DENT, Charles W. (R) - PA</td>
-<td align="left">pennsylvania</td>
-<td align="right">1297</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code> ## Members who contact FERC more in a Congress, relative to other agencies</code></pre>
+<pre class="r"><code># all_contacts %&gt;%
+#   filter(congress &gt;109) %&gt;% 
+#   mutate(DOD = agency == &quot;DOD_OSDJS&quot;) %&gt;%
+#   count(chamber, OSDJS, name_state, state) %&gt;%
+#   spread(key = &quot;OSDJS&quot;, value = &quot;n&quot;, 0) %&gt;% 
+#   mutate(ShareToOSDJS = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %&gt;% 
+#   arrange(-ShareToOSDJS) %&gt;% 
+#   mutate(total = `TRUE` + `FALSE`) %&gt;% 
+#   select(name_state, chamber, total, ShareToFERC) %&gt;% 
+#   filter(ShareToOSDJS&gt;.3) %&gt;%
+#   knitr::kable(caption = &quot;Members who contact FERC more, relative to other agencies&quot; )
+# 
+# 
+# # facet on agency, how does it differ across agencies
+# 
+# chamber &lt;- &quot;Senate&quot; # &quot;Senate&quot; #why does it say False?
+# 
+# all_contacts %&gt;%
+#   filter(chamber == &quot;Senate&quot;) %&gt;% 
+#   #filter(str_detect(agency, &quot;DOD&quot;)) %&gt;% 
+#   mutate(DOD = agency == &quot;DOD_OSDJS&quot;) %&gt;%
+#   group_by(chamber, Department, name_state, state) %&gt;%
+#   summarise(n = n() ) %&gt;%
+#   ungroup() %&gt;%
+#   #spread(key = &quot;DOD&quot;, value = n) %&gt;%
+#   top_n(10, n) %&gt;%
+#   knitr::kable()
+#   
+#   # mutate(ShareToDOD = round(`TRUE`/(`TRUE`+`FALSE`),2) ) %&gt;%
+#   # arrange(-ShareToDOD) %&gt;%
+#   # mutate(total = `TRUE` + `FALSE`) %&gt;%
+#   # select(name_state, chamber, total, ShareToDOD) %&gt;%
+#   # filter(ShareToDOD&gt;.3) %&gt;%
+# 
+# 
+# chamber &lt;- &quot;House&quot; 
+# 
+# all_contacts %&gt;%
+#   filter(chamber == &quot;House&quot;) %&gt;%  #why is this working this way??
+#   mutate(DOD = agency == &quot;DOD$&quot;) %&gt;%
+#   group_by(chamber, DOD, name_state, state) %&gt;%
+#   summarise(n = n() ) %&gt;%
+#   ungroup() %&gt;%
+#   #spread(key = &quot;DOD&quot;, value = n) %&gt;%
+#   top_n(10, n) %&gt;%
+#   knitr::kable()
+# 
+#  ## Members who contact FERC more in a Congress, relative to other agencies</code></pre>
 </div>
 <div id="many-letters-to-dod-are-cosigned" class="section level2">
 <h2>Many letters to DOD are cosigned</h2>
@@ -2450,26 +2296,37 @@ d %&lt;&gt;%
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
-<p>Costa, Mia (2020). Citizen Evaluations of Legislator–Constituent Communication. <em>British Journal of Political Science</em>.</p>
+<p>Costa, Mia (2020). Citizen Evaluations of Legislator–Constituent Communication.<br />
+<em>British Journal of Political Science</em>.</p>
 <p>Fenno, Richard F. (1977). U.S. House Members in Their Constituencies: An Exploration. <em>American Political Science Review</em>, 883-917.</p>
-<p>Fenno, Richard F. (2013). <em>The Challenge of Congressional Representation.</em> Harvard University Press, 138-184.</p>
-<p>Jordan, Amos A, William J. Taylor, Jr, and Michael J. Mazar (2009). <em>American National Security</em>, Johns Hopkins University Press.</p>
-<p>Judge-Lord, Devin, Eleanor Neff Powell, and Justin Grimmer (2020). Campaign Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy Regulatory Commission. Unpublished Working Paper. Presented at the Accountability and Public Policy Conference 2019.</p>
+<p>Fenno, Richard F. (2013). <em>The Challenge of Congressional Representation.</em> Harvard<br />
+University Press, 138-184.</p>
+<p>Jordan, Amos A, William J. Taylor, Jr, and Michael J. Mazar (2009). <em>American<br />
+National Security</em>, Johns Hopkins University Press.</p>
+<p>Judge-Lord, Devin, Eleanor Neff Powell, and Justin Grimmer (2020). Campaign<br />
+Contributions and Bureaucratic Oversight: A Case Study of the Federal Energy<br />
+Regulatory Commission. Unpublished Working Paper. Presented at the Accountability and Public Policy Conference 2019.</p>
 <p>Kingdon, John W (1977). Models of Legislative Voting. <em>The Journal of Politics (39)</em>, 563–595.</p>
 <p>Laurance, Edward J (1976). The Changing Role of Congress in Defense Policy-Making. <em>The Journal of Conflict Resolution (20)</em>, 213–253.</p>
 <p>Lindsay, James M., and Randall B. Ripley (1992). Foreign and Defense Policy in Congress: A Research Agenda for the 1990s. <em>Legislative Studies Quarterly</em>, 417–449.</p>
 <p>Lindsay, James M., and Randall B. Ripley (1994). How Congress Influences Foreign and Defense Policy. <em>Bulletin of the American Academy of Arts and Sciences, 47</em>, 7–32.</p>
-<p>Lowande, Kenneth (2018). Politicization and Responsiveness in Executive Agencies. <em>Journal of Politics</em>.</p>
-<p>Lowande, Kenneth (2018). Who Polices the Administrative State? <em>American Political Science Review</em>, 874–890.</p>
+<p>Lowande, Kenneth (2018). Politicization and Responsiveness in Executive Agencies.<br />
+<em>Journal of Politics</em>.</p>
+<p>Lowande, Kenneth (2018). Who Polices the Administrative State? <em>American Political<br />
+Science Review</em>, 874–890.</p>
 <p>McCarty, Nolan, Keith T. Poole, and Howard Rosenthal (2006). <em>Polarized America: The dance of ideology and unequal riches</em>, MIT Press.</p>
-<p>Oleszek, Walter J (2013). <em>Congressional Procedures and the Policy Process</em>, Congressional Quarterly Press.</p>
-<p>Poole, Keith T. and Howard Rosenthal (2007) <em>Ideology and Congress</em>, Transaction Publishers.</p>
+<p>Oleszek, Walter J (2013). <em>Congressional Procedures and the Policy Process</em>,<br />
+Congressional Quarterly Press.</p>
+<p>Poole, Keith T. and Howard Rosenthal (2007) <em>Ideology and Congress</em>, Transaction<br />
+Publishers.</p>
 <p>Powell, Eleanor Neff and Justin Grimmer (2016). Money in Exile: Campaign Contributions and Committee Access. <em>The Journal of Politics 78(4)</em>, 974–88.</p>
 <p>Reif, Kingston (2017). Congress Rewrites Missile Defense Policy. <em>Arms Control Today, 47</em>, 40–42.</p>
 <p>Ritchie, Melinda N (2017). Back-Channel Representation: A Study of the Strategic Communication of Senators with the US Department of Labor. <em>Journal of Politics</em>.</p>
-<p>Ritchie, M.N. and You, H.Y (2019). Legislators as Lobbyists. <em>Legislative Studies Quarterly</em>, 65-95.</p>
+<p>Ritchie, M.N. and You, H.Y (2019). Legislators as Lobbyists. <em>Legislative Studies<br />
+Quarterly</em>, 65-95.</p>
 <p>Rohde, David W (1991). <em>Parties and leaders in the post-reform House of Representatives.</em> University of Chicago Press.</p>
-<p>US Census Bureau (2018). Veterans Statistics. <em>The United States Census Bureau</em>. <a href="https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html" class="uri">https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html</a>. Date accessed: February 14, 2020.</p>
+<p>US Census Bureau (2018). Veterans Statistics. <em>The United States Census Bureau</em>.<br />
+<a href="https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html" class="uri">https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html</a>. Date accessed: February 14, 2020.</p>
 <p>#Notes:</p>
 <ol style="list-style-type: decimal">
 <li><p>Count letters by member by year (including zero counts)</p></li>

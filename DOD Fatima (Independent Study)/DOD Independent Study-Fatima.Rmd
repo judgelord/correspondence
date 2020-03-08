@@ -1,5 +1,6 @@
 ---
-title: "The Department of Defense and its relationship with Legislators" ##TITLE
+title: "The Department of Defense and its unique Constituent-Legislator Relationship" 
+subtitle: A Study of correspondence in the Department of Defense"
 author: "Fatima Ali"
 #header-includes:
    # - \usepackage{setspace}\doublespacing
@@ -15,9 +16,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Data
 
-In all, we have 8005 letters received by the DoD marked “congressional” since 2003. All of these are from Members of the U.S. Congress. 
+
 
 ```{r, include=FALSE}
   library(tidyverse)
@@ -47,12 +47,16 @@ In all, we have 8005 letters received by the DoD marked “congressional” sinc
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
-d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(!(last_name == "GRASSLEY"& party == "(R)")) %>% filter(year <2018, year >2006)
+d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, year >2006) #%>% filter(!(last_name == "GRASSLEY"& party == "(R)")) 
+
 # would Grassley be considered a good outlier?? 
 # 2007-2017 Data Points
 # NA State that they have been coded but not implemented
 ```
 
+# Data
+
+Altogether we have 7635 letters received by the Department of Defense that are marked as “congressional” from 2007-2017. All of these letters are from Members of the U.S. Congress. 
 
 
 ---
@@ -509,6 +513,7 @@ Throughout the course of this independent study, there were a few challenges and
 
 # Future ideas to explore with this paper
 
+In the future, I hope to continue my exploration with this topic by
 # References 
 
 Costa, Mia (2020). Citizen Evaluations of Legislator–Constituent Communication.    
