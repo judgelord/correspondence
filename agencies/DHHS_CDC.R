@@ -162,9 +162,14 @@ data %<>%
 
 
 
+  #Add ID
+  data %<>%
+   mutate(ID = row_number())
+  
 #Check (b)(6) removals are correct
 Nab6<- data %>%
   filter(str_detect(FROM, "\\(b\\)\\(6\\)"))
+
 
 Unfoundnames <- data %>%
   filter(is.na(last_name))
