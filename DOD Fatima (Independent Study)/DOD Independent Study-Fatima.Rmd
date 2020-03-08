@@ -1,16 +1,16 @@
 ---
-title: "The Department of Defense and its unique Constituent-Legislator Relationship" 
-subtitle: A Study of correspondence in the Department of Defense"
+title: "The Department of Defense and its Correspondence Relationship with Legislators" 
+# subtitle: "A Study of correspondence within the Department of Defense"
 author: "Fatima Ali"
 #header-includes:
    # - \usepackage{setspace}\doublespacing
 output:
+  pdf_document:
+    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 subtitle: 'PS 699: Independent Study (Spring 2020)'
 editor_options:
   chunk_output_type: console
@@ -44,29 +44,38 @@ editor_options:
 ```
 
 
+# Data
+
+Altogether we have 7635 letters received by the Department of Defense that are marked as “congressional” from 2007-2017. All of these letters are from Members of the U.S. Congress. Note: During my independent study, I handcoded approzimately 3,492 letters from a variety of Department of Defense agencise. Unfortunately, we were not able to implement these observations into the final data set. Thus, observations that are missing a Policy Type Category have a current Type of NA.
+
 ```{r data}
 load(here("data/all_contacts.RData"))
 # one obs per member per letter for all agencies
-d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, year >2006) #%>% filter(!(last_name == "GRASSLEY"& party == "(R)")) 
+d <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, year >2006) # 2007-2017 Data Points
 
-# would Grassley be considered a good outlier?? 
-# 2007-2017 Data Points
-# NA State that they have been coded but not implemented
 ```
 
-# Data
+# A Potential Outlier
 
-Altogether we have 7635 letters received by the Department of Defense that are marked as “congressional” from 2007-2017. All of these letters are from Members of the U.S. Congress. 
+In this analysis, Senator Grassley (R-IA) is considered to be an outlier. He wrote 188 letters to the Department of Defense, the most out of any other members of congress. However, he was never a part of any committee that actively work for the Department of Defense. Although at this point, we are unable to see what are the policy categories of the letters he wrote to the Department of Defense, based off of the hand-coding I did, Grassley wrote a majority of his letters on behalf of constituents, specifically for Veterans in Iowa. On further analysis, Grassley's campaign has largely been based on providing veterans in Iowa opportunities to present their legacy to other residents in Iowa and the US, and more within the realm of congressional agencies, aid with ensuring that veterans receive their benefits after retiring or being discharged from the military. These benefits include disability compensation, education programs, health benefits, and more. A majority of these concerns would be best addressed via the Department of Veteran Affairs versus most of the Department of Defense agencies, however, many of the issues, such as Military Pay complaints as well as sexual harrassment allegations can indeed be addressed with the Department of Defense agencies, such as the Department of Defense and Accounting Service (DFAS) as well as the Office of the Inspector General, U.S. Department of Defense (DOD_OIG). Thus, at this time, I am not considering Senator Grassley to be an outlier in our analysis.
 
+```{r}
+dc <- all_contacts %>% filter(str_detect(agency, "DOD")) %>% filter(year <2018, year >2006) %>% filter(last_name == "GRASSLEY")
 
----
+dc %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Policy Categories within Grassley's Letters to the DOD")
+```
 
-# Top 10 Legislators who wrote to DoD combined
- 
+# Top 10 Legislators who wrote the most letters to the DOD
+
 ```{r forwards}
 # top overall
 d %>% count(bioname,party,cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
+
+d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 ```
+
+
+---
 
 
 ##FILTER OUT NA??
@@ -514,6 +523,9 @@ Throughout the course of this independent study, there were a few challenges and
 # Future ideas to explore with this paper
 
 In the future, I hope to continue my exploration with this topic by
+
+---
+
 # References 
 
 Costa, Mia (2020). Citizen Evaluations of Legislator–Constituent Communication.    
@@ -592,7 +604,7 @@ US Census Bureau (2018). Veterans Statistics. *The United States Census Bureau*.
  https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html. Date accessed:   February 14, 2020.
 
 
-#Notes:
+# Notes:
 
 1. Count letters by member by year (including zero counts)
 
