@@ -5,12 +5,12 @@ author: "Fatima Ali"
 #header-includes:
    # - \usepackage{setspace}\doublespacing
 output:
+  pdf_document:
+    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 subtitle: 'PS 699: Independent Study (Spring 2020)'
 editor_options:
   chunk_output_type: console
@@ -43,6 +43,19 @@ editor_options:
 # source(here("setup.R"))
 ```
 
+# Introduction
+
+
+# Literature Review
+
+
+---
+
+# Theory
+
+
+# Design
+
 
 # Data
 
@@ -74,20 +87,10 @@ Except for Senator Grassley, many of the legislators who most frequently wrote l
 d %>% count(bioname,party,chamber,cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 
 d %>% count(bioname,party, chamber, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Policy Categories within Legislators' Letters to the DOD")
-```
 
-
----
-
-
-##FILTER OUT NA??
-
-```{r, echo=FALSE}
 d %>% count(TYPE,sort = T) %>% filter(!(is.na(TYPE))) %>% top_n(10, n) %>% kable(caption = "Most Common Policy Areas")
-
-##Types of Policy each member dealt with
-d %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
 ```
+
 
 ##COULD ANYTHING BE DONE HERE
 
@@ -322,8 +325,6 @@ ggplot() +
         panel.background = element_blank()) # + facet_grid(. ~ Constituent)
 ```
 
----
-
 ### Members who contact DOD more than average: 
 
 ```{r, echo=FALSE}
@@ -518,9 +519,13 @@ d %<>%
 
 ```
 
+---
+
+# Conclusion
+
 # Limitations throughout the Independent Study
 
-Throughout the course of this independent study, there were a few limitations I faced.
+Throughout the course of this independent study, there were a few limitations I faced
 
 # Future ideas to explore with this paper
 
