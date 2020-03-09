@@ -485,16 +485,14 @@ d %>%
   facet_grid(committees ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```
 
+# Top Female Legislator who wrote the most letters to the DOD
 
 ```{r, echo=FALSE}
 # MEMBER DEMOGRAPHICS 
 
 #Many have NA genders
 
-d %>% filter(female==1) %>% count(bioname,party,chamber,cqlabel,committees, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
-
-
-a %>% filter(female==1) %>% count(bioname,party,chamber,cqlabel,committees, sort = T) %>% top_n(10, n) %>% kable(caption = "Legislators who wrote the most letters to DOD")
+d %>% filter(female==1) %>% count(bioname,party,chamber,cqlabel,committees, TYPE, sort = T) %>% top_n(10, n) %>% kable(caption = "Female Legislators who wrote the most letters to DOD")
 
 
 ```
