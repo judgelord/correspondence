@@ -448,44 +448,84 @@ dn %>%
 
 # Modify committees variable, ICPSR, Congress, Committee= Armed Services 
 
+# 7635 and 99
+
 ```{r, echo=FALSE}
-d %>%  
-  mutate(chair = str_remove(chair,"[0-9]* |^NA "),
-         committees = paste(chamber, committees))%>% 
-  dplyr::select(committees, position, chair, DATE) %>% 
-  distinct() %>% 
-  filter(str_detect(committees, "ARMED SERVICES")) %>% 
-  mutate(position = ifelse(position == "Other", NA, position)) %>%
-  #filter(# !is.na(position),chair_since_2007 == T) %>%
-  drop_na(chair) %>% 
-  dplyr::select(DATE, chair, position, committees) %>% 
-  distinct() %>% 
-  ggplot() +
-  geom_point(
-    aes(x = DATE, 
-        y = chair),
-    shape = 73,
-    size=2 
-  ) +
-  geom_segment(aes(y = chair, yend = chair, 
-                   x = DATE, xend = DATE, 
-                   linetype = factor(position)),
-               position = position_nudge(y = -0.3)) +
-  labs(title = paste("Letters to FERC from Committee Leadership"),
-       y = "", 
-       x = "",
-       linetype = "Leadership position") +
-  scale_y_discrete(position = "right") +
-  theme(
-    strip.text.y = element_text(angle = 180, size = 5),
-    # legend.title = element_blank(),
-    axis.text.y = element_text(size=5),
-    axis.text.x = element_text(angle = 0)
-  ) + 
-  facet_grid(committees ~ ., scales = "free_y", space = "free_y", switch = "both") 
+
+# d <- committees %<>% filter(agency == "DOD")
+# 
+# load("data/committees.RData")
+# dcommittees <- committees %>% filter(str_detect(committees, "ARMED SERVICES|VETERANS|FOREIGN RELATIONS|APPROPRIATIONS")) 
+# 
+# d %<>% full_join(dcommittees)
+# 
+# if(F){
+# load("data/all_contacts.RData")
+# d %<>% full_join(all_contacts)
+# load("data/all_contacts_committees.Rdata")
+# dcommittees %<>% full_join(all_contacts_committees)
+# }
+# 
+# 
+# d %<>% full_join(d)
+# load("data/all_contacts_committees.Rdata")
+# dcommittees %<>% full_join(all_contacts_committees)
+# 
+# 
+# 
+# 
+# 
+# d %<>% 
+#   # merge LEP data into df 
+#   left_join(
+#     # read in the LEP data 
+#     dcommittees %>% 
+#       # just grabbing female variable for now
+#       select(icpsr, committees) %>% 
+#       # distinct icpsr-gender combinations
+#       distinct() %>% 
+#       #make ICPSR numbers numeric to merge with df
+#       mutate(icpsr = as.numeric(icpsr))
+#   )
+# 
+# ##############################################################
+# d %>%  
+#   mutate(chair = str_remove(chair,"[0-9]* |^NA "),
+#          committee = paste(chamber, committee))%>% 
+#   dplyr::select(committee, position, chair, assigneddate, terminationdate) %>% 
+#   distinct() %>% 
+#   filter(str_detect(committee, "ARMED SERVICES|VETERANS|FOREIGN RELATIONS|APPROPRIATIONS")) %>% 
+#   mutate(position = ifelse(position == "Other", NA, position)) %>%
+#   #filter(# !is.na(position),chair_since_2007 == T) %>%
+#   drop_na(chair) %>% 
+#   dplyr::select(chair, position, assigneddate, terminationdate, committee) %>% 
+#   distinct() %>% 
+#   ggplot() +
+#   geom_point(
+#     aes(x = DATE, 
+#         y = chair),
+#     shape = 73,
+#     size=2 
+#   ) +
+#   geom_segment(aes(y = chair, yend = chair, 
+#                    x = assigneddate, xend = terminationdate, 
+#                    linetype = factor(position)),
+#                position = position_nudge(y = -0.3)) +
+#   labs(title = paste("Letters to DOD from Committee Leadership"),
+#        y = "", 
+#        x = "",
+#        linetype = "Leadership position") +
+#   scale_y_discrete(position = "right") +
+#   theme(
+#     strip.text.y = element_text(angle = 180, size = 5),
+#     # legend.title = element_blank(),
+#     axis.text.y = element_text(size=5),
+#     axis.text.x = element_text(angle = 0)
+#   ) + 
+#   facet_grid(committee ~ ., scales = "free_y", space = "free_y", switch = "both") 
 ```
 
-# Top Female Legislator who wrote the most letters to the DOD
+# Top Female Legislators who wrote the most letters to the DOD
 
 ```{r, echo=FALSE}
 # MEMBER DEMOGRAPHICS 
@@ -494,6 +534,13 @@ d %>%
 
 d %>% filter(female==1) %>% count(bioname,party,chamber,cqlabel,committees, TYPE, sort = T) %>% top_n(10, n) %>% kable(caption = "Female Legislators who wrote the most letters to DOD")
 
+d %>% filter(female==1) %>% filter(str_detect(committees, "ARMED SERVICES|VETERANS|FOREIGN RELATIONS|APPROPRIATION")) %>% count(bioname,party,chamber,cqlabel,committees, TYPE, sort = T) %>% top_n(10, n) %>% kable(caption = "Female Relevant Committee Members who wrote the most letters to DOD according")
+
+```
+
+# Multivariate Models
+
+```{r}
 
 ```
 
@@ -613,7 +660,7 @@ US Census Bureau (2018). Veterans Statistics. *The United States Census Bureau*.
 5. Veterans--More likely to write, shared Veteran status. Veterans-gender-bias
 
 6. What Kind of Variate Models??--Pro-business/anti-business/Constituent vs. everyone else/
-  Party Explanatory #Party # constituent vs non constituent
+  Party Explanatory #Party # constituent vs non constituent gender
 
  
  8. Include Appendix??
