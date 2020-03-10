@@ -16,7 +16,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-## 7 items left to do
 
 ```{r, include=FALSE}
   library(tidyverse)
@@ -45,6 +44,7 @@ editor_options:
 # Introduction
 
 
+
 # Literature Review
 
 
@@ -53,12 +53,20 @@ editor_options:
 # Theory
 
 
-# Design
+# Why is the DOD an Important Agency to Study?
 
+Established in 1949, the Department of Defense's mission is "to provide the military forces needed to deter war and to protect the security of our country." 
 
-# Data
+# Data and Data Collection
+
+In order to to examine the relationship between the department ofcampaign contributions and letter-writing activity, the Correspondence project assemble a submitted over 400 Freedom of Information Act (FOIA) requests to all federal agencies in order to get records of communication from Members of Congress and their staff to all cabinet departments, their component
+agencies, and 34 independent agencies for the period from 2007-2018. I also went to some FOIA reading rooms and saved PDFs of letters that were written between congressmembers and DOD_OSDJS. In general, it is difficult to get actual letters from Federal Agencies, specifically the DOD, due to the fact that there is often sensitive information in these letters. Furthermore, many FOIA logs/letters have been recently removed from agency web pages due to the current administration's wish on regulating information that can be viewed by the public. 
+
+As of March 2020, the correspondence project has received data from DoD_DECA, DOD_DFAS, DLA_Aviation, DOD_USACE, DOD_Navy, DOD_OIG, DOD_OSDJS. We are still waiting on data from several other DOD agencies including by not limited to: Marine Corps, Air Force, Army, the Defense Intelligence Agency (DIA), and about 60 other subagencies. With the FOIA requests that we have received, I individually handcoded each letter by looking at the subject and determining which policy category it falls in. (1) is for personal/constituent service, (2) is commerical service-transactional, (3) is Government and Nonprofit Service, (4) is commercial service-policy, and (5) is for policy work. In the event that of not being able to figure out what type of policy the letter dealt with, I either research the topic/tried to find the letter via the FOIA reading logs or I left it as 0, which signifies as unknown. Example letters of each policy category will be added to an appendix in a later draft. One important item to note is that I considered foreign/defense strategic, foreign/defense crisis, and foreign/defense structural to fall under category 5. Congressmembers tend to influence foreign and defense policy based off of letters/concerns they receive due to international crisis and threats to national security, as well as concerns/suggestions regarding organization of military personnel and materiel, thus, I found that it was important to denote those types of letters inside category 5 (Lindsay et. al, 1994).
 
 Altogether we have 7635 letters received by the Department of Defense that are marked as “congressional” from 2007-2017. All of these letters are from Members of the U.S. Congress. Note: During my independent study, I handcoded approzimately 3,492 letters from a variety of Department of Defense agencise. Unfortunately, we were not able to implement these observations into the final data set. Thus, observations that are missing a Policy Type Category have a current Type of NA.
+
+
 
 ```{r, include=FALSE}
 load(here("data/all_contacts.RData"))
@@ -98,14 +106,13 @@ d %>% count(bioname,party, chamber, TYPE, cqlabel, committees,sort = T) %>% top_
 
 d %>% count(TYPE,sort = T) %>% filter(!(is.na(TYPE))) %>% top_n(10, n) %>% kable(caption = "Most Common Policy Areas")
 
-
 ```
 
 ## 114th Congress
 
 According to the diagram below, currently, our data set shows that a majority of letters have been written on behalf of constituent issues. However, the 114th congress has 3722 letters. This the most amount of letters received by the DOD during a congressional term. One reason why this result may be showing at the moment is because a majority of the logs we have received from the DOD are from the 114th congress (January 2015-January 2017). Another reason why there is a large influx of letters from the 114th congress is because there were numerous scandals that were unraveled, mainly scandals regarding sexual assault and deficiencies with veterans receiving theirn health and discharge records. The tables below show that a majority of letters were written to the DOD with issues during the constituent's time in service, mainly issues that have the subject lines of pay during their enlistment or the process of being discharged and collecting their records afterwards. 
 
-```{r}
+```{r, echo=FALSE}
 
 d %>%
   ggplot() +
@@ -287,7 +294,11 @@ d %>%
 
 
 
-# Members who contact DOD more than average: 
+# Members who contact DOD more than average
+
+The following panels show members of congress who contact the DOD more than average. 
+The top panel shows the Senators who wrote the most letters to the DOD and the bottom panel shows the Representatives who wrote the most letters to the DOD. The hash mark represents the legislator that wrote a letter on that date. It is important to note that many members listed in the table weren’t in the chamber for the entire period, so blank stretches at the end or beginning
+of the line may possibly indicate that the member of congress was out of office during that time period. Note that Chuck Grassley wrote the most letters to the DOD amongst all members of the Senate. It is also important to note that there was a large increase in letters written to congress from 2016-2018. This is mainly due to the fact that were a huge amount of scandals that were discovered within the DOD, especially regarding military pay and the treatment of civlians and soldiers in hospitals in Afghanistan.
 
 ```{r, echo=FALSE}
 # barcode plot of committee members 
@@ -315,8 +326,15 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 
 
-Chamber <- "House" # "House"  
+
  
+
+```
+
+```{r, echo=FALSE}
+
+Chamber <- "House" # "House"  
+
 # member by year by agency 
 d %>% 
   filter(chamber == Chamber) %>% 
@@ -340,7 +358,6 @@ d %>%
     guides(fill=guide_legend(ncol=1)) 
 
 ```
-
 
 
 ```{r, echo=FALSE}
@@ -426,8 +443,9 @@ d %>%
 
 # Are letters to the DOD Cosigned?
 
-A rough under-estimate based on whether "et al" or "&" appears in the summary:
+This section shows a rough under-estimate based off of whether "et al" or "&" appears in the summary.
 
+The first figure shows the amount of letters that are cosigned in all the federal agencies that we currently have data for. There aren't many letters that are cosigned, but there are still a notable amount in all years. 
 
 ```{r, echo=FALSE}
 
@@ -442,6 +460,11 @@ da %>%
   geom_col() +
   scale_fill_viridis_d(option = "C", end = .8)
 
+```
+
+In contrast, the DOD has a very miniscule amount of letters that are cosigned. This is shown in 2010. It was surprising to see the lack of letters to the DOD that were cosigned, but this is indeed a rough estimate, and I suspect that as more observations are implemented, there will be a greater amount of letters that are shown to be cosigned. Letters that are cosigned could show a variety items, whether it's partnership on rule-making between party members or even bipartisan-styled letters between members of a different party who are working in the same committee.
+
+```{r, echo=FALSE}
 dn %>% 
   group_by(ID) %>% 
   mutate(probably_cosigned = ifelse(str_detect(SUBJECT, "et al"), "et al",
@@ -452,9 +475,7 @@ dn %>%
   aes(x = year, y = n, fill = probably_cosigned) +
   geom_col() +
   scale_fill_viridis_d(option = "C", end = .8)
-
 ```
-
 
 
 ```{r, echo=FALSE}
@@ -536,7 +557,9 @@ dn %>%
 
 # Top Female Legislators who wrote the most letters to the DOD
 
-Note, there are duplicates.
+The following charts show the top female legislators who wrote to the DOD both in general and by committees that are relevant to the DOD such as the armed services, veterans, foreign relations, and appropriations committees. Many of the women who frequently write letters to the DOD represent states that are home to a large veteran population. However, I was surprised at the few amount of letters that were written by female veterans to the DOD. For instance, I expected to see Joni Ernst (R-IA) or Martha McSally (R-AZ) on the list, but they only wrote 24 letters to the DOD. 
+
+Further investigation shows that as of 2019, there are four female veterans serving in the House of Representatives-this is considered to be a record high. This inspired representatives Mikie Sherril, Tulsi Gabbard, Elaine Luria, and Chrissy Houlahan to create the House Servicewomen and Women Veterans Congressional Caucus. Curently, there are three female veterans in the senate, Senators Tami Duckworth, Joni Ernst and Martha McSally. I anticipate that as more observations are implemented, especially from 2019, that I will be able to get a better grasp on the influence that female veterans have in the DOD.
 
 ```{r, echo=FALSE}
 # MEMBER DEMOGRAPHICS 
@@ -545,21 +568,50 @@ Note, there are duplicates.
 
 d %>% filter(female==1) %>% count(bioname,party,chamber,cqlabel,committees, yearelected, sort = T) %>% top_n(10, n) %>% kable(caption = "Female Legislators who wrote the most letters to DOD") 
 
+```
+
+
+```{r, echo=FALSE}
 d %>% filter(female==1) %>% filter(str_detect(committees, "ARMED SERVICES|VETERANS|FOREIGN RELATIONS|APPROPRIATION")) %>% count(bioname,party,chamber,cqlabel,committees, yearelected, sort = T) %>% top_n(10, n) %>% kable(caption = "Female Relevant Committee Members who wrote the most letters to DOD according") 
-
 ```
 
-# Multivariate Models
+Note: There are duplicates with members in these charts that will be removed/condensed in another draft.
 
+# By Party
 
+This figure represented the letters written to the DOD that members of different parties wrote while they were in the majority/minority. The upper left panel shows the letters to FERC that were written by democrat while they were in the majority, as well as what was the percentage they were advocating for on behalf of the different policy categories. The lower left panel represents the Democrats while they were in the minority. The upper right and lower right show the the same proportions for the Republican party while they were in the majority and minority respectively. For the most part, Democrats and Republicans tend to advocate the most for constituents regardless of whether they are in the majority or minority. However, Democrats tend to write regarding rule-making, oversight, and municipals/states, especially when they are in the minority. Republicans on the other hand, tend to write slightly less letters on behalf of constituents when they are in the majority, but write quite a few more letters on behalf of constituents when they are in the minority, in respect to their democratic counterparts. 
 
-6. What Kind of Variate Models??--Pro-business/anti-business/Constituent vs. everyone else/
-  Party Explanatory #Party # constituent vs non constituent gender
-
-```{r}
-
+```{r, echo=FALSE}
+d %>% 
+  mutate(For = TYPE,
+         For = ifelse(TYPE == "Constituent", "Pro-Constituent", For)) %>%
+  count(party_name, For, majority) %>% 
+  filter(party_name != "Independent",
+         !is.na(For),
+         For != "Not coded",
+         For != "Other",
+         !is.na(majority)) %>% 
+  group_by(party_name, majority) %>% 
+  mutate(percent = n / sum(n) * 100 ) %>% 
+  ggplot() + 
+  aes(y = percent, x = "", fill = For) + 
+  geom_col(position = "dodge") + 
+  #geom_text(aes(label = n)) +
+  facet_grid(majority ~ party_name) + 
+  scale_fill_viridis_d(option = "C", end = .8) + 
+    labs(x = "",
+       fill = "Advocating for",
+       y = "Percent") + 
+  theme_minimal() + 
+  theme(panel.grid.major.x  = element_blank())
 ```
 
+
+# Bivariate and Multivariate Models
+
+To be created.
+
+In this draft of the paper, I did not create any variate models, mainly because I was missing a lot of data points for areas that I wanted to look into. In the future, I hope to create models that show the relationship between gender and letters written, non-constituent and constituent letters written in the DOD, as well as the contrast of political parties in the collection of letters that the DOD receives. Exploring these pieces may help with looking more closely into which party advocates more for constituents/businesses in the DOD, which party writes to the DOD in general, as well as if there is any gender bias when it comes to constituents who write letters to their congressmember, especially if the congressmember is a veteran and female.
 
 ---
 
@@ -571,7 +623,7 @@ Throughout the course of this independent study, there were a few limitations I 
 
 # Future ideas to explore with this paper
 
-In the future, I hope to continue my exploration with this topic by analyzing some different aspects to help evaluate the overlying question of how Department of Defense agencies interact with constituents and legislators. One major category I'd like to investigate is demographics, both within members of congress as well as within constituents who write to their congressmember. I am interested in exploring how a congressmember's veteran status can influence their constituent relationship. Furthermore, I am also interested in seeing how gender, specifically a female veteran congressmember can influence the bills that she introduces in congress as well as the types of policies that she may support as a result of her Active Duty experience or experience from dealing with veteran/active duty constituents. Moreover, I am interested in looking at bipartisan relationships within legislators who actively work with the DOD as well as take a further look at the policies and bills that are implemented within the different policy committees within the house and the senate. I am interested in looking into members who contact the DOD more, relative to other agencies as well and potentially what the reasoning may be behing that. Lastly, I am also curious about the relationship between legislators and businesses and I'm curious to see if in the future I can investigate certain companies that write to congressmembers and what their motive is behind the correspondence. An appendix, with extra figures, letters, and a FOIA request will also be added on in a future draft of this paper.
+In the future, I hope to continue my exploration with this topic by analyzing some different aspects to help evaluate the overlying question of how Department of Defense agencies interact with constituents and legislators. One major category I'd like to investigate is demographics, both within members of congress as well as within constituents who write to their congressmember. I am interested in exploring how a congressmember's veteran status can influence their constituent relationship. Specifically, I am interested in seeing how gender, specifically a female veteran congressmember can influence the bills that she introduces in congress as well as the types of policies that she may support as a result of her Active Duty experience or experience from dealing with veteran/active duty constituents. A method that can allow me to also investigate the demographic relationship with the DOD is by doing constituent coding as well as looking closely at the different congressional districts in the US, specifically the districts that have military bases or a large active duty/population. Moreover, I am interested in looking at bipartisan relationships within legislators who actively work with the DOD as well as take a further look at the policies and bills that are implemented within the different policy committees within the house and the senate. I am interested in looking into members who contact the DOD more, relative to other agencies as well and potentially what the reasoning may be behing that. Lastly, I am also curious about the relationship between legislators and businesses and I'm curious to see if in the future I can investigate certain companies that write to congressmembers and what their motive is behind the correspondence. An appendix, with extra figures, letters, and a FOIA request will also be added in a future draft of this paper.
 
 
 ---
