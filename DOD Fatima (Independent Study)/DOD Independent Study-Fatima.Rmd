@@ -5,18 +5,18 @@ author: "Fatima Ali"
 #header-includes:
    # - \usepackage{setspace}\doublespacing
 output:
+  pdf_document:
+    toc: yes
   html_document:
     code_folding: hide
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 subtitle: 'PS 699: Independent Study (Spring 2020)'
 editor_options:
   chunk_output_type: console
 ---
 
-## 9 items left to do
+## 7 items left to do
 
 ```{r, include=FALSE}
   library(tidyverse)
@@ -88,7 +88,7 @@ dc %>% count(bioname,party, TYPE, cqlabel, sort = T) %>% top_n(10, n) %>% kable(
 
 # Top 10 Legislators who wrote the most letters to the DOD
 
-Except for Senator Grassley, many of the legislators who most frequently wrote letters to the DOD were 
+Except for Senator Grassley, many of the legislators who most frequently wrote letters to the DOD were either Veterans and/or members of the Armed Services committee or the Appropriations committee. At this moment, a majority of the letters written by the top legislators are letters written on behalf of constituents. As new observations are implemented, I expect constituent letters to still be the highest, but I expect policy/oversight letters as well as letters on behalf of businesses to slowly trickle in due to the logs we have from the DOD_USACE agency as well as the DOD_OIG/DOD_OSDJS agencies.
 
 ```{r, echo=FALSE}
 # top overall
@@ -98,18 +98,34 @@ d %>% count(bioname,party, chamber, TYPE, cqlabel, committees,sort = T) %>% top_
 
 d %>% count(TYPE,sort = T) %>% filter(!(is.na(TYPE))) %>% top_n(10, n) %>% kable(caption = "Most Common Policy Areas")
 
+
+```
+
+## 114th Congress
+
+According to the diagram below, currently, our data set shows that a majority of letters have been written on behalf of constituent issues. However, the 114th congress has 3722 letters. This the most amount of letters received by the DOD during a congressional term. One reason why this result may be showing at the moment is because a majority of the logs we have received from the DOD are from the 114th congress (January 2015-January 2017). Another reason why there is a large influx of letters from the 114th congress is because there were numerous scandals that were unraveled, mainly scandals regarding sexual assault and deficiencies with veterans receiving theirn health and discharge records. The tables below show that a majority of letters were written to the DOD with issues during the constituent's time in service, mainly issues that have the subject lines of pay during their enlistment or the process of being discharged and collecting their records afterwards. 
+
+```{r}
+
 d %>%
   ggplot() +
   aes(x = congress, fill = TYPE) +
   geom_bar(position = "dodge") +
-  facet_grid(party_name ~ chamber)
-```
+  facet_grid(party_name ~ chamber) +
+  labs(title = "Policy Category Counts amongst chambers and Congressional Years")
 
+d %>% count(congress,sort = T) %>% top_n(10, n) %>% kable(caption = "Letters from Each Congressional session")
+
+d %>% filter(str_detect(congress, "114")) %>% count(bioname,party, cqlabel, committees, sort = T) %>% top_n(10, n) %>% kable(caption = "Top 10 Legislators who wrote letters in 114th Congress")
+
+
+d %>% filter(str_detect(congress, "114")) %>% count(SUBJECT, agency, sort = T) %>% top_n(10, n) %>% kable(caption = "Top 10 Subjects of Letters sent to DOD in 114th Congress")
+```
 
 # Senators Versus State Population for all Agencies
 
 ```{r, echo=FALSE}
-a %>% 
+d %>% 
   filter(chamber == "Senate") %>% 
     group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
     group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
@@ -124,7 +140,7 @@ a %>%
             size = 2.5, 
             hjust = 0) + 
   theme_bw() +
-  labs(title = "Senator Requests per Year by State Population",
+  labs(title = "Senator Requests per Year for all Agencies by State Population",
        x = "Log State Population",
        y = "Average Number of Requests per Year") 
 ```
@@ -242,7 +258,7 @@ ggplot() +
   coord_map() +
   scale_x_continuous(breaks = NULL) + 
   scale_y_continuous(breaks = NULL) +
-  labs(x = "", y = "", title = paste("Total Number of Contacts from members of the", Chamber, "per Veteran Population in the State")) +
+  labs(x = "", y = "", title = paste("Contacts from members of the", Chamber, "per Veteran Population in State")) +
   scale_fill_viridis_c(option = "C", end = .8) +
   theme(legend.position = "bottom", legend.title = element_blank(),
         panel.background = element_blank()) # + facet_grid(. ~ Constituent)
@@ -535,6 +551,11 @@ d %>% filter(female==1) %>% filter(str_detect(committees, "ARMED SERVICES|VETERA
 
 # Multivariate Models
 
+
+
+6. What Kind of Variate Models??--Pro-business/anti-business/Constituent vs. everyone else/
+  Party Explanatory #Party # constituent vs non constituent gender
+
 ```{r}
 
 ```
@@ -632,22 +653,9 @@ Rohde, David W (1991). *Parties and leaders in the post-reform House of Represen
 US Census Bureau (2018). Veterans Statistics. *The United States Census Bureau*.  
  https://www.census.gov/library/visualizations/2015/comm/veterans-statistics.html. Date accessed:   February 14, 2020.
  
----
 
-# Notes:
 
-1. Count letters by member by year (including zero counts)
 
-2. Policy Stuff
-
-3. Divide by years--annualized by years
-
-4. Control with Gender--how long they’re in congress
-
-5. Veterans--More likely to write, shared Veteran status. Veterans-gender-bias
-
-6. What Kind of Variate Models??--Pro-business/anti-business/Constituent vs. everyone else/
-  Party Explanatory #Party # constituent vs non constituent gender
 
 
  
