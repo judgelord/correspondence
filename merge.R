@@ -140,7 +140,7 @@ data_list <- tribble(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-"SSA", "not coded", NA, # fair amount of bad names that coding won't help much
+"SSA", "coded", "Rochelle", # fair amount of bad names that coding won't help much
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
