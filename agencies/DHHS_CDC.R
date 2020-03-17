@@ -10,8 +10,7 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()   
   
-  # LetterID = sheet row number
-  #data$LetterID <- 1:nrow(data)
+
   # select distinct observations 
   data_distinct <- data %>% select(-c(FolderID, Action)) %>% distinct()
   # join back in LetterID for distinct observations
@@ -38,9 +37,7 @@ clean <- function(file.name) {
      arrange(-n, FROM) %>%
      ungroup()
      
-  #Fix Duplicate ID
-  #data %<>%
-   # mutate(ID = row_number())
+
     
     data %<>%
       mutate(origID = paste("CDC", ID, sep = ""))
@@ -88,67 +85,47 @@ data %<>%
   FROMunamed <- data %>%
     filter(is.na(last_name))
   
-  #Create sample for all of the NA names and extract names from 'Titles' into dataset
-  #Unfoundnames <- data %>%
-    #filter(is.na(last_name)) %>%
-    #extractMemberName(members, col_name = "Titles")
+
   
   dataTitles <- data %>%
-    select(-first_name, -last_name, -LetterID) %>%
-    extractMemberName(members, col_name = "Titles") %>%
-    mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
-    select(-ID) %>%
-    mutate(LetterID = origID) 
+    select(-first_name, -last_name, -LetterID)
+    
+    dataTitles %<>%
+      extractMemberName(members, col_name = "Titles") %>%
+      mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
+      select(-ID) %>%
+      mutate(LetterID = origID) 
+    
+    addedNames <- dataTitles %>%
+      filter(! is.na(last_name))
+    addedNames %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
   dataSUBJECT <- data %>%
-    select(-first_name, -last_name, -LetterID) %>%
+    select(-first_name, -last_name, -LetterID)
+  
+  dataSUBJECT %<>%
     extractMemberName(members, col_name = "SUBJECT") %>%
     mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
     select(-ID) %>%
     mutate(LetterID = origID)
   
+  addedNamesSUB <- dataSUBJECT %>%
+    filter(! is.na(last_name))
+  addedNamesSUB %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
+  
   data %<>%
-    full_join(dataTitles) %>%
-    full_join(dataSUBJECT) %>%
+    full_join(dataTitles)
+  data %<>%
+    full_join(dataSUBJECT)
     
     data %<>%
-    mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
     mutate(LetterID = origID) %>%
     distinct()
    
-  # Unfoundnames %>% 
-  #   mutate(found = !is.na(last_name)) %>% 
-  #   count(found)
-  
-  #Create sample for all of the NA names and extract names from 'SUBJECT' into dataset
-  # Unfoundnames2 <- Unfoundnames %>%
-  #   filter(is.na(last_name)) %>%
-  #   extractMemberName(members, col_name =  "SUBJECT") %>%
-  #   drop_na(last_name)
-  # 
-  # Unfoundnames2 %>% 
-  #   mutate(found = !is.na(last_name)) %>% 
-  #   count(found)
-  # 
-  # Unfoundnames %<>%
-  #   drop_na(last_name)
- 
- #Drops duplicate observations  
-# Unfoundnames %<>%
-#    filter( ! str_detect(FROM, "^\\(b\\)\\(6\\)$"))
-#   
-# Unfoundnames2 %<>%
-#    filter(!str_detect(FROM, "^\\(b\\)\\(6\\)$"))
-#   
-# data %<>%
-#   filter(!str_detect(FROM, "^\\(b\\)\\(6\\)$"))
-#   
-# 
-#   data %<>%
-#     full_join(Unfoundnames)
-#   
-#    data %<>%
-#      full_join(Unfoundnames2)
+    
+  NAstring <- data %>%
+    filter(is.na(string))
+
   
   
   #Filter for observations with un-named authors
@@ -176,6 +153,8 @@ Nab6<- data %>%
 
 Unfoundnames <- data %>%
   filter(is.na(last_name))
+
+
 
 
   # arrange columns for hand coding
