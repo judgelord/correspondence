@@ -67,8 +67,6 @@ clean <- function(file.name) {
   
   #Filters out unwanted observations
   data %<>%
-    filter( ! str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC")) %<>%
-    filter ( ! str_detect(FROM, "HHS, Secretary")) %<>%
     filter( ! str_detect(FROM, "President, of the United States"))
   
    # extract member names from FROM
@@ -87,36 +85,36 @@ data %<>%
   
 
   
-  dataTitles <- data %>%
-    select(-first_name, -last_name, -LetterID)
+  #dataTitles <- data %>%
+   # select(-first_name, -last_name, -LetterID)
     
-    dataTitles %<>%
-      extractMemberName(members, col_name = "Titles") %>%
-      mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
-      select(-ID) %>%
-      mutate(LetterID = origID) 
+    #dataTitles %<>%
+     # extractMemberName(members, col_name = "Titles") %>%
+      #mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
+      #select(-ID) %>%
+      #mutate(LetterID = origID) 
     
-    addedNames <- dataTitles %>%
-      filter(! is.na(last_name))
-    addedNames %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
+    #addedNames <- dataTitles %>%
+     # filter(! is.na(last_name))
+    #addedNames %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
-  dataSUBJECT <- data %>%
-    select(-first_name, -last_name, -LetterID)
+  #dataSUBJECT <- data %>%
+   # select(-first_name, -last_name, -LetterID)
   
-  dataSUBJECT %<>%
-    extractMemberName(members, col_name = "SUBJECT") %>%
-    mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
-    select(-ID) %>%
-    mutate(LetterID = origID)
+  #dataSUBJECT %<>%
+   # extractMemberName(members, col_name = "SUBJECT") %>%
+  #  mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
+   # select(-ID) %>%
+    #mutate(LetterID = origID)
   
-  addedNamesSUB <- dataSUBJECT %>%
-    filter(! is.na(last_name))
-  addedNamesSUB %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
+  #addedNamesSUB <- dataSUBJECT %>%
+   # filter(! is.na(last_name))
+  #addedNamesSUB %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
-  data %<>%
-    full_join(dataTitles)
-  data %<>%
-    full_join(dataSUBJECT)
+  #data %<>%
+   # full_join(dataTitles)
+  #data %<>%
+   # full_join(dataSUBJECT)
     
     data %<>%
     mutate(LetterID = origID) %>%
@@ -134,11 +132,9 @@ data %<>%
   
   #Make note of all observations with un-named authors
   data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary"), "CDC Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States"), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES))
-    
-
-  data %<>%
-  mutate(NOTES = ifelse(str_detect(SUBJECT, "others"), "multiple unnamed authors", NOTES))
 
 
 
@@ -152,6 +148,9 @@ Nab6<- data %>%
 
 
 Unfoundnames <- data %>%
+  filter(is.na(last_name))
+
+MergeUnfound <- d %>%
   filter(is.na(last_name))
 
 
