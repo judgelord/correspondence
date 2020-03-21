@@ -65,9 +65,11 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
   
-  #Filters out unwanted observations
+  #Typos
   data %<>%
-    filter( ! str_detect(FROM, "President, of the United States"))
+    mutate(FROM = str_replace(FROM, "Wolfe, Frank", "Wolf, Frank")) %>%
+    mutate(FROM = str_replace(FROM, "Hollen Chris Van", "Chris Van Hollen"))
+  
   
    # extract member names from FROM
   data %<>% extractMemberName(members, col_name = "FROM") %>%
@@ -134,7 +136,9 @@ data %<>%
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary"), "CDC Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States"), "President", ERROR)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck"), "non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin"), "state legislator", ERROR))
 
 
 
