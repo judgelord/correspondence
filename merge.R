@@ -92,6 +92,7 @@ data_list <- tribble(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "not coded", NA, # complete, multiple data sources merged
+# "DOT_FRA", "coded", "Rochelle", no clean script yet
 "DOT_FTA", "not coded", NA, 
 "DOT_PHMSA", "coded", "Hope", # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
