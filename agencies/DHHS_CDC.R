@@ -40,7 +40,7 @@ clean <- function(file.name) {
 
     
     data %<>%
-      mutate(origID = paste("CDC", ID, sep = ""))
+      mutate(origID = ID)
   
   #create agency column
   data$agency <- file.name
@@ -74,7 +74,7 @@ clean <- function(file.name) {
   
    # extract member names from FROM
   data %<>% extractMemberName(members, col_name = "FROM") %>%
-    mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
+    mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
     select(-ID) %>%
     mutate(LetterID = origID) %>%
     distinct()
@@ -93,7 +93,7 @@ data %<>%
     
     dataTitles %<>%
       extractMemberName(members, col_name = "Titles") %>%
-      mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
+      mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
       select(-ID) %>%
       mutate(LetterID = origID) 
     
@@ -106,7 +106,7 @@ data %<>%
   
   dataSUBJECT %<>%
     extractMemberName(members, col_name = "SUBJECT") %>%
-    mutate(origID = ifelse(str_detect(origID, "CDCNA"), str_replace(origID, "CDCNA", as.character(FolderID)), origID)) %>%
+    mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
     select(-ID) %>%
     mutate(LetterID = origID)
   
