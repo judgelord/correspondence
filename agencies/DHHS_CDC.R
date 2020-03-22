@@ -156,8 +156,8 @@ Nab6<- data %>%
 Unfoundnames <- data %>%
   filter(is.na(last_name))
 
-MergeUnfound <- d %>%
-  filter(is.na(last_name))
+#MergeUnfound <- d %>%
+ # filter(is.na(last_name))
 
 
 
