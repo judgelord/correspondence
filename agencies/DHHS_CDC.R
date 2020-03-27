@@ -69,7 +69,9 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "Wolfe, Frank", "Wolf, Frank")) %>%
     mutate(FROM = str_replace(FROM, "Hollen Chris Van", "Chris Van Hollen")) %>%
-    mutate(FROM = str_replace(FROM, "Garrett, E\\.", "Garrett, Scott"))
+    mutate(FROM = str_replace(FROM, "Garrett, E\\.", "Garrett, Scott")) %>%
+    mutate(FROM = str_replace(FROM, "Bachus, Stephen", "Bachus, Spencer")) %>%
+    mutate(FROM = str_replace(From, "Young, C\\. W\\.", "YOUNG, Charles"))
   
   
    # extract member names from FROM
@@ -88,44 +90,44 @@ data %<>%
   
 
   
-  dataTitles <- data %>%
-    select(-first_name, -last_name, -LetterID)
-    
-    dataTitles %<>%
-      extractMemberName(members, col_name = "Titles") %>%
-      mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-      select(-ID) %>%
-      mutate(LetterID = origID) 
+   dataTitles <- data %>%
+     select(-first_name, -last_name, -LetterID)
+     
+     dataTitles %<>%
+       extractMemberName(members, col_name = "Titles") %>%
+       mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
+       select(-ID) %>%
+       mutate(LetterID = origID) 
     
     #addedNames <- dataTitles %>%
      # filter(! is.na(last_name))
     #adedNames %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
-  dataSUBJECT <- data %>%
-    select(-first_name, -last_name, -LetterID)
-  
-  dataSUBJECT %<>%
-    extractMemberName(members, col_name = "SUBJECT") %>%
-    mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-    select(-ID) %>%
-    mutate(LetterID = origID)
+   dataSUBJECT <- data %>%
+     select(-first_name, -last_name, -LetterID)
+   
+   dataSUBJECT %<>%
+     extractMemberName(members, col_name = "SUBJECT") %>%
+     mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
+     select(-ID) %>%
+     mutate(LetterID = origID)
   
   #addedNamesSUB <- dataSUBJECT %>%
-   # filter(! is.na(last_name))
+    #filter(! is.na(last_name))
   #addedNamesSUB %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
-  data %<>%
-    full_join(dataTitles)
-  data %<>%
-    full_join(dataSUBJECT)
-    
+   data %<>%
+     full_join(dataTitles)
+   data %<>%
+     full_join(dataSUBJECT)
+     
     data %<>%
-    mutate(LetterID = origID) %>%
-    distinct()
-   
+     mutate(LetterID = origID) %>%
+     distinct()
     
-  NAstring <- data %>%
-    filter(is.na(string))
+     
+   NAstring <- data %>%
+     filter(is.na(string))
 
   
   
@@ -135,13 +137,15 @@ data %<>%
   
   #Make note of all observations with un-named authors
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director") & is.na(last_name), "CDC Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director|Director, NCEH|Gerberding, Julie") & is.na(last_name), "CDC Staff", ERROR)) %>%
+    
     mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States") & is.na(last_name), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick") & is.na(last_name), "non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim") & is.na(last_name), "state legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick|Bonham, David|Boyer, Ashley|Collins, Francis|Gabbard, Mike|Graham, Garth|Groblewski, Mark") & is.na(last_name), "non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim|Duff, Bob") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Bruce Aylward") & is.na(last_name), "world health organization member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(SUBJECT, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative"), "written by non member", ERROR))
+    mutate(ERROR = ifelse(str_detect(SUBJECT, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative"), "written by non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM , "Graham, Bob") & congress %in% 111, "no longer in congress", ERROR))
 
 
 
