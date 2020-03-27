@@ -135,12 +135,13 @@ data %<>%
   
   #Make note of all observations with un-named authors
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director"), "CDC Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States"), "President", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director") & is.na(last_name), "CDC Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States") & is.na(last_name), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick"), "non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim"), "state legislator", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Bruce Aylward"), "world health organization member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick") & is.na(last_name), "non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim") & is.na(last_name), "state legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Bruce Aylward") & is.na(last_name), "world health organization member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(SUBJECT, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative"), "written by non member", ERROR))
 
 
 
@@ -154,7 +155,8 @@ Nab6<- data %>%
 
 
 Unfoundnames <- data %>%
-  filter(is.na(last_name))
+  filter(is.na(last_name)) %>%
+  filter(is.na(ERROR))
 
 #MergeUnfound <- d %>%
  # filter(is.na(last_name))
