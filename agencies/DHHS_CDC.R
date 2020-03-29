@@ -136,7 +136,7 @@ clean <- function(file.name) {
     data %<>%
       group_by(FROM, SUBJECT, DATE) %>%
       mutate(n = n(),
-             strings = str_c(string, collapse = "; ")) %>%
+             string = str_c(string, collapse = "; ")) %>%
       arrange(-n) %>%
       select(-string) %>%
       ungroup %>%
