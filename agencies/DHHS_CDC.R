@@ -133,16 +133,16 @@ clean <- function(file.name) {
     data %<>%
       full_join(dataSUBJECT)
      
-    data %<>%
-      group_by(FROM, SUBJECT, DATE) %>%
-      mutate(n = n(),
-             string = str_c(string, collapse = "; ")) %>%
-      arrange(-n) %>%
-      select(-string) %>%
-      ungroup %>%
-      distinct() %>%
-      mutate(LetterID = origID) %>%
-      distinct()
+    # data %<>%
+    #   group_by(FROM, SUBJECT, DATE) %>%
+    #   mutate(n = n(),
+    #          string = str_c(string, collapse = "; ")) %>%
+    #   arrange(-n) %>%
+    #   select(-string) %>%
+    #   ungroup %>%
+    #   distinct() %>%
+    #   mutate(LetterID = origID) %>%
+    #   distinct()
     
      
    NAstring <- data %>%
