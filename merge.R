@@ -98,6 +98,7 @@ data_list <- tribble(
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+# "EEOC", "coded", "Rochelle", #no clean script yet
 "EOP_CEQ", "not coded", NA,
 #"EOP_USTR", "not coded", NA, # Script needs work after new data merged in #64 data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
 # EPA
