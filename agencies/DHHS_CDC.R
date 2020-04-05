@@ -85,12 +85,17 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Garrett, E\\.", "Garrett, Scott")) %>%
     mutate(FROM = str_replace(FROM, "Bachus, Stephen", "Bachus, Spencer")) %>%
     mutate(FROM = str_replace(FROM, "Young, C\\. W\\.", "YOUNG, Charles")) %>%
-    mutate(FROM = str_replace(FROM, "Mack, Mary", "Mack Bono, Mary"))
+    mutate(FROM = str_replace(FROM, "Mack, Mary", "Mack Bono, Mary")) %>%
+    mutate(FROM = str_replace(FROM, "Chabliss", "Chambliss"))
   
   data %<>%
     mutate(FROM = ifelse(! is.na(Titles), paste(Titles, FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(! is.na(SUBJECT), paste(SUBJECT, FROM, sep = " "), FROM))
 
+  # data %<>% 
+  #   mutate(FROM = str_split(FROM, ";")) %>% 
+  #   unnest(FROM)
+  # 
   data %<>%
     filter(! str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative| to Senator "))
   
@@ -168,7 +173,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States|President Bush") & is.na(last_name), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick|Bonham, David|Boyer, Ashley|Collins, Francis|Gabbard, Mike|Graham, Garth|Groblewski, Mark|William F\\. Marshal") & is.na(last_name), "non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim|Duff, Bob|Rubio, Michael|Scott, Rick|David Ige|Bob Duff|State Senator|Bob Duff") & is.na(last_name), "state legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "State Representative Steve Wieckert|Governor Bobby Jindal|Boyle, Kevin|Briggs, Tim|Duff, Bob|Rubio, Michael|Scott, Rick|David Ige|Bob Duff|State Senator|Bob Duff") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(Titles, "David Ige") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Bruce Aylward") & is.na(last_name), "world health organization member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM , "Graham, Bob") & congress %in% c(111,113), "no longer in congress", ERROR))
