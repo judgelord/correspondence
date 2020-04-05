@@ -73,6 +73,9 @@ clean <- function(file.name) {
     mutate(SUBJECT = str_replace(SUBJECT, "Sen\\.|sen\\.|sen |Sen ", "Senator")) %>%
     mutate(SUBJECT = str_replace(SUBJECT, "Rep\\.|rep\\.|Rep |rep |Congressman", "Representative"))
   
+  data %<>%
+    mutate(Titles = str_replace(Titles, "Representative Merkley", "Senator Merkley"))
+  
   #Typos
   data %<>%
     mutate(FROM = str_replace(FROM, "Wolfe, Frank", "Wolf, Frank")) %>%
@@ -83,7 +86,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Mack, Mary", "Mack Bono, Mary"))
   
   data %<>%
-    mutate(Titles = str_replace(Titles, "Representative Merkley", "Senator Merkley"))
+    mutate(FROM = ifelse(! is.na(Titles), paste(Titles, FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(! is.na(SUBJECT), paste(SUBJECT, FROM, sep = " "), FROM))
+
   
   
     #extract member names from FROM
@@ -102,36 +107,36 @@ clean <- function(file.name) {
   
 
   
-    dataTitles <- data %>%
-      select(-first_name, -last_name, -LetterID)
-      
-      dataTitles <- data %>%
-        extractMemberName(members, col_name = "Titles") %>%
-        mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-        select(-ID) %>%
-        mutate(LetterID = origID) 
+    #dataTitles <- data %>%
+      # select(-first_name, -last_name, -LetterID)
+      # 
+      # dataTitles <- data %>%
+      #   extractMemberName(members, col_name = "Titles") %>%
+      #   mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
+      #   select(-ID) %>%
+      #   mutate(LetterID = origID) 
     
     #addedNames <- dataTitles %>%
      # filter(! is.na(last_name))
     #adedNames %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
-    dataSUBJECT <- data %>%
-      select(-first_name, -last_name, -LetterID)
-    
-    dataSUBJECT %<>%
-      extractMemberName(members, col_name = "SUBJECT") %>%
-      mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-      select(-ID) %>%
-      mutate(LetterID = origID)
+    # dataSUBJECT <- data %>%
+    #   select(-first_name, -last_name, -LetterID)
+    # 
+    # dataSUBJECT %<>%
+    #   extractMemberName(members, col_name = "SUBJECT") %>%
+    #   mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
+    #   select(-ID) %>%
+    #   mutate(LetterID = origID)
     
   #addedNamesSUB <- dataSUBJECT %>%
     #filter(! is.na(last_name))
   #addedNamesSUB %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
   
-    data %<>%
-      full_join(dataTitles)
-    data %<>%
-      full_join(dataSUBJECT)
+    # data %<>%
+    #   full_join(dataTitles)
+    # data %<>%
+    #   full_join(dataSUBJECT)
      
     # data %<>%
     #   group_by(FROM, SUBJECT, DATE) %>%
@@ -144,9 +149,9 @@ clean <- function(file.name) {
     #   mutate(LetterID = origID) %>%
     #   distinct()
     
-     
-   NAstring <- data %>%
-     filter(is.na(string))
+   #   
+   # NAstring <- data %>%
+   #   filter(is.na(string))
 
   
   
