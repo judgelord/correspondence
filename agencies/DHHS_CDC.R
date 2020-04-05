@@ -61,6 +61,8 @@ clean <- function(file.name) {
 
   
   #Comments errors for CDC Director and HHS Secretary  
+ 
+  
   data %<>%
     mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
   
@@ -68,10 +70,10 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
   
   data %<>%
-    mutate(Titles = str_replace(Titles, "Sen\\.|sen\\.|sen |Sen ", "Senator")) %>%
-    mutate(Titles = str_replace(Titles, "Rep\\.|rep\\.|Rep |rep |Congressman", "Representative")) %>%
-    mutate(SUBJECT = str_replace(SUBJECT, "Sen\\.|sen\\.|sen |Sen ", "Senator")) %>%
-    mutate(SUBJECT = str_replace(SUBJECT, "Rep\\.|rep\\.|Rep |rep |Congressman", "Representative"))
+    mutate(Titles = str_replace(Titles, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
+    mutate(Titles = str_replace(Titles, " Rep\\.| rep\\.| Rep | rep |Congressman", "Representative")) %>%
+    mutate(SUBJECT = str_replace(SUBJECT, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
+    mutate(SUBJECT = str_replace(SUBJECT, " Rep\\.| rep\\.| Rep | rep |Congressman", "Representative"))
   
   data %<>%
     mutate(Titles = str_replace(Titles, "Representative Merkley", "Senator Merkley"))
@@ -89,7 +91,8 @@ clean <- function(file.name) {
     mutate(FROM = ifelse(! is.na(Titles), paste(Titles, FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(! is.na(SUBJECT), paste(SUBJECT, FROM, sep = " "), FROM))
 
-  
+  data %<>%
+    filter(! str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative| to Senator "))
   
     #extract member names from FROM
    data %<>% extractMemberName(members, col_name = "FROM") %>%
@@ -161,15 +164,13 @@ clean <- function(file.name) {
   
   #Make note of all observations with un-named authors
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director|Director, NCEH|Gerberding, Julie") & is.na(last_name), "CDC Staff", ERROR)) %>%
-    
-    mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States") & is.na(last_name), "President", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director|Director, NCEH|Gerberding, Julie|Secretary Michael O\\. Leavitt|Gerberding, Julie") & is.na(last_name), "CDC Staff", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States|President Bush") & is.na(last_name), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick|Bonham, David|Boyer, Ashley|Collins, Francis|Gabbard, Mike|Graham, Garth|Groblewski, Mark") & is.na(last_name), "non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim|Duff, Bob|Rubio, Michael|Scott, Rick|David Ige") & is.na(last_name), "state legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick|Bonham, David|Boyer, Ashley|Collins, Francis|Gabbard, Mike|Graham, Garth|Groblewski, Mark|William F\\. Marshal") & is.na(last_name), "non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Boyle, Kevin|Briggs, Tim|Duff, Bob|Rubio, Michael|Scott, Rick|David Ige|Bob Duff|State Senator|Bob Duff") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(Titles, "David Ige") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Bruce Aylward") & is.na(last_name), "world health organization member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(SUBJECT, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative"), "written by non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM , "Graham, Bob") & congress %in% c(111,113), "no longer in congress", ERROR))
 
 
@@ -192,15 +193,17 @@ Nab6<- data %>%
 
 
   # arrange columns for hand coding
-  data %<>% select(LetterID, last_name, first_name, DATE, Titles, everything())
+  data %<>% select(LetterID, last_name, first_name, FROM, DATE, Titles, everything())
   
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    filter(is.na(ERROR))
+    filter(is.na(ERROR)) %>%
+    filter(!str_detect(FROM, "Donna Christensen"))
    
   
-  hanks <- data %>%
-    filter(LetterID == 2088993)
+ data %>%
+   filter(LetterID == 2041567) %>%
+   select(FROM)
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SICKLE CELL DISEASE|ZIKA FUNDING|VECTOR BORNE DISEASE|HEAVY METALS|TRAVEL POLICIES|TUBERCULOSIS. URGE|STEPS TO A HEALTHIER|PREVENTING SECONDARY|HEPATITIS FUNDING|SECTION 317|OPIOID THE COMMITTEE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
