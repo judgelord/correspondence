@@ -36,15 +36,27 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = str_replace(FROM, "Wm\\. Clay", "William CLAY")) %>%
     mutate(FROM = str_replace(FROM, "Robert P\\., Jr\\. Casey", "Robert Casey")) %>%
-    mutate(FROM = str_replace(FROM, "Joe, III Manchin", "Joe Manchin"))
+    mutate(FROM = str_replace(FROM, "Joe, III Manchin", "Joe Manchin")) %>%
+    mutate(FROM = str_replace(FROM, "John D\\., IV Rockefeller", "John Rockefeller")) %>%
+    mutate(FROM = str_replace(FROM, "Benjamin E\\. Nelson", "Benjamin Nelson")) %>%
+    mutate(FROM = str_replace(FROM, "H\\. Griffith", "H\\. Morgan GRIFFITH"))
 
   #Extract Member names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")  
   
+  data %<>%
+    select(FROM, first_name, last_name, DATE, string, everything())
+  
   
   unfoundNamesSample <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(last_name)) %>%
+    filter(! is.na(FROM)) %>%
+    filter(! str_detect(FROM, "NA NA"))
+  
+  data %>%
+    filter(ID == 5736) %>%
+    select(FROM)
   
   return(data)
   
