@@ -30,7 +30,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = ifelse(is.na(From), paste(`From First Name`, `From Last Name`, sep = " "), FROM))
   
-  #data <- data[sample(1:nrow(data), 4000, replace=FALSE),]
+  #data <- data[sample(1:nrow(data), 10000, replace=FALSE),]
   
   #Typos
   data %<>%
@@ -43,7 +43,7 @@ clean <- function(file.name) {
     extractMemberName(members = members, col_name = "FROM")  
   
   
-  unfoundNamesSample <- sample %>%
+  unfoundNamesSample <- data %>%
     filter(is.na(last_name))
   
   return(data)
