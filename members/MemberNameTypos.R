@@ -195,7 +195,7 @@ typos_last <- tribble(
   "Steve", "King", "Kiing",
   "Peter", "King", "Kiing",
   "Angus", "King", "Kiing",
-  "Martin", "Heinrich", "(Hienrich|Heinriech)",
+  "Martin", "Heinrich", "(Hienrich|Heinriech|Henrich)",
   "Ellen", "Tauscher", "Ianscher",
   "Jeff", "Bingaman", "(Bingman|Bingmen|Bingamen)",
   "Elizabeth", "Warren", "Varren",
