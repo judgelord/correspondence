@@ -50,8 +50,7 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "Grijalva, Raúl", "GRIJALVA, Raul")) %>%
      mutate(FROM = str_replace(FROM, "Griffin, H\\. Morgan", "GRIFFITH, H\\.")) %>%
      mutate(FROM = str_replace(FROM, "Grassely, Charles E\\.", "GRASSLEY, Charles")) %>%
-     mutate(FROM = str_replace(FROM, "Mack, Mary B\\.", "BONO, Mary")) %>%
-     mutate(FROM = str_replace(FROM, "McCollum, Bill", ))
+     mutate(FROM = str_replace(FROM, "Mack, Mary B\\.", "BONO, Mary")) 
 
   #Extract Member names
   data %<>%
