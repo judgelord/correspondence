@@ -55,7 +55,8 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "Hinojosa, Rubï¿½n", "Hinojosa, Ruben")) %>%
      mutate(FROM = str_replace(FROM, "Capito Moore, Shelley", "CAPITO, Shelley Moore")) %>%
      mutate(FROM = str_replace(FROM, "Labrador, Ra?l|Labrador, Raï¿½l", "LABRADOR, Raul")) %>%
-     mutate(FROM = str_replace(FROM, "Sï¿½nchez, Linda", "SANCHEZ, Linda"))
+     mutate(FROM = str_replace(FROM, "Sï¿½nchez, Linda", "SANCHEZ, Linda")) %>%
+     mutate(FROM = str_replace(FROM, "Tenney, Claudi", "Tenney, Claudia"))
 
   #Extract Member names
   data %<>%
@@ -74,9 +75,11 @@ clean <- function(file.name) {
   #ERRORs
    data %<>%
      mutate(ERROR = ifelse(str_detect(FROM, "Gonzalez-Colon, Jenniffer") & is.na(ERROR), "Commissioner of Puerto Rico", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Colvin, Carolyn W\\.") & is.na(ERROR), "Agency staff", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Hassan, Margaret Wood") & congress %in% 114 & is.na(ERROR), "not yet in congress", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "McCollum, Bill") & congress %in% 111 & is.na(ERROR), "no longer in congress", ERROR)) %>% #might be McCollum, Betty
-     mutate(ERROR = ifelse(str_detect(FROM, "Schaefermeyer, Connie") & is.na(ERROR), "non member", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Kildee, Dale") & congress %in% 113 & is.na(ERROR), "not in congress", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Schaefermeyer, Connie|Shepley, William L\\.") & is.na(ERROR), "non member", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Limehouse III, Harry B\\. \'Chip\'|Lynch, John H\\.|Hansen, Alicia \'Chucky\'|Corbett, Tom|Markell, Jack A\\.|Avella, Tony") & is.na(ERROR), "State Legislator", ERROR))
   
   unfoundNamesSample <- data %>%
