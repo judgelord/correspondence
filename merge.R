@@ -39,6 +39,7 @@ data_list <- tribble(
 "DHHS_CMS", "coded", "Rochelle", # no clean script yet
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
+# "DHHS_NIH", "coded", "Rochelle", #no clean script yet
 # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
