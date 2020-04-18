@@ -30,7 +30,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(FROM = ifelse(is.na(From), paste(`From Last Name`, `From First Name`, sep = ", "), FROM))
   
-  data <- data[sample(1:nrow(data), 20000, replace=FALSE),]
+  #data <- data[sample(1:nrow(data), 20000, replace=FALSE),]
   
   #Typos
    data %<>%
@@ -59,7 +59,8 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "Tenney, Claudi", "Tenney, Claudia")) %>%
      mutate(FROM = str_replace(FROM, "Feingold, Russell", "FEINGOLD, Russell")) %>%
      mutate(FROM = str_replace(FROM, "Griffin, Tom", "Griffin, Tim")) %>%
-     mutate(FROM = str_replace(FROM, "Hill, J\\. French", "Hill, French"))
+     mutate(FROM = str_replace(FROM, "Hill, J\\. French", "Hill, French")) %>%
+     mutate(FROM = str_replace(FROM, "Farenthold, Black", "Farenthold, Blake"))
 
   #Extract Member names
   data %<>%
