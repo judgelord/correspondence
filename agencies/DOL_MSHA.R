@@ -59,7 +59,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Senator  Johanns \\(Senators\\)|Senator Johanns \\(Sens\\)", "Mike JOHANNS")) %>%
     mutate(FROM = str_replace(FROM, "Aderholt Robert B \\(Cong\\,", "Aderholt, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Cong\\.\\)", "Timothy V JOHNSON")) %>%
-    mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Sen\\.\\)|Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON"))
+    mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Sen\\.\\)|Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON")) %>%
+    mutate(FROM = str_replace(FROM, "Lugren, Daniel E. \\(Cong\\)", "Lungren, Daniel"))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
@@ -80,12 +81,7 @@ clean <- function(file.name) {
 
 
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(is.na(last_name),
-           is.na(ERROR),
-           !is.na(FROM),
-           !is.na(DATE)) 
+  
   
   
   # arrange columns for hand coding
@@ -93,8 +89,17 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Horsford, Steven A\\. \\(Sen\\.\\)") & congress %in% 112, "Not yet in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\."), "Non member", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\.|Barber, Elizabeth"), "Non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Schermer, Barry s\\."), "judge", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Pallasch, John"), "assistant secretary", ERROR))
   
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           !is.na(FROM),
+           !is.na(DATE)) 
   
   # data%<>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
