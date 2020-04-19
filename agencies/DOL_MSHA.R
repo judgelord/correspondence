@@ -50,6 +50,12 @@ clean <- function(file.name) {
     mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
   
+  #Fix Chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rahall, Nick") & chamber == "Senate", str_replace(chamber, "Senate", "House"), chamber))
+  
+  
+  
   data %<>%
     mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim \\(Sen\\)") & congress %in% 112, str_replace(FROM, "Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON"), FROM)) %>%
     mutate(FROM = str_replace(FROM, "Capito, Shelley Moore \\(Cong\\)", "Shelley Moore Capito")) %>%
@@ -60,7 +66,10 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Aderholt Robert B \\(Cong\\,", "Aderholt, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Cong\\.\\)", "Timothy V JOHNSON")) %>%
     mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Sen\\.\\)|Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON")) %>%
-    mutate(FROM = str_replace(FROM, "Lugren, Daniel E. \\(Cong\\)", "Lungren, Daniel"))
+    mutate(FROM = str_replace(FROM, "Lugren, Daniel E. \\(Cong\\)", "Lungren, Daniel")) %>%
+    mutate(FROM = str_replace(FROM, "Palmar, Gary J \\(Cong\\)", "Palmer, Gary J \\(Cong\\)")) %>%
+    mutate(FROM = str_replace(FROM, "Thompson, I Glenn \'GT\' \\(Cong\\)", "THOMPSON, Glenn")) %>%
+    mutate(FROM = str_replace(FROM, "Shuster\\. Bill", "Shuster, Bill"))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
