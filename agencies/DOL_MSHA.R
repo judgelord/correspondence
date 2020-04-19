@@ -52,7 +52,8 @@ clean <- function(file.name) {
   
   #Fix Chamber
   data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Rahall, Nick") & chamber == "Senate", str_replace(chamber, "Senate", "House"), chamber))
+    mutate(chamber = ifelse(str_detect(FROM, "Rahall, Nick") & chamber == "Senate", str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Shelley Moore Capito") & congress %in% 114 & chamber == "House", str_replace(chamber, "Senate", "House"), chamber))
   
   
   
@@ -69,7 +70,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Lugren, Daniel E. \\(Cong\\)", "Lungren, Daniel")) %>%
     mutate(FROM = str_replace(FROM, "Palmar, Gary J \\(Cong\\)", "Palmer, Gary J \\(Cong\\)")) %>%
     mutate(FROM = str_replace(FROM, "Thompson, I Glenn \'GT\' \\(Cong\\)", "THOMPSON, Glenn")) %>%
-    mutate(FROM = str_replace(FROM, "Shuster\\. Bill", "Shuster, Bill"))
+    mutate(FROM = str_replace(FROM, "Shuster\\. Bill", "Shuster, Bill")) %>%
+    mutate(FROM = str_replace(FROM, "Whltehouse, Sheldon", "WHITEHOUSE, Sheldon"))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
