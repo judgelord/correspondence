@@ -71,7 +71,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Palmar, Gary J \\(Cong\\)", "Palmer, Gary J \\(Cong\\)")) %>%
     mutate(FROM = str_replace(FROM, "Thompson, I Glenn \'GT\' \\(Cong\\)", "THOMPSON, Glenn")) %>%
     mutate(FROM = str_replace(FROM, "Shuster\\. Bill", "Shuster, Bill")) %>%
-    mutate(FROM = str_replace(FROM, "Whltehouse, Sheldon", "WHITEHOUSE, Sheldon"))
+    mutate(FROM = str_replace(FROM, "Whltehouse, Sheldon", "WHITEHOUSE, Sheldon")) %>%
+    mutate(FROM = str_replace(FROM, "Representative  Harris \\(Congs\\)", "Representative Harris \\(Congs\\)"))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
