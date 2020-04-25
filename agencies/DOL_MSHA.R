@@ -72,7 +72,9 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Thompson, I Glenn \'GT\' \\(Cong\\)", "THOMPSON, Glenn")) %>%
     mutate(FROM = str_replace(FROM, "Shuster\\. Bill", "Shuster, Bill")) %>%
     mutate(FROM = str_replace(FROM, "Whltehouse, Sheldon", "WHITEHOUSE, Sheldon")) %>%
-    mutate(FROM = ifelse(str_detect(FROM, "Representative  Harris \\(Congs\\)") & congress %in% 114, str_replace(FROM, "Representative  Harris \\(Congs\\)", "HARRIS, Andy"), FROM))
+    mutate(FROM = ifelse(str_detect(FROM, "Representative  Harris \\(Congs\\)") & congress %in% 114, str_replace(FROM, "Representative  Harris \\(Congs\\)", "HARRIS, Andy"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Senator Timothy J\\. \\(Sen\\)") & congress %in% 112, str_replace(FROM, "Senator Timothy J\\. \\(Sen\\)", "Timothy Peter JOHNSON"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Representative Markwayne \\(Cong\\)"), str_detect(FROM, "Representative Markwayne \\(Cong\\)", "Representative MULLIN"), FROM))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
@@ -101,7 +103,7 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Horsford, Steven A\\. \\(Sen\\.\\)") & congress %in% 112, "Not yet in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\.|Barber, Elizabeth"), "Non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\.|Barber, Elizabeth|Wooten, Ronald|Lewis, Elliot"), "Non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Schermer, Barry s\\."), "judge", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Pallasch, John"), "assistant secretary", ERROR))
   
