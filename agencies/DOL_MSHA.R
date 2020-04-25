@@ -105,8 +105,8 @@ clean <- function(file.name) {
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Horsford, Steven A\\. \\(Sen\\.\\)") & congress %in% 112, "Not yet in congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\.|Barber, Elizabeth|Wooten, Ronald|Lewis, Elliot|Beener, George R\\.|Bennazar, Zuquelra, A.J. \\(Allorneyo\\)"), "Non member", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Schermer, Barry s\\.|Schermer, Barry|Schermer, Barry S \\(Judge\\)|Schermer, Barry S\\. \\(Judge\\)"), "judge", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\.|Barber, Elizabeth|Wooten, Ronald|Lewis, Elliot|Beener, George R\\.|Bennazar, Zuquelra, A.J. \\(Allorneyo\\)|Fernandez- Martinez, Alfredo|Kecojevic, Vladislav|Freedberg, Abraham|Gordon, Roberl|Gordon, R\\.|Hambly, Gary"), "Non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Schermer, Barry s\\.|Schermer, Barry|Schermer, Barry S \\(Judge\\)|Schermer, Barry S\\. \\(Judge\\)|Fleissig, Audrey G\\. \\(US District Judge\\)|Fleissig, Audrey G\\. \\(US Dlstnct Judge\\)"), "judge", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Pallasch, John"), "assistant secretary", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Cuomo, Andrew M\\.\\(Gov\\.\\)"), "state legislator", ERROR))
   
