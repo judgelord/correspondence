@@ -59,20 +59,47 @@ clean <- function(file.name) {
 #Typo  
 data %<>%
   mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
-  mutate(FROM = str_replace(FROM, "^Balart, M.", "Diaz-Balart, M.")) %>%
-  mutate(FROM = str_replace(FROM, "Diaz Balart, M.", "Diaz-Balart, M.")) %>%
-  mutate(FROM = str_replace(FROM, "Johnson, E. B.", "Johnson, E.")) %>%
+  mutate(FROM = str_replace(FROM, "^Balart, M\\.", "Diaz-Balart, M\\.")) %>%
+  mutate(FROM = str_replace(FROM, "Diaz Balart, M\\.", "Diaz-Balart, M\\.")) %>%
+  mutate(FROM = str_replace(FROM, "Johnson, E\\. B\\.", "Johnson, E\\.")) %>%
   mutate(FROM = str_replace(FROM, "Rashia, Jamie", "Raskin, Jamie")) %>%
-  mutate(FROM = str_replace(FROM, "Carter, E.L.", "Carter, Earl")) %>%
-  mutate(FROM = str_replace(FROM, "Capito, S.M.", "Moore Capito, Shelley")) %>%
+  mutate(FROM = str_replace(FROM, "Carter, E\\.L\\.", "Carter, Earl")) %>%
+  mutate(FROM = str_replace(FROM, "Capito, S\\.M\\.|Capito, S\\. M\\.", "Moore Capito, Shelley")) %>%
   mutate(FROM = str_replace(FROM, "Lujan Grisham, M\\.", "LUJAN GRISHAM, Michelle")) %>%
   mutate(FROM = str_replace(FROM, "Flemming,J,", "FLEMING, John")) %>%
   mutate(FROM = str_replace(FROM, "Scott, R\\. C\\.", "SCOTT, Robert")) %>%
   mutate(FROM = str_replace(FROM, "Forbes, R\\.", "FORBES, James")) %>%
   mutate(FROM = str_replace(FROM, "Butterfield, G\\. K\\.", "BUTTERFIELD, George")) %>%
   mutate(FROM = str_replace(FROM, "Rodgers, C", "McMORRIS RODGERS, Cathy")) %>%
-  mutate(FROM = str_replace(FROM, "Barrett, J\\.G\\.", "BARRETT, James")) %>%
-  mutate(FROM = str_replace(FROM, "Chabliss, S\\.", "CHAMBLISS, Saxby"))
+  mutate(FROM = str_replace(FROM, "Barrett, J\\. G\\.|Barrett, J\\.G\\.", "BARRETT, James")) %>%
+  mutate(FROM = str_replace(FROM, "Chabliss, S\\.", "CHAMBLISS, Saxby")) %>%
+  mutate(FROM = str_replace(FROM, "Milkulski, B|Mukulski, B\\.", "MIKULSKI, Barbara")) %>%
+  mutate(FROM = str_replace(FROM, "Bono Mack, M\\.|Bono-Mack, M", "BONO, Mary")) %>%
+  mutate(FROM = str_replace(FROM, "Brownbeck, S", "BROWNBACK, Sam Dale")) %>%
+  mutate(FROM = str_replace(FROM, "Young, C\\.W\\.B\\.", "YOUNG, Charles William")) %>%
+  mutate(FROM = str_replace(FROM, "Klobuchan, A", "KLOBUCHAR, Amy")) %>%
+  mutate(FROM = str_replace(FROM, "Herseth, S|Sandlin, S|Herseth-Sandlin, S", "HERSETH SANDLIN, Stephanie")) %>%
+  mutate(FROM = str_replace(FROM, "Sanford, B", "BISHOP, Sanford")) %>%
+  mutate(FROM = str_replace(FROM, "Blunt-Rochester, L\\.", "BLUNT ROCHESTER, Lisa")) %>%
+  mutate(FROM = str_replace(FROM, "Carter, E\\.L", "Earl Leroy CARTER")) %>%
+  mutate(FROM = str_replace(FROM, "Davis, A\\.", "DAVIS, Artur")) %>%
+  mutate(FROM = str_replace(FROM, "Kilroy, M\\. J\\.", "KILROY, Mary Jo")) %>%
+  mutate(FROM = str_replace(FROM, "Enzi, M\\.", "ENZI, Michael")) %>%
+  mutate(FROM = str_replace(FROM, "Conaway, K\\.M\\.", "CONAWAY, Kenneth")) %>%
+  mutate(FROM = str_replace(FROM, "Clay, W\\. L\\.", "CLAY, William")) %>%
+  mutate(FROM = str_replace(FROM, "Udall, T\\.", "UDALL, Thomas")) %>%
+  mutate(FROM = str_replace(FROM, "Sensenbrenner, F\\. J\\.", "SENSENBRENNER, Frank")) %>%
+  mutate(FROM = str_replace(FROM, "Kuster, A\\. M\\.", "KUSTER, Ann")) %>%
+  mutate(FROM = str_replace(FROM, "Beutler, J\\. H\\.|Herrera Beutler, J\\.", "HERRERA BEUTLER, Jaime")) %>%
+  mutate(FROM = str_replace(FROM, "Mccury, J\\.", "McCRERY, James")) %>%
+  mutate(FROM = str_replace(FROM, "Kilder, D\\.", "KILDEE, Dale")) %>%
+  mutate(FROM = str_replace(FROM, "Bryd, R", "BYRD, Robert")) %>%
+  mutate(FROM = str_replace(FROM, "Aderhot, R\\.", "ADERHOLT, Robert")) %>%
+  mutate(FROM = str_replace(FROM, "Buchson, L\\.", "BUCSHON, Larry")) %>%
+  mutate(FROM = str_replace(FROM, "Gringrey, P\\.", "GINGREY, Phil")) %>%
+  mutate(FROM = str_replace(FROM, "Joyce, D\\. P\\.", "JOYCE, David")) %>%
+  mutate(FROM = str_replace(FROM, "Hanabusa, C\\. W\\.", "HANABUSA, Colleen")) %>%
+  mutate(FROM = str_replace(FROM, "Nelson, E\\. B\\.", "NELSON, Earl Benjamin"))
 
 #Wrong chambers
 data %<>%
@@ -82,6 +109,10 @@ data %<>%
   mutate(chamber = ifelse(str_detect(FROM, "Carter, Earl"), str_replace(chamber, "Senate", "House"), chamber)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress %in% c(112,113) & str_detect(chamber, "Senate"), str_replace(FROM, "Moran, J.", "MORAN, Jerry"), FROM)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress %in% c(112,113) & str_detect(chamber, "House"), str_replace(FROM, "Moran, J.", "MORAN, James"), FROM))
+
+
+data %<>%
+  mutate(FROM = str_replace(FROM, "McNerney, J\\. Denham, J\\.", "McNerney, J. \\/ Denham, J."))
 
 #string split on "\"
   data %<>%
