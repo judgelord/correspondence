@@ -119,7 +119,7 @@ data %<>%
   mutate(chamber = ifelse(str_detect(FROM, "Murkowski") & congress %in% c(111) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Johnson, T\\.") & congress %in% c(111) & str_detect(chamber, "House"), str_replace(FROM, "Johnson, T\\.", "Timothy V JOHNSON"), FROM)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Johnson, T\\.") & congress %in% c(111) & str_detect(chamber, "Senate"), str_replace(FROM, "Johnson, T\\.", "Tim Peter JOHNSON"), FROM)) %>%
-  mutate(chamber = ifelse(str_detect(FROM, "Chambliss, S\\.|Chambliss, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chmaber, "House", "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Chambliss, S\\.|Chambliss, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Cardin, B") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber))
 
 
