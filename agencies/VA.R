@@ -104,18 +104,23 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Hutchinson, K", "HUTCHISON, Kathryn")) %>%
   mutate(FROM = str_replace(FROM, "Jackson-Lee, S", "JACKSON LEE, Sheila")) %>%
   mutate(FROM = str_replace(FROM, "Kissel, L\\.", "KISSELL, Larry")) %>%
-  mutate(FROM = str_replace(FROM, "Bond, C\\. \\(Kit\\)", "BOND, Christopher"))
+  mutate(FROM = str_replace(FROM, "Bond, C\\. \\(Kit\\)", "BOND, Christopher")) %>%
+  mutate(FROM = str_replace(FROM, "Casey, B\\.", "CASEY, Robert")) 
   
 
 #Wrong chambers
 data %<>%
-  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "Senate"), str_replace(FROM, "Kennedy, J.", "John Neely KENNEDY"), FROM)) %>%
-  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress == 115 & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress %in% c(115) & str_detect(chamber, "Senate"), str_replace(FROM, "Kennedy, J.", "John Neely KENNEDY"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Kennedy, J.") & congress %in% c(115) & str_detect(chamber, "House"), str_replace(FROM, "Kennedy, J.", "Joseph P KENNEDY"), FROM)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Risch"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Carter, Earl"), str_replace(chamber, "Senate", "House"), chamber)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress %in% c(112,113) & str_detect(chamber, "Senate"), str_replace(FROM, "Moran, J.", "MORAN, Jerry"), FROM)) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Moran, J.") & congress %in% c(112,113) & str_detect(chamber, "House"), str_replace(FROM, "Moran, J.", "MORAN, James"), FROM)) %>%
-  mutate(chamber = ifelse(str_detect(FROM, "Murkowski") & congress %in% c(111) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber))
+  mutate(chamber = ifelse(str_detect(FROM, "Murkowski") & congress %in% c(111) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Johnson, T\\.") & congress %in% c(111) & str_detect(chamber, "House"), str_replace(FROM, "Johnson, T\\.", "Timothy V JOHNSON"), FROM)) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Johnson, T\\.") & congress %in% c(111) & str_detect(chamber, "Senate"), str_replace(FROM, "Johnson, T\\.", "Tim Peter JOHNSON"), FROM)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Chambliss, S\\.|Chambliss, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chmaber, "House", "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Cardin, B") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chmaber, "House", "Senate"), chamber))
 
 
 data %<>%
@@ -164,7 +169,7 @@ data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative Pellito, John"), "House Staff", ERROR)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G|Radewagen, A\\."), "Not voting member", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G|Radewagen, A\\.|Radewagen, A\\."), "Not voting member", NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative non Congressional|Representative Non-Congressional|Representative NonCongressional|Representative NY-25"), "Not Member", ERROR))
   
   #FOIA NOTES
