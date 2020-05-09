@@ -182,7 +182,8 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Davis"), "Multiple Davis' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Rose"), "Multiple Rose's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Smith"), "Multiple Smith's FOIA", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Representative Johnson"), "Multiple Johnson's FOIA", NOTES))
+    mutate(NOTES = ifelse(str_detect(FROM, "Representative Johnson"), "Multiple Johnson's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Davis, A\\."), "Multiple Davis, A's FOIA", NOTES)) #Davis, Artur/Davis, Susan A.
   
 
   
