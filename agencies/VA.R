@@ -171,7 +171,7 @@ data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative Pellito, John"), "House Staff", ERROR)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Gonzalez-Colon, J\\.|Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G|Radewagen, A\\.|Radewagen, A\\.|Sablan, G\\."), "non voting member", NOTES)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Gonzalez, J\\.|Faleomavaega, E\\.|Norton, E\\.|Pierluisi, P\\.|Gonzalez-Colon, J\\.|Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G|Radewagen, A\\.|Radewagen, A\\.|Sablan, G\\."), "non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative non Congressional|Representative Non-Congressional|Representative NonCongressional|Representative NY-25"), "non member", ERROR))
   
   #FOIA NOTES
