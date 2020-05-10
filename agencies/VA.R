@@ -105,7 +105,11 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Jackson-Lee, S", "JACKSON LEE, Sheila")) %>%
   mutate(FROM = str_replace(FROM, "Kissel, L\\.", "KISSELL, Larry")) %>%
   mutate(FROM = str_replace(FROM, "Bond, C\\. \\(Kit\\)", "BOND, Christopher")) %>%
-  mutate(FROM = str_replace(FROM, "Casey, B\\.", "CASEY, Robert"))
+  mutate(FROM = str_replace(FROM, "Casey, B\\.", "CASEY, Robert")) %>%
+  mutate(FROM = str_replace(FROM, "Owens, B\\.", "OWENS, William")) %>%
+  mutate(FROM = str_replace(FROM, "Coleman, B\\. W\\.|Coleman, B\\.", "WATSON COLEMAN, Bonnie")) %>%
+  mutate(FROM = str_replace(FROM, "Grotham, G\\.", "GROTHMAN, Glenn")) %>%
+  mutate(FROM = str_replace(FROM, "Hartler, V\\.", "HARTZLER, Vicky"))
   
   
 
@@ -122,7 +126,9 @@ data %<>%
   mutate(FROM = ifelse(str_detect(FROM, "Johnson, T\\.") & congress %in% c(111,112) & str_detect(chamber, "Senate"), str_replace(FROM, "Johnson, T\\.", "Tim Peter JOHNSON"), FROM)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Chambliss, S\\.|Chambliss, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Cardin, B") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
-  mutate(chamber = ifelse(str_detect(FROM, "Isakson, J") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber))
+  mutate(chamber = ifelse(str_detect(FROM, "Isakson, J") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Smith, G") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Brown, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber))
 
 
 data %<>%
@@ -158,10 +164,7 @@ data %<>%
      mutate(n = n(),
             last_name = str_c(last_name, collapse = "; "))
   
-  #Filter for Unfoundnames
-  Unfoundnames <- data %>%
-    filter(is.na(last_name), !is.na(string)) %>%
-    select(-last_name, -first_name)
+
   
   
   #Membership Errors
@@ -188,7 +191,7 @@ data %<>%
 
   
  
-  Unfoundnames2 <- data %>%
+  Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR), 
            is.na(NOTES),
