@@ -128,7 +128,8 @@ data %<>%
   mutate(chamber = ifelse(str_detect(FROM, "Cardin, B") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Isakson, J") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
   mutate(chamber = ifelse(str_detect(FROM, "Smith, G") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
-  mutate(chamber = ifelse(str_detect(FROM, "Brown, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber))
+  mutate(chamber = ifelse(str_detect(FROM, "Brown, S") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+  mutate(chamber = ifelse(str_detect(FROM, "Thune, J") & congress %in% c(110) & str_detect(chamber, "House"), str_replace(chamber, "House", "Senate"), chamber))
 
 
 data %<>%
@@ -187,9 +188,8 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Smith"), "Multiple Smith's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Johnson"), "Multiple Johnson's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Davis, A\\."), "Multiple Davis, A's FOIA", NOTES)) #Davis, Artur/Davis, Susan A.
-  
+ 
 
-  
  
   Unfoundnames <- data %>%
     filter(is.na(last_name),
