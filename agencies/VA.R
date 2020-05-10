@@ -48,7 +48,7 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  #data <- data[sample(1:nrow(data), 5000, replace=FALSE),]
+  data <- data[sample(1:nrow(data), 5000, replace=FALSE),]
 
   #data <- sampledata
 
