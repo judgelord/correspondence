@@ -92,7 +92,7 @@ data_list <- tribble(
 # "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
-"DOT_FHWA", "not coded", NA, # complete, multiple data sources merged
+"DOT_FHWA", "coded", "Rochelle", # complete, multiple data sources merged
 # "DOT_FRA", "coded", "Rochelle", no clean script yet
 "DOT_FTA", "coded", "Rochelle", 
 "DOT_PHMSA", "coded", "Hope", # need a clean script when on drive. 
