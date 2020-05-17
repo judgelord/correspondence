@@ -48,14 +48,15 @@ clean <- function(file.name) {
     mutate(FROM = str_remove(FROM, " N/A"))
   
   #sample
-  data <- data[sample(1:nrow(data), 10000, replace=FALSE),]
+  #data <- data[sample(1:nrow(data), 10000, replace=FALSE),]
 
   #data <- sampledata
   
   data %<>%
     mutate(FROM = str_replace(FROM, "Sinema, K\\. Kirkpatrick, A\\. Barber, R\\.", "Sinema, K\\. \\/Kirkpatrick, A\\. \\/Barber, R\\.")) %>%
     mutate(FROM = str_replace(FROM, "Graves, S\\. Collins, C\\. Hanna, R\\.", "Graves, S\\. \\/Collins, C\\. \\/Hanna, R\\.")) %>%
-    mutate(FROM = str_replace(FROM, "Rothfus, K\\. Miller, J\\. Coffman, M\\.", "Rothfus, K\\. \\/Miller, J\\. \\/Coffman, M\\."))
+    mutate(FROM = str_replace(FROM, "Rothfus, K\\. Miller, J\\. Coffman, M\\.", "Rothfus, K\\. \\/Miller, J\\. \\/Coffman, M\\.")) %>%
+    mutate(FROM = str_replace(FROM, "Graves, S\\. Collins, C\\. Hanna, R\\.", "Graves, S\\. \\/Collins, C\\. \\/Hanna, R\\."))
 
   #Trim White Space
   data %<>%
@@ -81,7 +82,7 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Mikulski B|Mikulski, B,|Milkulski, B|Mukulski, B\\.", "MIKULSKI, Barbara")) %>%
   mutate(FROM = str_replace(FROM, "Mack, M|Bono Mack, M\\.|Bono-Mack, M", "BONO, Mary")) %>%
   mutate(FROM = str_replace(FROM, "Brownbeck, S", "BROWNBACK, Sam Dale")) %>%
-  mutate(FROM = str_replace(FROM, "Young, C\\.W\\.|Young, C\\.W\\.B\\.", "YOUNG, Charles William")) %>%
+  mutate(FROM = str_replace(FROM, "Young, C\\. W\\. B\\.|Young, C\\.W\\.|Young, C\\.W\\.B\\.", "YOUNG, Charles William")) %>%
   mutate(FROM = str_replace(FROM, "Klobuchan, A", "KLOBUCHAR, Amy")) %>%
   mutate(FROM = str_replace(FROM, "Herseth, S|Sandlin, S|Herseth-Sandlin, S", "HERSETH SANDLIN, Stephanie")) %>%
   mutate(FROM = str_replace(FROM, "Sanford, B", "BISHOP, Sanford")) %>%
@@ -90,7 +91,7 @@ data %<>%
   #mutate(FROM = str_replace(FROM, "Davis, A\\.", "DAVIS, Artur")) %>% # might be Davis, Susan A. as well
   mutate(FROM = str_replace(FROM, "Kilroy, M\\. J\\.", "KILROY, Mary Jo")) %>%
   mutate(FROM = str_replace(FROM, "Enzi, M\\.", "ENZI, Michael")) %>%
-  mutate(FROM = str_replace(FROM, "Conaway, K\\.M\\.|Conaway, K\\. M\\.", "CONAWAY, Kenneth")) %>%
+  mutate(FROM = str_replace(FROM, "Conaway, K\\. Michael|Conaway, K\\.M\\.|Conaway, K\\. M\\.", "CONAWAY, Kenneth")) %>%
   mutate(FROM = str_replace(FROM, "Clay, L\\.|Clay, Wm\\.|Clay, W\\. L\\.", "CLAY, William")) %>%
   mutate(FROM = str_replace(FROM, "Udall, T\\.", "UDALL, Thomas")) %>%
   mutate(FROM = str_replace(FROM, "Sensenbrenner, F\\. J\\.", "SENSENBRENNER, Frank")) %>%
@@ -126,7 +127,18 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Keating W\\.", "KEATING, William")) %>%
   mutate(FROM = str_replace(FROM, "Heller, G\\.", "Heller, D\\.")) %>%
   mutate(FROM = str_replace(FROM, "Maloney, S\\. P\\.", "MALONEY, Sean")) %>%
-  mutate(FROM = str_replace(FROM, "Barlett, R", "BARTLETT, Roscoe"))
+  mutate(FROM = str_replace(FROM, "Barlett, R", "BARTLETT, Roscoe")) %>%
+  mutate(FROM = str_replace(FROM, "Fox, V\\.", "Foxx, V\\.")) %>%
+  mutate(FROM = str_replace(FROM, "Myrack, S", "MYRICK, Sue")) %>%
+  mutate(FROM = str_replace(FROM, "Tubbs Jones, S", "Stephanie Tubbs JONES")) %>%
+  mutate(FROM = str_replace(FROM, "Shelby R", "SHELBY, Richard")) %>%
+  mutate(FROM = str_replace(FROM, "Wyden R\\.", "WYDEN, Ronald")) %>%
+  mutate(FROM = str_replace(FROM, "Kird, M\\.", "KIRK, Mark")) %>%
+  mutate(FROM = str_replace(FROM, "Wilson, F\\.S\\.", "WILSON, Frederica")) %>%
+  mutate(FROM = str_replace(FROM, "Tipton, S\\. R\\.", "TIPTON, Scott")) %>%
+  mutate(FROM = str_replace(FROM, "Busos, Cheri", "BUSTOS, Cheri")) %>%
+  mutate(FROM = str_replace(FROM, "Blumenaurer, E", "BLUMENAUER, Earl")) %>%
+  mutate(FROM = str_replace(FROM, "Boustany, C\\.W\\.", "BOUSTANY, Charles"))
   
   
 
@@ -189,13 +201,13 @@ data %<>%
   
   #Membership Errors
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "SVAC|Rogerson, Dale"), "Not Member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "SVAC|Rogerson, Dale|Blood, Richard"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative Hall R\\."), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "non-cong"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Non-Congressional"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "HVAC"), "Not Member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Representative Pellito, John"), "House Staff", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Gonzalez, J\\.|Faleomavaega, E\\.|Norton, E\\.|Pierluisi, P\\.|Gonzalez-Colon, J\\.|Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G|Radewagen, A\\.|Radewagen, A\\.|Sablan, G\\."), "non voting member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Gonzalez Colon, J\\.|Gonzalez, J\\.|Faleomavaega, E\\.|Norton, E\\.|Pierluisi, P\\.|Gonzalez-Colon, J\\.|Pierluisi|Bordallo|Norton|Faleomavaega|Christensen|Representative Sablan, Gregorio|Representative Radewagen, A|Representative Sablan, G.|Representative Sablan, G|Radewagen, A\\.|Radewagen, A\\.|Sablan, G\\."), "non voting member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Plaskett, S\\.|Representative non Congressional|Representative Non-Congressional|Representative NonCongressional|Representative NY-25"), "non member", ERROR))
   
   #FOIA NOTES
