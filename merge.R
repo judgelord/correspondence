@@ -67,6 +67,7 @@ data_list <- tribble(
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
+# "DOI_BIA", "coded", "Rochelle", # no clean script yet
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
@@ -84,6 +85,7 @@ data_list <- tribble(
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "coded", "Rochelle",
 # "DOL_OALJ", "not coded", NA,
+# "DOL_OASAM", "coded", "Rochelle", # no clean script yet
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
 "DOL_SOL", "coded", "Rochelle", 
