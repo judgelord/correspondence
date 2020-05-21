@@ -5,7 +5,7 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
-gs_ls() 
+drive_auth(email = "correspondenceresearch@gmail.com")
 
 # ## make sure gmailr is set up 
 # send_message(mime(
@@ -181,7 +181,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "CSOSA")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),

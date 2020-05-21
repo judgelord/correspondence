@@ -1,6 +1,6 @@
   options(stringsAsFactors = FALSE)
   
-  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets","googledrive","devtools","stringi","stringr", "tidyverse",
+  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets4","googledrive","devtools","stringi","stringr", "tidyverse",
                 "pdftools", "here", "rvest","maps", "ineq", "mapproj", "dotwhisker", "crayon")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
@@ -92,4 +92,10 @@
     }
   }
 
+  
+  
+## Since clean scripts were written for the googlesheets packaged, which has been replaced by googlesheets4
+  gs_read <-   function(sheet){sheet %>% read_sheet(col_types = "c")}
+  
+  gs_title <- function(file.name){googledrive::drive_get(file.name)}
   
