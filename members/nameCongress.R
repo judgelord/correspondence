@@ -1,7 +1,8 @@
-source("setup.R")
-library(devtools)
+# this script creates members.Rdata
+source("setup.R") # make sure libraries are loaded
+library(devtools) # to get voteview
 
-## Rvoteview dependencies through errors, so moving to a data file of member names defined by "members/nameCongress.R"
+## Rvoteview dependencies can through errors, so this script creates members.Rdata, which limits the use of voteview and saves the augmented names
 if(!"Rvoteview" %in% rownames(installed.packages())) {
    devtools::install_github("voteview/Rvoteview")
 }
