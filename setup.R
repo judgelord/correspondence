@@ -96,7 +96,6 @@
   
   
 ## Since clean scripts were written for the googlesheets packaged, which has been replaced by googlesheets4
-  gs_read <-   function(sheet){sheet %>% read_sheet(col_types = "c")}
+  gs_read <-   function(sheet){sheet %>% googlesheets4::read_sheet(col_types = "c")}
   
   gs_title <- function(file.name){googledrive::drive_get(file.name)}
-  
