@@ -1,10 +1,53 @@
-[Project Summary](https://judgelord.github.io/correspondence/project_summary.html)
 
+<!-- [Project Summary](https://judgelord.github.io/correspondence/project_summary.html)
 [Attention Allocation Paper Summary](https://judgelord.github.io/correspondence/APSA2018/summary.html) (for 2018 APSA paper) 
+[FERC Paper Summary](https://judgelord.github.io/correspondence/FERC/summary.html) (Energy Sector Campaign Funding and Letters)-->
 
-[FERC Paper Summary](https://judgelord.github.io/correspondence/FERC/summary.html) (Energy Sector Campaign Funding and Letters)
+
+This repository contains code, code, merge, augment, and analyze data on congressional correspondence with the federal bureaucracy.
+
+# Data
+- Correspondence data come from FOIA requests, FOIA reading rooms, and web scraping disclosed correspondence. Some data include the full text of letters, but most are in the form of correspondence logs maintained by agencies, which may include phone, email, letterhead contacts (#92). Some letters are signed by more than one member, so each member-level observation is given a unique `ID` and as well as a `LetterID` that is unique to each letter or phone call.
+- Member data from <voteview.com> are augmented in `members/nameCongress.R` #9 and committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html> in `committees/committees.R` #12
+
+## TODO 
+- [ ] Add agency data #83
+- [ ] Improve codebook to better code constituent class #82 and policy events #4
+- [ ] FOIA letters with insufficient log data #76
+- [ ] Check members that switched chambers or left/joined 
+- [ ] Add member comments from regualations.gov
+
+# For collaborators
+
+- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz). 
+- Some need to be extracted from pdfs #77
+- Data extracted from pdfs by not yet uploaded to google drive should have an open issue named "add AGENCY data to drive"
+- Memes should be posted to #158
+
+## Cleaning
+
+- Sheets that need cleaning should have an open issue named "clean script for AGENCY" (e.g., "clean script EPA") 
+- When the clean script is done, remember to it to `merge.R`
+- If additional work is needed, there may be an issue called "debug AGENCY" (e.g., "debug EPA") 
+
+If `extractMemberName()` fails to match:
+
+1. Inspect the `pattern` variable
+1. Missing permutations of names in the `members` data can be added in `nameCongress.R` or noted in #9
+1. If the pattern should exist, but `extractMemberName()` fails to find it, note this in #62 
+
+## Coding
 
 [Codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws) 
+
+Data that are ready for coding should have an open issue named "apply codebook to AGENCY"
+- Interesting letters/anecdotes should be tagged with #172
+
+## Validating
+
+- Validation issues should begin with "validate"
+
+# Example letter
 
 ![](https://github.com/judgelord/correspondence/blob/master/11427401.png)
 

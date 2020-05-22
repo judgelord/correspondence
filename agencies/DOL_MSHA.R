@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOL_MSHA" # for testing
+# file.name <- "DOL_MSHA Hope" # for testing
  
 clean <- function(file.name) {
   
@@ -20,7 +20,16 @@ clean <- function(file.name) {
   
   data$DATEoriginal <- data$DATE
   # # Format date, year, Congress, member name etc. 
-  data$DATE %<>% multidate(c("%m/%d/%Y", "%m/%d/%y"))
+  data$DATE <- gsub("/201", "/1", data$DATE) 
+  data$DATE <- gsub("/200", "/0", data$DATE)
+  data$DATE %<>% as.Date("%m/%d/%y")
+  data %<>%
+    mutate(tempDATE = `DueDate`) 
+  data$tempDATE <- gsub("/201", "/1", data$tempDATE) 
+  data$tempDATE <- gsub("/200", "/0", data$tempDATE)
+  data$tempDATE %<>% as.Date("%m/%d/%y")
+  data %<>%
+    mutate(DATE = if_else(is.na(DATE), tempDATE, DATE))
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
@@ -29,13 +38,45 @@ clean <- function(file.name) {
   
   
   data %<>% 
-    mutate(FROM = str_split(FROM, "/|;|&")) %>% 
+    mutate(FROM = str_split(FROM, "/|;|&| and ")) %>% 
     unnest(FROM)
   
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senat", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong|\\(Song.\\)|Congressman", FROM), "House", chamber)) 
+  
+  data %<>%
+    mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
+  
+  
+  
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim \\(Sen\\)") & congress %in% 112, str_replace(FROM, "Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON"), FROM)) %>%
+    mutate(FROM = str_replace(FROM, "Capito, Shelley Moore \\(Cong\\)", "Shelley Moore Capito")) %>%
+    mutate(FROM = str_replace(FROM, "Harkin Tom", "Harkin, Tom")) %>%
+    mutate(FROM = str_replace(FROM, "Johann6, Mike \\(Sen\\)", "Johanns, Mike")) %>%
+    mutate(FROM = str_replace(FROM, "Rand, Paul \\(Sen\\)", "Paul, Rand")) %>%
+    mutate(FROM = str_replace(FROM, "Senator  Johanns \\(Senators\\)|Senator Johanns \\(Sens\\)", "Mike JOHANNS")) %>%
+    mutate(FROM = str_replace(FROM, "Aderholt Robert B \\(Cong\\,", "Aderholt, Robert")) %>%
+    mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Cong\\.\\)", "Timothy V JOHNSON")) %>%
+    mutate(FROM = str_replace(FROM, "Johnson, Tim \\(Sen\\.\\)|Johnson, Tim \\(Sen\\)", "Timothy Peter JOHNSON")) %>%
+    mutate(FROM = str_replace(FROM, "Lugren, Daniel E. \\(Cong\\)", "Lungren, Daniel")) %>%
+    mutate(FROM = str_replace(FROM, "Palmar, Gary J \\(Cong\\)", "Palmer, Gary J \\(Cong\\)")) %>%
+    mutate(FROM = str_replace(FROM, "Thompson, I Glenn \'GT\' \\(Cong\\)", "THOMPSON, Glenn")) %>%
+    mutate(FROM = str_replace(FROM, "Shuster\\. Bill", "Shuster, Bill")) %>%
+    mutate(FROM = str_replace(FROM, "Whltehouse, Sheldon", "WHITEHOUSE, Sheldon")) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Representative  Harris \\(Congs\\)") & congress %in% 114, str_replace(FROM, "Representative  Harris \\(Congs\\)", "HARRIS, Andy"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Senator Timothy J\\. \\(Sen\\)") & congress %in% 112, str_replace(FROM, "Senator Timothy J\\. \\(Sen\\)", "Timothy Peter JOHNSON"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Representative Markwayne \\(Cong\\)"), str_replace(FROM, "Representative Markwayne \\(Cong\\)", "Representative MULLIN"), FROM)) %>%
+    mutate(FROM = str_replace(FROM, "Zlnke, Ryan \\(Cong\\)", "Zinke, Ryan"))
+  
+  
+  #Fix Chamber
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Rahall, Nick") & chamber == "Senate", str_replace(chamber, "Senate", "House"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Shelley Moore Capito") & congress %in% 114 & chamber == "House", str_replace(chamber, "House", "Senate"), chamber))
   
   # # create separate dataset with for names with only last name
   # data2 <- data[grepl("^\\w+$", data$FROM),]
@@ -56,15 +97,26 @@ clean <- function(file.name) {
 
 
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(is.na(last_name),
-           is.na(ERROR)) 
+  
   
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, first_name, last_name, chamber, SUBJECT, everything())
   
+  data %<>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Horsford, Steven A\\. \\(Sen\\.\\)") & congress %in% 112, "Not yet in congress", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Cousins, Steven N\\.|Cousins, Steven N|Gordon, Robert|Navarro-Cabrer, NildaM\\.|Coull1na, Steven N\\.|Cousins, Sloven N|cousins, Steven N\\.|Barber, Elizabeth|Wooten, Ronald|Lewis, Elliot|Beener, George R\\.|Bennazar, Zuquelra, A.J. \\(Allorneyo\\)|Fernandez- Martinez, Alfredo|Kecojevic, Vladislav|Freedberg, Abraham|Gordon, Roberl|Gordon, R\\.|Hambly, Gary"), "Non member", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Schermer, Barry s\\.|Schermer, Barry|Schermer, Barry S \\(Judge\\)|Schermer, Barry S\\. \\(Judge\\)|Fleissig, Audrey G\\. \\(US District Judge\\)|Fleissig, Audrey G\\. \\(US Dlstnct Judge\\)"), "judge", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Pallasch, John"), "assistant secretary", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(FROM, "Cuomo, Andrew M\\.\\(Gov\\.\\)"), "state legislator", ERROR))
+  
+  
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR),
+           !is.na(FROM),
+           !is.na(DATE)) 
   
   # data%<>%
   #   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("PENSION", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%

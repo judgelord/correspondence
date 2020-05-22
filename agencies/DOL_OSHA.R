@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
- # file.name <- "DOL_OSHA" # for testing
+ # file.name <- "DOL_OSHA Rochelle" # for testing
 
 clean <- function(file.name) {
   
@@ -17,12 +17,15 @@ clean <- function(file.name) {
   # create agency column
   data$agency <- file.name
   
+  NoDate <- data %>%
+    filter(is.na(DATE))
+  
   # Format date, year, Congress, member name etc.
   data$DATE <- gsub("/201", "/1", data$DATE) 
   data$DATE <- gsub("/200", "/0", data$DATE)
-  data$DATE <- gsub("-201", "-1", data$DATE) 
-  data$DATE <- gsub("-200", "-0", data$DATE)
-  data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+  #data$DATE <- gsub("-201", "-1", data$DATE) 
+  #data$DATE <- gsub("-200", "-0", data$DATE)
+  data$DATE %<>% as.Date("%m/%d/%y")
   
   NOdate <- data %>%
     filter(is.na(DATE))
@@ -107,13 +110,20 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "McEachin,\n A. Donald", "MCEACHIN, Aston")) %>%
     mutate(FROM = str_replace(FROM, "Risc h, James E.", "RISCH, James")) %>%
     mutate(FROM = str_replace(FROM, "Cuellar, Hery", "Cuellar, Henry")) %>%
-    mutate(FROM = str_replace(FROM, "Ruppersberg er,C.A.\n Dutch|Ruppersberg er, C. A.\n Dutch", "RUPPERSBERGER, C.")) %>%
+    mutate(FROM = str_replace(FROM, "Ruppersberg er,C\\.A\\.\n Dutch|Ruppersberg er, C\\. A\\.\n Dutch|Ruppersberg er,C\\.A\\. Dutch|Ruppersberg er, C\\. A\\. Dutch", "RUPPERSBERGER, C\\.")) %>%
     mutate(FROM = str_replace(FROM, "lskaon, Johnny", "ISAKSON, Johnny")) %>%
     mutate(FROM = str_replace(FROM, "Des antis, Ron", "DeSANTIS, Ron")) %>%
     mutate(FROM = str_replace(FROM, "Hurt. Robert", "HURT, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Sa rbanes, John P.", "SARBANES, John")) %>%
     mutate(FROM = ifelse(FROM == "Diaz-Balart," & congress == 115, str_replace(FROM, "Diaz-Balart,", "DIAZ-BALART, Mario"), FROM)) %>%
-    mutate(FROM = str_replace(FROM, "Grisham, Michelle Lujan", "LUJAN, Michelle"))
+    mutate(FROM = str_replace(FROM, "Grisham, Michelle Lujan", "LUJAN, Michelle")) %>%
+    mutate(FROM = str_replace(FROM, "Hagan\\.Kay R\\.", "Hagan, Kay")) %>%
+    mutate(FROM = str_replace(FROM, "Hannan, Jane", "HARMAN, Jane")) %>%
+    mutate(FROM = str_replace(FROM, "Lugren, Daniel E\\.", "LUNGREN, Daniel")) %>%
+    mutate(FROM = str_replace(FROM, "McEachin, A\\. Donald", "McEachin, Donald")) %>%
+    mutate(FROM = str_replace(FROM, "Moore, Shelley", "CAPITO, Shelley Moore")) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim") & congress %in% 110 & chamber == "House", str_replace(FROM, "Johnson, Tim", "Timothy V JOHNSON"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Johnson, Tim") & congress %in% 110 & chamber == "Senate", str_replace(FROM, "Johnson, Tim", "Timothy Peter JOHNSON"), FROM))
   
   #chamber typos
   data %<>%

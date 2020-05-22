@@ -144,7 +144,7 @@ typos_last <- tribble(
   "Gary", "Ackerman", "Acherman",
   "Conrad", "Burns", "Bums",
   "John", "Hostettler", "Hostetler",
-  "Amy", "Klobuchar", "Klobachur",
+  "Amy", "Klobuchar", "Klobachur|Klobachar",
   "Raja", "Krishnamoorthi", "(Krishnamoortni|Krishnamoothi)",
   "Barbara", "Mikulski", "(Mukulski|Milkulski)",
   "Ruben", "Hinojosa", "Hinohosa",
@@ -173,7 +173,7 @@ typos_last <- tribble(
   "Trent", "Kelly", "Key",
   "Robin", "Kelly", "Key",
   "Mike", "Kelly", "Key",
-  "Jon","Kyl", "Kyi",
+  "Jon","Kyl", "Kyi|Kyle",
   "Cliff", "Stearns","Steams",
   "Wayne", "Whitfield", "Whitefield",
   "Jane", "Harman", "Harmon",
@@ -190,12 +190,12 @@ typos_last <- tribble(
   "Bonnie", "Watson Coleman", "(Watson|Coleman)",
   "Beto", "O'Rourke", "(O Rourke|O.Rourke|Rourke|Orourke|O'Rouke)",
   "Barbara", "Boxer", "Baxter",
-  "David", "Dreier", "Reier",
+  "David", "Dreier", "Reier|Drier",
   "Kelly", "Ayotte", "Aytotte",
   "Steve", "King", "Kiing",
   "Peter", "King", "Kiing",
   "Angus", "King", "Kiing",
-  "Martin", "Heinrich", "(Hienrich|Heinriech)",
+  "Martin", "Heinrich", "(Hienrich|Heinriech|Henrich)",
   "Ellen", "Tauscher", "Ianscher",
   "Jeff", "Bingaman", "(Bingman|Bingmen|Bingamen)",
   "Elizabeth", "Warren", "Varren",
@@ -237,7 +237,7 @@ typos_last <- tribble(
   "Mike", "Crapo", "Carpo",
   "Mark", "Desaulnier", "Desauliner",
   "Nanette", "Diaz Barragan", "Diaz-Barragan",
-  "Bonnie", "Watson Coleman", "Watson-Coleman",
+  "Bonnie", "Watson Coleman", "Watson-Coleman|Coleman Watson",
   "Adriano", "Espaillat", "Espaillet",
   "Tom", "O'Halleran", "O'Holleran",
   "Anthony", "BRINDISI", "Brindis",
@@ -300,7 +300,15 @@ typos_last <- tribble(
   "Ander", "Crenshaw", "Creshaw",
   "Mike", "FITZPATRICK", "Fitzpatick",
   "Brian", "Schatz", "Schartz",
-  "Brian", "Bilbray", "Billbray"
+  "Brian", "Bilbray", "Billbray",
+  "Bradley", "Byrne", "Bryne",
+  "Elise", "Stefanik", "Stefank",
+  "John", "Delaney", "Delany",
+  "Elizabeth", "Esty", "Etsy",
+  "Thomas", "Tillis", "Tills",
+  "James", "Himes", "Hines",
+  "Frank", "Guinta", "Gulnta",
+  "Saxby", "Chambliss", "Chabliss"
   
   
  
@@ -428,7 +436,12 @@ typos_first <- tribble(
   "Lisa", "Murkowski", "Usa",
   "Donald", "MCEACHIN", "McEachin, A.Donald",
   "Byron", "Dorgan", "Bryon",
-  "Orrin", "Hatch", "Orin"
+  "Orrin", "Hatch", "Orin",
+  "Joseph", "Heck", "Joesph",
+  "Jerry", "McNerney", "Jerr",
+  "Cory", "Booker", "Corey",
+  "Pramila", "Jayapal", "Primila",
+  "Sander", "Levin", "Sandy"
  
 
  

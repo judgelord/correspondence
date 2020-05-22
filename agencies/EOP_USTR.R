@@ -30,4 +30,19 @@ clean <- function(file.name) {
   data <- extractMemberName(data, members, 'FROM')
   
   data %<>% select(ID, DATE,  FROM,  everything())
+  
+  data %<>%
+    mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]")& str_detect(SUBJECT, "Tariff"),4,TYPE))%>%
+    mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY, "[0-9]")& str_detect(SUBJECT, "Tariff"),1,CERTAINTY))%>%
+    mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT, "[:alnum:]")& str_detect(SUBJECT, "Tariff"),"international agreement;trade",POLICY_EVENT))%>%
+    mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]")& str_detect(SUBJECT, "WTO"),4,TYPE))%>%
+    mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY, "[0-9]")& str_detect(SUBJECT,"WTO"),1,CERTAINTY))%>%
+    mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT, "[:alnum:]")& str_detect(SUBJECT, "WTO"),"international agreement;trade",POLICY_EVENT))%>%
+    mutate(TITLE = ifelse(!str_detect(TITLE, "[:alnum:]")& str_detect(SUBJECT, "WTO"), "WTO Ruling", TITLE))%>%                            
+    mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(SUBJECT, "FTA"),4,TYPE))%>%
+    mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY, "[0-9")& str_detect(SUBJECT, "FTA"),1,CERTAINTY))%>%
+    mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT, "[:alnum;]")& str_detect(SUBJECT, "FTA"),"international agreement;trade", POLICY_EVENT))%>%
+    mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]")& str_detect(SUBJECT, "Courtesy Meeting"),2, TYPE))%>%
+    mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY, "[0-9]")& str_detect(SUBJECT, "Courtesy Meeting"),1,CERTAINTY))
+          return(data)
 }

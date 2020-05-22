@@ -1,0 +1,196 @@
+library(ggplot2)
+library(dplyr)
+library(maps)
+library(fiftystater)
+library(mapproj)
+
+
+vet_states <- read.csv("DOD Fatima (Independent Study)/vetpop2010.csv") 
+vet_states$state %<>% tolower() 
+vet_states$vetpop2010 <- gsub(",","",vet_states$vetpop2010)
+vet_states$vetpop2010 %<>% as.numeric()
+write.csv(vet_states, "DOD Fatima (Independent Study)/vetpop2010.csv")
+
+vet_states %<>% select(state, vetpop2010)
+d %<>% left_join(vet_states)
+
+d %>%   ##why is group_by not working?
+  group_by(state) %>% tally() %>%
+  # map_id creates the aesthetic mapping to the state name column
+  ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress")) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+
+d %>% 
+  filter(chamber == "Senate") %>% group_by(state, vetpop2010) %>% tally() %>%
+  mutate(Per_Capita = n/vetpop2010) %>% 
+  # map_id creates the aesthetic mapping to the state name column in your data
+  ggplot() + 
+  # map points to the fifty_states shape data
+  geom_map(aes(map_id = state, fill = Per_Capita), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress Per Capita")) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank()) +
+  
+  
+  df %<>% group_by(bioname, year) %>% mutate(permemberyear = n())
+
+
+
+# not log pop
+policy <- lm(permemberyear ~ vetpop2010 + position + partystatus, data = df %>%
+               filter(partystatus != "All Others") %>%
+               #filter(Type2 == "Constituent Service") 
+               filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ pop2010 + position + partystatus, data = df %>%
+                     filter(partystatus != "All Others") %>%
+                     #filter(Type2 == "Constituent Service") 
+                     filter(Type2 == "Constituent Service")
+)
+
+
+summary(policy)
+summary(constituents)
+
+
+# LOG POP
+policy <- lm(permemberyear ~ log(pop2010) + position + partystatus, data = df %>%
+               filter(partystatus != "All Others") %>%
+               #filter(Type2 == "Constituent Service") 
+               filter(Type2 == "Policy")
+)
+
+constituents <- lm(permemberyear ~ log(pop2010) + position + partystatus, data = df %>%
+                     filter(partystatus != "All Others") %>%
+                     #filter(Type2 == "Constituent Service") 
+                     filter(Type2 == "Constituent Service")
+)
+
+
+summary(policy)
+summary(constituents)
+
+
+
+
+
+
+
+
+
+
+
+# by year 
+log.year <- group_by(data, state, year) %>% count()
+
+ggplot(log.subject, aes(map_id = state)) + 
+  facet_wrap( ~ year) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress to the", agency, years)) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+
+# by type
+log.type <- group_by(data, state, TYPE, year) %>% count()
+log.type %<>% filter(!is.na(TYPE))
+
+ggplot(log.type, aes(map_id = state)) + 
+  facet_grid(TYPE ~ year) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress to the", agency, years, "by Type")) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+
+# by party
+log.party <- group_by(data, state, party, year) %>% count()
+log.party %<>% filter(party %in% c("DEM", "GOP", "IND")) %>%
+  filter(!is.na(year))
+
+ggplot(log.party, aes(map_id = state)) + 
+  facet_grid(party ~ year) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress to the", agency, years)) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+
+
+# by subject and year 
+log.subject <- group_by(data, state, SUBJECT, year) %>% count()
+log.subject %<>% filter(SUBJECT %in% major.subjects) 
+
+ggplot(log.subject, aes(map_id = state)) + 
+  facet_grid(SUBJECT ~ year) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress to the", agency, years, "on Select Subjects")) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+
+# by subject and party 
+log.subject <- group_by(data, state, SUBJECT, party) %>% count()
+log.subject %<>% filter(SUBJECT %in% major.subjects)
+log.subject %<>% filter(!is.na(state))
+log.subject %<>% filter(!is.na(party))
+
+ggplot(log.subject, aes(map_id = state)) + 
+  facet_grid(SUBJECT ~ party) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress to the", agency, years, "on Select Subjects")) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+
+# by type and party 
+log <- group_by(data, state, TYPE, party) %>% count()
+log %<>% filter(!is.na(state))
+log %<>% filter(!is.na(party))
+
+
+ggplot(log, aes(map_id = state)) + 
+  facet_grid(TYPE ~ party) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = n), map = fifty_states) + 
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "", title = paste("Letters from Members of Congress to the", agency, years, "by Type")) +
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        panel.background = element_blank())
+

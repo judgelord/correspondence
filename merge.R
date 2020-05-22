@@ -5,7 +5,10 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
-gs_ls() 
+drive_auth(email = "correspondenceresearch@gmail.com",
+           path = "drive-key.json")
+
+
 
 # ## make sure gmailr is set up 
 # send_message(mime(
@@ -32,19 +35,21 @@ data_list <- tribble(
 "ABMC", "not coded", NA, 
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
-"CSOSA", "not coded", NA,
-"DHHS_ACF", "not coded", NA, # complete and rich, needs more coding
+"CSOSA", "coded", "Julia",
+"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
+"DHHS_CMS", "coded", "Rochelle", # no clean script yet
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
+# "DHHS_NIH", "coded", "Rochelle", #no clean script yet
 # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
 "DHS_ICE", "not coded", NA, # not much to code
 # DOC
 "DOC_EDA", "not coded", NA,  
-"DOC_IOS", "coded", "Aaron",
+"DOC_IOS", "coded", "Aaron", 
 "DOC_MBDA", "not coded", NA, # very few dates can be extracted from the text # Missing most dates
 "DOC_NIST", "not coded", NA, # NO MEMBER NAMES--FOLLOW UP FOIA 
 "DOC_NOAA", "not coded", NA, 
@@ -65,36 +70,41 @@ data_list <- tribble(
 # DOE
 "DOE_FERC", "not coded", NA,
 # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
+# "DOI_BIA", "coded", "Rochelle", # no clean script yet
 "DOI_BOEM", "coded", "Aaron",
-"DOI_BSEE", "not coded", NA,
+"DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
-"DOI_USGS", "not coded", NA,
+"DOI_SOL", "coded", "Hope",
+"DOI_USGS", "coded", "Julia",
 # DOJ 
 "DOJ_CIV", "not coded", NA,
 "DOJ_ENRD", "coded", "Julia",
-"DOJ_EOIR", "not coded", NA,
+"DOJ_EOIR", "coded", "Julia", 
 # "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
 # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
 # DOL 
 "DOL_EBSA", "not coded", NA,
-"DOL_MSHA", "not coded", NA, 
+"DOL_MSHA", "coded", "Hope", 
 "DOL_OCFO", "coded", "Devin",
-"DOL_OFCCP", "not coded", NA,
+"DOL_OFCCP", "coded", "Rochelle",
 # "DOL_OALJ", "not coded", NA,
+# "DOL_OASAM", "coded", "Rochelle", # no clean script yet
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
 "DOL_SOL", "coded", "Rochelle", 
-"DOL_VETS", "not coded", NA,
+"DOL_VETS", "coded", "Rochelle",
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
 # DOT 
 "DOT_FAA", "coded", "Sam",
-"DOT_FHWA", "not coded", NA, # complete, multiple data sources merged
-"DOT_FTA", "not coded", NA, 
+"DOT_FHWA", "coded", "Rochelle", # complete, multiple data sources merged
+# "DOT_FRA", "coded", "Rochelle", no clean script yet
+"DOT_FTA", "coded", "Rochelle", 
 "DOT_PHMSA", "coded", "Hope", # need a clean script when on drive. 
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
+# "EEOC", "coded", "Rochelle", #no clean script yet
 "EOP_CEQ", "not coded", NA,
 #"EOP_USTR", "not coded", NA, # Script needs work after new data merged in #64 data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
 # EPA
@@ -138,11 +148,11 @@ data_list <- tribble(
 # RRB
 "RRB", "not coded", NA, # not much subject content
 # SSA
-"SSA", "not coded", NA, # fair amount of bad names that coding won't help much
+"SSA", "coded", "Rochelle", # fair amount of bad names that coding won't help much
 # STB
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
-"Treasury_Fiscal", "not coded", NA,
+"Treasury_Fiscal", "coded", "Julia", 
 # "Treasury_Mint", "coded", "Rochelle", # rich and complete, but needs a script
 "Treasury_OCC", "coded", "Aaron",
 "TVA", "not coded", NA,
@@ -174,7 +184,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
