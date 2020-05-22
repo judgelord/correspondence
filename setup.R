@@ -63,12 +63,13 @@
   ## Load augmented member names without having to load voteview package
   load(here("members/members.Rdata"))
   
+  ## Load committee data
+  load(here("data/committees.Rdata"))
+  
   ## Load typos and date corrections
   source(here("members/MemberNameTypos.R"))
   source(here("members/MemberNameDateCorrections.R"))
-  
-  ## Load committee data
-  source(here("committees/committees.R"))
+
   
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,
