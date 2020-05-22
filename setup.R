@@ -63,12 +63,13 @@
   ## Load augmented member names without having to load voteview package
   load(here("members/members.Rdata"))
   
+  ## Load committee data
+  load(here("data/committees.Rdata"))
+  
   ## Load typos and date corrections
   source(here("members/MemberNameTypos.R"))
   source(here("members/MemberNameDateCorrections.R"))
-  
-  ## Load committee data
-  source(here("committees/committees.R"))
+
   
   knitr::opts_chunk$set(echo = TRUE, # echo = TRUE means that your code will show
                         warning = FALSE,
@@ -95,7 +96,6 @@
   
   
 ## Since clean scripts were written for the googlesheets packaged, which has been replaced by googlesheets4
-  gs_read <-   function(sheet){sheet %>% read_sheet(col_types = "c")}
+  gs_read <-   function(sheet){sheet %>% googlesheets4::read_sheet(col_types = "c")}
   
   gs_title <- function(file.name){googledrive::drive_get(file.name)}
-  

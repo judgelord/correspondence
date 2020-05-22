@@ -5,10 +5,19 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
+# with cached key (unclear why this is not working)
 drive_auth(email = "correspondenceresearch@gmail.com",
            path = "drive-key.json")
 
+# with browser (this is tricky on the linux server)
+drive_auth(email = "correspondenceresearch@gmail.com")
 
+# check that package is working--read ABMC from url
+my_url <- "https://drive.google.com/open?id=1_FyEA9QIYoSiMPcqflW454nynPrzLS7TC4UJO7JBa7M"
+drive_get(my_url) %>% gs_read()
+
+# if authorized, this should work
+drive_get("ABMC")
 
 # ## make sure gmailr is set up 
 # send_message(mime(
