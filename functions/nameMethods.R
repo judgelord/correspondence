@@ -480,6 +480,9 @@ extractNamesPerCongress <- function(congress_i, data, members){
     top5 <- nrow(data)
     if(top5>5){top5<-5}
     
+    ## Message for when errors are probably non-observations (short strings or NA)
+    nonobs <- "probably non-observations"
+    
     base::message(red(paste(
       paste0("Bad dates in ", unique(data$agency), ", ", congress_i, "th congress?"),
       paste(data %>% 
@@ -488,7 +491,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
                   string %in% c("na", "na na", "(b)(6)", "") |
                   is.na(string) |
                   !is.na(ERROR),
-                "but probably non-observations",
+                nonobs,
                 string) ) %>% 
               # group_by(LetterID) %>% 
               # mutate(LetterID = ifelse(string == "but probably non-observations",
@@ -536,7 +539,8 @@ extractNamesPerCongress <- function(congress_i, data, members){
     # join in members data by pattern 
     left_join(members %>% select(pattern, first_name, last_name, congress) ) %>% #, by = c("pattern", "congress")) %>% 
     mutate(first_name = as.character(first_name),
-           last_name = as.character(last_name))
+           last_name = as.character(last_name))%>% 
+    suppressMessages()
   }
   return(data)
 }
@@ -579,7 +583,8 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
       left_join(typos) %>%  #, by = c("typos", "correct") ) %>%
       # replace typos with corrections
       mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct)) %>% 
-      mutate(typos = str_replace(typos, "404error", "none"))
+      mutate(typos = str_replace(typos, "404error", "none")) %>% 
+      suppressMessages()
     
 
     # FOR TESTING 
