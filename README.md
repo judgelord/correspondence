@@ -14,15 +14,24 @@ This repository contains code, code, merge, augment, and analyze data on congres
 - [ ] Add agency data #83
 - [ ] Improve codebook to better code constituent class #82 and policy events #4
 - [ ] FOIA letters with insufficient log data #76
-- [ ] Check members that switched chambers or left/joined 
+- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder.
 - [ ] Add member comments from regualations.gov
 
 # For collaborators
 
-- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz). 
+- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder.
 - Some need to be extracted from pdfs #77
 - Data extracted from pdfs by not yet uploaded to google drive should have an open issue named "add AGENCY data to drive"
 - Memes should be posted to #158
+
+All datasheets must have these columns:
+- `FROM` is the column with the name(s) of the Member(s) of Congress that signed the letter. If names are in multiple columns, a new FROM column will be created in the script cleaning those data. 
+- `DATE` is the date of the letter (or the best approximation).
+- `SUBJECT` is a summary of the letter's content. If more than one column contains substantive information, these are added to SUBJECT in the script cleaning those data. 
+
+Most datasheets have additional columns, such as the letter's text, priority level, date of reply, or the person in the agency tasked with responding to the letter. Because such information is not consistent across agencies, these are dropped when sheets are merged. They can be added back in for a more detailed analysis of specific departments or agencies. For example, see the [more detailed analysis of FERC](https://judgelord.github.io/correspondence/FERC/FERCsummary.html#models). 
+
+Other columns required for applying the [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit) are added by the function in `prep sheets.R`.
 
 ## Cleaning
 
@@ -34,7 +43,8 @@ If `extractMemberName()` fails to match:
 
 1. Inspect the `pattern` variable
 1. Missing permutations of names in the `members` data can be added in `nameCongress.R` or noted in #9
-1. If the pattern should exist, but `extractMemberName()` fails to find it, note this in #62 
+1. Common typos can be corrected in `MemberNameTypos.R`
+1. If the pattern exists, but `extractMemberName()` fails to find it, note this in #62 
 
 ## Coding
 
