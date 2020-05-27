@@ -3,7 +3,7 @@
 
 # 84 mismatches on last_name
 
-# file.name <- "DHHS_ACF" # for testing
+# file.name <- "DHHS_ACF Hope" # for testing
 
 clean <- function(file.name) {
   
@@ -12,24 +12,14 @@ clean <- function(file.name) {
   data$LetterID <- 1:nrow(data)
   
   # duplicate DOC ID rows were all invalid observations (removes 44 rows)
-  data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]
+  # data <- data[-which(duplicated(data$'Doc ID', fromLast = TRUE)|duplicated(data$'Doc ID', fromLast = FALSE)),]
 
   # create ID variable
   data$ID <- c(1:nrow(data))
   
-  # Remove unwnated rows
-  data <- data[-grep("^(B|1|Unknown, Unknown)$",data$FROM),]
-  
-  # Shift columns over for specified rows (because they were entered incorrectly)
-  data$`Date Closed`[data$ID %in% c(446:463)] <- data$`Doc ID`[data$ID %in% c(446:463)]
-  data$`Doc ID`[data$ID %in% c(446:463)] <- data$`Assigned Due Date`[data$ID %in% c(446:463)]
-  data$`Assigned Due Date`[data$ID %in% c(446:463)] <- data$`Policy Coordinator`[data$ID %in% c(446:463)]
-  data$`Policy Coordinator`[data$ID %in% c(446:463)] <- data$`Status`[data$ID %in% c(446:463)]
-  data$`Status`[data$ID %in% c(446:463)] <- data$`DATE`[data$ID %in% c(446:463)]
-  data$`DATE`[data$ID %in% c(446:463)] <- data$`Action Required`[data$ID %in% c(446:463)]
-  data$`Action Required`[data$ID %in% c(446:463)] <- data$`SUBJECT`[data$ID %in% c(446:463)]
-  data$SUBJECT[data$ID %in% c(446:463)] <- data$FROM[data$ID %in% c(446:463)]
-  data$`FROM`[data$ID %in% c(446:463)] <- data$`Refd. To`[data$ID %in% c(446:463)]
+  # Remove unwnated rows # CAN ERROR THESE OUT, BUT DON'T REMOVE THEM 
+  # data <- data[-grep("^(B|1|Unknown, Unknown)$",data$FROM),]
+
       
   # create agency column
   data$agency <- file.name
@@ -66,7 +56,7 @@ clean <- function(file.name) {
   data %<>% mutate(SUBJECT = paste(SUBJECT, `Refd. To`, `Action Required`))
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, everything())
+  # data %<>% select(ID, DATE,  FROM, everything())
   
   #Failing observations
   Unfoundnames <- data %>%
