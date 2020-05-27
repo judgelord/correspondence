@@ -4,7 +4,7 @@
 [FERC Paper Summary](https://judgelord.github.io/correspondence/FERC/summary.html) (Energy Sector Campaign Funding and Letters)-->
 
 
-This repository contains code, code, merge, augment, and analyze data on congressional correspondence with the federal bureaucracy.
+This repository contains code to merge, augment, and analyze data on congressional correspondence with the federal bureaucracy.
 
 # Data
 - Correspondence data come from FOIA requests, FOIA reading rooms, and web scraping disclosed correspondence. Some data include the full text of letters, but most are in the form of correspondence logs maintained by agencies, which may include phone, email, letterhead contacts (#92). Some letters are signed by more than one member, so each member-level observation is given a unique `ID` and as well as a `LetterID` that is unique to each letter or phone call.
