@@ -11,10 +11,7 @@ drive_auth(email = "correspondenceresearch@gmail.com",
 
 # with browser (this is tricky on the linux server)
 drive_auth(email = "correspondenceresearch@gmail.com")
-
-# check that package is working--read ABMC from url
-my_url <- "https://drive.google.com/open?id=1_FyEA9QIYoSiMPcqflW454nynPrzLS7TC4UJO7JBa7M"
-drive_get(my_url) %>% gs_read()
+googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
 
 # if authorized, this should work
 drive_get("ABMC")
@@ -45,10 +42,10 @@ data_list <- tribble(
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
 "CSOSA", "coded", "Julia",
-"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
+#FIXME "DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
-"DHHS_CMS", "coded", "Rochelle", # no clean script yet
+#FIXME "DHHS_CMS", "coded", "Rochelle", # no clean script yet
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
 # "DHHS_NIH", "coded", "Rochelle", #no clean script yet
@@ -210,7 +207,8 @@ d <- d1 %>%
   select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
-  distinct()
+  distinct()%>% 
+  suppressMessages()
 
 d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
@@ -243,7 +241,8 @@ while(!is.na(data_list[i,1])) {
     left_join(members) %>% 
     select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
     left_join(members)%>% 
-    distinct()
+    distinct() %>% 
+    suppressMessages()
   
   d %<>% full_join(d1)
   
