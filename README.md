@@ -4,25 +4,34 @@
 [FERC Paper Summary](https://judgelord.github.io/correspondence/FERC/summary.html) (Energy Sector Campaign Funding and Letters)-->
 
 
-This repository contains code, code, merge, augment, and analyze data on congressional correspondence with the federal bureaucracy.
+This repository contains code to merge, augment, and analyze data on congressional correspondence with the federal bureaucracy.
 
 # Data
 - Correspondence data come from FOIA requests, FOIA reading rooms, and web scraping disclosed correspondence. Some data include the full text of letters, but most are in the form of correspondence logs maintained by agencies, which may include phone, email, letterhead contacts (#92). Some letters are signed by more than one member, so each member-level observation is given a unique `ID` and as well as a `LetterID` that is unique to each letter or phone call.
-- Member data from <voteview.com> are augmented in `members/nameCongress.R` #9 and committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html> in `committees/committees.R` #12
+- Member data from <https://www.voteview.com/> are augmented in `members/nameCongress.R` (#9) and committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html> in `committees/committees.R` #12
 
 ## TODO 
 - [ ] Add agency data #83
 - [ ] Improve codebook to better code constituent class #82 and policy events #4
 - [ ] FOIA letters with insufficient log data #76
-- [ ] Check members that switched chambers or left/joined 
+- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder #10
 - [ ] Add member comments from regualations.gov
 
 # For collaborators
 
-- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz). 
+- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder.
 - Some need to be extracted from pdfs #77
 - Data extracted from pdfs by not yet uploaded to google drive should have an open issue named "add AGENCY data to drive"
 - Memes should be posted to #158
+
+All datasheets must have these columns:
+- `FROM` is the column with the name(s) of the Member(s) of Congress that signed the letter. If names are in multiple columns, a new FROM column will be created in the script cleaning those data. 
+- `DATE` is the date of the letter (or the best approximation).
+- `SUBJECT` is a summary of the letter's content. If more than one column contains substantive information, these are added to SUBJECT in the script cleaning those data. 
+
+Most datasheets have additional columns, such as the letter's text, priority level, date of reply, or the person in the agency tasked with responding to the letter. Because such information is not consistent across agencies, these are dropped when sheets are merged. They can be added back in for a more detailed analysis of specific departments or agencies. For example, see the [more detailed analysis of FERC](https://judgelord.github.io/correspondence/FERC/FERCsummary.html#models). 
+
+Other columns required for applying the [codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws/edit) are added by the function in `prep sheets.R`.
 
 ## Cleaning
 
@@ -34,7 +43,8 @@ If `extractMemberName()` fails to match:
 
 1. Inspect the `pattern` variable
 1. Missing permutations of names in the `members` data can be added in `nameCongress.R` or noted in #9
-1. If the pattern should exist, but `extractMemberName()` fails to find it, note this in #62 
+1. Common typos can be corrected in `MemberNameTypos.R`
+1. If the pattern exists, but `extractMemberName()` fails to find it, note this in #62 
 
 ## Coding
 

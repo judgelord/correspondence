@@ -5,7 +5,16 @@ source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved in
 Yes # just in case R asks if we want to install dependencies 
 
 # log in to google drive
-gs_ls() 
+# with cached key (unclear why this is not working)
+drive_auth(email = "correspondenceresearch@gmail.com",
+           path = "drive-key.json")
+
+# with browser (this is tricky on the linux server)
+drive_auth(email = "correspondenceresearch@gmail.com")
+googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
+
+# if authorized, this should work
+drive_get("ABMC")
 
 # ## make sure gmailr is set up 
 # send_message(mime(
@@ -33,10 +42,10 @@ data_list <- tribble(
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
 "CSOSA", "coded", "Julia",
-"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
+#FIXME "DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
-"DHHS_CMS", "coded", "Rochelle", # no clean script yet
+#FIXME "DHHS_CMS", "coded", "Rochelle", # no clean script yet
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
 # "DHHS_NIH", "coded", "Rochelle", #no clean script yet
@@ -181,7 +190,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -198,7 +207,8 @@ d <- d1 %>%
   select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
-  distinct()
+  distinct()%>% 
+  suppressMessages()
 
 d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
@@ -231,7 +241,8 @@ while(!is.na(data_list[i,1])) {
     left_join(members) %>% 
     select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
     left_join(members)%>% 
-    distinct()
+    distinct() %>% 
+    suppressMessages()
   
   d %<>% full_join(d1)
   

@@ -61,9 +61,9 @@ data_distinct %<>% distinct() %>%
   
   data$ID <- seq(1:nrow(data))
   
-  #rename subagency column
-  data %<>%
-    mutate(agency = ifelse(is.na(subagency), 'DHS_HQ', paste("DHS_", subagency)))
+  # #rename subagency column
+  # data %<>%
+  #   mutate(agency = ifelse(is.na(subagency), 'DHS_HQ', paste("DHS_", subagency)))
   
   
   # Format date, year, Congress, member name etc.

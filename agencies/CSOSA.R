@@ -1,7 +1,7 @@
 #This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "CSOSA" # for testing
+# file.name <- "CSOSA Julia" # for testing
 
 clean <- function(file.name) {
   
@@ -112,7 +112,7 @@ clean <- function(file.name) {
      mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& str_detect(Action,"Congressional Report FY"),5,TYPE ))%>%
      mutate(CERTAINTY = ifelse(!str_detect(CERTAINTY,"[0-9]")& str_detect(Action, "Congressional Report FY"),1,CERTAINTY))%>% 
      mutate(POLICY_EVENT = ifelse(!str_detect(POLICY_EVENT,"[:alnum:]")& str_detect(Action, "Congressional Report FY"),"budget allocation", POLICY_EVENT))%>%
-     mutate(DATE = ifelse(!str_detect(DATE,"[:alnum;]")& str_detect(Action, "Congressional Report FY"),"future",DATE ))%>%
+     mutate(EVENT_DATE = ifelse(!str_detect(EVENT_DATE,"[:alnum;]")& str_detect(Action, "Congressional Report FY"),"future",EVENT_DATE ))%>%
      mutate(TYPE = ifelse(!str_detect(TYPE,"[0-9]")& !str_detect(Addressee,"[:alnum:]")& !str_detect(SUBJECT,"[:alnum:]"),0,TYPE))%>%
      mutate(CERTAINTY=ifelse(!str_detect(CERTAINTY,"[0-9]")& !str_detect(Addressee,"[:alnum:]") & !str_detect(SUBJECT,"[:alnum:]"),0,CERTAINTY))
   

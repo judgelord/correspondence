@@ -1,7 +1,8 @@
-source("setup.R")
-library(devtools)
+# this script creates members.Rdata
+source("setup.R") # make sure libraries are loaded
+library(devtools) # to get voteview
 
-## Rvoteview dependencies through errors, so moving to a data file of member names defined by "members/nameCongress.R"
+## Rvoteview dependencies can through errors, so this script creates members.Rdata, which limits the use of voteview and saves the augmented names
 if(!"Rvoteview" %in% rownames(installed.packages())) {
    devtools::install_github("voteview/Rvoteview")
 }
@@ -306,6 +307,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(grepl("LABRADOR, Ra.l R.", bioname), "Raul", first_name)) %>% 
   
   # middle name
+     mutate(middle_name = ifelse(bioname == "McSALLY, Martha", "Elizabeth", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "GRUCCI, Jr., Felix J.", "James", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "ZINKE, Ryan", "Keith", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "AUSTRIA, Steve", "Clement", middle_name)) %>% 
@@ -390,6 +392,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     
    
     # middle initials
+   mutate(middle_initial = ifelse(bioname == "BRAUN, Michael", "K.", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "SPACE, Zack", "T", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "GROTHMAN, Glenn", "S", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "HIGGINS, Brian", "M", middle_initial)) %>% 

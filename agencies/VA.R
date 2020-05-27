@@ -75,7 +75,7 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Flemming,J,", "FLEMING, John")) %>%
   mutate(FROM = str_replace(FROM, "Scott, R\\. C\\.", "SCOTT, Robert")) %>%
   mutate(FROM = str_replace(FROM, "Forbes, R\\.", "FORBES, James")) %>%
-  mutate(FROM = str_replace(FROM, "Butterfield, G\\. K\\.", "BUTTERFIELD, George")) %>%
+  mutate(FROM = str_replace(FROM, "Butterfield, G\\.K\\.|Butterfield, G\\. K\\.", "BUTTERFIELD, George")) %>%
   mutate(FROM = str_replace(FROM, "Rodgers, C", "McMORRIS RODGERS, Cathy")) %>%
   mutate(FROM = str_replace(FROM, "Barrett, J\\. G\\.|Barrett, J\\.G\\.", "BARRETT, James")) %>%
   mutate(FROM = str_replace(FROM, "Chabliss, S\\.", "CHAMBLISS, Saxby")) %>%
@@ -91,12 +91,12 @@ data %<>%
   #mutate(FROM = str_replace(FROM, "Davis, A\\.", "DAVIS, Artur")) %>% # might be Davis, Susan A. as well
   mutate(FROM = str_replace(FROM, "Kilroy, M\\. J\\.", "KILROY, Mary Jo")) %>%
   mutate(FROM = str_replace(FROM, "Enzi, M\\.", "ENZI, Michael")) %>%
-  mutate(FROM = str_replace(FROM, "Conaway, K\\. Michael|Conaway, K\\.M\\.|Conaway, K\\. M\\.", "CONAWAY, Kenneth")) %>%
+  mutate(FROM = str_replace(FROM, "Conaway, K, M\\.|Conaway, K\\. Michael|Conaway, K\\.M\\.|Conaway, K\\. M\\.", "CONAWAY, Kenneth")) %>%
   mutate(FROM = str_replace(FROM, "Clay, L\\.|Clay, Wm\\.|Clay, W\\. L\\.", "CLAY, William")) %>%
   mutate(FROM = str_replace(FROM, "Udall, T\\.", "UDALL, Thomas")) %>%
   mutate(FROM = str_replace(FROM, "Sensenbrenner, F\\. J\\.", "SENSENBRENNER, Frank")) %>%
   mutate(FROM = str_replace(FROM, "Kuster, A\\. M\\.", "KUSTER, Ann")) %>%
-  mutate(FROM = str_replace(FROM, "Beutler, J\\. H\\.|Herrera Beutler, J\\.", "HERRERA BEUTLER, Jaime")) %>%
+  mutate(FROM = str_replace(FROM, "Herrera-Beutler|Beutler, J\\. H\\.|Herrera Beutler, J\\.", "HERRERA BEUTLER, Jaime")) %>%
   mutate(FROM = str_replace(FROM, "Mccury, J\\.", "McCRERY, James")) %>%
   mutate(FROM = str_replace(FROM, "Kilder, D\\.", "KILDEE, Dale")) %>%
   mutate(FROM = str_replace(FROM, "Bryd, R", "BYRD, Robert")) %>%
@@ -108,7 +108,7 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Nelson, E\\. B\\.", "NELSON, Earl Benjamin")) %>%
   mutate(FROM = str_replace(FROM, "Gallegley, E\\.", "GALLEGLY, Elton")) %>%
   mutate(FROM = str_replace(FROM, "Hutchinson, K", "HUTCHISON, Kathryn")) %>%
-  mutate(FROM = str_replace(FROM, "Jackson-Lee, S", "JACKSON LEE, Sheila")) %>%
+  mutate(FROM = str_replace(FROM, "Jackson-Lee|Jackson-Lee, S", "JACKSON LEE, Sheila")) %>%
   mutate(FROM = str_replace(FROM, "Kissel, L\\.", "KISSELL, Larry")) %>%
   mutate(FROM = str_replace(FROM, "Bond, C\\. \\(Kit\\)", "BOND, Christopher")) %>%
   mutate(FROM = str_replace(FROM, "Casey, B\\.", "CASEY, Robert")) %>%
@@ -138,7 +138,12 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Tipton, S\\. R\\.", "TIPTON, Scott")) %>%
   mutate(FROM = str_replace(FROM, "Busos, Cheri", "BUSTOS, Cheri")) %>%
   mutate(FROM = str_replace(FROM, "Blumenaurer, E", "BLUMENAUER, Earl")) %>%
-  mutate(FROM = str_replace(FROM, "Boustany, C\\.W\\.", "BOUSTANY, Charles"))
+  mutate(FROM = str_replace(FROM, "Boustany, C\\.W\\.", "BOUSTANY, Charles")) %>%
+  mutate(FROM = str_replace(FROM, "Steube, G\\.", "STEUBE, William")) %>%
+  mutate(FROM = str_replace(FROM, "Johnson, E\\.B\\.", "JOHNSON, Eddie Bernice")) %>%
+  mutate(FROM = str_replace(FROM, "Johnson, H,", "JOHNSON, Hank")) %>%
+  mutate(FROM = str_replace(FROM, "Franks\\. T", "FRANKS, Trent")) %>%
+  mutate(FROM = ifelse(str_detect(FROM, "Lee, S\\.") & congress %in% c(115), str_replace(FROM, "Lee, S\\.", "JACKSON LEE, Sheila"), FROM))
   
   
 
@@ -213,6 +218,7 @@ data %<>%
   #FOIA NOTES
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Young, D."), "Multiple Young's FOIA", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Senator Scott"), "Multiple Senator Scott's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Davis"), "Multiple Davis' FOIA", NOTES)) %>%
@@ -227,7 +233,8 @@ data %<>%
     filter(is.na(last_name),
            is.na(ERROR), 
            is.na(NOTES),
-           str_detect(pattern, "404error"))
+           str_detect(pattern, "404error"),
+           ! str_detect(FROM, "Senator NA|Representative NA"))
   
 # Unfoundnames2 %<>% extractMemberName(members, "FROM")
   
