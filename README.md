@@ -14,7 +14,7 @@ This repository contains code to merge, augment, and analyze data on congression
 - [ ] Add agency data #83
 - [ ] Improve codebook to better code constituent class #82 and policy events #4
 - [ ] FOIA letters with insufficient log data #76
-- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder.
+- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder #10
 - [ ] Add member comments from regualations.gov
 
 # For collaborators
