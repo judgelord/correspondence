@@ -386,6 +386,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
      
      
      
+     
     
    
     # middle initials
