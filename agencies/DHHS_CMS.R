@@ -17,18 +17,19 @@ clean <- function(file.name) {
 
   data$DATE %<>% as.Date("%m/%d/%y")
   
-  noDate <- data %>%
-    filter(is.na(DATE))
-  
-  fullFROM <- data %>%
-    filter(! is.na(From))
+  # noDate <- data %>%
+  #   filter(is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
-    
+  
+  # # for testing
+  # fullFROM <- data %>%
+  #   filter(! is.na(FROM))
+  
   data %<>%
-    mutate(FROM = ifelse(is.na(From), paste(`From Last Name`, `From First Name`, sep = ", "), FROM))
+    mutate(FROM = ifelse(is.na(FROM), paste(`From Last Name`, `From First Name`, sep = ", "), FROM))
   
   #data <- data[sample(1:nrow(data), 20000, replace=FALSE),]
   
@@ -61,13 +62,16 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "Griffin, Tom", "Griffin, Tim")) %>%
      mutate(FROM = str_replace(FROM, "Hill, J\\. French", "Hill, French")) %>%
      mutate(FROM = str_replace(FROM, "Farenthold, Black", "Farenthold, Blake"))
+   
+   # check N
+   dim(data)
 
   #Extract Member names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")  
   
-  data %<>%
-    select(FROM, first_name, last_name, DATE, string, everything())
+  # check N
+  dim(data)
   
   subjectData <- data %>%
     filter(str_detect(NOTES, "member name in subject")) %>%
@@ -76,7 +80,8 @@ clean <- function(file.name) {
   data %<>%
     full_join(subjectData)
   
-  
+  #check N
+  dim(data)
   
   
   data %>%

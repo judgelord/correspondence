@@ -520,8 +520,8 @@ extractNamesPerCongress <- function(congress_i, data, members){
   if(congress_i %in% members$congress){
   members %<>% filter(congress == congress_i)
   
-  base::message( green(str_c("Searching ", unique(data$agency), " data for the ", congress_i, "th, n = ", 
-                             nrow(data), " (", length(unique(data$string)), " distinct).",
+  base::message( green(str_c("Searching ", unique(data$agency), " data for members of the ", congress_i, "th, n = ", 
+                             nrow(data), " (", length(unique(data$string)), " distinct strings).",
          " Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1], "\""
          )
          ))
@@ -535,12 +535,15 @@ extractNamesPerCongress <- function(congress_i, data, members){
                                                members = members) ) %>% # select(from,matches)
     # split out multiple members into separate rows 
     mutate(pattern = str_split(pattern, ";")  ) %>% 
-    unnest() %>% 
+    unnest() 
+  
+  suppressMessages(
+  data %<>% 
     # join in members data by pattern 
     left_join(members %>% select(pattern, first_name, last_name, congress) ) %>% #, by = c("pattern", "congress")) %>% 
     mutate(first_name = as.character(first_name),
-           last_name = as.character(last_name))%>% 
-    suppressMessages()
+           last_name = as.character(last_name))
+  )
   }
   return(data)
 }
@@ -575,6 +578,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     # explicit NA
     data$string %<>% replace_na("")
     
+    suppressMessages(
     # Fix name typos
     data %<>% 
       # find common typos
@@ -583,9 +587,8 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
       left_join(typos) %>%  #, by = c("typos", "correct") ) %>%
       # replace typos with corrections
       mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct)) %>% 
-      mutate(typos = str_replace(typos, "404error", "none")) %>% 
-      suppressMessages()
-    
+      mutate(typos = str_replace(typos, "404error", "none"))
+    )
 
     # FOR TESTING 
     # look <- data %>% drop_na(typos) %>% filter(typos != "none", typos != "404error") %>% distinct() %>% filter(is.na(string))
