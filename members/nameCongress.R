@@ -706,7 +706,7 @@ suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initi
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
 
-  
+  # save
   save(members, file = "members/members.Rdata")
   
   
