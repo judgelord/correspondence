@@ -136,7 +136,7 @@ data_list <- tribble(
 # NARA
 "NARA", "coded", "Rochelle",
 # NASA
-"NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
+"NASA", "coded", "Rochelle", # 200+ bad names, handful of wrong dates
 # NCPC
 "NCPC", "not coded", NA,
 # NCUA
