@@ -46,6 +46,8 @@ If `extractMemberName()` fails to match:
 1. Common typos can be corrected in `MemberNameTypos.R`
 1. If the pattern exists, but `extractMemberName()` fails to find it, note this in #62 
 
+If there is insufficient data. [#76](https://github.com/judgelord/correspondence/issues/76)
+
 ## Coding
 
 [Codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws) 
