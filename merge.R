@@ -42,7 +42,7 @@ data_list <- tribble(
 "Amtrak", "not coded", NA, # complete but no subjects to code
 "CNCS", "not coded", NA,
 "CSOSA", "coded", "Julia",
-#FIXME "DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
+"DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
 #FIXME "DHHS_CMS", "coded", "Rochelle", # no clean script yet
@@ -136,7 +136,7 @@ data_list <- tribble(
 # NARA
 "NARA", "coded", "Rochelle",
 # NASA
-"NASA", "not coded", NA, # 200+ bad names, handful of wrong dates
+"NASA", "coded", "Rochelle", # 200+ bad names, handful of wrong dates
 # NCPC
 "NCPC", "not coded", NA,
 # NCUA
@@ -190,7 +190,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DHHS_CMS")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -202,13 +202,14 @@ d1 <- clean.agency(
 d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
 # merge with voteview data to initiate d (unfiltered data)
+suppressMessages(
 d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
   select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
-  distinct()%>% 
-  suppressMessages()
+  distinct()
+)
 
 d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
 
@@ -237,14 +238,17 @@ while(!is.na(data_list[i,1])) {
     status = as.character(data_list[i, 2]),
     coders = as.character(data_list[i, 3]))
   
+  suppressMessages(
   d1 %<>% 
     left_join(members) %>% 
     select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
     left_join(members)%>% 
-    distinct() %>% 
-    suppressMessages()
+    distinct()
+  )
   
+  suppressMessages(
   d %<>% full_join(d1)
+  )
   
   i <- i + 1
 }
