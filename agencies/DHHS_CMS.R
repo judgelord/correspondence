@@ -16,9 +16,12 @@ clean <- function(file.name) {
   data$agency <- file.name
 
   data$DATE %<>% as.Date("%m/%d/%y")
+  data$`Date to CMS` %<>% as.Date("%m/%d/%y")
+  data %<>%
+    mutate(DATE = if_else(is.na(DATE), `Date to CMS`, DATE))
   
-  # noDate <- data %>%
-  #   filter(is.na(DATE))
+   noDate <- data %>%
+     filter(is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -61,7 +64,8 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "Feingold, Russell", "FEINGOLD, Russell")) %>%
      mutate(FROM = str_replace(FROM, "Griffin, Tom", "Griffin, Tim")) %>%
      mutate(FROM = str_replace(FROM, "Hill, J\\. French", "Hill, French")) %>%
-     mutate(FROM = str_replace(FROM, "Farenthold, Black", "Farenthold, Blake"))
+     mutate(FROM = str_replace(FROM, "Farenthold, Black", "Farenthold, Blake")) %>%
+     mutate(FROM = str_replace(FROM, "Takai, K\\. Mark", "TAKAI, Mark"))
    
    # check N
    dim(data)
@@ -97,10 +101,12 @@ clean <- function(file.name) {
      mutate(ERROR = ifelse(str_detect(FROM, "Kildee, Dale|Bingaman, Jeff") & congress %in% 113 & is.na(ERROR), "not in congress", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Feingold, Russell") & congress %in% 112 & is.na(ERROR), "no longer in congress", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Bachus, Spencer|Moran, James") & congress %in% 114 & is.na(ERROR), "no longer in congress", ERROR)) %>%
-     mutate(ERROR = ifelse(str_detect(FROM, "Schaefermeyer, Connie|Shepley, William L\\.|Griffin, Tom") & is.na(ERROR), "non member", ERROR)) %>%
-     mutate(ERROR = ifelse(str_detect(FROM, "Limehouse III, Harry B\\. \'Chip\'|Lynch, John H\\.|Hansen, Alicia \'Chucky\'|Corbett, Tom|Markell, Jack A\\.|Avella, Tony|Otter, C\\. L\\. \'Butch\'") & is.na(ERROR), "State Legislator", ERROR))
+     mutate(ERROR = ifelse(str_detect(FROM, "Schaefermeyer, Connie|Shepley, William L\\.|Griffin, Tom|Loubert, Michelle") & is.na(ERROR), "non member", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Limehouse III, Harry B\\. \'Chip\'|Lynch, John H\\.|Hansen, Alicia \'Chucky\'|Corbett, Tom|Markell, Jack A\\.|Avella, Tony|Otter, C\\. L\\. \'Butch\'|Ellis, Rodney|Gill, Nia H\\.|Swanson, Lori") & is.na(ERROR), "state politician", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "Griffin, Tim") & congress %in% c(115, 114) & is.na(ERROR), "no longer in congress", ERROR)) %>%
+     mutate(ERROR = ifelse(str_detect(FROM, "riffin, Timothy") & congress %in% c(111) & is.na(ERROR), "no longer in congress", ERROR))
   
-  unfoundNamesSample <- data %>%
+  unfoundNamesSample2 <- data %>%
     filter(is.na(last_name)) %>%
     filter(! str_detect(FROM, "NA, NA")) %>%
     filter( is.na(ERROR))
