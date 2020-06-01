@@ -300,6 +300,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "BOXER, Barbara", "Barb", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CONYERS, John, Jr.", "J", common_name)) %>%
     mutate(common_name = ifelse(bioname == "MIKULSKI, Barbara Ann", "Barb", common_name)) %>%
+     mutate(common_name = ifelse(bioname == "Levin, Sander Martin", "Sandy", common_name)) %>%
      
     # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -402,8 +403,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
      mutate(middle_name = ifelse(bioname == "CONYERS, John, Jr." & state == "michigan", "James", middle_name))%>%    
      mutate(middle_name = ifelse(bioname == "RANGEL, Charles B." & state == "new york", "Bernard", middle_name))%>%   
      mutate(middle_name = ifelse(bioname == "COOPER, James Hayes Shofner" & state == "tennessee", "(Hayes | Shofner | Hayes Shofner)", middle_name))%>%    
-     
-    # middle initials
+     mutate(middle_name = ifelse(bioname == "REID, Harry" & state == "nevada", "Mason", middle_name))%>% 
+
+   # middle initials
    mutate(middle_initial = ifelse(bioname == "BRAUN, Michael", "K.", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "SPACE, Zack", "T", middle_initial)) %>% 
     mutate(middle_initial = ifelse(bioname == "GROTHMAN, Glenn", "S", middle_initial)) %>% 
@@ -577,7 +579,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   # select
   members %<>% 
-    select(first_name, first_initial ,common_name, middle_name, middle_initial, last_name, bioname, everything()) 
+    select(first_name, first_initial ,common_name, middle_name, middle_initial, last_name, bioname, maiden_name, everything()) 
   
   # NOTE: 
   # Voteview is missing non-voting members:
