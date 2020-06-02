@@ -85,17 +85,18 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEAD START", SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("HEAD START", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE))
   
+  data %<>%
+    mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "grant support"), 3, TYPE)) %>%
+    mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant support"), 3, TYPE)) %>%
+    mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant Support"), 3, TYPE)) %>%
+    mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "grant support"), "grant", POLICY_EVENT)) %>%
+    mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "Grant support"), "grant", POLICY_EVENT)) %>%
+    mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "Grant Support"), "grant", POLICY_EVENT))
   
   
   return(data)
 }
 
-data %<>%
-mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "grant support"), 3, TYPE)) %>%
-mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant support"), 3, TYPE)) %>%
-mutate(TYPE = ifelse(! str_detect(TYPE, "[0-9]") & str_detect(SUBJECT, "Grant Support"), 3, TYPE)) %>%
-mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "grant support"), "grant", POLICY_EVENT)) %>%
-mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "Grant support"), "grant", POLICY_EVENT)) %>%
-mutate(POLICY_EVENT = ifelse(str_detect(SUBJECT, "Grant Support"), "grant", POLICY_EVENT))
+
 
 
