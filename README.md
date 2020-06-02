@@ -46,12 +46,16 @@ If `extractMemberName()` fails to match:
 1. Common typos can be corrected in `MemberNameTypos.R`
 1. If the pattern exists, but `extractMemberName()` fails to find it, note this in #62 
 
+Where there is insufficient information to identify a letter's date or author, the `NOTES` column should include "FOIA" and commits tagging observations to FOIA should reference [#76](https://github.com/judgelord/correspondence/issues/76)
+
 ## Coding
 
 [Codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws) 
 
 Data that are ready for coding should have an open issue named "apply codebook to AGENCY"
 - Interesting letters/anecdotes should be tagged with #172
+
+Where there is insufficient information to code a letter, the `NOTES` column should include "FOIA" and [#76](https://github.com/judgelord/correspondence/issues/76) should be tagged in the "apply codebook" issue.
 
 ## Validating
 
