@@ -45,7 +45,7 @@ data_list <- tribble(
 "DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
-#FIXME "DHHS_CMS", "coded", "Rochelle", # no clean script yet
+"DHHS_CMS", "coded", "Rochelle", # no clean script yet
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
 # "DHHS_NIH", "coded", "Rochelle", #no clean script yet
@@ -190,7 +190,7 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "DHHS_CMS")
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
