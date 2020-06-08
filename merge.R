@@ -14,7 +14,7 @@ drive_auth(email = "correspondenceresearch@gmail.com")
 googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
 
 # if authorized, this should work
-drive_get("ABMC")
+drive_get("RRB")
 
 # ## make sure gmailr is set up 
 # send_message(mime(
@@ -67,23 +67,23 @@ data_list <- tribble(
 # DOD
 "DOD_DeCA", "coded", "Devin", # only some are on drive  # FIX MISSING DATES
 "DOD_DFAS", "not coded", NA,
-"DOD_DLA_Aviation", "not coded", NA,
+"DOD_DLA_Aviation", "coded", "Fatima",
 "DOD_Navy", "coded", "Delaney", # no records before 2013
-"DOD_OIG", "not coded", NA, # waiting for records back from Joe    # only last name info --> 600+ non matches
+"DOD_OIG", "coded", "Fatima", # waiting for records back from Joe    # only last name info --> 600+ non matches
 "DOD_OSDJS", "not coded", NA, # some records are in text files to be merged #45, waiting on remaining records
-"DOD_USACE", "not coded", NA, # no records before fall 2013
+"DOD_USACE", "coded", "Fatima", # no records before fall 2013
 # "DOD_USMC", "not coded", NA, #  DON-USMC-2018-004141 needs to be converted from pdf and added to drive
 # DOE
-"DOE_FERC", "not coded", NA,
+"DOE_FERC", "coded", "Devin",
 # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
 # "DOI_BIA", "coded", "Rochelle", # no clean script yet
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
-"DOI_SOL", "coded", "Hope",
-"DOI_USGS", "coded", "Julia",
+# "DOI_SOL", "coded", "Hope", # NEED CLEAN SCRIPT 
+"DOI_USGS", "coded", "Hope",
 # DOJ 
-"DOJ_CIV", "not coded", NA,
+"DOJ_CIV", "not coded", NA, # WHY IS THIS NOT CODED?
 "DOJ_ENRD", "coded", "Julia",
 "DOJ_EOIR", "coded", "Julia", 
 # "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
@@ -174,11 +174,18 @@ data_list <- tribble(
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA,
-"VA_CEM", "not coded", NA,
+"VA_CEM", "not coded", "Fatima",
 "VA", "coded", "Rochelle" # no data before 2008
 )
 data_list
 
+# check that no agency matches more than one file
+map_dfr(
+    paste(data_list$agency, data_list$coders) %>% str_remove(" NA"), 
+    gs_title) %>% 
+  add_count(name) %>%  
+  filter(n != 1) %>% 
+  select(name, path)
 
 
 
@@ -190,7 +197,8 @@ data_list
 i <- 1
 # or choose one agency
 
-i <- which(data_list$agency == "ABMC")
+
+i <- which(data_list$agency == "PRC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -225,6 +233,7 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
 
+# data_list <- data_list[i:nrow(data_list),]
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 head(data_list)
 
@@ -245,6 +254,8 @@ while(!is.na(data_list[i,1])) {
     left_join(members)%>% 
     distinct()
   )
+  
+  d1$DATE <- as.Date(d1$DATE)
   
   suppressMessages(
   d %<>% full_join(d1)
