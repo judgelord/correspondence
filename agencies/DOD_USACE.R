@@ -5,7 +5,7 @@
 ##file.name <- "DOD_USACE" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read(.default = col_character()) # get data
+  data <- gs_title(file.name) %>% gs_read() # get data
   
   
   # LetterID = sheet row number
