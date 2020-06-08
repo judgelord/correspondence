@@ -3,7 +3,7 @@
 
 # matched on last_name perfectly, only last_name and chamber info
 
- #file.name <- "DOI_USGS" # for testing
+ #file.name <- "DOI_USGS Hope" # for testing
 
 
 clean <- function(file.name) {

@@ -14,7 +14,7 @@ drive_auth(email = "correspondenceresearch@gmail.com")
 googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
 
 # if authorized, this should work
-drive_get("ABMC")
+drive_get("RRB")
 
 # ## make sure gmailr is set up 
 # send_message(mime(
@@ -80,8 +80,8 @@ data_list <- tribble(
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
-"DOI_SOL", "coded", "Hope",
-"DOI_USGS", "coded", "Julia",
+# "DOI_SOL", "coded", "Hope", # NEED CLEAN SCRIPT 
+"DOI_USGS", "coded", "Hope",
 # DOJ 
 "DOJ_CIV", "not coded", NA, # WHY IS THIS NOT CODED?
 "DOJ_ENRD", "coded", "Julia",
@@ -179,6 +179,13 @@ data_list <- tribble(
 )
 data_list
 
+# check that no agency matches more than one file
+map_dfr(
+    paste(data_list$agency, data_list$coders) %>% str_remove(" NA"), 
+    gs_title) %>% 
+  add_count(name) %>%  
+  filter(n != 1) %>% 
+  select(name, path)
 
 
 
@@ -191,7 +198,7 @@ i <- 1
 # or choose one agency
 
 
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "PRC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
