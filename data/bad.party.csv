@@ -1,0 +1,17 @@
+"","agency","ID","FROM","first_name","last_name","bioname","chamber","DATE","congress","party","party_code","icpsr","NOTES","ERROR"
+"1","DHHS_CMS","7384","Davidson, Warren","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-12-29,114,100,200,21564,NA,NA
+"2","DHHS_CMS","23580","Davidson, Warren","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-12-29,114,100,200,21564,NA,NA
+"3","DOD_Navy","472","Representative DAVIDSON, WARREN P","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-11-14,114,100,200,21564,NA,NA
+"4","DOE_FERC","5013"," James Jeffords","James","JEFFORDS","JEFFORDS, James Merrill","Senate",2002-05-24,107,100,200,14240,NA,NA
+"5","DOE_FERC","5014"," James Jeffords","James","JEFFORDS","JEFFORDS, James Merrill","Senate",2002-05-24,107,100,200,14240,NA,NA
+"6","DOE_FERC","5117"," James Jeffords","James","JEFFORDS","JEFFORDS, James Merrill","Senate",2002-05-24,107,100,200,14240,NA,NA
+"7","DOE_FERC","5118"," James Jeffords","James","JEFFORDS","JEFFORDS, James Merrill","Senate",2002-05-24,107,100,200,14240,NA,NA
+"8","DOE_FERC","5887","James M. Jeffords","James","JEFFORDS","JEFFORDS, James Merrill","Senate",2001-10-12,107,100,200,14240,NA,NA
+"9","DOE_FERC","5888","James M. Jeffords","James","JEFFORDS","JEFFORDS, James Merrill","Senate",2001-10-12,107,100,200,14240,NA,NA
+"10","DOT_FAA","657","Davidson, Warren U.S House of Representatives","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-12-12,114,100,200,21564,NA,NA
+"11","FCC","3571","Davidson, Warren (R-OH)","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-08-16,114,100,200,21564,"NA",NA
+"12","FCC","3921","Davidson, Warren (R-OH)","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-12-12,114,100,200,21564,"NA",NA
+"13","NARA","4676","Rep. Warren Davidson","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-07-22,114,100,200,21564,NA,NA
+"14","VA","33152","Davidson, W.","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-08-29,114,100,200,21564,NA,NA
+"15","VA","33339","Davidson, W.","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-09-12,114,100,200,21564,NA,NA
+"16","VA","34640","Davidson, W.","Warren","DAVIDSON","DAVIDSON, Warren","House",2016-12-27,114,100,200,21564,NA,NA

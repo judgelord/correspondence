@@ -1,0 +1,101 @@
+ID,agency,DATE,FROM,first_name,last_name,bioname,party_code,chamber,congress,SUBJECT,TYPE,NOTES,ERROR
+670,DOL_OSHA,2006-12-15,"Menendez, Robert",Robert,MENENDEZ,"MENENDEZ, Robert",100,Senate,109,NA NA EEO Complaint/OSHA Employee,1,NA,NA
+670,DOL_OSHA,2006-12-15,"Menendez, Robert",Robert,MENENDEZ,"MENENDEZ, Robert",100,House,109,NA NA EEO Complaint/OSHA Employee,1,NA,NA
+671,DOL_OSHA,2006-12-15,"Menendez, Robert",Robert,MENENDEZ,"MENENDEZ, Robert",100,Senate,109,NA NA EEO Complaint/OSHA Employee,1,NA,NA
+671,DOL_OSHA,2006-12-15,"Menendez, Robert",Robert,MENENDEZ,"MENENDEZ, Robert",100,House,109,NA NA EEO Complaint/OSHA Employee,1,NA,NA
+7794,DOL_OWCP,2009-12-22,"Griffith, Parker (Cong)",Parker,GRIFFITH,"GRIFFITH, Parker",200,House,111,OWCP/Request to Change Physician,1,NA,NA
+7794,DOL_OWCP,2009-12-22,"Griffith, Parker (Cong)",Parker,GRIFFITH,"GRIFFITH, Parker",100,House,111,OWCP/Request to Change Physician,1,NA,NA
+7795,DOL_OWCP,2009-12-22,"Griffith, Parker (Cong)",Parker,GRIFFITH,"GRIFFITH, Parker",200,House,111,OWCP/Request to Change Physician,1,NA,NA
+7795,DOL_OWCP,2009-12-22,"Griffith, Parker (Cong)",Parker,GRIFFITH,"GRIFFITH, Parker",100,House,111,OWCP/Request to Change Physician,1,NA,NA
+10178,DOL_SOL,2009-12-22,"Griffith, Parker",Parker,GRIFFITH,"GRIFFITH, Parker",200,House,111,OWCP/Request to Change Physician,1,NA,NA
+10178,DOL_SOL,2009-12-22,"Griffith, Parker",Parker,GRIFFITH,"GRIFFITH, Parker",100,House,111,OWCP/Request to Change Physician,1,NA,NA
+10179,DOL_SOL,2009-12-22,"Griffith, Parker",Parker,GRIFFITH,"GRIFFITH, Parker",200,House,111,OWCP/Request to Change Physician,1,NA,NA
+10179,DOL_SOL,2009-12-22,"Griffith, Parker",Parker,GRIFFITH,"GRIFFITH, Parker",100,House,111,OWCP/Request to Change Physician,1,NA,NA
+9862,FDA,2019-04-12,"AMASH, JUSTIN House of Representatives",Justin,AMASH,"AMASH, Justin",328,House,116,CDER-(C) Rep. Justin Amash is writing FDA regarding the approved uses of Gralise (gabapentin).,5,NA,NA
+9862,FDA,2019-04-12,"AMASH, JUSTIN House of Representatives",Justin,AMASH,"AMASH, Justin",200,House,116,CDER-(C) Rep. Justin Amash is writing FDA regarding the approved uses of Gralise (gabapentin).,5,NA,NA
+9863,FDA,2019-04-12,"AMASH, JUSTIN House of Representatives",Justin,AMASH,"AMASH, Justin",328,House,116,CDER-(C) Rep. Justin Amash is writing FDA regarding the approved uses of Gralise (gabapentin).,5,NA,NA
+9863,FDA,2019-04-12,"AMASH, JUSTIN House of Representatives",Justin,AMASH,"AMASH, Justin",200,House,116,CDER-(C) Rep. Justin Amash is writing FDA regarding the approved uses of Gralise (gabapentin).,5,NA,NA
+10170,HUD_HQ,2009-04-28,Arlen Specter,Arlen,SPECTER,"SPECTER, Arlen",100,Senate,111,NA,NA,NA,NA
+10170,HUD_HQ,2009-04-28,Arlen Specter,Arlen,SPECTER,"SPECTER, Arlen",200,Senate,111,NA,NA,NA,NA
+10171,HUD_HQ,2009-04-28,Arlen Specter,Arlen,SPECTER,"SPECTER, Arlen",100,Senate,111,NA,NA,NA,NA
+10171,HUD_HQ,2009-04-28,Arlen Specter,Arlen,SPECTER,"SPECTER, Arlen",200,Senate,111,NA,NA,NA,NA
+76756,DHHS_CMS,2019-04-11,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Massive Medicare call scam preying on vulnerable elderly people and Medicare recipients.,1,NA,NA
+76756,DHHS_CMS,2019-04-11,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Massive Medicare call scam preying on vulnerable elderly people and Medicare recipients.,1,NA,NA
+76757,DHHS_CMS,2019-04-11,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Massive Medicare call scam preying on vulnerable elderly people and Medicare recipients.,1,NA,NA
+76757,DHHS_CMS,2019-04-11,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Massive Medicare call scam preying on vulnerable elderly people and Medicare recipients.,1,NA,NA
+77003,DHHS_CMS,2019-07-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,[Recommendation] CC: Rep. Van Drew +1; Dietary Guidelines recommendation. Oral Health Preventative Practices Letter,5,NA,NA
+77003,DHHS_CMS,2019-07-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,[Recommendation] CC: Rep. Van Drew +1; Dietary Guidelines recommendation. Oral Health Preventative Practices Letter,5,NA,NA
+77004,DHHS_CMS,2019-07-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,[Recommendation] CC: Rep. Van Drew +1; Dietary Guidelines recommendation. Oral Health Preventative Practices Letter,5,NA,NA
+77004,DHHS_CMS,2019-07-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,[Recommendation] CC: Rep. Van Drew +1; Dietary Guidelines recommendation. Oral Health Preventative Practices Letter,5,NA,NA
+5013,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",328,Senate,107,Comments of US Senator Christopher Dodd et al concerning the New York Power Authority's re-licensing application for the St Lawrence-FDR Project that does not include Article 28 of the current Project License under P-2216 et al.,2,NA,NA
+5013,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",200,Senate,107,Comments of US Senator Christopher Dodd et al concerning the New York Power Authority's re-licensing application for the St Lawrence-FDR Project that does not include Article 28 of the current Project License under P-2216 et al.,2,NA,NA
+5014,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",328,Senate,107,Comments of US Senator Christopher Dodd et al concerning the New York Power Authority's re-licensing application for the St Lawrence-FDR Project that does not include Article 28 of the current Project License under P-2216 et al.,2,NA,NA
+5014,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",200,Senate,107,Comments of US Senator Christopher Dodd et al concerning the New York Power Authority's re-licensing application for the St Lawrence-FDR Project that does not include Article 28 of the current Project License under P-2216 et al.,2,NA,NA
+5117,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",328,Senate,107,"Senator Christopher Dodd et al forwards a letter concerning New York Power Authority's decision in late October 2001, to file a relicensing application for the St Lawrence-FDR Project etc under P-2216 et al.",2,NA,NA
+5117,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",200,Senate,107,"Senator Christopher Dodd et al forwards a letter concerning New York Power Authority's decision in late October 2001, to file a relicensing application for the St Lawrence-FDR Project etc under P-2216 et al.",2,NA,NA
+5118,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",328,Senate,107,"Senator Christopher Dodd et al forwards a letter concerning New York Power Authority's decision in late October 2001, to file a relicensing application for the St Lawrence-FDR Project etc under P-2216 et al.",2,NA,NA
+5118,DOE_FERC,2002-05-24, James Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",200,Senate,107,"Senator Christopher Dodd et al forwards a letter concerning New York Power Authority's decision in late October 2001, to file a relicensing application for the St Lawrence-FDR Project etc under P-2216 et al.",2,NA,NA
+5887,DOE_FERC,2001-10-12,James M. Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",328,Senate,107,Comments of Congressman Jack Reed et al concerning the creation of a single Regional Transmission Organization for the entire Northeast etc.,2,NA,NA
+5887,DOE_FERC,2001-10-12,James M. Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",200,Senate,107,Comments of Congressman Jack Reed et al concerning the creation of a single Regional Transmission Organization for the entire Northeast etc.,2,NA,NA
+5888,DOE_FERC,2001-10-12,James M. Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",328,Senate,107,Comments of Congressman Jack Reed et al concerning the creation of a single Regional Transmission Organization for the entire Northeast etc.,2,NA,NA
+5888,DOE_FERC,2001-10-12,James M. Jeffords,James,JEFFORDS,"JEFFORDS, James Merrill",200,Senate,107,Comments of Congressman Jack Reed et al concerning the creation of a single Regional Transmission Organization for the entire Northeast etc.,2,NA,NA
+8,ABMC,2016-08-23,"HQDA OCLL (Rep. Lee, CA)",NA,NA,,NA,,114,African Americans at Normandy,NA,NA,NA
+9,ABMC,2016-08-29,EOP/WHO,NA,NA,,NA,,114,Repatriation of PFC Gilbert from LOAC,NA,NA,NA
+10,ABMC,2016-09-07,HQDA ASA FM,NA,NA,,NA,,114,African-Americans at NOAC,NA,NA,NA
+13,ABMC,2016-09-15,WHO,NA,NA,,NA,,114,"Jim Robinson, Manassas National Battlefield",NA,NA,NA
+20,ABMC,2016-10-27,U.S. Emb Manila via Larry,NA,NA,,NA,,114,"REPAT Request T5 Hatcher, Manila",NA,NA,NA
+52,ABMC,2017-12-12,Office of Rick Jeffares via DOD and the White House,NA,NA,,NA,,115,T5 Hatcher Repatriation Request,NA,NA,NA
+74,ABMC,2018-06-01,Sen. Boozman's Office,NA,NA,,NA,,115,Burial loaction and records,NA,NA,NA
+80,ABMC,2018-08-06,"Congressional Actions Officer, Army Office of the Chief of Legislative Liaison",NA,NA,,NA,,115,"Request to disinter a ""unknown"" from NMCP",NA,NA,NA
+8,ABMC,2016-08-23,"HQDA OCLL (Rep. Lee, CA)",NA,NA,,NA,,114,African Americans at Normandy,NA,NA,NA
+9,ABMC,2016-08-29,EOP/WHO,NA,NA,,NA,,114,Repatriation of PFC Gilbert from LOAC,NA,NA,NA
+10,ABMC,2016-09-07,HQDA ASA FM,NA,NA,,NA,,114,African-Americans at NOAC,NA,NA,NA
+13,ABMC,2016-09-15,WHO,NA,NA,,NA,,114,"Jim Robinson, Manassas National Battlefield",NA,NA,NA
+20,ABMC,2016-10-27,U.S. Emb Manila via Larry,NA,NA,,NA,,114,"REPAT Request T5 Hatcher, Manila",NA,NA,NA
+52,ABMC,2017-12-12,Office of Rick Jeffares via DOD and the White House,NA,NA,,NA,,115,T5 Hatcher Repatriation Request,NA,NA,NA
+74,ABMC,2018-06-01,Sen. Boozman's Office,NA,NA,,NA,,115,Burial loaction and records,NA,NA,NA
+80,ABMC,2018-08-06,"Congressional Actions Officer, Army Office of the Chief of Legislative Liaison",NA,NA,,NA,,115,"Request to disinter a ""unknown"" from NMCP",NA,NA,NA
+11362,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Debt,1,NA,NA
+11362,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Debt,1,NA,NA
+11363,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Debt,1,NA,NA
+11363,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Debt,1,NA,NA
+11536,Treasury_Fiscal,2019-03-28,JEFFERSON VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Debt,1,NA,NA
+11536,Treasury_Fiscal,2019-03-28,JEFFERSON VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Debt,1,NA,NA
+11537,Treasury_Fiscal,2019-03-28,JEFFERSON VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Debt,1,NA,NA
+11537,Treasury_Fiscal,2019-03-28,JEFFERSON VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Debt,1,NA,NA
+11664,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Debt,1,NA,NA
+11664,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Debt,1,NA,NA
+11665,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Debt,1,NA,NA
+11665,Treasury_Fiscal,2019-02-28,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Debt,1,NA,NA
+11726,Treasury_Fiscal,2019-01-31,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Direct Deposit,1,NA,NA
+11726,Treasury_Fiscal,2019-01-31,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Direct Deposit,1,NA,NA
+11727,Treasury_Fiscal,2019-01-31,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Direct Deposit,1,NA,NA
+11727,Treasury_Fiscal,2019-01-31,JEFF VAN DREW,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Direct Deposit,1,NA,NA
+11818,Treasury_Fiscal,2019-03-01,JUSTIN AMASH,Justin,AMASH,"AMASH, Justin",328,House,116,Direct Deposit,1,NA,NA
+11818,Treasury_Fiscal,2019-03-01,JUSTIN AMASH,Justin,AMASH,"AMASH, Justin",200,House,116,Direct Deposit,1,NA,NA
+11819,Treasury_Fiscal,2019-03-01,JUSTIN AMASH,Justin,AMASH,"AMASH, Justin",328,House,116,Direct Deposit,1,NA,NA
+11819,Treasury_Fiscal,2019-03-01,JUSTIN AMASH,Justin,AMASH,"AMASH, Justin",200,House,116,Direct Deposit,1,NA,NA
+1091,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,DD214 Issues,1,NA,NA
+1091,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,DD214 Issues,1,NA,NA
+1092,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,DD214 Issues,1,NA,NA
+1092,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,DD214 Issues,1,NA,NA
+1095,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Disability Claim,1,NA,NA
+1095,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Disability Claim,1,NA,NA
+1096,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,Disability Claim,1,NA,NA
+1096,VA,2019-01-30,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,Disability Claim,1,NA,NA
+1120,VA,2019-01-31,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,status of claim,1,NA,NA
+1120,VA,2019-01-31,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,status of claim,1,NA,NA
+1121,VA,2019-01-31,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,status of claim,1,NA,NA
+1121,VA,2019-01-31,"Van Drew, Jeff",Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,status of claim,1,NA,NA
+1142,VA,2019-02-01,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,status of claim for increase,1,NA,NA
+1142,VA,2019-02-01,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,status of claim for increase,1,NA,NA
+1143,VA,2019-02-01,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,status of claim for increase,1,NA,NA
+1143,VA,2019-02-01,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,status of claim for increase,1,NA,NA
+1370,VA,2019-02-19,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,health care eligibility,1,NA,NA
+1370,VA,2019-02-19,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,health care eligibility,1,NA,NA
+1371,VA,2019-02-19,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,health care eligibility,1,NA,NA
+1371,VA,2019-02-19,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,health care eligibility,1,NA,NA
+1537,VA,2019-02-27,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,divorce order,1,NA,NA
+1537,VA,2019-02-27,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,divorce order,1,NA,NA
+1538,VA,2019-02-27,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",200,House,116,divorce order,1,NA,NA
+1538,VA,2019-02-27,Representative Van Drew,Jefferson,VAN DREW,"VAN DREW, Jefferson",100,House,116,divorce order,1,NA,NA
