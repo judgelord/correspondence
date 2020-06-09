@@ -174,12 +174,12 @@ data_list <- tribble(
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA,
-"VA_CEM", "not coded", "Fatima",
+"VA_CEM", "coded", "Fatima",
 "VA", "coded", "Rochelle" # no data before 2008
 )
 data_list
 
-# check that no agency matches more than one file
+# check that each agency matches exactly one file on google drive
 map_dfr(
     paste(data_list$agency, data_list$coders) %>% str_remove(" NA"), 
     gs_title) %>% 
@@ -193,12 +193,8 @@ map_dfr(
 # clean one file #
 ##################
 
-# initialize for full merge (default)
-i <- 1
-# or choose one agency
-
-
-i <- which(data_list$agency == "PRC")
+# Test one agency
+i <- which(data_list$agency == "ABMC")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -281,14 +277,14 @@ str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% sele
 
 ##############################
 #########################################################################################
-
+nrow(d)
 # archive raw version of merged data 
 draw <- d
+nrow(draw)
 
+#FIXME We should drop all unecessary vars and add them back in later to make post-merge processing go faster
 
-
-
-
+save(draw, file = "draw.Rdata")
 
 
 ###############
@@ -429,10 +425,11 @@ bad.party <- d %>%
 ###############################################
 
 d %<>% ungroup()
+nrow(d)
 # FIXME
 # This is where observations that failed to match in Voteview get dropped. 
 df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
-
+nrow(df)
 committees %<>% 
   select(-party) # drop Stewart committee data party codes 
 
@@ -855,7 +852,7 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 
 # counts per agency - check if this matches google sheet 
 look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
-
+look %>% filter(is.na(Department))
 # Check that FERC data is complete:
 df %>% filter(agency == "DOE_FERC") %>% count(year)
 
