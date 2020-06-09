@@ -17,6 +17,13 @@ This repository contains code to merge, augment, and analyze data on congression
 - [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder #10
 - [ ] Add member comments from regualations.gov
 
+# Want to help? 
+
+Here are some tasks than anyone can do: 
+- Find letters that Members of Congress write to agencies (e.g. letters they post on their website) and email them to CorrespondenceResearch@gmail.com. We will check to see if they are in our data and add them. 
+- Look at this list of letter authors that we are failing to match to a legislator. Note typos or odd formatting in issue [#9](https://github.com/judgelord/correspondence/issues/9). Note cases where names appear to be spelled correctly and formatted in a conventional way in issue [#62](https://github.com/judgelord/correspondence/issues/62).
+
+
 # For collaborators
 
 - Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder.
