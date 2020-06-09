@@ -19,9 +19,9 @@ This repository contains code to merge, augment, and analyze data on congression
 
 # Want to help? 
 
-Here are some tasks than anyone can do: 
+Here are some tasks that anyone can do: 
 - Find letters that Members of Congress write to agencies (e.g. letters they post on their website) and email them to CorrespondenceResearch@gmail.com. We will check to see if they are in our data and add them. 
-- Look at this list of letter authors that we are failing to match to a legislator. Note typos or odd formatting in issue [#9](https://github.com/judgelord/correspondence/issues/9). Note cases where names appear to be spelled correctly and formatted in a conventional way in issue [#62](https://github.com/judgelord/correspondence/issues/62).
+- Look at [this list](https://github.com/judgelord/correspondence/blob/master/data/worst.names.csv) of letter authors that we are failing to match to a legislator. Note typos or odd formatting in issue [#9](https://github.com/judgelord/correspondence/issues/9). Note cases where names appear to be spelled correctly and formatted in a conventional way in issue [#62](https://github.com/judgelord/correspondence/issues/62). Note cases where the author is not a Member of Congress in the "debug" issue for that agency (e.g. "debug EPA").
 
 
 # For collaborators
