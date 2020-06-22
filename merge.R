@@ -285,7 +285,8 @@ nrow(draw)
 #FIXME We should drop all unecessary vars and add them back in later to make post-merge processing go faster
 
 save(draw, file = "draw.Rdata")
-
+# load("draw.Rdata")
+d <- draw
 
 ###############
 # FIX ERRORS #
@@ -839,20 +840,28 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   all_contacts_committees <- dcommittees
   save(all_contacts_committees, file = "data/all_contacts_committees.Rdata")
   
-  save(bad.names.1, file = "data/bad.names.1.RData")
-  save(bad.names.2, file = "data/bad.names.2.RData")
-  save(worst.agencies, file = "data/worst.agencies.Rdata")
-  save(worst.names, file = "data/worst.names.Rdata")
-  save(bad.dates, file = "data/bad.dates.RData")
-  save(bad.party, file = "data/bad.party.RData")
+  write_csv(bad.names.1, "data/bad.names.1.csv")
+  save(bad.names.2, file = "data/bad.names.2.csv")
+  bad.names.2 %>% 
+    drop_na(TYPE, FROM, SUBJECT) %>% #FIXME when this is smaller, we can preview more on github limit 500kb csv preveiw
+    select(ID, agency, DATE, FROM, TYPE, SUBJECT, NOTES) %>% 
+    arrange(agency) %>% 
+    write_csv("data/bad.names.2.csv")
+  worst.agencies %>% write_csv("data/worst.agencies.csv")
+  worst.names %>% write.csv("data/worst.names.csv")
+  bad.dates %>% write_csv("data/bad.dates.csv")
+  bad.party %>% write.csv("data/bad.party.csv")
+  #FIXME
   # save(bad.committees.1, file = "data/bad.committees.1.RData")
-  save(bad.committees.2, file = "data/bad.committees.2.RData")
-  write_csv(d %>% filter(str_detect(NOTES, "FOIA")), path = "data/LETTERS_TO_FOIA.csv")
+  # save(bad.committees.2, file = "data/bad.committees.2.RData")
+  d %>% filter(str_detect(NOTES, "FOIA")) %>%
+    select(ID, agency, FROM, DATE, SUBJECT, NOTES) %>% write_csv(path = "data/LETTERS_TO_FOIA.csv")
 }
 
 # counts per agency - check if this matches google sheet 
 look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
 look %>% filter(is.na(Department))
+
 # Check that FERC data is complete:
 df %>% filter(agency == "DOE_FERC") %>% count(year)
 
