@@ -6,28 +6,7 @@ missing from df:DOD_DeCA
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 Yes # just in case R asks if we want to install dependencies 
 
-# log in to google drive
-# with cached key (unclear why this is not working)
-drive_auth(email = "correspondenceresearch@gmail.com",
-           path = "drive-key.json")
 
-# with browser (this is tricky on the linux server)
-drive_auth(email = "correspondenceresearch@gmail.com")
-1 # if it askes which email to use, use correspondenceresearch
-googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
-
-# if authorized, this should work
-drive_get("RRB")
-
-# ## make sure gmailr is set up 
-# send_message(mime(
-#   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>", # 17152044287 is devin's phone number
-#   From = "correspondenceresearch@gmail.com",
-#   Subject =  "Begin merge",
-#   body = ""))
-# # note for MERGING: 
-# # all columns in d are class character except DATE, year, and congress (see clean.R)
-# # in df, TYPE is numeric [0-6], Type is a factor, and Type2 is types collapsed into Policy and Constituent Service
 
 ########################
 # Master list of data: #
@@ -83,7 +62,7 @@ data_list <- tribble(
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
-# "DOI_SOL", "coded", "Hope", # NEED CLEAN SCRIPT 
+"DOI_SOL", "coded", "Hope",
 "DOI_USGS", "coded", "Hope",
 # DOJ 
 "DOJ_CIV", "not coded", NA, # WHY IS THIS NOT CODED?
@@ -182,14 +161,30 @@ data_list <- tribble(
 )
 data_list
 
+
+# log in to google drive
+# with cached key (unclear why this is not working)
+drive_auth(email = "correspondenceresearch@gmail.com",
+           path = "drive-key.json")
+
+# with browser (this is tricky on the linux server)
+drive_auth(email = "correspondenceresearch@gmail.com")
+1 # if it askes which email to use, use correspondenceresearch since you may have more than on sheet with a given name
+googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
+
+# if authorized, this should work
+drive_get("RRB")
+
+
 # check that each agency matches exactly one file on google drive
+if(F){
 map_dfr(
     paste(data_list$agency, data_list$coders) %>% str_remove(" NA"), 
     gs_title) %>% 
   add_count(name) %>%  
   filter(n != 1) %>% 
   select(name, path)
-
+}
 
 
 ######CLEAN ############
@@ -197,7 +192,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DOI_SOL")
+i <- which(data_list$agency == "DOL_EBSA")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -206,7 +201,7 @@ d1 <- clean.agency(
   ) %>% distinct()
 
 # check result 
-d1 %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
+d1 %>% count(congress, is.na(last_name))
 
 # merge with voteview data to initiate d (unfiltered data)
 suppressMessages(
@@ -270,7 +265,7 @@ base::message(white(paste("merge stopped at", stopped)))
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 
-# ## Text Devin 
+# ## Text Devin - this broke with google's auth update 
 # library(gmailr)
 # send_message(mime(
 #   To = "<16083529144.17152044287.8rPd34m6s7@txt.voice.google.com>",
