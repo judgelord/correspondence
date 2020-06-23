@@ -19,9 +19,9 @@ clean <- function(file.name) {
   # Format date, year, Congress
   data$DATE %<>% multidate(formats = c("%m/%d/%y")) # FIXME
   
-  bad.dates <- data %>% filter(is.na(DATE)) %>% .$LetterID
-  data$DATE[bad.dates]
-  data %>% select(LetterID, DATE, FROM, SUBJECT) %>% filter(LetterID %in% bad.dates)
+  # bad.dates <- data %>% filter(is.na(DATE)) %>% .$LetterID
+  # data$DATE[bad.dates]
+  # data %>% select(LetterID, DATE, FROM, SUBJECT) %>% filter(LetterID %in% bad.dates)
   
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
@@ -30,6 +30,10 @@ clean <- function(file.name) {
   
   data %<>% extractMemberName(members, 'FROM')
 
+  bad <- data %>% filter(is.na(last_name)) %>% .$LetterID
+  data %>% filter(LetterID %in% bad) %>% .$FROM %>% str_remove_all("NA")  %>% str_squish() %>% unique()
+  data %>% select(LetterID,congress, FROM) %>% filter(LetterID %in% bad)
+  
  
   data %<>% select(ID, DATE,  FROM, last_name, everything())
   

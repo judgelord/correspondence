@@ -13,6 +13,7 @@ drive_auth(email = "correspondenceresearch@gmail.com",
 
 # with browser (this is tricky on the linux server)
 drive_auth(email = "correspondenceresearch@gmail.com")
+1 # if it askes which email to use, use correspondenceresearch
 googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
 
 # if authorized, this should work
@@ -99,7 +100,7 @@ data_list <- tribble(
 # "DOL_OASAM", "coded", "Rochelle", # no clean script yet
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
-"DOL_SOL", "coded", "Rochelle", 
+"DOL_SOL", "coded", "Hope", 
 "DOL_VETS", "coded", "Rochelle",
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
