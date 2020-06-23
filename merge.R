@@ -1,4 +1,6 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
+missing from d:DOI_SOL, DOL_EBSA, USDA_RD
+missing from df:DOD_DeCA
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
@@ -112,7 +114,7 @@ data_list <- tribble(
 "ED", "not coded", NA,
 # "EEOC", "coded", "Rochelle", #no clean script yet
 "EOP_CEQ", "not coded", NA,
-#"EOP_USTR", "not coded", NA, # Script needs work after new data merged in #64 data is two different formats and is one in not easy to read in. DEVIN IS WORKING ON THIS
+"EOP_USTR", "coded", "Hope", #c("Hope", "Julia"), 
 # EPA
 "EPA", "coded", "Aaron", # c("Adam", "Avery"),
 # FCA
@@ -194,7 +196,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DOI_SOL")
 
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
