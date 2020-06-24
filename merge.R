@@ -1,6 +1,4 @@
 # This script combines clean log/letter files and merges in other data sources, creating the correspondence.Rdata file used in markdown
-missing from d:DOI_SOL, DOL_EBSA, USDA_RD
-missing from df:DOD_DeCA
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
@@ -27,10 +25,10 @@ data_list <- tribble(
 "DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
 "DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
-"DHHS_CMS", "coded", "Rochelle", # no clean script yet
+"DHHS_CMS", "coded", "Rochelle", #153
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
-# "DHHS_NIH", "coded", "Rochelle", #no clean script yet
+"DHHS_NIH", "coded", "Rochelle", #101
 # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
 # DHS
 "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
@@ -51,7 +49,7 @@ data_list <- tribble(
 "DOD_DFAS", "not coded", NA,
 "DOD_DLA_Aviation", "coded", "Fatima",
 "DOD_Navy", "coded", "Delaney", # no records before 2013
-"DOD_OIG", "coded", "Fatima", # waiting for records back from Joe    # only last name info --> 600+ non matches
+"DOD_OIG", "coded", "Fatima", # is this everything? only last name info --> 600+ non matches
 "DOD_OSDJS", "not coded", NA, # some records are in text files to be merged #45, waiting on remaining records
 "DOD_USACE", "coded", "Fatima", # no records before fall 2013
 # "DOD_USMC", "not coded", NA, #  DON-USMC-2018-004141 needs to be converted from pdf and added to drive
@@ -75,8 +73,8 @@ data_list <- tribble(
 "DOL_MSHA", "coded", "Hope", 
 "DOL_OCFO", "coded", "Devin",
 "DOL_OFCCP", "coded", "Rochelle",
-# "DOL_OALJ", "not coded", NA,
-# "DOL_OASAM", "coded", "Rochelle", # no clean script yet
+# "DOL_OALJ", "not coded", NA, # ???
+"DOL_OASAM", "coded", "Rochelle", #190
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
 "DOL_SOL", "coded", "Hope", 
@@ -86,9 +84,9 @@ data_list <- tribble(
 # DOT 
 "DOT_FAA", "coded", "Sam",
 "DOT_FHWA", "coded", "Rochelle", # complete, multiple data sources merged
-# "DOT_FRA", "coded", "Rochelle", no clean script yet
+"DOT_FRA", "coded", "Rochelle", #
 "DOT_FTA", "coded", "Rochelle", 
-"DOT_PHMSA", "coded", "Hope", # need a clean script when on drive. 
+"DOT_PHMSA", "coded", "Hope",
 "DOT_SLSDC", "coded", "Aaron",
 # Education
 "ED", "not coded", NA,
@@ -114,7 +112,7 @@ data_list <- tribble(
 # HUD
 "HUD_HQ", "not coded", NA,
 # IRS 
-"IRS", "not coded", NA, # rolling release
+"IRS", "not coded", NA, # rolling release, devin will merge
 # NARA
 "NARA", "coded", "Rochelle",
 # NASA
@@ -192,8 +190,8 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DOL_EBSA")
-
+i <- which(data_list$agency == "DOT_FRA")
+i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
