@@ -33,19 +33,20 @@ clean <- function(file.name) {
   # create variable for  last name
   data$last_name <- formatLastName(data, 'FROM')
   
-  # add first
-  data$first_name = NA
-  data$first_name = addFirst(data$first_name, data$last_name)
+  # add first name column
+  data %<>% add_first()
   
-  data <- extractMemberName(data, members, 'FROM') 
+  data  %<>% mutate(FROM = paste(first_name, FROM) %>% str_remove("NA "))
+  
+  data %<>% extractMemberName(members, 'FROM') 
+
   
   #Failing observations
   Unfoundnames <- data %>%
-    filter(is.na(last_name),
+    filter(pattern == "404error",
            is.na(ERROR))
+  Unfoundnames %>% select(congress, FROM) %>% distinct() %>% kable()
   
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM,  everything())
 
   return(data)  
 }
