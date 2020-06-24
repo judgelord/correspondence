@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "DHHS_IHS" # for testing
+# file.name <- "DHHS_NIH Rochelle" # for testing
 
 
 clean <- function(file.name) {
@@ -14,12 +14,12 @@ clean <- function(file.name) {
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
-     
+  
   #create agency column
   data$agency <- file.name 
   
   # Format date, year, Congress
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% as.Date("%m/%d/%y")
   
   #checking for Nodates
   NOdate <- data %>%
@@ -30,27 +30,11 @@ clean <- function(file.name) {
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
-data %<>% 
-    mutate(FROM = str_split(FROM, "/")) %>% 
-    unnest(FROM)
+  data %<>% 
+    mutate(FROM = str_split(FROM, ";")) %>% 
+    unnest(FROM) %>%
+    mutate(str_squish(FROM))
   ################
-  
-  
-  #data <- getFirstLast.Comma(data, 'FROM')
-  
-  
-  #Fixes name typo
-  data$FROM %<>%
-    str_replace("YOUNG. DON", "YOUNG, DON") %>%
-    str_replace("5IMPSON", "SIMPSON, Michael K.") %>%
-    str_replace("MERKLEY", "MERKLEY, Jeff") 
-    
-    
-   
-
-    
-    
-    
   
   data %<>% extractMemberName(members, 'FROM')
   
@@ -72,22 +56,19 @@ data %<>%
   
   NonVotingMembers <- . %>%
     str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|Christensen, Donna M.|Sablan, Gregorio Kilili Camacho|CAIN, ROBERT")
-  
+
   
   data %>% 
     mutate(ERROR = ifelse(NonVotingMembers(FROM), "Non-voting member", ERROR))  %>% 
     mutate(ERROR = ifelse(StatePoliticians(FROM), "State Politician", ERROR)) %>% 
     mutate(ERROR = ifelse(NonMembers(FROM), "Non-Member", ERROR)) %>% .$ERROR %>% unique()
   
-
   
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
-  
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE, SUBJECT, FROM,  everything())
+  Unfoundnames %>% select(congress, FROM) %>% distinct() # %>% kable
   
   return(data)
 }
