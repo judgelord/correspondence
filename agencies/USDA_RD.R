@@ -18,39 +18,14 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE %<>% as.Date("%Y-%m-%d")
   data %<>% mutate(year = as.numeric(substring(DATE, 1, 4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
-  
-  
-  data$FROM2 <- gsub(pattern = ", Jr.| Jr.| Jr|, Jr|, III| III| II|, II| l | ll ", "", data$FROM)
- 
-  # # Creates name variables
-  # data %<>% 
-  #   mutate(last_name = gsub(", .*", "", FROM2)) %>%
-  #   mutate(first_name = gsub("^.*?, |, Jr.| Jr.|, III| III| II|, II", "", FROM2)) %>%
-  #   mutate(common_name = stringr::str_extract(FROM2, "\\(.*\\)")) %>%
-  #   mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
-  #   mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
-  #   mutate(middle_name = stringr::str_extract(first_name, " .*")) %>%
-  #   mutate(middle_name = gsub(" ", "", middle_name)) %>%
-  #   mutate(middle_initial = substr(middle_name, 1, 1)) %>%
-  #   mutate(first_name = gsub(" .*", "", first_name)) %>%
-  #   mutate(last_name = gsub("Jr.| Jr.|, III| III| II|, II|IV", "", last_name)) %>% 
-  #   mutate(last_name = str_to_upper(last_name)) %>% 
-  #   mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>%
-  #   mutate(last_name = ifelse(grepl("(\\w+) ", last_name),  gsub(".*?(\\w+)$", replace= "\\1", last_name), last_name)) %>% 
-  #   mutate(first_name = stri_trans_totitle(first_name)) %>% 
-  #   select(FROM, first_name, common_name, middle_name, middle_initial, last_name, everything()) 
-  
-  #data <- getFirstLast.Comma(data, 'FROM')
-  
-  #comparison between getFirstLast and extractMemberName
+
+
   data <- extractMemberName(data, members, 'FROM')
   
   
-
-    
   
   # Next, create variables custome to the agency
   # For example, in the USDA logs, they record the state of the property the letter is about:
@@ -59,12 +34,10 @@ clean <- function(file.name) {
   # In some cases, sparse SUBJECT fields can be consolidated
   # or new summary subject varialbes can be created with "regular expression" matching.
   # For example, with the grepl() function:
-  ? regex
-  ? grepl
   unique(data$SUBJECT) # view SUBJECT strings
   
   # Consolidate and rename like SUBJECTs
-  data %<>%
+  data %>%
     mutate(SUBJECT = ifelse (grepl("Credit", SUBJECT), "Credit", SUBJECT)) %>%
     mutate(SUBJECT = ifelse (
       grepl("Foreclosure|foreclosure", SUBJECT),
@@ -82,10 +55,10 @@ clean <- function(file.name) {
       grepl("General|Regular", SUBJECT),
       "General Service",
       SUBJECT
-    ))
+    )) %>% select(FROM, SUBJECT, Property.State)
   
   # More ways to consolidate
-  data %<>%
+  data %>%
     mutate(SUBJECT = ifelse (grepl("REO", SUBJECT), "Real Estate Property", SUBJECT)) %>%
     mutate(SUBJECT = ifelse (grepl("Pay|pay|PAY|Loan", SUBJECT), "Loan Payments", SUBJECT)) %>%
     mutate(SUBJECT = ifelse (grepl("Tax", SUBJECT), "Taxes", SUBJECT))
@@ -134,10 +107,11 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^White House Referral$",data$FROM), "White House Referral", ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^National Office Referral$",data$FROM), "National Office Referral", ERROR))
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(is.na(last_name),
-           is.na(ERROR)) 
+  # #Failing observations
+  # Unfoundnames <- data %>%
+  #   filter(is.na(last_name),
+  #          is.na(ERROR)) 
+  # Unfoundnames %>% select(congress, FROM, string) %>% distinct()%>% kable()
   
   
   
