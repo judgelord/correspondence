@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "DHHS_NIH Rochelle" # for testing
+# file.name <- "DOL_OASAM Rochelle" # for testing
 
 
 clean <- function(file.name) {
@@ -24,14 +24,19 @@ clean <- function(file.name) {
   #checking for Nodates
   NOdate <- data %>%
     filter(is.na(DATE))
+  NOdate
   
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   ###############    
+  data %<>% 
+    mutate(FROM = str_replace(FROM, "Cong |Conq ", "Representative ") %>% 
+             str_remove_all("\n"))
+           
   # Creates duplicate rows for lines with multiple representatives
   data %<>% 
-    mutate(FROM = str_split(FROM, ";")) %>% 
+    mutate(FROM = str_split(FROM, "&|;")) %>% 
     unnest(FROM) %>%
     mutate(FROM = str_squish(FROM))
   ################
@@ -56,7 +61,7 @@ clean <- function(file.name) {
   
   NonVotingMembers <- . %>%
     str_detect("Pierluisi, Pedro R.|Fortuno, Luis|Bordallo, Madeleine Z.|Bordallo, Madeleine .|Christensen, Donna M.|Sablan, Gregorio Kilili Camacho|CAIN, ROBERT")
-
+  
   
   data %>% 
     mutate(ERROR = ifelse(NonVotingMembers(FROM), "Non-voting member", ERROR))  %>% 
@@ -68,7 +73,7 @@ clean <- function(file.name) {
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
-  Unfoundnames %>% select(congress, FROM) %>% distinct() # %>% kable
+  Unfoundnames %>% select(congress, FROM) %>% distinct()  %>% kable
   
   return(data)
 }
