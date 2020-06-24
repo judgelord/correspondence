@@ -16,6 +16,7 @@ This repository contains code to merge, augment, and analyze data on congression
 - [ ] FOIA letters with insufficient log data #76
 - [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder #10
 - [ ] Add member comments from regualations.gov
+- [ ] Clean scrips for **DHS_NIH**, DOI_BIA, **DOL_OASAM**, **DOT_FRA**, **EEOC**, **Treasury_Mint**
 
 # Want to help? 
 
@@ -26,9 +27,9 @@ Here are some tasks that anyone can do:
 
 # For collaborators
 
-- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder.
-- Some need to be extracted from pdfs #77
-- Data extracted from pdfs by not yet uploaded to google drive should have an open issue named "add AGENCY data to drive"
+- Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder
+- Some still need to be extracted from pdfs #77
+- Data extracted from pdfs but not yet uploaded to google drive should have an open issue named "add AGENCY data to drive"
 - Memes should be posted to #158
 
 All datasheets must have these columns:
