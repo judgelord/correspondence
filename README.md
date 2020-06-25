@@ -16,7 +16,7 @@ This repository contains code to merge, augment, and analyze data on congression
 - [ ] FOIA letters with insufficient log data #76
 - [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder #10
 - [ ] Add member comments from regualations.gov
-- [ ] Clean scrips for **DHS_NIH**, DOI_BIA, **DOL_OASAM**, **DOT_FRA**, **EEOC**, **Treasury_Mint**
+- [x] ~~Clean scrips for **DHS_NIH**, DOI_BIA, **DOL_OASAM**, **DOT_FRA**, **EEOC**, **Treasury_Mint**~~
 
 # Want to help? 
 
