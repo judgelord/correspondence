@@ -139,7 +139,7 @@ data_list <- tribble(
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "coded", "Julia", 
-# "Treasury_Mint", "coded", "Rochelle", # rich and complete, but needs a script
+# "Treasury_Mint", "coded", "Rochelle", #59
 "Treasury_OCC", "coded", "Aaron",
 "TVA", "not coded", NA,
 # USDA 
