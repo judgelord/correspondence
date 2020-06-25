@@ -21,7 +21,7 @@ data %<>% group_by(Department) %>% mutate(Components = n(), Records = sum(data1)
 data %<>% group_by(Department, Components, Records, Coded) %>% tally() %>% select(-n)
 
 
-
+nrow(df)
 # # get letter totals from df
 dfdata <- df %>% mutate(Department = ifelse(!grepl("Department of", Department), "Independent Agencies", Department))
 

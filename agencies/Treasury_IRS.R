@@ -1,5 +1,5 @@
 
-# file.name <- "IRS" # for testing
+# file.name <- "Treasury_IRS" # for testing
 
 
 clean <- function(file.name) {
@@ -17,14 +17,15 @@ clean <- function(file.name) {
 data$agency <- file.name
 
 # Format date, year, Congress, member name etc. 
-data$DATE <- data$`Received Date`
-data$DATE %<>% as.Date("%m/%d/%y")
+data$DATE %<>% str_remove(" .*")
+data %<>% mutate(DATE = ifelse(is.na(DATE), `Received Date`, DATE))
+data$DATE %>% as.Date("%m/%d/%y")
 
 
 #checking for NA dates
 NOdate <- data %>%
   filter(is.na(DATE))
-
+NOdate %>% select(`Received Date`)
 
 #create year and congress columns
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))

@@ -60,6 +60,8 @@ data_list <- tribble(
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
+# OSMRE
+"DOI_OSMRE","not coded", NA,
 "DOI_SOL", "coded", "Hope",
 "DOI_USGS", "coded", "Hope",
 # DOJ 
@@ -100,7 +102,7 @@ data_list <- tribble(
 # FCC
 "FCC", "coded", "Devin",
 # FDA
-"FDA", "coded", "Rochelle",  # 2007-2018 now on drive, debug issue #97
+"DHHS_FDA", "coded", "Rochelle",  # 2007-2018 now on drive, debug issue #97
 # FHFA
 "FHFA", "not coded", NA, #
 # FMC
@@ -111,8 +113,6 @@ data_list <- tribble(
 # "GSA", "not coded", NA, # 6k entries 2007-2017 on drive, but only some member names in subject, filed for others july 2018 
 # HUD
 "HUD_HQ", "not coded", NA,
-# IRS 
-"IRS", "not coded", NA, # rolling release, devin will merge #28
 # NARA
 "NARA", "coded", "Rochelle",
 # NASA
@@ -122,13 +122,11 @@ data_list <- tribble(
 # NCUA
 "NCUA", "not coded", NA, 
 # NIGC
-"NIGC", "coded", "Fatima",
+"DOI_NIGC", "coded", "Fatima",
 # NLRB
 "NLRB" , "not coded", NA,
 # NWTRB
 "NWTRB", "not coded", NA,
-# OSMRE
-"OSMRE","not coded", NA, # no observatoins are people from congress, adds no new data
 # PRC
 "PRC", "not coded", NA, # no responsive records for FY 2007 or FY 2008. Tracking did not start until FY 2009
 # RRB
@@ -139,6 +137,8 @@ data_list <- tribble(
 # "STB", "not coded", NA, # need to finish merge script; only 2015-2017?
 # Treasury
 "Treasury_Fiscal", "coded", "Julia", 
+# IRS 
+"Treasury_IRS", "not coded", NA, #28
 # "Treasury_Mint", "coded", "Rochelle", #59
 "Treasury_OCC", "coded", "Aaron",
 "TVA", "not coded", NA,
@@ -736,20 +736,31 @@ df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arle
 ########################################################################
 df %<>% filter(!is.na(agency)) # drop any NAs resulting from other merges before merging oversight data 
 
+# df %<>% select(-department, -Department)
+
 # Add agency names by acronym from the FOIA List google sheet
-df %<>% left_join(
-  read_csv("data/_FOIA_list.csv") %>% mutate(agency = str_remove(agency, "_$")))
+foiaList <-  read_csv("data/_FOIA_list.csv") %>% 
+  mutate(agency = str_remove(agency, "_$"))
+foiaList %>% filter(agency == "DHHS_FDA")
 
+df %<>% left_join(foiaList)
 
+df %<>% mutate(department = str_remove(agency, "_.*"))
 
 # corrections
 df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
-df %<>% mutate(Department = ifelse(agency == "USDA", "Department of Agriculture", Department))
-df %<>% mutate(Department = ifelse(agency == "HUD_HQ", "Department of Housing and Urban Development", Department))
+df %<>% mutate(Department = ifelse(department == "DOI", "Department of Interrior", Department))
+df %<>% mutate(Department = ifelse(department == "DHHS", "Department of Health and Human Services", Department))
+df %<>% mutate(Department = ifelse(department == "EOP", "Executive Office of the President", Department))
+df %<>% mutate(Department = ifelse(department == "USDA", "Department of Agriculture", Department))
+df %<>% mutate(Department = ifelse(department == "HUD", "Department of Housing and Urban Development", Department))
 
+df %>% select(agency, department, Department) %>% distinct() %>% filter(is.na(Department))
+
+df %>% select(agency, department, Department) %>% distinct()
 
 
 df %<>% left_join(
@@ -872,3 +883,6 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 # source("agencies/_FOIA_response_table.R")
 
 data_complete()
+
+
+
