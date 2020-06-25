@@ -51,13 +51,13 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(NonMembers(FROM), "Non-Member", ERROR)) #%>% .$ERROR %>% unique()
   
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(is.na(last_name),
-           is.na(ERROR)) 
-  Unfoundnames %>% 
-    group_by(FROM) %>% 
-    summarise(congress = str_c(congress, collapse = ";")) %>% distinct()  %>% kable
-  
+  # #Failing observations
+  # Unfoundnames <- data %>%
+  #   filter(is.na(last_name),
+  #          is.na(ERROR)) 
+  # Unfoundnames %>% 
+  #   group_by(FROM) %>% 
+  #   summarise(congress = str_c(congress, collapse = ";")) %>% distinct()  %>% kable
+  # 
   return(data)
 }
