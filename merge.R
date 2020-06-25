@@ -112,7 +112,7 @@ data_list <- tribble(
 # HUD
 "HUD_HQ", "not coded", NA,
 # IRS 
-"IRS", "not coded", NA, # rolling release, devin will merge
+"IRS", "not coded", NA, # rolling release, devin will merge #28
 # NARA
 "NARA", "coded", "Rochelle",
 # NASA
@@ -190,7 +190,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DOL_SOL")
+i <- which(data_list$agency == "ABMC")
 i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -342,7 +342,8 @@ bad.dates <- d %>%
 
 
 d %<>% 
-  # drop obs out of timeframe
+  # drop obs out of timeframe 
+  #FIXME when we get complete data through 2020
   filter(year < 2019 & year > 1999) %>% 
   # drop bad dates (dates where the member did not serve)
   filter(DATE != "Date out of range")
@@ -360,12 +361,18 @@ bad.names.2 <- d %>%
   ungroup() %>% 
   filter(is.na(ERROR)) %>% 
   filter(is.na(bioname) | bioname == "") %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name,  chamber, state, congress, SUBJECT, TYPE, NOTES, ERROR)
+  select(LetterID, ID, agency, DATE, congress, FROM, chamber, state, TYPE, NOTES)
 
 worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
+
 worst.names <- bad.names.2 %>% 
   # filter(agency != "DHS_HQ")  %>% 
-  ungroup() %>% drop_na(FROM) %>% filter(FROM != "NA", FROM != "") %>% count(FROM, agency, congress) %>% arrange(-n)  %>% top_n(100)
+  ungroup() %>% drop_na(FROM) %>% filter(FROM != "NA", FROM != "") %>% 
+  group_by(FROM) %>%
+  summarise(n = n(),
+            agency = str_c(unique(agency), collapse = ";"),
+            congress = str_c(unique(congress), collapse = ";") ) %>% distinct() %>%
+  arrange(-n)  %>% top_n(100)
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
