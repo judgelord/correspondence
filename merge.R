@@ -77,7 +77,7 @@ data_list <- tribble(
 "DOL_OASAM", "coded", "Rochelle", #190
 "DOL_OSHA", "coded", "Rochelle",
 "DOL_OWCP", "coded", "Rochelle",
-"DOL_SOL", "coded", "Hope", 
+"DOL_SOL", "coded", "Rochelle", 
 "DOL_VETS", "coded", "Rochelle",
 # DOS 
 # "DOS", "not coded", NA, # waiting on dept of state foia 
@@ -190,7 +190,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DOT_FRA")
+i <- which(data_list$agency == "DOL_SOL")
 i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
