@@ -28,13 +28,20 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   # # for testing
-  # fullFROM <- data %>%
+  #fullFROM <- data %>%
   #   filter(! is.na(FROM))
+  
+  nullName <- data %>%
+    filter(str_detect(FROM, "NULL"))
+  
   
   data %<>%
     mutate(FROM = ifelse(is.na(FROM), paste(`From Last Name`, `From First Name`, sep = ", "), FROM))
   
   #data <- data[sample(1:nrow(data), 20000, replace=FALSE),]
+  
+  nullName <- data %>%
+    filter(str_detect(FROM, "NULL"))
   
   #Typos
    data %<>%
@@ -65,7 +72,13 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "Griffin, Tom", "Griffin, Tim")) %>%
      mutate(FROM = str_replace(FROM, "Hill, J\\. French", "Hill, French")) %>%
      mutate(FROM = str_replace(FROM, "Farenthold, Black", "Farenthold, Blake")) %>%
-     mutate(FROM = str_replace(FROM, "Takai, K\\. Mark", "TAKAI, Mark"))
+     mutate(FROM = str_replace(FROM, "Takai, K\\. Mark", "TAKAI, Mark")) %>%
+     mutate(FROM = str_replace(FROM, "Lujï¿½n, Ben", "LUJAN, Ben")) %>%
+     mutate(FROM = str_replace(FROM, "Labrador, Ra?l|Labrador, Ra?l|Labrador, Raúl", "LABRADOR, Raul")) %>%
+     mutate(FROM = str_replace(FROM, "MICA  JOHN L, NULL", "MICA, JOHN")) %>%
+     mutate(FROM = str_replace(FROM, "CORKER  BOB, NULL", "CORKER, BOB")) %>%
+     mutate(FROM = str_replace(FROM, "Andrews, NULL", "ANDREWS, Robert")) %>%
+     mutate(FROM = str_replace(FROM, "Murkowski, NULL", "MURKOWSKI, Lisa"))
    
    # check N
    dim(data)
