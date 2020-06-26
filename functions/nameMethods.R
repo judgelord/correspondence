@@ -494,7 +494,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
     if(top5>5){top5<-5}
     
     ## Message for when errors are probably non-observations (short strings or NA)
-    nonobs <- "probably non-observations"
+    nonobs <- "but empty string, so probably non-observations"
     
     base::message(red(paste(
       paste0("Bad dates in ", unique(data$agency), ", ", congress_i, "th congress?"),

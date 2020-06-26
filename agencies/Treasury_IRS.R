@@ -17,16 +17,28 @@ clean <- function(file.name) {
 data$agency <- file.name
 
 # Format date, year, Congress, member name etc. 
-data$DATE %<>% str_remove(" .*")
+data$DATE %<>% str_remove(" .*") # some cells have more than one date, taking the first, which should generally be `Received Date`
 data %<>% mutate(DATE = ifelse(is.na(DATE), `Received Date`, DATE))
-data$DATE %>% as.Date("%m/%d/%y")
 
+data$date1 <- data$DATE 
+data$DATE <- data$date1
+data$DATE %<>% as.Date("%m/%d/%y")
+
+# fill in missing (may not actually get any more)
+data$DATE[is.na(data$DATE)] <- as.Date(data$date1[is.na(data$DATE)], "%m/%d/%Y")
+data$DATE[is.na(data$DATE)] <- as.Date(data$`Received Date`[is.na(data$DATE)], "%m/%d/%y")
+data$DATE[is.na(data$DATE)] <- as.Date(data$`Due Date`[is.na(data$DATE)], "%m/%d/%y")
 
 #checking for NA dates
 NOdate <- data %>%
   filter(is.na(DATE))
-NOdate %>% select(`Received Date`)
+NOdate %>% select(`Received Date`, SUBJECT) %>% distinct() %>% kable()
+NOdate %>% select(Sort, `Received Date`) %>% filter(nchar(`Received Date`)>3, nchar(`Received Date`)<13) %>% distinct() %>% kable()
 
+# other bad dates 
+data %>% filter(!str_detect(DATE, "^200|^201")) %>% select(Sort, DATE, `Received Date`) %>% kable()
+  
+  
 #create year and congress columns
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001

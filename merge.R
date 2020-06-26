@@ -148,7 +148,7 @@ data_list <- tribble(
 "USDA_ERS", "not coded", NA, 
 "USDA_FS", "not coded", NA,
 "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
- "USDA_NIFA", "not coded", NA, 
+"USDA_NIFA", "not coded", NA, 
 "USDA_NRCS", "not coded", NA,
 "USDA_RD", "not coded", NA,
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
