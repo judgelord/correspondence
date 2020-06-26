@@ -11,12 +11,12 @@ This repository contains code to merge, augment, and analyze data on congression
 - Member data from <https://www.voteview.com/> are augmented in `members/nameCongress.R`  [#9](https://github.com/judgelord/correspondence/issues/9) and committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html> in `committees/committees.R` [#12](https://github.com/judgelord/correspondence/issues/12)
 
 ## TODO 
-- [ ] Add agency data #83
-- [ ] Improve codebook to better code constituent class #82 and policy events #4
-- [ ] FOIA letters with insufficient log data #76
-- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder #10
+- [ ] Add agency data [#83](https://github.com/judgelord/correspondence/issues/83)
+- [ ] Improve codebook to better code constituent class [#82](https://github.com/judgelord/correspondence/issues/82) and policy events [#4](https://github.com/judgelord/correspondence/issues/4)
+- [ ] FOIA letters with insufficient log data [#76](https://github.com/judgelord/correspondence/issues/76)
+- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder [#10](https://github.com/judgelord/correspondence/issues/10)
 - [ ] Add member comments from regualations.gov
-- [x] ~~Clean scrips for **DHS_NIH**, DOI_BIA, **DOL_OASAM**, **DOT_FRA**, **EEOC**, **Treasury_Mint**~~
+- [x] ~~Clean scrips for DHS_NIH, DOI_BIA, DOL_OASAM**, DOT_FRA**, EEOC**,Treasury_Mint~~
 
 # Want to help? 
 
