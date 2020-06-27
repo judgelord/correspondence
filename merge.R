@@ -190,7 +190,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "NARA")
 i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -205,7 +205,9 @@ d1 %>% count(congress, is.na(last_name))
 suppressMessages(
 d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
-  select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+  select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, 
+         SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
+         CONSTITUENT_TYPE, CONSTITUENT_RACE, NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
   distinct()
@@ -262,11 +264,9 @@ stopped <- data_list$agency[i]
 
 base::message(white(paste("merge stopped at", stopped)))
 
-## Missing any agencies? 
-str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
-
-
-# load saved data
+###################
+# load saved data #
+###################
 files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
   set_names(list.files(here("data/agencies")))
 
@@ -277,6 +277,11 @@ combine <- function(file){
 }
 
 d <- map_dfr(files, combine) %>% .$FROM %>% unique()
+
+## Missing any agencies? 
+str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
+
+
 
 # ## Text Devin - this broke with google's auth update 
 # library(gmailr)
