@@ -31,13 +31,15 @@ for (i in sheets) {
       "ERROR"
     )
   
+  if(sum(!names(data) %in% variables)>0){
+  
   data[, variables[which(!(variables %in% names(data)))]] <- "" # create new empty variables
   
   # locate sheet i
   googlesheets4::gs4_get(i) %>% 
     # overwite just the column names, 0 rows
     googlesheets4::range_write(data[0,]) # save 
-
+  } # end if
   
 } # end function
 
