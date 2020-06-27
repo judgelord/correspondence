@@ -249,9 +249,11 @@ while(!is.na(data_list[i,1])) {
   
   d1$DATE <- as.Date(d1$DATE)
   
-  suppressMessages(
-  d %<>% full_join(d1)
-  )
+    file.name <- str_c("data/agencies/", 
+                       unique(d1$agency), 
+                       ".Rdata")
+  
+  save(d1, file = file.name)
   
   i <- i + 1
 }
@@ -262,6 +264,19 @@ base::message(white(paste("merge stopped at", stopped)))
 
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
+
+
+# load saved data
+files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
+  set_names(list.files(here("data/agencies")))
+
+combine <- function(file){
+  load(file)
+  d %<>% full_join(d1) 
+  return(d)
+}
+
+d <- map_dfr(files, combine) %>% .$FROM %>% unique()
 
 # ## Text Devin - this broke with google's auth update 
 # library(gmailr)
@@ -883,6 +898,10 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 # source("agencies/_FOIA_response_table.R")
 
 data_complete()
+
+
+
+
 
 
 
