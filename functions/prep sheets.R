@@ -4,11 +4,19 @@ source("setup.R")
 
 
 sheets <- googledrive::drive_ls("datasheets")
+
+# # Subsetting 
+sheets %<>% map_df(rev)
+# sheets$name == "DHHS_CMS Rochelle"
+# sheets <- sheets[31:dim(sheets), ]
 #sheets <- gs_ls()
 
 sheets %<>% .$id
 
 # i = sheets[1] # for testing 
+# updated <- NA
+
+sheets <- sheets[!sheets %in% updated]
 
 for (i in sheets) {
   data <- googlesheets4::gs4_get(i) %>% gs_read()
@@ -40,6 +48,8 @@ for (i in sheets) {
     # overwite just the column names, 0 rows
     googlesheets4::range_write(data[0,]) # save 
   } # end if
+  
+  updated <- c(updated, i)
   
 } # end function
 
