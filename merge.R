@@ -207,7 +207,8 @@ d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
   select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, 
          SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
-         CONSTITUENT_TYPE, CONSTITUENT_RACE, NOTES, ERROR) %>% 
+         CONSTITUENT_TYPE, CONSTITUENT_RACE, 
+         NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
   distinct()
@@ -229,7 +230,8 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 
 # data_list <- data_list[i:nrow(data_list),]
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
-head(data_list)
+data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
+head(data_list$agency)
 
 i <- 1
 while(!is.na(data_list[i,1])) {
@@ -312,6 +314,9 @@ d <- draw
 d$icpsr %<>% as.numeric()
 
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
+
+# constituent type and class codes 
+source("functions/constituent_types.R")
 
 # party switchers etc
 # FIXME
