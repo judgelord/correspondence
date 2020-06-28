@@ -190,7 +190,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "NARA")
+i <- which(data_list$agency == "ABMC")
 i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -207,7 +207,7 @@ d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
   select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, 
          SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
-         CONSTITUENT_TYPE, CONSTITUENT_RACE, 
+         #CONSTITUENT_TYPE, CONSTITUENT_RACE, 
          NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
@@ -230,7 +230,7 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 
 # data_list <- data_list[i:nrow(data_list),]
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
-data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
+# data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
 head(data_list$agency)
 
 i <- 1
@@ -278,8 +278,9 @@ combine <- function(file){
   return(d)
 }
 
-d <- map_dfr(files, combine) %>% .$FROM %>% unique()
-
+dim(d)
+d <- map_dfr(files, combine) 
+dim(d)
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 
@@ -316,6 +317,8 @@ d$icpsr %<>% as.numeric()
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 
 # constituent type and class codes 
+d$CONSTITUENT_TYPE <- NA
+d$CONSTITUENT_CLASS <- NA
 source("functions/constituent_types.R")
 
 # party switchers etc
