@@ -780,7 +780,7 @@ df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland 
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
-df %<>% mutate(Department = ifelse(department == "DOI", "Department of Interrior", Department))
+df %<>% mutate(Department = ifelse(department == "DOI", "Department of the Interior", Department))
 df %<>% mutate(Department = ifelse(department == "DHHS", "Department of Health and Human Services", Department))
 df %<>% mutate(Department = ifelse(department == "EOP", "Executive Office of the President", Department))
 df %<>% mutate(Department = ifelse(department == "USDA", "Department of Agriculture", Department))
@@ -794,7 +794,7 @@ df %>% select(agency, department, Department) %>% distinct()
 df %<>% left_join(
   # From Lewis and Seldin AJPS
   read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
-)
+) %>% distinct()
 
 # match to committee list 
 df$oversight_committee <- 0
@@ -860,7 +860,7 @@ dcommittees %<>% full_join(
 ###########################
 # remove temp data / vars #
 ###########################
-df %<>% dplyr::select(-n)
+df %<>% dplyr::select(-n) %>% distinct()
 rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
 
 
@@ -872,7 +872,9 @@ load("data/all_contacts_committees.Rdata")
 dcommittees %<>% full_join(all_contacts_committees)
 }
 
-
+dim(df %>% distinct())
+df %>% filter(is.na(icpsr))
+df %<>% distinct()
 # save if all data sources merged, save data files
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 
