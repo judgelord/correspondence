@@ -16,8 +16,8 @@ clean <- function(file.name) {
   data$agency <- file.name
 
 
-  # not neeed 
-  # data$DATE %>% str_to_sentence()
+  ## not needed?
+  #data$DATE %>% str_to_sentence()
 
   #Format Date
   data$DATE %<>% as.Date("%d-%b-%y")

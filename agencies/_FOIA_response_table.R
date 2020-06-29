@@ -14,11 +14,16 @@ data$on_drive
 
 data %<>% mutate(Bureau = ifelse(is.na(Bureau), Department, Bureau))
 
-data %<>% mutate(Department = ifelse(!grepl("Department of", Department), "Independent Agencies", Department))
+data %<>% 
+  mutate(Department = ifelse(!grepl("Department of", Department), "Independent Agencies", Department))
 
-data %<>% group_by(Department) %>% mutate(Components = n(), Records = sum(data1), Coded = sum(on_drive)) %>% distinct()
+data %<>% group_by(Department) %>% 
+  mutate(Components = n(), Records = sum(data1), Coded = sum(on_drive)) %>% 
+  distinct()
 
-data %<>% group_by(Department, Components, Records, Coded) %>% tally() %>% select(-n)
+data %<>% group_by(Department, Components, Records, Coded) %>% 
+  tally() %>% 
+  select(-n)
 
 
 nrow(df)

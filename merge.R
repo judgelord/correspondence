@@ -205,7 +205,10 @@ d1 %>% count(congress, is.na(last_name))
 suppressMessages(
 d <- d1 %>%
   left_join(members) %>% # merge on common variables (may differ)
-  select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+  select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, 
+         SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
+         #CONSTITUENT_TYPE, CONSTITUENT_RACE, 
+         NOTES, ERROR) %>% 
   #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
   left_join(members) %>% # merge on common variables (may differ)
   distinct()
@@ -227,7 +230,8 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 
 # data_list <- data_list[i:nrow(data_list),]
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
-head(data_list)
+# data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
+head(data_list$agency)
 
 i <- 1
 while(!is.na(data_list[i,1])) {
@@ -262,11 +266,9 @@ stopped <- data_list$agency[i]
 
 base::message(white(paste("merge stopped at", stopped)))
 
-## Missing any agencies? 
-str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
-
-
-# load saved data
+###################
+# load saved data #
+###################
 files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
   set_names(list.files(here("data/agencies")))
 
@@ -276,7 +278,13 @@ combine <- function(file){
   return(d)
 }
 
-d <- map_dfr(files, combine) %>% .$FROM %>% unique()
+dim(d)
+d <- map_dfr(files, combine) 
+dim(d)
+## Missing any agencies? 
+str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
+
+
 
 # ## Text Devin - this broke with google's auth update 
 # library(gmailr)
@@ -307,6 +315,11 @@ d <- draw
 d$icpsr %<>% as.numeric()
 
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
+
+# constituent type and class codes 
+d$CONSTITUENT_TYPE <- NA
+d$CONSTITUENT_CLASS <- NA
+source("functions/constituent_types.R")
 
 # party switchers etc
 # FIXME
@@ -767,7 +780,7 @@ df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland 
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
 df %<>% mutate(Department = ifelse(department == "DOT", "Department of Transportation", Department))
-df %<>% mutate(Department = ifelse(department == "DOI", "Department of Interrior", Department))
+df %<>% mutate(Department = ifelse(department == "DOI", "Department of the Interior", Department))
 df %<>% mutate(Department = ifelse(department == "DHHS", "Department of Health and Human Services", Department))
 df %<>% mutate(Department = ifelse(department == "EOP", "Executive Office of the President", Department))
 df %<>% mutate(Department = ifelse(department == "USDA", "Department of Agriculture", Department))
@@ -781,7 +794,7 @@ df %>% select(agency, department, Department) %>% distinct()
 df %<>% left_join(
   # From Lewis and Seldin AJPS
   read.csv("committees/ACUS.csv") %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
-)
+) %>% distinct()
 
 # match to committee list 
 df$oversight_committee <- 0
@@ -847,7 +860,7 @@ dcommittees %<>% full_join(
 ###########################
 # remove temp data / vars #
 ###########################
-df %<>% dplyr::select(-n)
+df %<>% dplyr::select(-n) %>% distinct()
 rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
 
 
@@ -859,7 +872,9 @@ load("data/all_contacts_committees.Rdata")
 dcommittees %<>% full_join(all_contacts_committees)
 }
 
-
+dim(df %>% distinct())
+df %>% filter(is.na(icpsr))
+df %<>% distinct()
 # save if all data sources merged, save data files
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
 
