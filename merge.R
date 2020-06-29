@@ -190,7 +190,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "Amtrak")
 i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -200,6 +200,7 @@ d1 <- clean.agency(
 
 # check result 
 d1 %>% count(congress, is.na(last_name))
+d1 %>% count(is.na(LetterID))
 
 # merge with voteview data to initiate d (unfiltered data)
 suppressMessages(
@@ -246,7 +247,7 @@ while(!is.na(data_list[i,1])) {
   suppressMessages(
   d1 %<>% 
     left_join(members) %>% 
-    select(ID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+    select(ID, LetterID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
     left_join(members)%>% 
     distinct()
   )
@@ -284,6 +285,10 @@ dim(d)
 ## Missing any agencies? 
 str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
 
+# Check for NAs in LetterID
+d %>% count(is.na(LetterID), agency)
+load(files[4])
+d1 %>% count(is.na(LetterID))
 
 
 # ## Text Devin - this broke with google's auth update 
@@ -297,6 +302,7 @@ str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% sele
 ##############################
 #########################################################################################
 nrow(d)
+
 # archive raw version of merged data 
 draw <- d
 nrow(draw)
@@ -311,7 +317,7 @@ d <- draw
 # FIX ERRORS #
 ##############
 # fix date-specific member name and party issues. 
-# See bad.party object for party switchers to check 
+# See bad.party object for party switchers to check
 d$icpsr %<>% as.numeric()
 
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
@@ -490,8 +496,7 @@ data_list %>% filter(!(agency %in% df$agency))
 
 ####################################################################################
 # yearly totals for core APSA2018 model 
-df %<>% group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>%
-  mutate(bioname_year = paste(bioname, year))
+df %<>% mutate(bioname_year = paste(bioname, year))
 df$year %<>% as.numeric()
 
 
@@ -501,7 +506,8 @@ df$year %<>% as.numeric()
 # New vars #
 ############
 df$department <- gsub("_.*", "", df$agency) # name dept
-df %<>% mutate(id = paste(agency, ID)) # unique ID
+df %<>% mutate(id = paste(agency, LetterID, icpsr)) # unique ID
+df %<>% mutate(ID = paste(agency, LetterID, icpsr, sep = "-")) %>% distinct() # replace old ID, which is not unique
 
 # numeric to text 
  df$Type <- NA
@@ -590,10 +596,6 @@ df %<>%
                                 1, 0)) 
 
 
-
-# TOTALS PER YEAR 
-df %<>% 
-  group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
 
 # clean up problems with party switchers etc. that may have come in with merge 
 df$icpsr %<>% as.numeric()
@@ -752,12 +754,37 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
   # mutate(yearsAsChair = daysAsChair/365) %>%
   # mutate(monthsAsChair = daysAsChair/30) 
 
-df %<>% 
-  group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() 
+
+df %<>% select(-FROM) %>% distinct()
+
+df %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>% group_by(DATE, SUBJECT, agency, bioname, icpsr, party) %>% 
+  add_count() %>% #filter(n>1) %>% 
+  arrange(DATE) %>% select(ID, LetterID, SUBJECT, agency) #%>% distinct()
 
 # clean up problems with party switchers etc. that may have come in with merge 
 df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
 
+look <- df %>%  select(agency, bioname, DATE, SUBJECT, TYPE, ALT_TYPE, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
+  distinct() %>% # there is some other problem beyond different coding
+  add_count(bioname, DATE, agency, SUBJECT) %>% filter(n>1) %>% arrange(DATE, bioname, agency) 
+write_csv(look, path = "data/likely_duplicates.csv")
+
+combine <- . %>% unique() %>% str_c(collapse = ";")
+
+look %<>% group_by(bioname, DATE, agency, SUBJECT) %>% top_n(1, TYPE) %>% summarise_all(combine)
+
+
+##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
+df %<>% group_by(bioname, DATE, agency, SUBJECT) %>% top_n(1, TYPE) %>% summarise_all(combine)
+
+
+
+
+
+# add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
+df %<>% 
+  group_by(bioname, year) %>% mutate(permemberyear = n()) %>% ungroup() %>%
+  group_by(icpsr, year) %>% mutate(per_year_icpsr = n()) %>% ungroup() 
 
 #####################
 
@@ -771,7 +798,7 @@ foiaList <-  read_csv("data/_FOIA_list.csv") %>%
   mutate(agency = str_remove(agency, "_$"))
 foiaList %>% filter(agency == "DHHS_FDA")
 
-df %<>% left_join(foiaList)
+df %<>% left_join(foiaList) %>% distinct()
 
 df %<>% mutate(department = str_remove(agency, "_.*"))
 
@@ -913,10 +940,6 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 # source("agencies/_FOIA_response_table.R")
 
 data_complete()
-
-
-
-
 
 
 

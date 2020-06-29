@@ -5,6 +5,8 @@ output:
     toc: true
     toc_float: true
     code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +15,7 @@ source("setup.R")
 
 # load data
 load(here("data/all_contacts.RData"))
-df <- all_contacts %>% filter(year >2004)
+df <- all_contacts %>% filter(year >1999)
 load(here("data/all_contacts_committees.RData"))
 dcommittees <- all_contacts_committees %>% filter(year >2004)
 ```
@@ -53,7 +55,8 @@ df %>%
        y = "Agency, N",
        title = paste("Observations matched with ICPSR, N =", nrow(df) )) +
    facet_grid(complete ~., scales = "free_y", space = "free_y") + 
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank(),
+        legend.key = element_rect(size = 10))
 
 # MISSING DATA STATUS: 
 # DHHS_ACL - no logs before 2017
