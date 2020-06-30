@@ -231,7 +231,25 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 
 # data_list <- data_list[i:nrow(data_list),]
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
+
+## Resume 
 # data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
+
+
+# subset by date
+if(F){
+  files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
+    set_names(list.files(here("data/agencies"))) %>%
+    file.info() %>% 
+    as_tibble(rownames = "file") %>% 
+    filter(mtime < as.Date("2020-06-28")) %>% # date criteria
+    distinct() 
+  
+  files$file
+  
+  data_list %<>% filter(agency %in% str_remove_all(files$file, ".*/|.Rdata"))
+}
+
 head(data_list$agency)
 
 i <- 1
@@ -247,7 +265,10 @@ while(!is.na(data_list[i,1])) {
   suppressMessages(
   d1 %<>% 
     left_join(members) %>% 
-    select(ID, LetterID, DATE, year, congress, FROM, bioname, agency, SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+    select(ID, LetterID, 
+           DATE, year, congress, 
+           FROM, bioname, agency, SUBJECT, 
+           TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
     left_join(members)%>% 
     distinct()
   )
@@ -271,7 +292,7 @@ base::message(white(paste("merge stopped at", stopped)))
 # load saved data #
 ###################
 files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
-  set_names(list.files(here("data/agencies")))
+  set_names(list.files(here("data/agencies"))) 
 
 combine <- function(file){
   load(file)
