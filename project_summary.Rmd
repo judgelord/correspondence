@@ -41,11 +41,13 @@ kable(read_csv(here("data/_FOIA_response_table.csv")) %>% select(-X1))
 
 Are the 110-114th Congresses reasonably covered (with the potential to cover the 115th by publication)?  
 
-```{r missing_data, fig.height=10}
+```{r missing_data, fig.height=11}
+#df %<>% filter(agency %in% c("ABMC", "DOE_FERC"))
 df %>% 
   filter(!is.na(agency)) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
   mutate(Coded = ifelse(Type == "To be coded", "To be coded", "Coded")) %>% 
+  mutate(complete = ifelse(complete, "Complete 2007-2016 coverage", "Partial coverage")) %>% 
   ggplot() + 
   geom_point(aes(x = DATE, y = paste(agency, n), color = Coded), 
              alpha = .4,
@@ -55,8 +57,8 @@ df %>%
        y = "Agency, N",
        title = paste("Observations matched with ICPSR, N =", nrow(df) )) +
    facet_grid(complete ~., scales = "free_y", space = "free_y") + 
-  theme(legend.title = element_blank(),
-        legend.key = element_rect(size = 10))
+  guides(color = guide_legend(override.aes = list(size=1, stroke=20))) +
+  theme(legend.title = element_blank(), legend.position = "top" )
 
 # MISSING DATA STATUS: 
 # DHHS_ACL - no logs before 2017
@@ -117,7 +119,7 @@ df %>%
 
 All time-series analysis below subsets to agencies with at least ten continous years of coverage (2007-2018).   
 
-```{r data_by_type, fig.height=4, fig.width=6}
+```{r data_by_type, fig.height=3, fig.width=7}
 df %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
@@ -135,15 +137,16 @@ df %>%
 
 ```   
 
-```{r data_coded, fig.height=7}
+```{r data_coded, fig.height=9}
 df %>% 
   filter(Type != "To be coded") %>%  
   mutate(total = n()) %>% 
   group_by(Type) %>% mutate(nT = n()) %>% ungroup() %>%
-  mutate(percent = paste(Type, nT, "=", 100*round(nT/total, 2), "%")) %>% 
+  mutate(percent = str_c(Type, " ", 100*round(nT/total, 2), "% (", nT, ")")) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+    mutate(complete = ifelse(complete, "Complete 2007-2016 coverage", "Partial coverage")) %>% 
   ggplot() + 
-  geom_point(aes(x = DATE, y = reorder(paste(agency, n), n), color = percent), 
+  geom_point(aes(x = DATE, y = reorder(str_c(agency, ", ", n), n), color = percent), 
              alpha = .4,
              shape = 73,
              size=2) + 
@@ -151,7 +154,10 @@ df %>%
        y = "Agency, N",
        title = paste("Coded Observations, N =", sum(df$Type != "To be coded") ) ) +
   facet_grid(complete ~ ., scales = "free_y", space = "free_y") + 
-  theme(panel.background = element_blank(),
+    guides(color = guide_legend(override.aes = list(size=1, stroke=20))) +
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text())
 
@@ -160,26 +166,29 @@ df %>%
 
 In addition to our five broad types, we have a second, more nuanced coding scheme focused on major agency decisions or events. This was, in part, developed inductively through the coding process. 
 
-```{r data_coded_event, fig.height=7}
+```{r data_coded_event, fig.height=9}
 df %>% 
   filter(!is.na(POLICY_EVENT)) %>% 
   mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>%
   mutate(total = n()) %>% 
   group_by(POLICY_EVENT) %>% mutate(nPE = n()) %>% ungroup() %>%
-  filter(nPE > 10) %>% 
   # mutate(total = sum(nPE)) %>% 
-  mutate(percent = paste(POLICY_EVENT, 100*round(nPE/total, 3), "%")) %>% 
+  mutate(percent = str_c(100*round(nPE/total, 3), "% ", POLICY_EVENT)) %>% 
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>%
+      mutate(complete = ifelse(complete, "Complete 2007-2016 coverage", "Partial coverage")) %>% 
   ggplot() + 
   geom_point(aes(x = DATE, y = reorder(agency, n), color = percent), #gsub(";.*|/.*|\\(.*", POLICY_EVENT))), 
              #alpha = .4,
              shape = 73,
              size=2) + 
   labs(x = "Date of Correspondence",
-       y = "Agency, N",
-       title = paste("Coded Observations, N =", sum(!is.na(df$POLICY_EVENT) ) ) ) +
+       y = "Agency",
+       title = paste("Coded Policy Event Observations, N =", sum(!is.na(df$POLICY_EVENT) ) ) ) +
   facet_grid(complete ~ ., scales = "free_y", space = "free_y") + 
-  theme(panel.background = element_blank(),
+    guides(colour = guide_legend(override.aes = list(size=1, stroke=20))) +
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text())
 
