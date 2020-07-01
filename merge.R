@@ -190,7 +190,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "Amtrak")
+i <- which(data_list$agency == "ABMC")
 i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
@@ -301,15 +301,17 @@ combine <- function(file){
 }
 
 dim(d)
-d <- map_dfr(files, combine) 
+d <- map_dfr(files, combine)
+d %<>% distinct()
 dim(d)
-## Missing any agencies? 
-str_c("Missing: " , str_c(data_list %>% filter(!(agency %in% d$agency)) %>% select(agency) ), sep = "; ")
-
+## Missing agencies:
+data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 # Check for NAs in LetterID
-d %>% count(is.na(LetterID), agency)
-load(files[4])
-d1 %>% count(is.na(LetterID))
+d %>% count(is.na(LetterID), agency) %>% arrange(agency)
+
+d %>% count(is.na(LetterID))
+
+d%>% filter(is.na(LetterID))
 
 
 # ## Text Devin - this broke with google's auth update 
@@ -395,7 +397,7 @@ bad.dates <- d %>%
   arrange(DATE) %>% 
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 
-
+d$year %<>% as.numeric()
 d %<>% 
   # drop obs out of timeframe 
   #FIXME when we get complete data through 2020
@@ -423,11 +425,14 @@ worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency) 
 worst.names <- bad.names.2 %>% 
   # filter(agency != "DHS_HQ")  %>% 
   ungroup() %>% drop_na(FROM) %>% filter(FROM != "NA", FROM != "") %>% 
+  mutate(FROM = str_squish(FROM)) %>% 
   group_by(FROM) %>%
   summarise(n = n(),
             agency = str_c(unique(agency), collapse = ";"),
             congress = str_c(unique(congress), collapse = ";") ) %>% distinct() %>%
-  arrange(-n)  %>% top_n(100)
+  arrange(-n)   %>% filter(n>5) # top_n(200, n)
+tail(worst.names)
+worst.names$FROM
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -575,11 +580,10 @@ df %<>%
 #################
 # District vars #
 #################
+nrow(df)
 df %<>% left_join(read.csv("districts/states.csv") )
 df %<>% mutate(state_pop2010_millions = pop2010/1000000)
-
-
-
+nrow(df)
 
 
 
@@ -619,11 +623,13 @@ df %<>%
 
 
 # clean up problems with party switchers etc. that may have come in with merge 
+nrow(df)
 df$icpsr %<>% as.numeric()
 df %<>% fix.member.date.coding()
+#FIXME specter and parker should be delt with in previous line
 df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
-
+nrow(df)
 
 # MEMBER DEMOGRAPHICS 
 
@@ -640,7 +646,7 @@ df %<>%
       #make ICPSR numbers numeric to merge with df
       mutate(icpsr = as.numeric(icpsr))
   )
-
+nrow(df)
 
 
 
@@ -716,7 +722,7 @@ df %<>% full_join(
   committees %>% dplyr::select(icpsr,congress, speaker) %>% 
     group_by(icpsr, congress) %>% top_n(1, wt = speaker) %>% distinct()
 ) %>% filter(!is.na(bioname))
-
+nrow(df)
 
 # FIXME 
 # ADD BELOW TO MemberNameDateCorrections.R fix.member.dates function:
@@ -776,30 +782,66 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
   # mutate(monthsAsChair = daysAsChair/30) 
 
 
+#FIXME - some duplicates were created when different FROM columns were created, I think just in CDC, dropping them here, but should be fixed in the CDC script
+nrow(df)
 df %<>% select(-FROM) %>% distinct()
+nrow(df)
 
-df %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>% group_by(DATE, SUBJECT, agency, bioname, icpsr, party) %>% 
-  add_count() %>% #filter(n>1) %>% 
-  arrange(DATE) %>% select(ID, LetterID, SUBJECT, agency) #%>% distinct()
+df %<>% distinct()
 
+df %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>% 
+  add_count(DATE, SUBJECT, agency, bioname, icpsr) %>% 
+  filter(n>1) %>% 
+  arrange(DATE) %>% distinct() %>% 
+  select(agency, bioname, DATE, SUBJECT, TYPE, n)
+
+nrow(df)
 # clean up problems with party switchers etc. that may have come in with merge 
 df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
+nrow(df)
 
-look <- df %>%  select(agency, bioname, DATE, SUBJECT, TYPE, ALT_TYPE, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES) %>% 
+# inspect potential problems
+look <- df %>%  group_by(agency, bioname, DATE, SUBJECT, TYPE, ALT_TYPE, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, icpsr, chamber) %>% 
+  summarise(n_type = n()) %>%
+  ungroup() %>% 
+  filter(n_type > 1) %>% 
   distinct() %>% # there is some other problem beyond different coding
-  add_count(bioname, DATE, agency, SUBJECT) %>% filter(n>1) %>% arrange(DATE, bioname, agency) 
-write_csv(look, path = "data/likely_duplicates.csv")
+  add_count(bioname, DATE, agency, icpsr, chamber, SUBJECT) %>% filter(n>1) %>% arrange(DATE, bioname, agency) 
 
+head(look)
+max(look$n)
+nrow(look)
+sum(look$n)
+look %>% count(agency) %>% arrange(-n)
+look %>% filter(agency == "DHHS_CMS") # CMS had lots of duplicates
+
+# a function to combine
 combine <- . %>% unique() %>% str_c(collapse = ";")
 
-look %<>% group_by(bioname, DATE, agency, SUBJECT) %>% top_n(1, TYPE) %>% summarise_all(combine)
+look %<>% group_by(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% summarise_all(combine) 
+
+look %<>% distinct()
+
+arrange(agency)
+
+write_csv(look, path = "data/likely_duplicates.csv")
+
+look %>% arrange(DATE) %>% select(bioname, DATE, agency, SUBJECT, n)
+max(look$n)
+
+
 
 
 ##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
-df %<>% group_by(bioname, DATE, agency, SUBJECT) %>% top_n(1, TYPE) %>% summarise_all(combine)
+df %<>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% summarise_all(combine)
 
+df %<>% select(-n)
 
-
+## If we wanted to drop all potential dupicates: 
+# nrow(df)
+# df %<>% anti_join(look %>% select(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% distinct())
+# nrow(df)
+# 
 
 
 # add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
@@ -961,6 +1003,8 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 # source("agencies/_FOIA_response_table.R")
 
 data_complete()
+
+
 
 
 
