@@ -10,39 +10,23 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()   
   
-
-  # select distinct observations 
-  data_distinct <- data %>% select(-c(FolderID, Action)) %>% distinct()
-  # join back in LetterID for distinct observations
-  data <- data_distinct %>% left_join(data) %>% distinct()
+  # helper function to deal with duplicates
+  combine <- . %>% unique() %>% str_c(collapse = ";")
   
-   data %<>%
-     group_by(FROM, SUBJECT, DATE) %>%
-     mutate(n = n(),
-            Addressees = str_c(Addressee, collapse = "; "),
-            Prorities = str_c(Prority, collapse = "; "),
-            Titles = str_c(Title, collapse = "; "),
-            AnswerDates = str_c(Answer.Date, collapse = "; "),
-            CloseDates = str_c(Close.Date, collapse = "; "),
-            ProgramDueDates = str_c(Program.Due.Date, collapse = "; "),
-            ReceiveDates = str_c(Receive.Date, collapse = "; ")) %>%
-     arrange(-n) %>%
-     select(-Prority, -Title, -Answer.Date, -Close.Date, -Program.Due.Date, -Receive.Date, -Addressee) %>%
-     ungroup() %>%
-     distinct()
-   
-   
+  # select unique observations # NOTE: THIS COLLAPSES LETTERS SENT TO MORE THAN ONE AGENCY OFFICE
+  data %<>% group_by(FROM, SUBJECT, DATE) %>% 
+    add_count() %>% 
+    summarise_all(combine) %>% 
+    ungroup() %>% 
+    distinct() 
   
-    data %<>%
-     group_by(FROM, SUBJECT, DATE) %>%
-     mutate(n = n())%>%
-     arrange(-n, FROM) %>%
-     ungroup()
-     
+  # Letter ID and Folder ID are both incomplete, but seem to be complete when combined
+  data %<>% mutate(LetterID = ifelse(LetterID == "NA", FolderID, LetterID))
+  # look <- data %>% filter(str_detect(LetterID, ";"))
+  # data %>% filter(is.na(LetterID))
+  # data$LetterID
+  
 
-    
-    data %<>%
-      mutate(origID = ID)
   
   #create agency column
   data$agency <- file.name
@@ -53,7 +37,6 @@ clean <- function(file.name) {
   data$DATE %<>% as.Date("%m/%d/%y")
 
   
-  
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
@@ -62,23 +45,23 @@ clean <- function(file.name) {
   
   #Comments errors for CDC Director and HHS Secretary  
  
-  
   data %<>%
-    mutate(ERROR = ifelse(grepl('^Director, CDC$',data$FROM), 'Director, CDC', ERROR ))
+    mutate(ERROR = ifelse(str_detect(FROM, "^Director, CDC$|^CDC Director"), 'Director, CDC', ERROR),
+           ERROR = ifelse(str_detect(FROM, "^b6$|^B6$"), "non-member", ERROR))
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
   
   data %<>%
-    mutate(Titles = str_replace(Titles, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
-    mutate(Titles = str_replace(Titles, " Rep\\.| rep\\.| Rep | rep |Congressman", "Representative")) %>%
+    mutate(Title = str_replace(Title, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
+    mutate(Title = str_replace(Title, " Rep\\.| rep\\.| Rep | rep |Congressman", "Representative")) %>%
     mutate(SUBJECT = str_replace(SUBJECT, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
     mutate(SUBJECT = str_replace(SUBJECT, " Rep\\.| rep\\.| Rep | rep |Congressman", "Representative"))
   
   data %<>%
-    mutate(Titles = str_replace(Titles, "Representative Merkley", "Senator Merkley"))
+    mutate(Title = str_replace(Title, "Representative Merkley", "Senator Merkley"))
   
-  #Typos
+  #Typos # SHOULD BE CORRECTED IN TYPOS SCRIPT
   data %<>%
     mutate(FROM = str_replace(FROM, "Wolfe, Frank", "Wolf, Frank")) %>%
     mutate(FROM = str_replace(FROM, "Hollen Chris Van", "Chris Van Hollen")) %>%
@@ -89,77 +72,29 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Chabliss", "Chambliss"))
   
   data %<>%
-    mutate(FROM = ifelse(! is.na(Titles), paste(Titles, FROM, sep = " "), FROM)) %>%
-    mutate(FROM = ifelse(! is.na(SUBJECT), paste(SUBJECT, FROM, sep = " "), FROM))
+    mutate(FROM =  paste(Title, SUBJECT, FROM))
 
-  # data %<>% 
-  #   mutate(FROM = str_split(FROM, ";")) %>% 
-  #   unnest(FROM)
-  # 
+
   data %<>%
-    filter(! str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative| to Senator "))
+    mutate(ERROR = ifelse(str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative| to Senator "),
+                          "from agency to member(s)",
+                          ERROR))
   
     #extract member names from FROM
-   data %<>% extractMemberName(members, col_name = "FROM") %>%
-     mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-     select(-ID) %>%
-     mutate(LetterID = origID) %>%
-     distinct()
+   data %<>% extractMemberName(members, col_name = "FROM") 
+   
    
  data %<>%
-   select(first_name, last_name, everything())
+   distinct() %>% 
+   select(DATE, FROM, first_name, last_name, pattern, everything())
   
   #Checks how many members are not captured
   FROMunamed <- data %>%
-    filter(is.na(last_name))
+    filter(is.na(ERROR), is.na(last_name))
   
-
-  
-    #dataTitles <- data %>%
-      # select(-first_name, -last_name, -LetterID)
-      # 
-      # dataTitles <- data %>%
-      #   extractMemberName(members, col_name = "Titles") %>%
-      #   mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-      #   select(-ID) %>%
-      #   mutate(LetterID = origID) 
-    
-    #addedNames <- dataTitles %>%
-     # filter(! is.na(last_name))
-    #adedNames %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
-  
-    # dataSUBJECT <- data %>%
-    #   select(-first_name, -last_name, -LetterID)
-    # 
-    # dataSUBJECT %<>%
-    #   extractMemberName(members, col_name = "SUBJECT") %>%
-    #   mutate(origID = ifelse(is.na(origID), FolderID, origID)) %>%
-    #   select(-ID) %>%
-    #   mutate(LetterID = origID)
-    
-  #addedNamesSUB <- dataSUBJECT %>%
-    #filter(! is.na(last_name))
-  #addedNamesSUB %<>% select(LetterID, last_name, first_name, DATE, FROM, everything())
-  
-    # data %<>%
-    #   full_join(dataTitles)
-    # data %<>%
-    #   full_join(dataSUBJECT)
-     
-    # data %<>%
-    #   group_by(FROM, SUBJECT, DATE) %>%
-    #   mutate(n = n(),
-    #          string = str_c(string, collapse = "; ")) %>%
-    #   arrange(-n) %>%
-    #   select(-string) %>%
-    #   ungroup %>%
-    #   distinct() %>%
-    #   mutate(LetterID = origID) %>%
-    #   distinct()
-    
-   #   
+   # #   
    # NAstring <- data %>%
-   #   filter(is.na(string))
+   #    filter(is.na(string))
 
   
   
@@ -167,49 +102,32 @@ clean <- function(file.name) {
   otherauthors <- data %>%
     filter(str_detect(FROM, "others|et al"))
   
-  #Make note of all observations with un-named authors
+  data %<>% mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), paste("FOIA additional members", NOTES), NOTES))
+  
+  #Make note of all observations with un-named authors # WE SHOULD CONFIRM THAT ALL OF THESE SHOULD BE ERRORED OUT
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director|Director, NCEH|Gerberding, Julie|Secretary Michael O\\. Leavitt|Gerberding, Julie") & is.na(last_name), "CDC Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States|President Bush") & is.na(last_name), "President", ERROR)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick|Bonham, David|Boyer, Ashley|Collins, Francis|Gabbard, Mike|Graham, Garth|Groblewski, Mark|William F\\. Marshal") & is.na(last_name), "non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "State Representative Steve Wieckert|Governor Bobby Jindal|Boyle, Kevin|Briggs, Tim|Duff, Bob|Rubio, Michael|Scott, Rick|David Ige|Bob Duff|State Senator|Bob Duff") & is.na(last_name), "state legislator", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(Titles, "David Ige") & is.na(last_name), "state legislator", ERROR)) %>%
+    mutate(ERROR = ifelse(str_detect(Title, "David Ige") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Bruce Aylward") & is.na(last_name), "world health organization member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM , "Graham, Bob") & congress %in% c(111,113), "no longer in congress", ERROR))
 
-
-
-  #Add ID
-  data %<>%
-   mutate(ID = row_number())
   
 #Check (b)(6) removals are correct
 Nab6<- data %>%
   filter(str_detect(FROM, "\\(b\\)\\(6\\)"))
 
-
-
-
-#MergeUnfound <- d %>%
- # filter(is.na(last_name))
-
-
-
-
-  # arrange columns for hand coding
-  data %<>% select(LetterID, last_name, first_name, FROM, DATE, Titles, everything())
-  
   Unfoundnames <- data %>%
-    filter(is.na(last_name)) %>%
-    filter(is.na(ERROR)) %>%
-    filter(!str_detect(FROM, "Donna Christensen"))
+    filter(is.na(last_name),
+           is.na(ERROR),
+           !str_detect(FROM, "Donna Christensen") )
+  
+  
    
-  
- data %>%
-   filter(LetterID == 2041567) %>%
-   select(FROM)
-  
+# TYPE CODING 
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("SICKLE CELL DISEASE|ZIKA FUNDING|VECTOR BORNE DISEASE|HEAVY METALS|TRAVEL POLICIES|TUBERCULOSIS. URGE|STEPS TO A HEALTHIER|PREVENTING SECONDARY|HEPATITIS FUNDING|SECTION 317|OPIOID THE COMMITTEE", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("SICKLE CELL DISEASE|ZIKA FUNDING|VECTOR BORNE DISEASE|HEAVY METALS|TRAVEL POLICIES|TUBERCULOSIS. URGE|STEPS TO A HEALTHER|PREVENTING SECRETARY|HEPATITIS FUNDING|SECTION 317|OPIOID THE COMMITTEE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
