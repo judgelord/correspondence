@@ -432,6 +432,7 @@ add_first <- function(data){
 # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
 str_detect_replace <- function(string_to_search, pattern){
   out <- ifelse(str_detect(string_to_search, pattern), pattern, "404error")
+  return(out)
 }
 
 
@@ -442,7 +443,7 @@ findTypos <- function(string){
     unlist() %>%
     unique() %>% 
     # seperate pattrns found with OR 
-    str_c(collapse = "|") %>%
+    #str_c(collapse = "|") %>%
     # remove 404error when it appears along side a found pattern
     str_remove("\\|404error|404error\\|")
 }
@@ -588,31 +589,38 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     # lower case 
     data$string %<>% tolower()
     
+    data$string %<>% str_squish()
+    
     # explicit NA
     data$string %<>% replace_na("")
     
-    suppressMessages(
+    
+    
+    # correct typos 
+    #FIXME with more purrr
+    for (i in 1:dim(typos)[1]){
+    r <- typos$correct[i]
+    p <- typos$typos[i]
+  
     # Fix name typos
     data %<>% 
       # find common typos
-      mutate(typos = string %>% map_chr(findTypos)) %>% 
-      # add in corrections
-      left_join(typos) %>%  #, by = c("typos", "correct") ) %>%
-      # replace typos with corrections
-      mutate(string = str_replace_all(string, regex(typos, ignore_case = T), correct)) %>% 
-      mutate(typos = str_replace(typos, "404error", "none"))
-    )
+      mutate(string = string %>% purrr::map_chr(str_replace, 
+                                                   pattern = p, 
+                                                   replacement = r %>% paste("")))
+    }
 
-    # FOR TESTING 
-    # look <- data %>% drop_na(typos) %>% filter(typos != "none", typos != "404error") %>% distinct() %>% filter(is.na(string))
     
     # loop over congresses in data 
     data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members)
+
+    
+    data %<>% distinct()
     
     # New ID since function may split out multiple members if found
-    data$ID <- 1:nrow(data)
+    data$ID %<>% formatC(width=6, flag="0")
     
-    data %<>% select(LetterID, ID, congress, string, typos, correct, pattern, everything())
+    data %<>% select(LetterID, ID, congress, string, pattern, everything())
     
     return(data)
 }
