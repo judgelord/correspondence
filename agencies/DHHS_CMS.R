@@ -5,6 +5,12 @@ clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() 
   
+  # helper function to deal with duplicates
+  combine <- . %>% unique() %>% str_c(collapse = ";")
+  
+  data %>% group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
+    summarise_all(combine) %>% distinct()
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
