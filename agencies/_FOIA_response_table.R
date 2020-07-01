@@ -32,12 +32,12 @@ dfdata <- df %>% mutate(Department = ifelse(!grepl("Department of", Department),
 
 # count
 # dfdata %<>% group_by(Department) %>% summarise(n = paste(unique(agency), collapse = ":")) %>% distinct()
-dfdata %<>% group_by(Department) %>% summarise(N =n()) %>% distinct()
+dfdata %<>% group_by(Department) %>% summarise(Observations =n()) %>% distinct()
 #
 # join foia sheet data with r data
 data %<>% full_join(dfdata)
 #
-data %<>% mutate(N = ifelse(is.na(N), 0, N))
+data %<>% mutate(Observations = ifelse(is.na(Observations), 0, Observations))
 
 # totals 
 data %<>% ungroup() %>%
@@ -49,7 +49,7 @@ data %<>%
 
 write.csv(data, file = "data/_FOIA_response_table.csv")
 
-n <- tail(data$N, 1)
+n <- tail(data$Observations, 1)
 
 write(n, file = "data/n")
 
