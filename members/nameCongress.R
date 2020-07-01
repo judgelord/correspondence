@@ -621,7 +621,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
            common_maiden_last = paste(common_name, maiden_name, last_name),
-           #first_initial_last = paste(first_name, middle_initial, last_name),
+           first_initial_last = paste(first_initial, last_name),
+           first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_commoninitial = paste0("^", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "$"),
@@ -661,7 +662,6 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-  
 replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
@@ -673,6 +673,7 @@ members %<>%
                      first_maiden,
                      first_middle_last,
                      first_initial_last,
+                     first_middle_initial_last,
                      common_last,
                      common_middle_last,
                      common_initial_last,
