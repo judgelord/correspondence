@@ -24,7 +24,7 @@ data_list <- tribble(
 "CSOSA", "coded", "Julia",
 "DHHS_ACF", "coded", "Hope", # complete and rich, needs more coding
 "DHHS_ACL", "not coded", NA,
-"DHHS_CDC", "not coded", NA, # rolling release, rich subjects, will eventually be complete
+"DHHS_CDC", "not coded", NA, # rolling release, rich subjects, fair amount auto-coded
 "DHHS_CMS", "coded", "Rochelle", #153
 "DHHS_HRSA", "not coded", NA,
 "DHHS_IHS", "coded", "Rochelle", #
@@ -60,7 +60,6 @@ data_list <- tribble(
 "DOI_BOEM", "coded", "Aaron",
 "DOI_BSEE", "coded", "Hope",
 "DOI_NPS", "not coded", NA,
-# OSMRE
 "DOI_OSMRE","not coded", NA,
 "DOI_SOL", "coded", "Hope",
 "DOI_USGS", "coded", "Hope",
@@ -154,6 +153,7 @@ data_list <- tribble(
 "USDA_RMA", "not coded", NA, # no records before 2010 - 7 year retention 
 # USPS
 "USPS", "not coded", NA,
+# VA
 "VA_CEM", "coded", "Fatima",
 "VA", "coded", "Rochelle" # no data before 2008
 )
@@ -234,6 +234,8 @@ d %>% filter(!is.na(icpsr)) %>% count(year)
 
 ## Resume 
 # data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
+# data_list %<>% filter(row_number() > which(data_list$agency == "DHS_HQ")) 
+# data_list %<>% filter(row_number() == which(data_list$agency == "DHHS_CDC")) 
 
 
 # subset by date
@@ -1003,6 +1005,7 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 # source("agencies/_FOIA_response_table.R")
 
 data_complete()
+
 
 
 
