@@ -1,0 +1,445 @@
+---
+title: 'Campaign Contributions and Bureaucratic Oversight'
+subtitle: A Case Study of the Federal Energy Regulatory Commission
+author: "Devin Judge-Lord (with Eleanor Neff Powell and Justin Grimmer)"
+date: "AESS 2020"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE, cache = TRUE, echo = FALSE}
+# chunks options:
+# hide code and messages by default (warning, message)
+# cache everything 
+knitr::opts_chunk$set(eval = TRUE, 
+                      warning = FALSE, message = FALSE,
+                      cache = TRUE,
+                      fig.retina = 2,
+                      fig.align = "center", dpi = 100)
+# Xaringan: https://slides.yihui.name/xaringan/
+library("xaringan")
+library("xaringanthemer")
+library("here")
+
+
+mono_light(#base_color = "#003333",
+          link_color = "#0000EE",
+          #background_color = "#FAF0E6", # linen
+          header_font_google = google_font("PT Sans"), 
+          text_font_google = google_font("Old Standard"), 
+          text_font_size = "30px",
+          padding = "10px",
+          code_font_google = google_font("Inconsolata"), 
+          code_inline_background_color    = "#F5F5F5", 
+          table_row_even_background_color = "#E6F0FA",
+          extra_css = 
+            list(".remark-slide-number" = list("display" = "none")))
+
+```
+
+```{r, eval = FALSE, include= FALSE}
+# setup
+devtools::install_github("yihui/xaringan")
+devtools::install_github("gadenbuie/xaringanthemer")
+install.packages("webshot")
+# webshot::install_phantomjs()
+
+library(webshot)
+
+# export to pdf
+file <- here("FERC/AESS2020.html")
+webshot(file, "FERC/AESS2020.pdf")
+```
+
+background-image: url(figs/amendments.png)
+background-size: contain
+
+
+---
+
+Download the draft paper here: <https://github.com/judgelord/correspondence/raw/master/FERC/FERCpaper2019.pdf>
+
+---
+
+## The political power of energy companies
+
+Do campaign contributions affect policymakers? 
+
+Surprisingly, political scientists have generally fail to find that money affects behavior (usualy votes)^[But see Powell and Grimmer 2015] 
+
+We collect data on congressional advococay and oversight: requests from Members of Congress to the Federal Energy Regulatory Commission
+
+---
+
+# Legislator letters
+
+- "Public records" but difficult to obtain
+
+- Unconstrained by party leaders
+
+- Likely aligned with even more "behind-the-scenes" advocacy
+
+---
+
+![](figs/20171020-0018-14718216.pdf)
+
+
+
+---
+
+data-by-type-1.pdf
+
+---
+
+
+
+Bureaucrats and legislators who *anticipate* how
+        others will react to their actions.
+
+-   Legislators anticipate how constituents will react to their
+        behavior
+
+-   Bureaucrats anticipate how the decisions they make will affect
+        members of Congress.
+
+---
+
+### How do legislators signal to bureaucrats?
+
+-   New insight via: legislator's letters to bureaucracy
+
+---
+
+### Larger Project: Congress-Bureaucracy Correspondence Data
+
+-   250+ FOIA requests to 233 federal agencies (a census)
+
+-   All Agency Data Coverage: 2007-2018
+
+-   We began placing these requests 3.5 years ago.
+
+-   200,000+ legislator requests (and counting)
+
+---
+
+### Format of Data We Received
+
+-   Digital Spreadsheets
+
+-   PDFs
+
+-   Scans of Handwritten Documents
+
+-   CD-ROMS
+
+-   Photocopies
+
+---
+
+### Why Study the Federal Energy Regulatory Commission?
+
+-   What FERC Does:
+
+    -   Regulates electricity markets, oil and gas pipelines, hydropower
+        projects, and liquified natural gas export projects.
+
+    -   Makes policy and enforcement decisions that have major
+        consequences for jobs, lives, profits and the cost of the
+        commodities it regulations.
+
+    -   The commission's decisions have major implications for business
+        profits and for the consumers they serve.
+
+---
+
+### Why Study the Federal Energy Regulatory Commission?
+
+-   Hard case to find congressional influence
+
+-   Designed to be insulated from political influence
+
+    -   Independent non-partisan commission.
+
+    -   The five commissioners are appointed to staggered 5-year terms,
+        and no more than three can be from a one party
+
+-   Yet \... FERC receives hundreds of letters from Members of Congress
+    each year
+
+---
+
+### Examples of FERC Letters
+
+---
+
+### Example of Energy Project Advocacy
+
+This is a letter written by Rep. Alex Mooney (R-WV2) to FERC on October
+12, 2017.
+
+---
+
+### Example of Constituent Service Letter
+
+This is a constituency service letter written by Senator Susan Collins
+(R-ME) to FERC on April 28, 2008.
+
+---
+
+### FERC Data
+
+-   Full text of all letters from Congress $\rightarrow$ FERC
+
+-   From January 1, 2000, and December 31, 2018
+
+-   Every letter: human coder + automated processing
+
+-   6,988 members-level observations for 2000-2018
+
+-   4,780 member-level observations for 2000-2012 connected to campaign
+    donations from the energy sector.
+
+---
+
+### 
+
+What Are Congressional Letters to FERC About?
+
+### The Distribution Across Types of Congressional Requests FERC vs. All\* Agencies
+
+![image](data-by-type-1.png){width="\\textwidth"}
+
+### Studying the Influence of Campaign Contributions on Congressional-Bureaucratic Relations
+
+-   Avenue for Influence: Letters to FERC less visible than roll call
+    votes
+
+-   High stakes for companies
+
+-   Corporate PAC contributions from Energy Sector
+
+-   Who Writes on Behalf of Constituents vs. Business?
+
+---
+
+### 
+
+What Types of Letters are Supportive of Businesses?
+
+---
+
+### What Types of Letters are Supportive of Businesses?
+
+![image](constituent-non-constituent-1.png){width="\\textwidth"}
+
+What Members Attempt to Influence FERC?
+
+---
+
+### Senators Writing the Most Letters to FERC
+
+![image](members_barcoded-1.png){width="\\textwidth"}
+
+---
+
+### Representatives Writing the Most Letters to FERC
+
+![image](members_barcoded-2.png){width="\\textwidth"}
+
+Who Writes on Behalf of Constituents vs. Business?
+
+By Party and Majority Status
+
+---
+
+### Who Writes on Behalf of Constituents vs. Business?
+
+![image](part-constituent-1.png){width="\\textwidth"} **Figure
+[\[f:party\]](#f:party){reference-type="ref" reference="f:party"}:** .
+
+Demand Driven Letter-writing?
+
+---
+
+### State population and Senate Letter-writing
+
+![image](population-1.png){width="\\linewidth"}
+
+---
+
+### FERC Contacts from Senators by State
+
+![image](sentate_percapita_map-2.png){width="\\linewidth"}
+
+---
+
+### 
+
+Committee Chairs Attempting to Influence FERC?
+
+### Committee Chairs Attempting to Influence FERC
+
+![image](committeechiars_barcode-1.png){width="\\textwidth"}
+
+---
+
+### 
+
+Exploring the Relationship between Letter-writing and Campaign
+Contributions
+
+---
+
+### Measuring Industry Money
+
+-   Campaign contribution data from Adam Bonica's Database on Ideology,
+    Money in Politics, and Elections bigskip
+
+-   Center for Responsive Politics' industry classification of PACs.
+
+---
+
+### Average Energy Sector PAC Contributions Per Member Per Cycle
+
+![image](letters_PACs-data-1.png){width="\\textwidth"}
+
+---
+
+### Partisan Differences in Energy \$
+
+![image](letters_money-2.png){width="\\textwidth"}
+
+Preliminary Results: Relationship between Letter-writing and Campaign
+Contributions?
+
+---
+
+### Campaign Contributions and Letter-writing to FERC
+
+![image](models-1.png){width="\\textwidth"}
+
+---
+
+### Campaign Contributions, Party and Letter-writing to FERC
+
+![image](models-full-1.png){width="\\textwidth"}
+
+---
+
+### Next Steps
+
+-   Connecting Companies in Letters to Campaign Contributions
+
+    -   Challenge: Linking Energy Projects, Subsidiary Companies and
+        Parent Companies
+
+-   Impact of Letters on Outcomes
+
+    -   Speed of FERC Review
+
+
+
+in district 
+
+
+should the movement use money in the same way? 
+do boycotts work? 
+what do we do with these findings? 
+
+MY QUESTIONS 
+- energy company behavior 
+- is this good for me electorally - jobs - pollution
+- 
+
+COMMENTS 
+- walk through figures 
+
+
+
+
+
+
+
+
+
+
+---
+
+### Conclusions
+
+-   New Window into Congressional-Bureaucracy: Congressional Letters
+
+-   Extensive advocacy on behalf of businesses
+
+-   We find that Republicans and those who receive money from the
+    energy-sector write relatively more letters on behalf of energy
+    companies, but not on behalf of constituents
+
+-   Democrats write comparatively more letters in opposition to energy
+    companies
+
+Thank you!
+
+---
+
+### Correspondence Data
+
+Environmental Protection Agency ![image](EPA){width="\\textwidth"}
+
+### Correspondence Data
+
+Department of Homeland Security Immigration and Customs Enforcement
+(ICE) ![image](ICE){width="\\textwidth"}
+
+### Correspondence Data
+
+![image](FERC){width="\\textwidth"}
+
+### Agency Character: CIA $\#$OnBrand
+
+![image](CIACorrespondence){width="\\textwidth"}
+
+![image](letters_PACs-data-2.png){width="\\textwidth"} **Unequal Money
+Across Energy Sector PACs**
+
+---
+
+### Our Correspondence Data
+
+[\[\]]{label=""}
+
+  ----------------------------------------- ------------ ---------- ------- --------
+                                               FOIAed     Records    Coded     N
+                                             Components   Received          
+                                                                            
+  Department of Agriculture                      29          29       11      1957
+  Department of Commerce                         18          18       10      6875
+  Department of Defense                          49          10        7      5479
+  Department of Education                        1           1         1      3868
+  Department of Energy                           8           2         1      1269
+  Department of Health and Human Services        15          7         5      6199
+  Department of Homeland Security                6           5         5     26435
+  Department of Housing & Urban Dev.             2           0         0       0
+  Department of Justice                          11          1         1      903
+  Department of Labor                            24          9         6     22936
+  Department of State                            1           0         0       0
+  Department of the Interior                     10          6         5      5171
+  Department of the Treasury                     8           5         4     11143
+  Department of Transportation                   10          6         6     18482
+  Department of Veterans Affairs                 3           0         0       0
+                                                                            
+  Independent Agencies                           38          21       18     46182
+                                                                            
+  Total                                         233         120       80     156899
+                                                                            
+  ----------------------------------------- ------------ ---------- ------- --------
+
