@@ -6,7 +6,7 @@ date: "AESS 2020"
 output:
   xaringan::moon_reader:
     lib_dir: libs
-    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
+    #mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
     css: xaringan-themer.css
     nature:
       highlightStyle: github
@@ -16,15 +16,21 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include = FALSE, cache = TRUE, echo = FALSE}
+```{r setup, echo = FALSE}
 # chunks options:
 # hide code and messages by default (warning, message)
 # cache everything 
 knitr::opts_chunk$set(eval = TRUE, 
-                      warning = FALSE, message = FALSE,
+                      warning = FALSE, 
+                      message = FALSE,
                       cache = TRUE,
-                      fig.retina = 2,
-                      fig.align = "center", dpi = 100)
+                      echo = FALSE,
+                      fig.path = "figs",
+                      out.width = "800px",
+                      #out.height = "600px",
+                    fig.retina = 2, 
+                      dpi = 100,
+                      fig.align = "center")
 # Xaringan: https://slides.yihui.name/xaringan/
 library("xaringan")
 library("xaringanthemer")
@@ -41,10 +47,10 @@ mono_light(#base_color = "#003333",
           code_font_google = google_font("Inconsolata"), 
           code_inline_background_color    = "#F5F5F5", 
           table_row_even_background_color = "#E6F0FA",
-          extra_css = 
-            list(".remark-slide-number" = list("display" = "none")))
+          extra_css = list(".remark-slide-number" = list("display" = "none")))
 
 ```
+
 
 ```{r, eval = FALSE, include= FALSE}
 # setup
@@ -60,9 +66,6 @@ file <- here("FERC/AESS2020.html")
 webshot(file, "FERC/AESS2020.pdf")
 ```
 
-background-image: url(figs/amendments.png)
-background-size: contain
-
 
 ---
 
@@ -70,11 +73,15 @@ Download the draft paper here: <https://github.com/judgelord/correspondence/raw/
 
 ---
 
-## The political power of energy companies
+# The political power of energy companies
 
-Do campaign contributions affect policymakers? 
+Do corporate campaign contributions affect policymakers? 
 
-Surprisingly, political scientists have generally fail to find that money affects behavior (usualy votes)^[But see Powell and Grimmer 2015] 
+Surprisingly, political scientists have generally fail to find that money affects behavior
+
+- usualy vote: not where we expect to observe influcne
+
+But donor companies may target members of key committees (Powell and Grimmer 2015) or reward favorable voting records (Goldberg et al. 2020), or comply less with regulations.
 
 We collect data on congressional advococay and oversight: requests from Members of Congress to the Federal Energy Regulatory Commission
 
@@ -84,114 +91,73 @@ We collect data on congressional advococay and oversight: requests from Members 
 
 - "Public records" but difficult to obtain
 
-- Unconstrained by party leaders
+- Less constrained by party leaders than votes
 
-- Likely aligned with even more "behind-the-scenes" advocacy
+- Targeted at one outcome (unlike bills that often do multiple things)
 
----
+- Likely aligned with other types of "behind-the-scenes" advocacy
 
-![](figs/20171020-0018-14718216.pdf)
+--> Exactly where we would expect to see corporate influnce.
 
-
-
----
-
-data-by-type-1.pdf
 
 ---
 
 
+# Why Study the Federal Energy Regulatory Commission?
 
-Bureaucrats and legislators who *anticipate* how
-        others will react to their actions.
+What FERC Does:
 
--   Legislators anticipate how constituents will react to their
-        behavior
-
--   Bureaucrats anticipate how the decisions they make will affect
-        members of Congress.
-
----
-
-### How do legislators signal to bureaucrats?
-
--   New insight via: legislator's letters to bureaucracy
-
----
-
-### Larger Project: Congress-Bureaucracy Correspondence Data
-
--   250+ FOIA requests to 233 federal agencies (a census)
-
--   All Agency Data Coverage: 2007-2018
-
--   We began placing these requests 3.5 years ago.
-
--   200,000+ legislator requests (and counting)
-
----
-
-### Format of Data We Received
-
--   Digital Spreadsheets
-
--   PDFs
-
--   Scans of Handwritten Documents
-
--   CD-ROMS
-
--   Photocopies
-
----
-
-### Why Study the Federal Energy Regulatory Commission?
-
--   What FERC Does:
-
-    -   Regulates electricity markets, oil and gas pipelines, hydropower
+-   Regulates electricity markets, oil and gas pipelines, hydropower
         projects, and liquified natural gas export projects.
 
-    -   Makes policy and enforcement decisions that have major
-        consequences for jobs, lives, profits and the cost of the
-        commodities it regulations.
-
-    -   The commission's decisions have major implications for business
-        profits and for the consumers they serve.
+-   Makes policy and enforcement decisions that have major
+        consequences for how energy is produced, the distrbution of energy-sector jobs, profits, and the cost of the of electricty and fuels.
 
 ---
 
-### Why Study the Federal Energy Regulatory Commission?
+# Why Study the Federal Energy Regulatory Commission?
 
 -   Hard case to find congressional influence
 
--   Designed to be insulated from political influence
+  -   Designed to be insulated from political influence
 
     -   Independent non-partisan commission.
 
     -   The five commissioners are appointed to staggered 5-year terms,
         and no more than three can be from a one party
 
--   Yet \... FERC receives hundreds of letters from Members of Congress
+-   Yet FERC receives hundreds of letters from Members of Congress
     each year
 
 ---
 
-### Examples of FERC Letters
+# The Influence of Campaign Contributions on Congressional-Bureaucratic Relations
+
+-   Avenue for Influence: Letters to FERC are less visible than roll call
+    votes
+
+-   High stakes for companies
+
+-   Corporate PAC contributions from Energy Sector
 
 ---
 
-### Example of Energy Project Advocacy
+# The larger Project: Congress-Bureaucracy Correspondence Data
 
-This is a letter written by Rep. Alex Mooney (R-WV2) to FERC on October
-12, 2017.
+-   400+ FOIA requests to all 233 federal agencies (a census)
 
----
+-   Requesting all contacts (letters/emails/phone calls) between Members of Congress and federal agencies 2007-2018
 
-### Example of Constituent Service Letter
+-   In some cases, like FERC, records go back further
 
-This is a constituency service letter written by Senator Susan Collins
-(R-ME) to FERC on April 28, 2008.
+-   We began placing these requests 4 years ago
+
+-   Data include 480,000+ legislator letters (and counting)
+
+
+???
+
+While this paper focuses on FERC, we compare legislator advocacy at FERC to legislator advocacy overall, so I want to give you a picture of where those data come from. 
 
 ---
 
@@ -205,41 +171,110 @@ This is a constituency service letter written by Senator Susan Collins
 
 -   6,988 members-level observations for 2000-2018
 
--   4,780 member-level observations for 2000-2012 connected to campaign
-    donations from the energy sector.
+-   Connected to campaign donations from the energy sector.
 
 ---
 
-### 
 
-What Are Congressional Letters to FERC About?
+### Format of Data We Received
 
-### The Distribution Across Types of Congressional Requests FERC vs. All\* Agencies
+-   Digital Spreadsheets
 
-![image](data-by-type-1.png){width="\\textwidth"}
+-   PDFs
 
-### Studying the Influence of Campaign Contributions on Congressional-Bureaucratic Relations
+-   Scans of Handwritten Documents
 
--   Avenue for Influence: Letters to FERC less visible than roll call
-    votes
+-   CD-ROMS
 
--   High stakes for companies
+-   Photocopies
 
--   Corporate PAC contributions from Energy Sector
+???
+
+---
+
+class: center
+
+# Examples of letters to FERC
+
+---
+
+On behalf of energy companies, supporting a permit or project
+
+```{r, out.height = "600px"}
+knitr::include_graphics(here::here("FERC/figs/FERC_mooney.pdf"))
+```
+
+---
+
+On behalf of energy companies, supporting a permit or project
+
+```{r"}
+knitr::include_graphics(here::here("FERC/figs/FERC_thornberry.png"))
+```
+
+---
+
+On behalf of non-energy companies, opposing an energy project
+
+```{rr, out.height = "600px"}
+knitr::include_graphics(here::here("FERC/figs/FERC_collins.pdf"))
+```
+
+???
+
+This is a constituency service letter written by Senator Susan Collins
+(R-ME) to FERC on April 28, 2008.
+
+---
+
+On behalf of his own ranch, opposing an energy project
+
+```{r, out.height = "600px"}
+knitr::include_graphics(here::here("FERC/figs/FERC_graham.pdf"))
+```
+
+
+---
+
+
+Not always "behind-the-scence"
+
+```{r}
+knitr::include_graphics(here::here("FERC/figs/schumer-cosigned-letter-tweet.png"))
+```
+
+
+
+---
+
+### Types of Congressional Requests FERC vs. All\* Agencies
+
+```{r}
+knitr::include_graphics(here::here("FERC/figs/data-by-type-1.png"))
+```
+
+![](figs/data-by-type-1.pdf)
+
+---
+
+Letters on behalf of individual constituents usually opposed energy projects
+
+![](figs/data-by-type-1.pdf)
+
+---
+
 
 -   Who Writes on Behalf of Constituents vs. Business?
 
 ---
 
-### 
-
-What Types of Letters are Supportive of Businesses?
+### What Types of Letters are Supportive of Businesses?
 
 ---
 
 ### What Types of Letters are Supportive of Businesses?
 
-![image](constituent-non-constituent-1.png){width="\\textwidth"}
+![](figs/constituent-non-constituent-1.png)
 
 What Members Attempt to Influence FERC?
 
@@ -247,38 +282,40 @@ What Members Attempt to Influence FERC?
 
 ### Senators Writing the Most Letters to FERC
 
-![image](members_barcoded-1.png){width="\\textwidth"}
+![](figs/members_barcoded-1.png)
 
 ---
 
 ### Representatives Writing the Most Letters to FERC
 
-![image](members_barcoded-2.png){width="\\textwidth"}
+![](figs/members_barcoded-2.png)
 
-Who Writes on Behalf of Constituents vs. Business?
+---
+
+# Who Writes on Behalf of Constituents vs. Business?
 
 By Party and Majority Status
 
 ---
 
-### Who Writes on Behalf of Constituents vs. Business?
+# Who Writes on Behalf of Constituents vs. Business?
 
-![image](part-constituent-1.png){width="\\textwidth"} **Figure
+![](figs/part-constituent-1.png) **Figure
 [\[f:party\]](#f:party){reference-type="ref" reference="f:party"}:** .
-
-Demand Driven Letter-writing?
 
 ---
 
+#  Is Legislator Advocacy Driven by Constituent Demand?
+
 ### State population and Senate Letter-writing
 
-![image](population-1.png){width="\\linewidth"}
+![](figs/population-1.png) 
 
 ---
 
 ### FERC Contacts from Senators by State
 
-![image](sentate_percapita_map-2.png){width="\\linewidth"}
+![](figs/sentate_percapita_map-2.png) 
 
 ---
 
@@ -288,7 +325,7 @@ Committee Chairs Attempting to Influence FERC?
 
 ### Committee Chairs Attempting to Influence FERC
 
-![image](committeechiars_barcode-1.png){width="\\textwidth"}
+![](figs/committeechiars_barcode-1.png)
 
 ---
 
@@ -310,13 +347,13 @@ Contributions
 
 ### Average Energy Sector PAC Contributions Per Member Per Cycle
 
-![image](letters_PACs-data-1.png){width="\\textwidth"}
+![](figs/letters_PACs-data-1.png)
 
 ---
 
 ### Partisan Differences in Energy \$
 
-![image](letters_money-2.png){width="\\textwidth"}
+![](figs/letters_money-2.png)
 
 Preliminary Results: Relationship between Letter-writing and Campaign
 Contributions?
@@ -325,13 +362,13 @@ Contributions?
 
 ### Campaign Contributions and Letter-writing to FERC
 
-![image](models-1.png){width="\\textwidth"}
+![](figs/models-1.png)
 
 ---
 
 ### Campaign Contributions, Party and Letter-writing to FERC
 
-![image](models-full-1.png){width="\\textwidth"}
+![](figs/models-full-1.png)
 
 ---
 
@@ -376,12 +413,11 @@ COMMENTS
 
 ### Conclusions
 
--   New Window into Congressional-Bureaucracy: Congressional Letters
+-   A new look at the role of money in politics, congressional representation, the the politics of agency decisionmaking
 
--   Extensive advocacy on behalf of businesses
+-   FERC has an unusually-high rate of advocacy on behalf of businesses
 
--   We find that Republicans and those who receive money from the
-    energy-sector write relatively more letters on behalf of energy
+-    **Republicans** and those who receive **money from the energy companies** write relatively more letters on behalf of energy
     companies, but not on behalf of constituents
 
 -   Democrats write comparatively more letters in opposition to energy
@@ -393,22 +429,22 @@ Thank you!
 
 ### Correspondence Data
 
-Environmental Protection Agency ![image](EPA){width="\\textwidth"}
+Environmental Protection Agency ![](figs/EPA)
 
 ### Correspondence Data
 
 Department of Homeland Security Immigration and Customs Enforcement
-(ICE) ![image](ICE){width="\\textwidth"}
+(ICE) ![](figs/ICE)
 
 ### Correspondence Data
 
-![image](FERC){width="\\textwidth"}
+![](figs/FERC)
 
 ### Agency Character: CIA $\#$OnBrand
 
-![image](CIACorrespondence){width="\\textwidth"}
+![](figs/CIACorrespondence)
 
-![image](letters_PACs-data-2.png){width="\\textwidth"} **Unequal Money
+![](figs/letters_PACs-data-2.png) **Unequal Money
 Across Energy Sector PACs**
 
 ---
@@ -443,3 +479,22 @@ Across Energy Sector PACs**
                                                                             
   ----------------------------------------- ------------ ---------- ------- --------
 
+
+---
+
+
+
+Bureaucrats and legislators who *anticipate* how
+        others will react to their actions.
+
+-   Legislators anticipate how constituents will react to their
+        behavior
+
+-   Bureaucrats anticipate how the decisions they make will affect
+        members of Congress.
+
+---
+
+### How do legislators signal to bureaucrats?
+
+-   New insight via: legislator's letters to bureaucracy
