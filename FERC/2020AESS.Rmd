@@ -6,7 +6,7 @@ date: "AESS 2020"
 output:
   xaringan::moon_reader:
     lib_dir: libs
-    #mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
     css: xaringan-themer.css
     nature:
       highlightStyle: github
@@ -16,7 +16,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, echo = FALSE}
+```{r setup, echo = FALSE, warning=FALSE, message=FALSE}
 # chunks options:
 # hide code and messages by default (warning, message)
 # cache everything 
@@ -26,7 +26,7 @@ knitr::opts_chunk$set(eval = TRUE,
                       cache = TRUE,
                       echo = FALSE,
                       fig.path = "figs",
-                      out.width = "800px",
+                      out.width = "800\\linewidth",
                       #out.height = "600px",
                     fig.retina = 2, 
                       dpi = 100,
@@ -66,10 +66,9 @@ file <- here("FERC/AESS2020.html")
 webshot(file, "FERC/AESS2020.pdf")
 ```
 
+View these slides here: <https://judgelord.github.io/correspondence/FERC/2020AESS.html>
 
----
-
-Download the draft paper here: <https://github.com/judgelord/correspondence/raw/master/FERC/FERCpaper2019.pdf>
+Download the draft paper [here](https://github.com/judgelord/correspondence/raw/master/FERC/FERCpaper2019.pdf).
 
 ---
 
@@ -83,7 +82,13 @@ Surprisingly, political scientists have generally fail to find that money affect
 
 But donor companies may target members of key committees (Powell and Grimmer 2015) or reward favorable voting records (Goldberg et al. 2020), or comply less with regulations.
 
-We collect data on congressional advococay and oversight: requests from Members of Congress to the Federal Energy Regulatory Commission
+---
+
+# Preview
+
+We collect data on congressional advococay and oversight: letters from Members of Congress to the Federal Energy Regulatory Commission
+
+We find that **republicans** and those who recieve more **money** from the energy-sector write more letters on behalf of energy companies, but no more letters on behalf of their constituents than other legislators.
 
 ---
 
@@ -93,15 +98,14 @@ We collect data on congressional advococay and oversight: requests from Members 
 
 - Less constrained by party leaders than votes
 
-- Targeted at one outcome (unlike bills that often do multiple things)
+- Targeted at one government decision (unlike bills that often do multiple things)
 
 - Likely aligned with other types of "behind-the-scenes" advocacy
 
---> Exactly where we would expect to see corporate influnce.
+Low visibility --> opportunity for corporate influnce
 
 
 ---
-
 
 # Why Study the Federal Energy Regulatory Commission?
 
@@ -117,7 +121,7 @@ What FERC Does:
 
 # Why Study the Federal Energy Regulatory Commission?
 
--   Hard case to find congressional influence
+A hard case to find congressional influence:
 
   -   Designed to be insulated from political influence
 
@@ -126,8 +130,39 @@ What FERC Does:
     -   The five commissioners are appointed to staggered 5-year terms,
         and no more than three can be from a one party
 
--   Yet FERC receives hundreds of letters from Members of Congress
-    each year
+Yet, FERC receives hundreds of letters from Members of Congress
+    each year.
+    
+---
+
+# Letters from Legislators to FERC
+
+More constituents does not necessarily mean more letters.
+
+![](figs/population-1.png)
+
+---
+
+# Political Action Committee (PAC) Campaign Contrabutions
+
+
+
+---
+
+# PAC Campaign Contrabutions by Party
+
+
+A strong and growing Republican bias in the energy sector
+
+![](figs/pac_amounts-1.png)
+
+---
+
+# PAC Campaign Contrabutions per Legislator
+
+A strong and growing Republican bias in the energy sector
+
+![](figs/pac_amounts-2.png)
 
 ---
 
@@ -208,7 +243,7 @@ knitr::include_graphics(here::here("FERC/figs/FERC_mooney.pdf"))
 
 On behalf of energy companies, supporting a permit or project
 
-```{r"}
+```{r}
 knitr::include_graphics(here::here("FERC/figs/FERC_thornberry.png"))
 ```
 
@@ -216,7 +251,7 @@ knitr::include_graphics(here::here("FERC/figs/FERC_thornberry.png"))
 
 On behalf of non-energy companies, opposing an energy project
 
-```{rr, out.height = "600px"}
+```{r, out.height = "600px"}
 knitr::include_graphics(here::here("FERC/figs/FERC_collins.pdf"))
 ```
 
@@ -253,9 +288,18 @@ knitr::include_graphics(here::here("FERC/figs/schumer-cosigned-letter-tweet.png"
 knitr::include_graphics(here::here("FERC/figs/data-by-type-1.png"))
 ```
 
-![](figs/data-by-type-1.pdf)
+![](figs/data-by-type-1.png)
+
+For each letter we identified the authoring legislator(s), any companies or projects it supported or opposed, whether it was about constituent service or policy. 
 
 ---
+
+![](figs/committeechiars_barcode-1.png)
+
+---
+
+
+# Findings
 
 Letters on behalf of individual constituents usually opposed energy projects
 
@@ -263,6 +307,71 @@ Letters on behalf of individual constituents usually opposed energy projects
 
 ---
 
+## Money 
+
+![](figs/models-2.png)
+
+Poisson model of the relationship between PAC money and each type of letter. *no time-series lag, so we can't say PAC money is an investment or reward.
+
+  - PAC money is correlated with pro-business advocacy, but not constituent advocacy, suggesting that we are pro-business letters are not just about district interests
+- Correlations are small, but likely indicate other typoes of advocacy
+
+---
+
+## Party
+
+
+  - Republicans write fewer anti-business and more pro-business letters than Democrats
+
+---
+
+## Party and Money
+
+
+![](figs/models-full-1.png)
+
+Poisson model of the relationship between both party and money with each type of letter.
+
+
+
+- For pro-business advocacy, the difference between two legislators of the same party, where one recieves $100,000 and the other recieves 
+$0, is comprable to the difference between a Republican and a Democrat
+- For anti-business advocacy, there is no evidece that money matters once we account for differences by party
+
+???
+
+- It's not just one's party or funding; both matter
+
+
+---
+
+# Next steps
+
+- Match individual companies mentioned in letters to campaign contributions
+
+- Idententify all companies that had busness with FERC (including where no legislator intervened)
+
+- Compare constituent demographics between a legislator's districts and letters
+
+- Text analysis to uncover trends in corporate and congressional advocacy
+
+---
+
+# Discussion 
+
+- Trends in energy company lobbying that we might look for? 
+
+- How might we measure public support for specific energy projects? 
+
+-
+
+- What else might we study with these data? 
+
+- Research whith which we should engadge? 
+
+*Thank you!*
+
+---
 
 -   Who Writes on Behalf of Constituents vs. Business?
 
