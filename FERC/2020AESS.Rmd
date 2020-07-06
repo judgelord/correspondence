@@ -231,7 +231,7 @@ class: center inverse
 On behalf of energy companies, supporting a permit or project
 
 ```{r, , out.width = "550px"}
-knitr::include_graphics(here::here("FERC/figs/FERC_mooney.png"))
+knitr::include_graphics("figs/FERC_mooney.png")
 ```
 
 ---
@@ -239,7 +239,7 @@ knitr::include_graphics(here::here("FERC/figs/FERC_mooney.png"))
 On behalf of energy companies, supporting a permit or project
 
 ```{r, out.width = "550px"}
-knitr::include_graphics(here::here("FERC/figs/FERC_thornberry.png"))
+knitr::include_graphics("figs/FERC_thornberry.png")
 ```
 
 ---
@@ -247,7 +247,7 @@ knitr::include_graphics(here::here("FERC/figs/FERC_thornberry.png"))
 On behalf of individuals and non-energy companies, opposing an energy project
 
 ```{r, out.width = "550px"}
-knitr::include_graphics(here::here("FERC/figs/FERC_collins.png"))
+knitr::include_graphics("figs/FERC_collins.png")
 ```
 
 ???
@@ -260,7 +260,7 @@ This is a constituency service letter written by Senator Susan Collins
 On behalf of his own business, opposing an energy project
 
 ```{r, out.width = "550px"}
-knitr::include_graphics(here::here("FERC/figs/FERC_graham.png"))
+knitr::include_graphics("figs/FERC_graham.png")
 ```
 
 
@@ -270,7 +270,7 @@ knitr::include_graphics(here::here("FERC/figs/FERC_graham.png"))
 Not always "behind-the-scenes."
 
 ```{r, out.width = "550px"}
-knitr::include_graphics(here::here("FERC/figs/schumer-cosigned-letter-tweet.png"))
+knitr::include_graphics("figs/schumer-cosigned-letter-tweet.png")
 ```
 
 ---
