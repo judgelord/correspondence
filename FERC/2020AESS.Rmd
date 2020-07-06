@@ -295,7 +295,7 @@ knitr::include_graphics("figs/schumer-cosigned-letter-tweet.png")
 
 ### Types of Congressional Requests FERC vs. All\* Agencies
 
-![](figs/data-by-type-1.png)
+![](figs/data-by-type-1 copy.png)
 
 Letters to FERC are disproportionately on behalf of businesses.
 
