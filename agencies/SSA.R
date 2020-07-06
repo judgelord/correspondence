@@ -2,11 +2,12 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "SSA" # for testing
+# file.name <- "SSA Rochelle" # for testing
 
 clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() 
+  
   
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
@@ -80,6 +81,11 @@ clean <- function(file.name) {
   
   
   data$name <- formatLastName(data, 'name')
+  
+  data %<>%
+    mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers \\(KY\\)|Rep\\. Rogers \\(KY 5th\\)|Rep\\. Rogers \\(KY/5th\\)|Rep\\. Rogers \\(KY-5\\)") & state %in% c("kentucky"), str_replace(FROM, "Rep\\. Rogers \\(KY\\)|Rep\\. Rogers \\(KY 5th\\)|Rep\\. Rogers \\(KY/5th\\)|Rep\\. Rogers \\(KY-5\\)", "Harold ROGERS"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers \\(AL 3rd\\)") & state %in% c("alabama"), str_replace(FROM, "Rep\\. Rogers \\(AL 3rd\\)", "Mike Dennis ROGERS"), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers") & str_detect(ACTION, " AL "), str_replace(FROM, "Rep\\. Rogers", "Mike Dennis ROGERS"), FROM))
 
   # member name
   data %<>% extractMemberName(members,"FROM") 
@@ -116,8 +122,8 @@ clean <- function(file.name) {
     mutate(first_name = ifelse(grepl("(^| )Nugent($| )",data$FROM), "Richard", first_name)) %>% 
     mutate(last_name = ifelse(grepl("(^| )Crawford($| )", data$FROM), "CRAWFORD", last_name)) %>% 
     mutate(first_name = ifelse(grepl("(^| )Rick($| )",data$FROM), "Rick", first_name)) %>% 
-    mutate(last_name = ifelse(grepl("Rogers \\(KY-5\\)", data$FROM), "ROGERS", last_name)) %>% 
-    mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) %>% 
+    #mutate(last_name = ifelse(grepl("Rogers \\(KY-5\\)", data$FROM), "ROGERS", last_name)) %>% 
+    #mutate(first_name = ifelse(grepl("Rogers \\(KY-5\\)",data$FROM), "Harold", first_name)) %>% 
     mutate(last_name = ifelse(grepl("Graham", data$FROM)&grepl("^Sen|^L", data$FROM), "GRAHAM", last_name)) %>% 
     mutate(first_name = ifelse(grepl("Graham", data$FROM)&grepl("^Sen|^L", data$FROM), "LINDSEY", first_name)) %>% 
      # only last name info, no first name
@@ -133,7 +139,8 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("^(.*White House.*|Congressional Office \\(State/District\\))$",FROM), FROM, ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^(Referral to C|Ways and Means)$",FROM), FROM, ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("^(Committee on Oversight and Government Reform)$",FROM), FROM, ERROR)) %>% 
-    mutate(ERROR = ifelse(grepl("^\\(.*\\)$|N/A",FROM), FROM, ERROR))
+    mutate(ERROR = ifelse(grepl("^\\(.*\\)$|N/A",FROM), FROM, ERROR)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "Rep\\. Rogers") & is.na(last_name), "Multiple Rogers FOIA", NOTES))
   
   
   #Failing observations
@@ -141,6 +148,8 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR),
            is.na(NOTES))  
+  
+  
   
   
   
