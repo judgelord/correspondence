@@ -2,7 +2,7 @@
 title: 'Campaign Contributions and Political Pressure on the Federal Energy Regulatory Commission'
 subtitle: AESS2020
 author: 'Devin Judge-Lord <br> with Eleanor Neff Powell and Justin Grimmer'
-date: 'Slides and paper available at <br><br><a href="https://judgelord.github.io/research/ferc/"><i class="fa fa-github fa-fw"></i>&nbsp;  judgelord.github.io/research/ferc </a><br>'
+date: 'Slides and paper available at <a href="https://judgelord.github.io/research/ferc/"><i class="fa fa-github fa-fw"></i>&nbsp;  judgelord.github.io/research/ferc </a><br>'
 url: https://judgelord.github.io/research/ferc/
 output:
   xaringan::moon_reader:
@@ -54,24 +54,29 @@ mono_light(#base_color = "#003333",
 
 
 ```{r, eval = FALSE, include= FALSE}
-# setup
-devtools::install_github("yihui/xaringan")
-devtools::install_github("gadenbuie/xaringanthemer")
-install.packages("webshot")
+# # setup
+# devtools::install_github("yihui/xaringan")
+# 1
+# devtools::install_github("gadenbuie/xaringanthemer")
+# install.packages("webshot")
 # webshot::install_phantomjs()
+# library(webshot)
 
-library(webshot)
+install.packages("pagedown")
+install.packages("websocket")
+library(pagedown)
 
 # export to pdf
-file <- here("FERC/AESS2020.html")
-webshot(file, "FERC/AESS2020.pdf")
+file <- here::here("FERC/2020AESS.html")
+# webshot(file, "FERC/2020AESS.pdf")
+pagedown::chrome_print("path/to/your/slides.html")
 ```
 
 # The political power of fossil fuel companies
 
 Do corporate campaign contributions affect policymakers? 
 
-Surprisingly, political scientists have generally failed to find that money affects behavior (usually roll-call votes).
+Surprisingly, political scientists have generally failed to find that campaign contributions affect behavior (usually roll-call votes).
 
 But donor companies may target members of key committees (Powell and Grimmer 2015), reward favorable voting records (Goldberg et al. 2020), or be less likely to comply with regulations (Gordon and Hafer 2005).
 
@@ -418,7 +423,7 @@ Poisson model of the relationship between both party and money with each type of
 
 ---
 
-
+class: inverse
 
 # Discussion 
 
@@ -431,3 +436,5 @@ Poisson model of the relationship between both party and money with each type of
 - Research with which we should engage? 
 
 *Thank you!*
+
+Comments & questions welcome: [judgelord@wisc.edu](mailto:judgelord@wisc.edu) [@judgelord](https://twitter.com/JudgeLord)
