@@ -3,7 +3,7 @@ title: 'Campaign Contributions and Political Pressure on the Federal Energy Regu
 subtitle: AESS2020
 author: 'Devin Judge-Lord <br> with Eleanor Neff Powell and Justin Grimmer'
 date: 'Slides and paper available at <a href="https://judgelord.github.io/research/ferc/"><i class="fa fa-github fa-fw"></i>&nbsp;  judgelord.github.io/research/ferc </a><br>'
-url: https://judgelord.github.io/research/ferc/
+#url: https://judgelord.github.io/research/ferc/
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -17,10 +17,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, echo = FALSE, warning=FALSE, message=FALSE}
-# chunks options:
-# hide code and messages by default (warning, message)
-# cache everything 
+```{r setup, include = FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(eval = TRUE, 
                       warning = FALSE, 
                       message = FALSE,
@@ -33,12 +30,11 @@ knitr::opts_chunk$set(eval = TRUE,
                       dpi = 100,
                       fig.align = "center")
 # Xaringan: https://slides.yihui.name/xaringan/
-library("xaringan")
+#library("xaringan")
 library("xaringanthemer")
 library("here")
 
-
-mono_light(#base_color = "#003333",
+xaringanthemer::mono_light(#base_color = "#003333",
           link_color = "#b7e4cF",
           #background_color = "#FAF0E6", # linen
           header_font_google = google_font("PT Sans"), 
@@ -47,8 +43,8 @@ mono_light(#base_color = "#003333",
           padding = "10px",
           code_font_google = google_font("Inconsolata"), 
           code_inline_background_color    = "#F5F5F5", 
-          table_row_even_background_color = "#E6F0FA",
-          extra_css = list(".remark-slide-number" = list("display" = "none")))
+          extra_css = list(".remark-slide-number" = list("display" = "none")),
+          table_row_even_background_color = "#E6F0FA")
 
 ```
 
@@ -370,8 +366,7 @@ Poisson model of the relationship between party and each type of letter sent in 
 
 ![](figs/models-full-1.png)
 
-- For pro-business advocacy, the difference between two legislators of the same party, where one receives $100,000 and the other receives 
-$0, is comparable to the difference between a Republican and a Democrat
+- For pro-business advocacy, the difference between two legislators of the same party, where one receives $100,000 more than the other, is comparable to the difference between a Republican and a Democrat
 
 - For anti-business advocacy, there is no evidence that money matters once we account for differences by party
 
