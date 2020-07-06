@@ -90,11 +90,11 @@ class: inverse
 
 # Legislator letters
 
-- "Public records" but difficult to obtain
-
 - Less constrained by party leaders than votes
 
 - Targeted at one government decision (unlike bills that often do multiple things)
+
+- "Public records" but difficult to obtain
 
 - Likely aligned with other types of "behind-the-scenes" advocacy
 
@@ -141,7 +141,7 @@ Yet, FERC receives hundreds of letters from Members of Congress
 
 class: inverse
 
-# Do campaign contributions affect congressional-bureaucratic relations?
+# Campaign Contributions
 
 -   Letters to FERC are less visible than roll-call votes.
 
@@ -153,10 +153,10 @@ class: inverse
 
 ## Political Action Committee (PAC) Spending
 
-Unequal spending across companies
+Unequal spending among energy companies
 
 
-![](figs/letters_PACs-data-2.png)
+![](figs/pac_amounts-3.png)
 
 ---
 
