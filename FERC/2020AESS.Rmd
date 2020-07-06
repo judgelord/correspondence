@@ -38,7 +38,7 @@ xaringanthemer::mono_light(#base_color = "#003333",
           link_color = "#b7e4cF",
           #background_color = "#FAF0E6", # linen
           header_font_google = google_font("PT Sans"), 
-          text_font_google = google_font("Old Standard"), 
+          #text_font_google = google_font("Old Standard"), 
           text_font_size = "30px",
           padding = "10px",
           code_font_google = google_font("Inconsolata"), 
@@ -59,13 +59,13 @@ xaringanthemer::mono_light(#base_color = "#003333",
 # library(webshot)
 
 install.packages("pagedown")
-install.packages("websocket")
+#install.packages("websocket")
 library(pagedown)
 
 # export to pdf
 file <- here::here("FERC/2020AESS.html")
 # webshot(file, "FERC/2020AESS.pdf")
-pagedown::chrome_print("path/to/your/slides.html")
+pagedown::chrome_print(file)
 ```
 
 # The political power of fossil fuel companies
@@ -80,7 +80,7 @@ But donor companies may target members of key committees (Powell and Grimmer 201
 
 # Preview
 
-We collect letters from Members of Congress to the Federal Energy Regulatory Commission and link them to corporate PAC contributions.
+We collect letters from Members of Congress to the Federal Energy Regulatory Commission and link them to corporate campaign contributions.
 
 We find that **Republicans** and those who receive more **money from the energy-sector** write more letters on behalf of energy companies, but no more letters on behalf of their constituents than other legislators.
 
@@ -113,17 +113,16 @@ If legislators are not responding to constituent demand, to what are they respon
 
 ---
 
-## Why Study the Federal Energy Regulatory Commission?
+## Why study the Federal Energy Regulatory Commission?
 
-What FERC Does:
 
-- Regulates electricity markets, oil and gas pipelines, hydropower projects, and liquified natural gas export projects
+- FERC regulates electricity markets, oil and gas pipelines, hydropower projects, and liquified natural gas export projects
 
--   Makes policy and enforcement decisions that have major consequences for how energy is produced, the distribution of energy-sector jobs, profits, and the cost of the of electricity and fuels
+-   FERC makes policy and enforcement decisions that have major consequences for how energy is produced, the distribution of energy-sector jobs, profits, and the cost of the of electricity and fuels
 
 ---
 
-## Why Study the Federal Energy Regulatory Commission?
+## Why study the Federal Energy Regulatory Commission?
 
 A hard case to find congressional influence:
 
@@ -142,13 +141,13 @@ Yet, FERC receives hundreds of letters from Members of Congress
 
 class: inverse
 
-# Do Campaign Contributions affect Congressional-Bureaucratic Relations?
+# Do campaign contributions affect congressional-bureaucratic relations?
 
 -   Letters to FERC are less visible than roll-call votes.
 
 -   FERC decisions have high stakes for companies.
 
-- [The Center for Responsive Politics'](https://www.opensecrets.org/) industry classification of corporate Political Action Committees allows us to identify the PACs of energy companies that are regulated by FERC. 
+- [The Center for Responsive Politics'](https://www.opensecrets.org/) industry classification of corporate Political Action Committees allows us to link Political Action Committees (PAC) to energy companies that are regulated by FERC. 
 
 ---
 
@@ -170,7 +169,7 @@ A large and growing Republican bias in the energy sector
 
 ---
 
-## PAC Campaign Contributions per Legislator
+## PAC Campaign Contributions by Legislator
 
 A strong and growing Republican bias in the energy sector
 
@@ -430,6 +429,9 @@ class: inverse
 
 - Research with which we should engage? 
 
-*Thank you!*
+# *Thank you!*
+
+Paper and slides at [judgelord.github.io/research/ferc/](https://judgelord.github.io/research/ferc/)
 
 Comments & questions welcome: [judgelord@wisc.edu](mailto:judgelord@wisc.edu) [@judgelord](https://twitter.com/JudgeLord)
+
