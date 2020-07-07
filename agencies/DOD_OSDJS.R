@@ -29,24 +29,15 @@ clean <- function(file.name) {
     filter(is.na(DATE))
   
   
-  data$FROM <- gsub("^MOC","", data$FROM)
-  data$FROM <- gsub("  "," ", data$FROM)
-  data$FROM <- gsub("  "," ", data$FROM)
-  data$FROM <- gsub("PELOSLN", "PELOSI,N", data$FROM)
+  #data$FROM <- gsub("^MOC","", data$FROM)
+  data$FROM %<>% str_replace("\.", ", ") %>% str_squish() # repace periods with comma space, then remove extra spaces
+  data$FROM <- gsub("PELOSLN", "PELOSI, N", data$FROM)
   data$FROM <- gsub("\\\\1", "VI", data$FROM)
-  
-  data$last_name <-  gsub("(.*)(,|\\.)(.*)", "\\1", data$FROM)
-  
-  #data$last_name <- formatLastName(data, 'last_name')
   
   #Extract Member names (New edit from formatLastName)
   data <-  extractMemberName(data,members,"FROM") 
   
 
-  data %<>%
-    mutate(last_name = ifelse(last_name %in% members$last_name, last_name, 
-                              gsub("^(\\w+)(\\w| \\w)$", '\\1', last_name)))
-  
   #checking for NA dates
   NOdate <- data %>%
     filter(is.na(DATE))
@@ -62,7 +53,7 @@ clean <- function(file.name) {
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
   
-  data%<>%
+  data %<>%
  # mutate(SUBJECT=paste(`Subject Code`,"-",SUBJECT)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT SERVICE", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("CONSTITUENT SERVICE", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%

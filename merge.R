@@ -215,9 +215,10 @@ d <- d1 %>%
   distinct()
 )
 
-d %>% mutate(NAs = is.na(last_name)) %>% count(congress, NAs)
+d %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
 
-d %>% filter(!is.na(icpsr)) %>% count(year)
+d %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
+
 ####################
 
 
@@ -347,7 +348,7 @@ d$icpsr %<>% as.numeric()
 
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 
-# constituent type and class codes 
+#FIXME constituent type and class codes 
 d$CONSTITUENT_TYPE <- NA
 d$CONSTITUENT_CLASS <- NA
 source("functions/constituent_types.R")
@@ -434,7 +435,7 @@ worst.names <- bad.names.2 %>%
             congress = str_c(unique(congress), collapse = ";") ) %>% distinct() %>%
   arrange(-n)   %>% filter(n>5) # top_n(200, n)
 tail(worst.names)
-worst.names$FROM
+# worst.names$FROM
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -810,6 +811,7 @@ look <- df %>%  group_by(agency, bioname, DATE, SUBJECT, TYPE, ALT_TYPE, POLICY_
   distinct() %>% # there is some other problem beyond different coding
   add_count(bioname, DATE, agency, icpsr, chamber, SUBJECT) %>% filter(n>1) %>% arrange(DATE, bioname, agency) 
 
+look %>% count(agency, sort = T) 
 head(look)
 max(look$n)
 nrow(look)
@@ -822,9 +824,7 @@ combine <- . %>% unique() %>% str_c(collapse = ";")
 
 look %<>% group_by(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% summarise_all(combine) 
 
-look %<>% distinct()
-
-arrange(agency)
+look %<>% distinct() %>% arrange(agency)
 
 write_csv(look, path = "data/likely_duplicates.csv")
 
@@ -833,11 +833,15 @@ max(look$n)
 
 
 
-
+nrow(df)
 ##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
 df %<>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% summarise_all(combine)
 
 df %<>% select(-n)
+nrow(df)
+
+filter(df, str_detect(bioname, ";"))
+look <- filter(df, str_detect(bioname, ";"))
 
 ## If we wanted to drop all potential dupicates: 
 # nrow(df)

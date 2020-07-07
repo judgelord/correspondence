@@ -54,6 +54,8 @@
   library(dotwhisker)
   library(crayon)
   library(tidyverse)
+  library(googlesheets4)
+  library(googledrive)
   
   source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
   source(here("functions/stateFromLower.R")) # format state names
@@ -100,3 +102,4 @@
   gs_read <-   function(sheet){sheet %>% googlesheets4::read_sheet(col_types = "c")}
   
   gs_title <- function(file.name){googledrive::drive_get(file.name)}
+  
