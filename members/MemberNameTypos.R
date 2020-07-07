@@ -4,6 +4,8 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
+  "GILLIBRAND", "GILLABRAND"
+  "WENSTRUP", "WENSTRUB",
   "HUTCHISON","HUTCHIS",
   "FEINGOLD", "FEINGOL",
   "FILNER B", "FILNERB",
