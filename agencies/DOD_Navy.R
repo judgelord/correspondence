@@ -34,14 +34,22 @@ clean <- function(file.name) {
   
   
   #Create variable for chamber (Senator or Representative)
+  #FIXME IF CHAMBER IS COMPLETE, WE DON'T NEED ADD_FIRST
   data %<>%
     mutate(chamber = ifelse (grepl("Sen|SEN", FROM), "Senate", NA)) %>%
     mutate(chamber = ifelse(grepl("Rep|REP", FROM), "House", chamber))
   
+  data$FROMoriginal <- data$FROM
+  
   # clean up from column
-  data$FROM %<>% str_remove_all("-")
+  data$FROM %<>% str_replace_all("-", " ") %>% str_squish()
   data$FROM %<>% cleanFROMcolumn()
   
+  data$FROM %<>% 
+    str_replace("STOPLIGHT MCCAIN SERGEANT", "MCCAIN") %>% 
+    str_replace("WENSTRUB", "WENSTRUP")
+  
+  data %>% filter(str_detect(FROM, "/")) %>% .$FROM
   # split multiple members separated by a / (there are only a few, and some subject content is in the FROM column, to correct by hand)
   data %<>% 
     mutate(FROM = str_split(FROM, "/")) %>% 
@@ -54,13 +62,21 @@ clean <- function(file.name) {
   
   data$last_name <- formatLastName(data, "last_name")
   
-  data$last_name %<>% 
-    str_replace("STOPLIGHT MCCAIN SERGEANT", "MCCAIN") %>% 
-    str_remove("REP |SEN |Sen |Rep ") 
+
+  
+
   
   # add a first name
-  data$first_name <- NA
-  data$first_name <- addFirst(data$first_name, data$last_name)
+  #data$first_name <- NA
+  #data$first_name <- addFirst(data$first_name, data$last_name)
+  
+  
+  
+  # there are a few members without chamber or first names
+  data %<>% add_first() # %>% mutate(FROM = paste(first_name, last_name) %>% str_remove("^NA "))
+  
+  #inspect
+  paste(data$first_name, data$last_name, data$FROM, sep = "<--")
   
   # for these observations, replace FROM with the combined first and last
   data %<>% 
@@ -71,11 +87,15 @@ clean <- function(file.name) {
 
   # specific corrections
   data$FROM %<>% 
-    str_replace("BORDALLO,LEINE", "BORDALLO, LEINE") %>%
-    str_replace("SENSENBRENNER, F JAMES", "SENSENBRENNER, JAMES")
+    str_replace("BORDALLO,LEINE|BORDALLO", "BORDALLO, LEINE") %>%
+    str_replace("SENSENBRENNER, F JAMES", "SENSENBRENNER, JAMES") %>% 
+    str_replace("ESCHOO", "Anna Eshoo")
     
     
+  #inspect
+  paste(data$FROM, data$FROMoriginal, sep = "<--")
   
+  # extract member names
   data %<>% extractMemberName(members, 'FROM')
   
   
