@@ -4,6 +4,16 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
+  "HUTCHISON","HUTCHIS",
+  "FEINGOLD", "FEINGOL",
+  "FILNER B", "FILNERB",
+  "Butterfield, G K", "Butterfield, GK",
+  "EDWARDS, DONNA", "EDWARD, DONNA",
+  "Andre Carson", "Andre' Carson",
+  "GOHMERT, L", "GOHMERT. L",
+  "SESTAK, J", "SESTAK. J",
+  "OBEYD", "OBEY, D",
+  "Gassley", "Grassle",
   "Thune, John", "ThuneJohn",
   "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
@@ -86,6 +96,8 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
+  "Harold", "Rogers", "Rodgers",
+  "Nick", "Rahall", "Rahail",
   "Patty", "Murray", "(Murrary|Muray)",
   "Lois", "Capps", "Crapps",
   "Rick", "Boucher", "Bocuher",
@@ -228,7 +240,7 @@ typos_last <- tribble(
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
-  "Shelley", "Capito", "(MooreCapito|Moore-Capito)",
+  "Shelley", "Capito", "(MooreCapito|Moore-Capito|Capito Moore)",
   "Jeanne", "Shaheen", "(Shaneen|Shahenn)",
   "Debbie", "Wasserman Schultz", "(Schultz|Wasserman Shultz|Wasserman-Schultz|Wasserman-S|Wasserman-|Wasserman)",   
   # FIXME #  last names hypenation can be a clear typo, but we can't just replace "Schultz"--that needs to be a last name typo (otherwise "Debbie Wasserman Schultz" will be replaced with "Debbie Wasserman Wasserman Schultz" and fail to match)
@@ -328,6 +340,9 @@ typos_last <- tribble(
 # FREQUENT FIRST NAME TYPOS 
 typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
+  "Suzanne", "Kosmas", "Susanne",
+  "Glenn", "Thompson", "Glen",
+  "Raul", "Labrador", "Ra",
   "Stephen", "Lynch", "Steven", 
   "Zoe", "Lofgren", "Toe", 
   "Jeanne", "Shaheen", "(Joanne|Teanne)", 

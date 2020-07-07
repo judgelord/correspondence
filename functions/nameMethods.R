@@ -6,6 +6,29 @@
 #' addFirst() adds first names given last names, but only to last names that are unique in congress. This should be used with caution.
 ##########################################################################################################
 
+## FOR TESTING, use names that are failing to match
+if(F){
+  # data frame for testing
+  data <- gs_title("worst.names") %>% gs_read() 
+  data %<>% 
+    mutate(congress = str_split(congress,";")) %>%  # unnest congresses
+    unnest(congress) %>%
+    mutate(congress = as.numeric(congress)) %>%
+    filter(!problem %in% c("other", "not unique"), !solution %in% c("don't fix")) # drop cases we know we don't need to fix
+  
+  # vectors for testing 
+  FROM <- data$FROM
+  col_name <- FROM
+  congresses <- unique(data$congress)
+  
+  # Test
+  data %<>% extractMemberName(col_name = "FROM", members = members)
+  look <- data %>% 
+    group_by(agency, FROM, string, problem, solution, last_name) %>% 
+    summarise(congress = str_c(unique(congress), collapse = ";")) %>%
+    filter(is.na(last_name)) %>%
+    arrange(solution, problem)
+}
 
 # This function cleans up text from which member names will be extracted.
 # SUCH CODE SHOULD BE CONSOLIDATED HERE
@@ -33,7 +56,7 @@ cleanFROMcolumn <- function(FROM){
   FROM <- str_squish(FROM)
   
   # remove 
-  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)", "", FROM)
+  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|'", "", FROM)
   # replace with comma
   FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
                replacement = ",", FROM)
@@ -577,6 +600,7 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
   
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)
+  data$congress %<>% as.numeric()
   
   data %<>% mutate(string = data[[col_name]])
     
