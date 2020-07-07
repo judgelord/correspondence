@@ -16,6 +16,15 @@ if(F){
     mutate(congress = as.numeric(congress)) %>%
     filter(!problem %in% c("other", "not unique"), !solution %in% c("don't fix")) # drop cases we know we don't need to fix
   
+  # agencies to use add_first on
+  data %>% 
+    #select(-first_name) %>% 
+    mutate(last_name = FROM) %>% 
+    add_first() %>% filter(!is.na(first_name)) %>%
+    mutate(agency = str_split(agency,";")) %>%  # unnest congresses
+    unnest(agency) %>%
+    count(agency, sort = T)
+  
   # vectors for testing 
   FROM <- data$FROM
   col_name <- FROM
@@ -39,7 +48,11 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub('\\+', "", FROM)
   
   # remove common names in quotes 
-  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
+  FROM <- gsub('\\"(Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
+  
+  # remove common names in parentheses
+  FROM <- gsub('\\((Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\)', "", FROM, ignore.case = TRUE)
+  
   
   # remove paragraph breaks and trailing white space 
   FROM <- gsub("\n", " ", FROM)
@@ -56,7 +69,7 @@ cleanFROMcolumn <- function(FROM){
   FROM <- str_squish(FROM)
   
   # remove 
-  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|'", "", FROM)
+  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)", "", FROM)
   # replace with comma
   FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
                replacement = ",", FROM)
