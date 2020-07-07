@@ -27,11 +27,6 @@ clean <- function(file.name) {
   
   data$FROM <- gsub("\\d+-\\d+ (\\w.*)","\\1",data$Control)
   
-  paste(data$FROM, data$Control, sep = ":::")
-  ###############    
-
-
-
   data$last_name <- formatLastName(data, 'FROM') 
   
   data$last_name %<>% str_squish() %>% str_extract("[A-z]*")
