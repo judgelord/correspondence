@@ -2,7 +2,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-# file.name <- "DOD_OIG" # for testing
+# file.name <- "DOD_OIG Fatima" # for testing
 
 clean <- function(file.name) {
   
@@ -27,28 +27,31 @@ clean <- function(file.name) {
   
   data$FROM <- gsub("\\d+-\\d+ (\\w.*)","\\1",data$Control)
   
-  
+  paste(data$FROM, data$Control, sep = ":::")
   ###############    
-  # Creates duplicate rows for lines with multiple representatives
-  data %<>%
-    mutate(FROM = str_split(FROM, "/")) %>%
-    unnest(FROM)
-  
-  data$ID <- seq(1:nrow(data))
-  ################ 
-  
-  
 
 
-  data$last_name <- formatLastName(data, 'FROM')
-  data$first_name <- NA
 
-  data$first_name <- addFirst(data$first_name,data$last_name)
+  data$last_name <- formatLastName(data, 'FROM') 
+  
+  data$last_name %<>% str_squish() %>% str_extract("[A-z]*")
+  
+  #inspect
+  paste(data$last_name, data$FROM, data$Control, sep = "<--")
   
   
+  # correct typos 
+  data$last_name %<>% 
+    str_replace("GRASSLE", "GRASSLEY")
+  
+  # add first name column
+  data %<>% add_first()
+  
+  data %<>% 
+    mutate(FROM = paste(first_name, last_name))
   #formatlastname works way better than extractMemberName
   
-  #data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
