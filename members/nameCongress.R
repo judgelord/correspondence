@@ -593,6 +593,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$middle_initial %<>% str_remove("\\.")
   members$first_initial %<>% str_remove("\\.")
   members$middle_name %<>% str_remove("\\.")
+  members$first_name %<>% str_remove("\\.")
   
   members %<>%
     # add any missing middle initials
@@ -664,7 +665,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "\\^NA | NA |, NA\\$| NA\\$|404error"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "\\^NA |^NA | NA |, NA\\$| NA\\$| NA$|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 

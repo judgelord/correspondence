@@ -8,7 +8,7 @@
 
 ## FOR TESTING, use names that are failing to match
 if(F){
-  # data frame for testing
+  # data frame of names that were recently failing to match for testing
   data <- gs_title("worst.names") %>% gs_read() 
   data %<>% 
     mutate(congress = str_split(congress,";")) %>%  # unnest congresses
@@ -27,11 +27,12 @@ if(F){
   
   # names where add_first fails 
   data %>% 
+    #mutate(last_name = str_remove(last_name, " .*")) %>% 
     add_first() %>% 
     filter(is.na(first_name)&solution == "addFirst") %>%
-    mutate(agency = str_split(agency,";")) %>%  # unnest congresses
+    mutate(agency = str_split(agency,";")) %>%  # unnest agencies
     unnest(agency) %>%
-    count(FROM, last_name, sort = T)
+    count(FROM, congress, last_name, sort = T) %>% .$last_name
   
   # vectors for testing 
   FROM <- data$FROM
@@ -135,6 +136,9 @@ formatLastName <- function(data, col_name){
     # Last names in voteview are upper case
     str_to_upper() %>%
     str_replace_all(" NA ", " ") %>% 
+    str_replace_all(" NA ", " ") %>%
+    str_replace_all(" NA ", " ") %>%
+    str_remove_all("^NA | NA$") %>% 
     str_remove_all("^NA | NA$") %>% 
     str_remove_all("\\(.*\\)") %>% 
     str_squish()
@@ -212,6 +216,8 @@ formatLastName <- function(data, col_name){
     
     mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) #fixed
   
+  
+  # data %>% filter(str_detect(last_name, "INHOF")) %>% .$last_name 
   data$last_name %<>% trimws()
   
 
