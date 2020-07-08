@@ -835,13 +835,15 @@ max(look$n)
 
 nrow(df)
 ##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
-df %<>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% summarise_all(combine)
+df %<>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
+  summarise_all(combine)
 
 df %<>% select(-n)
 nrow(df)
 
-filter(df, str_detect(bioname, ";"))
-look <- filter(df, str_detect(bioname, ";"))
+#FIXME THERE SHOULD NOT BE MORE THAN ONE pattern PER DATE! 
+filter(df, str_detect(pattern, ";")) %>% .$pattern
+# look <- filter(df, str_detect(bioname, ";"))
 
 ## If we wanted to drop all potential dupicates: 
 # nrow(df)

@@ -16,14 +16,22 @@ if(F){
     mutate(congress = as.numeric(congress)) %>%
     filter(!problem %in% c("other", "not unique"), !solution %in% c("don't fix")) # drop cases we know we don't need to fix
   
+  data$last_name <- formatLastName(data, "FROM")
   # agencies to use add_first on
   data %>% 
-    #select(-first_name) %>% 
-    mutate(last_name = FROM) %>% 
-    add_first() %>% filter(!is.na(first_name)) %>%
+    add_first() %>% 
+    filter(!is.na(first_name) ) %>%
     mutate(agency = str_split(agency,";")) %>%  # unnest congresses
     unnest(agency) %>%
     count(agency, sort = T)
+  
+  # names where add_first fails 
+  data %>% 
+    add_first() %>% 
+    filter(is.na(first_name)&solution == "addFirst") %>%
+    mutate(agency = str_split(agency,";")) %>%  # unnest congresses
+    unnest(agency) %>%
+    count(FROM, last_name, sort = T)
   
   # vectors for testing 
   FROM <- data$FROM
@@ -121,13 +129,18 @@ formatLastName <- function(data, col_name){
   data$last_name <- data[[col_name]]
   
   # trim white space and paragraph breaks
-  data$last_name %<>% trimws()
+  data$last_name  %<>% 
+    str_squish() %>% 
+    # correct capitalization to match last names in voteview data 
+    # Last names in voteview are upper case
+    str_to_upper() %>%
+    str_replace_all(" NA ", " ") %>% 
+    str_remove_all("^NA | NA$") %>% 
+    str_remove_all("\\(.*\\)") %>% 
+    str_squish()
   
   # THIS WILL STAY IN THE FUNCTION formatLastName
   data %<>%
-    # correct capitalization to match last names in voteview data 
-    # Last names in voteview are upper case
-    mutate(last_name = str_to_upper(last_name)) %>% 
     #case corrections, not touching at the moment
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
