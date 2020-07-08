@@ -5,18 +5,45 @@ clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() 
   
-  # helper function to deal with duplicates
-  combine <- . %>% unique() %>% str_c(collapse = ";")
-  
-  data %>% group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
-    summarise_all(combine) %>% distinct()
-  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
+# LetterIDs for these data will have ";;;" in them because most are duplicated
+  
+  # helper function to deal with duplicates
+  combine_strings <- . %>% unique() %>% str_c(collapse = ";;;")
+  
+  if(F){ # Inspect duplicates 
+  duplicates <- data %>% 
+    group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
+    summarise_all(combine_strings) %>% 
+    add_count() %>% 
+    filter(n>1) %>% 
+    distinct()
+  
+  # duplicated subjects (short ones or NA may not be duplicates)
+  duplicates %>% count(SUBJECT, sort = T) 
+  
+  duplicate_coding <- duplicates %>%  
+    filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) %>%
+    select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct()
+  duplicate_coding
+  }
+  
+  # Drop duplicates 
+  data %<>% group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
+    summarise_all(combine_strings) %>% 
+    distinct()
+  
+
+  
+
+
   
   #create agency column
   data$agency <- file.name
