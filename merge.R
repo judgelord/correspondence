@@ -304,6 +304,7 @@ combine <- function(file){
 }
 
 dim(d)
+# COMBINE FILES 
 d <- map_dfr(files, combine)
 d %<>% distinct()
 dim(d)
@@ -348,15 +349,14 @@ d$icpsr %<>% as.numeric()
 
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 
-#FIXME constituent type and class codes 
-d$CONSTITUENT_TYPE <- NA
-d$CONSTITUENT_CLASS <- NA
-source("functions/constituent_types.R")
+
 
 # party switchers etc
 # FIXME
 # Jeffords switched parties fix in MemberNameDateCorrections.R
+nrow(d)
 d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
+nrow(d) # should go down
 
 #######################
 # ERRORS we can't fix #
@@ -401,12 +401,19 @@ bad.dates <- d %>%
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 
 d$year %<>% as.numeric()
+
+
+
+# TIME RANGE 
+nrow(d)
 d %<>% 
   # drop obs out of timeframe 
   #FIXME when we get complete data through 2020
   filter(year < 2019 & year > 1999) %>% 
   # drop bad dates (dates where the member did not serve)
   filter(DATE != "Date out of range")
+
+nrow(d) # SHOULD GO DOWN 
 
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
@@ -468,6 +475,160 @@ bad.party <- d %>%
 #
 #
 #
+
+
+d %<>% ungroup()
+nrow(d)
+# Drop observations that failed to match in Voteview
+d %<>% filter(!is.na(icpsr)) 
+nrow(d) # SHOULD GO DOWN 
+
+d %<>% filter(!is.na(year))
+nrow(d) # SHOULD NOT GO DOWN 
+
+d %<>% filter(chamber %in% c("House", "Senate"))
+nrow(d) # SHOULD NOT GO DOWN 
+
+#FIXME - some duplicates were created when different FROM columns were created, I think just in CDC, dropping them here, but should be fixed in the CDC script
+nrow(d)
+d %<>% select(-FROM) %>% distinct()
+nrow(d) # SHOULD PROBABLY NOT GO DOWN
+
+d %>% filter(is.na(LetterID)) %>% count(agency, sort = T)
+d %>% filter(is.na(ID)) %>% count(agency, sort = T)
+
+# inspect one party switcher 
+d %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>% 
+  add_count(DATE, SUBJECT, agency, bioname, icpsr) %>% 
+  filter(n>1) %>% 
+  arrange(DATE) %>% distinct() %>% 
+  select(agency, bioname, DATE, SUBJECT, TYPE, n)
+
+nrow(d)
+# clean up problems with party switchers etc. that may have come in with merge 
+d %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
+nrow(d) # n should go down
+
+# inspect one party switcher 
+d %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>% 
+  add_count(DATE, SUBJECT, agency, bioname, icpsr) %>% 
+  filter(n>1) %>% 
+  arrange(DATE) %>% distinct() %>% 
+  select(agency, bioname, DATE, SUBJECT, TYPE, n)
+
+# a function to combine
+combine_strings <- . %>% unique() %>% str_c(collapse = ";;;")
+
+duplicates <- d %>% 
+  group_by(DATE, agency, bioname, SUBJECT) %>% # with the same icpsr and date
+  add_count() %>% 
+  filter(n>1) %>% 
+  summarise_all(combine_strings) 
+
+duplicates %<>% distinct() %>% ungroup()
+
+duplicates %>% count(agency, sort = T) 
+duplicates %>% count(agency, SUBJECT,sort = T) 
+
+d %>% 
+  filter(agency == "VA") %>% 
+  count(agency, DATE, SUBJECT, bioname, sort = T) 
+
+
+head(duplicates)
+max(duplicates$n)
+nrow(duplicates)
+duplicates$n %<>% as.numeric()
+sum(duplicates$n)
+
+# inspect potential problems
+duplicate_coding <- duplicates %>%  
+  filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) #|str_detect(CERTAINTY, ";;;")) #|str_detect(POLICY_EVENT, ";;;")|str_detect(EVENT_NAME, ";;;")|str_detect(NOTES, ";;;"))
+duplicate_coding %<>% 
+  select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct()
+duplicate_coding
+write_csv(duplicate_coding %>% filter(agency != "DOE_FERC"), path = "duplicate_coding.csv")
+
+
+duplicate_chambers <- duplicates %>%  
+  filter(str_detect(chamber, ";;;") )
+duplicate_chambers %>% select(congress, bioname, party_code, icpsr, chamber) %>% distinct()
+
+duplicate_party <- duplicates %>%  
+  filter(str_detect(party_code, ";;;") )
+duplicate_party %>% select(congress, bioname, party_name, icpsr) %>% distinct()
+
+duplicate_icpsr <- duplicates %>%  
+  filter(str_detect(icpsr, ";;;") )
+duplicate_icpsr  %>% select(congress, bioname, party_name, icpsr)  %>% distinct()
+
+
+
+
+write_csv(duplicates, path = "data/likely_duplicates.csv")
+
+duplicates %>% 
+  arrange(DATE) %>% 
+  select(bioname, DATE, agency, SUBJECT, n)
+max(duplicates$n)
+
+
+
+nrow(d)
+##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
+d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
+  summarise_all(combine)
+
+d %<>% group_by(LetterID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
+  summarise_all(combine)
+nrow(d) # MIGHT GO DOWN
+
+d %<>% select(-n)
+
+
+#FIXME THERE SHOULD NOT BE MORE THAN ONE pattern PER DATE! 
+filter(d, str_detect(pattern, ";")) %>% .$pattern
+# look <- filter(d, str_detect(bioname, ";"))
+
+## If we wanted to drop all potential dupicates: 
+# nrow(d)
+# d %<>% anti_join(look %>% select(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% distinct())
+# nrow(d)
+# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#FIXME constituent type and class codes 
+d$CONSTITUENT_TYPE <- NA
+d$CONSTITUENT_CLASS <- NA
+source("functions/constituent_types.R")
+
+
+
+
+
+
+
+
+
+
+
+
+
 #########################################################################
 #
 #               DATA TRANSFORMATIONS 
@@ -490,16 +651,10 @@ bad.party <- d %>%
 ###############################################
 # Create df with transformations for analysis #
 ###############################################
-
-d %<>% ungroup()
-nrow(d)
-# FIXME
-# This is where observations that failed to match in Voteview get dropped. 
-df <- filter(d, !is.na(icpsr), !is.na(year), chamber %in% c("House", "Senate")) # select only voteview-matched observations
-nrow(df)
-committees %<>% 
-  select(-party) # drop Stewart committee data party codes 
-
+#################################################
+# augmented data, df, should have the same n as d 
+n <- nrow(d)
+df <- d
 # are all agencies here? 
 data_complete()
 
@@ -650,7 +805,7 @@ df %<>%
       mutate(icpsr = as.numeric(icpsr))
   )
 nrow(df)
-
+nrow(df) == n
 
 
 
@@ -658,7 +813,7 @@ nrow(df)
 # create dcommittees #
 ######################
 # merge committee data to one obs per letter per committee
-committees %<>% select(-partystatus)
+committees %<>% select(-partystatus, -party) # drop Stewart committee data party codes 
 committees %<>% filter(!is.na(icpsr))
 committees %<>%  filter(!is.na(congress)) 
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
@@ -785,71 +940,6 @@ df %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(df$bioname[which(
   # mutate(monthsAsChair = daysAsChair/30) 
 
 
-#FIXME - some duplicates were created when different FROM columns were created, I think just in CDC, dropping them here, but should be fixed in the CDC script
-nrow(df)
-df %<>% select(-FROM) %>% distinct()
-nrow(df)
-
-df %<>% distinct()
-
-df %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>% 
-  add_count(DATE, SUBJECT, agency, bioname, icpsr) %>% 
-  filter(n>1) %>% 
-  arrange(DATE) %>% distinct() %>% 
-  select(agency, bioname, DATE, SUBJECT, TYPE, n)
-
-nrow(df)
-# clean up problems with party switchers etc. that may have come in with merge 
-df %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
-nrow(df)
-
-# inspect potential problems
-look <- df %>%  group_by(agency, bioname, DATE, SUBJECT, TYPE, ALT_TYPE, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, icpsr, chamber) %>% 
-  summarise(n_type = n()) %>%
-  ungroup() %>% 
-  filter(n_type > 1) %>% 
-  distinct() %>% # there is some other problem beyond different coding
-  add_count(bioname, DATE, agency, icpsr, chamber, SUBJECT) %>% filter(n>1) %>% arrange(DATE, bioname, agency) 
-
-look %>% count(agency, sort = T) 
-head(look)
-max(look$n)
-nrow(look)
-sum(look$n)
-look %>% count(agency) %>% arrange(-n)
-look %>% filter(agency == "DHHS_CMS") # CMS had lots of duplicates
-
-# a function to combine
-combine <- . %>% unique() %>% str_c(collapse = ";")
-
-look %<>% group_by(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% summarise_all(combine) 
-
-look %<>% distinct() %>% arrange(agency)
-
-write_csv(look, path = "data/likely_duplicates.csv")
-
-look %>% arrange(DATE) %>% select(bioname, DATE, agency, SUBJECT, n)
-max(look$n)
-
-
-
-nrow(df)
-##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
-df %<>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
-  summarise_all(combine)
-
-df %<>% select(-n)
-nrow(df)
-
-#FIXME THERE SHOULD NOT BE MORE THAN ONE pattern PER DATE! 
-filter(df, str_detect(pattern, ";")) %>% .$pattern
-# look <- filter(df, str_detect(bioname, ";"))
-
-## If we wanted to drop all potential dupicates: 
-# nrow(df)
-# df %<>% anti_join(look %>% select(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% distinct())
-# nrow(df)
-# 
 
 
 # add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
