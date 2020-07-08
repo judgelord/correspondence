@@ -40,11 +40,12 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
      
      # additional last names
-     mutate(add_last_name = "404error") %>%
+     mutate(add_last_name = NA) %>%
      mutate(add_last_name = ifelse(bioname == "BONO, Mary", "Mack", add_last_name)) %>%
    
      # maiden names
-    mutate(maiden_name = "404error") %>%
+    mutate(maiden_name = NA) %>%
+     mutate(maiden_name = ifelse(bioname == "HUTCHISON, Kathryn Ann Bailey (Kay)", "Bailey", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "HUTCHISON, Kathryn Ann Bailey (Kay)", "Bailey", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "HASSAN, Margaret (Maggie)", "Wood", maiden_name)) %>% 
     mutate(maiden_name = ifelse(bioname == "KUSTER, Ann McLane", "McLane", maiden_name)) %>% 
@@ -60,6 +61,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
      # common names
      # NOTE, as written this will overwrite existing common names. 
      # FIXME by adding "common_name == "" &" unless we want to overwrite
+     mutate(common_name = ifelse(first_name == "Andy" & common_name == "", "Andrew", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Constance" & common_name == "", "Connie", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Ernest" & common_name == "", "Ernie", common_name)) %>%
     mutate(common_name = ifelse(first_name == "Gilbert" & common_name == "", "Gil", common_name)) %>%
@@ -294,7 +296,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "JOHNSON, Dustin", "Dusty", common_name)) %>%
     mutate(common_name = ifelse(bioname == "GARRETT, Scott", "Ernest", common_name)) %>%
     mutate(common_name = ifelse(bioname == "WARREN, Elizabeth", "Liz", common_name)) %>%   
-    mutate(common_name = ifelse(bioname == "PAUL, Rand", "(Randy | Randal)", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "PAUL, Rand", "(Randy|Randal)", common_name)) %>%
 
     # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -568,7 +570,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   # select
   members %<>% 
-    select(first_name, first_initial ,common_name, middle_name, middle_initial, last_name, bioname, everything()) 
+    select(first_name, first_initial ,common_name, middle_name, middle_initial, maiden_name, last_name, add_last_name, bioname, everything()) 
   
   # NOTE: 
   # Voteview is missing non-voting members:
@@ -662,7 +664,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "^NA | NA | NA$|404error"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "\\^NA | NA |, NA\\$| NA\\$|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 
