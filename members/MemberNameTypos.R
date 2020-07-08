@@ -4,6 +4,9 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
+  "BUTTERFIELD, G.K." ,"BUTTERFIELD, G. K.", # silly but this is how it is in voteview
+  "G.K. BUTTERFIELD" ,"G. K. BUTTERFIELD", # silly but this is how it is in voteview
+  "Diaz Barragan", "(D.az Barrag.n|D.az Barrag..n)",
   "HUTCHISON","HUTCHIS",
   "FEINGOLD", "FEINGOL",
   "FILNER B", "FILNERB",
@@ -167,7 +170,7 @@ typos_last <- tribble(
   "Ron", "Wyden", "Wydon",
   "John", "Cornyn", "(Comyn|Com yn|Corvyn|Coryn)",
   "Joe", "Manchin", "Machin",
-  "Blake", "Farenthold", "Farenhold|Farenthod|Farentold",
+  "Blake", "Farenthold", "(Farenhold|Farenthod|Farentold)",
   "Anna", "Eshoo", "Eschoo",
   "Heidi", "Heitkamp", "(Heitkkamp|Heitkmap|Heitkamps)",
   "Gerry", "Connolly", "Connelly",
@@ -236,7 +239,7 @@ typos_last <- tribble(
   "James", "Hansen", "Hansch",
   "Mac", "Thornberry", "Thomberry",
   "Michael", "Turner", "Tuner",
-  "Doug", "Lamborn", "Lambom|Lanborn",
+  "Doug", "Lamborn", "(Lambom|Lanborn)",
   "Bill", "Posey", "Posev",
   "Carl", "Levin", "Levine",
   "Mark", "Bennet", "Bennett",
@@ -249,7 +252,7 @@ typos_last <- tribble(
   "Mike", "Crapo", "Carpo",
   "Mark", "Desaulnier", "Desauliner",
   "Nanette", "Diaz Barragan", "Diaz-Barragan",
-  "Bonnie", "Watson Coleman", "Watson-Coleman|Coleman Watson",
+  "Bonnie", "Watson Coleman", "(Watson-Coleman|Coleman Watson)",
   "Adriano", "Espaillat", "Espaillet",
   "Tom", "O'Halleran", "O'Holleran",
   "Anthony", "BRINDISI", "Brindis",
@@ -275,7 +278,7 @@ typos_last <- tribble(
   "Earl", "Blumenauer", "Blumeanuer",
   "Jeff", "Fortenberry", "Fortenbery",
   "Neil", "Abercrombie", "Abercombie",
-  "Robert", "Menendez", "Mendez|Menedez",
+  "Robert", "Menendez", "(Mendez|Menedez)",
   "Earl", "Carter", "Cater",
   "Greg", "Gianforte", "Gianfote",
   "Lisa", "Murkowski", "Murkowsi",
