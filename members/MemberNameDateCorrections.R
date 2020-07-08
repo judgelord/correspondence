@@ -31,8 +31,11 @@ fix.member.date.coding <- function(d){
     filter(!(bioname == "VAN DREW, Jefferson" & DATE > as.Date("2019-12-19") & party_name == "Democratic Party")) %>% # not dem after 2019
     # Jul 4, 2019 - Michigan Rep. Justin Amash announced Thursday he was leaving the Republican
     filter(!(bioname == "AMASH, Justin" & DATE > as.Date("2019-07-04") & party_name == "Republican Party")) %>% # not gop after 2019
-    filter(!(bioname == "AMASH, Justin" & DATE < as.Date("2019-07-04") & party_name == "Independent")) # not ind before 2019
-    
+    filter(!(bioname == "AMASH, Justin" & DATE < as.Date("2019-07-04") & party_name == "Independent")) %>% # not ind before 2019
+    # On May 24, 2001, Jeffords left the Republican Party, with which he had always been affiliated, and announced his new status as an independent.
+    filter(!(bioname == "JEFFORDS, James Merrill" & DATE > as.Date("2001-05-24") & party_name == "Republican Party")) %>% # not gop after 2001
+    filter(!(bioname == "JEFFORDS, James Merrill" & DATE < as.Date("2001-05-24") & party_name == "Independent")) # not ind before 2001
+    # 
     
 
   # LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
