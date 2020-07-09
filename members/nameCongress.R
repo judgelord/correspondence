@@ -633,7 +633,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
            last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
            addlast_comma_first = paste0(add_last_name, ", ", first_name),
-           chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
+           chamber_last = paste0(chamber, " ", last_name) %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
   
@@ -665,7 +665,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "\\^NA |^NA | NA |, NA\\$| NA\\$| NA$|404error"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "\\^NA |^NA | NA |NA, |, NA\\$| NA\\$| NA$|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 
