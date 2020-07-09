@@ -4,6 +4,7 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
+  "senator cortez masto", "senator masto",
   "GILLIBRAND", "GILLABRAND",
   "WENSTRUP", "WENSTRUB",
   "BUTTERFIELD, G.K." ,"BUTTERFIELD, G. K.", # silly but this is how it is in voteview
