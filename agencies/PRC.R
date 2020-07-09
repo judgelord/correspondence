@@ -20,23 +20,8 @@ clean <- function(file.name) {
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
   
-  
-  
-  data1 <- data
-  data1$last_name <- formatLastName(data1, 'Last Name')
-  data1$first_name <- formatFirstName(data1, 'First Name')
-  
-  data2 <- data
-  #create last name variable for Sen/Rep
-  data2 %<>%
-    mutate(last_name = gsub(
-      pattern = ".* |.*\\.",
-      replacement = "",
-      x = FROM
-    ))
-  data2$last_name <- formatLastName(data2, 'last_name')
-  
-  data <- left_join(data2, data1)
+
+    
   
   
   # create agency column
@@ -56,7 +41,28 @@ clean <- function(file.name) {
   data$State <- stateFromLower(data$State)
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  data %<>% select(ID, DATE, congress, FROM, SUBJECT, everything())
+
+  
+  data$FROM %<>% 
+    str_replace("\\.", " ") %>% 
+    str_squish() %>% 
+    str_replace("Sen ", "Senator ") %>% 
+    str_replace("Rep ", "Representative ") 
+  
+  data %<>%
+    mutate(last_name = str_extract(FROM, " .*")) %>% 
+    mutate(title = str_extract(FROM, ".*")) 
+  
+  data$last_name <- formatLastName(data, col_name = "last_name")
+  
+  # inspect
+  paste(data$last_name, data$FROM)
+  
+  data %<>% 
+    mutate(FROM = paste(title, last_name) ) 
+  
+  data %<>% extractMemberName(members = members, col_name = "FROM")
   
   #Failing observations
   Unfoundnames <- data %>%
@@ -99,3 +105,4 @@ clean <- function(file.name) {
 return(data)  
   
 } # end function
+

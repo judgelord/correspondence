@@ -52,7 +52,7 @@ clean <- function(file.name) {
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative") )
   
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM')
 
   data$state <- stateFromLower(data$State)
   

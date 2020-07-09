@@ -108,7 +108,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "CDC, Director|Director, CDC|Director, DO NOT USE CDC|Director, DO NOT USE THIS ONE CDC|HHS, Secretary|CDC Director|Director, NCEH|Gerberding, Julie|Secretary Michael O\\. Leavitt|Gerberding, Julie") & is.na(last_name), "CDC Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "President, of the United States|President Bush") & is.na(last_name), "President", ERROR)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), "multiple unnamed authors", NOTES)) %>%
+    mutate(NOTES = ifelse(str_detect(FROM, "others|et al"), paste(NOTES, "multiple unnamed authors"), NOTES)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Awa Coll-Seck|DeLeon, Patrick|Bonham, David|Boyer, Ashley|Collins, Francis|Gabbard, Mike|Graham, Garth|Groblewski, Mark|William F\\. Marshal") & is.na(last_name), "non member", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "State Representative Steve Wieckert|Governor Bobby Jindal|Boyle, Kevin|Briggs, Tim|Duff, Bob|Rubio, Michael|Scott, Rick|David Ige|Bob Duff|State Senator|Bob Duff") & is.na(last_name), "state legislator", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(Title, "David Ige") & is.na(last_name), "state legislator", ERROR)) %>%
