@@ -10,8 +10,18 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()   
   
+
+  
+  look <- data %>% filter(n>1)
+  
+  # Letter ID and Folder ID are both incomplete, but seem to be complete when combined
+  data %<>% mutate(LetterID = ifelse(LetterID == "NA", FolderID, LetterID))
+  # look <- data %>% filter(str_detect(LetterID, ";"))
+  # data %>% filter(is.na(LetterID))
+  # data$LetterID
+  
   # helper function to deal with duplicates
-  combine <- . %>% unique() %>% str_c(collapse = ";")
+  combine <- . %>% unique() %>% str_c(collapse = ";;;")
   
   # select unique observations # NOTE: THIS COLLAPSES LETTERS SENT TO MORE THAN ONE AGENCY OFFICE
   data %<>% group_by(FROM, SUBJECT, DATE) %>% 
@@ -19,12 +29,6 @@ clean <- function(file.name) {
     summarise_all(combine) %>% 
     ungroup() %>% 
     distinct() 
-  
-  # Letter ID and Folder ID are both incomplete, but seem to be complete when combined
-  data %<>% mutate(LetterID = ifelse(LetterID == "NA", FolderID, LetterID))
-  # look <- data %>% filter(str_detect(LetterID, ";"))
-  # data %>% filter(is.na(LetterID))
-  # data$LetterID
   
 
   
@@ -36,6 +40,8 @@ clean <- function(file.name) {
   data$DATE <- gsub("/200", "/0", data$DATE)
   data$DATE %<>% as.Date("%m/%d/%y")
 
+  # bad dates
+  data %>% filter(is.na(DATE)) %>% nrow()
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -43,14 +49,13 @@ clean <- function(file.name) {
  
 
   
-  #Comments errors for CDC Director and HHS Secretary  
- 
+  #Letters FROM CDC Director and HHS Secretary  to members
+ #FIXME should double check that these are all correct and this code must always go before combinging FROM, SUBJECT, and TITLE
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "^Director, CDC$|^CDC Director"), 'Director, CDC', ERROR),
-           ERROR = ifelse(str_detect(FROM, "^b6$|^B6$"), "non-member", ERROR))
-  
-  data %<>%
-    mutate(ERROR = ifelse(grepl('^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
+           # are these b6 constituent letters duplicates (the member names are in the SUBJECT Col)
+           ERROR = ifelse(str_detect(FROM, "^b6$|^B6$"), "non-member", ERROR),
+           ERROR = ifelse(str_detect(FROM, '^HHS, Secretary',data$FROM), 'HHS, Secretary', ERROR ))
   
   data %<>%
     mutate(Title = str_replace(Title, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
@@ -58,8 +63,10 @@ clean <- function(file.name) {
     mutate(SUBJECT = str_replace(SUBJECT, " Sen\\.| sen\\.| sen | Sen ", "Senator")) %>%
     mutate(SUBJECT = str_replace(SUBJECT, " Rep\\.| rep\\.| Rep | rep |Congressman", "Representative"))
   
+  
   data %<>%
-    mutate(Title = str_replace(Title, "Representative Merkley", "Senator Merkley"))
+    mutate(FROM =  paste(FROM, Title, SUBJECT))
+  
   
   #Typos # SHOULD BE CORRECTED IN TYPOS SCRIPT
   data %<>%
@@ -69,20 +76,21 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Bachus, Stephen", "Bachus, Spencer")) %>%
     mutate(FROM = str_replace(FROM, "Young, C\\. W\\.", "YOUNG, Charles")) %>%
     mutate(FROM = str_replace(FROM, "Mack, Mary", "Mack Bono, Mary")) %>%
-    mutate(FROM = str_replace(FROM, "Chabliss", "Chambliss"))
-  
-  data %<>%
-    mutate(FROM =  paste(Title, SUBJECT, FROM))
+    mutate(FROM = str_replace(FROM, "Chabliss", "Chambliss")) %>% 
+    mutate(FROM = str_replace(FROM, "Representative Merkley", "Senator Merkley"))
+
 
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative| to Senator "),
                           "from agency to member(s)",
                           ERROR))
-  
+  nrow(data)
     #extract member names from FROM
+  
    data %<>% extractMemberName(members, col_name = "FROM") 
-   
+   # inspect
+   nrow(data)
    
  data %<>%
    distinct() %>% 
