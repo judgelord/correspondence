@@ -67,6 +67,7 @@
   load(here("members/members.Rdata"))
   
   ## Load committee data
+  #source("committees/committees.R")
   load(here("data/committees.Rdata"))
   
   ## Load typos and date corrections
@@ -100,6 +101,15 @@
   
 ## Since clean scripts were written for the googlesheets packaged, which has been replaced by googlesheets4
   gs_read <-   function(sheet){sheet %>% googlesheets4::read_sheet(col_types = "c")}
-  
   gs_title <- function(file.name){googledrive::drive_get(file.name)}
+  
+  # authenticate google sheets
+  googlesheets4::gs4_auth()
+  Sys.sleep(1) # wait a sec
+  1
+
+  # authenticate google drive
+  googledrive::drive_auth(email = gargle::gargle_oauth_email())
+  Sys.sleep(1) # wait a sec
+  1
   

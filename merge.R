@@ -314,7 +314,7 @@ data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 d %>% count(is.na(LetterID), agency) %>% arrange(agency)
 
 d %>% count(is.na(LetterID))
-
+d %>% count(is.na(ID))
 d%>% filter(is.na(LetterID))
 
 
@@ -595,7 +595,6 @@ filter(d, str_detect(pattern, ";")) %>% .$pattern
 # d %<>% anti_join(look %>% select(bioname, DATE, agency, SUBJECT, icpsr, chamber) %>% distinct())
 # nrow(d)
 # 
-
 
 
 
@@ -1101,6 +1100,25 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 # source("agencies/_FOIA_response_table.R")
 
 data_complete()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
