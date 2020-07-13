@@ -38,8 +38,8 @@ clean <- function(file.name) {
   # Drop duplicates 
   data %<>% group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
     summarise_all(combine_strings) %>% 
+    ungroup() %>% 
     distinct()
-  
 
   
 

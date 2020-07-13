@@ -109,7 +109,7 @@ clean <- function(file.name) {
 
 
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative| to Senator "),
+    mutate(ERROR = ifelse(str_detect(FROM, "writes to Representative|writes to Senator|writing to Representative|writing to Senator|Letter to Senator|letter to Senator|letter to Representative|Letter to Representative"),
                           "from agency to member(s)",
                           ERROR))
   
