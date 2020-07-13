@@ -73,5 +73,9 @@ Where there is insufficient information to code a letter, the `NOTES` column sho
 
 # Example letter
 
-![](https://github.com/judgelord/correspondence/blob/master/11427401.png)
+![](FERC.png)
 
+# Example logs
+
+![](EPA.png)
+![](ICE.png)
