@@ -14,9 +14,11 @@ This repository contains code to merge, augment, and analyze data on congression
 - [ ] Add agency data [#83](https://github.com/judgelord/correspondence/issues/83)
 - [ ] Improve codebook to better code constituent class [#82](https://github.com/judgelord/correspondence/issues/82) and policy events [#4](https://github.com/judgelord/correspondence/issues/4)
 - [ ] FOIA letters with insufficient log data [#76](https://github.com/judgelord/correspondence/issues/76)
-- [ ] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder [#10](https://github.com/judgelord/correspondence/issues/10)
 - [ ] Add member comments from regualations.gov
+
+Tasks recently completed: 
 - [x] ~~Clean scrips for DHS_NIH, DOI_BIA, DOL_OASAM**, DOT_FRA**, EEOC**,Treasury_Mint~~
+- [x] Check members that switched chambers or left/joined mid congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder [#10](https://github.com/judgelord/correspondence/issues/10)
 
 # Want to help? 
 
@@ -71,5 +73,9 @@ Where there is insufficient information to code a letter, the `NOTES` column sho
 
 # Example letter
 
-![](https://github.com/judgelord/correspondence/blob/master/11427401.png)
+![](FERC.png)
 
+# Example logs
+
+![](EPA.png)
+![](ICE.png)
