@@ -190,37 +190,42 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DHHS_CMS")
 i
+
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
-  coders = as.character(data_list[i, 3])
-  ) %>% distinct()
+  coders = as.character(data_list[i, 3]))
 
-# check result 
-d1 %>% count(congress, is.na(last_name))
-d1 %>% count(is.na(LetterID))
-
-# merge with voteview data to initiate d (unfiltered data)
 suppressMessages(
-d <- d1 %>%
-  left_join(members) %>% # merge on common variables (may differ)
-  select(LetterID, ID, DATE, year, congress, FROM, pattern, bioname, agency, 
-         SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
-         #CONSTITUENT_TYPE, CONSTITUENT_RACE, 
-         NOTES, ERROR) %>% 
-  #left_join(members) %>% # merge again now that we have selected only certian bits of agency data 
-  left_join(members) %>% # merge on common variables (may differ)
-  distinct()
+  d1 %<>% 
+    left_join(members) %>% 
+    select(LetterID, ID, 
+           DATE, year, congress, 
+           FROM, pattern, bioname, agency, 
+           SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
+           #CONSTITUENT_TYPE, CONSTITUENT_RACE, 
+           NOTES, ERROR) %>% 
+    left_join(members)%>% 
+    distinct()
 )
 
-d %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
 
-d %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
+d1$DATE %<>% as.Date()
+
+
+d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
+
+d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
 ####################
+# Save 
+file.name <- str_c("data/agencies/", 
+                   unique(d1$agency), 
+                   ".Rdata")
 
+save(d1, file = file.name)
 
 
 
@@ -235,7 +240,7 @@ d %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% c
 
 ## Resume 
 # data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
-# data_list %<>% filter(row_number() > which(data_list$agency == "DHS_HQ")) 
+# data_list %<>% filter(row_number() > which(data_list$agency == "DHHS_CMS")) 
 # data_list %<>% filter(row_number() == which(data_list$agency == "DHHS_CDC")) 
 
 
@@ -253,7 +258,7 @@ if(F){
   data_list %<>% filter(agency %in% str_remove_all(files$file, ".*/|.Rdata"))
 }
 
-head(data_list$agency)
+head(data_list)
 
 i <- 1
 while(!is.na(data_list[i,1])) {
