@@ -30,7 +30,7 @@ clean <- function(file.name) {
   
   
   #data$FROM <- gsub("^MOC","", data$FROM)
-  data$FROM %<>% str_replace("\.", ", ") %>% str_squish() # repace periods with comma space, then remove extra spaces
+  data$FROM %<>% str_replace("\\.", ", ") %>% str_squish() # repace periods with comma space, then remove extra spaces
   data$FROM <- gsub("PELOSLN", "PELOSI, N", data$FROM)
   data$FROM <- gsub("\\\\1", "VI", data$FROM)
   
