@@ -31,16 +31,20 @@ clean <- function(file.name) {
   
   duplicate_coding <- duplicates %>%  
     filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) %>%
-    select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct()
+    select(DATE, SUBJECT, TYPE, ALT_TYPE) %>% distinct()
   duplicate_coding
+  write_csv(duplicate_coding, "duplicate_coding_CMS.csv")
   }
   
-  # Drop duplicates 
+  nrow(data)
+  
+  # Combine duplicates 
   data %<>% group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
     summarise_all(combine_strings) %>% 
     ungroup() %>% 
     distinct()
-
+  
+  nrow(data)
   
 
 
@@ -123,15 +127,14 @@ clean <- function(file.name) {
   # check N
   dim(data)
   
+  # identify member names in SUBJECT (probably fix by hand)
+  if(F){
   subjectData <- data %>%
-    filter(str_detect(NOTES, "member name in subject")) %>%
-    extractMemberName(members = members, col_name = "SUBJECT") 
+    extractMemberName(members = members, col_name = "SUBJECT") %>% 
+    filter(!is.na(last_name))
   
-  data %<>%
-    full_join(subjectData)
-  
-  #check N
-  dim(data)
+  subjectData %>% select(LetterID, `From First Name`, `From Last Name`, DATE, SUBJECT)
+  }
   
   
   data %>%
