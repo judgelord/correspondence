@@ -10,7 +10,6 @@ typos_clear <- tribble(
   "BUTTERFIELD, G.K." ,"BUTTERFIELD, G. K.", # silly but this is how it is in voteview
   "G.K. BUTTERFIELD" ,"G. K. BUTTERFIELD", # silly but this is how it is in voteview
   "Diaz Barragan", "(D.az Barrag.n|D.az Barrag..n)",
-  "HUTCHISON","HUTCHIS",
   "FEINGOLD", "FEINGOL($| )", #FIXME - should just be not D
   "FILNER B", "FILNERB",
   "Butterfield, G K", "Butterfield, GK",
@@ -19,7 +18,7 @@ typos_clear <- tribble(
   "GOHMERT, L", "GOHMERT. L",
   "SESTAK, J", "SESTAK. J",
   "OBEYD", "OBEY, D",
-  "Gassley", "Grassle",
+  "Gassley ", "(Grassle y|Grassle )", # space is key or it will add a space and Y
   "Thune, John", "ThuneJohn",
   "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
@@ -50,7 +49,7 @@ typos_clear <- tribble(
   "McCaskill,", "McCaskil,",
   "McCaskill ", "McCaskil ",
   "Luetkemeyer", "(Leutkemeyer|Leautkemeyer|Luektemeyer)",
-  "Herrera Beutler", "(Herrera|Beutler|Herrera-Beutler|Harrera Beutler)", 
+  "Herrera Beutler", "(Herrera-Beutler|Harrera Beutler)", 
   "Michael", "(Midlael|Michaell|Micahel)",
   "SHERRILL", "Sheril",
   "Moolenaar", "(Molinar|Moolenar)",
@@ -102,6 +101,7 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
+  "Jaime", "Herrera Beutler", "(Herrera|Beutler)",
   "Harold", "Rogers", "Rodgers",
   "Nick", "Rahall", "Rahail",
   "Patty", "Murray", "(Murrary|Muray)",
