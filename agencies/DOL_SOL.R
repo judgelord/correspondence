@@ -187,9 +187,7 @@ data %<>% extractMemberName(members, 'FROM')
 
 # check for problems with duplication
 data %>%
-  filter(`SIMS ID` == 542190) %>%
-  select(FROM, chamber, LetterID, ID, icpsr)
-
+  filter(`SIMS ID` == 542190)
 
 
 #Membership Errors
