@@ -38,7 +38,7 @@ xaringanthemer::mono_light(#base_color = "#003333",
           link_color = "#b7e4cF",
           #background_color = "#FAF0E6", # linen
           header_font_google = google_font("PT Sans"), 
-          text_font_google = google_font("Old Standard"), 
+          text_font_google = google_font("Roboto"), 
           text_font_size = "30px",
           padding = "10px",
           code_font_google = google_font("Inconsolata"), 
@@ -58,7 +58,7 @@ xaringanthemer::mono_light(#base_color = "#003333",
 # webshot::install_phantomjs()
 # library(webshot)
 
-install.packages("pagedown")
+#install.packages("pagedown")
 #install.packages("websocket")
 library(pagedown)
 
@@ -234,6 +234,8 @@ On behalf of energy companies, supporting a permit or project
 knitr::include_graphics("figs/FERC_mooney.png")
 ```
 
+![](figs/FERC_mooney.png)
+
 ---
 
 On behalf of energy companies, supporting a permit or project
@@ -242,6 +244,8 @@ On behalf of energy companies, supporting a permit or project
 knitr::include_graphics("figs/FERC_thornberry.png")
 ```
 
+![](figs/FERC_thornberry.png)
+
 ---
 
 On behalf of individuals and non-energy companies, opposing an energy project
@@ -249,6 +253,8 @@ On behalf of individuals and non-energy companies, opposing an energy project
 ```{r, out.width = "550px"}
 knitr::include_graphics("figs/FERC_collins.png")
 ```
+
+![](figs/FERC_collins.png)
 
 ???
 
@@ -263,6 +269,8 @@ On behalf of his own business, opposing an energy project
 knitr::include_graphics("figs/FERC_graham.png")
 ```
 
+![](figs/FERC_graham.png)
+
 
 ---
 
@@ -272,6 +280,8 @@ Not always "behind-the-scenes."
 ```{r, out.width = "550px"}
 knitr::include_graphics("figs/schumer-cosigned-letter-tweet.png")
 ```
+
+![](figs/schumer-cosigned-letter-tweet.png)
 
 ---
 
