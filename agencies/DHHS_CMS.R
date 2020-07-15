@@ -73,7 +73,7 @@ clean <- function(file.name) {
   
   
   data %<>%
-    mutate(FROM = ifelse(is.na(FROM), paste(`From Last Name`, `From First Name`, sep = ", "), FROM))
+    mutate(FROM = ifelse(is.na(FROM), str_c(`From Last Name`, ", ", `From First Name`), FROM))
   
   #data <- data[sample(1:nrow(data), 20000, replace=FALSE),]
   
@@ -115,10 +115,16 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "MICA  JOHN L, NULL", "MICA, JOHN")) %>%
      mutate(FROM = str_replace(FROM, "CORKER  BOB, NULL", "CORKER, BOB")) %>%
      mutate(FROM = str_replace(FROM, "Andrews, NULL", "ANDREWS, Robert")) %>%
-     mutate(FROM = str_replace(FROM, "Murkowski, NULL", "MURKOWSKI, Lisa"))
+     mutate(FROM = str_replace(FROM, "Murkowski, NULL", "MURKOWSKI, Lisa"),
+            FROM = str_replace(FROM, "HUTCHISON,","HUTCHIS ON,",),
+            FROM = str_replace(FROM, "SESTAK, J OE", "SESTAK, JOE") )
+            
    
    # check N
    dim(data)
+   
+   # unclear where the NA letter ids are coming from 
+   filter(data, is.na(LetterID))
 
   #Extract Member names
   data %<>%
@@ -127,13 +133,16 @@ clean <- function(file.name) {
   # check N
   dim(data)
   
-  # identify member names in SUBJECT (probably fix by hand)
+  # identify member names in SUBJECT--as far as I can tell (July 2020) every instance where a name is found in SUBJECT has a match in FROM, but it is possible that additional members
   if(F){
   subjectData <- data %>%
+    filter(is.na(last_name)) %>%
     extractMemberName(members = members, col_name = "SUBJECT") %>% 
     filter(!is.na(last_name))
   
-  subjectData %>% select(LetterID, `From First Name`, `From Last Name`, DATE, SUBJECT)
+  subjectData %>% 
+    select(LetterID, `From First Name`, `From Last Name`, DATE, SUBJECT, last_name, NOTES) %>% 
+    knitr::kable()
   }
   
   
@@ -159,6 +168,8 @@ clean <- function(file.name) {
     filter(is.na(last_name)) %>%
     filter(! str_detect(FROM, "NA, NA")) %>%
     filter( is.na(ERROR))
+  
+  look <- filter(data, pattern == "404error", is.na(ERROR)) %>% count(FROM, string, sort = T)  
   
   return(data)
   
