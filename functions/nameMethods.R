@@ -112,6 +112,9 @@ cleanFROMcolumn <- function(FROM){
   
   #removing double commas
   FROM <- gsub(",,|, ,", ", ", FROM)
+  
+  #removing spaces before commas
+  FROM <- gsub(" ,",",", FROM)
 
   # replace spaces with a single space
   FROM <- gsub(" +", " ", FROM) # extra spaces
