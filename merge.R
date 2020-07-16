@@ -2,6 +2,8 @@
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+1
+1
 Yes # just in case R asks if we want to install dependencies 
 
 
@@ -169,6 +171,7 @@ drive_auth(email = "correspondenceresearch@gmail.com",
 drive_auth(email = "correspondenceresearch@gmail.com")
 1 # if it askes which email to use, use correspondenceresearch since you may have more than on sheet with a given name
 googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
+1
 
 # if authorized, this should work
 drive_get("RRB")
@@ -190,7 +193,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DHHS_CMS")
+i <- which(data_list$agency == "ABMC")
 i
 
 d1 <- clean.agency(
@@ -240,9 +243,7 @@ save(d1, file = file.name)
 
 ## Resume 
 # data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
-# data_list %<>% filter(row_number() > which(data_list$agency == "DHHS_CMS")) 
-# data_list %<>% filter(row_number() == which(data_list$agency == "DHHS_CDC")) 
-
+# data_list %<>% filter(row_number() > which(data_list$agency == "DOL_SOL")) 
 
 # subset by date
 if(F){
