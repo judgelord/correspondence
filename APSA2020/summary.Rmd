@@ -45,23 +45,37 @@ d <- all_contacts
 d %<>% 
     mutate(TYPE = replace_na(TYPE, "NA"),
            constituent = ifelse(TYPE == 1, "Indiv. Constituent Service", "Other")) %>% 
-  add_count(icpsr, constituent, agency, year, name = "n_per_year_agency") %>% 
-  add_count(icpsr, constituent, year, name = "n_per_year") %>% 
-  mutate(percent_to_agency = (n_per_year_agency/n_per_year)*100)
+  add_count(icpsr, constituent, agency, year, name = "n_per_year_agency_type") %>% 
+  add_count(icpsr, year, name = "n_per_year") %>% 
+  mutate(percent_type_to_agency = (n_per_year_agency_type/n_per_year)*100)
 
 
 d1 <- d %>% 
   filter(year > 2006, year <2018) %>% 
-  select(icpsr, year, agency, constituent, n_per_year_agency, n_per_year, percent_to_agency) %>%
+  select(icpsr, year, agency, constituent, n_per_year_agency_type, percent_type_to_agency) %>%
   filter(agency %in% c("VA", #"SSA", 
-                       "DHHS_CMS", "DHHS_CDC", "DHHS_HRSA")) %>% distinct()
+                       "DHHS_CMS", "DHHS_CDC", "DHHS_HRSA")) %>% 
+  distinct()
+```
+
+## Number of legislator contacts per agency 2007-2017
+```{r n_per_year_agency, fig.width=8}
+d1 %>%
+  ggplot() +
+  aes(x = year, color = constituent, y = n_per_year_agency_type) +
+  #geom_line(aes(group= icpsr), alpha = .1) + 
+  geom_smooth() + 
+  labs(x = "", y = "Number of contacts", color = "") + 
+  facet_wrap(. ~ agency, scales = "free_y", nrow = 1) +
+  scale_x_continuous(breaks = seq(2007,2017, 2)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ## Percent of legislator contacts per agency 2007-2017
 ```{r percent_to_agency, fig.width=8}
 d1 %>% 
   ggplot() +
-  aes(x = year, y = percent_to_agency, color = constituent) +
+  aes(x = year, y = percent_type_to_agency, color = constituent) +
   #geom_line(aes(group= icpsr), alpha = .1) + 
   geom_smooth() + 
   labs(x = "", y = "Percent of contacts", color = "") + 
@@ -70,15 +84,3 @@ d1 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-## Number of legislator contacts per agency 2007-2017
-```{r n_per_year_agency, fig.width=8}
-d1 %>%
-  ggplot() +
-  aes(x = year, color = constituent, y = n_per_year_agency) +
-  #geom_line(aes(group= icpsr), alpha = .1) + 
-  geom_smooth() + 
-  labs(x = "", y = "Number of contacts", color = "") + 
-  facet_wrap(. ~ agency, scales = "free_y", nrow = 1) +
-  scale_x_continuous(breaks = seq(2007,2017, 2)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
