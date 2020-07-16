@@ -58,7 +58,7 @@ d1 <- d %>%
   distinct()
 ```
 
-## Number of legislator contacts per agency 2007-2017
+## Number of legislator contacts per agency per year 2007-2017
 ```{r n_per_year_agency, fig.width=8}
 d1 %>%
   ggplot() +
@@ -71,7 +71,7 @@ d1 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-## Percent of legislator contacts per agency 2007-2017
+## Percent of legislator contacts per agency per year 2007-2017
 ```{r percent_to_agency, fig.width=8}
 d1 %>% 
   ggplot() +
