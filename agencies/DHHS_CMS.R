@@ -12,9 +12,12 @@ clean <- function(file.name) {
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
   
+  # put names in FROM
   data %<>%
     mutate(FROM = ifelse(is.na(FROM), str_c(`From Last Name`, ", ", `From First Name`), FROM))
   
+  # remove some codes in otherwise duplicates subjects
+  data$SUBJECT %<>% str_remove_all("-|(^| )ORA |(^| )BARR |(^| )DFMFFSO |(^| )ACA |(^| )HPO |(^| )CO |(^| )DMHPO ||(^| )CHO |(^| )DFM ") %>% str_squish()
   
 # LetterIDs for these data will have ";;;" in them because most are duplicated
   
@@ -54,7 +57,7 @@ clean <- function(file.name) {
     # Regarding why Medicare won't cover the cost of her daughter's feeding tube
   if(F){ 
     duplicates_potential <- data %>% 
-      group_by(FROM, DATE) %>% 
+      group_by(FROM, DATE, TYPE) %>% # because type duplicates are generally corrected
       add_count() %>% 
       summarise_all(combine_strings) %>% 
       filter(n>1) %>% 
