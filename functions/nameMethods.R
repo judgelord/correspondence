@@ -114,7 +114,8 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub(",,|, ,", ", ", FROM)
   
   #removing spaces before commas
-  FROM <- gsub(" ,",",", FROM)
+  FROM %<>% str_replace(" ,", ", ") %>% str_squish()
+  
 
   # replace spaces with a single space
   FROM <- gsub(" +", " ", FROM) # extra spaces
@@ -221,8 +222,11 @@ formatLastName <- function(data, col_name){
   
   
   # data %>% filter(str_detect(last_name, "INHOF")) %>% .$last_name 
-  data$last_name %<>% trimws()
   
+  
+  
+  data$last_name %<>% str_replace(" ,", ", ")
+  data$last_name %<>% str_squish()
 
   return(data$last_name)
   
@@ -490,6 +494,7 @@ add_first <- function(data){
 # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
 str_detect_replace <- function(string_to_search, pattern){
   out <- ifelse(str_detect(string_to_search, pattern), pattern, "404error")
+  out %<>% str_squish()
   return(out)
 }
 
@@ -503,7 +508,10 @@ findTypos <- function(string){
     # seperate pattrns found with OR 
     #str_c(collapse = "|") %>%
     # remove 404error when it appears along side a found pattern
-    str_remove("\\|404error|404error\\|")
+    str_remove("\\|404error|404error\\|") %>% 
+    str_replace(" ,", ", ") %>% 
+    str_squish()
+    
 }
 
 
@@ -538,7 +546,7 @@ extractName <- function(string, data, members){
 
 # A function to map over congresses 
 # one congress at a time
-extractNamesPerCongress <- function(congress_i, data, members){
+extractNamesPerCongress <- function(congress_i, data, members = members){
   
   # subset to one congress
   data %<>% filter(congress == congress_i)
@@ -621,7 +629,7 @@ extractNamesPerCongress <- function(congress_i, data, members){
 }
 
 
-extractMemberName <- function(data, members, col_name, congresses = unique(data$congress)){
+extractMemberName <- function(data, members = members, col_name, congresses = unique(data$congress)){
       
       # FOR TESTING 
       # col_name <- "FROM"
@@ -647,6 +655,9 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
     
     # lower case 
     data$string %<>% tolower()
+
+    
+    data$string %<>% str_replace(" ,", ", ")
     
     data$string %<>% str_squish()
     
@@ -668,10 +679,13 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
                                                    pattern = p, 
                                                    replacement = r %>% paste("")))
     }
+    
+    #FIXME problem created by correcting typos
+    data$string %<>% str_replace(" ,", ", ") %>% str_squish()
 
     
     # loop over congresses in data 
-    data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members)
+    data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members) #FIXME members default provided?
 
     
     data %<>% distinct()

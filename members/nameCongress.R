@@ -1,5 +1,5 @@
 # this script creates members.Rdata
-source("setup.R") # make sure libraries are loaded
+# source("setup.R") # make sure libraries are loaded
 library(devtools) # to get voteview
 
 ## Rvoteview dependencies can through errors, so this script creates members.Rdata, which limits the use of voteview and saves the augmented names
@@ -32,11 +32,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
     mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
     mutate(middle_name = stringr::str_extract(first_name, " .*")) %>%
-    mutate(middle_name = gsub(" ", "", middle_name)) %>%
+    mutate(middle_name = str_squish(middle_name)) %>%
     mutate(middle_initial = substr(middle_name, 1, 1)) %>%
-    mutate(first_name = gsub(" .*", "", first_name)) %>%
+    mutate(first_name = first_name %>% str_squish() %>% str_remove(" .*")) %>%
     mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
-    mutate(first_initial = gsub("^(\\w).*",  "\\1", first_name)) %>% 
+    mutate(first_initial = str_sub(first_name, 1)) %>% 
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
      
      # additional last names
@@ -627,9 +627,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            first_initial_last = paste(first_initial, last_name),
            first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
+           last_firstinitial_middleinitial = paste0(last_name, first_initial, " ", middle_initial),
            last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
            last_comma_commoninitial = paste0("^", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "$"),
            last_comma_common = paste0(last_name, ", ", common_name),
+           maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
            last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
            last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
            addlast_comma_first = paste0(add_last_name, ", ", first_name),
@@ -677,18 +679,22 @@ members %<>%
                      first_middle_last,
                      first_initial_last,
                      first_middle_initial_last,
+                     first_maiden_last,
+                     maiden_comma_first,
                      common_last,
                      common_middle_last,
                      common_initial_last,
+                     common_maiden_last,
+                     last_comma_common,
                      last_comma_first,
                      last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
                      last_comma_commoninitial, # needed for VA, common name initials like Goodlatte, B. and Durbin, D.
                      chamber_last, 
-                     first_maiden_last,
-                     common_maiden_last,
-                     last_comma_common,
+                     
+                     
                      #last_comma_first_maiden, # this seems redundent
                      firstinitial_middleinitial_last,
+                     last_firstinitial_middleinitial, # in CMS "Carter, E.L." and "Butterfield, G. K."
                      first_addlast,
                      first_last_addlast,
                      last_addlast_comma_first

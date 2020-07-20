@@ -4,6 +4,7 @@
 
 typos_clear <- tribble(
   ~correct, ~typos,
+  "Grassley", "Grassely",
   "senator cortez masto", "senator masto",
   "GILLIBRAND", "GILLABRAND",
   "WENSTRUP", "WENSTRUB",
@@ -15,8 +16,8 @@ typos_clear <- tribble(
   "Butterfield, G K", "Butterfield, GK",
   "EDWARDS, DONNA", "EDWARD, DONNA",
   "Andre Carson", "Andre' Carson",
-  "GOHMERT, L", "GOHMERT. L",
-  "SESTAK, J", "SESTAK. J",
+  #"GOHMERT, L", "GOHMERT. L", # period space is corrected in ocr errors 
+  #"SESTAK, J", "SESTAK. J",
   "OBEYD", "OBEY, D",
   "Gassley ", "(Grassle y|Grassle )", # space is key or it will add a space and Y
   "Thune, John", "ThuneJohn",
@@ -346,6 +347,9 @@ typos_last <- tribble(
 # FREQUENT FIRST NAME TYPOS 
 typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
+  "Claudia", "Tenney", "Claudi",
+  "Raul", "Grijalva", "Raúl",
+  "jim gresham", "barrett", "j gresham",
   "Suzanne", "Kosmas", "Susanne",
   "Glenn", "Thompson", "Glen",
   "Raul", "Labrador", "Ra",

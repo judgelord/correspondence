@@ -105,11 +105,11 @@
   
   # authenticate google sheets
   googlesheets4::gs4_auth()
-  Sys.sleep(1) # wait a sec
+  Sys.sleep(2) # wait a sec
   1
 
   # authenticate google drive
   googledrive::drive_auth(email = gargle::gargle_oauth_email())
-  Sys.sleep(1) # wait a sec
+  Sys.sleep(2) # wait a sec
   1
   
