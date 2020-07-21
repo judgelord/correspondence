@@ -12,6 +12,7 @@ library(Rvoteview)
 
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
                      member_search(congress = c(109:120)))  # get voteview data for selected Congresses
+
   # format state
  members%<>%
    mutate(state = tolower(state)) %>%
@@ -623,16 +624,16 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     ungroup() %>% 
     mutate(last_comma_first = paste0(last_name, ", ", first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
-           common_maiden_last = paste(common_name, maiden_name, last_name),
+           common_maiden = paste(common_name, maiden_name),
            first_initial_last = paste(first_initial, last_name),
            first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
-           last_firstinitial_middleinitial = paste0(last_name, first_initial, " ", middle_initial),
-           last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
-           last_comma_commoninitial = paste0("^", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "$"),
+           #last_comma_firstinitial_middleinitial = paste0(last_name, ", ", first_initial, " ", middle_initial), # redundent
+           last_comma_initial = paste0("(^| )", last_name, ", ", first_initial, "( |\\.|$)"),
+           last_comma_commoninitial = paste0("(^| )", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "( |\\.$)"),
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
-           last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
+           #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
            last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
            addlast_comma_first = paste0(add_last_name, ", ", first_name),
            chamber_last = paste0(chamber, " ", last_name) %>% 
@@ -667,7 +668,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "\\^NA |^NA | NA |^NA, |, NA\\$| NA\\$| NA$|404error"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "\\^NA |^NA | NA |^NA, | NA, |, NA\\$| NA\\$| NA$|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 
@@ -684,7 +685,7 @@ members %<>%
                      common_last,
                      common_middle_last,
                      common_initial_last,
-                     common_maiden_last,
+                     common_maiden,
                      last_comma_common,
                      last_comma_first,
                      last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
@@ -694,7 +695,7 @@ members %<>%
                      
                      #last_comma_first_maiden, # this seems redundent
                      firstinitial_middleinitial_last,
-                     last_firstinitial_middleinitial, # in CMS "Carter, E.L." and "Butterfield, G. K."
+                     # last_comma_firstinitial_middleinitial, #FIXME check in CMS "Carter, E.L." and "Butterfield, G. K."
                      first_addlast,
                      first_last_addlast,
                      last_addlast_comma_first
