@@ -36,7 +36,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(middle_initial = substr(middle_name, 1, 1)) %>%
     mutate(first_name = first_name %>% str_squish() %>% str_remove(" .*")) %>%
     mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
-    mutate(first_initial = str_sub(first_name, 1)) %>% 
+    mutate(first_initial = str_sub(first_name, 1,1)) %>% 
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
      
      # additional last names
