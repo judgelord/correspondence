@@ -9,27 +9,39 @@
 clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read()
-  
+  data %<>% select(-first_name)
+  nrow(data)
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
-
+  nrow(data)
+  
   #create agency column
   data$agency <- file.name
   
+  # inspect rows where date fails 
+  data$DATEoriginal <- data$DATE
+  
   # Format date, year, Congress, member name etc. 
-  data$DATE %<>% as.Date("%m/%d/%Y")
+  data$DATE %<>% 
+    str_replace("/200", "/0") %>% 
+    str_replace("/201", "/1") %>% 
+    multidate(c("%m/%d/%y", "%d-%b-%y"))
+  
+  data %>% filter(is.na(DATE)) %>% select(DATE, DATEoriginal, SUBJECT, `Last Name`)
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  data$first_name <- NA
+  data %>% filter(year<2007|year>2019) %>% select(DATE, DATEoriginal)
+  
+
   data$last_name <- toupper(data$'Last Name')
-  data$first_name %<>% addFirst(data$last_name)
+  data %<>% add_first()
   data$FROM <- paste(data$Salutation, data$first_name, data$last_name) %>% 
     str_replace(" NA ", " ")
 
