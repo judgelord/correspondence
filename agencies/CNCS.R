@@ -114,8 +114,8 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "Alexander") & is.na(first_name) & is.na(chamber), "Multiple Alexander's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Reed") & is.na(first_name) & is.na(chamber), "Multiple Reed's FOIA", NOTES))
   
-  nochamber <- data %>%
-    filter(is.na(first_name) & is.na(chamber) & is.na(NOTES))
+  # nochamber <- data %>%
+  #   filter(is.na(first_name) & is.na(chamber) & is.na(NOTES))
   
   #Check after run through merge
  #Unmatched <- d %>%
