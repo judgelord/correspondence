@@ -652,9 +652,8 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   # joining with members requires these variables are not there
   data %<>% mutate(last_name = NA,
                    first_name = NA, 
-                   pattern = NA, 
-                   chamber = NA) %>% 
-    select(-first_name, -last_name, -pattern, -chamber)
+                   pattern = NA) %>% 
+    select(-first_name, -last_name, -pattern)
     
     # clean up text
     data$string %<>% cleanFROMcolumn()
