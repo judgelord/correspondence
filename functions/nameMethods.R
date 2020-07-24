@@ -633,6 +633,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
       
       # FOR TESTING 
       # col_name <- "FROM"
+  t <- Sys.time()
   
   # Add ID if missing 
   if(!"ID" %in% names(data)){data$ID <- 1:nrow(data)}
@@ -645,7 +646,15 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   data$congress %<>% replace_na(0)
   data$congress %<>% as.numeric()
   
+  # provided col name is string to format and extract names from
   data %<>% mutate(string = data[[col_name]])
+  
+  # joining with members requires these variables are not there
+  data %<>% mutate(last_name = NA,
+                   first_name = NA, 
+                   pattern = NA, 
+                   chamber = NA) %>% 
+    select(-first_name, -last_name, -pattern, -chamber)
     
     # clean up text
     data$string %<>% cleanFROMcolumn()
@@ -683,10 +692,13 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     #FIXME problem created by correcting typos
     data$string %<>% str_replace(" ,", ", ") %>% str_squish()
 
+    print("Typos fixed in", Sys.time()-t)
+    t <- Sys.time()
     
     # loop over congresses in data 
     data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members) #FIXME members default provided?
 
+    print("Names matched in", Sys.time()-t)
     
     data %<>% distinct()
     
