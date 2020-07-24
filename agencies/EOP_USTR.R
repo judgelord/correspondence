@@ -6,19 +6,21 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()
   
+  nrow(data)
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
+  nrow(data)
   
   # create agency column
   data$agency <- file.name 
   
   # Format date, year, Congress
   data$DATE %<>% multidate(formats = c("%d-%b-%y", "%m/%d/%y", "%m.%d.%y", "%m.%d.%Y")) # FIXME
-  
+  data$DATE %<>% as.Date()
   bad.dates <- data %>% filter(is.na(DATE)) %>% .$LetterID
   data$DATE[bad.dates]
   data %>% select(LetterID, DATE, FROM, SUBJECT) %>% filter(LetterID %in% bad.dates)

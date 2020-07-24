@@ -4,13 +4,14 @@
 clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() 
-  
+  nrow(data)
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
+  nrow(data)
   
   # put names in FROM
   data %<>%
@@ -181,7 +182,8 @@ clean <- function(file.name) {
      mutate(ERROR = ifelse(str_detect(FROM, "Griffin, Tim") & congress %in% c(115, 114) & is.na(ERROR), "no longer in congress", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "riffin, Timothy") & congress %in% c(111) & is.na(ERROR), "no longer in congress", ERROR))
 
-  
+  # data %>% ungroup() %>% mutate(medicaid = str_detect(SUBJECT, "Medicaid|medicaid")) %>% tally(medicaid)
+   
   head(data$FROM)
   look <- filter(data, pattern == "404error", is.na(ERROR)) %>% 
     group_by(FROM, string) %>%

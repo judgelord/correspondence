@@ -32,9 +32,19 @@ data$DATE[is.na(data$DATE)] <- as.Date(data$`Due Date`[is.na(data$DATE)], "%m/%d
 #checking for NA dates
 NOdate <- data %>%
   filter(is.na(DATE))
-NOdate %>% select(`Received Date`, SUBJECT) %>% distinct() %>% kable()
-NOdate %>% select(Sort, `Received Date`) %>% filter(nchar(`Received Date`)>3, nchar(`Received Date`)<13) %>% distinct() %>% kable()
+NOdate %>% 
+  select(date1, `Received Date`, SUBJECT) %>% 
+  kable()
 
+NOdate %>% select(Sort, date1, `Received Date`) %>% 
+  filter(nchar(`Received Date`)>3, 
+         nchar(`Received Date`)<23) %>% 
+  kable()
+
+NOdate %>% select(Sort, date1, `Received Date`) %>% 
+  filter(!`Received Date` %in% c("NA", "Received Date", "DATE"),
+         !is.na(`Received Date`)) %>% 
+  kable()
 # other bad dates 
 data %>% filter(!str_detect(DATE, "^200|^201")) %>% select(Sort, DATE, `Received Date`) %>% kable()
   

@@ -44,6 +44,8 @@ clean <- function(file.name) {
   data %<>% add_first()
   data$FROM <- paste(data$Salutation, data$first_name, data$last_name) %>% 
     str_replace(" NA ", " ")
+  
+  data %<>% select(-first_name, -last_name)
 
   
   data <- extractMemberName(data, members, 'FROM')
@@ -60,7 +62,23 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(is.na(last_name), NA, chamber))
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, chamber, everything())
-  
+  data %<>% select(ID, DATE,  FROM, chamber, everything())%>% select(-chamber)
+
   return(data)
 }
+# 
+# data %>% summarise_all(is.na) %>% summarise_all(sum) %>% gather() %>% kable()
+# 
+# data %>% mutate(NAs = ifelse(is.na(last_name), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
+# 
+# data %>% mutate(NAs = ifelse(is.na(last_name), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
+# 
+# 
+# missing_data <- data %>% mutate(NAs = ifelse(is.na(last_name), "missing", "matched with member")) %>% 
+#   add_count(agency, NAs) %>% 
+#   filter(NAs == "missing")
+# missing_data$FROM
+# 
+# missing_data %<>% select(agency, DATE, FROM, congress, LetterID, ID, ERROR) %>% extractMemberName(members, "FROM")
+# missing_data
+# 
