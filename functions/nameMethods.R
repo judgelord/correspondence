@@ -704,7 +704,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     # New ID since function may split out multiple members if found
     data$ID %<>% formatC(width=6, flag="0")
     
-    data %<>% select(LetterID, ID, congress, string, pattern, everything())
+    data %<>% select(LetterID, ID, congress, string, pattern, chamber, everything())
     
     return(data)
 }

@@ -193,7 +193,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DOI_USGS")
 i
 
 d1 <- clean.agency(
@@ -203,6 +203,7 @@ d1 <- clean.agency(
 
 suppressMessages(
   d1 %<>% 
+    #select(-chamber) %>% 
     left_join(members) %>% 
     select(LetterID, ID, 
            DATE, year, congress, 
@@ -222,6 +223,15 @@ d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
 
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
+d %>% filter(is.na(chamber))
+
+missing_data <- d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
+  add_count(agency, NAs) %>% 
+  filter(NAs == "missing")
+missing_data$FROM
+
+missing_data %<>% select(agency, DATE, FROM, congress, LetterID, ID, ERROR) %>% extractMemberName(members, "FROM")
+missing_data
 ####################
 # Save 
 file.name <- str_c("data/agencies/", 
@@ -243,7 +253,7 @@ save(d1, file = file.name)
 
 ## Resume 
 # data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
-# data_list %<>% filter(row_number() > which(data_list$agency == "DOL_SOL")) 
+# data_list %<>% filter(row_number() >= which(data_list$agency == "CNCS")) 
 
 # subset by date
 if(F){
@@ -303,13 +313,18 @@ base::message(white(paste("merge stopped at", stopped)))
 files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
   set_names(list.files(here("data/agencies"))) 
 
+
+# function to combine rdata files
 combine <- function(file){
   load(file)
   d %<>% full_join(d1) 
   return(d)
 }
 
+# initialize 
+d <- d1
 dim(d)
+
 # COMBINE FILES 
 d <- map_dfr(files, combine)
 d %<>% distinct()
@@ -317,13 +332,16 @@ dim(d)
 ## Missing agencies:
 data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 # Check for NAs in LetterID
-d %>% count(is.na(LetterID), agency) %>% arrange(agency)
+d %>% count(is.na(LetterID), agency) %>% arrange(agency) %>% kable()
 
 d %>% count(is.na(LetterID))
 d %>% count(is.na(ID))
 d%>% filter(is.na(LetterID))
 
-
+d %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
+              SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR, 
+              first_name, last_name, icpsr, party_name, party_code, state, state_abbrev, chamber, 
+              district_code, nominate.dim2, nominate.dim1)
 # ## Text Devin - this broke with google's auth update 
 # library(gmailr)
 # send_message(mime(
@@ -334,14 +352,24 @@ d%>% filter(is.na(LetterID))
 
 ##############################
 #########################################################################################
+# COMPARE TO LAST RUN 
 nrow(d)
-
-# archive raw version of merged data 
-draw <- d
+load("draw.Rdata")
 nrow(draw)
+
+full_join(d1 %>% group_by(agency) %>% filter(!is.na(icpsr)) %>% count(name = "d"),
+          draw %>% group_by(agency) %>% filter(!is.na(icpsr)) %>% count(name = "draw") ) %>%
+  mutate(change = d-draw) %>% arrange(change) %>% filter(change != 0)
 
 #FIXME We should drop all unecessary vars and add them back in later to make post-merge processing go faster
 
+
+
+
+# if things look good, save new raw file
+# archive raw version of merged data 
+draw <- d
+nrow(draw)
 save(draw, file = "draw.Rdata")
 # load("draw.Rdata")
 d <- draw
@@ -354,7 +382,7 @@ d <- draw
 d$icpsr %<>% as.numeric()
 
 d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
-
+nrow(d)
 
 
 # party switchers etc
@@ -362,7 +390,7 @@ d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
 # Jeffords switched parties fix in MemberNameDateCorrections.R
 nrow(d)
 d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
-nrow(d) # should go down
+nrow(d) # should go down by a bit
 
 #######################
 # ERRORS we can't fix #
@@ -389,13 +417,15 @@ d %<>%
   mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
   mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
-  mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR))
+  mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR)) %>% 
+  ungroup()
 
 
 
 #########################
 # ERRORS to investigate #
 #########################
+
 
 # date typos 
 bad.dates <- d %>% 
@@ -408,7 +438,7 @@ bad.dates <- d %>%
 
 d$year %<>% as.numeric()
 
-
+d %>% filter(nchar(as.character(DATE))  < 9 | year > 2020) %>% distinct(DATE, agency) %>% kable()
 
 # TIME RANGE 
 nrow(d)
@@ -583,10 +613,11 @@ max(duplicates$n)
 nrow(d)
 ##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
 d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
-  summarise_all(combine)
+  summarise_all(combine_strings)
+
 
 d %<>% group_by(LetterID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
-  summarise_all(combine)
+  summarise_all(combine_strings)
 nrow(d) # MIGHT GO DOWN
 
 d %<>% select(-n)
@@ -821,6 +852,7 @@ nrow(df) == n
 committees %<>% select(-partystatus, -party) # drop Stewart committee data party codes 
 committees %<>% filter(!is.na(icpsr))
 committees %<>%  filter(!is.na(congress)) 
+committees$congress %<>% as.character()
 dcommittees <- df %>% full_join(committees) %>% filter(!is.na(DATE)) # select committee data matching obs
 
 dcommittees %<>% mutate(committee_dept = paste(committee, department)) 
@@ -1055,7 +1087,7 @@ dcommittees %<>% full_join(
 ###########################
 df %<>% dplyr::select(-n) %>% distinct()
 rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
-
+nrow(df)
 
 # merge new data with old? 
 if(F){
