@@ -691,13 +691,13 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     #FIXME problem created by correcting typos
     data$string %<>% str_replace(" ,", ", ") %>% str_squish()
 
-    print(paste("Typos fixed in", Sys.time()-t))
+    print(paste("Typos fixed in", round(Sys.time()-t), "seconds"))
     t <- Sys.time()
     
     # loop over congresses in data 
     data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members) #FIXME members default provided?
 
-    print(paste("Names matched in", Sys.time()-t))
+    print(paste("Names matched in", round(Sys.time()-t), "seconds"))
     
     data %<>% distinct()
     
