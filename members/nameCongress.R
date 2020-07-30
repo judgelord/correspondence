@@ -629,7 +629,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            #last_comma_firstinitial_middleinitial = paste0(last_name, ", ", first_initial, " ", middle_initial), # redundent
-           last_comma_initial = paste0("(^| )", last_name, ", ", first_initial, "( |\\.|$)"),
+           last_comma_initial = paste0(last_name, ", ", first_initial, "( |\\.|$)"),
            last_comma_commoninitial = paste0("(^| )", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "( |\\.$)"),
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
@@ -716,6 +716,13 @@ suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initi
 
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
+  
+  members %<>% select(congress, pattern, bioname, 
+                first_name, last_name, icpsr, 
+                party_name, party_code, state, state_abbrev, chamber, party_size,
+                seo_name, district_code, id, cqlabel,bioImgURL, 
+                district_code, nominate.dim2, nominate.dim1, nominate.geo_mean_probability) %>% 
+    distinct()
 
   
   save(members, file = "members/members.Rdata")
