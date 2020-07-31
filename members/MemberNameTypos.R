@@ -5,6 +5,7 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "Grassley", "Grassely",
+  "DEAL, N", "DEAL,N",
   "senator cortez masto", "senator masto",
   "GILLIBRAND", "GILLABRAND",
   "WENSTRUP", "WENSTRUB",
@@ -18,7 +19,8 @@ typos_clear <- tribble(
   "Andre Carson", "Andre' Carson",
   #"GOHMERT, L", "GOHMERT. L", # period space is corrected in ocr errors 
   #"SESTAK, J", "SESTAK. J",
-  "OBEYD", "OBEY, D",
+  "OBEY, D", "OBEYD", 
+  "OBEY, D", "OBEY,D",
   "Gassley ", "(Grassle y|Grassle )", # space is key or it will add a space and Y
   "Thune, John", "ThuneJohn",
   "Cummings", "(Cummins|Cwnmings)",

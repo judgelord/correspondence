@@ -78,7 +78,7 @@ cleanFROMcolumn <- function(FROM){
   FROM <- str_squish(FROM)
   
   # remove 
-  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)", "", FROM)
+  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|, JR\\.", "", FROM)
   # replace with comma
   FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
                replacement = ",", FROM)
