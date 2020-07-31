@@ -187,9 +187,13 @@ data %<>%
   
   #Paste Chamber into FROM
   data %<>%
-    mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
+    mutate(FROM =ifelse(str_detect(chamber, "House"), # & !str_detect(FROM, ","), 
+                        paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate"),#& !str_detect(FROM, ","), 
+                         paste("Senator", FROM, sep = " "), FROM))
   
+  #  some chambers are incorrect, so dropping after adding top string to prevent match fails
+  data(-chamber)
   #Extract Member Names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
