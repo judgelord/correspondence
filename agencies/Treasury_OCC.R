@@ -101,8 +101,8 @@ data %<>%
  unfoundnames %<>%
    select(ID, DATE, FROM, SUBJECT, last_name, everything())
  
- 
- 
+ # THERE WAS A PROBLEM WITH BOOZMAN, BUT SEEMS TO BE FINE NOW 
+ # data %>% filter(str_detect(FROM, regex("boozman", ignore_case = T))) %>% select(string, pattern)
  
   
   # arrange columns for hand coding

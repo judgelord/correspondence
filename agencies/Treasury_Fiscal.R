@@ -3,9 +3,7 @@
 
 # 702 non-matches on last_name out of 10284
 
-# file.name <- "Treasury_Fiscal" # for testing
-
-#file.name <- "Treasury_Fiscal" ##for testing 13 June 
+# file.name <- "Treasury_Fiscal Julia" # for testing
 
 clean <- function(file.name) {
   
@@ -80,6 +78,9 @@ clean <- function(file.name) {
     
   #Extract Member names
   data <-  extractMemberName(data,members,"FROM") 
+  
+  # THERE WAS A PROBLEM WITH ANGUS KING
+  data %>% filter(str_detect(FROM, regex("angus", ignore_case = T))) %>% select(FROM, string, pattern)
   
   #Check for Duplicates
   sample2data<- data
