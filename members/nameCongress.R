@@ -258,7 +258,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "SCOTT, Robert C.", "(Bob|Bobby)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "VAN DREW, Jefferson", "Jeff", common_name)) %>%
     mutate(common_name = ifelse(bioname == "OWENS, William", "(Will|Bill)", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "NELSON, Earl Benjamin (Ben)", "(Ben|E.B.)", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "NELSON, Earl Benjamin (Ben)", "(Benjamin|Ben|E.B.)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "(Rob|Bob)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "WHITFIELD, Wayne Edward (Ed)", "(Ed|Edward)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CLELAND, Joseph Maxwell (Max)", "(Max|Joe)", common_name)) %>%
@@ -298,6 +298,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "GARRETT, Scott", "Ernest", common_name)) %>%
     mutate(common_name = ifelse(bioname == "WARREN, Elizabeth", "Liz", common_name)) %>%   
     mutate(common_name = ifelse(bioname == "PAUL, Rand", "(Randy|Randal)", common_name)) %>%
+     mutate(common_name = ifelse(bioname == "EMERSON, Jo Ann", "JoAnn", common_name)) %>%
+     # Tim usually refers to the other Timothy Johnson
+    mutate(common_name = ifelse(bioname == "JOHNSON, Timothy V.", NA, common_name))
 
     # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -315,6 +318,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(grepl("LABRADOR, Ra.l R.", bioname), "Raul", first_name)) %>% 
   
   # middle name
+      mutate(middle_name = ifelse(bioname == "KATKO, John", "Michael", middle_name)) %>% 
      mutate(middle_name = ifelse(bioname == "McSALLY, Martha", "Elizabeth", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "GRUCCI, Jr., Felix J.", "James", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "ZINKE, Ryan", "Keith", middle_name)) %>% 
@@ -639,6 +643,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            chamber_last = paste0(chamber, " ", last_name) %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
+
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
@@ -647,6 +652,12 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     distinct() %>%     
     count(last_name, chamber, congress) %>% 
     rename(last_name_count = n)
+  
+  last_name_count %>% filter(last_name_count >1) %>% ungroup() %>% 
+    group_by(last_name, last_name_count) %>% 
+    summarise(congress = str_c(congress, collapse = ";"),
+              chamber = str_c(unique(chamber), collapse = ";")) %>%
+    kable()
   
   members %<>% 
     full_join(last_name_count) %>% 
@@ -717,7 +728,7 @@ suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initi
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
   
-  members %<>% select(congress, pattern, bioname, 
+  members %>% select(congress, pattern, bioname, 
                 first_name, last_name, icpsr, 
                 party_name, party_code, state, state_abbrev, chamber, party_size,
                 seo_name, district_code, id, cqlabel,bioImgURL, 
