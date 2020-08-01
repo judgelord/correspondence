@@ -7,8 +7,11 @@ clean <- function(file.name) {
   # unlike other clean scripts, we load FERC data from Rdata rather than google drive
   # FIXME # FERC data should be put on google drive
   load("data/DOE_FERC-letters-coded.Rdata")
- 
+ s
   data <- ungroup(FERC_letters)
+  
+  data$CONSTITUENT_TYPE <- NA
+  data$CONSTITUENT_CLASS <- NA
   
   # keep notes 
   data$NOTES <- data$Notes
