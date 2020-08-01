@@ -300,7 +300,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "PAUL, Rand", "(Randy|Randal)", common_name)) %>%
      mutate(common_name = ifelse(bioname == "EMERSON, Jo Ann", "JoAnn", common_name)) %>%
      # Tim usually refers to the other Timothy Johnson
-    mutate(common_name = ifelse(bioname == "JOHNSON, Timothy V.", NA, common_name))
+    mutate(common_name = ifelse(bioname == "JOHNSON, Timothy V.", NA, common_name)) %>% 
 
     # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -626,15 +626,16 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% 
     ungroup() %>% 
-    mutate(last_comma_first = paste0(last_name, ", ", first_name),
+    mutate(last = str_c("\b", last_name, "\b"),
+           last_comma_first = paste0(last_name, ", ", first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
            common_maiden = paste(common_name, maiden_name),
            first_initial_last = paste(first_initial, last_name),
            first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            #last_comma_firstinitial_middleinitial = paste0(last_name, ", ", first_initial, " ", middle_initial), # redundent
-           last_comma_initial = paste0(last_name, ", ", first_initial, "( |\\.|$)"),
-           last_comma_commoninitial = paste0("(^| )", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "( |\\.$)"),
+           last_comma_initial = paste0(last_name, ", ", first_initial, "\b"),
+           last_comma_commoninitial = paste0("\b", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "\b"),
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
            #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
@@ -661,7 +662,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% 
     full_join(last_name_count) %>% 
-    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last)) %>% 
+    mutate(chamber_last = ifelse(last_name_count > 1, NA, last)) %>% 
+    mutate(last = ifelse(last_name_count > 1, NA, last)) %>% 
     select(-last_name_count)
   
   # # drop common last when there are multiple members with the same name
@@ -697,13 +699,12 @@ members %<>%
                      common_middle_last,
                      common_initial_last,
                      common_maiden,
+                     last,
                      last_comma_common,
                      last_comma_first,
                      last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
                      last_comma_commoninitial, # needed for VA, common name initials like Goodlatte, B. and Durbin, D.
                      chamber_last, 
-                     
-                     
                      #last_comma_first_maiden, # this seems redundent
                      firstinitial_middleinitial_last,
                      # last_comma_firstinitial_middleinitial, #FIXME check in CMS "Carter, E.L." and "Butterfield, G. K."
