@@ -2,9 +2,9 @@
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
+1 #FIXME need to set correspondenceresearch email as default to avoide this
 1
-1
-Yes # just in case R asks if we want to install dependencies 
+
 
 
 
@@ -193,7 +193,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DOI_USGS")
+i <- which(data_list$agency == "ABMC")
 i
 
 d1 <- clean.agency(
@@ -209,7 +209,7 @@ suppressMessages(
            DATE, year, congress, 
            FROM, pattern, bioname, agency, 
            SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
-           #CONSTITUENT_TYPE, CONSTITUENT_RACE, 
+           CONSTITUENT_TYPE, CONSTITUENT_CLASS, 
            NOTES, ERROR) %>% 
     left_join(members)%>% 
     distinct()
@@ -223,7 +223,7 @@ d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
 
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
-d %>% filter(is.na(chamber))
+d1 %>% filter(is.na(chamber))
 
 missing_data <- d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
   add_count(agency, NAs) %>% 
@@ -284,13 +284,22 @@ while(!is.na(data_list[i,1])) {
   suppressMessages(
   d1 %<>% 
     left_join(members) %>% 
-    select(ID, LetterID, 
+    select(ID, LetterID, agency, 
            DATE, year, congress, 
-           FROM, bioname, agency, SUBJECT, 
-           TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% 
+           FROM, bioname, 
+           SUBJECT, TYPE, ALT_TYPE, CERTAINTY, 
+           CONSTITUENT_TYPE, CONSTITUENT_CLASS,
+           POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
+           NOTES, ERROR) %>% 
     left_join(members)%>% 
     distinct()
   )
+  
+  d %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
+                SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR, 
+                CONSTITUENT_TYPE, CONSTITUENT_CLASS,
+                first_name, last_name, icpsr, party_name, party_code, state, state_abbrev, chamber, 
+                district_code, nominate.dim2, nominate.dim1)
   
   d1$DATE <- as.Date(d1$DATE)
   
@@ -322,6 +331,7 @@ combine <- function(file){
 }
 
 # initialize 
+load(files[1])
 d <- d1
 dim(d)
 
@@ -332,16 +342,16 @@ dim(d)
 ## Missing agencies:
 data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 # Check for NAs in LetterID
-d %>% count(is.na(LetterID), agency) %>% arrange(agency) %>% kable()
+d %>% filter(is.na(LetterID)) %>% count(agency) %>% arrange(agency) %>% kable()
 
-d %>% count(is.na(LetterID))
-d %>% count(is.na(ID))
-d%>% filter(is.na(LetterID))
-
+#FIXME can remove, as this is now above
 d %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
               SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR, 
+              CONSTITUENT_TYPE, CONSTITUENT_CLASS,
               first_name, last_name, icpsr, party_name, party_code, state, state_abbrev, chamber, 
               district_code, nominate.dim2, nominate.dim1)
+d$year %<>% as.numeric()
+d$icpsr %<>% as.numeric()
 # ## Text Devin - this broke with google's auth update 
 # library(gmailr)
 # send_message(mime(
@@ -370,27 +380,13 @@ full_join(d1 %>% group_by(agency) %>% filter(!is.na(icpsr)) %>% count(name = "d"
 # archive raw version of merged data 
 draw <- d
 nrow(draw)
+
 save(draw, file = "draw.Rdata")
 # load("draw.Rdata")
 d <- draw
 
 ###############
 # FIX ERRORS #
-##############
-# fix date-specific member name and party issues. 
-# See bad.party object for party switchers to check
-d$icpsr %<>% as.numeric()
-
-d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
-nrow(d)
-
-
-# party switchers etc
-# FIXME
-# Jeffords switched parties fix in MemberNameDateCorrections.R
-nrow(d)
-d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
-nrow(d) # should go down by a bit
 
 #######################
 # ERRORS we can't fix #
@@ -414,8 +410,10 @@ d %<>%
   group_by(agency, ID, DATE, FROM, first_name, last_name) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "FOIA 2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "FOIA 2 Tim Johns", ERROR)) %>% 
-  mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
-  mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
+  # these are commented out because they risk matching real observations--can be more precice by looking at bad names 2
+  #mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
+  #mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
+  # These are specific enough, that they are fine errors
   mutate(ERROR = ifelse(grepl("^White House$", FROM, ignore.case=T), "White House", ERROR)) %>% 
   mutate(ERROR = ifelse(grepl("^Miscellaneous$", FROM, ignore.case=T), "Miscellaneous", ERROR)) %>% 
   ungroup()
@@ -435,9 +433,25 @@ bad.dates <- d %>%
   filter(!(year < 1999 & agency == "DOE_FERC")) %>% # FERC data extend befor 2000
   arrange(DATE) %>% 
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
+nrow(bad.dates)
 
-d$year %<>% as.numeric()
+##############
+# fix date-specific member name and party issues. 
+# See bad.party object for party switchers to check
 
+
+d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
+nrow(d)
+
+############################################################################
+# Fix chamber and party switchers that were double-matched in members file
+# FIXME
+# Jeffords switched parties fix in MemberNameDateCorrections.R
+nrow(d)
+d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
+nrow(d) # should go down by a bit
+
+# inspect
 d %>% filter(nchar(as.character(DATE))  < 9 | year > 2020) %>% distinct(DATE, agency) %>% kable()
 
 # TIME RANGE 
@@ -469,16 +483,35 @@ bad.names.2 <- d %>%
 worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
 
 worst.names <- bad.names.2 %>% 
-  # filter(agency != "DHS_HQ")  %>% 
   ungroup() %>% drop_na(FROM) %>% filter(FROM != "NA", FROM != "") %>% 
-  mutate(FROM = str_squish(FROM)) %>% 
-  group_by(FROM) %>%
-  summarise(n = n(),
-            agency = str_c(unique(agency), collapse = ";"),
-            congress = str_c(unique(congress), collapse = ";") ) %>% distinct() %>%
-  arrange(-n)   %>% filter(n>5) # top_n(200, n)
-tail(worst.names)
-# worst.names$FROM
+  mutate(FROM = str_squish(FROM)) %>% select(FROM, agency, congress) %>% 
+  group_by(FROM) %>% 
+  add_count() # new n
+
+worst.names.sheet <- gs_title("worst.names") %>% 
+  gs_read()  %>%
+  select(-n) %>%  # drop old n, but keep old problems
+  mutate(congress = str_split(congress, ";")) %>%
+  unnest(congress) %>%
+  mutate(congress = as.numeric(congress)) %>%
+  mutate(agency = str_split(agency, ";")) %>% 
+  unnest(agency) 
+
+worst.names %<>% full_join(worst.names.sheet)
+
+
+
+worst.names %>% 
+  group_by(FROM) %>% 
+  summarise_all(combine_strings) %>% 
+  distinct() %>%
+  mutate(n = as.numeric(n)) %>% 
+  arrange(-n)   %>% 
+  filter(n>5) # 5 mismatches 
+
+# push to google drive
+sheet_write(worst.names, gs_title("worst.names"), sheet = Sys.Date())
+
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -581,10 +614,11 @@ sum(duplicates$n)
 duplicate_coding <- duplicates %>%  
   filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) #|str_detect(CERTAINTY, ";;;")) #|str_detect(POLICY_EVENT, ";;;")|str_detect(EVENT_NAME, ";;;")|str_detect(NOTES, ";;;"))
 duplicate_coding %<>% 
-  select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct()
+  select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct() %>% arrange(agency)
 duplicate_coding
-write_csv(duplicate_coding %>% filter(agency != "DOE_FERC"), path = "duplicate_coding.csv")
 
+# write_csv(duplicate_coding %>% filter(agency != "DOE_FERC"), path = "duplicate_coding.csv")
+sheet_write(duplicate_coding, gs_title("duplicate_coding"), as.character(Sys.Date()))
 
 duplicate_chambers <- duplicates %>%  
   filter(str_detect(chamber, ";;;") )
@@ -646,15 +680,25 @@ filter(d, str_detect(pattern, ";")) %>% .$pattern
 
 
 
-
+d <- data
+d$agency <-"VA"
 
 #FIXME constituent type and class codes 
-d$CONSTITUENT_TYPE <- NA
-d$CONSTITUENT_CLASS <- NA
+#d$CONSTITUENT_TYPE <- NA
+#d$CONSTITUENT_CLASS <- NA
 source("functions/constituent_types.R")
 
+# inspect 
+constituent_coding <- d %>% 
+  ungroup() %>% 
+  filter(!is.na(CONSTITUENT_TYPE)|!is.na(CONSTITUENT_CLASS)) %>% 
+  select(agency, SUBJECT, TYPE, 
+         CONSTITUENT_TYPE, CONSTITUENT_CLASS,NOTES, ERROR) %>% 
+  group_by(agency, SUBJECT) %>% add_count() %>%
+  summarise_all(combine_strings) %>% arrange(agency)
+constituent_coding
 
-
+sheet_write(constituent_coding, gs_title("constituent_coding"), as.character(Sys.Date()))
 
 
 

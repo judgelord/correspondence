@@ -57,7 +57,8 @@
   library(googlesheets4)
   library(googledrive)
   
-  source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
+  source(here("functions/clean.R")) # data cleaning and intercoder agreement functions are in clean.R, clean3.R is a minimial version of this that makes fewer corrections
+  
   source(here("functions/stateFromLower.R")) # format state names
   source(here("functions/dateMethods.R"))
   source(here("functions/nameMethods.R")) # functions for cleaning member names to match the augmented member file
@@ -97,7 +98,8 @@
     }
   }
 
-  
+  # a function to combine
+  combine_strings <- . %>% unique() %>% str_c(collapse = ";;;")
   
 ## Since clean scripts were written for the googlesheets packaged, which has been replaced by googlesheets4
   gs_read <-   function(sheet){sheet %>% googlesheets4::read_sheet(col_types = "c")}
@@ -113,3 +115,23 @@
   Sys.sleep(2) # wait a sec
   1
   
+  
+  
+  str_add <- function(string, addition, sep = ";"){
+    ifelse(is.na(string), 
+           addition, 
+           str_c(string, addition, sep = sep))
+  }
+  
+  c("adf",NA, NA, "test", "dfa") %>% str_add_if("tst", condition = T)
+  
+  str_add_if <- function(string, 
+                         condition = TRUE, 
+                         addition, 
+                         sep = ";"){
+    ifelse(condition,
+           ifelse(is.na(string), 
+                  addition,
+                  str_c(string, addition, sep = sep)),
+           string)
+  }
