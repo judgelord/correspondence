@@ -56,15 +56,15 @@ clean <- function(file.name) {
   #Typos
   #added misspellings of names into nameMethods
   data %<>%
-   mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn")) %>%
-   mutate(FROM = str_replace(FROM, "Merkley letter", "Merkley")) %>%
+   mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson, Glenn")) %>%
+   mutate(FROM = str_replace(FROM, "Merkley letter", "Jeff Merkley")) %>%
    mutate(FROM = str_replace(FROM, "Hall NY-19", "Hall")) %>%
    mutate(FROM = str_replace(FROM, "Hodes CM", "Hodes")) %>%
-   mutate(FROM = str_replace(FROM, "Markey", "MARKEY Edward")) %>%
-   mutate(FROM = str_replace(FROM, "Gillibrand", "GILLIBRAND Kirsten")) %>%
+   mutate(FROM = str_replace(FROM, "Markey", "MARKEY, Edward")) %>%
+   mutate(FROM = str_replace(FROM, "Gillibrand", "GILLIBRAND, Kirsten")) %>%
    mutate(FROM = str_replace(FROM, "NH, Delegation Sens. Ayotte", "Senator Ayotte")) %>%
-   mutate(FROM = str_replace(FROM, "Ryan, P.", "RYAN Paul")) %>%
-   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH Christopher")) %>%
+   mutate(FROM = str_replace(FROM, "Ryan, P.", "RYAN, Paul")) %>%
+   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH, Christopher")) %>%
    mutate(FROM = str_replace(FROM, "Bass", "Charlie Bass"))  
  
   
