@@ -47,7 +47,7 @@ clean.agency <- function(agency, status, coders) {
 
 
   
-  data$agency <- agency # name agency
+  data$agency <- agency %>% str_remove(" .*")# name agency
   data$department <- gsub("_.*", "", data$agency) # name dept
   
   
