@@ -696,6 +696,9 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     # na's pasted in 
     data$string %<>% str_remove("^na ")
     data$string %<>% str_remove("^na ")
+    data$string %<>% str_remove_all("\bna\b")
+    
+    data$string %<>% str_squish()
     
     # misplaced commas
     data$string %<>% str_replace(" ,", ", ")
@@ -724,13 +727,13 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     #FIXME problem created by correcting typos
     data$string %<>% str_replace(" ,", ", ") %>% str_squish()
 
-    print(paste("Typos fixed in", round(Sys.time()-t), "seconds"))
+    base::message(paste("Typos fixed in", round(Sys.time()-t), "seconds"))
     t <- Sys.time()
     
     # loop over congresses in data 
     data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members) #FIXME members default provided?
 
-    print(paste("Names matched in", round(Sys.time()-t), "seconds"))
+    base::message(paste("Names matched in", round(Sys.time()-t), "seconds"))
     
     data %<>% distinct()
     

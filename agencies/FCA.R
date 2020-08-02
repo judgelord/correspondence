@@ -20,7 +20,7 @@ clean <- function(file.name) {
   
   
   # only SUBJECT contains useful data
-  data %<>% select(FROM, SUBJECT, DATE, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% distinct() 
+  #data %<>% select(FROM, SUBJECT, DATE, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR) %>% distinct() 
   
   #create agency column
   data$agency <- file.name 
