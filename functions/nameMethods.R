@@ -79,48 +79,43 @@ cleanFROMcolumn <- function(FROM){
   
   # remove 
   FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|, JR\\.", "", FROM)
+  
   # replace with comma
   FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
                replacement = ",", FROM)
 
- 
+ # remove paragraph breaks
   FROM <- gsub("\n", " ", FROM)
   
   # remove extra white space inside strings again
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   # Delete titles that appear after a commma
   #FROM <- gsub(", (SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", ", ", FROM)
   #FROM <- gsub(", (REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )", ", ", FROM)
   
   # Replace titles at the beginning of a string or not after a comma 
-  FROM <- gsub("(^| )(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", "Senator ", FROM)
-  FROM <- gsub("(^| )(REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )|Congressman|Congresswoman", "Representative ", FROM)
+  FROM <- gsub("\\b(SEN|Sen)( |- | - |\\. |\\.)|^S( |- | - |\\. |\\.)", "Senator ", FROM)
+  
+  FROM %<>% str_replace("\\b(REP|Rep)( |- | - |\\. |\\.)|^R( |- | - |\\. |\\.)|Congressman|Congresswoman", 
+                        "Representative ")
   
   # trim down extra spaces
-  FROM <- str_squish(FROM)
-  FROM <- gsub(" +", " ", FROM) # extra spaces
-  
+  FROM %<>% str_squish()
 
-  
-  # replace with "U.S."
-  FROM <- gsub(pattern = "Member, U.S", "US", FROM)
-  
   # remove periods
-  FROM <- gsub(pattern= "\\.\\.", replacement = " ", FROM) 
-  FROM <- gsub(pattern= "\\.", replacement = " ", FROM) 
+  FROM %<>% str_replace_all("\\.", " ") %>% str_squish()
   
   #removing double commas
-  FROM <- gsub(",,|, ,", ", ", FROM)
+  FROM %<>% str_replace(",+ |, ,", ", ")
+  FROM %<>% str_replace(",+ |, ,", ", ")
+  FROM %<>% str_replace(",,", ",")
   
   #removing spaces before commas
-  FROM %<>% str_replace(" ,", ", ") %>% str_squish()
+  FROM %<>% str_replace(" ,", ", ") 
   
-
   # replace spaces with a single space
-  FROM <- gsub(" +", " ", FROM) # extra spaces
-  FROM <- trimws(FROM)
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   return(FROM)
 }
@@ -658,7 +653,20 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
 
 extractMemberName <- function(data, members = members, col_name, congresses = unique(data$congress)){
   
-  if("chamber" %in% names(data)){data %<>% select(-chamber)}
+  # provided col name is string to format and extract names from
+  data %<>% mutate(string = data[[col_name]])
+  
+  if("chamber" %in% names(data)){
+    # add chamber to string if not NA 
+    data %<>% mutate(FROM = ifelse(!is.na(chamber), 
+                                   paste(chamber, FROM) %>% 
+                                     str_replace("House", "Represenative") %>% 
+                                     str_replace("Senate", "Senator"), 
+                                   FROM))
+    
+    # drop chamber 
+    data %<>% select(-chamber)
+    }
       
       # FOR TESTING 
       # col_name <- "FROM"
@@ -675,8 +683,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   data$congress %<>% replace_na(0)
   data$congress %<>% as.numeric()
   
-  # provided col name is string to format and extract names from
-  data %<>% mutate(string = data[[col_name]])
+
   
   # joining with members requires these variables are not there
   data %<>% mutate(last_name = NA,
@@ -696,7 +703,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     # na's pasted in 
     data$string %<>% str_remove("^na ")
     data$string %<>% str_remove("^na ")
-    data$string %<>% str_remove_all("\bna\b")
+    data$string %<>% str_remove_all("\\bna\\b")
     
     data$string %<>% str_squish()
     
