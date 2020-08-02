@@ -54,7 +54,7 @@ if(F){
 cleanFROMcolumn <- function(FROM){
 
   # remove +
-  FROM <- gsub('\\+', "", FROM)
+  FROM %<>% str_remove('\\+', "")
   
   # remove common names in quotes 
   FROM <- gsub('\\"(Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
@@ -63,39 +63,39 @@ cleanFROMcolumn <- function(FROM){
   FROM <- gsub('\\((Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\)', "", FROM, ignore.case = TRUE)
   
   
-  # remove paragraph breaks and trailing white space 
-  FROM <- gsub("\n", " ", FROM)
-  FROM <- trimws(FROM)
+  # remove paragraph breaks
+  FROM %<>% str_replace_all("\n", " ") 
   
   # remove extra white space inside strings
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   # fix misplaced commas
   #FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
-  FROM <- gsub(" ,| , |,", ", ", FROM)
+  FROM  %<>% str_replace_all(" , | ,|,", ", ")
   
   # remove extra white space inside strings again
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   # remove 
-  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|, JR\\.", "", FROM)
+  FROM %<>% str_remove(" Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|, JR\\.")
   
   # replace with comma
-  FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
-               replacement = ",", FROM)
+  FROM %<>% str_replace(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
+                        replacement = ",")
 
- # remove paragraph breaks
-  FROM <- gsub("\n", " ", FROM)
+  # remove paragraph breaks
+  FROM %<>% str_replace_all("\n", " ") 
   
   # remove extra white space inside strings again
   FROM %<>% str_squish()
   
   # Delete titles that appear after a commma
-  #FROM <- gsub(", (SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", ", ", FROM)
-  #FROM <- gsub(", (REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )", ", ", FROM)
+  # FROM %<>% str_replace(", (SEN|Sen)(-|\\b)", ", ")
+  #FROM <- gsub(", (REP|Rep)(-|\\b)", ", ", FROM)
   
   # Replace titles at the beginning of a string or not after a comma 
-  FROM <- gsub("\\b(SEN|Sen)( |- | - |\\. |\\.)|^S( |- | - |\\. |\\.)", "Senator ", FROM)
+  FROM %<>% str_replace("\\b(SEN|Sen)( |- | - |\\. |\\.)|^S( |- | - |\\. |\\.)", 
+                        "Senator ")
   
   FROM %<>% str_replace("\\b(REP|Rep)( |- | - |\\. |\\.)|^R( |- | - |\\. |\\.)|Congressman|Congresswoman", 
                         "Representative ")
