@@ -52,7 +52,7 @@ clean <- function(file.name) {
     str_replace("CANTORE", "CANTOR, E") %>% 
     str_replace("CARNEYC", "CARNEY, C") %>%
     str_replace("CARTERJ", "CARTER, J") %>% 
-    str_replace("DIAZåáBALAR.", "DIAZ-BALART")
+    str_replace("DIAZåáBALAR.", "DIAZ-BALART") %>% 
     str_replace(" SCLOSKY P", " VISCLOSKY, P")
   
   
@@ -96,7 +96,7 @@ clean <- function(file.name) {
   unfoundnames %<>%
     select(ID, DATE, congress, FROM, string, pattern, everything())
   
-  unfoundnames %<>%  count(FROM, string, sort= T) %>% kable()
+  unfoundnames %>%  count(FROM, string, sort= T) %>% kable()
   
   unfoundnames$FROM
   
