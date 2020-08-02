@@ -662,7 +662,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% 
     full_join(last_name_count) %>% 
-    mutate(chamber_last = ifelse(last_name_count > 1, NA, last)) %>% 
+    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last)) %>% 
     mutate(last = ifelse(last_name_count > 1, NA, last)) %>% 
     select(-last_name_count)
   

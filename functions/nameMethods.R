@@ -90,8 +90,8 @@ cleanFROMcolumn <- function(FROM){
   FROM <- str_squish(FROM)
   
   # Delete titles that appear after a commma
-  FROM <- gsub(", (SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", ", ", FROM)
-  FROM <- gsub(", (REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )|Congressman|Congresswoman", ", ", FROM)
+  #FROM <- gsub(", (SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", ", ", FROM)
+  #FROM <- gsub(", (REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )", ", ", FROM)
   
   # Replace titles at the beginning of a string or not after a comma 
   FROM <- gsub("(^| )(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", "Senator ", FROM)
@@ -657,6 +657,8 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
 
 
 extractMemberName <- function(data, members = members, col_name, congresses = unique(data$congress)){
+  
+  if("chamber" %in% names(data)){data %<>% select(-chamber)}
       
       # FOR TESTING 
       # col_name <- "FROM"
