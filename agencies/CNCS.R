@@ -55,9 +55,10 @@ clean <- function(file.name) {
   
   #Typos
   #added misspellings of names into nameMethods
+  # most of these are unnecessary
   data %<>%
    mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson, Glenn")) %>%
-   mutate(FROM = str_replace(FROM, "Merkley letter", "Jeff Merkley")) %>%
+   mutate(FROM = str_replace(FROM, "Merkley", "Jeff Merkley")) %>%
    mutate(FROM = str_replace(FROM, "Hall NY-19", "Hall")) %>%
    mutate(FROM = str_replace(FROM, "Hodes CM", "Hodes")) %>%
    mutate(FROM = str_replace(FROM, "Markey", "MARKEY, Edward")) %>%
@@ -87,8 +88,13 @@ clean <- function(file.name) {
 
   
   #Filter for stil unnamed
-  Unfoundnames <- data %>%
-    filter(is.na(last_name) & str_detect(FROM, " ") & ! str_detect(FROM, ", "))
+  Unfoundnames <- data %>% 
+    filter(is.na(last_name), is.na(ERROR)) %>% 
+    count(FROM, string, congress, sort= T)
+  
+  Unfoundnames %>% filter(str_detect(FROM, "Representative|Senator")) %>% kable()
+  
+  Unfoundnames %<>% extractMemberName(members, "FROM")
   
   #Create ID
   data %<>%

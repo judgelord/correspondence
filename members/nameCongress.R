@@ -627,8 +627,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% 
     ungroup() %>% 
-    mutate(last = str_c("^", last_name, "$"),
+    mutate(last = str_c("(^|senator |representative )", last_name, "$"),
            last_comma_first = paste0(last_name, ", ", first_name),
+           last_first = paste(last_name, first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
            common_maiden = paste(common_name, maiden_name),
            first_initial_last = paste(first_initial, last_name),
@@ -636,7 +637,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            #last_comma_firstinitial_middleinitial = paste0(last_name, ", ", first_initial, " ", middle_initial), # redundent
            last_comma_initial = paste0(last_name, ", ", first_initial, "\\b"),
-           last_comma_commoninitial = paste0("\\b", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "\\b"),
+           last_comma_commoninitial = paste0(last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "\\b"),
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
            #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
@@ -646,6 +647,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
 
+  # check for mirrior names 
+  members %>% filter(last_first %in% members$first_last)
+  members %>% filter(maiden_comma_first %in% members$last_comma_first)
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
@@ -738,6 +742,7 @@ members %<>%
                      last,
                      last_comma_common,
                      last_comma_first,
+                     last_first,
                      last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
                      last_comma_commoninitial, # needed for VA, common name initials like Goodlatte, B. and Durbin, D.
                      chamber_last, 

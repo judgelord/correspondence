@@ -5,6 +5,7 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "FILNER, B", "FILNERB",
+  "merkley", "merkely",
   "SOUDER, M", "SOUDERM",
   "HALL, J", "HALLJ",
   "RANGEL, C", "RANGELC",
@@ -363,6 +364,7 @@ typos_last <- tribble(
 # FREQUENT FIRST NAME TYPOS 
 typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
+  "Jaime", "Harrera Beutler", "Jamie",
   "Claudia", "Tenney", "Claudi",
   "Raul", "Grijalva", "Raúl",
   "jim gresham", "barrett", "j gresham",
