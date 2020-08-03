@@ -37,8 +37,8 @@ clean <- function(file.name) {
   
   #checking for NA dates
   NOdate <- data %>%
-    filter(is.na(DATE))
-
+    filter(is.na(DATE), !is.na(FROM)) %>% select(FROM, SUBJECT) 
+  NOdate %>% kable()
   
   
   #create year and congress columns
@@ -89,7 +89,7 @@ clean <- function(file.name) {
 
   #FIXME THERE MAY BE MORE LIKE THIS WHERE WE CAN USE THE STATE TO IMPROVE NAME MATCHING 
   data %<>% 
-    mutate(FROM = str_replace("Collins (GA-9)", "Doug Collins (GA-9)"))
+    mutate(FROM = str_replace(FROM, "Collins (GA-9)", "Doug Collins (GA-9)"))
   
   
   # member name
