@@ -620,8 +620,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
   members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
-  members$first_addlast <- paste(members$first_name, members$add_last_name, sep = " ")
-  members$first_last_addlast <- paste(members$first_name, members$last_name, members$add_last_name, sep = " ")
+  #members$first_addlast <- paste(members$first_name, members$add_last_name, sep = " ")
+  #members$first_last_addlast <- paste(members$first_name, members$last_name, members$add_last_name, sep = " ")
   #members$firstinitial_middleinitial_last <- paste(members$first_initial, members$middle_initial, members$last_name, sep = " ")
  
   
@@ -640,8 +640,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
            #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
-           last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
-           addlast_comma_first = paste0(add_last_name, ", ", first_name),
+           #last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
+           #addlast_comma_first = paste0(add_last_name, ", ", first_name),
            chamber_last = paste0(chamber, " ", last_name) %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
@@ -652,20 +652,55 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   last_name_count <- members %>% 
     select(last_name, chamber, bioname, congress) %>%  
     distinct() %>%     
-    count(last_name, chamber, congress, name = "last_name_count") %>% 
-    ungroup() %>% add_count(last_name, congress, name = "last_name_congress_count")
+    count(last_name, chamber, congress, name = "last_name_count") 
   
-  last_name_count %>% filter(last_name_count >1) %>% ungroup() %>% 
-    group_by(last_name, last_name_count) %>% 
-    summarise(congress = str_c(congress, collapse = ";"),
-              chamber = str_c(unique(chamber), collapse = ";")) %>%
-    kable()
+  # last_name_count %>% filter(last_name_count >1) %>% ungroup() %>% 
+  #   group_by(last_name, last_name_count) %>% 
+  #   summarise(congress = str_c(congress, collapse = ";"),
+  #             chamber = str_c(unique(chamber), collapse = ";")) %>%
+  #   kable()
+
+  members %<>% 
+    full_join(last_name_count) %>% # add counts 
+    mutate(chamber_last = ifelse(last_name_count > 1, "404error", chamber_last)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
+  # non-unique last names
+  last_name_count <- members %>% 
+    select(last_name, bioname, congress) %>%  
+    distinct() %>%     
+    count(last_name, congress, name = "last_name_count") 
   
   members %<>% 
-    full_join(last_name_count) %>% 
-    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last)) %>% 
-    mutate(last = ifelse(last_name_congress_count > 1|last_name_count > 1, NA, last)) %>% 
-    select(-last_name_count)
+    full_join(last_name_count) %>% # add counts 
+    mutate(last = ifelse(last_name_count > 1, "404error", last)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
+
+  # non-unique first initials + last names
+  last_name_count <- members %>% 
+    select(first_initial_last, bioname, congress) %>%  
+    distinct() %>%     
+    count(first_initial_last, congress, name = "last_name_count") 
+  
+  members %<>% 
+    full_join(last_name_count) %>% # add counts 
+    mutate(first_initial_last = ifelse(last_name_count > 1, "404error", first_initial_last)) %>% # remove non unique 
+    mutate(last_comma_initial = ifelse(last_name_count > 1, "404error", last_comma_initial)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
+  # non-unique common initials + last names
+  last_name_count <- members %>% 
+    select(common_initial_last, bioname, congress) %>%  
+    distinct() %>%     
+    count(common_initial_last, congress, name = "last_name_count") 
+  
+  members %<>% 
+    full_join(last_name_count) %>% # add counts 
+    mutate(common_initial_last = ifelse(last_name_count > 1, "404error", common_initial_last)) %>% # remove non unique 
+    mutate(last_comma_commoninitial = ifelse(last_name_count > 1, "404error", last_comma_commoninitial)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
   
   # # drop common last when there are multiple members with the same name
   # # commented out because I am option to over match and then drop people in merge, then fail to match people with the same name 
@@ -682,7 +717,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "\\^NA |^NA | NA |^NA, | NA, |, NA\\$| NA\\$| NA$|404error"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "\\bNA\\b|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 
@@ -707,18 +742,16 @@ members %<>%
                      last_comma_commoninitial, # needed for VA, common name initials like Goodlatte, B. and Durbin, D.
                      chamber_last, 
                      #last_comma_first_maiden, # this seems redundent
-                     firstinitial_middleinitial_last,
-                     # last_comma_firstinitial_middleinitial, #FIXME check in CMS "Carter, E.L." and "Butterfield, G. K."
-                     first_addlast,
-                     first_last_addlast,
-                     last_addlast_comma_first
-                     
-                     
-  ) %>%
-    unique() %>%
-    str_subset("404error", negate = T) %>%
-    str_c(collapse = "|") %>%
-    tolower() ) %>%
+                     firstinitial_middleinitial_last
+                     # last_comma_firstinitial_middleinitial, seems redundent #FIXME check in CMS "Carter, E.L." and "Butterfield, G. K."
+                     #first_addlast,
+                     #first_last_addlast,
+                     #last_addlast_comma_first
+                     ) %>%
+    unique() %>% # unique matches 
+    str_subset("404error", negate = T) %>% # drop missing
+    str_c(collapse = "|") %>% # sep with OR 
+    tolower() ) %>% # lower case 
   ungroup()
 
 
