@@ -109,7 +109,7 @@ cleanFROMcolumn <- function(FROM){
   #removing double commas
   FROM %<>% str_replace(",+ |, ,", ", ")
   FROM %<>% str_replace(",+ |, ,", ", ")
-  FROM %<>% str_replace(",,", ",")
+  FROM %<>% str_replace_all(",,", ",")
   
   #removing spaces before commas
   FROM %<>% str_replace(" ,", ", ") 

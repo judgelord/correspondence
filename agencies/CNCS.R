@@ -95,7 +95,7 @@ clean <- function(file.name) {
   
   Unfoundnames %>% 
     #filter(str_detect(FROM, "Representative|Senator")) %>% 
-    #select(-string) %>% 
+    select(-string) %>% mutate(FROM = str_remove(FROM, "^NA ")) %>% arrange(-n, FROM) %>% 
     kable()
   
   Unfoundnames %<>% extractMemberName(members, "FROM")
