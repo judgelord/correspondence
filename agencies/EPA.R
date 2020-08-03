@@ -5,8 +5,24 @@
 
 clean <- function(file.name) {
   # get data from google drive
-  data <- gs_title(file.name) %>% gs_read()
+  data1 <- gs_title(file.name) %>% gs_read()
+  #FIXME "EPA Devin" expands on EPA Julia, which expands on EPA Adam, right? These need to be combined in the clean script calculating inter-coder reliabity
+  data2 <- gs_title("EPA Devin") %>% gs_read() 
   
+  data <- data1 %>% full_join(data2)
+  
+  data %<>% group_by(ID) %>% 
+    summarise_all(combine_strings)
+  
+  data$TYPE %>% unique()
+  
+  #FIXME for now, just take coding from EPA Aaron, where we have corrected dates 
+  str_select <- . %>% str_remove(";;;.*")
+  
+  data %<>% mutate(across(any_of(c("TYPE", "ALT_TYPE", "CERTAINTY", "DATE")), str_select))
+  
+  # check that it worked
+  data$TYPE %>% unique()
   
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
@@ -30,18 +46,18 @@ clean <- function(file.name) {
   # create first and last name variables
   #data <- getFirstLast.Comma(data, 'FROM')
   
-  #changing from getfirstlast to extractMemberName
-  data <- extractMemberName(data, members, 'FROM')
   
   
   # create variable for chamber position  (Senator or Representative)
   data %<>%
-    mutate(chamber = ifelse (grepl("Senate|SENATE", FROM), "Senate", NA)) %>%
+    mutate(chamber = ifelse (grepl("Senate|SENATE", FROM, ignore.case = T), "Senate", NA)) %>%
     mutate(chamber = ifelse(
-      grepl("Representative|REPRESENTATIVE|Repesentatives", FROM),
+      grepl("Representative|REPRESENTATIVE|Repesentatives", FROM, ignore.case = T),
       "House",
       chamber
     )) 
+  
+  data %<>% muate(FROM = paste(chamber, FROM))
   
   # create state variable (if given)
   data %<>%
@@ -60,10 +76,15 @@ clean <- function(file.name) {
   data %<>%
     mutate(state =  ifelse(grepl(pattern = "\\W+", x = state), NA, state))
   
+  
   data$state %<>% stateFromLower()
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+  
+  #changing from getfirstlast to extractMemberName
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%
