@@ -658,11 +658,11 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   
   if("chamber" %in% names(data)){
     # add chamber to string if not NA 
-    data %<>% mutate(FROM = ifelse(!is.na(chamber), 
-                                   paste(chamber, FROM) %>% 
+    data %<>% mutate(string = ifelse(!is.na(chamber), 
+                                   paste(chamber, string) %>% 
                                      str_replace("House", "Represenative") %>% 
                                      str_replace("Senate", "Senator"), 
-                                   FROM))
+                                   string))
     
     # drop chamber 
     data %<>% select(-chamber)
@@ -692,13 +692,15 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     select(-first_name, -last_name, -pattern)
     
     # clean up text
-    data$string %<>% cleanFROMcolumn()
+    data$string %<>% cleanFROMcolumn() 
 
     # correct common OCR errors
     data$string %<>% ocr.errors()
     
     # lower case 
-    data$string %<>% tolower()
+    data$string %<>% tolower() %>% 
+      str_replace("senator senator", "senator") %>% 
+      str_replace("represenative representative", "representative")
 
     # na's pasted in 
     data$string %<>% str_remove("^na ")

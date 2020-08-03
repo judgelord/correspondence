@@ -88,21 +88,18 @@ clean <- function(file.name) {
 
   
   #Filter for stil unnamed
+  if(F){
   Unfoundnames <- data %>% 
     filter(is.na(last_name), is.na(ERROR)) %>% 
     count(FROM, string, congress, sort= T)
   
-  Unfoundnames %>% filter(str_detect(FROM, "Representative|Senator")) %>% kable()
+  Unfoundnames %>% 
+    #filter(str_detect(FROM, "Representative|Senator")) %>% 
+    #select(-string) %>% 
+    kable()
   
   Unfoundnames %<>% extractMemberName(members, "FROM")
-  
-  #Create ID
-  data %<>%
-    mutate(ID = row_number())
-      
-  
-  
-  
+  }
   
  #Notes for multiple unnamed members 
   data %<>%
