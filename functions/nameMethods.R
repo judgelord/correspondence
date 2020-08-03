@@ -54,7 +54,7 @@ if(F){
 cleanFROMcolumn <- function(FROM){
 
   # remove +
-  FROM %<>% str_remove('\\+', "")
+  FROM %<>% str_remove('\\+')
   
   # remove common names in quotes 
   FROM <- gsub('\\"(Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
