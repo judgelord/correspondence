@@ -5,6 +5,8 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "Hillary Rodham Clinton", "Hillary Rodham Clintor",
+  "jose. serrano", "jose serrano",
+  "biggert", "bigger!", #SSA OCR
   "Benjamin", "Ben jamin",#FTC
   "Ne lson", "Nelson", #FTC
   "FILNER, B", "FILNERB", #OSDJDS 
@@ -125,6 +127,12 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
+  "Mark", "Pocan", "Pecan",
+  "Nita", "LOWEY", "Lewey",
+  "Sean Patrick", "Maloney", "Malone\\b",
+  "Stephanie Tubbs", "Jones", "Jone\\b",
+  "Frelinghuysen", "Frelinghuyse\\b",
+  "Larry", "Bucshon", "Buchon",
   "Barbara", "Cubin", "Gubin",
   "Bradley", "BYRNE", "Byne",
   "Dutch", "RUPPERSBERGER", "Ruppersberge\\b",

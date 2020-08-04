@@ -128,6 +128,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(  (first_name == "Alfred")&(common_name==""), "Al", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Donald")&(common_name==""), "Don", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Don")&(common_name==""), "Donald", common_name)) %>% 
+     mutate(common_name = ifelse(  (first_name == "Samuel")&(common_name==""), "Sam", common_name)) %>% 
   
     # Specific common names 
     mutate(common_name = ifelse(bioname == "GRUCCI, Jr., Felix J.", "Phil", common_name)) %>%
@@ -319,6 +320,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(grepl("LABRADOR, Ra.l R.", bioname), "Raul", first_name)) %>% 
   
   # middle name
+     mutate(middle_name = ifelse(bioname == "SUOZZI, Thomas", "Richard", middle_name)) %>% 
       mutate(middle_name = ifelse(bioname == "DENT, Charles W.", "Weider", middle_name)) %>% 
      mutate(middle_name = ifelse(bioname == "KATKO, John", "Michael", middle_name)) %>% 
      mutate(middle_name = ifelse(bioname == "McSALLY, Martha", "Elizabeth", middle_name)) %>% 
@@ -769,12 +771,7 @@ suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initi
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses)
   
-  members %>% select(congress, pattern, bioname, 
-                first_name, last_name, icpsr, 
-                party_name, party_code, state, state_abbrev, chamber, party_size,
-                seo_name, district_code, id, cqlabel,bioImgURL, 
-                district_code, nominate.dim2, nominate.dim1, nominate.geo_mean_probability) %>% 
-    distinct()
+
 
   
   save(members, file = "members/members.Rdata")
