@@ -57,10 +57,10 @@ cleanFROMcolumn <- function(FROM){
   FROM %<>% str_remove('\\+')
   
   # remove common names in quotes 
-  FROM <- gsub('\\"(Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
+  FROM <- gsub('\\"(Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy|Andy)\\"', "", FROM, ignore.case = TRUE)
   
   # remove common names in parentheses
-  FROM <- gsub('\\((Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy)\\)', "", FROM, ignore.case = TRUE)
+  FROM <- gsub('\\((Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy|Andy)\\)', "", FROM, ignore.case = TRUE)
   
   
   # remove paragraph breaks

@@ -5,13 +5,15 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "Hillary Rodham Clinton", "Hillary Rodham Clintor",
-  "FILNER, B", "FILNERB",
+  "Benjamin", "Ben jamin",#FTC
+  "Ne lson", "Nelson", #FTC
+  "FILNER, B", "FILNERB", #OSDJDS 
   "merkley", "merkely",
-  "SOUDER, M", "SOUDERM",
+  "SOUDER, M", "SOUDERM", # all of the ones like this are from OSDJS, may want to move to that script
   "HALL, J", "HALLJ",
   "RANGEL, C", "RANGELC",
   "TURNER, M", "TURNERM",
-  "TIAHRT, T", "TIAHRl, T",
+  "TIAHRT, T", "TIAHRl, T", # this is a OCR error, but unclear what the universal fix would be
   "BOCCIERI, J", "BOCCIERL, J",
   "BONNER, J", "BONNERJ",
   "FRANK, B", "FRANKB",
@@ -28,8 +30,8 @@ typos_clear <- tribble(
   "BUTTERFIELD, G.K." ,"BUTTERFIELD, G. K.", # silly but this is how it is in voteview
   "G.K. BUTTERFIELD" ,"G. K. BUTTERFIELD", # silly but this is how it is in voteview
   "Diaz Barragan", "(D.az Barrag.n|D.az Barrag..n)",
-  "FEINGOLD", "FEINGOL($| )", #FIXME - should just be not D
-  "FILNER B", "FILNERB",
+  "FEINGOLD", "FEINGOL\\b", #FIXME - should just be not D
+  "FILNER, B", "FILNERB",
   "Butterfield, G K", "Butterfield, GK",
   "EDWARDS, DONNA", "EDWARD, DONNA",
   "Andre Carson", "Andre' Carson",
@@ -56,6 +58,9 @@ typos_clear <- tribble(
   "Martin","Martrin", 
   "VISCLOSKY", ".isclosky",
   "Murphy", "Murhpy",
+  "Fitzpatrick", "Fitzpatric\\b",
+  "DeFazio", "Def azio",
+  "Inslee", "lnslee", # OCR error, e.g. in FTC
   "Sanchez", "S.nchez",
   "Gutierrez", "(Guitierrez|GUTI.RREZ|Gut.errez)",
   "Melissa", "Melisssa",
@@ -120,6 +125,10 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
+  "Barbara", "Cubin", "Gubin",
+  "Bradley", "BYRNE", "Byne",
+  "Dutch", "RUPPERSBERGER", "Ruppersberge\\b",
+  "Heath", "Shuler", "Schuler",
   "Glenn", "Grothman", "Grotham",
   "Jaime", "Herrera Beutler", "(Herrera|Beutler)",
   "Harold", "Rogers", "Rodgers",
