@@ -18,7 +18,9 @@ clean <- function(file.name) {
   
   
   # Remove rows containing NA in both FROM and SUBJECT column
-  data <- data[!(is.na(data$FROM)&is.na(data$SUBJECT)),]
+  data %<>% mutate(SUBJECT = replace_na(SUBJECT, "NA"),
+                   FROM = replace_na(FROM, "NA")) %>% 
+    filter(!(SUBJECT == "NA" & FROM == "NA"))
   
 
   # create agency column
@@ -27,13 +29,15 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$originalDATE <- data$DATE
   data %<>% select(originalDATE, DATE, everything())
-  data$DATE <- gsub("/20 10","10",data$DATE)
+  data$DATE <- gsub("/20 10","/10",data$DATE)
   data$DATE <- gsub(" .*","",data$DATE)
   data$DATE <- gsub("/200","/0",data$DATE)
   data$DATE <- gsub("/201","/1",data$DATE)
   data$DATE <- gsub("-201", "-1", data$DATE) 
   data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE %<>% multidate( c("%m-%d-%y","%m/%d/%y"))
+  
+  data %>% filter(is.na(DATE)) %>% select(LetterID, originalDATE, FROM, SUBJECT, SUBJECT2) %>% distinct() %>% kable()
   
   #checking for NA dates
   NOdate <- data %>%
@@ -153,8 +157,8 @@ clean <- function(file.name) {
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR),
-           is.na(NOTES))  
+           is.na(ERROR)) %>% 
+    count(FROM, string, congress, sort = T)
   
   
   
