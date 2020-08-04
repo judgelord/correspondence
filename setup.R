@@ -106,32 +106,28 @@
   gs_title <- function(file.name){googledrive::drive_get(file.name)}
   
   # authenticate google sheets
-  googlesheets4::gs4_auth()
-  Sys.sleep(2) # wait a sec
-  1
+  googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
 
   # authenticate google drive
-  googledrive::drive_auth(email = gargle::gargle_oauth_email())
-  Sys.sleep(2) # wait a sec
-  1
+  googledrive::drive_auth(email = "correspondenceresearch@gmail.com")
   
   
   
-  str_add <- function(string, addition, sep = ";"){
-    ifelse(is.na(string), 
-           addition, 
-           str_c(string, addition, sep = sep))
-  }
-  
-  c("adf",NA, NA, "test", "dfa") %>% str_add_if("tst", condition = T)
-  
-  str_add_if <- function(string, 
-                         condition = TRUE, 
-                         addition, 
-                         sep = ";"){
-    ifelse(condition,
-           ifelse(is.na(string), 
-                  addition,
-                  str_c(string, addition, sep = sep)),
-           string)
-  }
+  # str_add <- function(string, addition, sep = ";"){
+  #   ifelse(is.na(string), 
+  #          addition, 
+  #          str_c(string, addition, sep = sep))
+  # }
+  # 
+  # c("adf",NA, NA, "test", "dfa") %>% str_add_if("tst", condition = T)
+  # 
+  # str_add_if <- function(string, 
+  #                        condition = TRUE, 
+  #                        addition, 
+  #                        sep = ";"){
+  #   ifelse(condition,
+  #          ifelse(is.na(string), 
+  #                 addition,
+  #                 str_c(string, addition, sep = sep)),
+  #          string)
+  # }
