@@ -70,10 +70,10 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Duncan Hunter") & is.na(last_name) & ! str_detect(congress, "110"), "Wrong Duncan, Duplicate", ERROR))
   
   #Checks for observations still NA
-  notfound2 <- data %>%
+  Unfoundnames <- data %>%
    filter(is.na(last_name), 
    is.na(ERROR),
-   ! str_detect(FROM, "Kay Bailey Hutchison"))
+   !str_detect(FROM, "Kay Bailey Hutchison")) %>% count(FROM, congress, sort = T)
   
   
  # Unmatched <- d %>%
@@ -82,4 +82,5 @@ clean <- function(file.name) {
 
   return(data)
   
-  }
+}
+

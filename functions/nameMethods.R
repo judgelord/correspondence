@@ -651,10 +651,13 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
 }
 
 
+
 extractMemberName <- function(data, members = members, col_name, congresses = unique(data$congress)){
   
   # provided col name is string to format and extract names from
   data %<>% mutate(string = data[[col_name]])
+  # FOR TESTING 
+  # col_name <- "FROM"
   
   if("chamber" %in% names(data)){
     # add chamber to string if not NA 
@@ -667,9 +670,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     # drop chamber 
     data %<>% select(-chamber)
     }
-      
-      # FOR TESTING 
-      # col_name <- "FROM"
+
   t <- Sys.time()
   
   # Add ID if missing 
@@ -682,7 +683,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)
   data$congress %<>% as.numeric()
-  
+  data$congress %<>% replace_na(0)
 
   
   # joining with members requires these variables are not there
@@ -694,7 +695,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     # clean up text
     data$string %<>% cleanFROMcolumn() 
 
-    # correct common OCR errors
+     # correct common OCR errors
     data$string %<>% ocr.errors()
     
     # lower case 
