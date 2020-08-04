@@ -5,6 +5,10 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "Hillary Rodham Clinton", "Hillary Rodham Clintor",
+  "Thornberry", "Thomberry",
+  "BUERKLE", "Beurkle",
+  "BYRNE", "Byme",
+  "Rockefeller", "Rockefe ller",
   "jose. serrano", "jose serrano",
   "biggert", "bigger!", #SSA OCR
   "Benjamin", "Ben jamin",#FTC
@@ -91,6 +95,7 @@ typos_clear <- tribble(
   "YOUNG, DON","YOUNG. DON",
   "Van Hollen, Chris","Hollen, Chris Van",
   "Chip Pickering", "\\(Chip\\) Pickering",
+  "Frelinghuysen", "Frelinghuyse\\b",
   "Butch Otter", "\\(Butch\\) Otter",
   "Kit Bond", "\"Kit\" Bond",
   "Duke Cunningham", "\\(Duke\\) Cunningham",
@@ -107,7 +112,8 @@ typos_clear <- tribble(
   "Johnson, Henry", "Johnson Henry",
   "Bono, Mary", "Bono Mary",
   "Rahall, Nick", "Rahall Nick",
-  "Lee, Jackson", "Lee Jackson",
+  "Jackson Lee", "(Lee Jackson|Jackson-Lee)",
+  "Westerman", "Westeman", #SSA
   "Conaway, Michael", "Conaway Michael",
   "Griffith, Morgan", "Griffith Morgan",
   "Womack, Steve", "Womack Steve",
@@ -128,10 +134,10 @@ typos_clear <- tribble(
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
   "Mark", "Pocan", "Pecan",
+  "Aaron", "Schock", "S chock",
   "Nita", "LOWEY", "Lewey",
   "Sean Patrick", "Maloney", "Malone\\b",
   "Stephanie Tubbs", "Jones", "Jone\\b",
-  "Frelinghuysen", "Frelinghuyse\\b",
   "Larry", "Bucshon", "Buchon",
   "Barbara", "Cubin", "Gubin",
   "Bradley", "BYRNE", "Byne",
