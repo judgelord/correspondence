@@ -56,39 +56,40 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, ";")) %>% 
     unnest(FROM)
   
-  
+  # no longer using state as a column - but the search pattern looks for it when 
   # state
-  data %<>%
-    mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
-                          gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
-                          NA))# %>% 
+  #data %<>%
+    # mutate(state = ifelse(grepl(".*\\(.*([A-Z]{2}).*\\).*", data$FROM),
+    #                      gsub(".*\\(.*([A-Z]{2}).*\\).*", '\\1', data$FROM),
+    #                      NA))# %>% 
     # mutate(state= ifelse(grepl("(^| )Rep\\. Cartwright( |$)",data$FROM), "PA", state)) %>% 
     # mutate(state= ifelse(grepl("(^| )Sen\\. Shelby( |$)",data$FROM), "AL", state)) %>% 
     # mutate(state= ifelse(grepl("(^| )Sen\\. Boozman( |$)",data$FROM), "AR", state)) %>% 
     # mutate(state= ifelse(grepl("(^| )Rep. Hudson( |$)",data$FROM), "NC", state))
   
   
-  data$state <- stateFromLower(data$state)
+  # data$state <- stateFromLower(data$state)
   
   
   data$FROM <- gsub("(^| )(Burr|Richard Burr)( |$)", " Richard Burr ",data$FROM)
   
-  # create name variable for names with only last name info
+  # # create name variable for names with only last name info
+  # data %<>%
+  #   mutate(name =  ifelse(grepl("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", data$FROM),
+  #                         gsub("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", '\\2', data$FROM),
+  #                         NA)) %>% 
+  #   mutate(name = ifelse(grepl("^(\\w{2,})($| \\(.*)", data$FROM),
+  #                        gsub("^(\\w{2,})($| \\(.*)", '\\1', data$FROM),
+  #                        name)) %>% 
+  #   select(FROM, name, state ,everything())
+  # 
+  # # ????? where is this used below?
+  # data$name <- formatLastName(data, 'name')
+  
   data %<>%
-    mutate(name =  ifelse(grepl("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", data$FROM),
-                          gsub("^(Rep\\.|Sen\\.|\\w|\\w\\.) (\\w{2,})(| )($|\\(.*)", '\\2', data$FROM),
-                          NA)) %>% 
-    mutate(name = ifelse(grepl("^(\\w{2,})($| \\(.*)", data$FROM),
-                         gsub("^(\\w{2,})($| \\(.*)", '\\1', data$FROM),
-                         name)) %>% 
-    select(FROM, name, state ,everything())
-  
-  
-  data$name <- formatLastName(data, 'name')
-  
-  data %<>%
-    mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers \\(KY\\)|Rep\\. Rogers \\(KY 5th\\)|Rep\\. Rogers \\(KY/5th\\)|Rep\\. Rogers \\(KY-5\\)") & state %in% c("kentucky"), str_replace(FROM, "Rep\\. Rogers \\(KY\\)|Rep\\. Rogers \\(KY 5th\\)|Rep\\. Rogers \\(KY/5th\\)|Rep\\. Rogers \\(KY-5\\)", "Harold ROGERS"), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers \\(AL 3rd\\)") & state %in% c("alabama"), str_replace(FROM, "Rep\\. Rogers \\(AL 3rd\\)", "Mike Dennis ROGERS"), FROM)) %>%
+    # FIXME check that these are now matching
+    #mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers \\(KY\\)|Rep\\. Rogers \\(KY 5th\\)|Rep\\. Rogers \\(KY/5th\\)|Rep\\. Rogers \\(KY-5\\)") & state %in% c("kentucky"), str_replace(FROM, "Rep\\. Rogers \\(KY\\)|Rep\\. Rogers \\(KY 5th\\)|Rep\\. Rogers \\(KY/5th\\)|Rep\\. Rogers \\(KY-5\\)", "Harold ROGERS"), FROM)) %>%
+    #mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers \\(AL 3rd\\)") & state %in% c("alabama"), str_replace(FROM, "Rep\\. Rogers \\(AL 3rd\\)", "Mike Dennis ROGERS"), FROM)) %>%
     mutate(FROM = ifelse(str_detect(FROM, "Rep\\. Rogers") & str_detect(ACTION, " AL "), str_replace(FROM, "Rep\\. Rogers", "Mike Dennis ROGERS"), FROM))
 
   #FIXME THERE MAY BE MORE LIKE THIS WHERE WE CAN USE THE STATE TO IMPROVE NAME MATCHING 
@@ -161,7 +162,7 @@ clean <- function(file.name) {
     count(FROM, string, congress, sort = T)
   
   
-  
+  Unfoundnames %>% filter(str_detect(FROM, "\\("))
   
   
   data %<>%
