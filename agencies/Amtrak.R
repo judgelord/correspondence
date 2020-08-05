@@ -47,14 +47,14 @@ clean <- function(file.name) {
   data$first_name %<>% addFirst(data$last_name)
   
   data %<>% 
-    mutate(FROM = paste(chamber, first_name, last_name) %>% 
+    mutate(FROM = paste(chamber, first_name, last_name, State) %>% 
              str_replace("NA", " ") %>% 
              str_replace("Senate", "Senator") %>% 
-             str_replace("House", "Representative") )
+             str_replace("House", "Representative") %>% str_squish() )
   
   data %<>% extractMemberName(members, 'FROM')
 
-  data$state <- stateFromLower(data$State)
+  #data$state <- stateFromLower(data$State)
   
   
   #Failing observations
