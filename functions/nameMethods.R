@@ -674,7 +674,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   if("state" %in% names(data)){
     # FIXME add state_abbrev to string if not NA 
     data %<>% mutate(string = ifelse(!is.na(state),
-                                     paste(string, stateFromFull(state)),
+                                     paste(string, "-", stateFromFull(state)),
                                      string))
     
     # drop state
@@ -714,8 +714,10 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
       str_replace("represenative representative", "representative")
 
     # na's pasted in 
+    data$string %<>% str_replace("na politano", "napolitano")
     data$string %<>% str_remove("^na ")
     data$string %<>% str_remove("^na ")
+    data$string %<>% str_replace("han na\\b", "hanna")
     data$string %<>% str_remove_all("\\bna\\b")
     
     data$string %<>% str_squish()

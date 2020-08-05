@@ -7,6 +7,9 @@ typos_clear <- tribble(
   "Hillary Rodham Clinton", "Hillary Rodham Clintor",
   "Thornberry", "Thomberry",
   "BUERKLE", "Beurkle",
+  "NAPOLITANO","na politano",
+  "NADLER", "NA DLER",
+  "RE CCI", "RENACCI",
   "BYRNE", "Byme",
   "Rockefeller", "Rockefe ller",
   "jose serrano","jose. serrano",
@@ -50,6 +53,7 @@ typos_clear <- tribble(
   "Cummings", "(Cummins|Cwnmings)",
   "Ellmers", "Ellrners",
   "TONKO", "TONKA",
+  "BLUMENAUER", "blume uer",
   "Darrell Issa", "DarrellIssa",
   "Phil ", "Phill ", # I added a space because it seems risky to match Phill...
   "LaMalfa", "LaMalfn",
@@ -133,6 +137,7 @@ typos_clear <- tribble(
 # FREQUENT LAST NAME TYPOS WHERE WE ALSO WANT TO SEE THE FIRST NAME 
 typos_last <- tribble(
   ~first_name, ~last_name, ~last_name_typos,
+  "Richard", "Hanna", "Han\\b",
   "Mark", "Pocan", "Pecan",
   "Aaron", "Schock", "S chock",
   "Nita", "LOWEY", "Lewey",
