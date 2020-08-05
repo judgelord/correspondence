@@ -139,6 +139,7 @@ formatLastName <- function(data, col_name){
     str_replace_all(" NA ", " ") %>%
     str_remove_all("^NA | NA$") %>% 
     str_remove_all("^NA | NA$") %>% 
+    # remove anything in parentheses
     str_remove_all("\\(.*\\)") %>% 
     str_squish()
   
