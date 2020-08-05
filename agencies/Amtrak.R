@@ -54,7 +54,7 @@ clean <- function(file.name) {
   
   data %<>% 
     mutate(FROM = paste(chamber, first_name, last_name, State) %>% 
-             str_replace("NA", " ") %>% 
+             str_replace("\\bNA\\b", " ") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative") %>% str_squish() )
   
