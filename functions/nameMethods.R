@@ -642,7 +642,7 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
   suppressMessages(
   data %<>% 
     # join in members data by pattern 
-    left_join(members %>% select(pattern, first_name, last_name, congress) ) %>% #, by = c("pattern", "congress")) %>% 
+    left_join(members %>% select(pattern, first_name, last_name, congress, chamber) ) %>% #, by = c("pattern", "congress")) %>% 
     mutate(first_name = as.character(first_name),
            last_name = as.character(last_name))
   )
@@ -750,7 +750,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     # New ID since function may split out multiple members if found
     data$ID %<>% formatC(width=6, flag="0")
     
-    data %<>% select(LetterID, ID, congress, string, pattern, everything())
+    data %<>% select(LetterID, ID, congress, string, pattern, chamber, everything())
     
     return(data)
 }

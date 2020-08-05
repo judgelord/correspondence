@@ -9,10 +9,10 @@ typos_clear <- tribble(
   "BUERKLE", "Beurkle",
   "BYRNE", "Byme",
   "Rockefeller", "Rockefe ller",
-  "jose. serrano", "jose serrano",
+  "jose serrano","jose. serrano",
   "biggert", "bigger!", #SSA OCR
   "Benjamin", "Ben jamin",#FTC
-  "Ne lson", "Nelson", #FTC
+  "Nelson", "Ne lson", #FTC
   "FILNER, B", "FILNERB", #OSDJDS 
   "merkley", "merkely",
   "SOUDER, M", "SOUDERM", # all of the ones like this are from OSDJS, may want to move to that script
