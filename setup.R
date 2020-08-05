@@ -57,7 +57,7 @@
   library(googlesheets4)
   library(googledrive)
   
-  source(here("functions/clean.R")) # data cleaning and intercoder agreement functions are in clean.R, clean3.R is a minimial version of this that makes fewer corrections
+  source(here("functions/clean2.R")) # data cleaning and intercoder agreement functions are in clean.R, clean3.R is a minimial version of this that makes fewer corrections
   
   source(here("functions/stateFromLower.R")) # format state names
   source(here("functions/dateMethods.R"))

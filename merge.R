@@ -2,11 +2,15 @@
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
-1 #FIXME need to set correspondenceresearch email as default to avoide this
-1
 
 
-
+# Vars from members data to keep and merge in
+members %<>% select(congress, pattern, bioname, 
+                   first_name, last_name, icpsr, common_name,
+                   party_name, party_code, state, state_abbrev, chamber, party_size,
+                   seo_name, district_code, id, cqlabel, bioImgURL, 
+                   district_code, nominate.dim2, nominate.dim1, nominate.geo_mean_probability) %>% 
+  distinct()
 
 ########################
 # Master list of data: #
@@ -162,17 +166,6 @@ data_list <- tribble(
 data_list
 
 
-# log in to google drive
-# with cached key (unclear why this is not working)
-drive_auth(email = "correspondenceresearch@gmail.com",
-           path = "drive-key.json")
-
-# with browser (this is tricky on the linux server)
-drive_auth(email = "correspondenceresearch@gmail.com")
-1 # if it askes which email to use, use correspondenceresearch since you may have more than on sheet with a given name
-googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
-1
-
 # if authorized, this should work
 drive_get("RRB")
 
@@ -201,9 +194,13 @@ d1 <- clean.agency(
   status = as.character(data_list[i, 2]),
   coders = as.character(data_list[i, 3]))
 
+d1$chamber
+names(d1)
+d1 %>% filter(pattern != "404error", is.na(bioname)) %>% count(pattern, congress, sort = T)
+
 suppressMessages(
   d1 %<>% 
-    #select(-chamber) %>% 
+    select(-chamber) %>% 
     left_join(members) %>% 
     select(LetterID, ID, 
            DATE, year, congress, 
@@ -215,7 +212,8 @@ suppressMessages(
     distinct()
 )
 
-
+d1$bioname
+d1$chamber
 d1$DATE %<>% as.Date()
 
 
@@ -223,15 +221,18 @@ d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
 
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
-d1 %>% filter(is.na(chamber))
+# if this yeilds anything, something is wrong (obs are failing to match in the members file)
+d1 %>% filter(is.na(chamber), pattern != "404error") %>% count(pattern, congress)
 
+d1$chamber
 missing_data <- d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
   add_count(agency, NAs) %>% 
   filter(NAs == "missing")
-missing_data$FROM
 
-missing_data %<>% select(agency, DATE, FROM, congress, LetterID, ID, ERROR) %>% extractMemberName(members, "FROM")
-missing_data
+missing_data %<>% select(agency, DATE, FROM,congress, LetterID, ID, ERROR) %>% extractMemberName(members, "FROM")
+# if this yeilds anything, something is wrong (obs are failing to match in the members file)
+missing_data %>% select(FROM,pattern, chamber) %>% filter(!is.na(pattern))
+####################
 ####################
 # Save 
 file.name <- str_c("data/agencies/", 
@@ -252,8 +253,7 @@ save(d1, file = file.name)
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 
 ## Resume 
-# data_list %<>% filter(!agency %in% (list.files("data/agencies") %>% str_remove(".Rdata")))
-# data_list %<>% filter(row_number() >= which(data_list$agency == "CNCS")) 
+# data_list %<>% filter(row_number() > which(data_list$agency == "SSA")) 
 
 # subset by date
 if(F){
@@ -271,7 +271,7 @@ if(F){
 
 head(data_list)
 
-i <- 1
+i <- 1 # FIXME with purr walk + error handeling
 while(!is.na(data_list[i,1])) {
   
   base::message(inverse("----", data_list$agency[i], "----"))
@@ -295,7 +295,7 @@ while(!is.na(data_list[i,1])) {
     distinct()
   )
   
-  d %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
+  d1 %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
                 SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR, 
                 CONSTITUENT_TYPE, CONSTITUENT_CLASS,
                 first_name, last_name, icpsr, party_name, party_code, state, state_abbrev, chamber, 
@@ -344,6 +344,10 @@ data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 # Check for NAs in LetterID
 d %>% filter(is.na(LetterID)) %>% count(agency) %>% arrange(agency) %>% kable()
 
+# check for consistant ID digets
+unique(nchar(d$LetterID))
+filter(d, nchar(LetterID) != 6) %>% select(agency) %>% distinct()
+
 #FIXME can remove, as this is now above
 d %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
               SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR, 
@@ -367,14 +371,46 @@ nrow(d)
 load("draw.Rdata")
 nrow(draw)
 
-full_join(d1 %>% group_by(agency) %>% filter(!is.na(icpsr)) %>% count(name = "d"),
-          draw %>% group_by(agency) %>% filter(!is.na(icpsr)) %>% count(name = "draw") ) %>%
-  mutate(change = d-draw) %>% arrange(change) %>% filter(change != 0)
+change <- full_join(d %>% 
+            group_by(agency) %>% 
+            filter(!is.na(icpsr)) %>% 
+            count(name = "d"),
+          draw %>% 
+            group_by(agency) %>% 
+            filter(!is.na(icpsr)) %>% 
+            count(name = "draw") ) %>%
+  mutate(change = d-draw) %>% 
+  arrange(change) %>% 
+  filter(change != 0) 
 
+change %>% kable()
+
+
+changed <- full_join(draw %>%
+                       filter(!is.na(icpsr)) %>% 
+                       select(agency, FROM, pattern) %>% 
+                       distinct() %>% mutate(in_draw = TRUE),
+                     d %>%
+                       filter(!is.na(icpsr)) %>% 
+                       select(agency, FROM) %>% 
+                       distinct() %>% mutate(in_d = TRUE) )
+
+missing <- changed %>% filter(is.na(in_d))
+
+draw %>% filter(!is.na(icpsr), FROM %in% missing$FROM) %>% count(agency, str_sub(FROM, 1, 40), sort = T) %>% kable()
+
+# broken
+missing %>% 
+  add_count(agency, sort = T, name = "per_agency") %>% count(per_agency, agency, FROM) %>% 
+  write_csv("changed_names.csv")
+  # top_n(100) %>% kable()
+
+# fixed 
+changed %>% filter(agency == "DHHS_CMS", is.na(d )) 
 #FIXME We should drop all unecessary vars and add them back in later to make post-merge processing go faster
 
 
-
+names(d)
 
 # if things look good, save new raw file
 # archive raw version of merged data 
@@ -585,8 +621,6 @@ d %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>%
   arrange(DATE) %>% distinct() %>% 
   select(agency, bioname, DATE, SUBJECT, TYPE, n)
 
-# a function to combine
-combine_strings <- . %>% unique() %>% str_c(collapse = ";;;")
 
 duplicates <- d %>% 
   group_by(DATE, agency, bioname, SUBJECT) %>% # with the same icpsr and date
