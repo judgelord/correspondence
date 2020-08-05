@@ -58,7 +58,8 @@ clean <- function(file.name) {
   
   # replace spaces with comma space
   data$FROM %<>% str_replace(" ", ", ") 
-  data$FROM %<>% str_replace(",+ ", ", ")
+  data$FROM %<>% str_replace(",", ", ") 
+  data$FROM %<>% str_replace("(, )+", ", ")
   #data$FROM <- gsub("\\\\1", "VI", data$FROM)
 
   # fix problems caused by spaces in compound names 
