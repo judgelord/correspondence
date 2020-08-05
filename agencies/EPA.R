@@ -9,7 +9,7 @@ clean <- function(file.name) {
   #FIXME "EPA Devin" expands on EPA Julia, which expands on EPA Adam, right? These need to be combined in the clean script calculating inter-coder reliabity
   data2 <- gs_title("EPA Devin") %>% gs_read() 
   
-  data <- data1 %>% full_join(data2)
+  data <- data2 %>% full_join(data1)
   
   data %<>% group_by(ID) %>% 
     summarise_all(combine_strings)
