@@ -642,7 +642,7 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
   suppressMessages(
   data %<>% 
     # join in members data by pattern 
-    left_join(members %>% select(pattern, first_name, last_name, congress, chamber) ) %>% #, by = c("pattern", "congress")) %>% 
+    left_join(members %>% select(pattern, first_name, last_name, congress, chamber, state) ) %>% #, by = c("pattern", "congress")) %>% 
     mutate(first_name = as.character(first_name),
            last_name = as.character(last_name))
   )
@@ -669,7 +669,17 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     
     # drop chamber 
     data %<>% select(-chamber)
-    }
+  }
+  
+  if("state" %in% names(data)){
+    # FIXME add state_abbrev to string if not NA 
+    data %<>% mutate(string = ifelse(!is.na(state),
+                                     paste(string, stateFromFull(state)),
+                                     string))
+    
+    # drop state
+    data %<>% select(-state)
+  }
 
   t <- Sys.time()
   
