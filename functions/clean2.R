@@ -54,7 +54,7 @@ clean.agency <- function(agency, status, coders) {
   # completing incomplete vars which will be used in merge
   for (i in 1:length(members$id)) {
     if (sum(c("first_name", "last_name", "state", "chamber", "congress") %in% names(data)) == 5) {
-  mutate(
+  data %<>% mutate(
     state = ifelse(
       is.na(state) &
         !is.na(last_name) & !is.na(first_name) & !is.na(congress) & !is.na(chamber) &
