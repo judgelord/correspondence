@@ -57,7 +57,7 @@ clean <- function(file.name) {
       chamber
     )) 
   
-  data %<>% mutate(FROM = paste(chamber, FROM))
+  # data %<>% mutate(FROM = paste(chamber, FROM))
   
   # create state variable (if given)
   data %<>%
