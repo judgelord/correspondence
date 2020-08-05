@@ -100,22 +100,38 @@ members %<>% full_join(
 ) %>% filter(!is.na(bioname))
 nrow(members)
 
+members %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, chamber, position) %>% 
+    group_by(icpsr, congress, chamber) %>% 
+    top_n(1, wt = position) %>% 
+    distinct()
+  ) %>% filter(!is.na(bioname))
+nrow(members)
 
+members %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, chamber, position) %>% 
+    group_by(icpsr, congress, chamber) %>% 
+    top_n(1, wt = position) %>% 
+    distinct()
+) %>% filter(!is.na(bioname))
+nrow(members)
 
+members %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, chamber, majority) %>% 
+    group_by(icpsr, congress, chamber) %>% 
+    top_n(1, wt = majority) %>% 
+    distinct()
+) %>% filter(!is.na(bioname))
+nrow(members)
 
+members %<>% full_join(
+  committees %>% dplyr::select(icpsr,congress, chamber, majority) %>% 
+    group_by(icpsr, congress, chamber) %>% 
+    top_n(1, wt = majority) %>% 
+    distinct()
+) %>% filter(!is.na(bioname))
+nrow(members)
 
-
-# FIXME
-vars <- c("congress", "icpsr", "chamber", "chair", "ranking_minority", "party_leader", "party_whip", "speaker", "position", "majority", "prestige", "prestige_chair", "committees", "chair_of", "yearelected", "chair_since_2007")
-
-Unfoundnames <- members %>% 
-  select(vars, bioname) %>% 
-  filter(is.na(chair), 
-         chamber != "President", 
-         !congress %in% c(105, 116)) %>% 
-  count(congress, bioname, chamber, icpsr) %>% select(-n) 
-
-Unfoundnames%>% kable()
 
 # FIXME 
 # ADD BELOW TO MemberNameDateCorrections.R fix.member.dates function:
@@ -153,19 +169,19 @@ members %<>% full_join(
 
 # all committee names, sep = "|"
 members %<>% full_join(
-  committees %>% dplyr::select(icpsr,congress, committees) %>% 
-    group_by(icpsr, congress) %>% top_n(1, wt = committees) %>% distinct()
+  committees %>% dplyr::select(icpsr,congress, committees, chamber) %>% 
+    group_by(icpsr, congress, chamber) %>% top_n(1, wt = committees) %>% distinct()
 ) %>% filter(!is.na(bioname))
 
 # chairs committee names
 members %<>% full_join(
-  committees %>% dplyr::select(icpsr,congress, chair_of) %>% 
-    group_by(icpsr, congress) %>% top_n(1, wt = chair_of) %>% distinct() %>% filter(!is.na(chair_of))
+  committees %>% dplyr::select(icpsr,congress, chamber, chair_of) %>% 
+    group_by(icpsr, congress, chamber) %>% top_n(1, wt = chair_of) %>% distinct() %>% filter(!is.na(chair_of))
 ) %>% filter(!is.na(bioname))
 
 # year elected 
 members %<>% full_join(
-  committees %>% dplyr::select(icpsr,congress, yearelected) %>% distinct() 
+  committees %>% dplyr::select(icpsr,congress, chamber, yearelected) %>% distinct() 
 ) %>% filter(!is.na(bioname))
 
 # Those who served as Chairs at some point
@@ -176,3 +192,20 @@ members %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(members$bion
 
 
 members %>% select(-contains(c("common", "comma", "middle", "initial", "_last","maiden")))
+
+
+
+
+# FIXME
+vars <- c("congress", "icpsr", "chamber", "chair", "ranking_minority", "party_leader", "party_whip", "speaker", "position", 
+          "majority", "prestige", "prestige_chair", "committees", "chair_of", "yearelected", "chair_since_2007")
+
+Unfoundnames <- members %>% 
+  select(vars, bioname) %>% 
+  filter(is.na(chair), 
+         chamber != "President", 
+         !congress %in% c(105, 116)) %>% 
+  count(congress, bioname, chamber, icpsr) %>% select(-n) 
+
+Unfoundnames%>% kable()
+
