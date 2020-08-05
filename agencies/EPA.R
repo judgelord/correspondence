@@ -19,7 +19,7 @@ clean <- function(file.name) {
   #FIXME for now, just take coding from EPA Aaron, where we have corrected dates 
   str_select <- . %>% str_remove(";;;.*")
   
-  data %<>% mutate(across(any_of(c("TYPE", "ALT_TYPE", "CERTAINTY", "DATE")), str_select))
+  data %<>% mutate_at(c("TYPE", "ALT_TYPE", "CERTAINTY", "DATE"), str_select)
   
   # check that it worked
   data$TYPE %>% unique()
