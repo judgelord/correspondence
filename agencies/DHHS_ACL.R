@@ -47,8 +47,7 @@ data %<>%
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+    mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) 
   
   # create variable for state
   data %<>%
