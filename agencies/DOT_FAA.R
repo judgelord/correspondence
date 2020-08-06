@@ -136,10 +136,6 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Carson, Aaron", "CARSON, Andre")) %>%
     mutate(FROM = str_replace(FROM, "Crapos, Mike", "Crapo, Mike"))
     
-    
-  
-  data %<>% extractMemberName(members, 'FROM')
-  
   
   #create variable for state
   
@@ -147,6 +143,10 @@ clean <- function(file.name) {
     mutate(state = ifelse(grepl(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United)", FROM), gsub(".*\\w{1,}(/|-)(\\w{2})( |)($| U\\.S\\.| United).*", replacement="\\2", FROM), NA))
   data$state = stateFromLower(data$state)
   
+  
+  data %<>% extractMemberName(members, 'FROM')
+  
+
   
   # ERROR
   data %<>%

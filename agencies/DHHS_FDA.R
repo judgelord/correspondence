@@ -113,9 +113,6 @@ clean <- function(file.name) {
   data$FROM %<>% trimws()
   
 
-  ################
-
-
   # #extract member names
   data <-  extractMemberName(data,members,"FROM") 
   
@@ -147,10 +144,6 @@ clean <- function(file.name) {
   data %<>%
     arrange(-nchar(FROM))
   
-  # Dropping this for now because it is incomplete and we get more observations without it
-  # If we rewrite Clean.R, we may be able to add chamber back in
-  # FIXME
-  data %<>% select(-chamber)
   
   data %>%
     filter(ID == 	6200) %>%

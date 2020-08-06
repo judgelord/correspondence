@@ -53,10 +53,7 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR)) 
   
-  
-  
-  data$SUBJECT <- data$SUBJECT
-  
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())

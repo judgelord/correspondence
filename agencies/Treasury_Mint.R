@@ -40,7 +40,7 @@ clean <- function(file.name) {
   #Extract member names from SUBJECT
   data$FROM <- data$SUBJECT
   data %<>%
-    select(-chamber) %>% #FIXME? depends on how well it works without
+    #select(-chamber) %>% #FIXME? depends on how well it works without
     extractMemberName(members = members, col_name = "FROM")
   
   #Failing observations

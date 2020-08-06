@@ -57,13 +57,15 @@ clean <- function(file.name){
   # data$last_name <- formatLastName(data, "last_name")
   # 
   
-  data %<>% extractMemberName(members, "FROM")
-  
   #Create variable for chamber (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("Senator", Position), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("Congress", Position), "House", chamber)) 
   
+  
+  data %<>% extractMemberName(members, "FROM")
+  
+
   
   # Consolidate and rename like subjects
   data %<>%

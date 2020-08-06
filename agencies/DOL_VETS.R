@@ -18,7 +18,10 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # Format date, year, Congress, member name etc. 
+  data$originaldate <- data$DATE
   data$DATE %<>% as.Date("%m/%d/%y")
+  
+  
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -31,7 +34,7 @@ clean <- function(file.name) {
     unnest(FROM)
 
   
-  data <- extractMemberName(data, members, 'FROM')
+
   
   
   # NOT SURE WHAT THIS CODE DOES 
@@ -52,8 +55,8 @@ clean <- function(file.name) {
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
   
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
   Unfoundnames <- data %>%

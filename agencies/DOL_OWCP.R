@@ -64,15 +64,17 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Hill, J. French", "HILL, French")) 
   
 
-  data %<>% extractMemberName(members, 'FROM')
-  
- 
-  
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)|Senate|Senator", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)|Representative", FROM), "House", chamber)) 
   
+  
+  data %<>% extractMemberName(members, 'FROM')
+  
+ 
+  
+
   #ERRORS
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Mathias, James N.|McElwaine, James P.|Patterson, James H.|Haynes, Gregory L.|Martin, Todd|Jerison, Deb|Robinson, Johnnie E. III|Parsons, Stephanie|McLancon, Charlie|Rafferty, Dennis Michael|North, Lynn Fraley|Muirhead, James D.|Hulegaren, Marty|Ricks, Rosena A.|Hand, Donna|Fortuno, Luis G.|Evangelisti, John S.|Dillon, Stephaine|Deloach, Lawrence E.|Crawford, Kathryn G.|Connor, Jeffrey|SC First Congressional District Office|Shahan, Theresa|Smalls, Eugene C.|Coleman, Wayne A.|Churovich, Danial|Christensen, Donna M.|Washington, Pauletta D.|Bordallo, Madeleine Z|Norton, Eleanor Holmes|Avella, Tony|Bordallo, Madeleine|Bordallo, Madeleine .|Wilson, Ruth|Knox, Wayne|Storms, Ronda|Shapiro, Alan"), "Not Member", ERROR))

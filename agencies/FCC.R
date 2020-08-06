@@ -46,9 +46,9 @@ clean <- function(file.name) {
     mutate(party = ifelse(party == "GOP", "Republican",party)) %>% 
     mutate(party = ifelse(party == "DEM", "Democrat", party))
   
-  #data <- getFirstLast.Comma(data, 'FROM')
+  # format state variable
+  data$state <- stateFromLower(gsub(".*\\(.-|\\)","", data$FROM))
   
-  #change from getfirstlast to extractmembername
   
   data <- extractMemberName(data, members, 'FROM')
   
@@ -61,9 +61,7 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR)) 
   
-  # format state variable
-  data$state <- stateFromLower(gsub(".*\\(.-|\\)","", data$FROM))
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   

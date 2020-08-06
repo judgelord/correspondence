@@ -49,9 +49,7 @@ clean <- function(file.name) {
    mutate(FROM = str_remove(FROM, " Cong$|Member of Congress|Congressman")) %>%
    mutate(FROM = str_remove(FROM, "Chairman"))
    
- 
- 
-    
+
 
   #Final Version with full data splits data on "/", "&", and ";" to account for multiple authors
  data %<>%
@@ -219,8 +217,6 @@ data %<>%
 #Puts all data without a comma into last name variable and 
 #Format last name and put in last_name  
 
-data %<>%
-  mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
 
 #Multiple unnamed members
 data %<>%

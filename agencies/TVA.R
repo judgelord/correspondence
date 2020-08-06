@@ -64,19 +64,7 @@ clean <- function(file.name) {
   #Error for state leg
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Reginald Tate|Jimmy Matlock|Arthur Orr|Brent Yonts|Melinda G Prunty"), "State Legislator", ERROR))
-  
-  #Format last name and put in last_name  
-  data %<>%
-    mutate(FROM = str_trim(FROM)) %>%
-    mutate(last_name = ifelse(! str_detect(FROM, " ") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
-  
-  NoFirst <- data %>%
-    filter(is.na(first_name))
-  
-  #Add first name 
-  data %<>%
-    mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
-  
+
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Duncan") & is.na(first_name), "Multiple Duncan's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Markey") & is.na(first_name), "Multiple Markey's FOIA", NOTES))

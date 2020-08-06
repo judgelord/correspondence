@@ -47,6 +47,12 @@ clean <- function(file.name) {
   
   data %<>% select(-first_name, -last_name)
 
+  #create variable for chamber
+  data %<>%
+    mutate(chamber = ifelse (grepl("Senator|Senate", Salutation), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("Representative", Salutation), "House", chamber)) %>% 
+    mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+  
   
   data <- extractMemberName(data, members, 'FROM')
   
@@ -55,12 +61,7 @@ clean <- function(file.name) {
     filter(is.na(`Last Name`),
            is.na(ERROR))  
   
-  #create variable for chamber
-  data %<>%
-    mutate(chamber = ifelse (grepl("Senator|Senate", Salutation), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", Salutation), "House", chamber)) %>% 
-    mutate(chamber = ifelse(is.na(last_name), NA, chamber))
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, chamber, everything())%>% select(-chamber)
 

@@ -47,10 +47,6 @@ clean <- function(file.name) {
   
   
   
-  
-  data <- extractMemberName(data, members, 'FROM')
-
-  
   # chamber
   data %<>%
     mutate(chamber = ifelse (grepl("(^S(-| ))|Senator|Sen\\.", FROM), "Senate", NA)) %>% 
@@ -58,6 +54,10 @@ clean <- function(file.name) {
   
   
   
+  
+  
+  data <- extractMemberName(data, members, 'FROM')
+
   
   
   # arrange columns for hand coding

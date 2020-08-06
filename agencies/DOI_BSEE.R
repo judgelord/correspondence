@@ -37,15 +37,14 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM)
   
-  data <- extractMemberName(data, members, 'FROM')
-  
   #create variable for chamber
   data %<>%
     mutate(chamber = ifelse (grepl("Sen.", FROM), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("Rep.", FROM), "House", chamber)) %>% 
     mutate(chamber = ifelse(is.na(last_name), NA, chamber))
   
-  data %<>% filter(!is.na(FROM))
+  
+  data <- extractMemberName(data, members, 'FROM')
   
   
   # arrange columns for hand coding

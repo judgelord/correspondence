@@ -58,7 +58,11 @@ clean <- function(file.name) {
     # remove possessive
     mutate(SUBJECT = str_replace_all(SUBJECT, "'s", ",")) 
 
-    
+  #Create variable for chamber position  (Senator or Representative)
+  data %<>%
+    mutate(chamber = ifelse (grepl("Senate|Senator", SUBJECT), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("Congress|Cong |Cong\\.|Rep |Rep\\.|Represe|House", SUBJECT), "House", chamber)) 
+  
   
   # create variable for first and last name
   data %<>%  extractMemberName(members, 'SUBJECT')
@@ -78,11 +82,7 @@ clean <- function(file.name) {
     full_join(unfoundnames)
   
   
-  #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (grepl("Senate|Senator", SUBJECT), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Congress|Cong |Cong\\.|Rep |Rep\\.|Represe|House", SUBJECT), "House", chamber)) 
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  SUBJECT,  everything())
   

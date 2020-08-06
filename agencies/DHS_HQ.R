@@ -184,9 +184,7 @@ data_distinct %<>% distinct() %>%
          str_detect(pattern, "404error"))
   
    
-  data %<>%
-    mutate(first_name = ifelse(grepl("M. Tia", FROM), "M. Tia", first_name)) %>%
-    mutate(last_name = ifelse(grepl("M. Tia Johnson", FROM), "Johnson", last_name))
+
   
  
   

@@ -151,17 +151,14 @@ clean <- function(file.name) {
     filter(!Blank)
   
  
-  
+
   Foundnames <- data %>%
     drop_na(last_name)
   
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "32 more congressmen"), "Multiple unnamed Members", NOTES))
   
-  #Format last name and put in last_name  
-  data %<>%
-    mutate(last_name = ifelse(!str_detect(FROM, "\\,") & is.na(last_name), formatLastName(data, 'FROM'), last_name))
-  
+
   #Unmatched
   unmatched <- data %>%
     filter(is.na(last_name))

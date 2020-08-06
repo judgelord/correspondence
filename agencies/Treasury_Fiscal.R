@@ -105,9 +105,8 @@ clean <- function(file.name) {
  
   
   
-  ## Are we sure that we want to delete all of these observations?
-  data %<>% 
-    filter(! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))
+  ## Are we sure that we want to delete all of these observations? I'm commenting this out
+  # data %<>% filter(! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"))
   
   
   # arrange columns for hand coding

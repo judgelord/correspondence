@@ -184,14 +184,14 @@ clean <- function(file.name) {
 
   # data %>% ungroup() %>% mutate(medicaid = str_detect(SUBJECT, "Medicaid|medicaid")) %>% tally(medicaid)
    
-  head(data$FROM)
-  look <- filter(data, pattern == "404error", is.na(ERROR)) %>% 
-    group_by(FROM, string) %>%
-    mutate(congress = str_c(congress, sep = ";")) %>%
-    count(FROM, string, congress, sort = T)  
-  
-  look %<>% ungroup() %>% select(-string) %>% extractMemberName(col_name = "FROM", members = members)
-  
+  # head(data$FROM)
+  # look <- filter(data, pattern == "404error", is.na(ERROR)) %>% 
+  #   group_by(FROM, string) %>%
+  #   mutate(congress = str_c(congress, sep = ";")) %>%
+  #   count(FROM, string, congress, sort = T)  
+  # 
+  # look %<>% ungroup() %>% select(-string) %>% extractMemberName(col_name = "FROM", members = members)
+  # 
   return(data)
   
 }

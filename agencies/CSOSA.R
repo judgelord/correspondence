@@ -86,10 +86,6 @@ clean <- function(file.name) {
   #data %<>%
     #mutate(first_name = ifelse(is.na(first_name) & ! is.na(last_name) & is.na(chamber), addFirst(first_name, last_name), first_name))
   
-  #Create ID
-  data %<>%
-    mutate(ID = row_number())
-
   
    data %<>% select(ID, DATE,  FROM, last_name, chamber, SUBJECT, everything())
    
