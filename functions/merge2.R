@@ -22,6 +22,7 @@ dim(d)
 
 # COMBINE FILES 
 d <- map_dfr(files, combine)
+dim(d)
 d %<>% distinct()
 dim(d)
 d$year %<>% as.numeric()
@@ -36,6 +37,8 @@ d %>% filter(is.na(LetterID)) %>% count(agency) %>% arrange(agency) %>% kable()
 
 # check for consistant ID digets
 unique(nchar(d$LetterID))
+
+# just CDC 
 filter(d, nchar(LetterID) != 6) %>% select(agency) %>% distinct()
 
 

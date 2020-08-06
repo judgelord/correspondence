@@ -768,6 +768,8 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     data %<>% left_join(members %>% select(icpsr, pattern, bioname, first_name, last_name, congress, chamber, state) %>% distinct() ) %>% 
       distinct()
     
+    data$icpsr %<>% as.numeric()
+    
     data %<>% select(LetterID, ID, congress, string, pattern, chamber, everything())
     
     return(data)
