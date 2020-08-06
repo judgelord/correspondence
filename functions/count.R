@@ -4,14 +4,16 @@
 # df$TYPE = c(1,2,3,4,5,6,1,2,3,4,5) #FIXME TEMP
 
 # BEGIN 
+names(df)
+df %<>% select(-starts_with("per_"))
 # add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
 df %<>% mutate(icpsryear = str_c(icpsr, chamber, year, sep = "-")) %>% 
   mutate(TYPE = replace_na(TYPE, "NA") %>% str_remove(";;;.*"))
 
 # count members in the data, including 0s for agencies, years, TYPES where no letter exists
 dfac <- df %>% 
-  #mutate(across(select(agency, icpsr, TYPE, year, as.factor)) %>% 
-  mutate_at( c("agency", "icpsryear", "TYPE"), as.character())
+  # mutate(across(select(agency, icpsr, TYPE, year, as.factor)) %>% 
+  mutate_at( c("agency", "icpsryear", "TYPE"), as.factor)
   
 dcounts <- dfac %>% count(agency, icpsryear, TYPE, .drop = F, name = "per_icpsr_chamber_year_agency_type") 
 
@@ -90,15 +92,20 @@ dcounts %<>%
   ungroup() %>%
   group_by(icpsr) %>% 
   mutate(per_icpsr = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() %>% 
-  group_by(bioname, year, agency) %>% 
-  mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
   ungroup() 
 
 # add members data
 dcounts %<>%
   left_join(members) 
 nrow(dcounts)
+
+dcounts %<>% 
+  group_by(bioname, year, agency) %>% 
+  mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+  ungroup() %>% 
+  group_by(bioname, year) %>% 
+  mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+  ungroup() 
 
 # note chamber switchers 
 dcounts %<>% 
@@ -119,5 +126,6 @@ dcounts %>% filter(party_switcher) %>% select(bioname, party_name, congress) %>%
 unique(dcounts$year)
 
 save(dcounts, file =  "data/dcounts.Rdata")
+
 
 
