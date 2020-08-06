@@ -195,7 +195,7 @@ data %<>%
   # allow extractmembernames to match on state 
   data$FROM %>% str_replace("Representative Rogers, M. \\(", "Representative Rogers ")
   
-  
+  data %<>% select(-chamber)
   #Extract Member Names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
