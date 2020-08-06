@@ -45,7 +45,9 @@ clean <- function(file.name) {
   
   data %<>% mutate(DATE = coalesce(DATE3, DATE4, DATE1, DATE2))
   
-  NOdate <- filter(data, is.na(DATE)) %>% select(DATEoriginal, everything())
+  NOdate <- filter(is.na(DATE)| DATE < as.Date("2000-01-01") | DATE > as.Date("2020-01-01")) %>%
+    select(DATEoriginal, FROM, sort)
+  NOdate
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -67,15 +69,18 @@ clean <- function(file.name) {
   
   
   data %<>%
-    mutate(FROM = str_replace(FROM, "(^S(-| ))|Senator|Sen\\.", "Senator") %>%
-             str_replace("(^(R|C)(-| ))|Repres\\b|Congress\\b|Rep\\b", "Representative") )  
+    mutate(FROM = str_replace_all(FROM, "(^S(-| ))|Senator|Sen\\.", "Senator ") %>%
+             str_replace_all("(^(R|C)(-| ))|Repres\\b|Congress\\b|Rep\\b", "Representative ") )  
   
+  data$FROM %<>% str_replace_all("\\.|-", " ") %>% str_squish()
   
   data <- extractMemberName(data, members, 'FROM')
 
   Unfoundnames <- data %>% filter(is.na(last_name), 
                                   is.na(ERROR))  %>% 
     count(FROM, string, congress, pattern)
+  Unfoundnames
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
