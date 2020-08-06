@@ -53,7 +53,9 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("(^(R|C)(-| ))|Repres|Congress|Rep", FROM), "House", chamber)) 
   
   
-  
+  data %<>%
+    mutate(FROM = str_replace(FROM, "(^S(-| ))|Senator|Sen\\.", "Senator") %>%
+             str_replace("(^(R|C)(-| ))|Repres\\b|Congress\\b|Rep\\b", "Representative") )  
   
   
   data <- extractMemberName(data, members, 'FROM')
