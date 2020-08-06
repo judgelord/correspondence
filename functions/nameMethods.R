@@ -765,7 +765,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     
     # trying this out adding chamber and state from member data becasuse scripts use them post extractmembername sometimes, 
     # should not increase n because pattern is already unique to icpsr in a chamber, right?
-    data %<>% left_join(members %>% select(pattern, first_name, last_name, congress, chamber, state) %>% distinct() ) %>% 
+    data %<>% left_join(members %>% select(icpsr, pattern, bioname, first_name, last_name, congress, chamber, state) %>% distinct() ) %>% 
       distinct()
     
     data %<>% select(LetterID, ID, congress, string, pattern, chamber, everything())
