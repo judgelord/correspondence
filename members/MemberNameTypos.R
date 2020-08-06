@@ -5,6 +5,7 @@
 typos_clear <- tribble(
   ~correct, ~typos,
   "Hillary Rodham Clinton", "Hillary Rodham Clintor",
+  "Wood Hassan", "W. Hassan",
   "Thornberry", "Thomberry",
   "BUERKLE", "Beurkle",
   "NAPOLITANO","na politano",
@@ -396,6 +397,7 @@ typos_last <- tribble(
 # FREQUENT FIRST NAME TYPOS 
 typos_first <- tribble(
   ~first_name, ~last_name, ~first_name_typos,
+  "Mazie", "HIRONO", "Maize",
   "Jaime", "Harrera Beutler", "Jamie",
   "Claudia", "Tenney", "Claudi",
   "Raul", "Grijalva", "Raúl",
