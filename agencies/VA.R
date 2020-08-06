@@ -192,8 +192,10 @@ data %<>%
     mutate(FROM = ifelse(str_detect(chamber, "Senate"),#& !str_detect(FROM, ","), 
                          paste("Senator", FROM, sep = " "), FROM))
   
-  #  some chambers are incorrect, so dropping after adding top string to prevent match fails
-  data(-chamber)
+  # allow extractmembernames to match on state 
+  data$FROM %>% str_replace("Representative Rogers, M. \\(", "Representative Rogers ")
+  
+  
   #Extract Member Names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
@@ -227,7 +229,7 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Young, D."), "Multiple Young's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Senator Scott"), "Multiple Senator Scott's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES)) %>%
+    #mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Davis"), "Multiple Davis' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Rose"), "Multiple Rose's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Smith"), "Multiple Smith's FOIA", NOTES)) %>%

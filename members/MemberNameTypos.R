@@ -10,7 +10,7 @@ typos_clear <- tribble(
   "NAPOLITANO","na politano",
   "NADLER", "NA DLER",
   "Emanuel", "Emanual",
-  "RE CCI", "RENACCI",
+  "RENACCI", "RE CCI", 
   "BYRNE", "Byme",
   "Rockefeller", "Rockefe ller",
   "jose serrano","jose. serrano",
