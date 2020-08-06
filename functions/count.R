@@ -114,9 +114,10 @@ dcounts %<>%
   mutate(party_switcher = n() > 2) %>% 
   ungroup()
 
-dcounts %>% filter(party_switcher) %>% select(bioname, party, congress) %>% distinct() %>% arrange(bioname, congress) %>% kable()
+dcounts %>% filter(party_switcher) %>% select(bioname, party_name, congress) %>% distinct() %>% arrange(bioname, congress) %>% kable()
 
-dcounts %<>% mutate(year = as.numeric(year))
+unique(dcounts$year)
 
 save(dcounts, file =  "data/dcounts.Rdata")
+
 
