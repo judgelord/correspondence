@@ -95,7 +95,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   # is the chamber and state causing problems? 
-  Unfoundnames %>% count(FROM, string, congress, pattern, chamber, state, sort = T)
+  Unfoundnames %<>% count(FROM, string, congress, pattern, chamber, state, sort = T)
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REPORT TO CONGRESS|WATERS OF THE US|REQUEST INFORMATION|LEAD IN AMMUNITION|HEARING INVITE|FUEL STANDARD|CLEAN AIR ACT|AGENCY'S|REGARDING FUNDING|QUESTIONS REGARDING|PAINTING RULE|BOILER MACT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%

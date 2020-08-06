@@ -104,6 +104,7 @@ typos_clear <- tribble(
   "Butch Otter", "\\(Butch\\) Otter",
   "Kit Bond", "\"Kit\" Bond",
   "Duke Cunningham", "\\(Duke\\) Cunningham",
+  "Bachmann", "Bachman\\b",
   
 
   #"Diaz-Balart", "(Diaz($|,)|Balart($|,))", #still not working for whatever reason 

@@ -13,7 +13,7 @@ dfac <- df %>%
   #mutate(across(select(agency, icpsr, TYPE, year, as.factor)) %>% 
   mutate_at( c("agency", "icpsryear", "TYPE"), as.character())
   
-dcounts <- dfac %>% count(agency, icpsryear, TYPE, .drop = F, name = "per_icpsr_chamber_year_agency_type ") 
+dcounts <- dfac %>% count(agency, icpsryear, TYPE, .drop = F, name = "per_icpsr_chamber_year_agency_type") 
 
 # inspect
 dcounts %>% filter(per_icpsr_chamber_year_agency_type >0)
