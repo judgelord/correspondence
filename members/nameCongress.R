@@ -59,6 +59,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "WARREN, Elizabeth", "Herring", maiden_name)) %>%
     mutate(maiden_name = ifelse(bioname == "AYOTTE, Kelly", "Daley", maiden_name)) %>%
      mutate(maiden_name = ifelse(bioname == "McMORRIS RODGERS, Cathy", "McMORRIS", maiden_name)) %>%
+     mutate(maiden_name = ifelse(bioname == "LUJAN GRISHAM, Michelle", "(LUJAN|GRISHAM)", maiden_name)) %>% # Lujan is Maiden, but she is called M Grisham
     
      # common names
      # NOTE, as written this will overwrite existing common names. 
@@ -312,7 +313,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(grepl("SERRANO, Jos. E.", bioname), "Jose", first_name)) %>% 
     mutate(first_name = ifelse(grepl("CARSON, Andr.", bioname), "Andre", first_name)) %>% 
     mutate(last_name = ifelse(grepl("LUJ.N, Ben Ray", bioname), "LUJAN", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("LUJ.N GRISHAM, Michelle", bioname), "LUJAN", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("LUJ.N GRISHAM, Michelle", bioname), "LUJAN GRISHAM", last_name)) %>% 
     mutate(last_name = ifelse(grepl("BARRAG.N, Nanette Diaz", bioname), "BARRAGAN", last_name)) %>% 
     mutate(last_name = ifelse(grepl("S.NCHEZ, Linda T.", bioname), "SANCHEZ", last_name)) %>% 
     mutate(first_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", first_name)) %>% 
@@ -644,6 +645,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_commoninitial = paste0(last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "\\b"),
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
+           maiden_comma_firstinitial = paste0(maiden_name, ", ", first_initial), # e.g. Grisham, M. in VA 
            #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
            #last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
            #addlast_comma_first = paste0(add_last_name, ", ", first_name),
@@ -750,6 +752,7 @@ members %<>%
                      first_middle_initial_last,
                      first_maiden_last,
                      maiden_comma_first,
+                     maiden_comma_firstinitial,
                      common_last,
                      common_middle_last,
                      common_middle_initial_last,

@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOL_OWCP" # for testing
+# file.name <- "DOL_OWCP Rochelle" # for testing
 
 
 clean <- function(file.name) {
@@ -59,7 +59,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Representative Ben Ray Lújan", "Lújan, Ben")) %>%
     mutate(FROM = str_replace(FROM, "Reed , Thomas W. II", "REED, Thomas W. II")) %>%
     mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila")) %>%
-    mutate(FROM = str_replace(FROM, "Alexander", "ALEXANDER, Lamar")) %>%
+    #mutate(FROM = str_replace(FROM, "Alexander", "ALEXANDER, Lamar")) %>%
     mutate(FROM = str_replace(FROM, "McGovern", "McGOVERN, James P.")) %>%
     mutate(FROM = str_replace(FROM, "Hill, J. French", "HILL, French")) 
   

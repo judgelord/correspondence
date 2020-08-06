@@ -36,6 +36,7 @@ clean <- function(file.name) {
   data$agency <- file.name
   
   # First, format date, year, Congress, member name etc. (things found in all logs)
+  data$originalDate <- data$DATE
   data$DATE %<>% as.Date("%d-%b-%y")
   data$Received %<>% as.Date('%d-%b-%y')
   
@@ -85,11 +86,16 @@ clean <- function(file.name) {
   
   #changing from getfirstlast to extractMemberName
   data <- extractMemberName(data, members, 'FROM')
+
   
+    
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
            is.na(ERROR)) 
+  
+  # is the chamber and state causing problems? 
+  Unfoundnames %>% count(FROM, string, congress, pattern, chamber, state, sort = T)
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REPORT TO CONGRESS|WATERS OF THE US|REQUEST INFORMATION|LEAD IN AMMUNITION|HEARING INVITE|FUEL STANDARD|CLEAN AIR ACT|AGENCY'S|REGARDING FUNDING|QUESTIONS REGARDING|PAINTING RULE|BOILER MACT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%

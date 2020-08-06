@@ -37,7 +37,7 @@ clean <- function(file.name) {
   
   # correct typos 
   data$last_name %<>% 
-    str_replace("GRASSLE", "GRASSLEY")
+    str_replace("GRASSLE\\b", "GRASSLEY")
   
   # add first name column
   data %<>% add_first()
