@@ -40,8 +40,7 @@ clean <- function(file.name) {
   #create variable for chamber
   data %<>%
     mutate(chamber = ifelse (grepl("Sen.", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Rep.", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+    mutate(chamber = ifelse(grepl("Rep.", FROM), "House", chamber)) 
   
   
   data <- extractMemberName(data, members, 'FROM')
