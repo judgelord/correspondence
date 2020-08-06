@@ -28,7 +28,14 @@ dim(d)
 d$year %<>% as.numeric()
 d$icpsr %<>% as.numeric()
 
-
+# I accidentially changed cannonical voteview party_name, 
+# this should not be necessary in the future, 
+# but it breaks the script that fixes party switchers so just to be safe: 
+d$party_name %<>% str_replace("Republican$", "Republican Party") %>% str_replace("Democratic$", "Democratic Party")
+unique(d$party_name)
+dim(d)
+d %<>% distinct()
+dim(d)
 ## Missing agencies:
 data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 
@@ -87,15 +94,6 @@ missing %>% filter(agency %in% (data_list %>%
   head(200) %>%
   kable()
 
-# names that could cause big problems 
-draw %>% filter(!is.na(icpsr), FROM %in% missing$FROM) %>% 
-  count(agency, str_sub(FROM, 1, 40), sort = T) %>% 
-  filter(agency %in% (data_list %>% 
-                        filter(row_number() <= which(data_list$agency == "DOI_SOL")) %>% 
-                        .$agency ) )%>%
-  head(200) %>%
-  kable()
-
 # broken
 missing %>% 
   add_count(agency, sort = T, name = "per_agency") %>% count(per_agency, agency, FROM, sort = T) %>% 
@@ -105,9 +103,6 @@ missing %>%
 # fixed 
 changed %>% filter(is.na(in_draw)) 
 #FIXME We should drop all unecessary vars and add them back in later to make post-merge processing go faster
-
-
-names(d)
 
 # if things look good, save new raw file
 # archive raw version of merged data 
@@ -184,6 +179,16 @@ nrow(d)
 d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
 nrow(d) # should go down by a bit
 
+# check for party switchers 
+d %>% 
+  count(agency, LetterID, ID, DATE, FROM, SUBJECT, bioname, congress) %>% 
+  filter(n >1) %>% 
+  ungroup() %>% 
+  select(bioname, congress) %>% distinct() 
+
+
+
+
 # inspect
 d %>% filter(nchar(as.character(DATE))  < 9 | year > 2020) %>% distinct(DATE, agency) %>% kable()
 
@@ -198,6 +203,13 @@ d %<>%
 
 nrow(d) # SHOULD GO DOWN 
 
+
+
+
+
+##### OPTOINAL 
+update = F
+if(update){
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
   filter(is.na(ERROR)) %>% 
@@ -243,11 +255,11 @@ worst.names %<>%
   mutate(n = as.numeric(n)) %>% 
   arrange(-n)   %>% 
   filter(n>5) # 5 mismatches 
+worst.names
 
 # push to google drive
-if(update){
+
   sheet_write(worst.names, gs_title("worst.names"), sheet = as.character(Sys.Date()))
-}
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -257,6 +269,7 @@ bad.party <- d %>%
   filter(party != party_code) %>% 
   select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
   distinct()
+}
 
 
 ####################################################################################
@@ -290,6 +303,11 @@ nrow(d) # SHOULD GO DOWN
 
 d %<>% filter(!is.na(year))
 nrow(d) # SHOULD NOT GO DOWN 
+class(d)
+# chamber errors?
+chamber_errors <- d %>% filter(!chamber %in% c("House", "Senate"))
+nrow(chamber_errors)
+chamber_errors$bioname %>% unique()
 
 d %<>% filter(chamber %in% c("House", "Senate"))
 nrow(d) # SHOULD NOT GO DOWN 
@@ -377,6 +395,7 @@ duplicate_chambers %>% select(congress, bioname, party_code, icpsr, chamber) %>%
 duplicate_party <- duplicates %>%  
   filter(str_detect(party_code, ";;;") )
 duplicate_party %>% select(congress, bioname, party_name, icpsr) %>% distinct()
+d$party_name %>% unique()
 
 duplicate_icpsr <- duplicates %>%  
   filter(str_detect(icpsr, ";;;") )

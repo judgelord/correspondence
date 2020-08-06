@@ -1,5 +1,16 @@
+# congress bioname                 party_name               icpsr
+# <chr>    <chr>                   <chr>                    <chr>
+#   1 107      JEFFORDS, James Merrill Independent;;;Republican 94240;;;14240
+# 2 111      SPECTER, Arlen          Democratic;;;Republican  94910;;;14910
+# 3 111      GRIFFITH, Parker        Republican;;;Democratic  90901;;
+
+
 fix.member.date.coding <- function(d){
   d %<>% 
+    # just to make sure names are consistant with voteview
+    mutate(party_name = party_name %>% 
+             str_replace("Republican$", "Republican Party") %>% 
+             str_replace("Democratic$", "Democratic Party") ) %>% 
     # just to make sure this runs with NAs
     mutate(bioname = ifelse(is.na(bioname), "", bioname)) %>% 
     mutate(party_name = ifelse(is.na(party_name), "", party_name)) %>% 
@@ -41,7 +52,8 @@ fix.member.date.coding <- function(d){
     # On May 24, 2001, Jeffords left the Republican Party, with which he had always been affiliated, and announced his new status as an independent.
     filter(!(bioname == "JEFFORDS, James Merrill" & DATE > as.Date("2001-05-24") & party_name == "Republican Party")) %>% # not gop after 2001
     filter(!(bioname == "JEFFORDS, James Merrill" & DATE < as.Date("2001-05-24") & party_name == "Independent")) # not ind before 2001
-    # 
+    
+  # 
     
 
   # LIEBERMAN Indepedent in Committees, Democrat in voteview data. Voteview data will override, which is fine (no need to fix)
@@ -53,3 +65,4 @@ fix.member.date.coding <- function(d){
 # 1 111      SPECTER, Arl… Democratic Party;;;Republ… 94910;;;… HUD_HQ  2009-04-28
 # 2 111      GRIFFITH, Pa… Republican Party;;;Democr… 90901;;;… DOL_OW… 2009-12-22
 # 3 111      GRIFFITH, Pa… Republican Party;;;Democr… 90901;;;… DOL_SOL 2009-12-22
+

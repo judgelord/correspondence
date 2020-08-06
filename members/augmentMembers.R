@@ -26,8 +26,7 @@ members %<>%
   mutate(name_state = as.factor(paste(bioname, party, "-", state_abbrev))) %>% 
   mutate(name_state = factor(name_state, levels=rev(levels(name_state)))) 
 
-# shorten party name
-members$party_name <- gsub(" Party", "", members$party_name)
+
 
 members$presidents_party <- NA
 # president's party
