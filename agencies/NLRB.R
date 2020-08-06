@@ -45,7 +45,7 @@ clean <- function(file.name) {
   
   data %<>% mutate(DATE = coalesce(DATE3, DATE4, DATE1, DATE2))
   
-  NOdate <- filter(is.na(DATE)| DATE < as.Date("2000-01-01") | DATE > as.Date("2020-01-01")) %>%
+  NOdate <- data %>% filter(is.na(DATE)| DATE < as.Date("2000-01-01") | DATE > as.Date("2020-01-01")) %>%
     select(DATEoriginal, FROM, sort)
   NOdate
   
