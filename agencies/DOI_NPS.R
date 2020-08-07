@@ -46,6 +46,8 @@ clean <- function(file.name) {
   
   # data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
   
+  data %>% select(DATE, congress, FROM, agency, year, everything())
+  
   data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations

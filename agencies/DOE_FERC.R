@@ -116,12 +116,12 @@ mutate(FROM = str_replace(FROM, "Bob Graham", "Daniel Graham")) %>%
   
   
   #Unmatched
-  unmatched <- data %>%
-    filter(is.na(last_name))
+  Unfoundnames <- data %>%
+    filter(is.na(last_name)) %>% count(congress, FROM, string)
   
   
   
-  
+  sum(!is.na(data$icpsr))
   
   
   

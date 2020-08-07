@@ -15,7 +15,8 @@ members %<>% select(congress, pattern, bioname,
 
 # add committees and stuff
 source("members/augmentMembers.R")
-
+#FIXME this must be coming in with the committee data 
+members %<>% select(-X)
 source(here("data_list.R"))
 data_list
 
@@ -40,7 +41,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "EOP_USTR")
+i <- which(data_list$agency == "DOE_FERC")
 i
 
 d1 <- clean.agency(
@@ -48,9 +49,12 @@ d1 <- clean.agency(
   status = as.character(data_list[i, 2]),
   coders = as.character(data_list[i, 3]))
 
+# this is only needed because it is change to chr in clean.r
+d1$icpsr %<>% as.numeric()
+members$icpsr %<>% as.numeric()
+
 d1 %>% filter(pattern != "404error", is.na(bioname)) %>% count(pattern, congress, sort = T)
 
-suppressMessages(
   d1 %<>% 
     left_join(members) %>% 
     select(LetterID, ID, 
@@ -61,7 +65,6 @@ suppressMessages(
            NOTES, ERROR) %>% 
     left_join(members)%>% 
     distinct()
-)
 
 d1$DATE %<>% as.Date()
 
@@ -79,12 +82,21 @@ missing_data <- d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched wit
 
 # redo extractmembernames
 missing_data %<>% select(agency, DATE, FROM,congress, LetterID, ID, ERROR) %>% extractMemberName(members, "FROM")
-missing_data %>% count(FROM, congress, sort = TRUE)  %>% top_n(20) %>% kable()
+
+# bad names
+missing_data %>% count(FROM, congress, sort = TRUE)  %>% 
+  filter(!str_detect(FROM, "Staff|ommittee"), congress != 0) %>% 
+  top_n(20) %>% kable()
+
+# bad dates 
+missing_data %>% count(FROM, congress, sort = TRUE)  %>% 
+  filter(!str_detect(FROM, "Staff|ommittee"), congress == 0) %>% 
+  top_n(20) %>% kable()
 
 # if this yeilds anything, something is wrong (obs are failing to match in the members file)
 missing_data %>% filter(!pattern %in% c("Date out of range", "404error"))
 
-
+sum(!is.na(d1$icpsr))
 ####################
 ####################
 # Save 
@@ -106,7 +118,7 @@ save(d1, file = file.name)
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 
 ## Resume 
-# data_list %<>% filter(row_number() > which(data_list$agency == "DOI_BSEE")) 
+# data_list %<>% filter(row_number() > which(data_list$agency == "DOL_OWCP")) 
 data_list
 # subset by date
 if(F){
@@ -133,6 +145,8 @@ while(!is.na(data_list[i,1])) {
     agency = as.character(data_list[i, 1]),
     status = as.character(data_list[i, 2]),
     coders = as.character(data_list[i, 3]))
+  
+  d1$icpsr %<>% as.numeric() #FIXME in clean 
   
   suppressMessages(
   d1 %<>% 
@@ -169,3 +183,8 @@ stopped <- data_list$agency[i]
 
 base::message(white(paste("merge stopped at", stopped)))
  
+
+
+
+
+

@@ -197,7 +197,7 @@ members %<>% select(-contains("common"),
                     -contains("_last"),
                     -contains("maiden"))
 
-
+members %<>% select(-X)
 
 
 # FIXME

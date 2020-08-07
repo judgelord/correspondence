@@ -422,7 +422,7 @@ d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>%
 
 nrow(d)
 # THIS IS COMPUTATIONALLY INTENSE but an important check for duplicates 
-d %>% group_by(LetterID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
+d %<>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
 nrow(d) # MIGHT GO DOWN
 
@@ -796,7 +796,8 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
   source(here("functions/count.R"))
   
   nrow(df)
-  df %<>% left_join(dcounts)
+  df %<>% select(-starts_with("per_"))
+  df %<>% left_join(dcounts_min)
   nrow(df)
   df %<>% distinct()
   nrow(df)

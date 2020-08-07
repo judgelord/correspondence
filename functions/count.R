@@ -76,36 +76,36 @@ dcounts %<>%
 nrow(dcounts)
 
 
-# rolled up counts 
-dcounts %<>% 
-  group_by(icpsr, year, TYPE, agency) %>% 
-  mutate(per_icpsr_year_agency_type = sum(per_icpsr_chamber_year_agency_type) ) %>% 
-  ungroup() %>%
-  group_by(icpsr, year, agency) %>% 
-  mutate(per_icpsr_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() %>%
-  group_by(icpsr, congress, agency, TYPE) %>% 
-  mutate(per_icpsr_congress_agency_type = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() %>%
-  group_by(icpsr, congress, agency) %>% 
-  mutate(per_icpsr_congress_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() %>%
-  group_by(icpsr) %>% 
-  mutate(per_icpsr = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() 
+# # rolled up counts 
+# dcounts %<>% 
+#   group_by(icpsr, year, TYPE, agency) %>% 
+#   mutate(per_icpsr_year_agency_type = sum(per_icpsr_chamber_year_agency_type) ) %>% 
+#   ungroup() %>%
+#   group_by(icpsr, year, agency) %>% 
+#   mutate(per_icpsr_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+#   ungroup() %>%
+#   group_by(icpsr, congress, agency, TYPE) %>% 
+#   mutate(per_icpsr_congress_agency_type = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+#   ungroup() %>%
+#   group_by(icpsr, congress, agency) %>% 
+#   mutate(per_icpsr_congress_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+#   ungroup() %>%
+#   group_by(icpsr) %>% 
+#   mutate(per_icpsr = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+#   ungroup() 
 
 # add members data
 dcounts %<>%
   left_join(members) 
 nrow(dcounts)
 
-dcounts %<>% 
-  group_by(bioname, year, agency) %>% 
-  mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() %>% 
-  group_by(bioname, year) %>% 
-  mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-  ungroup() 
+# dcounts %<>% 
+#   group_by(bioname, year, agency) %>% 
+#   mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+#   ungroup() %>% 
+#   group_by(bioname, year) %>% 
+#   mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+#   ungroup() 
 
 # note chamber switchers 
 dcounts %<>% 
@@ -125,7 +125,23 @@ dcounts %>% filter(party_switcher) %>% select(bioname, party_name, congress) %>%
 
 unique(dcounts$year)
 
+# agency-member-year vars that can't be in members becaues they depend on agency 
+agency_vars <- df %>% select(agency, icpsr, chamber, year,
+                             timeframe, complete, department, Department, 
+                             Reporting.Committees, Number.of.Committees, Committeesconfirmingapps,
+                             Employees, Independent.Funding, Rulemaking, 
+                             oversight_committee, oversight_committee_chair) %>% distinct()
+agency_vars
+
+nrow(dcounts)
+dcounts %<>% left_join(agency_vars)
+nrow(dcounts)
+dcounts
+
 save(dcounts, file =  "data/dcounts.Rdata")
 
+dcounts_min <- dcounts %>% select(agency, icpsr, chamber, year, TYPE, per_icpsr_chamber_year_agency_type)
+
+df %<>% left_join(dcounts_min)
 
 
