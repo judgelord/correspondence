@@ -190,7 +190,12 @@ members %<>% mutate(chair_since_2007 = ifelse(bioname %in% c(unique(members$bion
 # mutate(monthsAsChair = daysAsChair/30) 
 
 
-members %>% select(-contains(c("common", "comma", "middle", "initial", "_last","maiden")))
+members %<>% select(-contains("common"), 
+                    -contains("comma"),
+                    -contains("middle"), 
+                    -contains("initial"), 
+                    -contains("_last"),
+                    -contains("maiden"))
 
 
 

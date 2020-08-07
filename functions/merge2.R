@@ -420,7 +420,8 @@ nrow(d)
 d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
 
-
+nrow(d)
+# THIS IS COMPUTATIONALLY INTENSE but an important check for duplicates 
 d %>% group_by(LetterID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
 nrow(d) # MIGHT GO DOWN
@@ -497,10 +498,23 @@ if(update){
 ###############################################
 #################################################
 # augmented data, df, should have the same n as d 
+
+
+
 n <- nrow(d)
 df <- d
 # are all agencies here? 
 data_complete()
+load(here("data/d.Rdata"))
+
+if(nrow(df) >= nrow(d) ){
+  # Back up 
+  d <- df
+  save(d, file =  here("data/d.Rdata"))
+}
+
+
+
 
 # TIMESERIES COMPLETENESS 
 # identify timeframe and completeness for each agency
@@ -572,22 +586,15 @@ df %<>%
 # election year (based  on year, not congress, so cannot be in members data)
 #FIXME
 df %<>% 
-  left_join(members %>% select(yearelected, bioname, congress, icpsr, party)) %>%
-  mutate(election_year = ifelse(chamber == "Senate" & 
-                                  !is.na(yearelected) &
-                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
-                                1, 0)) %>%
-  mutate(election_year = ifelse(chamber == "House" & 
-                                  !is.na(yearelected) &
-                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
-                                1, 0)) 
+  left_join(members) 
 
-sum(is.na(df$election_year))
+
 
 # clean up problems with party switchers etc. that may have come in with merge 
 nrow(df)
 df$icpsr %<>% as.numeric()
 df %<>% fix.member.date.coding()
+nrow(df)
 #FIXME specter and parker should be delt with in previous line
 df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
@@ -624,6 +631,18 @@ dcommittees %<>% group_by(member_committee) %>%
   mutate(chair = ifelse(chair_since_2007 == T, paste(firstassignedchair,  bioname, party), NA) ) # note this overwrites 0/1 chair variable
 
 #####################
+
+df %<>%
+  mutate(election_year = ifelse(chamber == "Senate" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 6, yearelected+12, yearelected+18, yearelected+24, yearelected+30), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) %>%
+  mutate(election_year = ifelse(chamber == "House" & 
+                                  !is.na(yearelected) &
+                                  year %in% c(yearelected, yearelected + 2, yearelected+4, yearelected+6, yearelected+8, yearelected+10, yearelected+12, yearelected+14, yearelected+16, yearelected+18, yearelected+20), #c(seq(yearelected, yearelected + 60, 6)),
+                                1, 0)) 
+
+sum(is.na(df$election_year))
 ###########################################################################
 
 
@@ -686,6 +705,7 @@ df %<>% left_join(
 # match to committee list 
 df$oversight_committee <- 0
 
+source("members/augmentMembers.R")
 df %<>% left_join(members %>% select(icpsr, congress, committees, chair_of))
 
 for(i in 1:nrow(df)){
@@ -754,6 +774,7 @@ df %<>% dplyr::select(-n) %>% distinct()
 rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
 nrow(df)
 
+
 # merge new data with old? 
 if(F){
   load(here("data/all_contacts.RData"))
@@ -772,12 +793,13 @@ unique(df$agency) %in% data_list$agency
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
   
   # create and save count data
-  source("count.R")
+  source(here("functions/count.R"))
   
   nrow(df)
   df %<>% left_join(dcounts)
   nrow(df)
-  
+  df %<>% distinct()
+  nrow(df)
   # save all_contacts 
   all_contacts <- df
   save(all_contacts, file = here("data/all_contacts.RData"))
