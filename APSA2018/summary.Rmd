@@ -32,6 +32,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.width=8.5, 
                       fig.align = 'center', 
                       fig.path='Figs/',
+                      dev = c("png", "pdf"),
                       warning=FALSE, 
                       message=FALSE)
 ```
