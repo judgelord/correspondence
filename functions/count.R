@@ -132,16 +132,26 @@ agency_vars <- df %>% select(agency, icpsr, chamber, year,
                              Employees, Independent.Funding, Rulemaking, 
                              oversight_committee, oversight_committee_chair) %>% distinct()
 agency_vars
+save(agency_vars, file =  here("data/agency_vars.Rdata"))
 
 nrow(dcounts)
 dcounts %<>% left_join(agency_vars)
 nrow(dcounts)
 dcounts
 
-save(dcounts, file =  "data/dcounts.Rdata")
+save(dcounts, file =  here("data/dcounts.Rdata"))
 
+
+# minimal count data prior to merge with members and agency 
 dcounts_min <- dcounts %>% select(agency, icpsr, chamber, year, TYPE, per_icpsr_chamber_year_agency_type)
+nrow(dcounts_min)
+save(dcounts_min, file =  here("data/dcounts_min.Rdata"))
+
 
 df %<>% left_join(dcounts_min)
+nrow(df)
+all_contacts <- df
+save(all_contacts, file =  here("data/all_contacts.Rdata"))
 
-
+# members data, slighty distinct from the members data in the members folder that has name patterns
+save(members, file =  here("data/members.Rdata"))
