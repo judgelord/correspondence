@@ -26,18 +26,15 @@ names(dcounts)
 # rmarkdown::render("APSA2018/summary.Rmd")
 ```
 
-# CairoPNG from Cairo package
-```{r setup, include=FALSE, dev="CairoPNG"}
-knitr::opts_chunk$set(dev="CairoPNG")
-```
 
-```{r global.options, include=FALSE}
+```{r global.options, include=FALSE, dev="CairoPNG"}
 knitr::opts_chunk$set(echo = TRUE, 
                       cache = F, 
                       fig.width=8.5, 
                       fig.align = 'center', 
                       fig.path='Figs/',
-                      dev = c("png", "pdf"),
+                      dev="CairoPNG", # 
+                      #dev = c("png", "pdf"), # Error in .External2(C_X11, paste0("png::", filename), g$width, g$height,  : unable to start device PNG In addition: Warning messages: 1: In grDevices::png(f) : unable to open connection to X11 display
                       warning=FALSE, 
                       message=FALSE)
 ```
