@@ -107,7 +107,7 @@ In additition to our five broad types, we have a second, more nuanced coding sch
 
 ```{r data_by_event, fig.width=6, fig.height=6}
 df %>% 
-  filter(!is.na(POLICY_EVENT, POLICY_EVENT != "NA")) %>% 
+  filter(!is.na(POLICY_EVENT), POLICY_EVENT != "NA") %>% 
   mutate(POLICY_EVENT  = {gsub(";.*|/.*|\\(.*|\\?|MAYBE |PROBABLY |POSSIBLE |POSSIBLY ","", toupper(.$POLICY_EVENT), ignore.case = T)} ) %>%
   group_by(POLICY_EVENT) %>% summarise(nPE = n()) %>% ungroup() %>%
   mutate(total = sum(nPE))%>% 
