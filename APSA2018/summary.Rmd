@@ -6,6 +6,8 @@ output:
     toc: true
     toc_float: true
     code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -14,9 +16,14 @@ source(here::here("setup.R"))
 
 load(here("data/all_contacts.RData"))
 df <- all_contacts %>% filter(year >2006, year <2019)
-load(here("data/all_contacts_committees.RData"))
+load(here("data/all_contacts_committees.Rdata"))
 dcommittees <- all_contacts_committees %>% filter(year >2006, year <2019)
 
+load(here("data/dcounts.Rdata"))
+names(dcounts)
+
+# list.files(here("data"))
+# rmarkdown::render("APSA2018/summary.Rmd")
 ```
 
 ```{r global.options, include=FALSE}
@@ -60,6 +67,39 @@ df %>%
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text())
+
+```   
+
+```{r counts_per_year, fig.height=4, fig.width=6}
+dcounts %<>% filter(chamber != "President")
+dcounts %<>% 
+  group_by(bioname, year) %>% 
+  mutate(per_bioname_year = sum(per_icpsr_chamber_year_agency_type)) %>%
+  ungroup() %>% 
+  group_by(year) %>%
+  #mutate(per_bioname_year = per_bioname_year - mean(per_bioname_year)) %>% 
+  ungroup() 
+
+schumer2013 <- dcounts %>% filter(bioname == "SCHUMER, Charles Ellis (Chuck)",
+                   year == 2013) %>% .$per_bioname_year %>% unique()
+
+dcounts %>% 
+  select(bioname, per_bioname_year, year, chamber) %>% distinct() %>% 
+  ggplot() + 
+  geom_line(aes(x = year, y = per_bioname_year, group = bioname, color = chamber), 
+            alpha = .1) +
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", per_bioname_year, NA))) + 
+  geom_label(x = 2013, 
+             y = schumer2013, 
+             label = "Chuck Schumer") +
+  labs(x = "",
+       color = " ",
+       y = paste("Contacts per member per year"),
+       title = "") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_text(angle = 45)) 
 
 ```   
 
