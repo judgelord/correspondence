@@ -309,6 +309,8 @@ df %>%
 
 # Core Model
 
+<!--
+
 ```{r cross_sectional_models_table}
 
 all <- df %>% filter(year < 2018) # %>% filter(congress != 115)

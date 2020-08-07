@@ -15,8 +15,8 @@ members %<>% select(congress, pattern, bioname,
 
 # add committees and stuff
 source("members/augmentMembers.R")
-#FIXME this must be coming in with the committee data 
-members %<>% select(-X)
+
+
 source(here("data_list.R"))
 data_list
 
@@ -41,7 +41,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DOE_FERC")
+i <- which(data_list$agency == "ABMC")
 i
 
 d1 <- clean.agency(
