@@ -39,11 +39,14 @@ clean <- function(file.name) {
   
   data %>% filter(year<2007|year>2019) %>% select(DATE, DATEoriginal)
   
+  data$Salutation %<>% str_replace("Senate", "Senator") 
 
   data$last_name <- toupper(data$'Last Name')
   data %<>% add_first()
   data$FROM <- paste(data$Salutation, data$first_name, data$last_name) %>% 
-    str_replace(" NA ", " ")
+    str_replace_all("\\bNA\\b", " ") %>% str_remove("Mr\\.|Ms\\.") %>% str_squish()
+ 
+  
   
   data %<>% select(-first_name, -last_name)
 
