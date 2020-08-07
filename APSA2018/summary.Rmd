@@ -11,7 +11,7 @@ editor_options:
 ---
 
 
-```{r setup, include=FALSE}
+```{r data, include=FALSE}
 source(here::here("setup.R"))
 
 load(here("data/all_contacts.RData"))
@@ -24,6 +24,11 @@ names(dcounts)
 
 # list.files(here("data"))
 # rmarkdown::render("APSA2018/summary.Rmd")
+```
+
+# CairoPNG from Cairo package
+```{r setup, include=FALSE, dev="CairoPNG"}
+knitr::opts_chunk$set(dev="CairoPNG")
 ```
 
 ```{r global.options, include=FALSE}
