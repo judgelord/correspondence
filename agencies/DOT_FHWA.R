@@ -37,6 +37,7 @@ clean <- function(file.name) {
   data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE %<>% multidate( c("%m/%d/%y","%Y-%m-%d"))
   
+  #Extract Dates not in DATE column
   data %<>%
     mutate(tempDATE = str_extract(X7, "[0-9][0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9]/[0-9][0-9]|[0-9][0-9]/[0-9]/[0-9][0-9]")) 
   data$tempDATE %<>% as.Date("%m/%d/%y")
@@ -136,10 +137,6 @@ clean <- function(file.name) {
   data %<>%
    mutate(FROM = ifelse(str_detect(SUBJECT, "SOUTH DAKOTA| OGLALA SIOUX TRIBE|CHEYENNE RIVER SIOUX") & ! is.na(SUBJECT), str_replace(FROM, "JOHNSON, TIM|JOHNSON, TIMOTHY", "Timothy Peter JOHNSON"), FROM)) %>%
    mutate(FROM = ifelse(str_detect(SUBJECT, "ILLINOIS|CURTIS ROAD CORRIDOR STUDY|SANGAMON COUNTY") & ! is.na(SUBJECT), str_replace(FROM, "JOHNSON, TIM|JOHNSON, TIMOTHY", "Timothy V JOHNSON"), FROM))
-   
-   
-  data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Timothy Peter JOHNSON") & congress %in% c(112), "Senate", chamber))
   
   #Name Typos
   data %<>%
@@ -152,7 +149,8 @@ clean <- function(file.name) {
      mutate(chamber = ifelse(str_detect(FROM, "Schock, Aaron"), "House", chamber)) %>%
      mutate(chamber = ifelse(str_detect(FROM, "Duckworth, Tammy") & congress %in% c(113, 114), "House", chamber)) %>%
      mutate(chamber = ifelse(str_detect(FROM, "Bill CASSIDY") & congress %in% c(113), "House", chamber)) %>%
-     mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & congress %in% (113), "House", chamber)) 
+     mutate(chamber = ifelse(str_detect(FROM, "Daines, Steve") & congress %in% (113), "House", chamber)) %>%
+     mutate(chamber = ifelse(str_detect(FROM, "Timothy Peter JOHNSON") & congress %in% c(112), "Senate", chamber))
    
   #Match on chamber
   # data %<>%
