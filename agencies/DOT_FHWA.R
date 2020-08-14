@@ -37,6 +37,7 @@ clean <- function(file.name) {
   data$DATE <- gsub("-200", "-0", data$DATE)
   data$DATE %<>% multidate( c("%m/%d/%y","%Y-%m-%d"))
   
+  #Extract Dates not in DATE column
   data %<>%
     mutate(tempDATE = str_extract(X7, "[0-9][0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9][0-9]/[0-9][0-9]|[0-9]/[0-9]/[0-9][0-9]|[0-9][0-9]/[0-9]/[0-9][0-9]")) 
   data$tempDATE %<>% as.Date("%m/%d/%y")
