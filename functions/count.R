@@ -4,11 +4,12 @@
 # df$TYPE = c(1,2,3,4,5,6,1,2,3,4,5) #FIXME TEMP
 
 # BEGIN 
+df <- all_contacts
 names(df)
 df %<>% select(-starts_with("per_"))
 # add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
 df %<>% mutate(icpsryear = str_c(icpsr, chamber, year, sep = "-")) %>% 
-  mutate(TYPE = replace_na(TYPE, "NA") %>% str_remove(";;;.*"))
+  mutate(TYPE = replace_na(TYPE, "NA") %>% str_remove(";;;.*")) # FIXME REMOVE DOUBLE CODING 
 
 # count members in the data, including 0s for agencies, years, TYPES where no letter exists
 dfac <- df %>% 
@@ -69,13 +70,14 @@ dcounts %<>%
 
 nrow(dcounts)
 # now drop years where we have no observations from an agency 
+# FIXME use agency-year
 dcounts %<>% 
   group_by(year, agency) %>% 
   mutate(per_agency_year = sum(per_icpsr_chamber_year_agency_type )) %>% #count(per_agency_year, agency)
   filter(per_agency_year > 0)
 nrow(dcounts)
 
-
+# FIXME add other counts here
 # # rolled up counts 
 # dcounts %<>% 
 #   group_by(icpsr, year, TYPE, agency) %>% 
