@@ -118,7 +118,7 @@ save(d1, file = file.name)
 # data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
 
 ## Resume 
-# data_list %<>% filter(row_number() > which(data_list$agency == "DOL_OWCP")) 
+# data_list %<>% filter(row_number() >= which(data_list$agency == "RRB")) 
 data_list
 # subset by date
 if(F){

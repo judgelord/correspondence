@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.width=8.5, 
                       fig.align = 'center', 
                       fig.path='Figs/',
-                      dev="CairoPNG", # 
+                      #dev="CairoPNG", # 
                       #dev = c("png", "pdf"), # Error in .External2(C_X11, paste0("png::", filename), g$width, g$height,  : unable to start device PNG In addition: Warning messages: 1: In grDevices::png(f) : unable to open connection to X11 display
                       warning=FALSE, 
                       message=FALSE)
@@ -73,7 +73,7 @@ df %>%
 
 ```   
 
-```{r counts_per_year, fig.height=4, fig.width=6}
+```{r counts-per-year, fig.height=4, fig.width=6}
 dcounts %<>% filter(chamber != "President")
 dcounts %<>% 
   group_by(bioname, year) %>% 
@@ -86,7 +86,11 @@ dcounts %<>%
 schumer2013 <- dcounts %>% filter(bioname == "SCHUMER, Charles Ellis (Chuck)",
                    year == 2013) %>% .$per_bioname_year %>% unique()
 
-dcounts %>% 
+cruz2013 <- dcounts %>% filter(bioname == "CRUZ, Rafael Edward (Ted)",
+                   year == 2013) %>% .$per_bioname_year %>% unique()
+
+
+p <- dcounts %>% 
   select(bioname, per_bioname_year, year, chamber) %>% distinct() %>% 
   ggplot() + 
   geom_line(aes(x = year, y = per_bioname_year, group = bioname, color = chamber), 
@@ -95,16 +99,112 @@ dcounts %>%
                 y = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", per_bioname_year, NA))) + 
   geom_label(x = 2013, 
              y = schumer2013, 
+             #aes(color = chamber), 
              label = "Chuck Schumer") +
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "CRUZ, Rafael Edward (Ted)", per_bioname_year, NA))) + 
+  geom_label(x = 2013, 
+             y = cruz2013, 
+             #aes(color = chamber),
+             label = "Ted Cruz") +
   labs(x = "",
        color = " ",
        y = paste("Contacts per member per year"),
        title = "") +
+  scale_x_continuous(breaks = unique(df$year)) + 
+  scale_color_viridis_d(begin = 0, end = .6) +
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x = element_text(angle = 45)) 
+p
 
+ggsave(here::here("Figs/counts-per-year.pdf"), p, height=3, width=7)
 ```   
+
+
+```{r counts-per-year-TYPE, fig.height=4, fig.width=6}
+dcounts %<>% 
+  ungroup() %>% 
+  group_by(bioname, year, TYPE) %>% 
+  mutate(per_bioname_year_TYPE = sum(per_icpsr_chamber_year_agency_type)) %>%
+  ungroup() %>% 
+  group_by(year) %>%
+  #mutate(per_bioname_year = per_bioname_year - mean(per_bioname_year)) %>% 
+  ungroup() 
+
+schumer2013 <- dcounts %>% filter(bioname == "SCHUMER, Charles Ellis (Chuck)",
+                   year == 2013) %>% .$per_bioname_year_TYPE %>% unique()
+
+cruz2013 <- dcounts %>% filter(bioname == "CRUZ, Rafael Edward (Ted)",
+                   year == 2013) %>% .$per_bioname_year_TYPE %>% unique()
+
+
+p <- dcounts %>% 
+  select(bioname, per_bioname_year_TYPE, year, chamber, TYPE) %>% distinct() %>% 
+  ggplot() + 
+  geom_line(aes(x = year, y = per_bioname_year_TYPE, group = bioname, color = chamber), 
+            alpha = .1) +
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", per_bioname_year_TYPE, NA))) + 
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "CRUZ, Rafael Edward (Ted)", per_bioname_year_TYPE, NA))) + 
+  labs(x = "",
+       color = " ",
+       y = paste("Contacts per member per year"),
+       title = "") +
+  scale_x_continuous(breaks = unique(df$year)) + 
+  scale_color_viridis_d(begin = 0, end = .6) +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_text(angle = 45)) +
+  facet_wrap("TYPE", scales = "free_y")
+p
+
+ggsave(here::here("Figs/counts-per-year-TYPE.pdf"), p, height=6, width=7)
+```   
+
+```{r counts-per-year-agency, fig.height=27, fig.width=7}
+dcounts %<>% 
+  ungroup() %>% 
+  group_by(bioname, year, agency) %>% 
+  mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type)) %>% 
+  ungroup() 
+
+dcounts %>% filter(per_bioname_year_agency > 100) %>% 
+  select(bioname, year, agency, per_bioname_year_agency) %>% 
+  arrange(-per_bioname_year_agency) %>% distinct() %>% kable()
+
+schumer2013 <- dcounts %>% filter(bioname == "SCHUMER, Charles Ellis (Chuck)",
+                   year == 2013) %>% .$per_bioname_year_agency %>% unique()
+
+cruz2013 <- dcounts %>% filter(bioname == "CRUZ, Rafael Edward (Ted)",
+                   year == 2013) %>% .$per_bioname_year_agency %>% unique()
+
+
+p <- dcounts %>% 
+  select(bioname, per_bioname_year_agency, year, chamber, agency) %>% distinct() %>% 
+  ggplot() + 
+  geom_line(aes(x = year, y = per_bioname_year_agency, group = bioname, color = chamber), 
+            alpha = .1) +
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "SCHUMER, Charles Ellis (Chuck)", per_bioname_year_agency, NA))) + 
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "CRUZ, Rafael Edward (Ted)", per_bioname_year_agency, NA))) + 
+  labs(x = "",
+       color = " ",
+       y = paste("Contacts per member per year"),
+       title = "") +
+  scale_x_continuous(breaks = unique(df$year)) + 
+  scale_color_viridis_d(begin = 0, end = .6) +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_text(angle = 45)) +
+  facet_wrap("agency", scales = "free_y")
+p
+
+ggsave(here::here("Figs/counts-per-year-agency.pdf"), p, height=27, width=27)
+```  
+
 
 In additition to our five broad types, we have a second, more nuanced coding scheme focused on major agency decisions or events. This was, in part, developed inductively through the coding process. 
 
@@ -124,6 +224,7 @@ df %>%
   labs(x = "",
        y = paste("Number of Contacts, N =", sum(nrow(df))),
        title = "") +
+  axes
   theme(panel.background = element_blank(),
         axis.ticks = element_blank(),
         axis.text.x.top = element_text(),

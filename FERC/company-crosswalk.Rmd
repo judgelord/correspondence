@@ -2,12 +2,18 @@
 title: "company-crosswalk"
 author: "Devin Judge-Lord"
 date: "10/17/2019"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-source("setup.R")
+source(here::here("setup.R"))
 ```
 
 ```{r global.options, include=FALSE}
@@ -367,7 +373,7 @@ save(dcorps, file = here("data/dcorps.Rdata"))
 ```
 
 Drop non-company observations
-```{r}
+```{r, eval=FALSE}
 load(here("data/dcorp_short.Rdata"))
 load(here("data/dcorps.Rdata"))
 notcorps <- filter(dcorps, company_short == "NOT A COMPANY?")
