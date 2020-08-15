@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 
-# file.name <- "DOT_FHWA" # for testing
+# file.name <- "DOT_FHWA Rochelle" # for testing
 
 clean <- function(file.name) {
   
@@ -179,8 +179,8 @@ data <- extractMemberName(data, members, 'FROM')
   
   # add errors
   data %<>%
-    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "Jenna Maslyn not in Congress", ERROR)) %>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
+    mutate(ERROR = ifelse(grepl("Jenna Maslyn", data$FROM), "non member", ERROR)) %>%
+    #mutate(ERROR = ifelse(str_detect(FROM, "Obama, Barack") & str_detect(congress, "113|112|111"), "President", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "O'DONNELL, WILLIAM|Grundmann, Susan Tsui|Duncan, Arne|Bezio, Brian|Onge, Robert J|Miller, Deb"), "Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Lovingood, Robert A|LeBas, Sherri H|Hall, Christy A|Connaughton, Sean T|Connaughton, Sean|Saenz, Amadeo|Smith, James T|Conti, Eugene A|Hannig, Gary"), "State Agency Staff", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "King, Mike|Murphy, Joan Patricia|McLeod, William D|Weber, J F|WILLIAMS, LISA|Williams, Eugene|Williams, Dennis P|Williams, Dana|Williams, Eugene|Young, John F|Gillan, Jacqueline S|Garcia Martino, Andres R|Fraley, Jeff|Chaney, Nancy J|Berry, John|Atkins, Miles|Anderson, Elliot T|THOMAS, DAVID|Renjel, Louis E|Levi, Grant|Hancock, Michael W|HAGANS, ENOCH|HUTCHERSON, GASTON|THEISEN, MARK|MOTZKO, RICHARD|SCHNEIDER, JAMES|BROWN, KYLE|CRAIG, JOHN|DEVELLE, LOLA|DUDZIAK, JOHN|Hersman, Deborah AP|Smith, Samuel H|STARR, NANCY|DESCHERER, CHRISTOPHER|CONWAY, JOSEPH|BILLIOT, CURTIS|WEBSTER, JOHN|VERBEEK, ANN|RATULOWSKI, ED|NEWTON, CHARLIE|BRYAN, JAMES|WASSERMANN, JOSEPH|James, Charles E|CLOUD, CHARLES|PIZITZ, NORMAN|Cronin, Daniel J|Carona, John|SETTLES, ASHLEY|PINCKNEY, DELICIA|Redeker, James P|Schoch, Barry|Prasad, Ananth|Steudle, Kirk T|KAUFMAN, ROY|Kelly, Brian P|Kelly, Brian|Orseno, Don|Cooper, John R|Horsley, John|Wright, Bud|CHEATHAM, JAMES|Dr Isaac Floyd|MEININGER, RANDY|VERBEEK, GERALD|WHEELER, WILLIAM|Teresa Heinz|BELT, SCOTT|BEULAH|STANFIELD, CHUCK|MCCLURE, THOMAS AND LYNN|Nicholson, Homer| BRANIGAN, LYNNE|BURTON, SANDRA FAULKNER|COLLINS, GARY| COMPTON, RANDY| COUCH, DAVID| COX, CLOVIS|	 CUNNING, GWENDELLA|CUNNINGHAM, BETSY| DALTON, DAVID | DALTON, DONNIE | DALTON, GREG| DALTON, JAMES|O'Malley, Martin"), "Non Member", ERROR)) %>%
