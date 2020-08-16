@@ -81,7 +81,11 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Casey, Jr. , Robert P.", "Casey, Robert")) %>%
     mutate(FROM = str_replace(FROM, "Cantwel, , Maria.", "CANTWELL, Maria"))
   
-
+  #chamber typos
+  data %<>%
+    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), str_replace(chamber, "House", "Senate"), chamber)) %>%
+    mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
+  
   
   #Extract member names
   data %<>% extractMemberName(members, "FROM")
@@ -92,11 +96,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "Rosenker, Mark V."), "Acting Federal Agencies Chairman", ERROR)) %>%
     mutate(ERROR = ifelse(str_detect(FROM, "Talbot, Kirk.|Guillory, Elbert L. |Clark-Reed, Gwyndolen.|Shumake, Lindell F.|Sypolt, Dave.|Merrill, John."), "State politician", ERROR))
   
-  #chamber typos
-  data %<>%
-    mutate(chamber = ifelse(str_detect(FROM, "Stevens, Ted R-AK U.S. House of Representatives"), str_replace(chamber, "House", "Senate"), chamber)) %>%
-    mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
-  
+
   
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Price, Thomas. ") & str_detect(pattern, "tom rice"), "Wrong Tom, Duplicate", ERROR))

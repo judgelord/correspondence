@@ -26,12 +26,14 @@ clean <- function(file.name) {
    data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
    data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
    
+   
+   
+   data %<>% mutate(chamber = ifelse(grepl("Sen. ", FROM), "Senate", NA))
+   data %<>% mutate(chamber = ifelse(grepl("Rep. ", FROM), "House", chamber))
   
   # create variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
-  
-  data %<>% mutate(chamber = ifelse(grepl("Sen. ", FROM), "Senate", NA))
-  data %<>% mutate(chamber = ifelse(grepl("Rep. ", FROM), "House", chamber))
+
   
   # paste all subject content 
   data %<>% mutate(SUBJECT = paste(`ACTION TYPE`, SUBJECT, `ADDITIONAL NOTES`, staffer, stafferCONTACT_INFO, ACTIONS, STATUS ))

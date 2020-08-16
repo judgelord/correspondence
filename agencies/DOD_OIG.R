@@ -37,7 +37,7 @@ clean <- function(file.name) {
   
   # correct typos 
   data$last_name %<>% 
-    str_replace("GRASSLE", "GRASSLEY")
+    str_replace("GRASSLE\\b", "GRASSLEY")
   
   # add first name column
   data %<>% add_first()
@@ -53,10 +53,7 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR)) 
   
-  
-  
-  data$SUBJECT <- data$SUBJECT
-  
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())

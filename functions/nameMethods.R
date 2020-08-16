@@ -8,13 +8,31 @@
 
 ## FOR TESTING, use names that are failing to match
 if(F){
-  # data frame for testing
+  # data frame of names that were recently failing to match for testing
   data <- gs_title("worst.names") %>% gs_read() 
   data %<>% 
     mutate(congress = str_split(congress,";")) %>%  # unnest congresses
     unnest(congress) %>%
     mutate(congress = as.numeric(congress)) %>%
     filter(!problem %in% c("other", "not unique"), !solution %in% c("don't fix")) # drop cases we know we don't need to fix
+  
+  data$last_name <- formatLastName(data, "FROM")
+  # agencies to use add_first on
+  data %>% 
+    add_first() %>% 
+    filter(!is.na(first_name) ) %>%
+    mutate(agency = str_split(agency,";")) %>%  # unnest congresses
+    unnest(agency) %>%
+    count(agency, sort = T)
+  
+  # names where add_first fails 
+  data %>% 
+    #mutate(last_name = str_remove(last_name, " .*")) %>% 
+    add_first() %>% 
+    filter(is.na(first_name)&solution == "addFirst") %>%
+    mutate(agency = str_split(agency,";")) %>%  # unnest agencies
+    unnest(agency) %>%
+    count(FROM, congress, last_name, sort = T) %>% .$last_name
   
   # vectors for testing 
   FROM <- data$FROM
@@ -36,65 +54,68 @@ if(F){
 cleanFROMcolumn <- function(FROM){
 
   # remove +
-  FROM <- gsub('\\+', "", FROM)
+  FROM %<>% str_remove('\\+') %>% str_remove("—")
   
   # remove common names in quotes 
-  FROM <- gsub('\\"(Bobby|Buddy|GT|Buck|Chuck|Rick|Duke|Randy)\\"', "", FROM, ignore.case = TRUE)
+  FROM <- gsub('\\"(Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy|Andy)\\"', "", FROM, ignore.case = TRUE)
   
-  # remove paragraph breaks and trailing white space 
-  FROM <- gsub("\n", " ", FROM)
-  FROM <- trimws(FROM)
+  # remove common names in parentheses
+  FROM <- gsub('\\((Bill|Bobby|Buddy|GT|Buck|Chuck|Hank|Rick|Duke|Randy|Andy)\\)', "", FROM, ignore.case = TRUE)
+  
+  
+  # remove paragraph breaks
+  FROM %<>% str_replace_all("\n", " ") 
   
   # remove extra white space inside strings
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   # fix misplaced commas
   #FROM <- gsub("(\\w+) ,(\\w+)|(\\w+) , (\\w+)", "\\1, \\2", FROM)
-  FROM <- gsub(" ,| , |,", ", ", FROM)
+  FROM  %<>% str_replace_all(" , | ,|,", ", ")
   
   # remove extra white space inside strings again
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   # remove 
-  FROM <- gsub(pattern = " Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|'", "", FROM)
+  FROM %<>% str_remove(" Jr\\.| Jr| III| II| Ii| IV| ll| \\(Il\\)|, JR\\.")
+  
   # replace with comma
-  FROM <- gsub(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
-               replacement = ",", FROM)
+  FROM %<>% str_replace(pattern = " Jr,| CPA,| M\\.D\\.,| MD,| M\\.C\\.,| P\\.E\\.,| Ii,",
+                        replacement = ",")
 
- 
-  FROM <- gsub("\n", " ", FROM)
+  # remove paragraph breaks
+  FROM %<>% str_replace_all("\n", " ") 
   
   # remove extra white space inside strings again
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   # Delete titles that appear after a commma
-  FROM <- gsub(", (SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", ", ", FROM)
-  FROM <- gsub(", (REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )|Congressman|Congresswoman", ", ", FROM)
+  # FROM %<>% str_replace(", (SEN|Sen)(-|\\b)", ", ")
+  #FROM <- gsub(", (REP|Rep)(-|\\b)", ", ", FROM)
   
   # Replace titles at the beginning of a string or not after a comma 
-  FROM <- gsub("(^| )(SEN|Sen)( |- | - |\\. |\\.)|^S(-| )", "Senator ", FROM)
-  FROM <- gsub("(^| )(REP|Rep)( |- | - |\\. |\\.)|^(R|C)(-| )|Congressman|Congresswoman", "Representative ", FROM)
+  FROM %<>% str_replace("\\b(SEN|Sen)( |- | - |\\. |\\.)|^S( |- | - |\\. |\\.)", 
+                        "Senator ")
+  
+  FROM %<>% str_replace("\\b(REP|Rep)( |- | - |\\. |\\.)|^R( |- | - |\\. |\\.)|Congressman|Congresswoman", 
+                        "Representative ")
   
   # trim down extra spaces
-  FROM <- str_squish(FROM)
-  FROM <- gsub(" +", " ", FROM) # extra spaces
-  
+  FROM %<>% str_squish()
 
-  
-  # replace with "U.S."
-  FROM <- gsub(pattern = "Member, U.S", "US", FROM)
-  
   # remove periods
-  FROM <- gsub(pattern= "\\.\\.", replacement = " ", FROM) 
-  FROM <- gsub(pattern= "\\.", replacement = " ", FROM) 
+  FROM %<>% str_replace_all("\\.", " ") %>% str_squish()
   
   #removing double commas
-  FROM <- gsub(",,|, ,", ", ", FROM)
-
+  FROM %<>% str_replace(",+ |, ,", ", ")
+  FROM %<>% str_replace(",+ |, ,", ", ")
+  FROM %<>% str_replace_all(",,", ",")
+  
+  #removing spaces before commas
+  FROM %<>% str_replace(" ,", ", ") 
+  
   # replace spaces with a single space
-  FROM <- gsub(" +", " ", FROM) # extra spaces
-  FROM <- trimws(FROM)
-  FROM <- str_squish(FROM)
+  FROM %<>% str_squish()
   
   return(FROM)
 }
@@ -108,13 +129,22 @@ formatLastName <- function(data, col_name){
   data$last_name <- data[[col_name]]
   
   # trim white space and paragraph breaks
-  data$last_name %<>% trimws()
+  data$last_name  %<>% 
+    str_squish() %>% 
+    # correct capitalization to match last names in voteview data 
+    # Last names in voteview are upper case
+    str_to_upper() %>%
+    str_replace_all(" NA ", " ") %>% 
+    str_replace_all(" NA ", " ") %>%
+    str_replace_all(" NA ", " ") %>%
+    str_remove_all("^NA | NA$") %>% 
+    str_remove_all("^NA | NA$") %>% 
+    # remove anything in parentheses
+    str_remove_all("\\(.*\\)") %>% 
+    str_squish()
   
   # THIS WILL STAY IN THE FUNCTION formatLastName
   data %<>%
-    # correct capitalization to match last names in voteview data 
-    # Last names in voteview are upper case
-    mutate(last_name = str_to_upper(last_name)) %>% 
     #case corrections, not touching at the moment
     mutate(last_name = gsub("^MC", replacement = "Mc", last_name)) %>% 
     mutate(last_name = gsub("McEACHIN", replacement = "MCEACHIN", last_name, ignore.case = TRUE)) %>% 
@@ -186,8 +216,13 @@ formatLastName <- function(data, col_name){
     
     mutate(last_name = gsub("GONZALES", replacement = "GONZALEZ", last_name)) #fixed
   
-  data$last_name %<>% trimws()
   
+  # data %>% filter(str_detect(last_name, "INHOF")) %>% .$last_name 
+  
+  
+  
+  data$last_name %<>% str_replace(" ,", ", ")
+  data$last_name %<>% str_squish()
 
   return(data$last_name)
   
@@ -447,6 +482,33 @@ add_first <- function(data){
   }
 }
 
+# same as addFirst, but with a better name, keeping the old for posterity, but should replace with this one and make it congress-specific
+complete_first <- function(first_name, last_name){
+  
+  twolastnames  <- members %>% group_by(last_name, congress) %>% tally() %>% filter(n>1) %>% select(-congress, -n) %>% distinct()
+  membersOneLastName <- members[!(members$last_name %in% twolastnames$last_name),]
+  
+  i <- 1
+  for(i in 1:length(membersOneLastName$id)){
+    first_name = ifelse(last_name == membersOneLastName$last_name[i] & is.na(first_name), membersOneLastName$first_name[i],first_name)
+    
+  }
+  return(first_name)
+}
+
+complete_chamber <- function(chamber, last_name){
+  
+  twolastnames  <- members %>% group_by(last_name, congress) %>% tally() %>% filter(n>1) %>% select(-congress, -n) %>% distinct()
+  membersOneLastName <- members[!(members$last_name %in% twolastnames$last_name),]
+  
+  i <- 1
+  for(i in 1:length(membersOneLastName$id)){
+    chamber = ifelse(last_name == membersOneLastName$last_name[i] & is.na(chamber), membersOneLastName$chamber[i],chamber)
+    
+  }
+  return(chamber)
+}
+
 
 
 #########################
@@ -455,6 +517,7 @@ add_first <- function(data){
 # A helper function to return the full regex pattern string (so that we can join on pattern) where it finds a match
 str_detect_replace <- function(string_to_search, pattern){
   out <- ifelse(str_detect(string_to_search, pattern), pattern, "404error")
+  out %<>% str_squish()
   return(out)
 }
 
@@ -468,7 +531,10 @@ findTypos <- function(string){
     # seperate pattrns found with OR 
     #str_c(collapse = "|") %>%
     # remove 404error when it appears along side a found pattern
-    str_remove("\\|404error|404error\\|")
+    str_remove("\\|404error|404error\\|") %>% 
+    str_replace(" ,", ", ") %>% 
+    str_squish()
+    
 }
 
 
@@ -503,7 +569,7 @@ extractName <- function(string, data, members){
 
 # A function to map over congresses 
 # one congress at a time
-extractNamesPerCongress <- function(congress_i, data, members){
+extractNamesPerCongress <- function(congress_i, data, members = members){
   
   # subset to one congress
   data %<>% filter(congress == congress_i)
@@ -586,10 +652,37 @@ extractNamesPerCongress <- function(congress_i, data, members){
 }
 
 
-extractMemberName <- function(data, members, col_name, congresses = unique(data$congress)){
-      
-      # FOR TESTING 
-      # col_name <- "FROM"
+
+extractMemberName <- function(data, members = members, col_name, congresses = unique(data$congress)){
+  
+  # provided col name is string to format and extract names from
+  data %<>% mutate(string = data[[col_name]])
+  # FOR TESTING 
+  # col_name <- "FROM"
+  
+  if("chamber" %in% names(data)){
+    # add chamber to string if not NA 
+    data %<>% mutate(string = ifelse(!is.na(chamber), 
+                                   paste(chamber, string) %>% 
+                                     str_replace("House", "Represenative") %>% 
+                                     str_replace("Senate", "Senator"), 
+                                   string))
+    
+    # drop chamber 
+    data %<>% select(-chamber)
+  }
+  
+  if("state" %in% names(data)){
+    # FIXME add state_abbrev to string if not NA 
+    data %<>% mutate(string = ifelse(!is.na(state),
+                                     paste(string, "-", stateFromFull(state)),
+                                     string))
+    
+    # drop state
+    data %<>% select(-state)
+  }
+
+  t <- Sys.time()
   
   # Add ID if missing 
   if(!"ID" %in% names(data)){data$ID <- 1:nrow(data)}
@@ -601,17 +694,37 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0)
   data$congress %<>% as.numeric()
+  data$congress %<>% replace_na(0)
+
   
-  data %<>% mutate(string = data[[col_name]])
+  # joining with members requires these variables are not there
+  data %<>% mutate(last_name = NA,
+                   first_name = NA, 
+                   pattern = NA) %>% 
+    select(-first_name, -last_name, -pattern)
     
     # clean up text
-    data$string %<>% cleanFROMcolumn()
+    data$string %<>% cleanFROMcolumn() 
 
-    # correct common OCR errors
+     # correct common OCR errors
     data$string %<>% ocr.errors()
     
     # lower case 
-    data$string %<>% tolower()
+    data$string %<>% tolower() %>% 
+      str_replace("senator senator", "senator") %>% 
+      str_replace("represenative representative", "representative")
+
+    # na's pasted in 
+    data$string %<>% str_replace("na politano", "napolitano")
+    data$string %<>% str_remove("^na ")
+    data$string %<>% str_remove("^na ")
+    data$string %<>% str_replace("han na\\b", "hanna")
+    data$string %<>% str_remove_all("\\bna\\b")
+    
+    data$string %<>% str_squish()
+    
+    # misplaced commas
+    data$string %<>% str_replace(" ,", ", ")
     
     data$string %<>% str_squish()
     
@@ -633,18 +746,31 @@ extractMemberName <- function(data, members, col_name, congresses = unique(data$
                                                    pattern = p, 
                                                    replacement = r %>% paste("")))
     }
+    
+    #FIXME problem created by correcting typos
+    data$string %<>% str_replace(" ,", ", ") %>% str_squish()
 
+    base::message(paste("Typos fixed in", round(Sys.time()-t), "seconds"))
+    t <- Sys.time()
     
     # loop over congresses in data 
-    data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members)
+    data <- map_dfr(congresses, extractNamesPerCongress, data = data, members = members) #FIXME members default provided?
 
+    base::message(paste("Names matched in", round(Sys.time()-t), "seconds"))
     
     data %<>% distinct()
     
     # New ID since function may split out multiple members if found
     data$ID %<>% formatC(width=6, flag="0")
     
-    data %<>% select(LetterID, ID, congress, string, pattern, everything())
+    # trying this out adding chamber and state from member data becasuse scripts use them post extractmembername sometimes, 
+    # should not increase n because pattern is already unique to icpsr in a chamber, right?
+    data %<>% left_join(members %>% select(icpsr, pattern, bioname, first_name, last_name, congress, chamber, state) %>% distinct() ) %>% 
+      distinct()
+    
+    data$icpsr %<>% as.numeric()
+    
+    data %<>% select(LetterID, ID, congress, string, pattern, chamber, everything())
     
     return(data)
 }

@@ -32,6 +32,12 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "/|&")) %>% 
     unnest(FROM)
   
+  #Create variable for chamber position  (Senator or Representative)
+  data %<>%
+    mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
+  
+  
   data <- extractMemberName(data, members, 'FROM')
   
   #Failing observations
@@ -39,11 +45,7 @@ clean <- function(file.name) {
     filter(is.na(last_name),
            is.na(ERROR)) 
   
-  #Create variable for chamber position  (Senator or Representative)
-  data %<>%
-    mutate(chamber = ifelse (grepl("\\(Sen\\)|\\(Sen.\\)", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("\\(Cong\\)|\\(Cong.\\)", FROM), "House", chamber)) 
-  
+
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, chamber, everything())
   

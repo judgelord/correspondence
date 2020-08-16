@@ -32,7 +32,9 @@ clean <- function(file.name) {
   
   
   # Pre process FROM column
-  data$FROM <- gsub("Senator |Sen |Congressman ", "", data$FROM)
+  data$FROM <- gsub("Sen ", "Senator ", data$FROM)
+  data$FROM <- gsub("Congressman ", "Representative ", data$FROM)
+  
   
   # create first and last name variables
   data <- extractMemberName(data, members, 'FROM')

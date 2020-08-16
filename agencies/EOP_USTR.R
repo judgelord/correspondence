@@ -6,23 +6,34 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()
   
+  nrow(data)
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
+  nrow(data)
   
   # create agency column
   data$agency <- file.name 
   
   # Format date, year, Congress
-  data$DATE %<>% multidate(formats = c("%d-%b-%y", "%m/%d/%y", "%m.%d.%y", "%m.%d.%Y")) # FIXME
+  data$DATEoriginal <- data$DATE
   
-  bad.dates <- data %>% filter(is.na(DATE)) %>% .$LetterID
-  data$DATE[bad.dates]
-  data %>% select(LetterID, DATE, FROM, SUBJECT) %>% filter(LetterID %in% bad.dates)
   
+  data$DATE <- data$DATEoriginal
+  #FIXME some massive loss due to bad dates
+  data$DATE %<>% str_replace("\\.201", ".1") 
+  data$DATE %<>% str_replace("\\.20", ".0") 
+  data$DATE %<>% multidate(formats = c("%d-%b-%y", "%m/%d/%y", "%m.%d.%y")) # FIXME
+  data$DATE %<>% as.Date()
+  
+  # inspect 
+  data %>% filter(is.na(DATE)| DATE < as.Date("2000-01-01") | DATE > as.Date("2020-01-01")) %>% 
+    count(LetterID, DATEoriginal,DATE, FROM)
+  
+  # make congress
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 

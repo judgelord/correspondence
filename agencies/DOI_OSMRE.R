@@ -37,11 +37,11 @@ clean <- function(file.name) {
   # create variable for first and last name
   data <- extractMemberName(data, members, 'FROM')
   
-  data %<>%
-    mutate(last_name = ifelse(grepl("^(\\w+)$",FROM), gsub("^(\\w+)$", '\\1',FROM),last_name))
-  data$last_name <- formatLastName(data, 'last_name')
-  
-  data$first_name <- addFirst(data$first_name,data$last_name)
+  # data %<>%
+  #   mutate(last_name = ifelse(grepl("^(\\w+)$",FROM), gsub("^(\\w+)$", '\\1',FROM),last_name))
+  # data$last_name <- formatLastName(data, 'last_name')
+  # 
+  # data$first_name <- addFirst(data$first_name,data$last_name)
   
   
   # ERRORS

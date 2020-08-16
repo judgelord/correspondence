@@ -7,6 +7,8 @@ clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read()   
   
+  data %<>% mutate(SUBJECT = paste(SUBJECT, Constituent))
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -63,6 +65,7 @@ clean <- function(file.name) {
     mutate(FROM = str_squish(FROM))
  
 #Typo  
+  #FIXME THESE SHOULD ALL BE FIXED IN TYPOS 
 data %<>%
   mutate(FROM = str_replace(FROM, "VanHollen, C", "Van Hollen, C")) %>%
   mutate(FROM = str_replace(FROM, "^Balart, M\\.", "Diaz-Balart, M\\.")) %>%
@@ -184,9 +187,15 @@ data %<>%
   
   #Paste Chamber into FROM
   data %<>%
-    mutate(FROM =ifelse(str_detect(chamber, "House") & !str_detect(FROM, ","), paste("Representative", FROM, sep = " "), FROM)) %>%
-    mutate(FROM = ifelse(str_detect(chamber, "Senate") & !str_detect(FROM, ","), paste("Senator", FROM, sep = " "), FROM))
+    mutate(FROM =ifelse(str_detect(chamber, "House"), # & !str_detect(FROM, ","), 
+                        paste("Representative", FROM, sep = " "), FROM)) %>%
+    mutate(FROM = ifelse(str_detect(chamber, "Senate"),#& !str_detect(FROM, ","), 
+                         paste("Senator", FROM, sep = " "), FROM))
   
+  # allow extractmembernames to match on state 
+  data$FROM %>% str_replace("Representative Rogers, M. \\(", "Representative Rogers ")
+  
+  data %<>% select(-chamber)
   #Extract Member Names
   data %<>%
     extractMemberName(members = members, col_name = "FROM")
@@ -220,7 +229,7 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Young, D."), "Multiple Young's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Senator Scott"), "Multiple Senator Scott's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Miller, G."), "Multiple Miller's FOIA", NOTES)) %>%
-    mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES)) %>%
+    #mutate(NOTES = ifelse(str_detect(FROM, "Rogers, M."), "Multiple Rogers' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Davis"), "Multiple Davis' FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Rose"), "Multiple Rose's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Representative Smith"), "Multiple Smith's FOIA", NOTES)) %>%

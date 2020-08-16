@@ -6,8 +6,8 @@
 # file.name <- "DOD_OSDJS" # for testing
 
 clean <- function(file.name) {
-  data <- gs_title(file.name) %>% gs_read() # get data
   
+  data <- gs_title(file.name) %>% gs_read() # get data
   
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
@@ -30,17 +30,64 @@ clean <- function(file.name) {
   
   
   #data$FROM <- gsub("^MOC","", data$FROM)
-  data$FROM %<>% str_replace("\.", ", ") %>% str_squish() # repace periods with comma space, then remove extra spaces
-  data$FROM <- gsub("PELOSLN", "PELOSI, N", data$FROM)
-  data$FROM <- gsub("\\\\1", "VI", data$FROM)
+  data$FROM %<>% str_remove("^MOC") %>% str_squish()
+  data$FROM %<>% str_replace("\\.|,", ", ") %>% str_squish() # repace periods with comma space, then remove extra spaces
+  data$FROM %<>% str_replace("1", "VI")
+  
+  # corrections for this script only
+  data$FROM %<>% str_replace("BOEHNER, I", "BOEHNER, J") %>% 
+    str_replace("MACK, M|MACKM", "BONO, M") %>% 
+    str_replace("BOEHNER, I", "BOEHNER, J") %>% 
+    str_replace("GALLEGL Y", "GALLEGLY") %>% 
+    str_replace("KIRKM", "KIRK, M") %>%
+    str_replace("MCHUGRJ|MCHUGR, J", "MCHUGH, J") %>%
+    str_replace("LINDERJ", "LINDER, J") %>%
+    str_replace("SCHAKOWSKl", "SCHAKOWSKY") %>%
+    str_replace("MCMORRIS", "McMORRIS RODGERS") %>%
+    str_replace("OBERST AR", "OBERSTAR") %>%
+    str_replace("POSEYB", "POSEY, B") %>%
+    str_replace("PELOSLN|PELOSL, N", "PELOSI, N") %>%
+    str_replace("FILNERB", "FILNER, B") %>%
+    str_replace("WA XMAN|WA, XMAN", "WAXMAN") %>% 
+    str_replace("CANTORE", "CANTOR, E") %>% 
+    str_replace("CARNEYC", "CARNEY, C") %>%
+    str_replace("CARTERJ", "CARTER, J") %>% 
+    str_replace("DIAZåáBALAR.", "DIAZ-BALART") %>% 
+    str_replace(" SCLOSKY P", " VISCLOSKY, P")
+  
+  
+  # replace spaces with comma space
+  data$FROM %<>% str_replace(" ", ", ") 
+  data$FROM %<>% str_replace(",", ", ") 
+  data$FROM %<>% str_replace("(, )+", ", ")
+  #data$FROM <- gsub("\\\\1", "VI", data$FROM)
+
+  # fix problems caused by spaces in compound names 
+  data$FROM %<>% str_replace("HERSETH, SANDLIN", "HERSETH SANDLIN") %>% 
+    str_replace("McMORRIS, RODGERS", "McMORRIS RODGERS") %>% 
+    str_replace("JACKSON, LEE", "JACKSON LEE") %>% 
+    
+    str_replace("VAN, HOLLEN", "VAN HOLLEN") 
+  
+  
+  data$FROM %<>% str_remove_all("\\\\|\\!")
+  data$FROM %<>% str_squish()
+  
+  
+  # THERE IS NO CHAMBER 
+  # data %<>% mutate(FROM = ifelse(!is.na(chamber), 
+  #                                paste(chamber, FROM) %>% 
+  #                                  str_replace("House", "Represenative") %>% 
+  #                                  str_replace("Senate", "Senator"), 
+  #                                FROM))
+  # 
+  # data %<>% select(-chamber)
+  
+  
   
   #Extract Member names (New edit from formatLastName)
   data <-  extractMemberName(data,members,"FROM") 
-  
 
-  #checking for NA dates
-  NOdate <- data %>%
-    filter(is.na(DATE))
   
   
   #checking for names that are NA
@@ -48,7 +95,11 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   
   unfoundnames %<>%
-    select(ID, DATE, FROM, SUBJECT, last_name, everything())
+    select(ID, DATE, congress, FROM, string, pattern, everything())
+  
+  unfoundnames %>%  count(FROM, string, sort= T) %>% kable()
+  
+  unfoundnames$FROM
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())

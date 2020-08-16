@@ -44,19 +44,21 @@ data %<>%
   #create ID variable 
   data$ID <- c(1:nrow(data))
   
-  # create variable for first and last name
-  data <- extractMemberName(data,members,'FROM')
-  
   #Create variable for chamber position  (Senator or Representative)
   data %<>%
     mutate(chamber = ifelse (grepl("Senator|Senate", FROM), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) %>% 
-    mutate(chamber = ifelse(is.na(last_name), NA, chamber))
+    mutate(chamber = ifelse(grepl("Representative", FROM), "House", chamber)) 
   
   # create variable for state
   data %<>%
     mutate(state = gsub(".*\\((\\w{2})\\).*", "\\1", data$FROM))
   data$state <- stateFromLower(data$state)
+  
+  
+  # create variable for first and last name
+  data <- extractMemberName(data,members,'FROM')
+  
+
   
   #Failing observations
   Unfoundnames <- data %>%

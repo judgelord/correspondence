@@ -19,7 +19,13 @@ clean <- function(file.name) {
   data$agency <- file.name 
   
   # Format date, year, Congress
-  data$DATE %<>% as.Date("%y %m %d")
+  data$dateoriginal <- data$DATE
+  data$DATE <- data$dateoriginal
+  data$DATE %<>% #str_replace_all("/", " ") %>% 
+    multidate(c("%y %m %d","%m/%d/%y"))
+  
+  data %>% filter(is.na(DATE)) %>% count(dateoriginal)
+  
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
@@ -47,20 +53,21 @@ clean <- function(file.name) {
   data$first_name %<>% addFirst(data$last_name)
   
   data %<>% 
-    mutate(FROM = paste(chamber, first_name, last_name) %>% 
-             str_replace("NA", " ") %>% 
+    mutate(FROM = paste(chamber, first_name, last_name, State) %>% 
+             str_replace("\\bNA\\b", " ") %>% 
              str_replace("Senate", "Senator") %>% 
-             str_replace("House", "Representative") )
+             str_replace("House", "Representative") %>% str_squish() )
   
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(members, 'FROM')
 
-  data$state <- stateFromLower(data$State)
+  #data$state <- stateFromLower(data$State)
   
   
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),
-           is.na(ERROR))
+           is.na(ERROR)) %>%
+    count(FROM, string, congress, sort= T)
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())

@@ -4,19 +4,71 @@
 clean <- function(file.name) {
   
   data <- gs_title(file.name) %>% gs_read() 
-  
-  # helper function to deal with duplicates
-  combine <- . %>% unique() %>% str_c(collapse = ";")
-  
-  data %>% group_by(`From Last Name`, `From First Name`, `DATE`, `SUBJECT`) %>% 
-    summarise_all(combine) %>% distinct()
-  
+  nrow(data)
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
   data_distinct <- data %>% select(-LetterID) %>% distinct()
   # join back in LetterID for distinct observations
   data <- data_distinct %>% left_join(data) %>% distinct()
+  nrow(data)
+  
+  # put names in FROM
+  data %<>%
+    mutate(FROM = ifelse(is.na(FROM), str_c(`From Last Name`, ", ", `From First Name`), FROM))
+  
+  # remove some codes in otherwise duplicates subjects
+  data$SUBJECT %<>% str_remove_all("-|(^| )ORA |(^| )BARR |(^| )DFMFFSO |(^| )ACA |(^| )HPO |(^| )CO |(^| )DMHPO ||(^| )CHO |(^| )DFM ") %>% str_squish()
+  
+# LetterIDs for these data will have ";;;" in them because most are duplicated
+  
+  # helper function to deal with duplicates
+  combine_strings <- . %>% unique() %>% str_c(collapse = ";;;")
+  
+  if(F){ # Inspect duplicates 
+  duplicates <- data %>% 
+    group_by(FROM, `DATE`, `SUBJECT`) %>% 
+    summarise_all(combine_strings) %>% 
+    add_count() %>% 
+    filter(n>1) %>% 
+    distinct()
+  
+  # duplicated subjects (short ones or NA may not be duplicates)
+  duplicates %>% count(SUBJECT, sort = T) 
+  
+  duplicate_coding <- duplicates %>%  
+    filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) %>%
+    select(DATE, SUBJECT, TYPE, ALT_TYPE) %>% distinct()
+  duplicate_coding
+  write_csv(duplicate_coding, "duplicate_coding_CMS.csv")
+  }
+  
+  nrow(data)
+  
+  # Combine duplicates 
+  data %<>% group_by(FROM, `DATE`, `SUBJECT`) %>% 
+    summarise_all(combine_strings) %>% 
+    ungroup() %>% 
+    distinct()
+  
+  nrow(data)
+  
+  # Inspect potential remaining duplicates (these have different subjects) 
+    # Regarding why Medicaid won't cover the cost of her daughter's feeding tube
+    # Regarding why Medicare won't cover the cost of her daughter's feeding tube
+  if(F){ 
+    duplicates_potential <- data %>% 
+      group_by(FROM, DATE, TYPE) %>% # because type duplicates are generally corrected
+      add_count() %>% 
+      summarise_all(combine_strings) %>% 
+      filter(n>1) %>% 
+      arrange(n) %>% 
+      distinct()
+  }
+    
+  
+
+
   
   #create agency column
   data$agency <- file.name
@@ -41,9 +93,7 @@ clean <- function(file.name) {
     filter(str_detect(FROM, "NULL"))
   
   
-  data %<>%
-    mutate(FROM = ifelse(is.na(FROM), paste(`From Last Name`, `From First Name`, sep = ", "), FROM))
-  
+
   #data <- data[sample(1:nrow(data), 20000, replace=FALSE),]
   
   nullName <- data %>%
@@ -84,10 +134,19 @@ clean <- function(file.name) {
      mutate(FROM = str_replace(FROM, "MICA  JOHN L, NULL", "MICA, JOHN")) %>%
      mutate(FROM = str_replace(FROM, "CORKER  BOB, NULL", "CORKER, BOB")) %>%
      mutate(FROM = str_replace(FROM, "Andrews, NULL", "ANDREWS, Robert")) %>%
-     mutate(FROM = str_replace(FROM, "Murkowski, NULL", "MURKOWSKI, Lisa"))
+     mutate(FROM = str_replace(FROM, "Murkowski, NULL", "MURKOWSKI, Lisa"),
+            FROM = str_replace(FROM, "HUTCHISON,","HUTCHIS ON,"),
+            FROM = str_replace(FROM, "Grijalva, Raï¿½l", "Grijalva, Raul"),
+            FROM = str_replace(FROM, "Clay, Wm", "Clay, William"),
+            FROM = str_replace(FROM, "Young, C. W. Bill", "Young, Bill"),
+            FROM = str_replace(FROM, "Hinojosa, Rubï¿½n", "HINOJOSA, Ruben") )
+            
    
    # check N
    dim(data)
+   
+   # unclear where the NA letter ids are coming from 
+   filter(data, is.na(LetterID))
 
   #Extract Member names
   data %<>%
@@ -96,20 +155,18 @@ clean <- function(file.name) {
   # check N
   dim(data)
   
+  # identify member names in SUBJECT
+  #(as far as I can tell (July 2020) every instance where a name is found in SUBJECT has a match in FROM, but it is possible that additional members
+  if(F){
   subjectData <- data %>%
-    filter(str_detect(NOTES, "member name in subject")) %>%
-    extractMemberName(members = members, col_name = "SUBJECT") 
+    filter(is.na(last_name)) %>%
+    extractMemberName(members = members, col_name = "SUBJECT") %>% 
+    filter(!is.na(last_name))
   
-  data %<>%
-    full_join(subjectData)
-  
-  #check N
-  dim(data)
-  
-  
-  data %>%
-    filter(ID == 7) %>%
-    select(FROM)
+  subjectData %>% 
+    select(LetterID, `From First Name`, `From Last Name`, DATE, SUBJECT, last_name, NOTES) %>% 
+    knitr::kable()
+  }
   
   #ERRORs
    data %<>%
@@ -124,12 +181,17 @@ clean <- function(file.name) {
      mutate(ERROR = ifelse(str_detect(FROM, "Limehouse III, Harry B\\. \'Chip\'|Lynch, John H\\.|Hansen, Alicia \'Chucky\'|Corbett, Tom|Markell, Jack A\\.|Avella, Tony|Otter, C\\. L\\. \'Butch\'|Ellis, Rodney|Gill, Nia H\\.|Swanson, Lori") & is.na(ERROR), "state politician", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "Griffin, Tim") & congress %in% c(115, 114) & is.na(ERROR), "no longer in congress", ERROR)) %>%
      mutate(ERROR = ifelse(str_detect(FROM, "riffin, Timothy") & congress %in% c(111) & is.na(ERROR), "no longer in congress", ERROR))
-  
-  unfoundNamesSample2 <- data %>%
-    filter(is.na(last_name)) %>%
-    filter(! str_detect(FROM, "NA, NA")) %>%
-    filter( is.na(ERROR))
-  
+
+  # data %>% ungroup() %>% mutate(medicaid = str_detect(SUBJECT, "Medicaid|medicaid")) %>% tally(medicaid)
+   
+  # head(data$FROM)
+  # look <- filter(data, pattern == "404error", is.na(ERROR)) %>% 
+  #   group_by(FROM, string) %>%
+  #   mutate(congress = str_c(congress, sep = ";")) %>%
+  #   count(FROM, string, congress, sort = T)  
+  # 
+  # look %<>% ungroup() %>% select(-string) %>% extractMemberName(col_name = "FROM", members = members)
+  # 
   return(data)
   
 }

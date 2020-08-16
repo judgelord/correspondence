@@ -16,8 +16,7 @@ install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project
 
 
 
-
-
+library(here)
 library(dplyr)
 library(magrittr)
 library(readr)
@@ -635,6 +634,7 @@ committees %<>%
   mutate(party = ifelse(name == "Newhouse, Dan", 200, party)) %>% 
   mutate(party = ifelse(name == "Bost, Mike", 200, party)) %>% 
   mutate(party = ifelse(name == "Hensarling, Jeb", 200, party)) %>% 
+  mutate(party = ifelse(name == "Davidson, Warren", 200, party)) %>% 
   mutate(party = ifelse(name == "Hoeven, John", 200, party)) 
   
 # short committee name

@@ -29,12 +29,34 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  # correct typos 
+  #FIXME with more purrr
+  for (i in 1:dim(typos)[1]){
+    r <- typos$correct[i]
+    p <- typos$typos[i]
+    
+    # Fix name typos
+    data %<>% 
+      # find common typos
+      mutate(string = FROM %>% purrr::map_chr(str_replace, 
+                                              pattern = p, 
+                                              replacement = r %>% paste("")))
+  }
   
   # create variable for  last name
-  data$last_name <- formatLastName(data, 'FROM')
+  data$last_name <- formatLastName(data, 'string')
   
+  data$last_name %>% 
+    str_replace("OROURKE", "O'ROURKE") %>% 
+    str_replace("G NGREY", "GINGREY") %>% 
+    str_remove(" .*")
+  
+
   # add first name column
   data %<>% add_first()
+  
+  #inspect
+  paste(data$first_name, data$last_name, data$FROM, sep = "<--")
   
   data  %<>% mutate(FROM = paste(first_name, FROM) %>% str_remove("NA "))
   
@@ -43,10 +65,13 @@ clean <- function(file.name) {
   
   #Failing observations
   Unfoundnames <- data %>%
-    filter(pattern == "404error",
+    filter(is.na(last_name),
            is.na(ERROR))
-  Unfoundnames %>% select(congress, FROM) %>% distinct() %>% kable()
+  Unfoundnames %>% select(congress, FROM) %>% distinct() #%>% kable()
   
+  Unfoundnames %>% filter(congress == 0)
+
+  data %>% filter(FROM =="WALZ")
 
   return(data)  
 }

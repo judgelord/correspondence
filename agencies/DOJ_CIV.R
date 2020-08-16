@@ -17,11 +17,16 @@ clean <- function(file.name) {
   #create agency column
   data$agency <- file.name
   
-  data$DATE <- data$originalDATE %>% 
-    str_replace("/ */", "/1/") %>%
+  data$DATE %<>% 
+    #str_replace("/ */", "/1/") 
+    as.Date("%Y-%m-%d")
+  
+  data$originalDATE %<>%
     str_replace(" 20", "/20") %>%
-    str_replace("([0-9])20", "\\1/20") %>%
-    multidate(c("%m/%d/%Y", "%m/%d/%y"))
+    str_replace("([0-9])20", "\\1/20") %>% 
+    as.Date("%m/%d/%y")
+  
+  data$DATE %<>% coalesce(data$originalDATE)
   
   #checking for NA dates
   NOdate <- data %>%

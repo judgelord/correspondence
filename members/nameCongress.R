@@ -1,5 +1,5 @@
 # this script creates members.Rdata
-source("setup.R") # make sure libraries are loaded
+# source("setup.R") # make sure libraries are loaded
 library(devtools) # to get voteview
 
 ## Rvoteview dependencies can through errors, so this script creates members.Rdata, which limits the use of voteview and saves the augmented names
@@ -12,6 +12,7 @@ library(Rvoteview)
 
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
                      member_search(congress = c(109:120)))  # get voteview data for selected Congresses
+
   # format state
  members%<>%
    mutate(state = tolower(state)) %>%
@@ -32,11 +33,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = gsub("\\)|\\(", "", common_name)) %>%
     mutate(first_name = gsub("\\(.*\\)", "", first_name)) %>%
     mutate(middle_name = stringr::str_extract(first_name, " .*")) %>%
-    mutate(middle_name = gsub(" ", "", middle_name)) %>%
+    mutate(middle_name = str_squish(middle_name)) %>%
     mutate(middle_initial = substr(middle_name, 1, 1)) %>%
-    mutate(first_name = gsub(" .*", "", first_name)) %>%
+    mutate(first_name = first_name %>% str_squish() %>% str_remove(" .*")) %>%
     mutate(common_name = ifelse(is.na(common_name), "", common_name)) %>%
-    mutate(first_initial = gsub("^(\\w).*",  "\\1", first_name)) %>% 
+    mutate(first_initial = str_sub(first_name, 1,1)) %>% 
     mutate(last_name = ifelse(last_name == "MCCARTHY", "McCARTHY", last_name)) %>% # IS THIS A TYPO FROM VOTEVIEW, OR ARE THEY ALL LIKE THIS?
      
      # additional last names
@@ -57,6 +58,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(maiden_name = ifelse(bioname == "FISCHER, Debra (Deb)", "Strobel", maiden_name)) %>%
     mutate(maiden_name = ifelse(bioname == "WARREN, Elizabeth", "Herring", maiden_name)) %>%
     mutate(maiden_name = ifelse(bioname == "AYOTTE, Kelly", "Daley", maiden_name)) %>%
+     mutate(maiden_name = ifelse(bioname == "McMORRIS RODGERS, Cathy", "McMORRIS", maiden_name)) %>%
+     mutate(maiden_name = ifelse(bioname == "LUJAN GRISHAM, Michelle", "(LUJAN|GRISHAM)", maiden_name)) %>% # Lujan is Maiden, but she is called M Grisham
     
      # common names
      # NOTE, as written this will overwrite existing common names. 
@@ -107,7 +110,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(  (first_name == "Mathew")&(common_name==""), "Matt", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Matthew")&(common_name==""), "Matt", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Matt")&(common_name==""), "Matthew", common_name)) %>% 
-    mutate(common_name = ifelse(  (first_name == "Edward")&(common_name==""), "Ed", common_name)) %>% 
+     mutate(common_name = ifelse(  (first_name == "Ed")&(common_name==""), "Edward", common_name)) %>% 
+     mutate(common_name = ifelse(  (first_name == "Edward")&(common_name==""), "Ed", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Theodore")&(common_name==""), "Ted", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Stevan")&(common_name==""), "Steve", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Stephen")&(common_name==""), "Steve", common_name)) %>% 
@@ -126,6 +130,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(  (first_name == "Alfred")&(common_name==""), "Al", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Donald")&(common_name==""), "Don", common_name)) %>% 
     mutate(common_name = ifelse(  (first_name == "Don")&(common_name==""), "Donald", common_name)) %>% 
+     mutate(common_name = ifelse(  (first_name == "Samuel")&(common_name==""), "Sam", common_name)) %>% 
   
     # Specific common names 
     mutate(common_name = ifelse(bioname == "GRUCCI, Jr., Felix J.", "Phil", common_name)) %>%
@@ -257,7 +262,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "SCOTT, Robert C.", "(Bob|Bobby)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "VAN DREW, Jefferson", "Jeff", common_name)) %>%
     mutate(common_name = ifelse(bioname == "OWENS, William", "(Will|Bill)", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "NELSON, Earl Benjamin (Ben)", "(Ben|E.B.)", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "NELSON, Earl Benjamin (Ben)", "(Benjamin|Ben|E.B.)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CASEY, Robert (Bob), Jr.", "(Rob|Bob)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "WHITFIELD, Wayne Edward (Ed)", "(Ed|Edward)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "CLELAND, Joseph Maxwell (Max)", "(Max|Joe)", common_name)) %>%
@@ -281,7 +286,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "CLAY, William Lacy, Jr.", "(Bill|Lacy)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "AXNE, Cynthia", "Cindy", common_name)) %>%
     mutate(common_name = ifelse(bioname == "STEUBE, William", "(Bill|Greg|Gregory)", common_name)) %>%
-    mutate(common_name = ifelse(bioname == "CORREA, Jose Luis", "Lou", common_name)) %>%
+    mutate(common_name = ifelse(bioname == "CORREA, Jose Luis", "(Lou|Luis)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "HUDSON, Richard", "(Rich|Rick)", common_name)) %>%
     mutate(common_name = ifelse(bioname == "HAWLEY, Joshua David", "Josh", common_name)) %>%
     mutate(common_name = ifelse(bioname == "TOWNS, Edolphus", "Ed", common_name)) %>%
@@ -297,6 +302,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(common_name = ifelse(bioname == "GARRETT, Scott", "Ernest", common_name)) %>%
     mutate(common_name = ifelse(bioname == "WARREN, Elizabeth", "Liz", common_name)) %>%   
     mutate(common_name = ifelse(bioname == "PAUL, Rand", "(Randy|Randal)", common_name)) %>%
+     mutate(common_name = ifelse(bioname == "EMERSON, Jo Ann", "JoAnn", common_name)) %>%
+     # Tim usually refers to the other Timothy Johnson
+    mutate(common_name = ifelse(bioname == "JOHNSON, Timothy V.", NA, common_name)) %>% 
 
     # remove accent marks (using RegEx dot for specials, not exact matching)
     mutate(common_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", common_name)) %>% 
@@ -306,7 +314,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(grepl("SERRANO, Jos. E.", bioname), "Jose", first_name)) %>% 
     mutate(first_name = ifelse(grepl("CARSON, Andr.", bioname), "Andre", first_name)) %>% 
     mutate(last_name = ifelse(grepl("LUJ.N, Ben Ray", bioname), "LUJAN", last_name)) %>% 
-    mutate(last_name = ifelse(grepl("LUJ.N GRISHAM, Michelle", bioname), "LUJAN", last_name)) %>% 
+    mutate(last_name = ifelse(grepl("LUJ.N GRISHAM, Michelle", bioname), "LUJAN GRISHAM", last_name)) %>% 
     mutate(last_name = ifelse(grepl("BARRAG.N, Nanette Diaz", bioname), "BARRAGAN", last_name)) %>% 
     mutate(last_name = ifelse(grepl("S.NCHEZ, Linda T.", bioname), "SANCHEZ", last_name)) %>% 
     mutate(first_name = ifelse(grepl("GRIJALVA, Ra.l M.", bioname), "Raul", first_name)) %>% 
@@ -314,6 +322,9 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
     mutate(first_name = ifelse(grepl("LABRADOR, Ra.l R.", bioname), "Raul", first_name)) %>% 
   
   # middle name
+     mutate(middle_name = ifelse(bioname == "SUOZZI, Thomas", "Richard", middle_name)) %>% 
+      mutate(middle_name = ifelse(bioname == "DENT, Charles W.", "Weider", middle_name)) %>% 
+     mutate(middle_name = ifelse(bioname == "KATKO, John", "Michael", middle_name)) %>% 
      mutate(middle_name = ifelse(bioname == "McSALLY, Martha", "Elizabeth", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "GRUCCI, Jr., Felix J.", "James", middle_name)) %>% 
     mutate(middle_name = ifelse(bioname == "ZINKE, Ryan", "Keith", middle_name)) %>% 
@@ -507,7 +518,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   mutate(middle_initial = ifelse(bioname == "MOOLENAAR, John", "R", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "PETERSON, John", "E", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "MERKLEY, Jeff", "A", middle_initial)) %>%
-  mutate(middle_initial = ifelse(bioname == "HARMAN, Jane L.", "ML", middle_initial)) %>%
+  mutate(middle_initial = ifelse(bioname == "HARMAN, Jane L.", "(L|ML)", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "REID, Harry","M", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "CARNEY, Chris","P", middle_initial)) %>%
   mutate(middle_initial = ifelse(bioname == "KILDEE, Dan","T", middle_initial)) %>%
@@ -593,6 +604,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$middle_initial %<>% str_remove("\\.")
   members$first_initial %<>% str_remove("\\.")
   members$middle_name %<>% str_remove("\\.")
+  members$first_name %<>% str_remove("\\.")
   
   members %<>%
     # add any missing middle initials
@@ -612,42 +624,105 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members$first_middle_last <- paste(members$first_name, members$middle_name, members$last_name, sep = " ")
   members$first_initial_last <- paste(members$first_name, members$middle_initial, members$last_name, sep = " ")
   members$common_middle_last <- paste(members$common_name, members$middle_name, members$last_name, sep = " ")
-  members$common_initial_last <- paste(members$common_name, members$middle_initial, members$last_name, sep = " ")
-  members$first_addlast <- paste(members$first_name, members$add_last_name, sep = " ")
-  members$first_last_addlast <- paste(members$first_name, members$last_name, members$add_last_name, sep = " ")
+  #members$first_addlast <- paste(members$first_name, members$add_last_name, sep = " ")
+  #members$first_last_addlast <- paste(members$first_name, members$last_name, members$add_last_name, sep = " ")
   #members$firstinitial_middleinitial_last <- paste(members$first_initial, members$middle_initial, members$last_name, sep = " ")
  
   
   members %<>% 
     ungroup() %>% 
-    mutate(last_comma_first = paste0(last_name, ", ", first_name),
+    mutate(last = str_c("(^|senator |representative )", last_name, "\\b"), # captures wrong chambers (below, non-unique last names require a state)
+           last_comma_first = paste0(last_name, ", ", first_name),
+           last_first = paste(last_name, first_name),
            first_maiden_last = paste(first_name, maiden_name, last_name),
-           common_maiden_last = paste(common_name, maiden_name, last_name),
+           common_middle_initial_last = paste(common_name, middle_initial, last_name),
+           common_maiden = paste(common_name, maiden_name),
            first_initial_last = paste(first_initial, last_name),
+           commoninitial_last = paste(common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), last_name),
            first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
-           last_comma_initial = paste0("^", last_name, ", ", first_initial, "$"),
-           last_comma_commoninitial = paste0("^", last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "$"),
+           #last_comma_firstinitial_middleinitial = paste0(last_name, ", ", first_initial, " ", middle_initial), # redundent
+           last_comma_initial = paste0(last_name, ", ", first_initial, "\\b"),
+           last_comma_commoninitial = paste0(last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "\\b"),
            last_comma_common = paste0(last_name, ", ", common_name),
-           last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name),
-           last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
-           addlast_comma_first = paste0(add_last_name, ", ", first_name),
-           chamber_last = paste0(chamber, " ", last_name,"($|,)") %>% 
+           maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
+           maiden_comma_firstinitial = paste0(maiden_name, ", ", first_initial), # e.g. Grisham, M. in VA 
+           #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
+           #last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
+           #addlast_comma_first = paste0(add_last_name, ", ", first_name),
+           chamber_last = paste0(chamber, " ", last_name) %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
+
+  # check for mirrior names 
+  members %>% filter(last_first %in% members$first_last)
+  members %>% filter(maiden_comma_first %in% members$last_comma_first)
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
   last_name_count <- members %>% 
     select(last_name, chamber, bioname, congress) %>%  
     distinct() %>%     
-    count(last_name, chamber, congress) %>% 
-    rename(last_name_count = n)
+    count(last_name, chamber, congress, name = "last_name_count") 
+  
+  # last_name_count %>% filter(last_name_count >1) %>% ungroup() %>% 
+  #   group_by(last_name, last_name_count) %>% 
+  #   summarise(congress = str_c(congress, collapse = ";"),
+  #             chamber = str_c(unique(chamber), collapse = ";")) %>%
+  #   kable()
+
+  members %<>% 
+    full_join(last_name_count) %>% # add counts 
+    mutate(chamber_last = ifelse(last_name_count > 1,  
+                                 # if chamber last is not unique, require state 
+                                 str_c(chamber_last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
+                                       chamber_last)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
+  # non-unique last names
+  last_name_count <- members %>% 
+    select(last_name, bioname, congress) %>%  
+    distinct() %>%     
+    count(last_name, congress, name = "last_name_count") 
   
   members %<>% 
-    full_join(last_name_count) %>% 
-    mutate(chamber_last = ifelse(last_name_count > 1, NA, chamber_last)) %>% 
-    select(-last_name_count)
+    full_join(last_name_count) %>% # add counts 
+    mutate(last = ifelse(last_name_count > 1, 
+                         # if last is not unique, require state 
+                         str_c(last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
+                         last)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
+
+  # non-unique first initials + last names
+  last_name_count <- members %>% 
+    select(first_initial_last, bioname, congress) %>%  
+    distinct() %>%     
+    count(first_initial_last, congress, name = "last_name_count") 
+  
+  members %<>% 
+    full_join(last_name_count) %>% # add counts 
+    mutate(first_initial_last = ifelse(last_name_count > 1, 
+                                       # if chamber last is not unique, require state 
+                                       str_c(first_initial_last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
+                                       first_initial_last)) %>% # remove non unique 
+    mutate(last_comma_initial = ifelse(last_name_count > 1, 
+                                       "404error",
+                                       last_comma_initial)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
+  # non-unique common initials + last names
+  last_name_count <- members %>% 
+    select(commoninitial_last, bioname, congress) %>%  
+    distinct() %>%     
+    count(commoninitial_last, congress, name = "last_name_count") 
+  
+  members %<>% 
+    full_join(last_name_count) %>% # add counts 
+    mutate(commoninitial_last = ifelse(last_name_count > 1, "404error", commoninitial_last)) %>% # remove non unique 
+    mutate(last_comma_commoninitial = ifelse(last_name_count > 1, "404error", last_comma_commoninitial)) %>% # remove non unique 
+    select(-last_name_count) # drop counts
+  
   
   # # drop common last when there are multiple members with the same name
   # # commented out because I am option to over match and then drop people in merge, then fail to match people with the same name 
@@ -664,7 +739,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
 
 
 # Replace NA names with "404error"
-replace404 <- . %>% ifelse(str_detect(., "\\^NA | NA |, NA\\$| NA\\$|404error"), "404error", .)
+replace404 <- . %>% ifelse(str_detect(., "\\bNA\\b|404error"), "404error", .)
 
 members %<>% mutate_all(replace404)
 
@@ -676,38 +751,44 @@ members %<>%
                      first_middle_last,
                      first_initial_last,
                      first_middle_initial_last,
+                     first_maiden_last,
+                     maiden_comma_first,
+                     maiden_comma_firstinitial,
                      common_last,
                      common_middle_last,
-                     common_initial_last,
+                     common_middle_initial_last,
+                     commoninitial_last,
+                     common_maiden,
+                     last,
+                     last_comma_common,
                      last_comma_first,
+                     last_first,
                      last_comma_initial,  # I worry about this over-matching, but we could test it--needed for VA # FIXME 
                      last_comma_commoninitial, # needed for VA, common name initials like Goodlatte, B. and Durbin, D.
                      chamber_last, 
-                     first_maiden_last,
-                     common_maiden_last,
-                     last_comma_common,
                      #last_comma_first_maiden, # this seems redundent
-                     firstinitial_middleinitial_last,
-                     first_addlast,
-                     first_last_addlast,
-                     last_addlast_comma_first
-                     
-                     
-  ) %>%
-    unique() %>%
-    str_subset("404error", negate = T) %>%
-    str_c(collapse = "|") %>%
-    tolower() ) %>%
+                     firstinitial_middleinitial_last
+                     # last_comma_firstinitial_middleinitial, seems redundent #FIXME check in CMS "Carter, E.L." and "Butterfield, G. K."
+                     #first_addlast,
+                     #first_last_addlast,
+                     #last_addlast_comma_first
+                     ) %>%
+    unique() %>% # unique matches 
+    str_subset("404error", negate = T) %>% # drop missing
+    str_c(collapse = "|") %>% # sep with OR 
+    tolower() ) %>% # lower case 
   ungroup()
 
 
-
+members %<>% select(chamber, congress, bioname, pattern, everything() )
 # mismatches between middle name and middle initial? 
 suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initial) & !is.na(middle_name))
-
+suspect_middle_names
 
   # causes problems, but should eventually be used for more targeted matching
-  members %<>% select(-congresses)
+  members %<>% select(-congresses) 
+  
+
 
   
   save(members, file = "members/members.Rdata")

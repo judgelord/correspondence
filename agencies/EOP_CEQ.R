@@ -39,6 +39,9 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, "\\,| and|\\/|\\&")) %>%
     unnest(FROM)
   
+  data %<>% 
+    filter(! FROM == "" & ! SUBJECT == "")
+  
   #chamber
   data %<>%
     mutate(chamber = ifelse(str_detect(FROM, "Sen\\.|Senator|Senate- |Senate Majority Leader ") & ! str_detect(FROM, "Member of Congress|Congressman"),
@@ -80,6 +83,8 @@ data %<>%
   mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "House"), paste("Representative", FROM, sep = " "), FROM )) %>%
   mutate(FROM = ifelse(! str_detect(FROM, " ") & str_detect(chamber, "Senate"), paste("Senator", FROM, sep = " "), FROM ))
 
+
+
 #Extract members in FROM
 data <- extractMemberName(data, members, 'FROM')
 
@@ -108,8 +113,6 @@ data %<>%
   mutate(ERROR = ifelse(str_detect(FROM, "Kim Carr"), "Australian Politician", ERROR)) %>%
   mutate(ERROR = ifelse(str_detect(FROM, "Representative Granholm|Dale Zorn|Kevin Ranker"), "State Politician", ERROR))
 
-data %<>% 
-  filter(! FROM == "" & ! SUBJECT == "")
 
 #Multiple unnamed members
 #data %<>%

@@ -55,16 +55,17 @@ clean <- function(file.name) {
   
   #Typos
   #added misspellings of names into nameMethods
+  # most of these are unnecessary
   data %<>%
-   mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson Glenn")) %>%
-   mutate(FROM = str_replace(FROM, "Merkley letter", "Merkley")) %>%
+   mutate(FROM = str_replace(FROM, "Thompson Glen \"GT\"", "Thompson, Glenn")) %>%
+   mutate(FROM = str_replace(FROM, "Merkley", "Jeff Merkley")) %>%
    mutate(FROM = str_replace(FROM, "Hall NY-19", "Hall")) %>%
    mutate(FROM = str_replace(FROM, "Hodes CM", "Hodes")) %>%
-   mutate(FROM = str_replace(FROM, "Markey", "MARKEY Edward")) %>%
-   mutate(FROM = str_replace(FROM, "Gillibrand", "GILLIBRAND Kirsten")) %>%
+   mutate(FROM = str_replace(FROM, "Markey", "MARKEY, Edward")) %>%
+   mutate(FROM = str_replace(FROM, "Gillibrand", "GILLIBRAND, Kirsten")) %>%
    mutate(FROM = str_replace(FROM, "NH, Delegation Sens. Ayotte", "Senator Ayotte")) %>%
-   mutate(FROM = str_replace(FROM, "Ryan, P.", "RYAN Paul")) %>%
-   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH Christopher")) %>%
+   mutate(FROM = str_replace(FROM, "Ryan, P.", "RYAN, Paul")) %>%
+   mutate(FROM = str_replace(FROM, "Smith, C. NJ", "SMITH, Christopher")) %>%
    mutate(FROM = str_replace(FROM, "Bass", "Charlie Bass"))  
  
   
@@ -87,16 +88,18 @@ clean <- function(file.name) {
 
   
   #Filter for stil unnamed
-  Unfoundnames <- data %>%
-    filter(is.na(last_name) & str_detect(FROM, " ") & ! str_detect(FROM, ", "))
+  if(F){
+  Unfoundnames <- data %>% 
+    filter(is.na(last_name), is.na(ERROR)) %>% 
+    count(FROM, string, congress, sort= T)
   
-  #Create ID
-  data %<>%
-    mutate(ID = row_number())
-      
+  Unfoundnames %>% 
+    #filter(str_detect(FROM, "Representative|Senator")) %>% 
+    select(-string) %>% mutate(FROM = str_remove(FROM, "^NA ")) %>% arrange(-n, FROM) %>% 
+    kable()
   
-  
-  
+  Unfoundnames %<>% extractMemberName(members, "FROM")
+  }
   
  #Notes for multiple unnamed members 
   data %<>%
@@ -114,8 +117,8 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "Alexander") & is.na(first_name) & is.na(chamber), "Multiple Alexander's FOIA", NOTES)) %>%
     mutate(NOTES = ifelse(str_detect(FROM, "Reed") & is.na(first_name) & is.na(chamber), "Multiple Reed's FOIA", NOTES))
   
-  nochamber <- data %>%
-    filter(is.na(first_name) & is.na(chamber) & is.na(NOTES))
+  # nochamber <- data %>%
+  #   filter(is.na(first_name) & is.na(chamber) & is.na(NOTES))
   
   #Check after run through merge
  #Unmatched <- d %>%

@@ -57,7 +57,8 @@
   library(googlesheets4)
   library(googledrive)
   
-  source(here("functions/clean.R")) # data cleaning and intercoder agreement functions 
+  source(here("functions/clean2.R")) # data cleaning and intercoder agreement functions are in clean.R, clean3.R is a minimial version of this that makes fewer corrections
+  
   source(here("functions/stateFromLower.R")) # format state names
   source(here("functions/dateMethods.R"))
   source(here("functions/nameMethods.R")) # functions for cleaning member names to match the augmented member file
@@ -67,6 +68,7 @@
   load(here("members/members.Rdata"))
   
   ## Load committee data
+  #source("committees/committees.R")
   load(here("data/committees.Rdata"))
   
   ## Load typos and date corrections
@@ -96,10 +98,36 @@
     }
   }
 
-  
+  # a function to combine
+  combine_strings <- . %>% unique() %>% str_c(collapse = ";;;")
   
 ## Since clean scripts were written for the googlesheets packaged, which has been replaced by googlesheets4
   gs_read <-   function(sheet){sheet %>% googlesheets4::read_sheet(col_types = "c")}
-  
   gs_title <- function(file.name){googledrive::drive_get(file.name)}
   
+  # authenticate google sheets
+  googlesheets4::gs4_auth(email = "correspondenceresearch@gmail.com")
+
+  # authenticate google drive
+  googledrive::drive_auth(email = "correspondenceresearch@gmail.com")
+  
+  
+  
+  # str_add <- function(string, addition, sep = ";"){
+  #   ifelse(is.na(string), 
+  #          addition, 
+  #          str_c(string, addition, sep = sep))
+  # }
+  # 
+  # c("adf",NA, NA, "test", "dfa") %>% str_add_if("tst", condition = T)
+  # 
+  # str_add_if <- function(string, 
+  #                        condition = TRUE, 
+  #                        addition, 
+  #                        sep = ";"){
+  #   ifelse(condition,
+  #          ifelse(is.na(string), 
+  #                 addition,
+  #                 str_c(string, addition, sep = sep)),
+  #          string)
+  # }

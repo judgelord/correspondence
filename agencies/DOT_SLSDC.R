@@ -3,7 +3,7 @@
 
 # Finished. All matched on last_name / first_name
 
-#file.name <- "DOT_SLSDC" # for testing
+#file.name <- "DOT_SLSDC Aaron" # for testing
 
 
 clean <- function(file.name) {
@@ -38,6 +38,10 @@ clean <- function(file.name) {
   data$first_name <- gsub("(\\w+) .*", "\\1", data$first_name)
   data$last_name <- formatLastName(data, 'last_name')
   data$last_name <- gsub("(\\w+)( |,) .*", "\\1", data$last_name)
+  
+  data %<>% mutate(FROM = paste(chamber, first_name, last_name))
+  
+  data %<>% extractMemberName(members, "FROM")
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())

@@ -41,10 +41,12 @@ clean <- function(file.name) {
     mutate(FROM = str_split(FROM, ";")) %>%
     unnest(FROM) 
   
-  data %<>% mutate(FROM = str_remove_all(FROM, "MOC "))
-  data$FROM <- gsub("^ |^  | $|  $", "", data$FROM) # removes extra spaces 
-  data$FROM <- gsub("Chairman", "", data$FROM, ignore.case = TRUE)
-  data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
+  data %<>% mutate(FROM = str_remove_all(FROM, "\\bMOC ") %>% str_squish() )
+  data$FROM <- gsub("Chairman", " ", data$FROM, ignore.case = TRUE)
+  
+  # data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
+  
+  data %>% select(DATE, congress, FROM, agency, year, everything())
   
   data <- extractMemberName(data, members, 'FROM')
   

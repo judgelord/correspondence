@@ -70,6 +70,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "LUHAN", "LUJAN"))
   
   #Format Typos
+  # FIXME should be in typos list, I think most are 
   data %<>%
     mutate(FROM = ifelse(FROM == "JACKSON-LEE", str_replace(FROM, "JACKSON-LEE", "JACKSON LEE"), FROM)) %>%
     mutate(FROM = ifelse(FROM == "JACKSON LEE", str_replace(FROM, "JACKSON LEE", "Sheila JACKSON LEE"), FROM)) %>%
@@ -109,9 +110,6 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "Senator WARNER") & is.na(last_name), "Warner Duplicate", NOTES)) %>%
     mutate(NOTES = ifelse(FROM == "Representative GONZALEZ" & is.na(last_name), "Gonzalez Duplicate", NOTES))
 
-
-  data$last_name <- gsub("^ |^  | $|  $", "", data$last_name)
-  #data <- data[!data$last_name == "",] # removes blank observations
   
   data %<>%
     mutate(ERROR = ifelse(grepl("^(AND|STATE)$",FROM), 'Inspect', ERROR))
