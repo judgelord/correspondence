@@ -60,6 +60,10 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Reed , Thomas W. II", "REED, Thomas W. II")) %>%
     mutate(FROM = str_replace(FROM, "Lee, Shelia Jackson", "JACKSON LEE, Sheila")) %>%
     #mutate(FROM = str_replace(FROM, "Alexander", "ALEXANDER, Lamar")) %>%
+    #FIXME Alexander, Lamar was failing to match and Alexander, Rodney was failing to match (likely because of the above line, but these should be checked)
+    #FIXME also, there are at least two cases where members appear after &:
+    # & Corker, 
+    # & Udall, T
     mutate(FROM = str_replace(FROM, "McGovern", "McGOVERN, James P.")) %>%
     mutate(FROM = str_replace(FROM, "Hill, J. French", "HILL, French")) 
   

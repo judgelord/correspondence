@@ -92,6 +92,7 @@ missing %>% filter(agency %in% (data_list %>%
                         #filter(row_number() <= which(data_list$agency == "DOI_SOL")) %>% 
                         .$agency ) )%>%
   head(200) %>%
+  arrange(agency) %>% 
   kable()
 
 # broken
@@ -157,8 +158,7 @@ d %<>%
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(!is.na(FROM) & FROM != "") %>% 
-  filter(year > 2019 | year < 1999 | pattern == "Date out of range") %>% 
-  filter(!(year < 1999 & agency == "DOE_FERC")) %>% # FERC data extend befor 2000
+  filter(year > 2020 | year < 1999 | pattern == "Date out of range") %>% 
   arrange(DATE) %>% 
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 nrow(bad.dates)
@@ -358,6 +358,7 @@ duplicates %<>% distinct() %>% ungroup()
 duplicates %>% count(agency, sort = T) 
 duplicates %>% count(agency, SUBJECT,sort = T) 
 
+library(tidyverse)
 
 # These are suspicious 
 d %>% 
@@ -373,6 +374,7 @@ d %>%
 head(duplicates)
 max(duplicates$n)
 nrow(duplicates)
+unique(duplicates$n)
 duplicates$n %<>% as.numeric()
 sum(duplicates$n)
 
@@ -387,6 +389,9 @@ if(update){
   # write_csv(duplicate_coding %>% filter(agency != "DOE_FERC"), path = "duplicate_coding.csv")
   sheet_write(duplicate_coding, gs_title("duplicate_coding"), as.character(Sys.Date()))
 }
+
+# DROP DUPLICATE CODING
+d$TYPE %<>% str_remove(";;;.*")
 
 duplicate_chambers <- duplicates %>%  
   filter(str_detect(chamber, ";;;") )
@@ -415,13 +420,17 @@ max(duplicates$n)
 
 
 nrow(d)
-##FIXME Collapse unique name, Date, agency, subject?--could over-collapse some agences with no SUBJECT if a member wrote more than one letter on a date...
-# Drops uncoded observations? 
-d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
-  summarise_all(combine_strings)
+##FIXME Collapse unique name, Date, agency, subject?
+## Can't do this because it over-collapses some agences with no SUBJECT or short subjects that are not in fact duplicates 
+## there are true cases where a member wrote more than one letter on a date...sometimes a lot (e.g. Jeff Sessoins sent 44 letters about a rulemaking to CMS one day)
+# d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>%  summarise_all(combine_strings)
 
 nrow(d)
-# THIS IS COMPUTATIONALLY INTENSE but an important check for duplicates 
+# THIS IS SOMEWHAT COMPUTATIONALLY INTENSE but an important check for duplicates 
+d %>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
+  summarise_all(combine_strings)
+nrow(d)
+
 d %<>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
 nrow(d) # MIGHT GO DOWN

@@ -25,7 +25,7 @@
   scale_fill_discrete <- function(...)
     scale_fill_viridis_d(...)
   library(magrittr)
-  library(googlesheets)
+  #library(googlesheets)
   # modified gs_read function to assume char typ
   gs_read_chr <- function(title){
     data <- gs_read(title, 
@@ -131,3 +131,5 @@
   #                 str_c(string, addition, sep = sep)),
   #          string)
   # }
+  
+  

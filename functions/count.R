@@ -38,10 +38,54 @@ grid <- expand_grid(agency = unique(df$agency),
             TYPE = unique(df$TYPE), 
             icpsryear = unique(membersyear$icpsryear) )
 
-# add counts 
+# add base counts 
 dcounts %<>% 
   full_join(grid) %>% 
   distinct() 
+
+########################################################################################
+# add more counts
+all_contacts$CONSTITUENT_TYPE %<>% str_to_lower()
+
+vet <- all_contacts %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "veteran")) %>% 
+  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_vet")
+
+military <- all_contacts %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "veteran|military")) %>% 
+  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_military")
+
+senior <- all_contacts %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "senior|medicare recipient")) %>% 
+  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_senior")
+
+lowincome <- all_contacts %>% 
+  filter(CONSTITUENT_CLASS == 1 | str_detect(CONSTITUENT_TYPE, "medicaid")) %>% 
+  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_lowincome")
+
+hardship <- all_contacts %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "foreclosure|hardship|debtor|delinquency")) %>% 
+  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_hardship")
+
+
+
+
+
+# add counts to base counts
+dcounts %<>% 
+  left_join(vet) %>% 
+  left_join(military) %>% 
+  left_join(senior) %>% 
+  left_join(lowincome) %>% 
+  left_join(hardship)
+
+# helper function
+replace_na_zero <- . %>% replace_na(0)
+
+ 
+
+# replace NAs with zeros 
+dcounts %>% mutate(across(starts_with("per_")), replace_na_zero)
 
 # ramaining NAs are 0 observations (except where we have no data, see below)
 dcounts %<>% mutate(per_icpsr_chamber_year_agency_type  = replace_na(per_icpsr_chamber_year_agency_type , 0))
