@@ -4,6 +4,8 @@ load(here::here("data/dcounts_min.Rdata"))
 names(dcounts_min)
 load(here::here("data/dcounts.Rdata"))
 names(dcounts)
+
+
 template <- dcounts_min %>% select(agency, icpsr, year, chamber) %>% distinct()
 
 # load members data for count data frames 
@@ -23,12 +25,12 @@ constituent_coding <- all_contacts %>%
   select(agency, SUBJECT, #TYPE, 
          CONSTITUENT_TYPE, NOTES, ERROR) %>% 
   mutate(CONSTITUENT_TYPE = CONSTITUENT_TYPE %>% 
-           str_split(";|,")) %>% 
+           str_split(";|,")) %>% #fails to drop duplicates, eg "veteran, veteran, veteran" 
   unnest(CONSTITUENT_TYPE)  %>% 
   mutate(CONSTITUENT_TYPE = str_squish(CONSTITUENT_TYPE) %>% 
            str_to_lower()) 
   
-
+constituent_coding$CONSTITUENT_TYPE %>% head() 
 # codes
 constituent_coding %>% count(CONSTITUENT_TYPE, sort = T)  %>% kable()
 

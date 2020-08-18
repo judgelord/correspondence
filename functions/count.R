@@ -1,12 +1,13 @@
+# load functions 
+# source(here::here("setup.R"))
 
-# FOR TESTING 
-# df <- d %>% filter(!is.na(icpsr))
-# df$TYPE = c(1,2,3,4,5,6,1,2,3,4,5) #FIXME TEMP
-
-# BEGIN 
+# load data 
 df <- all_contacts
 names(df)
+
+# remove old counts 
 df %<>% select(-starts_with("per_"))
+
 # add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
 df %<>% mutate(icpsryear = str_c(icpsr, chamber, year, sep = "-")) %>% 
   mutate(TYPE = replace_na(TYPE, "NA") %>% str_remove(";;;.*")) # FIXME REMOVE DOUBLE CODING 
@@ -15,7 +16,7 @@ df %<>% mutate(icpsryear = str_c(icpsr, chamber, year, sep = "-")) %>%
 dfac <- df %>% 
   # mutate(across(select(agency, icpsr, TYPE, year, as.factor)) %>% 
   mutate_at( c("agency", "icpsryear", "TYPE"), as.factor)
-  
+
 dcounts <- dfac %>% count(agency, icpsryear, TYPE, .drop = F, name = "per_icpsr_chamber_year_agency_type") 
 
 # inspect
@@ -27,7 +28,7 @@ membersyear1 <- members %>% select(icpsr, congress, chamber) %>%
 membersyear1 %>% count(congress, year)
 
 membersyear2 <- members %>% select(icpsr, congress, chamber) %>%
-  mutate(year = (congress -100)*2 + 1988)  %>% distinct() 
+  mutate(year = (congress -100)*2 + 1988) %>% distinct() 
 membersyear2 %>% count(congress, year)
 
 membersyear <- full_join(membersyear1, membersyear2) %>% distinct() %>% 
@@ -35,8 +36,8 @@ membersyear <- full_join(membersyear1, membersyear2) %>% distinct() %>%
 
 # template grid 
 grid <- expand_grid(agency = unique(df$agency), 
-            TYPE = unique(df$TYPE), 
-            icpsryear = unique(membersyear$icpsryear) )
+                    TYPE = unique(df$TYPE), 
+                    icpsryear = unique(membersyear$icpsryear) )
 
 # add base counts 
 dcounts %<>% 
@@ -45,33 +46,30 @@ dcounts %<>%
 
 ########################################################################################
 # add more counts
-all_contacts$CONSTITUENT_TYPE %<>% str_to_lower()
+df$CONSTITUENT_TYPE %<>% str_to_lower()
 
-vet <- all_contacts %>% 
+vet <- df %>% 
   filter(str_detect(CONSTITUENT_TYPE, "veteran")) %>% 
-  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_vet")
+  count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_vet")
+vet %>% group_by(TYPE) %>% tally(per_icpsr_chamber_year_agency_vet)
 
-military <- all_contacts %>% 
+military <- df %>% 
   filter(str_detect(CONSTITUENT_TYPE, "veteran|military")) %>% 
-  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_military")
+  count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_military")
 
 senior <- all_contacts %>% 
   filter(str_detect(CONSTITUENT_TYPE, "senior|medicare recipient")) %>% 
-  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_senior")
+  count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_senior")
 
-lowincome <- all_contacts %>% 
+lowincome <- df %>% 
   filter(CONSTITUENT_CLASS == 1 | str_detect(CONSTITUENT_TYPE, "medicaid")) %>% 
-  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_lowincome")
+  count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_lowincome")
 
-hardship <- all_contacts %>% 
+hardship <- df %>% 
   filter(str_detect(CONSTITUENT_TYPE, "foreclosure|hardship|debtor|delinquency")) %>% 
-  count(icpsr, chamber, agency, year, name = "per_icpsr_chamber_year_agency_hardship")
+  count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_hardship")
 
-
-
-
-
-# add counts to base counts
+# add constituent counts to base counts
 dcounts %<>% 
   left_join(vet) %>% 
   left_join(military) %>% 
@@ -82,13 +80,9 @@ dcounts %<>%
 # helper function
 replace_na_zero <- . %>% replace_na(0)
 
- 
-
 # replace NAs with zeros 
-dcounts %>% mutate(across(starts_with("per_")), replace_na_zero)
+dcounts %<>% mutate(across(starts_with("per_"), replace_na_zero)) #%>% select(starts_with("per")) %>% head() %>% kable()
 
-# ramaining NAs are 0 observations (except where we have no data, see below)
-dcounts %<>% mutate(per_icpsr_chamber_year_agency_type  = replace_na(per_icpsr_chamber_year_agency_type , 0))
 
 # should be null
 dcounts %>% count(icpsryear, TYPE, agency, sort = T) %>% filter(n != 1)
@@ -124,21 +118,21 @@ nrow(dcounts)
 # FIXME add other counts here
 # # rolled up counts 
 # dcounts %<>% 
-#   group_by(icpsr, year, TYPE, agency) %>% 
-#   mutate(per_icpsr_year_agency_type = sum(per_icpsr_chamber_year_agency_type) ) %>% 
-#   ungroup() %>%
-#   group_by(icpsr, year, agency) %>% 
-#   mutate(per_icpsr_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-#   ungroup() %>%
-#   group_by(icpsr, congress, agency, TYPE) %>% 
-#   mutate(per_icpsr_congress_agency_type = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-#   ungroup() %>%
-#   group_by(icpsr, congress, agency) %>% 
-#   mutate(per_icpsr_congress_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-#   ungroup() %>%
-#   group_by(icpsr) %>% 
-#   mutate(per_icpsr = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-#   ungroup() 
+# group_by(icpsr, year, TYPE, agency) %>% 
+# mutate(per_icpsr_year_agency_type = sum(per_icpsr_chamber_year_agency_type) ) %>% 
+# ungroup() %>%
+# group_by(icpsr, year, agency) %>% 
+# mutate(per_icpsr_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+# ungroup() %>%
+# group_by(icpsr, congress, agency, TYPE) %>% 
+# mutate(per_icpsr_congress_agency_type = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+# ungroup() %>%
+# group_by(icpsr, congress, agency) %>% 
+# mutate(per_icpsr_congress_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+# ungroup() %>%
+# group_by(icpsr) %>% 
+#  mutate(per_icpsr = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+# ungroup() 
 
 # add members data
 dcounts %<>%
@@ -146,12 +140,12 @@ dcounts %<>%
 nrow(dcounts)
 
 # dcounts %<>% 
-#   group_by(bioname, year, agency) %>% 
-#   mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-#   ungroup() %>% 
-#   group_by(bioname, year) %>% 
-#   mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
-#   ungroup() 
+# group_by(bioname, year, agency) %>% 
+# mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+# ungroup() %>% 
+# group_by(bioname, year) %>% 
+# mutate(per_bioname_year_agency = sum(per_icpsr_chamber_year_agency_type ) ) %>% 
+# ungroup() 
 
 # note chamber switchers 
 dcounts %<>% 
@@ -178,26 +172,32 @@ agency_vars <- df %>% select(agency, icpsr, chamber, year,
                              Employees, Independent.Funding, Rulemaking, 
                              oversight_committee, oversight_committee_chair) %>% distinct()
 agency_vars
-save(agency_vars, file =  here("data/agency_vars.Rdata"))
+save(agency_vars, file = here("data/agency_vars.Rdata"))
 
 nrow(dcounts)
 dcounts %<>% left_join(agency_vars)
 nrow(dcounts)
 dcounts
 
-save(dcounts, file =  here("data/dcounts.Rdata"))
+save(dcounts, file = here("data/dcounts.Rdata"))
 
 
 # minimal count data prior to merge with members and agency 
-dcounts_min <- dcounts %>% select(agency, icpsr, chamber, year, TYPE, per_icpsr_chamber_year_agency_type)
+dcounts_min <- dcounts %>% select(agency, icpsr, chamber, year, TYPE, 
+                                  per_icpsr_chamber_year_agency_vet,
+                                  per_icpsr_chamber_year_agency_military,
+                                  per_icpsr_chamber_year_agency_lowincome,
+                                  per_icpsr_chamber_year_agency_senior,
+                                  per_icpsr_chamber_year_agency_hardship,
+                                  per_icpsr_chamber_year_agency_type)
 nrow(dcounts_min)
-save(dcounts_min, file =  here("data/dcounts_min.Rdata"))
+save(dcounts_min, file = here("data/dcounts_min.Rdata"))
 
 
 df %<>% left_join(dcounts_min)
 nrow(df)
 all_contacts <- df
-save(all_contacts, file =  here("data/all_contacts.Rdata"))
+save(all_contacts, file = here("data/all_contacts.Rdata"))
 
 # members data, slighty distinct from the members data in the members folder that has name patterns
-save(members, file =  here("data/members.Rdata"))
+save(members, file = here("data/members.Rdata"))
