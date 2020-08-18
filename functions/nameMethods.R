@@ -604,7 +604,7 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
               group_by(string) %>% 
               mutate(DATE = paste0(unique(DATE), collapse = ", "),
                      row = paste0(unique(LetterID), collapse = ";") %>% str_trunc(4+(10*7)+3) ) %>% # "row [first 10 row numbers]..."
-              count(DATE, row, string) %>% 
+              count(DATE, row, string, wt = NULL) %>% 
               arrange(row) %>% 
               arrange(-n) %>% 
               ungroup() %>% 
@@ -624,11 +624,13 @@ extractNamesPerCongress <- function(congress_i, data, members = members){
   members %<>% filter(congress == congress_i)
   
   base::message( green(str_c("Searching ", unique(data$agency), " data for members of the ", congress_i, "th, n = ", 
-                             nrow(data), " (", length(unique(data$string)), " distinct strings).",
-         " Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1], "\""
+                             nrow(data), " (", length(unique(data$string)), " distinct strings)."#,
+                             # broken by dplyr 1.0.0, reverted in and works with 1.0.1
+         #" Most common string: \"", count(data, string) %>% top_n(1, n) %>% .[1,1], "\""
          )
          ))
-  
+  #count(data, string) 
+  #count(data, string) %>% top_n(1, n)
   # match patterns from the members data and merge with member names
   data %<>%
     ungroup() %>%
@@ -774,4 +776,6 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     
     return(data)
 }
+
+
 
