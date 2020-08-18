@@ -28,9 +28,9 @@ dim(d)
 d$year %<>% as.numeric()
 d$icpsr %<>% as.numeric()
 
-# I accidentially changed cannonical voteview party_name, 
-# this should not be necessary in the future, 
-# but it breaks the script that fixes party switchers so just to be safe: 
+# I accidentially changed cannonical voteview party_name at one point, 
+# this should no longer be necessary, 
+# but changing voteview vars breaks the script that fixes party switchers so just to be safe: 
 d$party_name %<>% str_replace("Republican$", "Republican Party") %>% str_replace("Democratic$", "Democratic Party")
 unique(d$party_name)
 dim(d)
@@ -208,16 +208,20 @@ nrow(d) # SHOULD GO DOWN
 
 
 ##### OPTOINAL 
-update = F
+update = T
 if(update){
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
-  filter(is.na(ERROR)) %>% 
-  group_by(agency, ID, DATE, FROM, first_name, last_name) %>% 
+  distinct() %>% 
+  filter(is.na(ERROR), !is.na(icpsr)) %>% 
+  group_by(agency, LetterID, ID, DATE, FROM) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
-  select(ID, agency, DATE, FROM, first_name, last_name, bioname, party_code, chamber, congress, SUBJECT, TYPE, NOTES, ERROR) 
-
+  select(ID, agency, DATE, FROM, bioname, party_code, chamber, congress, ERROR) 
+bad.names.1
+bad.names.1 %>% head() %>% kable()
+bad.names.1 %>% count(agency)
+bad.names.1$ID %>% unique()
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
   ungroup() %>% 
@@ -226,6 +230,7 @@ bad.names.2 <- d %>%
   select(LetterID, ID, agency, DATE, congress, FROM, chamber, state, TYPE, NOTES)
 
 worst.agencies <- bad.names.2 %>% ungroup() %>% drop_na(FROM) %>% count(agency)  %>%  arrange(-n) %>% top_n(10)
+worst.agencies
 
 worst.names <- bad.names.2 %>% 
   ungroup() %>% drop_na(FROM) %>% filter(FROM != "NA", FROM != "") %>% 
@@ -258,8 +263,7 @@ worst.names %<>%
 worst.names
 
 # push to google drive
-
-  sheet_write(worst.names, gs_title("worst.names"), sheet = as.character(Sys.Date()))
+sheet_write(worst.names, gs_title("worst.names"), sheet = as.character(Sys.Date()))
 
 # party discrepencies between stewart and voteview data
 bad.party <- d %>% 
@@ -269,6 +273,7 @@ bad.party <- d %>%
   filter(party != party_code) %>% 
   select(bioname, chamber, DATE, congress, party, party_code, icpsr, NOTES, ERROR) %>% 
   distinct()
+bad.party
 }
 
 

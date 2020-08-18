@@ -650,13 +650,14 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
            #last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
            #addlast_comma_first = paste0(add_last_name, ", ", first_name),
-           chamber_last = paste0(chamber, " ", last_name) %>% 
+           chamber_last = paste0(chamber, " ", last_name, "\\b") %>% 
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative"))
 
   # check for mirrior names 
   members %>% filter(last_first %in% members$first_last)
   members %>% filter(maiden_comma_first %in% members$last_comma_first)
+  members %>% filter(last_name %in% str_to_upper(members$first_name))
   
   # drop chamber_last when there are multiple members with the same last name in that chamber 
   # FIXME -- may be able to do this by congress if matching by congress in the future; right now it would create duplicates and then drop them in the merge
@@ -671,9 +672,11 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   #             chamber = str_c(unique(chamber), collapse = ";")) %>%
   #   kable()
 
+
   members %<>% 
     full_join(last_name_count) %>% # add counts 
-    mutate(chamber_last = ifelse(last_name_count > 1,  
+    # if last names are not unique OR if last names are a first name, require state info
+    mutate(chamber_last = ifelse(last_name_count > 1 | last_name %in% members$first_name,  
                                  # if chamber last is not unique, require state 
                                  str_c(chamber_last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
                                        chamber_last)) %>% # remove non unique 
@@ -687,7 +690,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   
   members %<>% 
     full_join(last_name_count) %>% # add counts 
-    mutate(last = ifelse(last_name_count > 1, 
+    # if last name is not unique OR it is a first name, require state
+    mutate(last = ifelse(last_name_count > 1 | last_name %in% members$first_name, 
                          # if last is not unique, require state 
                          str_c(last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
                          last)) %>% # remove non unique 
