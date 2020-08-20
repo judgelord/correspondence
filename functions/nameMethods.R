@@ -689,11 +689,18 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   # Add Letter ID if missing 
   if(!"LetterID" %in% names(data)){data$LetterID <- 1:nrow(data)}
   
+  data$LetterID %<>% 
+    str_squish() %>% 
+    as.numeric()
+  
   data$ID <- 1:nrow(data)
+  
   data %<>% 
     mutate(LetterID = coalesce(LetterID, ID) %>% # replace missing with row number 
              as.numeric() + 1) # add one to make letter id the same as sheet id
-  data$LetterID %<>% formatC(width=6, flag="0", format = "fg")
+ 
+  data$LetterID %<>% 
+    formatC(width=6, flag="0", format = "fg")
   
   # Make missing congress explicit 0 so that it will not be dropped 
   data$congress %<>% replace_na(0) %>% as.numeric() %>% replace_na(0) %>% as.numeric()
