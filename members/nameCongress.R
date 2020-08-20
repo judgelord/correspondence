@@ -637,8 +637,8 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            first_maiden_last = paste(first_name, maiden_name, last_name),
            common_middle_initial_last = paste(common_name, middle_initial, last_name),
            common_maiden = paste(common_name, maiden_name),
-           first_initial_last = paste(first_initial, last_name),
-           commoninitial_last = paste(common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), last_name),
+           first_initial_last = paste0("\\b", first_initial, " ", last_name),
+           commoninitial_last = paste0("\\b", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), " ", last_name),
            first_middle_initial_last = paste(first_name, middle_initial, last_name),
            firstinitial_middleinitial_last = paste(first_initial, middle_initial, last_name),
            #last_comma_firstinitial_middleinitial = paste0(last_name, ", ", first_initial, " ", middle_initial), # redundent
@@ -646,7 +646,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
            last_comma_commoninitial = paste0(last_name, ", ", common_name %>% str_extract("[A-Z]") %>% str_sub(1, 1), "\\b"),
            last_comma_common = paste0(last_name, ", ", common_name),
            maiden_comma_first = paste0(maiden_name, ", ", first_name),  # e.g. Mack, Mary
-           maiden_comma_firstinitial = paste0(maiden_name, ", ", first_initial), # e.g. Grisham, M. in VA 
+           maiden_comma_firstinitial = paste0(maiden_name, ", ", first_initial, "\\b"), # e.g. Grisham, M. in VA 
            #last_comma_first_maiden = paste0(last_name, ", ", first_name, " ",maiden_name), # redundent
            #last_addlast_comma_first = paste0(last_name, " ", add_last_name, ", ", first_name),
            #addlast_comma_first = paste0(add_last_name, ", ", first_name),
@@ -676,7 +676,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% 
     full_join(last_name_count) %>% # add counts 
     # if last names are not unique OR if last names are a first name, require state info
-    mutate(chamber_last = ifelse(last_name_count > 1 | last_name %in% members$first_name,  
+    mutate(chamber_last = ifelse(last_name_count > 1 | last_name %in% str_to_upper(members$first_name),  
                                  # if chamber last is not unique, require state 
                                  str_c(chamber_last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
                                        chamber_last)) %>% # remove non unique 
@@ -691,7 +691,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% 
     full_join(last_name_count) %>% # add counts 
     # if last name is not unique OR it is a first name, require state
-    mutate(last = ifelse(last_name_count > 1 | last_name %in% members$first_name, 
+    mutate(last = ifelse(last_name_count > 1 | last_name %in% str_to_upper(members$first_name), 
                          # if last is not unique, require state 
                          str_c(last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
                          last)) %>% # remove non unique 
