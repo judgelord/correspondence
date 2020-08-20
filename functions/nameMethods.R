@@ -763,7 +763,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     data %<>% distinct()
     
     # New ID since function may split out multiple members if found
-    data$ID <- 1:nrow(members) %>% formatC(width=6, flag="0")
+    data$ID <- 1:nrow(data) %>% formatC(width=6, flag="0")
     
     # trying this out adding chamber and state from member data becasuse scripts use them post extractmembername sometimes, 
     # should not increase n because pattern is already unique to icpsr in a chamber, right?
