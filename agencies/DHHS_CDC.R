@@ -10,15 +10,21 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()   
   
+  # temporary ID 
+  data$ID <- 1:nrow(data) %>% formatC(width=6, flag="0")
+  
   # Letter ID and Folder ID are both incomplete, but seem to be complete when combined
-  data %<>% mutate(LetterID = ifelse(LetterID == "NA", FolderID, LetterID))
+  data %<>% mutate(LetterID = ifelse(LetterID == "NA"|is.na(LetterID), FolderID, LetterID))
   # look <- data %>% filter(str_detect(LetterID, ";"))
   # data %>% filter(is.na(LetterID))
   # data$LetterID
   
   # inspect
   data %>% filter(is.na(LetterID))
+  data %<>% mutate(LetterID = ifelse(LetterID == "NA"|is.na(LetterID), ID, LetterID))
   
+  # remove temporary ID
+  data %<>% select(-ID)
   
   # helper function to deal with duplicates
   combine <- . %>% unique() %>% str_c(collapse = ";;;")
