@@ -1,6 +1,7 @@
 
 source(here::here("setup.R"))
 source(here::here("data_list.R"))
+
 ###################
 # load saved data #
 ###################
@@ -110,9 +111,12 @@ changed %>% filter(is.na(in_draw))
 draw <- d
 nrow(draw)
 
+update = F
+if(update){
 save(draw, file = "draw.Rdata")
+}
 # load("draw.Rdata")
-d <- draw
+# d <- draw
 
 ###############
 # FIX ERRORS #
@@ -208,7 +212,6 @@ nrow(d) # SHOULD GO DOWN
 
 
 ##### OPTOINAL 
-update = T
 if(update){
 # names that match more than one member - false positives
 bad.names.1 <- d %>% 
@@ -217,11 +220,18 @@ bad.names.1 <- d %>%
   group_by(agency, LetterID, ID, DATE, FROM) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
-  select(ID, agency, DATE, FROM, bioname, party_code, chamber, congress, ERROR) 
+  select(ID, agency, FROM, pattern, party_code, chamber, congress) 
 bad.names.1
 bad.names.1 %>% head() %>% kable()
 bad.names.1 %>% count(agency)
-bad.names.1$ID %>% unique()
+
+bad.id <- d %>% select(agency, ID) %>% filter(str_detect(ID, " ")) 
+bad.id %>% group_by(agency) %>% top_n(1) %>% distinct() %>% kable()
+bad.id %>% count(agency)
+
+bad.id <- d %>% select(agency, LetterID) %>% filter(str_detect(LetterID, " ")) 
+bad.id %>% group_by(agency) %>% top_n(1) %>% distinct() %>% kable()
+bad.id %>% count(agency)
 # names that don't match - potentially typos / false negatives
 bad.names.2 <- d %>% 
   ungroup() %>% 

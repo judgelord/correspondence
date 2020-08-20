@@ -685,18 +685,18 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
   }
 
   t <- Sys.time()
-  
-  # Add ID if missing 
-  if(!"ID" %in% names(data)){data$ID <- 1:nrow(data)}
-  data$ID %<>% formatC(width=6, flag="0")
+
+  # Add Letter ID if missing 
   if(!"LetterID" %in% names(data)){data$LetterID <- 1:nrow(data)}
-  data %<>% mutate(LetterID = as.numeric(LetterID) + 1)
+  
+  data$ID <- 1:nrow(data)
+  data %<>% 
+    mutate(LetterID = coalesce(LetterID, ID) %>% # replace missing with row number 
+             as.numeric() + 1) # add one to make letter id the same as sheet id
   data$LetterID %<>% formatC(width=6, flag="0", format = "fg")
   
   # Make missing congress explicit 0 so that it will not be dropped 
-  data$congress %<>% replace_na(0)
-  data$congress %<>% as.numeric()
-  data$congress %<>% replace_na(0)
+  data$congress %<>% replace_na(0) %>% as.numeric() %>% replace_na(0) %>% as.numeric()
 
   
   # joining with members requires these variables are not there
@@ -763,7 +763,7 @@ extractMemberName <- function(data, members = members, col_name, congresses = un
     data %<>% distinct()
     
     # New ID since function may split out multiple members if found
-    data$ID %<>% formatC(width=6, flag="0")
+    data$ID <- 1:nrow(members) %>% formatC(width=6, flag="0")
     
     # trying this out adding chamber and state from member data becasuse scripts use them post extractmembername sometimes, 
     # should not increase n because pattern is already unique to icpsr in a chamber, right?
