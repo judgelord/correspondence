@@ -2,11 +2,10 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 # Only last_name info and some state and chamber info
-# 24 mismatches on last_name
+# 24 mismatches on last_name 
+#testing on 13 June
 
-#file.name <- "PRC" # for testing
-
-#file.name <- "PRC" #testing 13 June
+#file.name <- "PRC" 
 
 clean <- function(file.name) {
   #  get data from google drive
@@ -40,8 +39,6 @@ clean <- function(file.name) {
   # Format State
   data$State <- stateFromLower(data$State)
   
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE, congress, FROM, SUBJECT, everything())
 
   
   data$FROM %<>% 

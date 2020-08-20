@@ -83,10 +83,7 @@ clean <- function(file.name) {
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "Robinson, Stebe|Sampson,  Ann|Raad, Jim|Christensen,  Donna M.|Second Congressional District of Illinois|Coock, Barbara|Norton, Eleanor Holmes|Norton,  Eleanor H.|Norton ,  Eleanor|Young,  Nancy W."), "Non members of Congress", ERROR))
   
-  
-    
-  # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, everything())
+
   
   #Failing observations
   Unfoundnames <- data %>%
