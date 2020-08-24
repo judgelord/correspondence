@@ -676,7 +676,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% 
     full_join(last_name_count) %>% # add counts 
     # if last names are not unique OR if last names are a first name, require state info
-    mutate(chamber_last = ifelse(last_name_count > 1 | last_name %in% str_to_upper(members$first_name),  
+    mutate(chamber_last = ifelse(last_name_count > 1 | last_name %in% (str_to_upper(members$first_name) %>% str_extract("^[A-Z]*") ),  
                                  # if chamber last is not unique, require state 
                                  str_c(chamber_last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
                                        chamber_last)) %>% # remove non unique 
@@ -691,7 +691,7 @@ members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses
   members %<>% 
     full_join(last_name_count) %>% # add counts 
     # if last name is not unique OR it is a first name, require state
-    mutate(last = ifelse(last_name_count > 1 | last_name %in% str_to_upper(members$first_name), 
+    mutate(last = ifelse(last_name_count > 1 | last_name %in% (str_to_upper(members$first_name) %>% str_extract("^[A-Z]*")), 
                          # if last is not unique, require state 
                          str_c(last, ".{1,4}", state_abbrev), # e.g. "representative king (ny-2)" 
                          last)) %>% # remove non unique 
