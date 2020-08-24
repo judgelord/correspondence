@@ -53,7 +53,8 @@ n <- tail(data$Observations, 1)
 
 write(n, file = "data/n")
 
-
+install.packages("stargazer")
+1
 library(stargazer)
 write(stargazer(data,  
                 summary=F, 
@@ -63,3 +64,4 @@ write(stargazer(data,
                 label = "responserates"), 
       file = "data/_FOIA_response_table.tex")
 
+df %>% count(agency) %>% kable()

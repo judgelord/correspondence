@@ -1,13 +1,18 @@
-# load functions 
-# source(here::here("setup.R"))
+# This script creates counts of letters per year "dcounts" (including zero-counts)
 
-# load data 
+if(F){
+## load functions 
+source(here::here("setup.R"))
+
+## load data 
+load(here::here("data", "all_contacts.Rdata"))
 df <- all_contacts
 names(df)
+}
 
-# remove old counts 
+# remove any old counts 
 df %<>% select(-starts_with("per_"))
-
+nrow(df)
 # add letter counts per name and icpsr (party switchers have a new icpsr after they switch)
 df %<>% mutate(icpsryear = str_c(icpsr, chamber, year, sep = "-")) %>% 
   mutate(TYPE = replace_na(TYPE, "NA") %>% str_remove(";;;.*")) # FIXME REMOVE DOUBLE CODING 
@@ -44,9 +49,48 @@ dcounts %<>%
   full_join(grid) %>% 
   distinct() 
 
+
+# helper function
+replace_na_zero <- . %>% replace_na(0)
+
+# replace NAs with zeros 
+dcounts %<>% mutate(across(starts_with("per_"), replace_na_zero)) #%>% select(starts_with("per")) %>% head() %>% kable()
+
+
+# should be null
+dcounts %>% count(icpsryear, TYPE, agency, sort = T) %>% filter(n != 1)
+
+# target N 
+nrow(count(df, agency))*nrow(count(df, TYPE))*nrow(membersyear %>% select(icpsryear) %>% distinct())
+# N
+nrow(dcounts)
+
+# should be the same as nrow df 
+sum(dcounts$per_icpsr_chamber_year_agency_type )
+nrow(df)
+
+# add in basic vars 
+dcounts %<>% 
+  left_join(membersyear) %>% # add in congress
+  # split out icpsr
+  mutate(icpsr = icpsr %>% as.character() %>% as.numeric(),
+         congress = congress %>% as.character() %>% as.numeric()) 
+
+nrow(dcounts)
+# now drop years where we have no observations from an agency 
+# FIXME use agency-year
+dcounts %<>% 
+  group_by(year, agency) %>% 
+  mutate(per_agency_year = sum(per_icpsr_chamber_year_agency_type )) %>% 
+  filter(per_agency_year > 0)
+nrow(dcounts)
+
+
 ########################################################################################
 # add more counts
 df$CONSTITUENT_TYPE %<>% str_to_lower()
+
+nrow(df)
 
 vet <- df %>% 
   filter(str_detect(CONSTITUENT_TYPE, "veteran")) %>% 
@@ -76,6 +120,7 @@ dcounts %<>%
   left_join(senior) %>% 
   left_join(lowincome) %>% 
   left_join(hardship)
+nrow(dcounts)
 
 # helper function
 replace_na_zero <- . %>% replace_na(0)
@@ -84,36 +129,11 @@ replace_na_zero <- . %>% replace_na(0)
 dcounts %<>% mutate(across(starts_with("per_"), replace_na_zero)) #%>% select(starts_with("per")) %>% head() %>% kable()
 
 
-# should be null
-dcounts %>% count(icpsryear, TYPE, agency, sort = T) %>% filter(n != 1)
-
-
-
-
-# target N 
-nrow(count(df, agency))*nrow(count(df, TYPE))*nrow(membersyear %>% select(icpsryear) %>% distinct())
-# N
-nrow(dcounts)
 
 # should be the same as nrow df 
 sum(dcounts$per_icpsr_chamber_year_agency_type )
 nrow(df)
 
-# add in basic vars 
-dcounts %<>% 
-  left_join(membersyear) %>% # add in congress
-  # split out icpsr
-  mutate(icpsr = icpsr %>% as.character() %>% as.numeric(),
-         congress = congress %>% as.character() %>% as.numeric()) 
-
-nrow(dcounts)
-# now drop years where we have no observations from an agency 
-# FIXME use agency-year
-dcounts %<>% 
-  group_by(year, agency) %>% 
-  mutate(per_agency_year = sum(per_icpsr_chamber_year_agency_type )) %>% #count(per_agency_year, agency)
-  filter(per_agency_year > 0)
-nrow(dcounts)
 
 # FIXME add other counts here
 # # rolled up counts 
@@ -135,6 +155,7 @@ nrow(dcounts)
 # ungroup() 
 
 # add members data
+nrow(dcounts)
 dcounts %<>%
   left_join(members) 
 nrow(dcounts)
@@ -201,3 +222,4 @@ save(all_contacts, file = here("data/all_contacts.Rdata"))
 
 # members data, slighty distinct from the members data in the members folder that has name patterns
 save(members, file = here("data/members.Rdata"))
+
