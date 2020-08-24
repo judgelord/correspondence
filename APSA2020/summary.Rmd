@@ -12,7 +12,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-> These plots can be found in the "Correspondence/figs" folder on dropbox and "APSA2020/figs" folder on github.
+> These plots can be found in the [Correspondence/figs](https://www.dropbox.com/home/Correspondence/figs) folder on dropbox and [APSA2020/figs](https://github.com/judgelord/correspondence/tree/master/APSA2020/Figs) folder on github.
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
