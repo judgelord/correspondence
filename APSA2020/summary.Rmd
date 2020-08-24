@@ -12,6 +12,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+> These plots can be found in the "Correspondence/figs" folder on dropbox and "APSA2020/figs" folder on github.
+
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
                       cache = FALSE, 
@@ -84,3 +86,80 @@ d1 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+## Constituent type count: 
+
+horizontal bars showing the occurrence of type broken down by agency (so, for example, one bar would be all veterans showing how much of that appears in VA, DOL_VETS, etc.)
+
+```{r constituent_type_count, fig.height=2, fig.width=5}
+load(here::here("data", "dcounts_min.Rdata"))
+
+
+
+countplot <- function(countvar, title){
+  dcounts_min$var <- countvar
+  
+dcounts_min %>% 
+  group_by(agency) %>% 
+  summarize(count = sum(var)) %>% 
+  ungroup() %>% 
+  filter(count > 0) %>% 
+  ggplot() + 
+  aes(y = count, x = agency, label = count) +
+  geom_col() +
+  geom_text(hjust = -.02) + 
+  coord_flip()+ 
+  scale_y_continuous(expand = expand_scale(mult =  c(0,.2))) +
+    labs(y = paste("Letters on Behalf", title), 
+         x = "Agency") + 
+  #facet_wrap("agency", scales = "free", ncol = 1) +
+  theme_minimal() + 
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank())
+}
+
+countplot(dcounts_min$per_icpsr_chamber_year_agency_vet, "Veterans")
+countplot(dcounts_min$per_icpsr_chamber_year_agency_military, "Military Families, Personal, and Veterans")
+countplot(dcounts_min$per_icpsr_chamber_year_agency_lowincome, "Low Income Constituents")
+countplot(dcounts_min$per_icpsr_chamber_year_agency_senior, "Seniors")
+countplot(dcounts_min$per_icpsr_chamber_year_agency_hardship, "Constituents Experiencing Hardship")
+```
+
+# Constituent type share of total per agency
+
+> Figure showing the proportion of letters out of total letters within each agency (that we're using) that are on behalf of each constituent type
+Basically showing how many of these letters there are and how common they are compared to other letters
+
+```{r constituent_type_share, fig.width = 8, fig.height = 8}
+dcounts_min %>% 
+  #select(-per_icpsr_chamber_year_agency_type) %>%
+  group_by(agency) %>% 
+  summarise(across(starts_with("per_"), sum)) %>% 
+  gather(key = type, value = count, -agency) %>%
+  mutate(type = str_remove_all(type, ".*_") %>% str_replace("type", "All") ) %>%
+  group_by(agency) %>% 
+  mutate(agencycount = sum(count)) %>%
+  filter(count >0, agencycount > count) %>%
+  ggplot() + 
+  aes(x = agency, y = count, fill = type, label = count) +
+  geom_col(position = "dodge") +
+  #geom_text(position = "dodge", hjust = 0) + 
+  coord_flip()+ 
+  scale_y_continuous()+#expand = expand_scale(mult =  c(0,.2))) +
+    labs(y = "", 
+         x = "Agency") + 
+  facet_wrap("agency", scales = "free", ncol = 1) +
+  theme_bw() + 
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        strip.background = element_blank(),
+        strip.text.x = element_blank())
+
+```
+
+# TODO
+> Count of letters on behalf of most common constituent types by member? Maybe like one of the figures (Figure 2?) from the first paper, just to show variation in letters written on behalf of different types of constituents across members
+
+
+> Maybe also any interesting patterns in the volume of total letters on behalf of constituent types over time?
+Bars for each Congress broken down by constituent type
+Basically, this would show how many letters there are on behalf of different constituent types, where the letters are in the agencies, who is writing the letters, and when the letters were written.
