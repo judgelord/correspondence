@@ -84,6 +84,8 @@ changed <- full_join(draw %>%
 
 missing <- changed %>% filter(is.na(in_d))
 
+missing %>% filter(is.na(in_d)) %>% count(pattern, str_sub(FROM, 1, 40)) %>% arrange(pattern) %>% kable()
+
 # actual problems 
 missing %>% filter(agency %in% (data_list %>% 
                                   #filter(row_number() <= which(data_list$agency == "DOI_SOL")) %>% 
@@ -100,10 +102,10 @@ missing %>% filter(agency %in% (data_list %>%
 missing %>% 
   add_count(agency, sort = T, name = "per_agency") %>% count(per_agency, agency, FROM, sort = T) %>% 
   #write_csv("changed_names.csv")
-  top_n(100) %>% kable()
+  top_n(100)  %>%  kable()
 
 # fixed 
-changed %>% filter(is.na(in_draw)) 
+changed %>% filter(is.na(in_draw)) %>% select(agency, FROM, in_d)
 #FIXME We should drop all unecessary vars and add them back in later to make post-merge processing go faster
 
 # if things look good, save new raw file
@@ -213,17 +215,20 @@ nrow(d) # SHOULD GO DOWN
 
 ##### OPTOINAL 
 if(update){
-# names that match more than one member - false positives
+# names that match more than one member - potential false positives, but they also may just be letters with multiple members
 bad.names.1 <- d %>% 
+  ungroup() %>%
   distinct() %>% 
   filter(is.na(ERROR), !is.na(icpsr)) %>% 
-  group_by(agency, LetterID, ID, DATE, FROM) %>% 
+  group_by(agency, LetterID,  DATE, FROM) %>% 
   mutate(n = n()) %>% filter(n>1) %>% ungroup() %>%
   group_by(agency) %>% mutate(n = n()) %>% ungroup() %>% arrange(n) %>% 
-  select(ID, agency, FROM, pattern, party_code, chamber, congress) 
+  select(agency, LetterID, FROM, party_code, chamber, congress, pattern) 
 bad.names.1
 bad.names.1 %>% head() %>% kable()
 bad.names.1 %>% count(agency)
+bad.names.1 %>% count(pattern, sort = T)
+bad.names.1 %>% count(FROM, sort = T)
 
 bad.id <- d %>% select(agency, ID) %>% filter(str_detect(ID, " ")) 
 bad.id %>% group_by(agency) %>% top_n(1) %>% distinct() %>% kable()
@@ -246,7 +251,7 @@ worst.names <- bad.names.2 %>%
   ungroup() %>% drop_na(FROM) %>% filter(FROM != "NA", FROM != "") %>% 
   mutate(FROM = str_squish(FROM)) %>% select(FROM, agency, congress) %>% 
   group_by(FROM) %>% 
-  add_count() # new n
+  count(sort = T) # new n
 
 worst.names.sheet <- gs_title("worst.names") %>% 
   gs_read()  %>%
@@ -440,12 +445,12 @@ nrow(d)
 ## there are true cases where a member wrote more than one letter on a date...sometimes a lot (e.g. Jeff Sessoins sent 44 letters about a rulemaking to CMS one day)
 # d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>%  summarise_all(combine_strings)
 
-nrow(d)
-# THIS IS SOMEWHAT COMPUTATIONALLY INTENSE but an important check for duplicates 
-d %>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
-  summarise_all(combine_strings)
-nrow(d)
 
+# IF N GOES DOWN HERE, IT WILL GO DOWN WHEN WE COMBINE STRINGS, should be the same n
+nrow(d)
+d %>% count(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber, sort = T)
+
+# THIS IS SOMEWHAT COMPUTATIONALLY INTENSE but an important check for duplicates 
 d %<>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
 nrow(d) # MIGHT GO DOWN
@@ -483,8 +488,11 @@ constituent_coding <- d %>%
   select(agency, SUBJECT, TYPE, 
          CONSTITUENT_TYPE, CONSTITUENT_CLASS,NOTES, ERROR) %>% 
   group_by(agency, SUBJECT) %>% add_count() %>%
-  summarise_all(combine_strings) %>% arrange(agency)
+  summarise_all(combine_strings) %>% arrange(agency) 
 constituent_coding
+
+# FIXME split and recombine unique 
+constituent_coding %>% mutate(n = as.numeric(n))%>% count(agency, CONSTITUENT_TYPE, wt = n, sort = T) %>% kable()
 
 if(update){
   sheet_write(constituent_coding, gs_title("constituent_coding"), as.character(Sys.Date()))
@@ -794,9 +802,11 @@ dcommittees %<>% full_join(
 # remove temp data / vars #
 ###########################
 df %<>% dplyr::select(-n) %>% distinct()
+nrow(df)
 
 rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_install, Chamber, oversight.committees)
-nrow(df)
+
+
 
 
 # merge new data with old? 
@@ -816,21 +826,13 @@ unique(df$agency) %in% data_list$agency
 # save if all data sources merged, save data files
 if(length(unique(df$agency)) == length(unique(data_list$agency))){
   
+  all_contacts <- df
   # create and save count data
   source(here("functions/count.R"))
   
-  nrow(df)
-  df %<>% select(-starts_with("per_"))
-  df %<>% left_join(dcounts_min)
-  nrow(df)
-  df %<>% distinct()
-  nrow(df)
-  # save all_contacts 
-  all_contacts <- df
-  save(all_contacts, file = here("data/all_contacts.RData"))
-  
   all_contacts_committees <- dcommittees
   save(all_contacts_committees, file = here("data/all_contacts_committees.Rdata"))
+
   
   write_csv(bad.names.1, here("data/bad.names.1.csv"))
   save(bad.names.2, file = here("data/bad.names.2.csv"))

@@ -113,6 +113,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Grassley Charles E", "Grassley, Charles E"))
   
   #Name Typos
+  #FIXME in typos script! 
   data %<>%
     mutate(FROM = str_replace(FROM, "Ros-Lehtinen, Heana", "Ileana ROS-LEHTINEN")) %>%
     mutate(FROM = str_replace(FROM, "Buschon, Larry", "Larry BUCSHON")) %>%

@@ -2,7 +2,7 @@
 
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
-
+packageVersion("dplyr")
 
 
 # Vars from members data to keep and merge in
@@ -114,11 +114,8 @@ save(d1, file = file.name)
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
 
-# data_list <- data_list[i:nrow(data_list),]
-# data_list %<>% filter(!(agency %in% d$agency)) # to add new agencies without updating old ones or restart interrupted merge
-
 ## Resume 
-# data_list %<>% filter(row_number() >= which(data_list$agency == "RRB")) 
+# data_list %<>% filter(row_number() > which(data_list$agency == "DOC_OS")) 
 data_list
 # subset by date
 if(F){
