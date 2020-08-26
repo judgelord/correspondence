@@ -19,6 +19,7 @@ typos_clear <- tribble(
   "Labrador", "Labradoe",
   "Tammy", "Tammv",
   "Jim", "\\bJ im\\b",
+  "Richard", "Ricard\\b",
   "BARR", "\\bBafr\\b",
   "Doris", "\\\bD oris\\b",
   " O ", "( 0 | 0, )",

@@ -24,12 +24,28 @@ dim(d)
 # COMBINE FILES 
 d <- map_dfr(files, combine)
 dim(d)
+
+d %<>% fix.member.date.coding()
+
+# problems (mostly chamber and party switchers?)
+look <- d %>% count(LetterID, ID, 
+               DATE, year, congress, 
+               FROM, pattern, bioname, agency, 
+               SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
+               CONSTITUENT_TYPE, CONSTITUENT_CLASS, 
+               NOTES, ERROR) %>% 
+  filter(n >1)
+count(look, agency, wt = n, sort = T) 
+count(look, SUBJECT, wt = n, sort = T)
+count(look, bioname, sort = T)
+count(look, FROM, sort = T)
+
 d %<>% distinct()
 dim(d)
 d$year %<>% as.numeric()
 d$icpsr %<>% as.numeric()
 
-# I accidentially changed cannonical voteview party_name at one point, 
+# I accidentially changed voteview party_name at one point, 
 # this should no longer be necessary, 
 # but changing voteview vars breaks the script that fixes party switchers so just to be safe: 
 d$party_name %<>% str_replace("Republican$", "Republican Party") %>% str_replace("Democratic$", "Democratic Party")
@@ -84,7 +100,7 @@ changed <- full_join(draw %>%
 
 missing <- changed %>% filter(is.na(in_d))
 
-missing %>% filter(is.na(in_d)) %>% count(pattern, str_sub(FROM, 1, 40)) %>% arrange(pattern) %>% kable()
+missing %>% filter(is.na(in_d)) %>% count(str_sub(FROM, 1, 40), pattern) %>% arrange(pattern) %>% kable()
 
 # actual problems 
 missing %>% filter(agency %in% (data_list %>% 
@@ -94,7 +110,7 @@ missing %>% filter(agency %in% (data_list %>%
   filter(agency %in% (data_list %>% 
                         #filter(row_number() <= which(data_list$agency == "DOI_SOL")) %>% 
                         .$agency ) )%>%
-  head(200) %>%
+  slice_head(200) %>%
   arrange(agency) %>% 
   kable()
 
@@ -164,7 +180,7 @@ d %<>%
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(!is.na(FROM) & FROM != "") %>% 
-  filter(year > 2020 | year < 1999 | pattern == "Date out of range") %>% 
+  filter(year > 2021 | year < 1999 | pattern == "Date out of range") %>% 
   arrange(DATE) %>% 
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 nrow(bad.dates)
@@ -203,7 +219,7 @@ nrow(d)
 d %<>% 
   # drop obs out of timeframe 
   #FIXME when we get complete data through 2020
-  filter(year < 2019 & year > 1999) # %>% 
+  filter(year < 2021 & year > 1999) # %>% 
 # drop bad dates (dates where the member did not serve)
 # filter(DATE != "Date out of range")
 
@@ -229,6 +245,9 @@ bad.names.1 %>% head() %>% kable()
 bad.names.1 %>% count(agency)
 bad.names.1 %>% count(pattern, sort = T)
 bad.names.1 %>% count(FROM, sort = T)
+bad.names.1 %>% count(FROM, pattern, sort = T)
+bad.names.1 %>% count(FROM, pattern, agency, sort = T)
+
 
 bad.id <- d %>% select(agency, ID) %>% filter(str_detect(ID, " ")) 
 bad.id %>% group_by(agency) %>% top_n(1) %>% distinct() %>% kable()
@@ -405,13 +424,13 @@ duplicate_coding %<>%
   select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct() %>% arrange(agency)
 duplicate_coding
 
+
 if(update){
   # write_csv(duplicate_coding %>% filter(agency != "DOE_FERC"), path = "duplicate_coding.csv")
   sheet_write(duplicate_coding, gs_title("duplicate_coding"), as.character(Sys.Date()))
 }
 
-# DROP DUPLICATE CODING
-d$TYPE %<>% str_remove(";;;.*")
+
 
 duplicate_chambers <- duplicates %>%  
   filter(str_detect(chamber, ";;;") )
@@ -451,15 +470,18 @@ nrow(d)
 d %>% count(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber, sort = T)
 
 # THIS IS SOMEWHAT COMPUTATIONALLY INTENSE but an important check for duplicates 
-d %<>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
+d2 <- d %>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
 nrow(d) # MIGHT GO DOWN
+
+# DROP DUPLICATE CODING
+d$TYPE %<>% str_remove(";;;.*")
 
 d %<>% select(-n)
 
 
 #FIXME THERE SHOULD NOT BE MORE THAN ONE pattern PER DATE! 
-filter(d, str_detect(pattern, ";")) %>% .$pattern
+filter(d2, str_detect(pattern, ";")) %>% .$pattern
 # look <- filter(d, str_detect(bioname, ";"))
 
 ## If we wanted to drop all potential dupicates: 
@@ -539,7 +561,7 @@ df <- d
 data_complete()
 load(here("data/d.Rdata"))
 
-if(nrow(df) >= nrow(d) ){
+if(update & nrow(df) >= nrow(d) ){
   # Back up 
   d <- df
   save(d, file =  here("data/d.Rdata"))
@@ -561,7 +583,10 @@ df %<>% group_by(agency) %>% mutate(timeframe = paste(sort(unique(year)), collap
                              grepl("2013", timeframe) &
                              grepl("2014", timeframe) &
                              grepl("2015", timeframe) &
-                             grepl("2016", timeframe)  #& grepl("2017", timeframe)
+                             grepl("2016", timeframe) & 
+                             grepl("2017", timeframe) & 
+                             grepl("2018", timeframe) & 
+                             grepl("2019", timeframe)
                            , T, F)) %>% ungroup()
 # Timeframe:
 unique(cbind(df$complete ,df$timeframe))
