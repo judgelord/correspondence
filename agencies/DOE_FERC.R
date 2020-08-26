@@ -92,36 +92,6 @@ mutate(FROM = str_replace(FROM, "Bob Graham", "Daniel Graham")) %>%
  
 
 
-#   
-# # # # Testing 
-#   look<-data %>%
-#        count(FROM,congress) %>%
-#        arrange(-n) #%>% filter(str_detect(FROM, "Cunningham"))
-#    d1 <- look %>% filter(congress>109) %>% extractMemberName2(members = members, col_name = "FROM")
-#    d2 <- look %>% filter(congress<110) %>% extractMemberName2(members = members_106to109th, col_name = "FROM")
-#    look <- full_join(d1, d2)%>%
-#    filter(is.na(last_name))
-
-  
-  # arrange columns for hand coding
-  data %<>% select(ID, FROM, SUBJECT, last_name, congress, chamber, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
-
-
-  
-  
-  #Check for NA Dates
-  NoDATE <- data %>%
-    filter(is.na(DATE))
-  
-  
-  #Unmatched
-  Unfoundnames <- data %>%
-    filter(is.na(last_name)) %>% count(congress, FROM, string)
-  
-  
-  
-  sum(!is.na(data$icpsr))
-  
   
   
   
@@ -779,13 +749,45 @@ save(FERC_letters, file = "data/DOE_FERC-letters-clean.Rdata")
 
 ## NOT RUN UNLESS TESTING
 if(F){
+  
+  #   
+  # # # # Testing 
+  #   look<-data %>%
+  #        count(FROM,congress) %>%
+  #        arrange(-n) #%>% filter(str_detect(FROM, "Cunningham"))
+  #    d1 <- look %>% filter(congress>109) %>% extractMemberName2(members = members, col_name = "FROM")
+  #    d2 <- look %>% filter(congress<110) %>% extractMemberName2(members = members_106to109th, col_name = "FROM")
+  #    look <- full_join(d1, d2)%>%
+  #    filter(is.na(last_name))
+  
+  
+  # arrange columns for hand coding
+  data %<>% select(ID, FROM, SUBJECT,  congress, chamber, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
+  
+  
+  
+  
+  #Check for NA Dates
+  NoDATE <- data %>%
+    filter(is.na(DATE))
+  
+  
+  #Unmatched
+  Unfoundnames <- data %>%
+    filter(is.na(last_name)) %>% count(congress, FROM, string)
+  
+  
+  
+  sum(!is.na(data$icpsr))
+  
+  
 #Useful Tools
 ###################################################################################################
 
 #Used to check through misnamed members
 #looking at members count
 countMembers <- data %>% 
-  select(ID, FROM2, last_name, ProBusiness) %>% 
+  select(ID, FROM2,  ProBusiness) %>% 
   filter(is.na(last_name), grepl(".", ProBusiness, ignore.case = TRUE)) %>% 
   count(FROM2) %>% 
   arrange(-n)
