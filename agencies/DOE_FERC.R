@@ -90,9 +90,8 @@ mutate(FROM = str_replace(FROM, "Bob Graham", "Daniel Graham")) %>%
    
 
  
- data %<>% extractMemberName(members, "FROM") %<>% distinct()
 
-  
+
 #   
 # # # # Testing 
 #   look<-data %>%
@@ -753,6 +752,10 @@ data %<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("20170324-0041", ID, ignore.case = TRUE), "5", TYPE)) %>% 
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20170324-0041", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   mutate(AntiBusiness = ifelse (grepl("20170324-0041", ID, ignore.case = TRUE), "PennEast Pipeline Company", AntiBusiness))
+
+data %<>% distinct()
+
+data %<>% extractMemberName(members, "FROM") %<>% distinct()
 
 #sample <- data %>%
 #filter(is.na(last_name))  
