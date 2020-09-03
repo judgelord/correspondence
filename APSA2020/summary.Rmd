@@ -3,8 +3,11 @@ title: "Who Gets Constituent Service?"
 subtitle: 
 author: "Rochelle Snyder, Eleanor Neff Powell, Devin Judge-Lord, Justin Grimmer"
 output:
-  #pdf_document
+    pdf_document:
+      toc: true
+      keep_tex: true
     html_document:
+      highlight: zenburn
       #toc: true
       #toc_float: true
       code_folding: hide
@@ -12,11 +15,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-> These plots can be found in the [Correspondence/figs](https://www.dropbox.com/home/Correspondence/figs) folder on dropbox and [APSA2020/figs](https://github.com/judgelord/correspondence/tree/master/APSA2020/Figs) folder on github.
+> These plots can be found in the [CorRep/figs](https://www.dropbox.com/home/CorRep/figs) folder on dropbox and the [APSA2020/figs](https://github.com/judgelord/correspondence/tree/master/APSA2020/Figs) folder on github.
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = FALSE, 
+                      cache = TRUE, 
                       fig.width=8.5, 
                       split = T,
                       fig.align = 'center', 
@@ -58,6 +61,12 @@ d1 <- d %>%
   filter(agency %in% c("VA", #"SSA", 
                        "DHHS_CMS", "DHHS_CDC", "DHHS_HRSA")) %>% 
   distinct()
+
+d1$agency %<>% 
+  str_replace("VA", "Veterans Affairs (VA)") %>% 
+  str_replace("DHHS_CMS", "Medicare & Medicaid (CMS)") %>% 
+  str_replace("DHHS_CDC", "Centers for Disease Control (CDC)") %>% 
+  str_replace("DHHS_HRSA", "Health Resources (HRSA)")
 ```
 
 ## Number of legislator contacts per agency per year 2007-2017
@@ -88,10 +97,22 @@ d1 %>%
 
 ## Constituent type count: 
 
-horizontal bars showing the occurrence of type broken down by agency (so, for example, one bar would be all veterans showing how much of that appears in VA, DOL_VETS, etc.)
 
-```{r constituent_type_count, fig.height=2, fig.width=5}
+```{r constituent_type_count, fig.height=2, fig.width=5, fig.show="hold", fig.cap= "Number of Legislator Letters per Type of Constituent"}
 load(here::here("data", "dcounts_min.Rdata"))
+
+
+dcounts_min$agency %<>% 
+  str_replace("VA", "Veterans Affairs (VA)") %>% 
+  str_replace("DHHS_CMS", "Medicare & Medicaid (CMS)") %>% 
+  str_replace("DHHS_CDC", "Centers for Disease Control (CDC)") %>% 
+  str_replace("DHHS_HRSA", "Health Resources (HRSA)") %>% 
+  str_replace("Treasury_IRS", "IRS") %>%
+  str_replace("NARA", "National Archives (NARA)") %>% 
+  str_replace("DOL.*", "Labor (DOL VETS, SOL, OWCP, & OFCCP)") %>% 
+  str_replace("Treasury_Fiscal", "Treasury Fiscal Service") %>% 
+  str_replace("SSA", "Social Security (SSA)")
+
 
 
 
@@ -105,8 +126,8 @@ dcounts_min %>%
   filter(count > 0) %>% 
   ggplot() + 
   aes(y = count, x = agency, label = count) +
-  geom_col() +
-  geom_text(hjust = -.02) + 
+  geom_col(width = .1) +
+  geom_text(hjust = -.1) + 
   coord_flip()+ 
   scale_y_continuous(expand = expand_scale(mult =  c(0,.2))) +
     labs(y = paste("Letters on Behalf", title), 
@@ -126,10 +147,13 @@ countplot(dcounts_min$per_icpsr_chamber_year_agency_hardship, "Constituents Expe
 
 # Constituent type share of total per agency
 
-> Figure showing the proportion of letters out of total letters within each agency (that we're using) that are on behalf of each constituent type
-Basically showing how many of these letters there are and how common they are compared to other letters
 
-```{r constituent_type_share, fig.width = 8, fig.height = 8}
+```{r constituent_type_share, fig.width = 8, fig.height = 8, fig.cap="Share of Legislator Contacts by Type of Constituent" ,out.width='100%'}
+names(dcounts_min) %<>% str_replace("vet", "Veteran") %>%
+                            str_replace("hardship", "Hardship situation") %>% 
+                            str_replace("lowincome", "Low income")%>%
+                            str_replace("military", "Military family or veteran") %>%
+                            str_replace("senior", "Senior")
 dcounts_min %>% 
   #select(-per_icpsr_chamber_year_agency_type) %>%
   group_by(agency) %>% 
@@ -140,13 +164,14 @@ dcounts_min %>%
   mutate(agencycount = sum(count)) %>%
   filter(count >0, agencycount > count) %>%
   ggplot() + 
-  aes(x = agency, y = count, fill = type, label = count) +
+  aes(x = agency, y = count, fill = factor(type), label = count) +
   geom_col(position = "dodge") +
   #geom_text(position = "dodge", hjust = 0) + 
   coord_flip()+ 
   scale_y_continuous()+#expand = expand_scale(mult =  c(0,.2))) +
     labs(y = "", 
-         x = "Agency") + 
+         x = "Agency",
+         fill = "Type of Constituent") + 
   facet_wrap("agency", scales = "free", ncol = 1) +
   theme_bw() + 
   theme(panel.grid.minor.y = element_blank(),
@@ -156,9 +181,56 @@ dcounts_min %>%
 
 ```
 
-# TODO
-> Count of letters on behalf of most common constituent types by member? Maybe like one of the figures (Figure 2?) from the first paper, just to show variation in letters written on behalf of different types of constituents across members
 
+
+# Member-Congress Percentiles
+
+```{r percent_correp, fig.height=2.5, fig.width=5, fig.show="hold", fig.cap= "Average Legislator Requests per Congress by Constituent Type"}
+
+load(here::here("data", "dcounts_mid.Rdata"))
+
+dcounts %<>% filter(chamber != "President")
+
+dcounts %<>% select(chamber, last_name, state_abbrev, party_name, congress, year, agency, icpsr, TYPE, starts_with("per_")) 
+
+
+# save(dcounts, file = here::here("data" , "dcounts_mid.Rdata"))
+
+
+dcounts %<>% 
+    mutate(member_state = str_c(last_name, ", ", str_sub(party_name, 1, 1), "-", state_abbrev)) 
+
+percentplot <- function(var, title, x){
+  
+  dcounts$var <- var
+
+  dcounts %>%
+      group_by(member_state, chamber, congress) %>% summarise(n = sum(var)) %>%
+      group_by(member_state, chamber) %>% mutate(mean = mean(n)) %>% ungroup() %>% 
+      group_by(chamber) %>% mutate(Percentile = ntile(mean, 100)) %>% 
+    arrange(-Percentile) %>% 
+    dplyr::select(member_state, Percentile, mean, chamber) %>% distinct() %>% 
+      ggplot() + 
+      geom_col(aes(x = Percentile, y = mean), color = "grey", position = "dodge") + 
+    geom_point(aes(x = Percentile, y = mean), color = "grey") + 
+    geom_text(aes(x = Percentile, y = mean, label = ifelse(Percentile > 90, member_state, "")), check_overlap = T, size = 2, hjust = "inward") + 
+      facet_grid(. ~ chamber , scales = "free_y") + theme_bw() +
+    labs(#title = "Average Legislator Requests per Congress by Percentile",
+      title = title,
+         y = "",
+         x = x)
+}
+
+
+percentplot(dcounts$per_icpsr_chamber_year_agency_vet, "Veterans", x = "")
+#percentplot(dcounts$per_icpsr_chamber_year_agency_military, "Military Families, Personal, and Veterans")
+percentplot(dcounts$per_icpsr_chamber_year_agency_senior, "Seniors", x = "")
+percentplot(dcounts$per_icpsr_chamber_year_agency_hardship, "Constituents Experiencing Hardship", x = "")
+percentplot(dcounts$per_icpsr_chamber_year_agency_lowincome, "Low Income Constituents", x = "Percentile")
+
+```
+
+# TODO
 
 > Maybe also any interesting patterns in the volume of total letters on behalf of constituent types over time?
 Bars for each Congress broken down by constituent type
