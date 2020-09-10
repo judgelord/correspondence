@@ -89,6 +89,9 @@ schumer2013 <- dcounts %>% filter(bioname == "SCHUMER, Charles Ellis (Chuck)",
 cruz2013 <- dcounts %>% filter(bioname == "CRUZ, Rafael Edward (Ted)",
                    year == 2013) %>% .$per_bioname_year %>% unique()
 
+mcconnell2013 <- dcounts %>% filter(bioname == "McCONNELL, Addison Mitchell (Mitch)",
+                   year == 2013) %>% .$per_bioname_year %>% unique()
+
 
 p <- dcounts %>% 
   select(bioname, per_bioname_year, year, chamber) %>% distinct() %>% 
@@ -107,6 +110,12 @@ p <- dcounts %>%
              y = cruz2013, 
              #aes(color = chamber),
              label = "Ted Cruz") +
+  geom_line(aes(x = year, group = bioname, color = chamber,
+                y = ifelse(bioname == "McCONNELL, Addison Mitchell (Mitch)", per_bioname_year, NA))) + 
+  geom_label(x = 2013, 
+             y = mcconnell2013, 
+             #aes(color = chamber),
+             label = "Mitch McConnell") +
   labs(x = "",
        color = " ",
        y = paste("Contacts per member per year"),
