@@ -108,7 +108,7 @@ Here we focus on individual casework and a bit on companies. We talk more about 
 
 ---
 
-Builds upon important prior work that focused on specific legislator-agency pairs (Ritchie 2017; Mills and Kalaf-Hughes 2015; Lowande 2018)
+We build on important prior work that focused on specific legislator-agency pairs (Ritchie 2017; Mills and Kalaf-Hughes 2015; Lowande 2018)
 
 ---
 
@@ -124,14 +124,14 @@ Federal Energy Regulatory Commission
 
 Department of Veterans Affairs
 
-![image](../figs/VA-logs.png)
+![image](../Figs/VA-logs.png)
 ---
 
 ### Correspondence Data
 
 VA Detroit Regional Offices
 
-![image](../figs/VA_regional-logs.png)
+![image](../Figs/VA_regional-logs.png)
 
 ---
 
@@ -139,7 +139,7 @@ VA Detroit Regional Offices
 
 VA National Cemetary Administration
 
-![image](../figs/VA_CEM-logs.png)
+![image](../Figs/VA_CEM-logs.png)
 
 ---
 
@@ -154,14 +154,14 @@ Department of Homeland Security Immigration and Customs Enforcement
 
 IRS
 
-![image](../figs/IRS-logs.png)
+![image](../Figs/IRS-logs.png)
 
 ---
 
 ### Correspondence Data
 
 Centers for Medicare & Medicaid Services
-![image](../figs/CMS-logs.png)
+![image](../Figs/CMS-logs.png)
 ---
 
 400+ FOIA requests to 294 federal agencies (a census)
@@ -189,7 +189,7 @@ read_csv(here::here("data/_FOIA_response_table.csv") ) %>%
 ---
 
 
-![](figs/constituent_type_share-1.png)
+![](Figs/constituent_type_share-1.png)
 
 ---
 
