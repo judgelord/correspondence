@@ -3,7 +3,7 @@
   <head>
     <title>Who Gets Constituent Service?</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Rochelle Snyder, Justin Grimmer, Devin Judge-Lord,   Eleanor Neff Powell" />
+    <meta name="author" content="Rochelle Snyder, Justin Grimmer, Devin Judge-Lord, Eleanor Neff Powell" />
     <script src="libs/header-attrs-2.3/header-attrs.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
@@ -14,7 +14,7 @@
 class: center, middle, inverse, title-slide
 
 # Who Gets Constituent Service?
-### Rochelle Snyder, Justin Grimmer, Devin Judge-Lord, <br> Eleanor Neff Powell
+### Rochelle Snyder, Justin Grimmer, Devin Judge-Lord, Eleanor Neff Powell
 
 ---
 
@@ -36,6 +36,7 @@ class: center, middle, inverse, title-slide
 1. Which groups are better served? (difference in differences)  
 - Republicans do less constituent service, 15% less for low-income constituents (within a district) 
 - Veterans and seniors are served proportionate to their population; low-income residents are not
+- No partisan differences in help to businesses
 
 
 ???
@@ -45,13 +46,13 @@ My colleague at Wisconsin, Rochelle Snyder really led the writing and coding the
 
 This paper is a new piece of a much larger project we have been working on for over four years, but this specific exploration of how different types of individual constituents are served more than others is Rochelle's brainchild.
 
+With Justin Grimmer and Ellie Powell, we are assembling a very large new database of letters and emails written by members of Congress to federal agencies.
 
 ---
 
 # What is Constituent Service?
 
-"help to individuals, groups, and localities in coping with the federal
-government." (Fenno, 1978: p. 101)
+"help to individuals, groups, and localities in coping with the federal government." (Fenno, 1978: p. 101)
 
 -   Individual casework
 
@@ -63,11 +64,41 @@ government." (Fenno, 1978: p. 101)
 
 ???
 
-Here we focus on individual casework and a bit on companies. We talk more about companies and organized groups in other papers. 
+Representation goes beyond floor votes.
+
+Indeed, there are far more intimate forms of representation that are less constrained by parties and by chamber procedure.
+
+Possibly the most common act of representation is helping constituents deal with the bureaucracy. 
+
+This has been true since legislators helped constituents get pensions after the revolutionary war and especially with the rise of the administrative state. Federal agencies now shape nearly every aspect of our lives: 
+
+Here we focus on individual casework and a bit on help for companies. We talk more about companies and organized groups in other papers, which I would be happy to send you if you are interested. 
 
 ---
 
-We build on important prior work that focused on specific legislator-agency pairs (Ritchie 2017; Mills and Kalaf-Hughes 2015; Lowande 2018)
+We build on important prior work that focused on legislator contacts with specific agencies. 
+
+- Represent constituents' policy demands despite party pressure (Ritchie 2017)
+
+- Constituents and institutional position, not ideology, drive policy oversight (Lowande 2018) 
+
+- Descriptive `\(\rightarrow\)` substantive representation (Lowande, Ritchie, Lauterbach, 2019)
+
+- Bureaucrats have reasons to comply with legislator requests, and they do (Ritchie and You, 2019)
+
+???
+
+Molly Ritchie finds that when legislators face cross-pressures on policy issues, they directly engage the bureaucracy in order to still represent constituents even though party politics keep them from doing so legislatively.
+
+Kenny Lowande, also focusing on policy, finds that partisan disagreement with the executive branch does not drive oversight.
+
+Lowande, Ritchie, and Lauterbach show that legislators make more requests on behalf of constituents with whom they share marked identities.
+
+ Ritchie and You and Mills and Kalaf-Hughes have begun to investigate whether legislator requests matter and find that they do.
+
+Building on this work, we focus squarely on constituency service [SLIDE]
+
+
 
 ---
 
@@ -77,6 +108,15 @@ Federal Energy Regulatory Commission
 
 ![image](../FERC.png)
 
+???
+
+For example, here, Rep. Thornberry is writing to the Federal Energy Regulatory Commission on behalf of two companies in his district, asking for extra scrutiny on another company's permit application. 
+
+
+We have several thousand such letters written to this agency, in which we use optical content recognition to extract the text. If they do not have metadata like the sender's name and date, we extract it from the text of the letter or description of the letter.
+
+To give you a sense of the range of responses. Some agencies provided letters themselves,
+
 ---
 
 ### Correspondence Data
@@ -84,7 +124,13 @@ Federal Energy Regulatory Commission
 Department of Veterans Affairs
 
 ![image](../Figs/va-logs.png)
----
+???
+
+Other agencies provided logs, which range widely in the amount of information they record. 
+
+These logs from the VA don't say much, but often enough to deduce what the letters were about.
+
+I am going to quickly click through a few more examples, just to give you an idea of the range of these data.
 
 ### Correspondence Data
 
@@ -106,6 +152,10 @@ VA National Cemetary Administration
 
 Department of Homeland Security Immigration and Customs Enforcement
 (ICE) ![image](../ICE.png)
+
+???
+
+at the worst, handwritten logs with obscure acronyms to indicate the topic, as in this log from ICE
 
 ---
 
@@ -284,20 +334,26 @@ Count of letters per member per year
 ---
 
 
-## Unequal Levels of Advocacy *Within* Constituent Types
+## Variation *Within* Constituent Types
+
+Count of letters per member per year
 
 ![](Figs/percent_correp-1.png)
 
 ---
 
-## Unequal Levels of Advocacy *Within* Constituent Types
+## Variation *Within* Constituent Types
+
+Count of letters per member per year
 
 ![](Figs/percent_correp-2.png)
 
 
 ---
 
-## Unequal Levels of Advocacy *Within* Constituent Types
+## Variation *Within* Constituent Types
+
+Count of letters per member per year
 
 ![](Figs/percent_correp-4.png)
 
@@ -306,7 +362,7 @@ Count of letters per member per year
 # What explains variation in levels of constituency service across legislators?
 
 ## [?] District demographics 
-## [?] Partisan-aligned differences in valorized and stigmatized populations
+## [?] Partisan-aligned differences in which groups are valorized or stigmatized
 
 
 ---
@@ -319,7 +375,7 @@ Overall, **little systematic bias** in which districts receive more service. The
 
 [ `\(\checkmark\)` ] Strong relationships between the percent of **seniors** or **veterans** and the number of letters on behalf of these groups.
 
-[  ]  No relationship between the percent below the poverty line or **median income** and letters on behalf of poor or working-class constituents (e.g., regarding means-tested programs)
+[  `\(\unicode{x2718}\)` ]  No relationship between the percent below the poverty line or **median income** and letters on behalf of poor or working-class constituents (e.g., regarding means-tested programs)
 
 ---
 
@@ -346,7 +402,7 @@ Can we attribute unequal representation to
 1. members perceiving groups as "deserving"?
 1. second-order constituent beliefs about whether officials will help them?
 
-Other informative groups?
+Other informative analyses?
 - immigrants
 - non-White constituents
 - disability 
