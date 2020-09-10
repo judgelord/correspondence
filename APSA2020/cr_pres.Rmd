@@ -1,7 +1,7 @@
 ---
 title: "Who Gets Constituent Service?"
 subtitle: ""
-author: "Rochelle Snyder, Justin Grimmer, Devin Judge-Lord, Eleanor Neff Powell"
+author: "Rochelle Snyder,  Justin Grimmer,  Devin Judge-Lord, <br> Eleanor Neff Powell"
 #date: "Slides: [judgelord.github.io/research/whymail](https://judgelord.github.io/research/whymail) <br> \n Data: [github.com/judgelord/rulemaking](https://github.com/judgelord/rulemaking)"
 urlcolor: cyan
 output:
@@ -44,7 +44,7 @@ mono_light(base_color = "#3b444b",
           padding = "10px",
           code_font_google = google_font("Inconsolata"), 
           code_inline_background_color    = "#F5F5F5", 
-          table_row_even_background_color = "#E6F0FA",
+          table_row_even_background_color = "#d5e3dd",
           extra_css = 
             list(".remark-slide-number" = list("display" = "none")))
 
