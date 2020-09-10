@@ -76,19 +76,23 @@ webshot(file, "whyMail-APW.pdf")
 1. Data: 400,000+ requests from all Members of Congress to all federal agencies
 
 1. Which groups are better served? (difference in differences)  
-- Republicans do less constituent service, 15% less for low-income constituents (within a district) 
 - Veterans and seniors are served proportionate to their population; low-income residents are not
+- Republicans do less constituent service, 15% less for low-income constituents (within a district) 
 - No partisan differences in help to businesses
 
 
 ???
 Hi, my name is Devin Judge-Lord. I'm a Ph.D. candidate at Wisconsin. 
 
-My colleague at Wisconsin, Rochelle Snyder really led the writing and coding the data for this paper, but she, unfortunately, is teaching at this moment. 
+My colleague at Wisconsin, Rochelle Snyder really led the writing and coding the data for this paper, but she, unfortunately, was scheduled to be teaching at this moment until an email from our chancelor canceled classes for the rest of the week due to covid. So, she might be able to join afterall. I'll go ahead and present the paper and she can fill in any gaps.  
 
-This paper is a new piece of a much larger project we have been working on for over four years, but this specific exploration of how different types of individual constituents are served more than others is Rochelle's brainchild.
+This paper is a new piece from a much larger project we have been working on for over four years, but this specific exploration of how different types of individual constituents are served more than others is Rochelle's brainchild.
 
 With Justin Grimmer and Ellie Powell, we are assembling a very large new database of letters and emails written by members of Congress to federal agencies.
+
+I will [OUTLINE]
+
+To preview our findings [FINDINGS]
 
 ---
 
@@ -126,7 +130,8 @@ We build on important prior work that focused on legislator contacts with specif
 
 - Descriptive $\rightarrow$ substantive representation (Lowande, Ritchie, Lauterbach, 2019)
 
-- Bureaucrats have reasons to comply with legislator requests, and they do (Ritchie and You, 2019)
+
+### If members are more likely to help some constituents (those they represent descriptively, core constituencies, valorized groups), representation may be biased (not proportionate to constituents in a district)
 
 ???
 
@@ -135,6 +140,8 @@ Molly Ritchie finds that when legislators face cross-pressures on policy issues,
 Kenny Lowande, also focusing on policy, finds that partisan disagreement with the executive branch does not drive oversight.
 
 Lowande, Ritchie, and Lauterbach show that legislators make more requests on behalf of constituents with whom they share marked identities.
+
+- Bureaucrats have reasons to comply with legislator requests, and they do (Ritchie and You, 2019)
 
  Ritchie and You and Mills and Kalaf-Hughes have begun to investigate whether legislator requests matter and find that they do.
 
@@ -294,7 +301,7 @@ Overall, **little systematic bias** in which districts receive more service. The
 
 [ $\checkmark$ ] Strong relationships between the percent of **seniors** or **veterans** and the number of letters on behalf of these groups.
 
-[  $\unicode{x2718}$ ]  No relationship between the percent below the poverty line or **median income** and letters on behalf of poor or working-class constituents (e.g., regarding means-tested programs)
+[  $\unicode{x2718}$ ]  No relationship between the **percent below the poverty line** or **median income** and letters on behalf of poor or working-class constituents (e.g., regarding means-tested programs)
 
 ---
 
