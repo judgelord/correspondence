@@ -25,7 +25,8 @@ data %<>% group_by(Department, Components, Records, Coded) %>%
   tally() %>% 
   select(-n)
 
-
+load(here("data/all_contacts.Rdata"))
+df <- all_contacts
 nrow(df)
 # # get letter totals from df
 dfdata <- df %>% mutate(Department = ifelse(!grepl("Department of", Department), "Independent Agencies", Department))
@@ -49,7 +50,10 @@ data %<>%
 
 write.csv(data, file = "data/_FOIA_response_table.csv")
 
-n <- tail(data$Observations, 1)
+
+data %>% kable()
+
+n <- tail(data$Observations, 1) %>% kable()
 
 write(n, file = "data/n")
 

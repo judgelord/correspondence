@@ -1,0 +1,143 @@
+---
+author:
+- 'Devin Judge-Lord[^1]'
+- 'Justin Grimmer[^2]'
+- 'Eleanor Neff Powell[^3]'
+subtitle: 'Constituents ~~or~~[and]{style="color: black"} Policy?'
+title: 'How Legislators Actually Invest Their Time:'
+---
+
+### A constituent-policy trade-off?
+
+-   "Potomac fever" (Fenno, 1978)
+
+-   "Insiders" who have lost touch
+
+-   \#DrainTheSwamp
+
+### What is Constituent Service?
+
+"help to individuals, groups, and localities in coping with the federal
+government." (Fenno, 1978: p. 101)
+
+[Service]{.ul}
+
+-   Individual casework
+
+-   Organized groups
+
+-   Unorganized groups
+
+-   Companies
+
+Data
+====
+
+### Correspondence Data
+
+![image](FERC.png){width="\\textwidth"}
+
+### Correspondence Data
+
+Department of Homeland Security Immigration and Customs Enforcement
+(ICE) ![image](ICE.png){width="\\textwidth"}
+
+### Correspondence Data
+
+Environmental Protection Agency ![image](EPA.png){width="\\textwidth"}
+
+### Correspondence Data
+
+250+ FOIA requests to 294 federal agencies (a census)
+
+150,000+ legislator requests (and counting), 2007-2018
+
+[\[\]]{label=""}
+
+                                                 FOIAed Components   Records   Coded     N
+  --------------------------------------------- ------------------- --------- ------- --------
+                                                                                      
+  Department of Agriculture                             29             29       11      1957
+  Department of Commerce                                18             18       10      6875
+  Department of Defense                                 49             10        7      5479
+  Department of Education                                1              1        1      3868
+  Department of Energy                                   8              2        1      1269
+  Department of Health and Human Services               15              7        5      6199
+  Department of Homeland Security                        6              5        5     26435
+  Department of Housing and Urban Development            2              0        0       0
+  Department of Justice                                 11              1        1      903
+  Department of Labor                                   24              9        6     22936
+  Department of State                                    1              0        0       0
+  Department of the Interior                            10              6        5      5171
+  Department of the Treasury                             8              5        4     11143
+  Department of Transportation                          10              6        6     18482
+  Department of Veterans Affairs                         3              0        0       0
+                                                                                      
+  Independent Agencies                                  38             21       18     46182
+                                                                                      
+  Total                                                 233            120      80     156899
+                                                                                      
+
+Descriptives
+============
+
+### Distribution
+
+![Distribution Across Types of Congressional Requests
+2007-2017](data_by_type.pdf){width="\\linewidth"}
+
+### Highly Unequal Rates
+
+![Variation in Who Contacts
+Agencies](percentiles-1){width="\\textwidth"}
+
+### Constituency Demand
+
+![Senators from larger states do more constituency
+service.](population-1){width="4in"}
+
+So why do some legislators do more constituency service than others?
+
+Results: Institutional power and constituency service
+=====================================================
+
+### Institutional Power and Constituency Service
+
+Legislators who have power advocate more on behalf of constituents.
+![image](cross_sectional_models-1){width="\\textwidth"}
+
+### Statutory Oversight Power
+
+Legislators who [gain]{style="color: blue"} power advocate more on
+behalf of constituents.
+
+![image](oversight_committee_chair_models-1){width="\\textwidth"}
+
+### Questions going forward:
+
+-   Do constituents target or demand more from powerful legislators?
+
+-   Why is there so much variation, even within strata of institutional
+    power?
+
+-   What else?
+
+Thank you!
+
+### Difference-in-Differences in Constituency Service
+
+Legislators who [gain]{style="color: blue"} power advocate more on
+behalf of constituents. ![image](DiD-1){width="\\textwidth"}
+
+### NOMINATE Scores
+
+![Legislators' Ideology Seems Not to Predict How Often They Contact
+Agencies](ideology_density-2 "fig:"){width="2in"} ![Legislators'
+Ideology Seems Not to Predict How Often They Contact
+Agencies](ideology_density-3 "fig:"){width="2in"}
+
+[^1]: Ph.D. Candidate, University of Wisconsin-Madison
+
+[^2]: Professor, Stanford University
+
+[^3]: Booth Fowler Associate Professor, University of Wisconsin-Madison

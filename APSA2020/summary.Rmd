@@ -1,11 +1,11 @@
 ---
 title: "Who Gets Constituent Service?"
 subtitle: 
-author: "Rochelle Snyder, Eleanor Neff Powell, Devin Judge-Lord, Justin Grimmer"
+author: "Rochelle Snyder, Justin Grimmer, Devin Judge-Lord, Eleanor Neff Powell"
 output:
-    pdf_document:
-      toc: true
-      keep_tex: true
+    # pdf_document:
+    #   toc: true
+    #   keep_tex: true
     html_document:
       highlight: zenburn
       #toc: true
@@ -19,7 +19,7 @@ editor_options:
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = TRUE, 
+                      cache = FALSE, 
                       fig.width=8.5, 
                       split = T,
                       fig.align = 'center', 
@@ -56,41 +56,66 @@ d %<>%
 
 
 d1 <- d %>% 
-  filter(year > 2006, year <2018) %>% 
-  select(icpsr, year, agency, constituent, n_per_year_agency_type, percent_type_to_agency) %>%
+  filter(year > 2006, year <2020) %>% 
+  select(icpsr, year, agency, constituent, n_per_year_agency_type, percent_type_to_agency, party_name) %>%
   filter(agency %in% c("VA", #"SSA", 
-                       "DHHS_CMS", "DHHS_CDC", "DHHS_HRSA")) %>% 
+                       #"Treasury_Fiscal",
+                       "Treasury_IRS",
+                       #"NARA",
+                       "DHHS_CMS", 
+                       #"DHHS_CDC", 
+                       "DHHS_HRSA")) %>% 
   distinct()
 
 d1$agency %<>% 
   str_replace("VA", "Veterans Affairs (VA)") %>% 
   str_replace("DHHS_CMS", "Medicare & Medicaid (CMS)") %>% 
   str_replace("DHHS_CDC", "Centers for Disease Control (CDC)") %>% 
-  str_replace("DHHS_HRSA", "Health Resources (HRSA)")
+  str_replace("DHHS_HRSA", "Health Resources (HRSA)") %>%
+  str_replace("Treasury_Fiscal", "Treasury Fiscal Services") %>%
+  str_replace("Treasury_IRS", "IRS")
 ```
 
 ## Number of legislator contacts per agency per year 2007-2017
 ```{r n_per_year_agency, fig.width=8}
+d1 %>%
+  filter(party_name != "Independent") %>% 
+  group_by(icpsr, party_name, agency, year) %>% 
+  summarise(n_per_year_agency = sum(n_per_year_agency_type)) %>%
+  ggplot() +
+  aes(x = year, color = party_name, y = n_per_year_agency) +
+  #geom_line(aes(group= icpsr), alpha = .1) + 
+  geom_smooth() + 
+  labs(x = "", y = "Number of contacts", color = "") + 
+  facet_wrap(. ~ agency, scales = "free_y", nrow = 2) +
+  scale_x_continuous(breaks = seq(2007,2019, 1)) +
+  scale_color_viridis_d(option = "plasma", end = .55) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
 d1 %>%
   ggplot() +
   aes(x = year, color = constituent, y = n_per_year_agency_type) +
   #geom_line(aes(group= icpsr), alpha = .1) + 
   geom_smooth() + 
   labs(x = "", y = "Number of contacts", color = "") + 
-  facet_wrap(. ~ agency, scales = "free_y", nrow = 1) +
+  facet_wrap(. ~ agency, scales = "free_y", nrow = 2) +
   scale_x_continuous(breaks = seq(2007,2017, 2)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
 ```
 
 ## Percent of legislator contacts per agency per year 2007-2017
 ```{r percent_to_agency, fig.width=8}
+
 d1 %>% 
   ggplot() +
   aes(x = year, y = percent_type_to_agency, color = constituent) +
   #geom_line(aes(group= icpsr), alpha = .1) + 
   geom_smooth() + 
   labs(x = "", y = "Percent of contacts", color = "") + 
-  facet_wrap(. ~ agency, scales = "free_y", nrow = 1) +
+  facet_wrap(. ~ agency, scales = "free_y", nrow = 2) +
   scale_x_continuous(breaks = seq(2007,2017, 2)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
@@ -98,7 +123,7 @@ d1 %>%
 ## Constituent type count: 
 
 
-```{r constituent_type_count, fig.height=2, fig.width=5, fig.show="hold", fig.cap= "Number of Legislator Letters per Type of Constituent"}
+```{r constituent_type_count, fig.height=6, fig.width=6, fig.show="hold", fig.cap= "Number of Legislator Letters per Type of Constituent"}
 load(here::here("data", "dcounts_min.Rdata"))
 
 
@@ -113,47 +138,49 @@ dcounts_min$agency %<>%
   str_replace("Treasury_Fiscal", "Treasury Fiscal Service") %>% 
   str_replace("SSA", "Social Security (SSA)")
 
-
-
-
-countplot <- function(countvar, title){
-  dcounts_min$var <- countvar
-  
-dcounts_min %>% 
-  group_by(agency) %>% 
-  summarize(count = sum(var)) %>% 
-  ungroup() %>% 
-  filter(count > 0) %>% 
-  ggplot() + 
-  aes(y = count, x = agency, label = count) +
-  geom_col(width = .1) +
-  geom_text(hjust = -.1) + 
-  coord_flip()+ 
-  scale_y_continuous(expand = expand_scale(mult =  c(0,.2))) +
-    labs(y = paste("Letters on Behalf", title), 
-         x = "Agency") + 
-  #facet_wrap("agency", scales = "free", ncol = 1) +
-  theme_minimal() + 
-  theme(panel.grid.minor.y = element_blank(),
-        panel.grid.major.y = element_blank())
-}
-
-countplot(dcounts_min$per_icpsr_chamber_year_agency_vet, "Veterans")
-countplot(dcounts_min$per_icpsr_chamber_year_agency_military, "Military Families, Personal, and Veterans")
-countplot(dcounts_min$per_icpsr_chamber_year_agency_lowincome, "Low Income Constituents")
-countplot(dcounts_min$per_icpsr_chamber_year_agency_senior, "Seniors")
-countplot(dcounts_min$per_icpsr_chamber_year_agency_hardship, "Constituents Experiencing Hardship")
-```
-
-# Constituent type share of total per agency
-
-
-```{r constituent_type_share, fig.width = 8, fig.height = 8, fig.cap="Share of Legislator Contacts by Type of Constituent" ,out.width='100%'}
 names(dcounts_min) %<>% str_replace("vet", "Veteran") %>%
                             str_replace("hardship", "Hardship situation") %>% 
                             str_replace("lowincome", "Low income")%>%
                             str_replace("military", "Military family or veteran") %>%
                             str_replace("senior", "Senior")
+
+dcounts_min %>% 
+  # melt count vars to long
+  select(agency, starts_with("per")) %>% 
+  gather("type", "count", -agency) %>%
+  mutate(type = type %>% str_remove(".*_")) %>%
+  # count
+  group_by(agency, type) %>% 
+  summarize(count = sum(count)) %>% 
+  ungroup() %>%
+  filter(count > 0) %>% #select(type) %>% distinct()
+  filter(type %in% c("Hardship situation",
+  #"Military family or veteran",
+  "Senior",
+  "Veteran",
+  "Low income")) %>%
+  group_by(type) %>% 
+  add_count(name = "n_agency") %>% # n agencies per type 
+    ungroup() %>%
+  ggplot() + 
+  aes(y = count, x = agency, label = count, width = .15*n_agency) +
+  geom_col(position = "dodge", preserve = "single") +
+  geom_text(hjust = -.1) + 
+  coord_flip()+ 
+  scale_y_continuous(expand = expand_scale(mult =  c(0,.2))) + # pad y axis so there is room for n text
+    labs(y = "Number of Constituent Service Letters", #paste("Letters on Behalf", type), 
+         x = "Agency") + 
+  facet_wrap("type", scales = "free", ncol = 1) +
+  theme_bw() + 
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+# Constituent type share of total per agency
+
+
+```{r constituent_type_share, fig.width = 8, fig.height = 6, fig.cap="Share of Legislator Contacts by Type of Constituent" ,out.width='100%'}
+
 dcounts_min %>% 
   #select(-per_icpsr_chamber_year_agency_type) %>%
   group_by(agency) %>% 
@@ -163,8 +190,10 @@ dcounts_min %>%
   group_by(agency) %>% 
   mutate(agencycount = sum(count)) %>%
   filter(count >0, agencycount > count) %>%
+  group_by(agency) %>% 
+  add_count(name = "n_types") %>% 
   ggplot() + 
-  aes(x = agency, y = count, fill = factor(type), label = count) +
+  aes(x = agency, y = count, fill = factor(type), label = count, width = .2*n_types) +
   geom_col(position = "dodge") +
   #geom_text(position = "dodge", hjust = 0) + 
   coord_flip()+ 
@@ -174,7 +203,9 @@ dcounts_min %>%
          fill = "Type of Constituent") + 
   facet_wrap("agency", scales = "free", ncol = 1) +
   theme_bw() + 
-  theme(panel.grid.minor.y = element_blank(),
+  theme(panel.border = element_blank(),
+        axis.ticks = element_blank(),
+         panel.grid.minor.y = element_blank(),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         strip.text.x = element_blank())
@@ -222,10 +253,10 @@ percentplot <- function(var, title, x){
 }
 
 
-percentplot(dcounts$per_icpsr_chamber_year_agency_vet, "Veterans", x = "")
+percentplot(dcounts$per_icpsr_chamber_year_agency_vet, "Veterans", x = "Percentile")
 #percentplot(dcounts$per_icpsr_chamber_year_agency_military, "Military Families, Personal, and Veterans")
-percentplot(dcounts$per_icpsr_chamber_year_agency_senior, "Seniors", x = "")
-percentplot(dcounts$per_icpsr_chamber_year_agency_hardship, "Constituents Experiencing Hardship", x = "")
+percentplot(dcounts$per_icpsr_chamber_year_agency_senior, "Seniors", x = "Percentile")
+percentplot(dcounts$per_icpsr_chamber_year_agency_hardship, "Constituents Experiencing Hardship", x = "Percentile")
 percentplot(dcounts$per_icpsr_chamber_year_agency_lowincome, "Low Income Constituents", x = "Percentile")
 
 ```
