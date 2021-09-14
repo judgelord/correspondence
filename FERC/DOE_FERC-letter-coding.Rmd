@@ -38,7 +38,8 @@ Updated: `r  Sys.time()`
 Load coded congressional letters data:
 ```{r}
 # log in to google drive
-gs_auth() 
+# gs_auth() 
+googlesheets4::gs4_auth()
 
 ## Load coded data
 FERC_coders <- gs_title("FERC Data Assignments") %>% gs_read() %>% 

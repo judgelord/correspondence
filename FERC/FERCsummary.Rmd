@@ -35,7 +35,9 @@ requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magritt
   library(ggplot2); theme_set(theme_bw())
   options(
     ggplot2.continuous.color = "viridis",
-    ggplot2.continuous.fill = "viridis"
+    ggplot2.continuous.fill = "viridis",
+    ggplot2.discrete.color = "viridis",
+    ggplot2.discrete.fill = "viridis"
   )
   scale_color_discrete <- function(...)
     scale_color_viridis_d(...)
@@ -56,7 +58,7 @@ requires <- c("tidyverse", "broom", "knitr","ineq", "dplyr", "ggplot2", "magritt
 
 ```{r global.options, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-                      cache = FALSE, 
+                      cache = F, 
                       fig.width=8.5, 
                       split = T,
                       fig.align = 'center', 
@@ -72,6 +74,17 @@ More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-cle
 
 ```{r data}
 load(here("data/all_contacts.RData"))
+
+#FIXME name_state is missing, so recreatig
+all_contacts  %<>% mutate(name_state = str_c(last_name %>% str_to_title(), " (", state_abbrev, ")"))
+
+#FIXME this should have pop already, but missing, so re-adding
+pop <- read_csv(here("districts", "states.csv"))
+
+all_contacts  %<>% select(-pop2010, -pop2017) %>% left_join(pop)
+
+
+
 # one obs per member per letter for all agencies
 d <- all_contacts %>%
   ungroup() %>% 
@@ -86,14 +99,21 @@ d <- all_contacts %>%
   # GOODE needs to be fixed in party switchers portion of merge.R
   filter(!(last_name == "GOODE"& party == "(I)"))
   
+#FIXME name_state is missing, so recreatig
+d  %<>% mutate(name_state = str_c(last_name %>% str_to_title(), 
+                                  " (", 
+                                  party_name %>% str_sub(1,1), # %>% str_remove(")|("),
+                                  "-",
+                                  state_abbrev, ")"))
 
+d$name_state %>% unique()
 ## one obs per member per letter per committee for all agencies # DEPRECIATED 
 # load(here("data/all_contacts_committees.RData"))
 ## define dcommittees as just FERC
 #dcommittees <- all_contacts_committees %<>% filter(agency == "DOE_FERC")
 
 # Coded letters, one obs per member per letter 
-load(here("data/DOE_FERC-letters-clean.Rdata")) 
+load(here("data", "DOE_FERC-letters-clean.Rdata")) 
 
 
 # TO DO: replace with DOE_FERC-letters-corps.Rdata when corps added
@@ -130,8 +150,11 @@ d %<>%
 # For this analysis, treat corp policy letters as Policy
 # d$Type %>% unique()
 # d$Constituent %>% unique()
-all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
-d$Type %<>% fct_recode(Policy = "Corp. Policy")
+
+
+#FIXME this is already done in the new all_contacts data, but mabye should not be
+# all_contacts$Type %<>% fct_recode(Policy = "Corp. Policy")
+# d$Type %<>% fct_recode(Policy = "Corp. Policy")
 
 # make a variable for the pro or anti-business position of each letter
 d %<>% 
@@ -190,16 +213,24 @@ d %<>% filter(!(bioname =="GOODE, Virgil H., Jr." & congress == 107))
 ## By party and majority status
 
 
-```{r part-constituent, fig.height=3, fig.width=4}
+```{r part-constituent, fig.height=2, fig.width=4.6}
+d$majority %>% unique()
+
+#FIXME missing majority var
+d$majority <- ""
+
+d %<>% 
+  mutate(For = NA,
+         For = ifelse(letter_position == "ProBusiness", "Business", Constituent),
+        For = ifelse(For == "Indiv. Constituent", "Individual Constituent", For),
+         For = ifelse(For == "Non_constituent", "Other", For)) 
+
 d %>% 
-  mutate(For = Constituent,
-         For = ifelse(letter_position == "ProBusiness", "Pro-Business", For),
-         For = ifelse(For == "Non_constituent", "Other", For)) %>% 
   count(party_name, For, majority) %>% 
   filter(party_name != "Independent",
-         !is.na(For),
+         #!is.na(For),
          For != "Not coded",
-         For != "Other",
+         #For != "Other",
          !is.na(majority)) %>% 
   group_by(party_name, majority) %>% 
   mutate(percent = n / sum(n) * 100 ) %>% 
@@ -211,14 +242,11 @@ d %>%
   scale_fill_viridis_d(option = "C", end = .8) + 
     labs(x = "",
        fill = "Advocating for",
-       y = "Percent") + 
+       y = "Percent of Letters to FERC") + 
   theme_minimal() + 
   theme(panel.grid.major.x  = element_blank())
 
 d %>% 
-  mutate(For = Constituent,
-         For = ifelse(letter_position == "ProBusiness", "Pro-Business", For),
-         For = ifelse(For == "Non_constituent", "Other", For)) %>% 
   count(party_name, For, majority, congress) %>% 
   filter(party_name != "Independent",
          !is.na(For),
@@ -233,7 +261,7 @@ d %>%
   scale_fill_viridis_d(option = "C", end = .8) + 
     labs(x = "",
        fill = "Advocating for",
-       y = "n") + 
+       y = "Number of Letters") + 
   theme_minimal() + 
   theme(panel.grid.major.x  = element_blank(),
         axis.text = element_text(angle = 45))
@@ -304,11 +332,12 @@ d_percent <- d %>%
   ungroup()
 
 full_join( all_percent, d_percent)%>% 
+  mutate(Type = ifelse(str_detect(Type, "Const"), Type %>% str_replace(" Const", "\nConst"), Type)) %>%
   ggplot() + 
   aes(x = Type, y = percent, fill = agency, color = agency, label = nT) + 
   geom_col(position = "dodge") + 
   geom_text(vjust = -.1,
-            aes(hjust = ifelse(agency == "Overall", 0,1))) +
+            aes(hjust = ifelse(agency == "Overall", -.1,1.1))) +
   labs(x = "",
        fill = "",
        color = "",
@@ -353,24 +382,26 @@ d  %>%
 ### Senators vs. state population 
 
 ```{r population, fig.height= 3.7, fig.width=6}
+
+
 d %>% 
   filter(chamber == "Senate") %>% 
-    group_by(member_state, year, pop2010) %>% summarise(n = n()) %>%
-    group_by(member_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
+    group_by(name_state, year, pop2010) %>% summarise(n = n()) %>%
+    group_by(name_state, pop2010) %>% summarise(mean = mean(n)) %>% ungroup() %>% 
     ggplot() + 
     geom_point(aes(x = log(pop2010), y = mean), color = "light blue") + 
   geom_smooth(aes(x = log(pop2010), y = mean)) + 
   geom_text(aes(x = log(pop2010), 
                 y = mean, 
                 label = ifelse(mean > mean(mean)*1.5 | mean < mean(mean)*0.5, 
-                               member_state, "")), 
+                               name_state, "")), 
             check_overlap = TRUE, 
-            size = 2.5, 
-            hjust = 0) + 
+            size = 3.5, 
+            hjust = .4) + 
   theme_bw() +
-  labs(title = "Senator Requests per Year by State Population",
+  labs(title = "Senator Requests per to FERC Year by State Population",
        x = "Log State Population",
-       y = "Average Number of Requests per Year")
+       y = "Average Requests per Year to FERC")
 
 ```
 
@@ -455,30 +486,34 @@ d %>%
 
 ### Members who contact FERC more than average: 
 
-```{r members_barcoded, fig.height=5, fig.width=9}
+```{r members_barcoded, fig.height=2.2, fig.width=3}
 # barcode plot of committee members 
+
+
+Chamber <- "Senate"
  
 # member by year by agency 
 d %>% 
   filter(chamber == Chamber) %>% 
   group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
-  filter(n > mean(n)) %>%
+  mutate(percent = percent_rank(n)) %>%
+  filter(percent > .80) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
         y = reorder(name_state, n) ), 
     # alpha = .6,
     shape = 73,
-    size=2
+    size = 4
   ) +  
   labs(title = paste(Chamber),
-       y = paste("Members by", "Total Number of Letters"), 
+       y = paste("Member of Congress"), 
        x = "Date of Correspondence" ) +
-  theme(
-    legend.title = element_blank(),
-    axis.text.y = element_text(size=5)
-  ) + 
-    guides(fill=guide_legend(ncol=1)) 
+  theme_minimal()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.text.x = element_text(angle = 45))
+
 
 
 Chamber <- "House" # "House" #  
@@ -487,23 +522,24 @@ Chamber <- "House" # "House" #
 d %>% 
   filter(chamber == Chamber) %>% 
   group_by(name_state) %>% mutate(n = n()) %>% ungroup() %>% 
-  filter(n > mean(n)) %>%
+    mutate(percent = percent_rank(n)) %>%
+  filter(percent > .90) %>%
+  #filter(n > mean(n)) %>%
   ggplot() +
   geom_point(
     aes(x = DATE, 
         y = reorder(name_state, n) ), 
     # alpha = .6,
     shape = 73,
-    size=2
+    size = 4
   ) +  
   labs(title = paste(Chamber),
-       y = paste("Members by", "Total Number of Letters"), 
+       y = paste("Member of Congress"), 
        x = "Date of Correspondence" ) +
-  theme(
-    legend.title = element_blank(),
-    axis.text.y = element_text(size=5)
-  ) + 
-    guides(fill=guide_legend(ncol=1)) 
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.text.x = element_text(angle = 45))
 ```
 
 ```{r ferc_vs_all_rate}
@@ -1135,7 +1171,8 @@ save(letters_money, file = here("data/letters_money.Rdata"))
 ```
 
 # Models
-```{r mplot_function}
+```{r mplot_function, cache=FALSE}
+load(here("data", "letters_money.Rdata"))
 letters_money %<>% filter(party_name != "Independent") %>% ungroup()
 constituents_money %<>% filter(party_name != "Independent") %>% ungroup()
 
@@ -1144,6 +1181,8 @@ library(tidyverse)
 mplot <- function(m){m %>%
   tidy(conf.int = TRUE) %>%
     filter(term!="(Intercept)") %>%
+    mutate(term = term %>% str_remove("party_name") %>% 
+             str_replace_all("_", " ") ) %>%
 ggplot() + 
   aes(x = term,
       y = estimate, 
@@ -1158,6 +1197,124 @@ letters_money %<>%
          PAC_100k = PAC_contributions/100000,
          total_letters = sum(n) ) %>% 
   ungroup()
+
+pplot <- function(m){
+  m %>% 
+  augment(type.predict = "response", 
+          se_fit = T, 
+          interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      color = party_name, fill = party_name,
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Predicrted Letters to FERC",
+       color = "",
+       fill = "") + 
+  #scale_y_continuous(limits = c(0,1)) +
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6)
+}
+
+pplot2 <- function(m){
+  m %>% 
+  augment(type.predict = "response", 
+          se_fit = T, 
+          interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Predicrted Letters to FERC",
+       color = "",
+       fill = "") + 
+  #scale_y_continuous(limits = c(0,1)) +
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6) + 
+    facet_grid(. ~ party_name)
+}
+
+pplot_pac <- function(m){
+  m %>% 
+  augment(type.predict = "response", 
+          se_fit = T, 
+          interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted,
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Predicted Letters to FERC",
+       color = "",
+       fill = "") + 
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6)
+}
+
+pplot_party <- function(m){
+  m %>% 
+  augment(type.predict = "response", 
+          se_fit = T, 
+          interval = "confidence") %>% 
+  ggplot() +
+  aes(x = party_name, y = .fitted, 
+      color = party_name, fill = party_name,
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "",
+       y = "Predicted Letters to FERC",
+       color = "",
+       fill = "") + 
+  #scale_y_continuous(limits = c(0,1)) +
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6)
+}
+
+
+# table 
+newdata <- expand(letters_money,
+                   party_name,
+                   PAC_100k = seq(0,5, by = .5))
+
+ratio <- . %>% augment(type.predict = "response", newdata = newdata) %>%
+  group_by(party_name) %>% 
+  mutate(ratio = .fitted/min(.fitted)) %>% kable()
+
+letters_money %>% 
+  ggplot()  + 
+  aes(x = PAC_contributions, y = total_letters) +
+  geom_jitter() +
+  geom_smooth() + 
+  facet_wrap("party_name" )
+
+letters_money %>% 
+  ggplot()  + 
+  aes(x = PAC_contributions, y = ProBusiness_Letters) +
+  geom_jitter() +
+  geom_smooth() + 
+  facet_wrap("party_name" )
+
+letters_money %>% 
+  ggplot()  + 
+  aes(x = PAC_contributions, y = AntiBusiness_Letters) +
+  geom_jitter() +
+  geom_smooth() + 
+  facet_wrap("party_name" )
+
+
+
+# look <- letters_money %>% filter(PAC_100k > 2, industry == "energy", party_name == "Democratic Party")
+  
 ```
 
 ## Energy Sector-level Models (Arnold book chapter models)
@@ -1170,6 +1327,8 @@ mAll <- glm(total_letters ~ PAC_100k,
 # tidy(mAll)
 mAll %>% mplot()+
   labs(x="", y="Total additional letters per congress per hundred thousand dollars")
+
+ratio(mAll)
 ```
 
 ## Constituent and Non-Constituent Letters
@@ -1247,6 +1406,9 @@ mPro <- glm(ProBusiness_Letters ~ PAC_100k,
 mPro %>% mplot()+
   labs(x="", y="Additional pro-business letters per congress per hundred thousand dollars")
 
+mPro %>% ratio()
+
+
 
 mProLog <- glm(ProBusiness_Letters ~ Log_PAC_contributions, 
               data = letters_money %>% 
@@ -1273,6 +1435,8 @@ mProParty <- glm(ProBusiness_Letters ~ party_name,
 # tidy(mProParty)
 mplot(mProParty) +
   labs(x="", y="Additional pro-business letters per congress")
+
+ratio(mProParty)
 ```
 Republicans send an additional `r round(mProParty$coefficients[2], 1)` letters per Congress, on average.
 
@@ -1294,6 +1458,8 @@ mPro_pac_party <- glm(ProBusiness_Letters ~ PAC_100k + party_name,
 mplot(mPro_pac_party)+
   labs(x="", y="Additional letters per congress")
 
+ratio(mPro_pac_party)
+
 # PAC*party interaction:
 mPro_pacXparty <- glm(ProBusiness_Letters ~ PAC_100k * party_name, 
                       data = letters_money %>% 
@@ -1308,6 +1474,7 @@ mPro_pacXparty <- glm(ProBusiness_Letters ~ PAC_100k * party_name,
 mplot(mPro_pacXparty)+
   labs(x="", y="Additional letters per congress")
 
+ratio(mPro_pacXparty)
 
 
 # DW NOMINATE 
@@ -1322,6 +1489,7 @@ mplot(mPro_pacXparty)+
 
 # mplot(mPro_pac_nominate)+ labs(x="", y="Additional letters per congress")
 ```
+
 
 ### Multivariate models 
 ```{r full-model, fig.height=1}
@@ -1338,6 +1506,8 @@ mAll_Full <- glm(total_letters ~ PAC_100k + party_name,
 
 mplot(mAll_Full)+
   labs(x="", y="Additional letters per congress")
+
+ratio(mAll_Full)
 
 # Full model with interaction:
 mAll_Fullx <- glm(total_letters ~ PAC_100k*party_name, 
@@ -1368,6 +1538,8 @@ mPro_Full <- glm(ProBusiness_Letters ~ PAC_100k + party_name,
 mplot(mPro_Full)+
   labs(x="", y="Additional letters per congress")
 
+ratio(mPro_Full)
+
 # Full model with interaction:
 mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_100k * party_name, 
                                   data = letters_money %>% 
@@ -1384,6 +1556,8 @@ mplot(mPro_Fullx)+
   labs(x="", y="Additional letters per congress")
 
 
+
+# ANTI
 mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_100k + party_name, 
                                   data = letters_money %>% 
                         filter(industry == "energy") %>% 
@@ -1397,6 +1571,8 @@ mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_100k + party_name,
 mplot(mAnti_Full)+
   labs(x="", y="Additional letters per congress")
 
+ratio(mAnti_Full)
+
 # full model with interaction 
 mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_100k * party_name, 
                                   data = letters_money %>% 
@@ -1406,12 +1582,12 @@ mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_100k * party_name,
                       distinct(),
             family = poisson)
 
-letters_money %>% 
-                        filter(industry == "energy") %>% 
-                        filter(party_name != "Independent") %>% 
-                        #filter(!is.na(AntiBusiness_Letters)) %>% 
-                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters, letter_position) %>%
-                      distinct() %>% count(letter_position) #%>% filter(is.na(icpsr)|is.na(congress)|is.na(PAC_100k)|is.na(party_name)|is.na(AntiBusiness_Letters)&is.na(ProBusiness_Letters))
+# letters_money %>% 
+#                         filter(industry == "energy") %>% 
+#                         filter(party_name != "Independent") %>% 
+#                         #filter(!is.na(AntiBusiness_Letters)) %>% 
+#                         select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters, letter_position) %>%
+#                       distinct() %>% count(letter_position) #%>% filter(is.na(icpsr)|is.na(congress)|is.na(PAC_100k)|is.na(party_name)|is.na(AntiBusiness_Letters)&is.na(ProBusiness_Letters))
 
 # tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
@@ -1424,7 +1600,171 @@ mplot(mAnti_Fullx)+
 #mplot(mNonConstituent_Fullx)+labs(x="", y="Additional non-constituent letters per congress")
 ```
 
+```{r full-model-predicted, fig.height=3, fig.width=4.5}
+mAll_Full %>% pplot()  + 
+  labs(y = "Predicted Letters to FERC")
 
+mAll_Full %>% pplot2() + 
+  labs(y = "Predicted Letters to FERC")
+
+mAll_Fullx %>% pplot()  + 
+  labs(y = "Predicted Letters to FERC")
+
+mAll_Fullx %>% pplot2() + 
+  labs(y = "Predicted Letters to FERC")
+```
+
+
+```{r full-model-predicted-pro, fig.height=3, fig.width=4.5}
+mPro_Full %>% pplot()  + 
+  labs(y = "Predicted Pro-business\nLetters to FERC")
+
+mPro_Full %>% pplot2() + 
+  labs(y = "Predicted Pro-business\nLetters to FERC")
+
+mPro_Fullx %>% pplot()  + 
+  labs(y = "Predicted Pro-businessn\nLetters to FERC")
+
+mPro_Fullx %>% pplot2() + 
+  labs(y = "Predicted Pro-business\nLetters to FERC")
+```
+
+```{r full-model-predicted-anti, fig.height=3, fig.width=4.5}
+mAnti_Full %>% pplot()  + 
+  labs(y = "Predicted Anti-business\nLetters to FERC")
+
+mAnti_Full %>% pplot2() + 
+  labs(y = "Predicted Anti-business\nLetters to FERC")
+
+mAnti_Fullx %>% pplot()  + 
+  labs(y = "Predicted Anti-business\nLetters to FERC")
+
+mAnti_Fullx %>% pplot2() + 
+  labs(y = "Predicted Anti-business\nLetters to FERC")
+```
+
+### Multivariate logit
+
+```{r full-logit, fig.height=3, fig.width=4.5}
+# full logit
+mAll_Fulllogit <- glm(total_letters>0 ~ PAC_100k*party_name, 
+                 data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        distinct(icpsr, congress, PAC_100k, chamber,party_name, total_letters),
+            family = binomial(link = "logit"))
+
+mAll_Fulllogit %>% augment(type.predict = "response", se_fit = T, interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      color = party_name, fill = party_name,
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Probability of Writing to FERC",
+       color = "",
+       fill = "") + 
+  scale_y_continuous(limits = c(0,1)) +
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6)
+
+ratio(mAll_Fulllogit)
+```
+
+```{r full-logit-pro, fig.height=3, fig.width=4.5}
+# full logit pro
+mpro_Fulllogit <- glm(ProBusiness_Letters>0 ~ PAC_100k *party_name, 
+                 data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        distinct(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters),
+            family = binomial(link = "logit"))
+
+mpro_Fulllogit %>% augment(type.predict = "response", se_fit = T, interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      color = party_name, fill = party_name,
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Probability of Writing to FERC\nOn Behalf of an Energy Company",
+       color = "",
+       fill = "") + 
+  scale_y_continuous(limits = c(0,1))+
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6)
+
+mpro_Fulllogit %>% augment(type.predict = "response", se_fit = T, interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Probability of Writing to FERC\nOn Behalf of an Energy Company",
+       color = "",
+       fill = "") + 
+  scale_y_continuous(limits = c(0,1))+
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6) + 
+  facet_grid(. ~ party_name)
+
+
+
+
+mpro_Fulllogit %>% ratio()
+```
+
+
+```{r full-logit-anti, fig.height=3, fig.width=4.5}
+# full anti logit
+manti_Fulllogit <- glm(AntiBusiness_Letters>0 ~ PAC_100k +party_name, 
+                 data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        distinct(icpsr, congress, PAC_100k, chamber,party_name, AntiBusiness_Letters),
+            family = binomial(link = "logit"))
+
+manti_Fulllogit %>% augment(type.predict = "response", se_fit = T, interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      color = party_name, fill = party_name,
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Probability of Writing to FERC\nOpposing an Energy Company",
+       color = "",
+       fill = "") + 
+  scale_y_continuous(limits = c(0,1)) +
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6)
+
+manti_Fulllogit %>% augment(type.predict = "response", se_fit = T, interval = "confidence") %>% 
+  ggplot() +
+  aes(x = PAC_100k, y = .fitted, 
+      ymax = .fitted + (1.96*.se.fit),
+      ymin = .fitted - (1.96*.se.fit) ) +
+    geom_ribbon(alpha = .4, color = NA)+
+  geom_point(alpha = .5) + 
+  labs(x = "Energy PAC Contributions\n($100,000s)",
+       y = "Probability of Writing to FERC\nOpposing an Energy Company",
+       color = "",
+       fill = "") + 
+  scale_y_continuous(limits = c(0,1)) +
+  scale_fill_viridis_d(option = "plasma", end = .6) + 
+  scale_color_viridis_d(option = "plasma", end = .6) +
+  facet_grid(. ~party_name)
+
+ratio(manti_Fulllogit)
+
+```
 
 ### Average Pro-Business letters per cycle ~ total Energy Sector PAC contributions 1990-2014
 ```{r money-letters-total, fig.height=1}
@@ -1441,6 +1781,14 @@ mProTotal <- glm(ProBusiness_Letters_Per_Cycle ~ PAC_100k_total,
 # tidy(mProTotal)
 mplot(mProTotal)+
   labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
+
+newdata_total <- expand(letters_money,
+                   party_name,
+                   PAC_100k_total = seq(0,5))
+
+mProTotal %>% augment(type.predict = "response", se_fit = T, interval = "confidence", newdata = newdata_total) %>%
+  group_by(party_name) %>% 
+  mutate(ratio = .fitted/min(.fitted)) %>% kable()
 ```
 
 ## Anti-Business Letters per cycle ~ Energy Sector PAC contributions per cycle 1998-2014
@@ -1466,6 +1814,10 @@ mAntiLog <- glm(AntiBusiness_Letters ~ Log_PAC_contributions,
 # tidy(mAntiLog)
 mAntiLog %>% mplot()+
   labs(x="", y="Additional anti-business Letters per congress per Log(PAC Contributions)")
+
+mProTotal %>% augment(type.predict = "response", se_fit = T, interval = "confidence", newdata = newdata_total) %>%
+  group_by(party_name) %>% 
+  mutate(ratio = .fitted/min(.fitted)) %>% kable()
 ```
 
 #### Anti-business letters by party
@@ -1480,6 +1832,8 @@ mAntiParty <- glm(AntiBusiness_Letters ~ party_name,
 # tidy(mAntiParty)
 mplot(mAntiParty) +
   labs(x="", y="Additional anti-business  letters per congress")
+
+mAntiParty %>% ratio()
 ```
 
 Democrats send an additional `r -round(mAntiParty$coefficients[2], 1)` Anti-Business letters per Congress, on average.
@@ -1496,6 +1850,9 @@ mAnti_pac_party <- glm(AntiBusiness_Letters ~ PAC_100k + party_name,
 
 # tidy(mAnti_pac_party)
 mplot(mAnti_pac_party)+ labs(x="", y="Additional anti-business letters per congress")
+
+
+ratio(mAnti_pac_party)
 
 
 #PAC*party interaction:
