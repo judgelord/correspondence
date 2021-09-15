@@ -73,7 +73,9 @@ The full dataset of congressional correspondence can be found at `"data/all_cont
 More data from the text of FERC letters are saved as `"data/DOE_FERC-letters-clean.Rdata"`.
 
 ```{r data}
-load(here("data/all_contacts.RData"))
+load(here("data/all_contacts2.RData"))
+
+count(all_contacts, congress)
 
 #FIXME name_state is missing, so recreatig
 all_contacts  %<>% mutate(name_state = str_c(last_name %>% str_to_title(), " (", state_abbrev, ")"))
@@ -1237,7 +1239,7 @@ letters_money %>%
 
 
 # Save data as `data/letters_money.Rdata`
-```{r, save letters_money}
+```{r, save letters_money, eval=FALSE}
 # note these data are stacked by letter position and industry 
 letters_money %>% count(letter_position, industry) %>% kable()
 
@@ -1247,6 +1249,8 @@ save(letters_money, file = here("data/letters_money.Rdata"))
 # Models
 ```{r mplot_function, cache=FALSE}
 load(here("data", "letters_money.Rdata"))
+letters_money %>% group_by(congress) %>% summarise(n = sum(n))
+
 letters_money %<>% filter(party_name != "Independent") %>% ungroup()
 constituents_money %<>% filter(party_name != "Independent") %>% ungroup()
 
@@ -1365,23 +1369,26 @@ ratio <- . %>% augment(type.predict = "response", newdata = newdata) %>%
   group_by(party_name) %>% 
   mutate(ratio = .fitted/min(.fitted)) %>% kable()
 
+
+
+# log scatter plots 
 letters_money %>% 
   ggplot()  + 
-  aes(x = PAC_contributions, y = total_letters) +
+  aes(x = log(PAC_contributions + 1), y = total_letters) +
   geom_jitter() +
   geom_smooth() + 
   facet_wrap("party_name" )
 
 letters_money %>% 
   ggplot()  + 
-  aes(x = PAC_contributions, y = ProBusiness_Letters) +
+  aes(x = log(PAC_contributions + 1), y = ProBusiness_Letters) +
   geom_jitter() +
   geom_smooth() + 
   facet_wrap("party_name" )
 
 letters_money %>% 
   ggplot()  + 
-  aes(x = PAC_contributions, y = AntiBusiness_Letters) +
+  aes(x = log(PAC_contributions + 1), y = AntiBusiness_Letters) +
   geom_jitter() +
   geom_smooth() + 
   facet_wrap("party_name" )
@@ -1419,12 +1426,12 @@ constituents_money %>%
 mConstituent <-glm(Constituent_Letters ~ PAC_100k, 
                        data = constituents_money %>%
                          filter(industry == "energy") %>% 
-                     mutate(PAC_100k = log(PAC_contributions + 1)) %>% #FIXME
+                     #mutate(PAC_100k = log(PAC_contributions + 1)) %>% #FIXME
                          select(icpsr, congress,party_name,chamber, Constituent_Letters, PAC_100k)%>% 
                          distinct(),
          family = poisson) 
 
-# tidy(mNonConstituent)
+# tidy(mConstituent)
 mConstituent %>% mplot()+
   labs(x="", y="Additional constituent letters per congress per hundred thousand dollars")
 
@@ -1442,7 +1449,27 @@ mConstituentLog %>% mplot()+
 
 
 
+#######
+constituents_money %<>%  
+  left_join(partycontrol) %>%
+  mutate(majority = ifelse(party_name == party_control,
+                           "Majority",
+                           "Minority"),
+         copartisan = ifelse(party_name == party_president, 
+                             "Copartisan President", 
+                             "Non-copartisan President"),
+              party_copartisan = paste(party_name %>% str_remove(" Party"), copartisan, sep = "\n"),
+              majority_copartisan = paste(majority, copartisan, sep = "\n"))
 
+# # constituent letters
+# mConstituent_copartisan <-glm(Constituent_Letters ~ party_name,majority, copartisan, 
+#                        data = constituents_money %>%
+#                          filter(industry == "energy",
+#                                 party_name != "Independent") %>% 
+#                      distinct(icpsr, party_name, majority, copartisan, Constituent_Letters, congress),
+#          family = poisson) 
+
+constituents_money %>% group_by(congress) %>% summarise(n = sum(Constituent_Letters, na.rm = T))
 
 
 # NON-constituent letters 
@@ -1492,6 +1519,7 @@ mProLog <- glm(ProBusiness_Letters ~ Log_PAC_contributions,
               select(icpsr, congress,party_name, chamber,Log_PAC_contributions, ProBusiness_Letters) %>% 
               distinct(),
             family = poisson) 
+
 mProLog %>% mplot()+
   labs(x="", y="Additional letters per congress per Log(PAC Contributions)")
 ```
@@ -1638,7 +1666,7 @@ mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_100k + party_name,
                                   data = letters_money %>% 
                         filter(industry == "energy") %>% 
                         filter(party_name != "Independent") %>% 
-                    mutate(PAC_100k = Log_PAC_contributions) %>% 
+                    #mutate(PAC_100k = Log_PAC_contributions) %>% #fixme
                         select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters) %>%
                       distinct(),
             family = poisson)
@@ -1874,7 +1902,7 @@ mAnti <- glm(AntiBusiness_Letters ~ PAC_100k,
                                   data = letters_money %>% 
                         filter(industry == "energy") %>% 
                         filter(party_name != "Independent") %>% 
-               mutate(PAC_100k = Log_PAC_contributions) %>%
+               mutate(PAC_100k = Log_PAC_contributions) %>% #fixme
                         select(icpsr, congress,party_name, chamber,PAC_100k, AntiBusiness_Letters) %>%
                       distinct(),
             family = poisson)
