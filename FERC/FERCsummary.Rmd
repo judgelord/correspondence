@@ -345,6 +345,7 @@ d %>% filter(party_name == "Democratic Party",
 d %>% filter(For %in% c("Business", "Individual Constituent"),
              party_name != "Independent") %>%  group_by(congress,  chamber, party, majority, copartisan, name_state, For) %>% 
   summarise(n = n(),
+            Corps = paste(ProBusiness, collapse = " + "),
             Subjects = paste(SUBJECT, collapse = " + ") %>%
               str_remove_all("US |United States |Senator |Representative |Congressman |Congresswoman |Members of Congress|Comments of |submits |letter |comments |House of Representative") %>% 
               str_squish() ) %>%
