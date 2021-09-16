@@ -338,7 +338,25 @@ d %>% filter(party_name == "Republican Party",
 d %>% filter(party_name == "Democratic Party",
              congress== 115,
              letter_position == "ProBusiness") %>% 
-  count(congress, party_name, name_state, Type, sort = T)
+  add_count(congress, party_name, name_state, Type, sort = T) %>%
+  slice_max(n) 
+  
+  
+d %>% filter(For %in% c("Business", "Individual Constituent"),
+             party_name != "Independent") %>%  group_by(congress,  chamber, party, majority, copartisan, name_state, For) %>% 
+  summarise(n = n(),
+            Subjects = paste(SUBJECT, collapse = " + ") %>%
+              str_remove_all("US |United States |Senator |Representative |Congressman |Congresswoman |Members of Congress|Comments of |submits |letter |comments |House of Representative") %>% 
+              str_squish() ) %>%
+  ungroup() %>% 
+  mutate(For = str_sub(For, 1,10),
+         copartisan = str_sub(copartisan, 1,10)) %>% 
+  group_by(congress, party,  chamber, majority, copartisan, 
+           For) %>% 
+  slice_max(n, n = 1, with_ties = F) %>% 
+  ungroup() %>% 
+  select(-copartisan) %>% 
+  arrange(-n, majority, party) %>% kable()
 ```
 
 Looking at letters that are explicitly pro- or anti-business, Democrats write more anti-business letters, whereas, for Republicans, it depends on chamber control. When in the majority, Republicans write more pro-business letters. 
@@ -1367,7 +1385,7 @@ pplot_party <- function(m){
 # table 
 newdata <- expand(letters_money,
                    party_name,
-                   PAC_100k = seq(0,5, by = .5))
+                   PAC_100k = seq(0,5, by = 1))
 
 ratio <- . %>% augment(type.predict = "response", newdata = newdata) %>%
   group_by(party_name) %>% 
@@ -1906,7 +1924,7 @@ mAnti <- glm(AntiBusiness_Letters ~ PAC_100k,
                                   data = letters_money %>% 
                         filter(industry == "energy") %>% 
                         filter(party_name != "Independent") %>% 
-               mutate(PAC_100k = Log_PAC_contributions) %>% #fixme
+               #mutate(PAC_100k = Log_PAC_contributions) %>% #fixme
                         select(icpsr, congress,party_name, chamber,PAC_100k, AntiBusiness_Letters) %>%
                       distinct(),
             family = poisson)
@@ -1925,7 +1943,7 @@ mAntiLog <- glm(AntiBusiness_Letters ~ Log_PAC_contributions,
 mAntiLog %>% mplot()+
   labs(x="", y="Additional anti-business Letters per congress per Log(PAC Contributions)")
 
-mProTotal %>% augment(type.predict = "response", se_fit = T, interval = "confidence", newdata = newdata_total) %>%
+mAnti %>% augment(type.predict = "response", se_fit = T, interval = "confidence", newdata = newdata) %>%
   group_by(party_name) %>% 
   mutate(ratio = .fitted/min(.fitted)) %>% kable()
 ```
