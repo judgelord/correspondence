@@ -280,8 +280,8 @@ d %>%
 
 ```{r party-constituent, fig.height=2.5, fig.width=6.2}
 d %<>% mutate(copartisan = ifelse(party_name == party_president, "Copartisan\nPresident", "Non-copartisan\nPresident"),
-              party_copartisan = paste(party_name %>% str_remove(" Party"), copartisan, sep = "\n"),
-              majority_copartisan = paste(majority, copartisan, sep = "\n"))
+              party_copartisan = paste(party_name %>% str_remove(" Party"), copartisan, sep = "\nLegislator & \n"),
+              majority_copartisan = paste(majority, copartisan, sep = "\nLegislator & \n"))
 # with president 
 
 
@@ -771,7 +771,7 @@ Using CRP industry codes and contribution data, sum up sector-level contribution
 
 (For the next paper, we will look at specific company-legislator diads, see company-crosswalk.Rmd)
 
-```{r pac_amounts, fig.height= 3.6, fig.width=6}
+```{r pac_amounts, fig.height= 3.55, fig.width=6.5}
 library(tidyverse)
   
 load(here::here("data/pac_amounts.Rdata"))
@@ -827,12 +827,14 @@ pac_amounts %>%
   aes(x = factor(Cycle), y = total, fill = party_name) + 
   geom_col() + 
   facet_wrap("industry", scales = "free") +
-  labs(y = "Total Industry PAC contributions\n(hundreds of thousand)", 
+  labs(y = "Total PAC Contributions\n($100,000)", 
        x = "FEC Electoral Cycle",
        fill = "") + 
     scale_fill_discrete(option="magma", begin =.15, end = .65) + 
   theme_minimal() + 
-  theme(axis.text.x = element_text(angle = 45))
+  theme(axis.text.x = element_text(angle = 45),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
 
 # average per member 
 pac_amounts %>%
@@ -846,12 +848,14 @@ pac_amounts %>%
   aes(x = factor(Cycle), y = mean, fill = party_name) + 
   geom_col(position = "dodge") + 
   facet_wrap("industry", scales = "free") +
-  labs(y = "Average PAC contributions per member\n (hundreds of thousand)", 
+  labs(y = "Average PAC Contributions\nper Legislator ($100,000s)", 
        x = "FEC Electoral Cycle",
        fill = "") + 
   scale_fill_discrete(option="magma", begin =.15, end = .65) + 
   theme_minimal() + 
-  theme(axis.text.x = element_text(angle = 45))
+  theme(axis.text.x = element_text(angle = 45),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
 
 
 # problems with duplicate icpsrs? 
@@ -894,7 +898,7 @@ pac_contributions %>%
   ggplot() + 
   aes(x = factor(cycle), y = total, fill= PAC) + 
   geom_col() + 
-  labs(y = "Energy-sector PAC contributions \n (hundreds of thousands) \n ", 
+  labs(y = "Energy-sector PAC Contributions \n($100,000s) \n ", 
        x = "FEC Electoral Cycle",
        fill = "Energy-sector PACs in top 2% \n(omitting energy extraction)") + 
   scale_fill_viridis_d(option = "C", na.value = "grey50") + 
@@ -2026,14 +2030,14 @@ library(stargazer)
 library(dplyr)
 write_lines(
   stargazer(mAll, mPro, mAnti, mConstituent, 
-            covariate.labels = c("Campaign Contributions", "Republican"),
+            covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
             float=F),
   path = here("FERC/tables/All-mPro-mAnti-mConstituent.tex"))
 
 table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
-                               covariate.labels = c("Campaign Contributions", "Republican"),
+                               covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
                 type = "html",
@@ -2055,13 +2059,16 @@ dplot(models)+
 library(stargazer)
 library(dplyr)
 write_lines(stargazer(mAll, mPro, mAnti, mNonConstituent, 
-            covariate.labels = c("Campaign Contributions", "Republican"),
+            covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Non-constituent"),
             float=F),
   path = here("FERC/tables/All-mPro-mAnti-mNonConstituent.tex"))
 
 table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
+                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+          dep.var.caption  = "Letters to FERC",
+          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Non-constituent"),
                 type = "html",
                 notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex")
 ```
@@ -2082,13 +2089,16 @@ dplot(models)+
 
 write_lines(
   stargazer::stargazer(mProLog, mAntiLog,
-                                   covariate.labels = c("Campaign Contributions", "Republican"),
+                                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
                        float=F),
   path = here("FERC/tables/mProLog-mAntiLog.tex"))
 
 table <- stargazer(mProLog, mAntiLog, 
+                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+          dep.var.caption  = "Letters to FERC",
+          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
                 type = "html",
                 notes = "FERC/tables/mProLog-mAntiLog.tex")
 ```
@@ -2108,13 +2118,16 @@ dplot(models) +
     labs(x = "Average additional letters per cycle per hundred thousand dollars 1990-2014")
 
 write_lines(
-  stargazer::stargazer(mProTotal, mAntiTotal,             covariate.labels = c("Campaign Contributions", "Republican"),
+  stargazer::stargazer(mProTotal, mAntiTotal,             covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
           float=F),
   path = here("FERC/tables/mProTotal-mAntiTotal.tex"))
 
 table <- stargazer(mProTotal, mAntiTotal, 
+                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+          dep.var.caption  = "Letters to FERC",
+          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
                 type = "html",
                 notes = "FERC/tables/mProTotal-mAntiTotal.tex")
 ```
@@ -2138,7 +2151,7 @@ dplot(models) +
 
 write_lines(
   stargazer::stargazer(mProParty, mAntiParty,
-                                   covariate.labels = c("Campaign Contributions", "Republican"),
+                                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
           float=F),
@@ -2159,13 +2172,16 @@ htmltools::HTML(table)
 ```{r models-ALL, fig.height=2, results='hide'}
 # All models 
 write_lines(
-  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, covariate.labels = c("Campaign Contributions", "Republican"),
+  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
           float=F),
   path = here("FERC/tables/mUnivariate.tex"))
 
 table <-stargazer(mAll, mPro, mAnti, mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
+                  covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+          dep.var.caption  = "Letters to FERC",
+          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
                 type = "html",
                 notes = "FERC/tables/mUnivariate.tex")
 ```
@@ -2206,7 +2222,7 @@ dplot(models) +
     labs(x = "Additional letters per cycle")
 
 write_lines(
-  stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx,            covariate.labels = c("Campaign Contributions", "Republican"),
+  stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx,            covariate.labels = c("Campaign Contributions (100k)", "Republican"),
           dep.var.caption  = "Letters to FERC",
           dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"), float=F),
   path = here("FERC/tables/mFull.tex"))
@@ -2216,9 +2232,6 @@ table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
                 type = "html",
                 notes = "FERC/tables/mFull.tex")
 
-table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
-                type = "html",
-                notes = "FERC/tables/mFull.tex")
 ```
 
 ```{r, results="asis"}
