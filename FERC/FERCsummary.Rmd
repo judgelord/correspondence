@@ -971,6 +971,7 @@ letters <- members %>% select(congress, icpsr, chamber, cqlabel) %>% distinct() 
 letters_money <-  letters %>% 
   full_join(pac_amounts %>% ungroup())  %>% distinct()
 
+
 # letters %>% filter(!icpsr %in% pac_amounts$icpsr)
 # members %>% filter(!icpsr %in% pac_amounts$icpsr)
 # pac_amounts %>% filter(!icpsr %in% letters$icpsr)
@@ -1272,7 +1273,36 @@ save(letters_money, file = here("data/letters_money.Rdata"))
 # Models
 ```{r mplot_function, cache=FALSE}
 load(here("data", "letters_money.Rdata"))
+
 letters_money %>% group_by(congress) %>% summarise(n = sum(n))
+
+
+# add party control 
+letters_money %<>%  
+  left_join(partycontrol) %>%
+  mutate(majority = ifelse(party_name == party_control,
+                           "Majority",
+                           "Minority"),
+         copartisan = ifelse(party_name == party_president, 
+                             "Copartisan President", 
+                             "Non-copartisan President"),
+              party_copartisan = paste(party_name %>% str_remove(" Party"), copartisan, sep = "\n"),
+              majority_copartisan = paste(majority, copartisan, sep = "\n"))
+
+
+
+constituents_money %<>%  
+  left_join(partycontrol) %>%
+  mutate(majority = ifelse(party_name == party_control,
+                           "Majority",
+                           "Minority"),
+         copartisan = ifelse(party_name == party_president, 
+                             "Copartisan President", 
+                             "Non-copartisan President"),
+              party_copartisan = paste(party_name %>% str_remove(" Party"), copartisan, sep = "\n"),
+              majority_copartisan = paste(majority, copartisan, sep = "\n"))
+
+
 
 letters_money %<>% filter(party_name != "Independent") %>% ungroup()
 constituents_money %<>% filter(party_name != "Independent") %>% ungroup()
@@ -1473,16 +1503,6 @@ mConstituentLog %>% mplot()+
 
 
 #######
-constituents_money %<>%  
-  left_join(partycontrol) %>%
-  mutate(majority = ifelse(party_name == party_control,
-                           "Majority",
-                           "Minority"),
-         copartisan = ifelse(party_name == party_president, 
-                             "Copartisan President", 
-                             "Non-copartisan President"),
-              party_copartisan = paste(party_name %>% str_remove(" Party"), copartisan, sep = "\n"),
-              majority_copartisan = paste(majority, copartisan, sep = "\n"))
 
 # # constituent letters
 # mConstituent_copartisan <-glm(Constituent_Letters ~ party_name,majority, copartisan, 
@@ -1544,12 +1564,13 @@ mProLog <- glm(ProBusiness_Letters ~ Log_PAC_contributions,
             family = poisson) 
 
 mProLog %>% mplot()+
-  labs(x="", y="Additional letters per congress per Log(PAC Contributions)")
+  labs(x="", y="Additional  pro-business letters per congress")
 ```
 
 
 
 ### Pro-business letters by party
+
 ```{r letters-per-cycle-model-party, fig.height=1}
 mProParty <- glm(ProBusiness_Letters ~ party_name,
                  data = letters_money %>% 
@@ -1564,6 +1585,22 @@ mplot(mProParty) +
   labs(x="", y="Additional pro-business letters per congress")
 
 ratio(mProParty)
+
+# FIXME MOVE UP
+letters_money %<>% mutate(Majority = majority == "Majority",
+                          Majority = as.numeric(Majority))
+
+mProPartyx <- glm(ProBusiness_Letters ~ party_name*Majority,
+                 data = letters_money %>% 
+                   filter(industry == "energy") %>% 
+                   filter(party_name != "Independent") %>% 
+                   select(icpsr, congress, party_name, Majority, chamber,ProBusiness_Letters, PAC_100k) %>% 
+              distinct(),
+            family = poisson) 
+
+# tidy(mProParty)
+mplot(mProPartyx) +
+  labs(x="", y="Additional pro-business letters per congress")
 ```
 Republicans send an additional `r round(mProParty$coefficients[2], 1)` letters per Congress, on average.
 
@@ -1583,7 +1620,7 @@ mPro_pac_party <- glm(ProBusiness_Letters ~ PAC_100k + party_name,
 # tidy(mPro_pac_party)
 
 mplot(mPro_pac_party)+
-  labs(x="", y="Additional letters per congress")
+  labs(x="", y="Additional pro-business letters per congress")
 
 ratio(mPro_pac_party)
 
@@ -1599,7 +1636,7 @@ mPro_pacXparty <- glm(ProBusiness_Letters ~ PAC_100k * party_name,
 # tidy(mPro_pacXparty)
 
 mplot(mPro_pacXparty)+
-  labs(x="", y="Additional letters per congress")
+  labs(x="", y="Additional pro-business letters per congress")
 
 ratio(mPro_pacXparty)
 
@@ -1663,25 +1700,55 @@ mPro_Full <- glm(ProBusiness_Letters ~ PAC_100k + party_name,
 # tidy(mPro_Full)
 
 mplot(mPro_Full)+
-  labs(x="", y="Additional letters per congress")
+  labs(x="", y="Additional pro-business letters per congress")
 
 ratio(mPro_Full)
 
-# Full model with interaction:
-mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_100k * party_name, 
+
+# Full model, pro business letters with party majority 
+mPro_Fullpartyx <- glm(ProBusiness_Letters ~ PAC_100k + party_name*Majority, 
                                   data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters, Majority) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mPro_Full)
+
+mplot(mPro_Fullpartyx)+
+  labs(x="", y="Additional pro-business letters per congress")
+
+# Full model with interaction:
+mPro_Fullx <- glm(ProBusiness_Letters ~ PAC_100k * party_name,                                  data = letters_money %>% 
                         filter(industry == "energy",
                                party_name != "Independent",
                                !is.na(ProBusiness_Letters)) %>% 
-                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters) %>%
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters, Majority) %>%
                       distinct(),
             family = poisson)
 
 # tidy(mPro_Fullx)
 
 mplot(mPro_Fullx)+
-  labs(x="", y="Additional letters per congress")
+  labs(x="", y="Additional pro-business letters per congress")
 
+
+# Full model with party interaction:
+mPro_Fullpartyx <- glm(ProBusiness_Letters ~ PAC_100k * party_name+
+                  party_name*Majority,
+                                  data = letters_money %>% 
+                        filter(industry == "energy",
+                               party_name != "Independent",
+                               !is.na(ProBusiness_Letters)) %>% 
+                        select(icpsr, congress, PAC_100k, chamber,party_name, ProBusiness_Letters, Majority) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mPro_Fullx)
+
+mplot(mPro_Fullpartyx)+
+  labs(x="", y="Additional pro-business letters per congress")
 
 
 # ANTI
@@ -1697,7 +1764,7 @@ mAnti_Full <- glm(AntiBusiness_Letters ~ PAC_100k + party_name,
 # tidy(mAnti_Full)
 
 mplot(mAnti_Full)+
-  labs(x="", y="Additional letters per congress")
+  labs(x="", y="Additional anti-business letters per congress")
 
 ratio(mAnti_Full)
 
@@ -1710,16 +1777,25 @@ mAnti_Fullx <- glm(AntiBusiness_Letters ~ PAC_100k * party_name,
                       distinct(),
             family = poisson)
 
-# letters_money %>% 
-#                         filter(industry == "energy") %>% 
-#                         filter(party_name != "Independent") %>% 
-#                         #filter(!is.na(AntiBusiness_Letters)) %>% 
-#                         select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters, letter_position) %>%
-#                       distinct() %>% count(letter_position) #%>% filter(is.na(icpsr)|is.na(congress)|is.na(PAC_100k)|is.na(party_name)|is.na(AntiBusiness_Letters)&is.na(ProBusiness_Letters))
-
 # tidy(mAnti_Fullx)
 mplot(mAnti_Fullx)+
-  labs(x="", y="Additional letters per congress")
+  labs(x="", y="Additional anti-business letters per congress")
+
+
+
+
+# full model with party interaction 
+mAnti_Fullpartyx <- glm(AntiBusiness_Letters ~ PAC_100k * party_name + party_name*Majority, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress, PAC_100k, party_name,chamber, AntiBusiness_Letters, Majority) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mAnti_Fullx)
+mplot(mAnti_Fullpartyx)+
+  labs(x="", y="Additional anti-business letters per congress")
 
 # FULL MODEL WITH NON- CONSTITUENT 
 # FIXME
@@ -1908,7 +1984,7 @@ mProTotal <- glm(ProBusiness_Letters_Per_Cycle ~ PAC_100k_total,
 
 # tidy(mProTotal)
 mplot(mProTotal)+
-  labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
+  labs(x="", y="Average Additional pro-business letters per cycle per hundred thousand dollars 1990-2014")
 
 newdata_total <- expand(letters_money,
                    party_name,
@@ -1963,12 +2039,26 @@ mplot(mAntiParty) +
   labs(x="", y="Additional anti-business  letters per congress")
 
 mAntiParty %>% ratio()
+
+mAntiPartyx <- glm(AntiBusiness_Letters ~ party_name*Majority,
+                 data = letters_money %>% 
+                   filter(industry == "energy") %>% 
+                   filter(party_name != "Independent") %>% 
+                   mutate(Majority = majority == "Majority",
+                          Majority = as.numeric(Majority)) %>% 
+                   select(icpsr, congress, party_name, Majority, chamber,AntiBusiness_Letters, PAC_100k) %>% 
+              distinct(),
+            family = poisson) 
+
+# tidy(mProParty)
+mplot(mAntiPartyx) +
+  labs(x="", y="Additional anti-business letters per congress")
 ```
 
 Democrats send an additional `r -round(mAntiParty$coefficients[2], 1)` Anti-Business letters per Congress, on average.
 
 ```{r money-Antiletters-per-cycle-model-party, fig.height=1, include=TRUE}
-#PAC*party interaction:
+#PAC + party:
 mAnti_pac_party <- glm(AntiBusiness_Letters ~ PAC_100k + party_name, 
                                   data = letters_money %>% 
                         filter(industry == "energy") %>% 
@@ -1983,13 +2073,26 @@ mplot(mAnti_pac_party)+ labs(x="", y="Additional anti-business letters per congr
 
 ratio(mAnti_pac_party)
 
-
-#PAC*party interaction:
-mAnti_pacXparty <- glm(AntiBusiness_Letters ~ PAC_100k*party_name, 
+# with interaction with majoirty 
+mAnti_pac_partyx <- glm(AntiBusiness_Letters ~ PAC_100k + party_name*Majority, 
                                   data = letters_money %>% 
                         filter(industry == "energy") %>% 
                         filter(party_name != "Independent") %>% 
-                        select(icpsr, congress,chamber,PAC_100k, AntiBusiness_Letters, party_name) %>%
+                        select(icpsr,congress,PAC_100k, chamber,AntiBusiness_Letters, party_name, Majority) %>%
+                      distinct(),
+            family = poisson)
+
+# tidy(mAnti_pac_party)
+mplot(mAnti_pac_partyx)+ labs(x="", y="Additional anti-business letters per congress")
+
+
+
+#PAC + party*status interaction:
+mAnti_pacXparty <- glm(AntiBusiness_Letters ~ PAC_100k + party_name*Majority, 
+                                  data = letters_money %>% 
+                        filter(industry == "energy") %>% 
+                        filter(party_name != "Independent") %>% 
+                        select(icpsr, congress,chamber,PAC_100k, AntiBusiness_Letters, party_name, Majority) %>%
                       distinct(),
             family = poisson)
 
@@ -2014,7 +2117,7 @@ mAntiTotal <- glm(AntiBusiness_Letters_Per_Cycle ~ PAC_100k_total,
 
 # tidy(mProTotal)
 mplot(mAntiTotal)+
-  labs(x="", y="Average additional letters per cycle per hundred thousand dollars 1990-2014")
+  labs(x="", y="Average additional Anti-business letters per cycle per hundred thousand dollars 1990-2014")
 ```
 
 # Combined models 
@@ -2077,17 +2180,14 @@ dplot(models)+
 
 library(stargazer)
 library(dplyr)
-write_lines(stargazer(mAll, mPro, mAnti, mNonConstituent, 
-            covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+write_lines(stargazer(mAll, mPro, mAnti, mConstituent, mNonConstituent, 
+            covariate.labels = c("Campaign Contributions (per 100k)"),
           dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Non-constituent"),
+          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent", "Non-constituent"),
             float=F),
   path = here("FERC/tables/All-mPro-mAnti-mNonConstituent.tex"))
 
 table <- stargazer(mAll, mPro, mAnti, mNonConstituent, 
-                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
-          dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Non-constituent"),
                 type = "html",
                 notes = "FERC/tables/All-mPro-mAnti-mNonConstituent.tex")
 ```
@@ -2108,16 +2208,13 @@ dplot(models)+
 
 write_lines(
   stargazer::stargazer(mProLog, mAntiLog,
-                                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+                                   covariate.labels = c("Log Campaign Contributions"),
           dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
+          dep.var.labels   = c("Pro-business", "Anti-business"),
                        float=F),
   path = here("FERC/tables/mProLog-mAntiLog.tex"))
 
 table <- stargazer(mProLog, mAntiLog, 
-                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
-          dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
                 type = "html",
                 notes = "FERC/tables/mProLog-mAntiLog.tex")
 ```
@@ -2137,16 +2234,16 @@ dplot(models) +
     labs(x = "Average additional letters per cycle per hundred thousand dollars 1990-2014")
 
 write_lines(
-  stargazer::stargazer(mProTotal, mAntiTotal,             covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
-          dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
+  stargazer::stargazer(mProTotal, mAntiTotal,             covariate.labels = c("Career Total Campaign Contributions (per 100k)"),
+          dep.var.caption  = "Career Average Letters to FERC",
+          dep.var.labels   = c("Pro-business", "Anti-business"),
           float=F),
   path = here("FERC/tables/mProTotal-mAntiTotal.tex"))
 
 table <- stargazer(mProTotal, mAntiTotal, 
-                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
-          dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
+                   covariate.labels = c("Career Total Campaign Contributions (per 100k)"),
+          dep.var.caption  = "Career Total Letters to FERC",
+          dep.var.labels   = c("Pro-business", "Anti-business"),
                 type = "html",
                 notes = "FERC/tables/mProTotal-mAntiTotal.tex")
 ```
@@ -2170,9 +2267,9 @@ dplot(models) +
 
 write_lines(
   stargazer::stargazer(mProParty, mAntiParty,
-                                   covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+                                   covariate.labels = c("Republican"),
           dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
+          dep.var.labels   = c( "Pro-business", "Anti-business"),
           float=F),
   path = here("FERC/tables/mProParty-mAntiParty.tex"))
 
@@ -2188,19 +2285,25 @@ htmltools::HTML(table)
 
 
 ### Univariate models 
+
 ```{r models-ALL, fig.height=2, results='hide'}
 # All models 
 write_lines(
-  stargazer::stargazer(mAll, mPro, mAnti,mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
+  stargazer::stargazer(mAll, mPro, mAnti, mConstituent, mNonConstituent, mProLog, mAntiLog, mProParty, mAntiParty, mProTotal, mAntiTotal,  
+                       covariate.labels = c("Campaign Contributions (per 100k)"),
           dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
+          dep.var.labels   = c("Total", "Pro-business", "Anti-business",
+                               "Constituent",
+                               "Non-constituent", "Log(Pro-business+1)",
+                               "Log(Anti-business+1)",
+                               "Pro-business",
+                               "Anti-business",
+                               "Pro-business (career total)",
+                               "Anti-business (career total"),
           float=F),
   path = here("FERC/tables/mUnivariate.tex"))
 
-table <-stargazer(mAll, mPro, mAnti, mNonConstituent, mProLog, mAntiLog, mProParty, mProTotal, mAntiTotal, mAntiParty, 
-                  covariate.labels = c("Campaign Contributions (per 100k)", "Republican"),
-          dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"),
+table <-stargazer(mAll, mPro, mAnti,mConstituent, mNonConstituent, mProLog, mAntiLog, mProParty, mAntiParty, mProTotal, mAntiTotal,  
                 type = "html",
                 notes = "FERC/tables/mUnivariate.tex")
 ```
@@ -2212,6 +2315,7 @@ htmltools::HTML(table)
 
 
 ### Multivariate Models
+
 ```{r models-full, fig.height=2, results='hide'}
 ## Full models
 models <- tidy(mAll_Full) %>% 
@@ -2241,16 +2345,23 @@ dplot(models) +
     labs(x = "Additional letters per cycle")
 
 write_lines(
-  stargazer::stargazer(mAll_Full, mAll_Fullx, mPro_Full, mAnti_Full,mPro_Fullx, mAnti_Fullx,            covariate.labels = c("Campaign Contributions (100k)", "Republican"),
+  stargazer::stargazer(mAll_Full, mAll_Fullx,
+                       mPro_Full,mPro_Fullx, 
+                       mAnti_Full, mAnti_Fullx,            
+                       covariate.labels = c("Campaign Contributions (100k)", "Republican", "Campaign Contributions × Republican"),
           dep.var.caption  = "Letters to FERC",
-          dep.var.labels   = c("Total", "Pro-business", "Anti-business", "Constituent"), float=F),
+          dep.var.labels   = c("Total",
+                               "Pro-business", "Anti-business", "Anti-business"), float=F),
   path = here("FERC/tables/mFull.tex"))
 
 
-table <- stargazer(mPro_Full, mAnti_Full, mPro_Fullx, mAnti_Fullx,
+table <- stargazer(mAll_Full, mAll_Fullx,
+                   mPro_Full,mPro_Fullx, 
+                   mAnti_Full, mAnti_Fullx, 
                 type = "html",
                 notes = "FERC/tables/mFull.tex")
 
+# NOTE THIS TABLE IS MISSING CONSTITUTENT 
 ```
 
 ```{r, results="asis"}
