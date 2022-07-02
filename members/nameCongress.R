@@ -13,14 +13,20 @@ library(Rvoteview)
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
                      member_search(congress = c(109:120)))  # get voteview data for selected Congresses
 
-  # format state
+
+# alternatively  use bulk data 
+members <- read_csv(here::here("data", "HSall_members.csv"))
+
+  # format state full names from abbrev
  members%<>%
-   mutate(state = tolower(state)) %>%
+   mutate(state = stateFromLower(state_abbrev))
    
+ if("party_size" %in% names(members)){
+   members%<>%
   group_by(chamber, party_code, congress) %>%
    mutate(party_size = n()) %>% 
-   
    ungroup()
+ }
    
    
    members %<>%
@@ -784,7 +790,11 @@ members %<>%
   ungroup()
 
 
-members %<>% select(chamber, congress, bioname, pattern, everything() )
+members %<>% select(chamber, congress, bioname, pattern, icpsr, state, state_abbrev, 
+                    nominate_dim1, nominate_dim2, nominate_number_of_votes,
+                    district_code, bioguide_id, born, died,
+                    chamber_last,
+                    contains("first"),  contains("common"), contains("middle"), contains("last"), contains("maiden"))
 # mismatches between middle name and middle initial? 
 suspect_middle_names <- members %>% filter(!str_detect(middle_name, middle_initial) & !is.na(middle_name))
 suspect_middle_names
@@ -794,7 +804,17 @@ suspect_middle_names
   
 
 
+  members_min <- members %>% select(chamber, congress, bioname, pattern, icpsr, state, state_abbrev, 
+                      #nominate_dim1, nominate_dim2, nominate_number_of_votes,
+                      district_code, bioguide_id, #born, died,
+                      chamber_last,
+                      contains("first"),  contains("common"), contains("middle"), contains("last"), contains("maiden"))
   
-  save(members, file = "members/members.Rdata")
+  save(members, file = "members/members_all.Rdata")
+  save(members_min, file = "members/members_min.Rdata")
+  
+  
+  
+  write_csv(members_min, "members/members_all.csv")
   
   

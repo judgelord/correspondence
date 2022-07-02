@@ -244,3 +244,4 @@ stateFromFull <- function(x) {
   return(refac.x)
 }
 stateFromFull("wisconsin")
+stateFromLower("WI")
