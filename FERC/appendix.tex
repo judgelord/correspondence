@@ -1,0 +1,136 @@
+\appendix 
+
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{table}{0}
+\section{Sample Letters to the Federal Energy Regulatory Commission}
+
+\begin{figure}[ht!]
+\centering
+\caption{} \label{f:exampleconstituencyservice}
+\scalebox{0.65}{\includegraphics{20080515-0185small}}
+\caption*{\textbf{Figure \ref{f:exampleconstituencyservice}: Example of Constituency Service Letter.} This is a constituency service letter written by Senator Susan Collins (R-ME) to FERC on April 28, 2008.} 
+\end{figure}
+
+
+\begin{figure}[ht!]
+\centering
+\caption{} \label{f:exampleenergyproj}
+\scalebox{0.7}{\includegraphics{20171020-0018-14718216}}
+\caption*{\textbf{Figure \ref{f:exampleenergyproj}: Example of Energy Project Advocacy}. This is a letter written by Rep. Alex Mooney (R-WV2) to FERC on October 12, 2017.} 
+\end{figure}
+
+ 
+\begin{figure}[ht!]
+\centering
+\caption{} \label{f:examplepersonalbus}
+\scalebox{0.8}{\includegraphics{20141002-4001-13649830small.pdf}}
+\caption*{\textbf{Figure \ref{f:examplepersonalbus}: Example of Personal Business Interest}.  This is a letter written by former Senator Bob Graham (R-FL) to FERC on September 30, 2014. nearly a decade after retiring from the U.S. Senate.} 
+\end{figure}
+
+
+\section{Examples of FERC Letters}\label{a:FERC}
+
+%The Federal Energy Regulatory Commission is one of the lesser-known federal agencies.  
+To give readers a sense of the activities FERC regulations and the types of issues raised in congressional letters to the agency, this section presents a selection of examples.
+
+\subsubsection{Example of Energy Project Advocacy}
+
+As we explore in detail below, many legislator letters to FERC advocate on behalf of an energy project or another corporate interest. 
+In recent years, one of the legislators most focused on advocating for energy-related projects was Rep. Alex Mooney (R-WV).  
+Rep. Mooney was elected to Congress in 2014 and has spent considerable time advocating for energy projects in West Virginia. In the lead-up to the 2016 congressional elections, the Charleston Gazette-Mail wrote an article highlighting the money he had received from energy companies and the approvals those companies were seeking from FERC for various projects under consideration.  They wrote, ``Dominion is trying to get the Atlantic Coast Pipeline, which would run through national forests in West Virginia, approved by the Federal Energy Regulatory Commission. Columbia Pipeline Group is hoping to have three interstate pipeline projects of its own approved by the same federal agency,''\citep[pg. 4]{Brown2016cgm}.  Indeed, our data show that Mooney wrote to FERC more than any other agency, always on behalf of energy projects, mostly pipelines. 
+
+In 2015 Rep. Mooney wrote on behalf of Columbia's Mountaineer XPress Project and Atlantic Coast Pipeline ACP project.  In 2017, he wrote on behalf of the Dominion Energy Supply Header Project, National Fuel Gas Distribution Corporation’s Northern Access Project, Transcontinental Gas Pipe Line Company's Atlantic Sunrise Project, Columbia Gas Transmission's proposed Eastern Panhandle Expansion Project, Columbia's WB Xpress Project to build new compressor stations. In addition to the tens of thousands of dollars these companies spent on Mooney's campaign, the parent companies of these projects spend millions of dollars on lobbying \citep{Lobbyview2019}.
+
+Figure \ref{f:exampleenergyproj} in the Appendix shows one of the letters written by Rep. Mooney advocating for energy projects.  In this case, the letter clearly connects both the name of the project and the name of the company involved with the project.  Many letters lack that linkage and list only the project name, leaving us to draw those linkages.  Later in this chapter, we discuss how we make those connections across projects, subsidiary companies, and parent companies.  
+
+
+\subsubsection{Example of Constituent Service Letter}
+
+Another frequently seen type of legislator advocacy to FERC is a constituency service letter--a letter in which the member advocates on behalf of a constituent.  Figure \ref{f:exampleconstituencyservice} in the Appendix shows an example of this type of letter. 
+In this case, we observe Senator Susan Collins (R-ME) advocating on behalf of a constituent who is concerned that Florida Energy and Light is ``attempting to take over the driveway of his business and make it a public way.'' \footnote{Certain passages of this constituency service letter in Figure \ref{f:exampleconstituencyservice} have been blacked out. In this case, as we frequently observe in these letters, the constituent's name and personal information have been redacted for privacy reasons}. 
+
+
+\subsubsection{Example of Personal Business Interest}
+
+In some cases, legislators appeared motivated by personal business concerns.  For example, in 2014, former Florida Senator and Governor Bob Graham wrote to FERC regarding an issue that affected his family's farming business.\footnote{See  \url{http://miamilakes.com/AboutGraham/Overview.aspx} for a discussion of Senator Graham's relationship to the farm in question.}  The full text of this letter is in Figure \ref{f:examplepersonalbus} in the Appendix.
+
+
+\clearpage
+\section{Regression Result Tables}
+
+\begin{table}[ht!]
+    \centering
+  
+\input{../FERC/tables/All-mPro-mAnti-mConstituent.tex}
+  \caption{\textbf{Table \ref{tab:bimoney}: Bivariate Models - Campaign Contributions and Letter-writing to FERC}. Bivariate Poisson Regression models predicting letter-writing activity to FERC using campaign contributions from the energy industry.}\label{tab:bimoney}
+\end{table}
+
+\begin{table}[ht!]
+    \centering
+\input{../FERC/tables/mProParty-mAntiParty.tex}
+  \caption{\textbf{Table \ref{tab:biparty}: Bivariate Models - Party and Letter-writing to FERC}. Bivariate Poisson Regression models predicting letter-writing activity to FERC using Legislator's Party.}\label{tab:biparty}
+\end{table}
+
+\begin{table}[ht!]
+    \centering
+    \input{../FERC/tables/mProLog-mAntiLog.tex}
+  \caption{\textbf{Table \ref{tab:bilogmoney}: Bivariate Models - Logged Campaign Contributions and Letter-writing to FERC}. Bivariate Poisson Regression models predicting letter-writing activity to FERC using Logged Energy Industry Campaign Contributions.}\label{tab:bilogmoney}
+\end{table}
+
+
+
+\begin{table}[ht!]
+    \centering
+ \input{../FERC/tables/mProTotal-mAntiTotal.tex}
+  \caption{\textbf{Table \ref{tab:bicareermoney}: Career Bivariate Models - Campaign Contributions and Letter-writing to FERC over a Member's Entire Career}. Bivariate Poisson Regression models predicting letter-writing activity to FERC using Energy Industry Campaign Contributions.}\label{tab:bicareermoney}
+\end{table}
+
+%\begin{sidewaystable}[ht!]
+%    \centering
+%\input{../FERC/tables/m.tex}
+%    \caption{Test }
+%    \label{tab:test}
+%\end{sidewaystable}
+
+\begin{sidewaystable}[ht!]
+    \centering
+\input{../FERC/tables/mFull.tex}
+  \caption{\textbf{Table \ref{tab:multmoney}: Multivariate Models - Predicting Different Types of Letter-writing Activity}. Multivariate Poisson Regression models predicting letter-writing activity to FERC.}\label{tab:multmoney}
+\end{sidewaystable}
+
+
+
+%\clearpage
+%\listoftodos[Notes]
+
+
+\end{document}
+
+
+\begin{table}
+\caption{How Corporations Can Make Political Contributions}
+\begin{center}
+\begin{tabular}[ht!]{|l|p{5cm}|p{5cm}|}
+\hline
+& Method of Contribution & 2018 Rules \\
+\hline
+1. & Step 1: Company Contribution to Tax-Exempt 501c. Step 2:  501c makes independent expenditures (advertising) & Varying amounts of political activity by type of group.  501c(4) ``social welfare'' organizations can do unlimited amounts but must be less than 50\% of their total spending. \\ \hline
+2. & Company Contribution to Separate Segregated Funds of PACs& \\  \hline
+3. & Personal Contributions from Corporate Officers and Employees to Legislators& Limit of \$2700 per election (\$5400 for primary + general)\\  \hline
+4. & Personal Contributions from Corporate Officers to PACs&\\  \hline
+5. &Company contribution to Super PAC (independent expenditure-only committee). Super PACs can make unlimited independent expenditures in support of or opposition to a legislator's election.& Company contributions to SuperPACs are unlimited. Independent Expenditures reported to FEC. Created post-2010 Speechnow.org vs. FEC ruling. Must disclose donors to the FEC, can list corporations as donors and 501c nonprofits as donors (funders not disclosed to FEC).\\  \hline
+6.&The corporation can directly make unlimited contributions to the non-contribution accounts of Hybrid PACs.  Hybrid PACs can make direct contributions to candidates but also maintain a separate bank account to deposit/withdraw funds raised in unlimited amounts from corporations.   &The funds received from the corporations cannot be used to make direct or coordinated contributions to candidates but can be used for independent expenditures, which must be reported to the FEC.\\  \hline
+7. & 527s Issue Advocacy& Before Citizen's United in 2010 couldn't advocate support or defeat of a candidate.\\  \hline
+8.& Lobbyist Contributions from lobbyists that appear in the lobbying disclosure files.& \\ \hline
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+See: \citet{FEC2018}: \url{https://www.fec.gov/resources/cms-content/documents/colagui.pdf}
+See: \url{https://bolderadvocacy.org/wp-content/uploads/2012/10/The_Connection_Ch4_paywall.pdf}
+
+Note: Independent expenditures by federal contractors are prohibited.  

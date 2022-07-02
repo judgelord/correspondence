@@ -14,7 +14,7 @@ editor_options:
 source("setup.R")
 
 # load data
-load(here("data/all_contacts.RData"))
+load(here("data/all_contacts2019.RData"))
 df <- all_contacts %>% filter(year >1999)
 load(here("data/all_contacts_committees.RData"))
 dcommittees <- all_contacts_committees %>% filter(year >2004)
