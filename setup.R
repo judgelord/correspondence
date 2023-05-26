@@ -1,6 +1,8 @@
   options(stringsAsFactors = FALSE)
   
-  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr","googlesheets4","googledrive","devtools","stringi","stringr", "tidyverse",
+  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr",
+                "googlesheets4","googledrive",
+                "devtools","stringi","stringr", "tidyverse",
                 #"pdftools", 
                 "here", "rvest","maps", "ineq", "mapproj", "dotwhisker", "crayon")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
@@ -11,6 +13,9 @@
     devtools::install_github("wmurphyrd/fiftystater")
   }
   
+  if(!"legislators" %in% rownames(installed.packages())) {
+    devtools::install_github("judgelord/legislators")
+  }
   
   
   library(tidyverse)
@@ -56,6 +61,7 @@
   library(tidyverse)
   library(googlesheets4)
   library(googledrive)
+  library(legislators)
   
   source(here("functions/clean2.R")) # data cleaning and intercoder agreement functions are in clean.R, clean3.R is a minimial version of this that makes fewer corrections
   
