@@ -26,8 +26,17 @@ clean <- function(file.name) {
     rename(FROM = `Primary Member of Congress`,
            DATE = `Received Date`)
   
+  data$DATE %<>% as.Date("%m/%d/%y")
+  
+  #create year and congress columns
+  data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
+  data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  
+  
   library(legislators)
-  data %>% head() %>% legislators::extractMemberName("FROM")
+  data %>% head() %>% legislators::extractMemberName("FROM",
+                                                     congress = "congress")
   
 
   return(data)
