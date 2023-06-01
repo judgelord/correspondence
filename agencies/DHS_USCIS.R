@@ -1,7 +1,7 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-
+# source("setup.R")
 #file.name <- "DHS_USCIS" # for testing
 
 clean <- function(file.name) {
@@ -26,7 +26,9 @@ clean <- function(file.name) {
     rename(FROM = `Primary Member of Congress`,
            DATE = `Received Date`)
   
-  data$DATE %<>% as.Date("%m/%d/%y")
+  data$DATE %<>% 
+    str_replace_all("-", "/") %>% 
+    as.Date("%m/%d/%y")
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -35,10 +37,22 @@ clean <- function(file.name) {
   
   
   library(legislators)
-  data %>% head() %>% legislators::extractMemberName("FROM",
-                                                     congress = "congress")
+  data %<>% 
+    legislators::extractMemberName("FROM",
+                                   congress = "congress")
   
 
   return(data)
+}
+
+
+
+if(F){
+ data %>% count(is.na(icpsr)) 
+  
+  data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE)
+  
+  data %>% filter(is.na(icpsr),
+                  str_detect(FROM, "vacant")) %>% view()
 }
 
