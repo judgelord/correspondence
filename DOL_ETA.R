@@ -28,7 +28,7 @@ clean <- function(file.name) {
   
   data$DATE %<>% 
     str_replace_all("-", "/") %>% 
-    as.Date("%m/%d/%y")
+    as.Date("%m/%d/%Y")
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
@@ -46,10 +46,12 @@ clean <- function(file.name) {
 }
 
 if(F){
-  data %>% count(is.na(icpsr)) 
+  data %>% count(is.na(Organization)) 
   
   data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE)
   
   data %>% filter(is.na(icpsr),
                   str_detect(FROM, "vacant")) %>% view()
 }
+
+print(distinct(data$FROM))
