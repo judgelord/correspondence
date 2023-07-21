@@ -56,3 +56,5 @@ if(F){
                   str_detect(FROM, "vacant")) %>% view()
 }
 
+
+
