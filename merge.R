@@ -13,6 +13,8 @@ members %<>% select(congress, pattern, bioname,
                    district_code, nominate.dim2, nominate.dim1, nominate.geo_mean_probability) %>% 
   distinct()
 
+library(legislators)
+
 # add committees and stuff
 source("members/augmentMembers.R")
 

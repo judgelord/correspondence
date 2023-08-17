@@ -45,7 +45,7 @@ data_list <- tribble(
   "DOD_USACE", "coded", "Fatima", # no records before fall 2013
   # "DOD_USMC", "not coded", NA, #  DON-USMC-2018-004141 needs to be converted from pdf and added to drive
   # DOE
-  "DOE_FERC", "coded", "Devin",
+  "DOE_FERC", "coded", NA, # at one time it was "Devin", but no longer?
   # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
   # "DOI_BIA", "coded", "Rochelle", #184
   "DOI_BOEM", "coded", "Aaron",
