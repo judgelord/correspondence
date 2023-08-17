@@ -13,6 +13,7 @@ library(Rvoteview)
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
                      member_search(congress = c(109:120)))  # get voteview data for selected Congresses
 
+members %>% distinct(congress)
 
 # alternatively  use bulk data 
 members <- read_csv(here::here("data", "HSall_members.csv"))
@@ -802,7 +803,7 @@ suspect_middle_names
   # causes problems, but should eventually be used for more targeted matching
   members %<>% select(-congresses) 
   
-
+members %<>% arrange(-congress)
 
   members_min <- members %>% select(chamber, congress, bioname, pattern, icpsr, state, state_abbrev, 
                       #nominate_dim1, nominate_dim2, nominate_number_of_votes,
