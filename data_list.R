@@ -24,7 +24,7 @@ data_list <- tribble(
   # DHS
   "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
   "DHS_ICE", "not coded", NA, # not much to code
-  "DHS_USCIS", "not coded", NA # autocode?
+  "DHS_USCIS", "not coded", NA, # autocode?
   # DOC
   "DOC_EDA", "not coded", NA,  
   "DOC_IOS", "coded", "Aaron", 

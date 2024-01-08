@@ -4,14 +4,13 @@
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 packageVersion("dplyr")
 
-
 # Vars from members data to keep and merge in
-members %<>% select(congress, pattern, bioname, 
+members %<>% dplyr::select(congress, pattern, bioname, 
                    first_name, last_name, icpsr, common_name,
                    party_name, party_code, state, state_abbrev, chamber, party_size,
                    seo_name, district_code, id, cqlabel, bioImgURL, 
                    district_code, nominate.dim2, nominate.dim1, nominate.geo_mean_probability) %>% 
-  distinct()
+  dplyr::distinct()
 
 library(legislators)
 
@@ -46,59 +45,76 @@ map_dfr(
 i <- which(data_list$agency == "ABMC")
 i
 
+# clean.agency is the function that pulls in the google sheet, runs the clean script (which includes matching legislator names)
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
   coders = as.character(data_list[i, 3]))
 
 # this is only needed because it is change to chr in clean.r
+#TODO go back and fix the code that changes icpsr to chr
 d1$icpsr %<>% as.numeric()
 members$icpsr %<>% as.numeric()
 
+
+# This should be empty; there should be no cases where bioname is NA and the name pattern matched is not 404error (i.e., no name is matched)
 d1 %>% filter(pattern != "404error", is.na(bioname)) %>% count(pattern, congress, sort = T)
 
   d1 %<>% 
+    # join once to make sure we have bioname
     left_join(members) %>% 
+    # select the core variables we get from all data  
     select(LetterID, ID, 
            DATE, year, congress, 
            FROM, pattern, bioname, agency, 
            SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
            CONSTITUENT_TYPE, CONSTITUENT_CLASS, 
            NOTES, ERROR) %>% 
-    left_join(members)%>% 
+    # get rid of duplicates
+    distinct() %>% 
+    # join back in additional members data 
+    # (THIS MIGHT CREATE TWO OBSERVATIONS FOR CHAMBER SWITCHERS)
+    left_join(members) %>% 
     distinct()
+  
 
 d1$DATE %<>% as.Date()
 
-
+# check how many unmatched observations per congress
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
 
+# check how many unmatched per agency 
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
-# if this yeilds anything, something is wrong (obs are failing to match in the members file)
+# if this yields anything, something is wrong (obs are failing to match in the members file)
 d1 %>% filter(is.na(chamber), pattern != "404error") %>% count(pattern, congress)
 
-missing_data <- d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
+missing_data <- d1 %>% 
+  # create variable for whether matched or missing 
+  mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
   add_count(agency, NAs) %>% 
   filter(NAs == "missing")
 
-# redo extractmembernames
-missing_data %<>% select(agency, DATE, FROM,congress, LetterID, ID, ERROR) %>% extractMemberName(members, "FROM")
+# should be the same as the unmatched observations 
+nrow(missing_data)
 
-# bad names
+# redo extractmembernames
+missing_data %<>% select(agency, DATE, FROM,congress, LetterID, ID, ERROR) %>% 
+  legislators::extractMemberName("FROM", congress = "congress")
+
+# Inspect for things that should have matched but did not for some reason
+head(missing_data)
+
+# bad names (if any)
 missing_data %>% count(FROM, congress, sort = TRUE)  %>% 
   filter(!str_detect(FROM, "Staff|ommittee"), congress != 0) %>% 
   top_n(20) %>% kable()
 
-# bad dates 
+# bad dates (if any)
 missing_data %>% count(FROM, congress, sort = TRUE)  %>% 
   filter(!str_detect(FROM, "Staff|ommittee"), congress == 0) %>% 
   top_n(20) %>% kable()
 
-# if this yeilds anything, something is wrong (obs are failing to match in the members file)
-missing_data %>% filter(!pattern %in% c("Date out of range", "404error"))
-
-sum(!is.na(d1$icpsr))
 ####################
 ####################
 # Save 
@@ -116,15 +132,19 @@ save(d1, file = file.name)
 # FIXME use purrr safely() to capture warnings as a few obs are being dropped due to parse failures
 
 
-## Resume 
+## Resume merge if it stopped 
 # data_list %<>% filter(row_number() > which(data_list$agency == "DOC_OS")) 
 data_list
-# subset by date
+
+
+# subset by date if you want to only update agencies that have not been updated recently 
 if(F){
+  # get file metadata 
   files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
     set_names(list.files(here("data/agencies"))) %>%
     file.info() %>% 
     as_tibble(rownames = "file") %>% 
+    # mtime = date/time modified 
     filter(mtime < as.Date("2020-06-28")) %>% # date criteria
     distinct() 
   
@@ -135,18 +155,23 @@ if(F){
 
 head(data_list)
 
-i <- 1 # FIXME with purr walk + error handeling
+# A function to loop over all agecies and run the clean script on them, saving Rdata files for each 
+i <- 1 # FIXME with purr walk + error handling
 while(!is.na(data_list[i,1])) {
   
+  # print the agency 
   base::message(inverse("----", data_list$agency[i], "----"))
   
+  # clean the agency 
   d1 <- clean.agency(
     agency = as.character(data_list[i, 1]),
     status = as.character(data_list[i, 2]),
     coders = as.character(data_list[i, 3]))
   
+  # post hoc fix 
   d1$icpsr %<>% as.numeric() #FIXME in clean 
   
+  # join in bioname and select min set of variables to reduce duplicates 
   suppressMessages(
   d1 %<>% 
     left_join(members) %>% 
@@ -161,12 +186,14 @@ while(!is.na(data_list[i,1])) {
     distinct()
   )
   
+  # select the things we care about 
   d1 %<>% select(LetterID, ID, agency, DATE, year, congress, FROM, pattern, bioname, 
                 SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, NOTES, ERROR, 
                 CONSTITUENT_TYPE, CONSTITUENT_CLASS,
                 first_name, last_name, icpsr, party_name, party_code, state, state_abbrev, chamber, 
                 district_code, nominate.dim2, nominate.dim1)
   
+  # post hoc correction 
   d1$DATE <- as.Date(d1$DATE)
   
     file.name <- str_c("data/agencies/", 

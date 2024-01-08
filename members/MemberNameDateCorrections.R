@@ -7,7 +7,7 @@
 
 fix.member.date.coding <- function(d){
   d %<>% 
-    # just to make sure names are consistant with voteview
+    # just to make sure names are consistent with voteview
     mutate(party_name = party_name %>% 
              str_replace("Republican$", "Republican Party") %>% 
              str_replace("Democratic$", "Democratic Party") ) %>% 

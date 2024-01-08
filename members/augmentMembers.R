@@ -5,8 +5,8 @@
 # District vars #
 #################
 nrow(members)
-members %<>% left_join(read.csv("districts/states.csv") )
-members %<>% mutate(state_pop2010_millions = pop2010/1000000)
+members %<>% dplyr::left_join(read.csv("districts/states.csv") )
+members %<>% dplyr::mutate(state_pop2010_millions = pop2010/1000000)
 nrow(members)
 
 
