@@ -42,7 +42,7 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
+i <- which(data_list$agency == "DHS_USCIS")
 i
 
 # clean.agency is the function that pulls in the google sheet, runs the clean script (which includes matching legislator names)
@@ -57,8 +57,8 @@ d1$icpsr %<>% as.numeric()
 members$icpsr %<>% as.numeric()
 
 
-# This should be empty; there should be no cases where bioname is NA and the name pattern matched is not 404error (i.e., no name is matched)
-d1 %>% filter(pattern != "404error", is.na(bioname)) %>% count(pattern, congress, sort = T)
+# # This should be empty; there should be no cases where bioname is NA and the name pattern matched is not 404error (i.e., no name is matched)
+# d1 %>% filter(pattern != "404error", is.na(bioname)) %>% count(pattern, congress, sort = T)
 
   d1 %<>% 
     # join once to make sure we have bioname
@@ -86,8 +86,8 @@ d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% 
 # check how many unmatched per agency 
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
-# if this yields anything, something is wrong (obs are failing to match in the members file)
-d1 %>% filter(is.na(chamber), pattern != "404error") %>% count(pattern, congress)
+# # if this yields anything, something is wrong (obs are failing to match in the members file)
+# d1 %>% filter(is.na(chamber), pattern != "404error") %>% count(pattern, congress)
 
 missing_data <- d1 %>% 
   # create variable for whether matched or missing 
@@ -133,7 +133,9 @@ save(d1, file = file.name)
 
 
 ## Resume merge if it stopped 
-# data_list %<>% filter(row_number() > which(data_list$agency == "DOC_OS")) 
+if(F){
+data_list %<>% filter(row_number() >= which(data_list$agency == "DHS_HQ")) 
+}
 data_list
 
 
