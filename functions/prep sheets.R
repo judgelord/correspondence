@@ -14,7 +14,7 @@ sheets %<>% map_df(rev)
 sheets %<>% .$id
 
 # i = sheets[1] # for testing 
-# updated <- NA
+updated <- NA
 
 sheets <- sheets[!sheets %in% updated]
 
