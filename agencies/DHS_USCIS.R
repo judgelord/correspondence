@@ -7,6 +7,16 @@
 clean <- function(file.name) {
   data_raw <- gs_title(file.name) %>% gs_read()
   
+  # if you want to test with a smaller sample
+  if(F){
+    data_raw %<>% 
+      group_by(`Inquiry Type`, `Primary Inquiry Issue`) %>%
+      slice_sample(n = 1) %>% 
+      ungroup()
+      
+  } 
+  
+  
   # LetterID = sheet row number
   data_raw$LetterID <- 1:nrow(data_raw)
   
@@ -23,8 +33,18 @@ clean <- function(file.name) {
   data$ID <- seq(1:nrow(data))
   
   data %<>% 
-    rename(FROM = `Primary Member of Congress`,
-           DATE = `Received Date`)
+    mutate(FROM = `Primary Member of Congress`,
+           DATE = `Received Date`,
+           SUBJECT = str_c(
+             `Inquiry Type`,
+             `Contact Method`,
+             `Primary Inquiry Issue`,
+             `Business Unit (Owning User) (User)`,
+             `Primary Inquiry Sub-Issue`,
+             `Secondary Inquiry Issue`,
+             `Secondary Inquiry Sub-Issue`,
+             sep = ";;;")
+           )
   
   data$DATE %<>% 
     str_replace_all("-", "/") %>% 
