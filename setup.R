@@ -71,14 +71,18 @@
   
   #source(here("members/nameCongress.R")) # augments voteview member names
   ## Load augmented member names without having to load voteview package
+  
+  #FIXME this should now come in with the legislators package, right? 
   load(here("members/members.Rdata"))
   
   ## Load committee data
   #source("committees/committees.R")
   load(here("data/committees.Rdata"))
   
-  ## Load typos and date corrections
+  ## FIXME this should come in with the legislators package, right? 
   source(here("members/MemberNameTypos.R"))
+  
+  ## Load  date corrections
   source(here("members/MemberNameDateCorrections.R"))
 
   
