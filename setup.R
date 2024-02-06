@@ -44,7 +44,7 @@
   }
   library(googledrive)
   library(gmailr)
-  # library(stringi)
+  library(stringi)
   # library(pdftools)
   library(here)
   library(rvest)

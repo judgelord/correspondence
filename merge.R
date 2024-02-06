@@ -42,7 +42,9 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "DHS_USCIS")
+i <- which(data_list$agency == "ABMC")
+# i <- which(data_list$agency == "DHS_USCIS")
+
 i
 
 # clean.agency is the function that pulls in the google sheet, runs the clean script (which includes matching legislator names)
@@ -134,7 +136,12 @@ save(d1, file = file.name)
 
 ## Resume merge if it stopped 
 if(F){
-data_list %<>% filter(row_number() >= which(data_list$agency == "DHS_HQ")) 
+  # data_list %<>% filter(row_number() >= which(data_list$agency == "DHS_USCIS")) 
+  data_list %<>% filter(row_number() > which(data_list$agency == "DOL_ETA")) #FIXME NO SCRIPT FOR DOL_ETA YET issue #203
+  data_list %<>% filter(row_number() > which(data_list$agency == "DOT_SLSDC")) #FIXME error in DOT_SLSDC issue #207
+  data_list %<>% filter(row_number() >= which(data_list$agency == "USDA_NIFA")) #FIXME error in DOT_SLSDC issue #207
+  
+  
 }
 data_list
 
@@ -147,12 +154,12 @@ if(F){
     file.info() %>% 
     as_tibble(rownames = "file") %>% 
     # mtime = date/time modified 
-    filter(mtime < as.Date("2020-06-28")) %>% # date criteria
+    filter(mtime < as.Date("2024-06-28")) %>% # date criteria
     distinct() 
   
   files$file
   
-  data_list %<>% filter(agency %in% str_remove_all(files$file, ".*/|.Rdata"))
+  data_list %<>% filter(!agency %in% str_remove_all(files$file, ".*/|.Rdata"))
 }
 
 head(data_list)
