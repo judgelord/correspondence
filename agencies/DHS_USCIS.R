@@ -46,8 +46,19 @@ clean <- function(file.name) {
 }
 
 
-
+# FOR TESTING 
 if(F){
+  
+  class(data$district_code)
+  
+  unique(data$district_code)
+  
+  class(d1$district_code)
+  
+  class(members$district_code)
+  
+  
+  
  data %>% count(is.na(icpsr)) 
   
   data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE)

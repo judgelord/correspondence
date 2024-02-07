@@ -1,5 +1,7 @@
 # This script creates counts of letters per year "dcounts" (including zero-counts)
 
+
+# do this if using previously saved all_contacts.Rdata
 if(F){
 ## load functions 
 source(here::here("setup.R"))
@@ -9,6 +11,8 @@ load(here::here("data", "all_contacts.Rdata"))
 df <- all_contacts
 names(df)
 }
+
+# otherwise, this script continues with df from the end of merge2.R
 
 # remove any old counts 
 df %<>% select(-starts_with("per_"))

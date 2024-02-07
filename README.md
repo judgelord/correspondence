@@ -30,9 +30,9 @@ Here are some tasks that anyone can do:
 # For collaborators
 
 - Data are stored in google sheets in the project's [google drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder
-- Some still need to be extracted from pdfs #77
+- Some still need to be extracted from pdfs [#77]
 - Data extracted from pdfs but not yet uploaded to google drive should have an open issue named "add AGENCY data to drive"
-- Memes should be posted to #158
+- Memes should be posted to [#158]
 
 All datasheets must have these columns:
 - `FROM` is the column with the name(s) of the Member(s) of Congress that signed the letter. If names are in multiple columns, a new FROM column will be created in the script cleaning those data. 
@@ -46,15 +46,16 @@ Other columns required for applying the [codebook](https://docs.google.com/docum
 ## Cleaning
 
 - Sheets that need cleaning should have an open issue named "clean script for AGENCY" (e.g., "clean script EPA") 
-- When the clean script is done, remember to it to `merge.R`
+- When the clean script is done, remember to it to `data_list.R`
 - If additional work is needed, there may be an issue called "debug AGENCY" (e.g., "debug EPA") 
 
 If `extractMemberName()` fails to match:
 
-1. Inspect the `pattern` variable
-1. Missing permutations of names in the `members` data can be added in `nameCongress.R` or noted in #9
-1. Common typos can be corrected in `MemberNameTypos.R`
-1. If the pattern exists, but `extractMemberName()` fails to find it, note this in #62 
+1. Inspect the `pattern` variable. There are two main causes of failing to match:
+  1. Missing permutations of names in the `members` data
+  2. Typos
+There will eventually be a process for users to submit additional permutations and typos to the `legislators` package data. Until then, you can submit these as issues at https://github.com/judgelord/legislators/issues 
+If the pattern exists, but `extractMemberName()` fails to find it, this may be a new or existing bug
 
 Where there is insufficient information to identify a letter's date or author, the `NOTES` column should include "FOIA" and commits tagging observations to FOIA should reference [#76](https://github.com/judgelord/correspondence/issues/76)
 
@@ -63,7 +64,7 @@ Where there is insufficient information to identify a letter's date or author, t
 [Codebook](https://docs.google.com/document/d/1fJxjXjAyRL9vX-16fSsH29anXZc-W74GMf_7BSgWkws) 
 
 Data that are ready for coding should have an open issue named "apply codebook to AGENCY"
-- Interesting letters/anecdotes should be tagged with #172
+- Interesting letters/anecdotes should be tagged with [#172]
 
 Where there is insufficient information to code a letter, the `NOTES` column should include "FOIA" and [#76](https://github.com/judgelord/correspondence/issues/76) should be tagged in the "apply codebook" issue.
 

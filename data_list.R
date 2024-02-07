@@ -24,6 +24,7 @@ data_list <- tribble(
   # DHS
   "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
   "DHS_ICE", "not coded", NA, # not much to code
+  "DHS_USCIS", "not coded", NA, # autocode?
   # DOC
   "DOC_EDA", "not coded", NA,  
   "DOC_IOS", "coded", "Aaron", 
@@ -45,7 +46,7 @@ data_list <- tribble(
   "DOD_USACE", "coded", "Fatima", # no records before fall 2013
   # "DOD_USMC", "not coded", NA, #  DON-USMC-2018-004141 needs to be converted from pdf and added to drive
   # DOE
-  "DOE_FERC", "coded", "Devin",
+  "DOE_FERC", "coded", NA, # at one time it was "Devin", but no longer?
   # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
   # "DOI_BIA", "coded", "Rochelle", #184
   "DOI_BOEM", "coded", "Aaron",
@@ -62,8 +63,10 @@ data_list <- tribble(
   # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
   # DOL 
   "DOL_EBSA", "coded", "Rochelle",
+  "DOL_ETA", "coded", "Rochelle",
   "DOL_MSHA", "coded", "Hope", 
   "DOL_OCFO", "coded", "Devin",
+  # "DOL_OCIA", "not coded", "Rochelle" # in progress (8/18/2023)
   "DOL_OFCCP", "coded", "Rochelle",
   # "DOL_OALJ", "not coded", NA, # ???
   "DOL_OASAM", "coded", "Rochelle", #190

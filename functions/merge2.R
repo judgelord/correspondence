@@ -2,9 +2,10 @@
 source(here::here("setup.R"))
 source(here::here("data_list.R"))
 
-###################
-# load saved data #
-###################
+##########################
+# load saved Rdata files #
+# created by merge.R     #
+##########################
 files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
   set_names(list.files(here("data/agencies"))) 
 
@@ -143,13 +144,26 @@ save(draw, file = "draw.Rdata")
 # ERRORS we can't fix #
 #######################
 
-# Reoccuring problem names
+# Reoccurring problem names (these people are frequently in the data but not members of Congress)
 # FIXME 
 # Rewrite with purrr
-names <- list(a= c("Eleanor","Norton"),b= c("Sally",'Jewell'),c= c('Gregorio','Sablan'), d= c('Stacey|Stacy','Plaskett'),
-              e= c('Amata','Radewagen'),f= c("Donna",'Christensen|Christianson'),g= c('Pedro','Pierluisi'),h= c('Madeleine','Bordallo'),
-              i= c('Eni','Faleomavaega'),j= c('(^| )Tia( |$)','Johnson'), k=c('Nelson','Peacock'),l=c('Brian','De Va(|ll)ance'),
-              m=c('Peggy','Sherry'),n=c('Donald', 'Kent'), o=c('Ann','Schneider'), p=c('Katherine', 'Archuleta'), q=c('Tom|Thomas','Vilsack'), 
+names <- list(a= c("Eleanor","Norton"),
+              b= c("Sally",'Jewell'),
+              c= c('Gregorio','Sablan'), 
+              d= c('Stacey|Stacy','Plaskett'),
+              e= c('Amata','Radewagen'),
+              f= c("Donna",'Christensen|Christianson'),
+              g= c('Pedro','Pierluisi'),
+              h= c('Madeleine','Bordallo'),
+              i= c('Eni','Faleomavaega'),
+              j= c('(^| )Tia( |$)','Johnson'), 
+              k=c('Nelson','Peacock'),
+              l=c('Brian','De Va(|ll)ance'),
+              m=c('Peggy','Sherry'),
+              n=c('Donald', 'Kent'), 
+              o=c('Ann','Schneider'), 
+              p=c('Katherine', 'Archuleta'), 
+              q=c('Tom|Thomas','Vilsack'), 
               r=c('Luis','Fortuno'))
 
 for(i in 1:length(names)){
@@ -161,7 +175,7 @@ d %<>%
   group_by(agency, ID, DATE, FROM, SUBJECT, icpsr) %>% mutate(n = n()) %>% 
   mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "FOIA 2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
   mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "FOIA 2 Tim Johns", ERROR)) %>% 
-  # these are commented out because they risk matching real observations--can be more precice by looking at bad names 2
+  # these are commented out because they risk matching real observations---can be more precise by looking at bad names 2
   #mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
   #mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
   # These are specific enough, that they are fine errors
@@ -190,7 +204,7 @@ nrow(bad.dates)
 # See bad.party object for party switchers to check
 
 
-d %<>% filter(!is.na(DATE)) # Remove observation with missings DATE
+d %<>% filter(!is.na(DATE)) # Remove observation with missing DATE
 nrow(d)
 
 ############################################################################
@@ -312,7 +326,7 @@ bad.party
 
 
 ####################################################################################
-
+# If things look good, go on to creating the master data set 
 ####################################################################################
 #
 #
@@ -336,6 +350,7 @@ bad.party
 
 d %<>% ungroup()
 nrow(d)
+
 # Drop observations that failed to match in Voteview
 d %<>% filter(!is.na(icpsr)) 
 nrow(d) # SHOULD GO DOWN 
@@ -369,6 +384,7 @@ d %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>%
 nrow(d)
 d %<>% ungroup()
 # clean up problems with party switchers etc. that may have come in with merge 
+# THIS FUNCTION IS MADE IN members/MemberNameDateCorrections.R
 d %<>% fix.member.date.coding() #  should have dealt with party switchers (Arlen)
 nrow(d) # n should go down
 
@@ -385,7 +401,7 @@ d %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>%
   arrange(DATE) %>% distinct() %>% 
   select(agency, bioname, DATE, SUBJECT, TYPE, n)
 
-
+# look for duplicates 
 duplicates <- d %>% 
   group_by(DATE, agency, bioname, SUBJECT) %>% # with the same icpsr and date
   add_count() %>% 
@@ -396,8 +412,6 @@ duplicates %<>% distinct() %>% ungroup()
 
 duplicates %>% count(agency, sort = T) 
 duplicates %>% count(agency, SUBJECT,sort = T) 
-
-library(tidyverse)
 
 # These are suspicious 
 d %>% 
@@ -419,7 +433,7 @@ sum(duplicates$n)
 
 # inspect potential problems
 duplicate_coding <- duplicates %>%  
-  filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) #|str_detect(CERTAINTY, ";;;")) #|str_detect(POLICY_EVENT, ";;;")|str_detect(EVENT_NAME, ";;;")|str_detect(NOTES, ";;;"))
+  filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) ## |str_detect(CERTAINTY, ";;;")) #|str_detect(POLICY_EVENT, ";;;")|str_detect(EVENT_NAME, ";;;")|str_detect(NOTES, ";;;"))
 duplicate_coding %<>% 
   select(DATE, agency, bioname, SUBJECT, TYPE, ALT_TYPE) %>% distinct() %>% arrange(agency)
 duplicate_coding
@@ -472,7 +486,7 @@ d %>% count(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber, sort = T)
 # THIS IS SOMEWHAT COMPUTATIONALLY INTENSE but an important check for duplicates 
 d2 <- d %>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
-nrow(d) # MIGHT GO DOWN
+nrow(d2) # MIGHT GO DOWN
 
 # DROP DUPLICATE CODING
 d$TYPE %<>% str_remove(";;;.*")
@@ -500,10 +514,10 @@ filter(d2, str_detect(pattern, ";")) %>% .$pattern
 
 
 
-#FIXME constituent type and class codes 
+#FIXME constituent type and class codes from google sheet
 source("functions/constituent_types.R")
 
-# inspect 
+# inspect observations successfully coded 
 constituent_coding <- d %>% 
   ungroup() %>% 
   filter(!is.na(CONSTITUENT_TYPE)|!is.na(CONSTITUENT_CLASS)) %>% 
@@ -511,6 +525,7 @@ constituent_coding <- d %>%
          CONSTITUENT_TYPE, CONSTITUENT_CLASS,NOTES, ERROR) %>% 
   group_by(agency, SUBJECT) %>% add_count() %>%
   summarise_all(combine_strings) %>% arrange(agency) 
+
 constituent_coding
 
 # FIXME split and recombine unique 
@@ -558,7 +573,7 @@ if(update){
 n <- nrow(d)
 df <- d
 # are all agencies here? 
-data_complete()
+data_complete() # from setup.R
 load(here("data/d.Rdata"))
 
 if(update & nrow(df) >= nrow(d) ){
@@ -640,7 +655,8 @@ df %<>%
   mutate(name_agency = paste(bioname, agency)) %>%
   mutate(name_dept = paste(bioname, department))
 
-# election year (based  on year, not congress, so cannot be in members data)
+#  year elected (based  on year, not congress, so cannot be in members data)
+# ??? but "yearelected" is in members data
 #FIXME
 df %<>% 
   left_join(members) 
@@ -652,7 +668,7 @@ nrow(df)
 df$icpsr %<>% as.numeric()
 df %<>% fix.member.date.coding()
 nrow(df)
-#FIXME specter and parker should be delt with in previous line
+#FIXME specter and parker should be dealt with in previous line
 df %<>% filter(!(icpsr == 94910 & year == 2009)) # remove Arlen Specter as GOP
 df %<>% filter(!(icpsr == 90901 & year == 2009)) # remove Grifith Parker as GOP
 nrow(df)
@@ -759,12 +775,14 @@ df %<>% left_join(
   read.csv(here("committees/ACUS.csv")) %>% select(Agency, Reporting.Committees, Number.of.Committees, Committeesconfirmingapps, Employees, Independent.Funding, Rulemaking) %>% filter(!is.na(Number.of.Committees)) %>% rename(Department = Agency)
 ) %>% distinct()
 
-# match to committee list 
+# match to committee list --- 
+#FIXME WHAT IS GOING ON HERE???
 df$oversight_committee <- 0
 
 source("members/augmentMembers.R")
 df %<>% left_join(members %>% select(icpsr, congress, committees, chair_of))
 
+#FIXME, honestly, I'm not sure why need need a loop rather than a merge 
 for(i in 1:nrow(df)){
   if(!is.na(df$committees[i]) & 
      !is.na(df$Reporting.Committees[i]) &  
@@ -835,6 +853,7 @@ rm(d1, data, conglist, electionlist, chairs, file.name, names, requires, to_inst
 
 
 # merge new data with old? 
+# typically, we don't want to do this 
 if(F){
   load(here("data/all_contacts.RData"))
   df %<>% full_join(all_contacts)

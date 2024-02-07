@@ -19,7 +19,7 @@
   
   
   library(tidyverse)
-  library(dplyr) # in case tydyverse fails (problem on linux)
+  # library(dplyr) # in case tydyverse fails (problem on linux)
   library(ggplot2); theme_set(theme_bw())
   options(
     ggplot2.continuous.color = "viridis",
@@ -44,7 +44,7 @@
   }
   library(googledrive)
   library(gmailr)
-  library(stringi)
+  # library(stringi)
   # library(pdftools)
   library(here)
   library(rvest)
