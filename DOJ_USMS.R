@@ -1,8 +1,8 @@
 # This script defines a function clean() for google sheets of correspondence logs that may have been hand coded
 # It may also auto-code variables like TYPE based on agency-specific information
 
-source("setup.R")
-file.name <- "DOJ_USMS" # for testing
+#source("setup.R")
+#file.name <- "DOJ_USMS" # for testing
 
 clean <- function(file.name) {
   data_raw <- gs_title(file.name) %>% gs_read()
