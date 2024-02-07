@@ -22,6 +22,10 @@ clean <- function(file.name) {
   
   data$ID <- seq(1:nrow(data))
   
+  #removal of surplus columns
+  
+  data <- data[ -c(21:22) ]
+  
   data %<>% 
     rename(FROM = `Originator`,
            DATE = `Date Entered`)
@@ -34,6 +38,32 @@ clean <- function(file.name) {
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
+  
+  
+  data %<>%
+    mutate(FROM = str_to_lower(FROM))
+  
+  #remove "(cong)" string from names in the FROM column
+  
+  string <- ("(cong)")
+  data$FROM %<>%
+    str_remove_all(string)
+  
+  string2 <- ("(sen)")
+  data$FROM %<>%
+    str_remove_all(string2)
+  
+  string2_5 <- ("chair")
+  data$FROM %<>%
+    str_remove_all(string2_5)
+  
+  
+  string3 <- ("[()]")
+  data$FROM %<>%
+    str_remove_all(string3)
+  
+  
   
   #custom string changes for individuals - these are redundant with latest version of setup.r
   
@@ -126,7 +156,7 @@ clean <- function(file.name) {
 if(F){
   data %>% count(is.na(icpsr)) 
   
-  data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE) %>% print(n = 194)
+  data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE) %>% print(n = 540)
   
   data %>% filter(is.na(icpsr),
                   str_detect(FROM, "vacant")) %>% view()
