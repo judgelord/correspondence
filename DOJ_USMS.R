@@ -22,22 +22,49 @@ clean <- function(file.name) {
   
   data$ID <- seq(1:nrow(data))
   
-  data %<>% 
-    rename(FROM = `NAME`)
   
+  #removal of surplus columns
+  
+  data <- data[ -c(23:25) ]
+  
+  #rename columns
+  
+  data %<>% 
+    rename(FROM = `Primary Contact`)
+  
+  #date column is the column for date the request was received 
+  
+  data %<>%
+    rename(`DATE`= 'Date Rec')
+    
   data$DATE %<>% 
-    str_replace_all("-", "/") %>% 
-    as.Date("%m/%d/%Y")
+    as.Date("%m/%d/%y")
   
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
+  
+  #to lower
+  data %<>%
+    mutate(FROM = str_to_lower(FROM))
+  
+    
+    #remove "the Honorable" string from names in the FROM column
+    
+    string <- ("the honorable")
+  data$FROM %<>%
+    str_remove_all(string)
+  
   #Indivdual line/member string changes
   
   data %<>%
-    mutate(FROM = str_to_lower(FROM))
+    mutate(FROM = str_replace(FROM, "jamie herrera beutler", "jaime herrera beutler")) %>%
+    mutate(FROM = str_replace(FROM, "mark w. warner", "mark warner")) %<>%
+    mutate(FROM = str_replace(FROM, "lucille roybal- allard", "lucille roybal-allard"))
+ 
+
   
     
     library(legislators)
@@ -59,4 +86,6 @@ if(F){
 }
 
 print(distinct(data$FROM))
+
+
   
