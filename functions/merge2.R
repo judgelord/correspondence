@@ -60,7 +60,7 @@ data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 # Check for NAs in LetterID
 d %>% filter(is.na(LetterID)) %>% count(agency) %>% arrange(agency) %>% kable()
 
-# check for consistant ID digets
+# check for consistent ID digits
 unique(nchar(d$LetterID))
 
 # just CDC 

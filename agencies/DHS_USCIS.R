@@ -87,3 +87,40 @@ if(F){
                   str_detect(FROM, "vacant")) %>% view()
 }
 
+# TYPE CODING
+
+#data %<>%
+#  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & 
+#                       str_detect(SUBJECT, "Briefing Request"), 5, TYPE)) %>%
+#  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & 
+#                         str_detect(SUBJECT, "I-129 Petition for Nonimmigrant Worker"), 2, TYPE)) %>%
+#  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & 
+#                         str_detect(SUBJECT, "I-129CW Petition for CNMI-Only Nonimmigrant Transitional Worker"), 2, TYPE)) %>%
+#  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & 
+#                         str_detect(SUBJECT, "H2-A"), 2, TYPE)) %>%
+  #next section should be last because it will only code type 1s correctly if they're not already coded as type 2s??
+#  mutate(TYPE = ifelse(!str_detect(TYPE, "[0-9]") & 
+#                         str_detect(SUBJECT, "Casework"), 1, TYPE))
+
+# CONSTITUENT_TYPE CODING 
+
+#data %<>%
+#  mutate(CONSTITUENT_TYPE = ifelse(str_detect(TYPE, "1") & 
+#                         str_detect(SUBJECT, "Deferred Action for Childhood Arrivals (DACA)"), 
+#                       "Immigrant-DACA", CONSTITUENT_TYPE)) %>%
+#  mutate(CONSTITUENT_TYPE = ifelse(str_detect(TYPE, "1") & 
+#                         str_detect(SUBJECT, "Deferred Action"), 
+#                       "Immigrant-DACA", CONSTITUENT_TYPE)) %>%
+  #at some point we will want to decide whether some of these employment categories should be 1s or 2s
+  #so for now, the CONSTITUENT_TYPE coding will not depend on the coding in TYPE
+#  mutate(CONSTITUENT_TYPE = ifelse(str_detect(SUBJECT, "EB-5"), 
+#                                   "Immigrant-Employment", CONSTITUENT_TYPE)) %>%
+#  mutate(CONSTITUENT_TYPE = ifelse(str_detect(SUBJECT, "I-140 Immigration Petition for Alien Worker"), 
+#                                   "Immigrant-Employment", CONSTITUENT_TYPE)) %>%
+#  mutate(CONSTITUENT_TYPE = ifelse(str_detect(SUBJECT, "I-485 (Employment-based) Application to Register Permanent Residence or Adjust Status"), 
+#                                   "Immigrant-Employment", CONSTITUENT_TYPE)) %>%
+#  mutate(CONSTITUENT_TYPE = ifelse(str_detect(SUBJECT, "I-129CW Petition for CNMI-Only Nonimmigrant Transitional Worker"), 
+#                                   "Immigrant-Employment", CONSTITUENT_TYPE))
+
+
+
