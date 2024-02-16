@@ -33,7 +33,7 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Senate", chamber), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("House", chamber), "House", chamber))
   
-  # create variable for first and last name
+  # create variable for first and last name #this is the stringi eror
   data$first_name <- formatFirstName(data, 'first_name')
   data$first_name <- gsub("(\\w+) .*", "\\1", data$first_name)
   data$last_name <- formatLastName(data, 'last_name')
