@@ -52,3 +52,17 @@ clean <- function(file.name) {
   return(data)
   
 }
+
+
+
+
+if(F){
+  data %>% count(is.na(icpsr)) 
+  
+  data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE) %>% print(n = 540)
+  
+  data %>% filter(is.na(icpsr),
+                  str_detect(FROM, "vacant")) %>% view()
+}
+
+print(distinct(data$FROM))
