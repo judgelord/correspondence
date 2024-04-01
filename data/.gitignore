@@ -14,3 +14,8 @@ HSall_members.csv
 DOE_FERC-letters-clean.Rdata
 agencies
 .Rapp.history
+agency_vars.Rdata
+dcounts_mid.Rdata
+dcounts_min.Rdata
+likely_duplicates.csv
+members.Rdata
