@@ -18,7 +18,7 @@ clean <- function(file.name) {
   data <- data_distinct %>% left_join(data) %>% distinct()
   
   # create FROM column
-  data$FROM <- paste(data$first_name, " ", data$last_name )
+  data$FROM <- paste(data$first_name, " ", data$last_name)
   
   #create agency column
   data$agency <- file.name
@@ -33,15 +33,32 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(grepl("Senate", chamber), "Senate", chamber)) %>% 
     mutate(chamber = ifelse(grepl("House", chamber), "House", chamber))
   
-  # create variable for first and last name
-  data$first_name <- formatFirstName(data, 'first_name')
-  data$first_name <- gsub("(\\w+) .*", "\\1", data$first_name)
-  data$last_name <- formatLastName(data, 'last_name')
-  data$last_name <- gsub("(\\w+)( |,) .*", "\\1", data$last_name)
-  
+
+  #merges strings from first and last name columns into from column
   data %<>% mutate(FROM = paste(chamber, first_name, last_name))
   
-  data %<>% extractMemberName(members, "FROM")
+  #remove "house"
+  
+  string <- ("House")
+  data$FROM %<>%
+    str_remove_all(string)
+  
+  #remove "senate"
+  string <- ("Senate")
+  data$FROM %<>%
+    str_remove_all(string)
+  
+  #to lower
+  data %<>%
+   mutate(FROM = str_to_lower(FROM))
+  
+  #member names
+  
+  library(legislators)
+  data %<>% 
+    legislators::extractMemberName("FROM",
+                                   congress = "congress")
+  
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM, everything())

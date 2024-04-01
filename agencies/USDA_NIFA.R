@@ -40,10 +40,31 @@ clean <- function(file.name) {
   data <- data[!(is.na(data$FROM)),]
   
   
+  #remove extra string from names in the FROM column
   
-  data <- extractMemberName(data, members, 'FROM')
-
+  string <- ("senators")
+  data$FROM %<>%
+    str_remove_all(string)
   
+  string <- ("senator")
+  data$FROM %<>%
+    str_remove_all(string)
+  
+  string <- ("reprsentative")
+  data$FROM %<>%
+    str_remove_all(string)
+  
+  string <- ("reprsentatives")
+  data$FROM %<>%
+    str_remove_all(string)
+  
+  
+  
+  #members
+  library(legislators)
+  data %<>% 
+    legislators::extractMemberName("FROM",
+                                   congress = "congress")
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
@@ -52,3 +73,17 @@ clean <- function(file.name) {
   return(data)
   
 }
+
+
+
+
+if(F){
+  data %>% count(is.na(icpsr)) 
+  
+  data %>% filter(is.na(icpsr)) %>% distinct(FROM, congress, DATE) %>% print(n = 540)
+  
+  data %>% filter(is.na(icpsr),
+                  str_detect(FROM, "vacant")) %>% view()
+}
+
+print(distinct(data$FROM))

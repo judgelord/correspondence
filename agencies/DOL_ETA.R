@@ -110,7 +110,8 @@ clean <- function(file.name) {
   mutate(FROM = str_replace(FROM, "harry, cresent", "cresent hardy")) %>%
   mutate(FROM = str_replace(FROM, "raskin, jamie", "jamie raskin")) %>%
   mutate(FROM = str_replace(FROM, "brooker, cory", "cory booker")) %>%
-  mutate(FROM = str_replace(FROM, "stabenbow, debbie", "debbie stabenow"))
+  mutate(FROM = str_replace(FROM, "stabenbow, debbie", "debbie stabenow")) %>%
+    mutate(FROM = str_replace(FROM, "richard durbin j", "richard durbin"))
  
 
 #custom strings for groups
