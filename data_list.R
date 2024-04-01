@@ -61,6 +61,7 @@ data_list <- tribble(
   "DOJ_EOIR", "coded", "Julia", 
   # "DOJ_ExecSec", "not coded", NA, # waiting on FOIA fom DOJ_JMD/OLA
   # "DOJ_INTERPOL", "not coded", NA, # logs cover 2012-2018 but many lack dates--may be same as we will get form DOJ_ExecSec
+  "DOJ_USMS", "coded", "Rochelle",
   # DOL 
   "DOL_EBSA", "coded", "Rochelle",
   "DOL_ETA", "coded", "Rochelle",
