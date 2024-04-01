@@ -37,7 +37,8 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Menendez", "Menendez, Robert"))
   
   
-  data <- extractMemberName(data, members, 'FROM')
+  data <- extractMemberName(data, "FROM",
+                            congress = "congress")
   
     # sample <- data %>%
     # filter(is.na(last_name))
