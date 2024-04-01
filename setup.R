@@ -142,4 +142,12 @@
   #          string)
   # }
   
+  # Table formatting
+  library(kableExtra)
+  kablebox <- . %>%
+    slice_head(n = 100) %>%
+    knitr::kable() %>%
+    kable_styling() %>%
+    scroll_box(height = "400px")
+  
   

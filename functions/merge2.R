@@ -17,10 +17,19 @@ combine <- function(file){
   return(d)
 }
 
+# a better function to combine rdata files? 
+combine <- function(file){
+  load(file)
+  return(d1)
+}
+
 # initialize 
 load(files[1])
 d <- d1
 dim(d)
+
+# clear objects before mapping all data together
+rm(d, d1)
 
 # COMBINE FILES 
 d <- map_dfr(files, combine)
@@ -36,6 +45,7 @@ look <- d %>% count(LetterID, ID,
                CONSTITUENT_TYPE, CONSTITUENT_CLASS, 
                NOTES, ERROR) %>% 
   filter(n >1)
+
 count(look, agency, wt = n, sort = T) 
 count(look, SUBJECT, wt = n, sort = T)
 count(look, bioname, sort = T)
@@ -46,11 +56,12 @@ dim(d)
 d$year %<>% as.numeric()
 d$icpsr %<>% as.numeric()
 
-# I accidentially changed voteview party_name at one point, 
+# I accidentally changed voteview party_name at one point, 
 # this should no longer be necessary, 
 # but changing voteview vars breaks the script that fixes party switchers so just to be safe: 
 d$party_name %<>% str_replace("Republican$", "Republican Party") %>% str_replace("Democratic$", "Democratic Party")
 unique(d$party_name)
+d %>% filter(party_name == "")
 dim(d)
 d %<>% distinct()
 dim(d)
@@ -58,12 +69,14 @@ dim(d)
 data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 
 # Check for NAs in LetterID
-d %>% filter(is.na(LetterID)) %>% count(agency) %>% arrange(agency) %>% kable()
+d %>% filter(is.na(LetterID)) %>% count(agency) %>% arrange(agency) #%>% kablebox()
 
 # check for consistent ID digits
 unique(nchar(d$LetterID))
 
-# just CDC 
+d %>% distinct(agency, nchar(LetterID))
+
+# just CDC and USCIS
 filter(d, nchar(LetterID) != 6) %>% select(agency) %>% distinct()
 
 
@@ -87,7 +100,7 @@ change <- full_join(d %>%
   arrange(change) %>% 
   filter(change != 0) 
 
-change %>% kable()
+change %>% kablebox()
 
 
 changed <- full_join(draw %>%
@@ -101,7 +114,7 @@ changed <- full_join(draw %>%
 
 missing <- changed %>% filter(is.na(in_d))
 
-missing %>% filter(is.na(in_d)) %>% count(str_sub(FROM, 1, 40), pattern) %>% arrange(pattern) %>% kable()
+missing %>% filter(is.na(in_d)) %>% count(str_sub(FROM, 1, 40), pattern) %>% arrange(pattern) %>% kablebox()
 
 # actual problems 
 missing %>% filter(agency %in% (data_list %>% 
@@ -111,15 +124,15 @@ missing %>% filter(agency %in% (data_list %>%
   filter(agency %in% (data_list %>% 
                         #filter(row_number() <= which(data_list$agency == "DOI_SOL")) %>% 
                         .$agency ) )%>%
-  slice_head(200) %>%
+  slice_head(n = 200) %>%
   arrange(agency) %>% 
-  kable()
+  kablebox()
 
 # broken
 missing %>% 
   add_count(agency, sort = T, name = "per_agency") %>% count(per_agency, agency, FROM, sort = T) %>% 
   #write_csv("changed_names.csv")
-  top_n(100)  %>%  kable()
+  top_n(100)  %>%  kablebox()
 
 # fixed 
 changed %>% filter(is.na(in_draw)) %>% select(agency, FROM, in_d)
@@ -171,10 +184,11 @@ for(i in 1:length(names)){
     mutate(ERROR = ifelse(grepl(names[[i]][1], FROM, ignore.case=T)&grepl(names[[i]][2], FROM, ignore.case=T), "Don't include", ERROR))
 }
 
+# other errors
 d %<>% 
   group_by(agency, ID, DATE, FROM, SUBJECT, icpsr) %>% mutate(n = n()) %>% 
-  mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "FOIA 2 Mike Rogers's", ERROR)) %>%  # 2 different members with name Mike Rogers
-  mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "FOIA 2 Tim Johns", ERROR)) %>% 
+  mutate(ERROR = ifelse(n >1 & (bioname == "ROGERS, Mike Dennis" | bioname == "ROGERS, Mike"), "FOIA 2 Mike Rogers", ERROR)) %>%  # 2 different members with name Mike Rogers
+  mutate(ERROR = ifelse(n >1 & (bioname == "JOHNSON, Timothy Peter (Tim)" | bioname == "JOHNSON, Timothy V."), "FOIA 2 Tim Johnsons", ERROR)) %>% 
   # these are commented out because they risk matching real observations---can be more precise by looking at bad names 2
   #mutate(ERROR =  ifelse(grepl("(^| )Biden(,| |$)", FROM)& DATE > as.Date('2009-01-19'), "Joe is VP", ERROR)) %>% 
   #mutate(ERROR = ifelse((grepl("Eleanor|Holmes", FROM)&grepl("Norton", FROM))|(grepl("Eleanor", FROM)&grepl("Holmes", FROM)), "Non-voting DC Rep", ERROR)) %>% 
@@ -194,7 +208,7 @@ d %<>%
 bad.dates <- d %>% 
   filter(is.na(ERROR)) %>% 
   filter(!is.na(FROM) & FROM != "") %>% 
-  filter(year > 2021 | year < 1999 | pattern == "Date out of range") %>% 
+  filter(year > 2024 | year < 1999 | pattern == "Date out of range") %>% 
   arrange(DATE) %>% 
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 nrow(bad.dates)
@@ -223,10 +237,18 @@ d %>%
   select(bioname, congress) %>% distinct() 
 
 
-
-
 # inspect
-d %>% filter(nchar(as.character(DATE))  < 9 | year > 2020) %>% distinct(DATE, agency) %>% kable()
+bad.dates <- d %>% filter(nchar(as.character(DATE))  < 9 | year > 2020) 
+
+distinct(bad.dates, agency)
+
+bad.dates %>% 
+  kablebox()
+
+d %>% filter(nchar(as.character(DATE))  < 9 | year > 2020) %>% distinct(DATE, agency) %>% 
+  kablebox()
+
+bad.dates$DATE
 
 # TIME RANGE 
 nrow(d)
@@ -359,7 +381,7 @@ d %<>% filter(!is.na(year))
 nrow(d) # SHOULD NOT GO DOWN 
 class(d)
 # chamber errors?
-chamber_errors <- d %>% filter(!chamber %in% c("House", "Senate"))
+chamber_errors <- d %>% filter(!chamber %in% c("House", "Senate", "President"))
 nrow(chamber_errors)
 chamber_errors$bioname %>% unique()
 
@@ -404,13 +426,14 @@ d %>% filter(bioname == "SPECTER, Arlen", congress == 111) %>%
 # look for duplicates 
 duplicates <- d %>% 
   group_by(DATE, agency, bioname, SUBJECT) %>% # with the same icpsr and date
-  add_count() %>% 
-  filter(n>1) %>% 
+  add_count(name = "dups") %>% 
+  filter(dups>1) %>% 
   summarise_all(combine_strings) 
 
 duplicates %<>% distinct() %>% ungroup()
 
 duplicates %>% count(agency, sort = T) 
+
 duplicates %>% count(agency, SUBJECT,sort = T) 
 
 # These are suspicious 
@@ -421,17 +444,16 @@ d %>%
 # Especially if it changes when grouped by party 
 d %>% 
   #filter(agency == "VA") %>% 
-  count(agency, DATE, SUBJECT, bioname, party_name, sort = T) %>% head() %>% kable()
-
+  count(agency, DATE, SUBJECT, bioname, party_name, sort = T) %>% filter(n>1)
 
 head(duplicates)
-max(duplicates$n)
+max(duplicates$n) 
 nrow(duplicates)
 unique(duplicates$n)
 duplicates$n %<>% as.numeric()
 sum(duplicates$n)
 
-# inspect potential problems
+# inspect potential problems with coding
 duplicate_coding <- duplicates %>%  
   filter(str_detect(TYPE, ";;;")|str_detect(ALT_TYPE, ";;;") ) ## |str_detect(CERTAINTY, ";;;")) #|str_detect(POLICY_EVENT, ";;;")|str_detect(EVENT_NAME, ";;;")|str_detect(NOTES, ";;;"))
 duplicate_coding %<>% 
@@ -445,7 +467,7 @@ if(update){
 }
 
 
-
+# check to see where duplicates are coming form other sources 
 duplicate_chambers <- duplicates %>%  
   filter(str_detect(chamber, ";;;") )
 duplicate_chambers %>% select(congress, bioname, party_code, icpsr, chamber) %>% distinct()
@@ -462,7 +484,7 @@ duplicate_icpsr  %>% select(congress, bioname, party_name, icpsr)  %>% distinct(
 
 
 if(update){
-  write_csv(duplicates, path = here("data/likely_duplicates.csv"))
+  write_csv(duplicates, file = here("data/likely_duplicates.csv"))
 }
 
 duplicates %>% 
@@ -482,7 +504,7 @@ nrow(d)
 # IF N GOES DOWN HERE, IT WILL GO DOWN WHEN WE COMBINE STRINGS, should be the same n
 nrow(d)
 d %>% count(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber, sort = T)
-
+                  
 # THIS IS SOMEWHAT COMPUTATIONALLY INTENSE but an important check for duplicates 
 d2 <- d %>% group_by(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>% 
   summarise_all(combine_strings)
@@ -494,7 +516,7 @@ d$TYPE %<>% str_remove(";;;.*")
 d %<>% select(-n)
 
 
-#FIXME THERE SHOULD NOT BE MORE THAN ONE pattern PER DATE! 
+#FIXME THERE SHOULD NEVER BE MORE THAN ONE pattern per observation
 filter(d2, str_detect(pattern, ";")) %>% .$pattern
 # look <- filter(d, str_detect(bioname, ";"))
 
@@ -751,7 +773,7 @@ df %<>% left_join(foiaList) %>% distinct()
 
 df %<>% mutate(department = str_remove(agency, "_.*"))
 
-# corrections
+# corrections to foia list 
 df %<>% mutate(Department = ifelse(department == "DHS", "Department of Homeland Security", Department))
 df %<>% mutate(Department = ifelse(department == "DOC", "Department of Commerce", Department))
 df %<>% mutate(Department = ifelse(department == "DOD", "Department of Defense", Department))
@@ -897,7 +919,7 @@ if(length(unique(df$agency)) == length(unique(data_list$agency))){
 }
 
 # counts per agency - check if this matches google sheet 
-look <- df %>% count(agency, Department) %>% full_join(data_list %>% select(agency))
+look <- df %>% count(agency, department) %>% full_join(data_list %>% select(agency))
 look %>% filter(is.na(Department))
 
 # Check that FERC data is complete:

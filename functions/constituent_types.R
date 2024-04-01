@@ -12,6 +12,9 @@ constituent_types %<>%
 # multiple keywords that indicate the same constituent type and class are separated by ";"
 constituent_types %<>% mutate(keywords = str_split(keywords, ";|,") ) %>% 
   unnest(keywords) %>% mutate(keywords = str_squish(keywords) %>% str_to_lower())
+
+constituent_types %<>% filter(nchar(keywords) > 3)
+
 constituent_types$keywords
 
 # a function to add constituent_type (from constituent_types sheet) to CONSTITUENT_TYPE (in the data)

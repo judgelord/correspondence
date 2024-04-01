@@ -4,6 +4,9 @@
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 packageVersion("dplyr")
 
+# until we totally get rid of name methods loaded in setup, we need to specify the new version of extract member name from the legislators packge 
+extractMemberName <- legislators::extractMemberName
+
 # Vars from members data to keep and merge in
 members %<>% dplyr::select(congress, pattern, bioname, 
                    first_name, last_name, icpsr, common_name,
@@ -42,8 +45,12 @@ map_dfr(
 ##################
 
 # Test one agency
-i <- which(data_list$agency == "ABMC")
-# i <- which(data_list$agency == "DHS_USCIS")
+i <- which(data_list$agency == 
+             #"DHS_USCIS")
+             #"DOL_ETA")
+             "DOJ_USMS")
+             #"ABMC")
+
 
 i
 
@@ -51,7 +58,8 @@ i
 d1 <- clean.agency(
   agency = as.character(data_list[i, 1]),
   status = as.character(data_list[i, 2]),
-  coders = as.character(data_list[i, 3]))
+  coders = as.character(data_list[i, 3])
+  )
 
 # this is only needed because it is change to chr in clean.r
 #TODO go back and fix the code that changes icpsr to chr
@@ -81,6 +89,11 @@ members$icpsr %<>% as.numeric()
   
 
 d1$DATE %<>% as.Date()
+
+
+# check 
+
+d1 %>% add_count(LetterID) %>% filter(n > 1) %>% kablebox()
 
 # check how many unmatched observations per congress
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)

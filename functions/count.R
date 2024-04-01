@@ -96,18 +96,28 @@ df$CONSTITUENT_TYPE %<>% str_to_lower()
 
 nrow(df)
 
+df %>% filter(agency == "SSA") %>% 
+  count(CONSTITUENT_TYPE, agency) %>% kablebox()
+
+
+df %>% drop_na(CONSTITUENT_TYPE) %>%  count(agency)
+
+
 vet <- df %>% 
-  filter(str_detect(CONSTITUENT_TYPE, "veteran")) %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "veteran") | agency == "VA" & TYPE == "1") %>% 
   count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_vet")
+
 vet %>% group_by(TYPE) %>% tally(per_icpsr_chamber_year_agency_vet)
 
 military <- df %>% 
-  filter(str_detect(CONSTITUENT_TYPE, "veteran|military")) %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "veteran|military") | agency == "VA" & TYPE == "1") %>% 
   count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_military")
 
 senior <- all_contacts %>% 
-  filter(str_detect(CONSTITUENT_TYPE, "senior|medicare recipient")) %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "senior|medicare|social")) %>% 
   count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_senior")
+
+distinct(senior, agency)
 
 lowincome <- df %>% 
   filter(CONSTITUENT_CLASS == 1 | str_detect(CONSTITUENT_TYPE, "medicaid")) %>% 
@@ -117,14 +127,26 @@ hardship <- df %>%
   filter(str_detect(CONSTITUENT_TYPE, "foreclosure|hardship|debtor|delinquency")) %>% 
   count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_hardship")
 
+immigrant <- df %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "immigra")) %>% 
+  count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_immigrant")
+
+
 # add constituent counts to base counts
 dcounts %<>% 
   left_join(vet) %>% 
   left_join(military) %>% 
   left_join(senior) %>% 
   left_join(lowincome) %>% 
-  left_join(hardship)
+  left_join(hardship) %>% 
+  left_join(immigrant)
 nrow(dcounts)
+
+dcounts %>% filter(agency == "VA") %>% tally(per_icpsr_chamber_year_agency_vet)
+
+senior %>% tally(per_icpsr_chamber_year_agency_senior)
+
+dcounts %>% filter(agency == "DHHS_CMS") %>% tally(per_icpsr_chamber_year_agency_senior)
 
 # helper function
 replace_na_zero <- . %>% replace_na(0)
@@ -132,6 +154,7 @@ replace_na_zero <- . %>% replace_na(0)
 # replace NAs with zeros 
 dcounts %<>% mutate(across(starts_with("per_"), replace_na_zero)) #%>% select(starts_with("per")) %>% head() %>% kable()
 
+dcounts %>% filter(agency == "VA") %>% count(per_icpsr_chamber_year_agency_vet)
 
 
 # should be the same as nrow df 
@@ -204,7 +227,16 @@ dcounts %<>% left_join(agency_vars)
 nrow(dcounts)
 dcounts
 
+# full count data 
 save(dcounts, file = here("data/dcounts.Rdata"))
+
+
+# mid-level sized count data 
+dcounts %<>% filter(chamber != "President")
+
+dcounts %<>% select(chamber, last_name, state_abbrev, party_name, congress, year, agency, icpsr, TYPE, starts_with("per_")) 
+
+save(dcounts, file = here::here("data" , "dcounts_mid.Rdata"))
 
 
 # minimal count data prior to merge with members and agency 
@@ -214,9 +246,11 @@ dcounts_min <- dcounts %>% select(agency, icpsr, chamber, year, TYPE,
                                   per_icpsr_chamber_year_agency_lowincome,
                                   per_icpsr_chamber_year_agency_senior,
                                   per_icpsr_chamber_year_agency_hardship,
+                                  per_icpsr_chamber_year_agency_immigrant,
                                   per_icpsr_chamber_year_agency_type)
 nrow(dcounts_min)
 save(dcounts_min, file = here("data/dcounts_min.Rdata"))
+
 
 
 df %<>% left_join(dcounts_min)
