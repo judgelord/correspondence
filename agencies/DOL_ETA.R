@@ -24,11 +24,12 @@ clean <- function(file.name) {
   
   #removal of surplus columns
   
-  data <- data[ -c(21:22) ]
+  #data <- data[ -c(21:22) ]
   
   data %<>% 
-    rename(FROM = `Originator`,
-           DATE = `Date Entered`)
+    mutate(FROM = `Originator`,
+           DATE = `Date Entered`,
+           SUBJECT = Subject)
   
   data$DATE %<>% 
     str_replace_all("-", "/") %>% 
@@ -160,6 +161,8 @@ if(F){
   
   data %>% filter(is.na(icpsr),
                   str_detect(FROM, "vacant")) %>% view()
+  
+  print(distinct(data$FROM))
+  
 }
 
-print(distinct(data$FROM))

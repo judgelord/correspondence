@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 #source("setup.R")
-#file.name <- "DOJ_USMS" # for testing
+#file.name <- "DOJ_USMS Rochelle" # for testing
 
 clean <- function(file.name) {
   data_raw <- gs_title(file.name) %>% gs_read()
@@ -10,7 +10,8 @@ clean <- function(file.name) {
   # LetterID = sheet row number
   data_raw$LetterID <- 1:nrow(data_raw)
   
-  # select distinct observations 
+  
+# select distinct observations 
   data_distinct <- data_raw %>% select(-LetterID) %>% distinct()
   
   ##########################################################
@@ -22,20 +23,16 @@ clean <- function(file.name) {
   
   data$ID <- seq(1:nrow(data))
   
-  
-  #removal of surplus columns
-  
-  data <- data[ -c(23:25) ]
-  
   #rename columns
   
   data %<>% 
-    rename(FROM = `Primary Contact`)
+    mutate(FROM = `Primary Contact`,
+          SUBJECT = Subject)
   
   #date column is the column for date the request was received 
   
   data %<>%
-    rename(`DATE`= 'Date Rec')
+    mutate(DATE = coalesce('Doc Date', 'Date Rec'))
     
   data$DATE %<>% 
     as.Date("%m/%d/%y")
@@ -83,9 +80,11 @@ if(F){
   
   data %>% filter(is.na(icpsr),
                   str_detect(FROM, "vacant")) %>% view()
+  
+  print(distinct(data$FROM))
+  
 }
 
-print(distinct(data$FROM))
 
 
   
