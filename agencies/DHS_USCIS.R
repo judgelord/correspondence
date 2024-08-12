@@ -299,7 +299,97 @@ data %<>%
 
 # CONSTITUENT_TYPE CODING
 
-#need to code multiple constituent types by hand
+#first code observations that are more than one immigrant type:
+data %<>%
+  #Immigrant-DACA, Immigrant-Employment
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Deferred Action for Childhood Arrivals.*I-765 Application for Employment|I-765 Application for Employment.*Deferred Action for Childhood Arrivals"),
+                                   "Immigrant-DACA, Immigrant-Employment", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Deferred Action for Childhood Arrivals.*Employment Authorization|Employment Authorization.*Deferred Action for Childhood Arrivals"),
+                                   "Immigrant-DACA, Immigrant-Employment", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Initial Filing - DACA EAD"),
+                                   "Immigrant-DACA, Immigrant-Employment", CONSTITUENT_TYPE)) %>%
+  #Immigrant-DACA, Immigrant-Humanitarian
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Deferred Action.*Humanitarian|Humanitarian.*Deferred Action"),
+                                   "Immigrant-DACA, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  #Immigrant-Employment, Immigrant-Family
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment Authorization.*I-130 Petition for Alien Relative|I-130 Petition for Alien Relative.*Employment Authorization"),
+                                   "Immigrant-Employment, Immigrant-Family", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment Authorization.*Family Based|Family Based.*Employment Authorization"),
+                                   "Immigrant-Employment, Immigrant-Family", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "I-140 Immigration Petition for Alien Worker.*I-130 Petition for Alien Relative|I-130 Petition for Alien Relative.*I-140 Immigration Petition for Alien Worker"),
+                                   "Immigrant-Employment, Immigrant-Family", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment-based.*I-130 Petition for Alien Relative|I-130 Petition for Alien Relative.*Employment-based"),
+                                   "Immigrant-Employment, Immigrant-Family", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment-based.*Family Based|Family Based.*Employment-based"),
+                                   "Immigrant-Employment, Immigrant-Family", CONSTITUENT_TYPE)) %>%
+  #Immigrant-Employment, Immigrant-Humanitarian
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment Authorization.*Humanitarian|Humanitarian.*Employment Authorization"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment Authorization.*I-918 Petition for U Nonimmigrant Status|I-918 Petition for U Nonimmigrant Status.*Employment Authorization"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment Authorization.*Asylum|Asylum.*Employment Authorization"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Employment Authorization.*Refugee|Refugee.*Employment Authorization"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Humanitarian.*Non-delivered EADs|Non-delivered EADs.*Humanitarian"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "I-918 Petition for U Nonimmigrant Status.*Employment Authorization|Employment Authorization.*I-918 Petition for U Nonimmigrant Status"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Asylum.*Non-delivered EADs|Non-delivered EADs.*Asylum"),
+                                   "Immigrant-Employment, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  #Immigrant-Family, Immigrant-Humanitarian
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "I-730 Refugee/Asylee Relative Petition.*Humanitarian|Humanitarian.*I-730 Refugee/Asylee Relative Petition"),
+                                   "Immigrant-Family, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "I-130 Petition for Alien Relative.*Humanitarian|Humanitarian.*I-130 Petition for Alien Relative"),
+                                   "Immigrant-Family, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "Family Based.*Humanitarian|Humanitarian.*Family Based"),
+                                   "Immigrant-Family, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & 
+                                     str_detect(SUBJECT, 
+                                                "I-130 Petition for Alien Relative.*I-918 Petition for U Nonimmigrant Status|I-918 Petition for U Nonimmigrant Status.*I-130 Petition for Alien Relative"),
+                                   "Immigrant-Family, Immigrant-Humanitarian", CONSTITUENT_TYPE)) %>%
+  mutate(CONSTITUENT_TYPE = ifelse(is.na(CONSTITUENT_TYPE) & str_detect(SUBJECT, 
+                                                                        "Family Based.*Asylum|Asylum.*Family Based"),
+                                   "Immigrant-Family, Immigrant-Humanitarian", CONSTITUENT_TYPE))
+
 
 #at some point we will want to decide whether some of these employment categories should be 1s or 2s
 data %<>%
@@ -434,3 +524,79 @@ data %<>%
 
 # count(data, is.na(CONSTITUENT_TYPE))
 }
+
+
+#Code to create csv files containing observations to hand-code for multiple immigrant types:
+#ended up not needing this code because we can easily auto-code but I'll keep this here anyway
+
+#Immigrant-DACA and Immigrant-Employment: 
+test <- subset(d1, str_detect(SUBJECT, "Initial Filing - DACA EAD"))
+test2 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Deferred Action for Childhood Arrivals.*I-765 Application for Employment|I-765 Application for Employment.*Deferred Action for Childhood Arrivals"))
+test4 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Deferred Action for Childhood Arrivals.*Employment Authorization|Employment Authorization.*Deferred Action for Childhood Arrivals"))
+
+#Immigrant-DACA and Immigrant-Humanitarian: 
+test3 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Deferred Action.*Humanitarian|Humanitarian.*Deferred Action"))
+
+#Immigrant-Employment and Immigrant-Family: 
+test5 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment Authorization.*I-130 Petition for Alien Relative|I-130 Petition for Alien Relative.*Employment Authorization"))
+test8 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment Authorization.*Family Based|Family Based.*Employment Authorization"))
+test17 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "I-140 Immigration Petition for Alien Worker.*I-130 Petition for Alien Relative|I-130 Petition for Alien Relative.*I-140 Immigration Petition for Alien Worker"))
+test20 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment-based.*I-130 Petition for Alien Relative|I-130 Petition for Alien Relative.*Employment-based"))
+test21 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment-based.*Family Based|Family Based.*Employment-based"))
+
+#Immigrant-Employment and Immigrant-Humanitarian: 
+test6 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment Authorization.*Humanitarian|Humanitarian.*Employment Authorization"))
+test7 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment Authorization.*I-918 Petition for U Nonimmigrant Status|I-918 Petition for U Nonimmigrant Status.*Employment Authorization"))
+test9 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment Authorization.*Asylum|Asylum.*Employment Authorization"))
+test10 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "Employment Authorization.*Refugee|Refugee.*Employment Authorization"))
+test13 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "Humanitarian.*Non-delivered EADs|Non-delivered EADs.*Humanitarian"))
+test15 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "I-918 Petition for U Nonimmigrant Status.*Employment Authorization|Employment Authorization.*I-918 Petition for U Nonimmigrant Status"))
+test19 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "Asylum.*Non-delivered EADs|Non-delivered EADs.*Asylum"))
+
+#Immigrant-Family and Immigrant-Humanitarian: 
+test11 <- subset(d1, 
+                str_detect(SUBJECT, 
+                           "I-730 Refugee/Asylee Relative Petition.*Humanitarian|Humanitarian.*I-730 Refugee/Asylee Relative Petition"))
+test12 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "I-130 Petition for Alien Relative.*Humanitarian|Humanitarian.*I-130 Petition for Alien Relative"))
+test14 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "Family Based.*Humanitarian|Humanitarian.*Family Based"))
+test16 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "I-130 Petition for Alien Relative.*I-918 Petition for U Nonimmigrant Status|I-918 Petition for U Nonimmigrant Status.*I-130 Petition for Alien Relative"))
+test18 <- subset(d1, 
+                 str_detect(SUBJECT, 
+                            "Family Based.*Asylum|Asylum.*Family Based"))
+
