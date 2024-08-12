@@ -114,10 +114,12 @@ military <- df %>%
   count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_military")
 
 senior <- all_contacts %>% 
-  filter(str_detect(CONSTITUENT_TYPE, "senior|medicare|social")) %>% 
+  filter(str_detect(CONSTITUENT_TYPE, "senior|medicare|social") | str_detect(SUBJECT, "medicare")) %>% 
+  filter(TYPE == 1) %>% 
   count(icpsr, chamber, agency, year, TYPE, name = "per_icpsr_chamber_year_agency_senior")
 
-distinct(senior, agency)
+count(senior, agency)
+# filter(all_contacts, agency == "DHHS_CMS") %>% distinct(CONSTITUENT_TYPE)
 
 lowincome <- df %>% 
   filter(CONSTITUENT_CLASS == 1 | str_detect(CONSTITUENT_TYPE, "medicaid")) %>% 
