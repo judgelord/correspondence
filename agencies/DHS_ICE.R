@@ -26,12 +26,20 @@ clean <- function(file.name) {
   # Format date, year, Congress, member name etc. 
   data$DATE %<>% as.Date("%m/%d/%y")
   
+  # look <- filter(data, is.na(DATE))
   
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
-  # create chamber variable
+  # create chamber variable from three columns with member names 
+  
+  # past chamber info into member/commitee col 
+  data$'Member/Committee (HOR)' <- paste(str_extract(data$FROM, "^Rep"), data$FROM) |> str_remove("NA ") 
+  
+  data$'Member/Committee (Senate)' <- paste(str_extract(data$FROM, "^Sen"), data$FROM) |> str_remove("NA ") 
+  
+  # define chamber var 
   data$chamber <- ifelse(is.na(data$'Member/Committee (HOR)') & !is.na(data$'Member/Committee (Senate)'),
                          "Senate", 
                          NA )
@@ -43,6 +51,7 @@ clean <- function(file.name) {
   # make everything except DATE and congress character types 
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)
   
+  data %<>% mutate(FROM = coalesce(FROM, `Member/Committee (Senate)`, `Member/Committee (HOR)`))
   
   # # NAMES 
   # # create two different datasets for different name formats
@@ -81,7 +90,7 @@ clean <- function(file.name) {
   
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,Category)) %>% 
-  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|NATURALIZATION ISSUE|GREEN CARD|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|CONSTITUENT COMPLAINT|);|DENIED|REIMBURSEMENT|TIP|CASEWORK",SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
+  mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("Special Immigrant VISA|ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|NATURALIZATION ISSUE|GREEN CARD|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|CONSTITUENT COMPLAINT|);|DENIED|REIMBURSEMENT|TIP|CASEWORK",SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("ENTRY ISSUE|BENEFITS ISSUE|UNSPECIFIED|(b)(6)|CASE OF|MARRIAGE|NATURALIZATION ISSUE|GREEN CARD|VISA ISSUE|ALIEN SEEKING|GENERAL QUESTION|CONSTITUENT COMPLAINT|);|DENIED|REIMBURSEMENT|TIP|CASEWORK",SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("DETENTION FACILITIES|COLLEGE",SUBJECT, ignore.case = TRUE), "3", TYPE)) %>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("DETENTION FACILITIES|COLLEGE",SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
@@ -102,7 +111,10 @@ clean <- function(file.name) {
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HIRING",SUBJECT, ignore.case = TRUE), "3", CERTAINTY)) %>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("HIRING",SUBJECT, ignore.case = TRUE), "1", ALT_TYPE)) 
   
-  
+  data %<>% mutate(CONSTITUENT_TYPE = ifelse(!grepl("[A-z]", CONSTITUENT_TYPE) & str_detect(str_squish(SUBJECT), ".b..6...b..7|Special Immigrant VISA"),
+                                             "Immigrant-General",
+                                             CONSTITUENT_TYPE)
+  )
 
   return(data)
   
