@@ -28,18 +28,17 @@ members %<>%
 
 
 
-members$presidents_party <- NA
-# president's party
+members$presidents_party <- 0
+
 members %<>% 
   # CLINTON elected with 103th
   mutate(presidents_party = ifelse(congress >102 & congress < 107 & party == "(D)", 1, presidents_party)) %>% 
   # Bush elected with 107th
-  mutate(presidents_party = ifelse(congress >106 & congress < 111 & party == "(R)", 1, 0)) %>% 
+  mutate(presidents_party = ifelse(congress >106 & congress < 111 & party == "(R)", 1, presidents_party)) %>% 
   # OBAMA elected with 111th
   mutate(presidents_party = ifelse(congress >110 & congress < 115 & party == "(D)", 1, presidents_party)) %>% 
   # TRUMP elected with 115th
   mutate(presidents_party = ifelse(congress > 114 & congress <117 & party == "(R)", 1, presidents_party)) 
-
 
 # MEMBER DEMOGRAPHICS 
 

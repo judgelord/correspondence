@@ -11,12 +11,14 @@ library(Rvoteview)
 # This script aguments member names from voteview to enable merging with wide variety of name formats. Matching functions are in nameMethods.R
 
 members <- full_join(member_search(congress = c(105:108)) %>% select(-congresses),
-                     member_search(congress = c(109:120)))  # get voteview data for selected Congresses
+                     member_search(congress = c(109:117)))  # get voteview data for selected Congresses
 
 members %>% distinct(congress)
 
 # alternatively  use bulk data 
 members <- read_csv(here::here("data", "HSall_members.csv"))
+parties <- read_csv(here::here("data", "HSall_parties.csv"))
+
 
   # format state full names from abbrev
  members%<>%

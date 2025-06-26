@@ -3,6 +3,8 @@
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 packageVersion("dplyr")
+drive_auth(email = "correspondenceresearch@gmail.com")
+gs4_auth(email = "correspondenceresearch@gmail.com")
 
 # until we totally get rid of name methods loaded in setup, we need to specify the new version of extract member name from the legislators packge 
 extractMemberName <- legislators::extractMemberName
@@ -48,7 +50,8 @@ map_dfr(
 i <- which(data_list$agency == 
              #"DHS_USCIS")
              #"DOL_ETA")
-             "DOJ_USMS")
+             "DHS_USCIS_2016")
+             #"DOJ_USMS")
              #"ABMC")
 
 
@@ -74,12 +77,12 @@ members$icpsr %<>% as.numeric()
     # join once to make sure we have bioname
     left_join(members) %>% 
     # select the core variables we get from all data  
-    select(LetterID, ID, 
-           DATE, year, congress, 
-           FROM, pattern, bioname, agency, 
-           SUBJECT, TYPE, ALT_TYPE, CERTAINTY, POLICY_EVENT, EVENT_NAME, EVENT_DATE, 
-           CONSTITUENT_TYPE, CONSTITUENT_CLASS, 
-           NOTES, ERROR) %>% 
+    select(any_of(c("LetterID", "ID", 
+           "DATE", "year", "congress", 
+           "FROM", "pattern", "bioname", "agency", 
+           "SUBJECT", "TYPE", "ALT_TYPE", "CERTAINTY", "POLICY_EVENT", "EVENT_NAME", "EVENT_DATE", 
+           "CONSTITUENT_TYPE", "CONSTITUENT_CLASS", 
+           "NOTES", "ERROR"))) %>% 
     # get rid of duplicates
     distinct() %>% 
     # join back in additional members data 
@@ -91,10 +94,23 @@ members$icpsr %<>% as.numeric()
 d1$DATE %<>% as.Date()
 
 
-# check 
+# post-hoc corrections to be fixed in legislators https://github.com/judgelord/legislators/issues/5
 
+d1 %<>% filter( !(FROM == "murphy, patrick" & bioname == "MURPHY, Patrick"),
+                !(FROM == "lujan michelle lujan grisham" & bioname == "LUJÁN, Ben Ray"),
+                !(FROM == "graves, garret" & bioname == "GRAVES, Tom")
+                )
+
+# check for over-matches
 d1 %>% add_count(LetterID) %>% filter(n > 1) %>% kablebox()
 
+# check unmatched 
+d1 %>% filter( is.na(icpsr) ) %>% 
+  distinct(FROM, DATE) %>% 
+  group_by(FROM) %>% 
+  top_n(1) %>% 
+  kablebox()
+               
 # check how many unmatched observations per congress
 d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
 

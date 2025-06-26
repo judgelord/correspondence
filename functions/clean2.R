@@ -6,7 +6,7 @@
 
 # calling agency-specific clean() function and joining data depending on status of hand-coding
 clean.agency <- function(agency, status, coders) {
-  source(paste0("agencies/",agency, ".R"))
+  source(here::here("agencies", paste0(agency, ".R")))
   
   if (status == "not coded") {
     data <- clean(agency)
