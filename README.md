@@ -56,7 +56,9 @@ Here are some tasks that anyone can do:
 - Data are stored in Google Sheets in the project's [Google Drive](https://drive.google.com/drive/u/0/folders/1bZ-h4nbkvZng6Ea4Aexw7n-Kh-JXmsTz) in the "datasheets" folder
 - Some still need to be extracted from PDFs [#77]
 - Data extracted from PDFs but not yet uploaded to Google Drive should have an open issue named "add AGENCY data to drive."
-- Memes should be posted to [#158]
+- Memes should be posted to #158
+
+![](https://user-images.githubusercontent.com/55806474/70588836-a2946c80-1b93-11ea-808b-4e378157b5ac.jpg)
 
 All datasheets must have these columns:
 - `FROM` is the column with the name(s) of the Member(s) of Congress that signed the letter. If names are in multiple columns, a new FROM column will be created in the script cleaning those data. 
