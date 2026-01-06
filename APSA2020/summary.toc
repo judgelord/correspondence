@@ -1,6 +1,0 @@
-\contentsline {subsection}{Number of legislator contacts per agency per year 2007-2017}{2}{section*.2}% 
-\contentsline {subsection}{Percent of legislator contacts per agency per year 2007-2017}{3}{section*.3}% 
-\contentsline {subsection}{Constituent type count:}{3}{section*.4}% 
-\contentsline {section}{Constituent type share of total per agency}{4}{section*.5}% 
-\contentsline {section}{Member-Congress Percentiles}{7}{section*.6}% 
-\contentsline {section}{TODO}{7}{section*.7}% 
