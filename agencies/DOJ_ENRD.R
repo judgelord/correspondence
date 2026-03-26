@@ -100,10 +100,14 @@ clean <- function(file.name) {
     # FIXME # THIS LETTER ID IS NO LONGER CORRECT:
     #mutate(FROM = ifelse(str_detect(FROM, "Nelson") & LetterID == 161, str_replace(FROM, "Nelson", "Clarence NELSON"), FROM))
   
-  #Extract Member names
-  data %<>%
-    extractMemberName(members = members, col_name = "FROM")
- 
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
   NoChamber <- data %>%
     filter(is.na(chamber))

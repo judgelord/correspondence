@@ -96,7 +96,13 @@ clean <- function(file.name) {
   paste(data$FROM, data$FROMoriginal, sep = "<--")
   
   # extract member names
-  data %<>% extractMemberName(members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   
   #Failing observations
@@ -106,7 +112,7 @@ clean <- function(file.name) {
   
   bad_dates <- data %>% 
     filter(is.na(DATE)) %>% 
-    select(FROM, string, DATEoriginal)
+    select(FROM, DATEoriginal)
   
   
   # arrange columns for hand coding

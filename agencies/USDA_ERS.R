@@ -62,10 +62,16 @@ clean <- function(file.name){
     mutate(chamber = ifelse (grepl("Senator", Position), "Senate", NA)) %>% 
     mutate(chamber = ifelse(grepl("Congress", Position), "House", chamber)) 
   
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
-  data %<>% extractMemberName(members, "FROM")
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
-
+  # arrange columns for hand coding
+  data %<>% select(data_id, DATE,  FROM, everything())
   
   # Consolidate and rename like subjects
   data %<>%

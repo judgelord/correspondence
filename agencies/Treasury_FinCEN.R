@@ -7,6 +7,9 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() 
   
+  data %<>% mutate(SUBJECT = Summary)
+  
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -132,10 +135,18 @@ clean <- function(file.name) {
 
 
   #Extract Member names
-  data %<>%
-    extractMemberName(members = members, col_name = "Summary")
+  data %<>% mutate(FROM = Summary)
   
-  data %<>% select(ID, DATE, LetterID, chamber, congress, Summary, first_name, last_name, everything())
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
+  
+  data %<>% select(ID, DATE, LetterID, chamber, congress, SUBJECT, first_name, last_name, everything())
   
  
   #Check for duplicates

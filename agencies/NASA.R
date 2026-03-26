@@ -100,7 +100,13 @@ clean <- function(file.name) {
     filter(is.na(chamber))
   
   #Extract members in FROM
-  data <- extractMemberName(data, members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "BILL NELSON") & is.na(last_name), "Bill Nelson Duplcate", NOTES)) %>%
@@ -131,8 +137,7 @@ data %<>%
 
 
 Unfoundnames <- data %>%
-  filter(is.na(last_name),
-         str_detect(pattern, "404error"))
+  filter(is.na(last_name) )
 
 #Check NAs after merge  
 #unmatched <- d %>%

@@ -45,11 +45,13 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
-  library(legislators)
-  data %<>% 
-    legislators::extractMemberName("FROM",
-                                   congress = "congress")
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
 ## TYPE CODING
   
   #add TYPE and CONSTITUENT_TYPE columns (only when testing w/o running the merge file)

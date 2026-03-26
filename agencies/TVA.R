@@ -46,16 +46,21 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(SUBJECT, "Congressman|Rep.|Con. |con. "), "House", NA)) %>%
     mutate(chamber = ifelse(str_detect(SUBJECT, "Sen |Sen."), "Senate", chamber))
   
-  #extracts member names
-  data %<>%
-    extractMemberName(members = members, col_name = "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+
   
   #Checks for NAs
   Unfoundnames <- data %>%
     filter(is.na(last_name)) 
   
   Unfoundnames %<>%
-    extractMemberName(members = members, col_name = "SUBJECT") %>%
+    extractMemberName(col_name = "SUBJECT", congress = "congress") %>%
     drop_na(last_name)
 
   data %<>%

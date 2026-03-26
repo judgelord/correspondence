@@ -38,7 +38,13 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Young, C.W. Bill", "YOUNG, Charles William (Bill)")) %>%
     mutate(FROM = str_replace(FROM, "Johnson \\(Il\\), Rep. Timothy", "JOHNSON, Timothy V.")) 
   
-  data %<>% extractMemberName(members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   # bad <- data %>% filter(is.na(last_name)) %>% .$LetterID
   # data %>% filter(LetterID %in% bad) %>% .$FROM %>% str_squish() %>% unique()

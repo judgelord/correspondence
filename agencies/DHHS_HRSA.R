@@ -36,8 +36,13 @@ clean <- function(file.name) {
   data$ID <- 1:nrow(data)
   
   # create variable for first and last name
-  data %<>% extractMemberName(members, "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
   data %<>% 
     mutate(ERROR = ifelse(FROM == "", "blank", ERROR), 
            ERROR = ifelse(FROM %in% c("Senate HELP Committee",

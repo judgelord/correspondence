@@ -53,17 +53,19 @@ clean <- function(file.name) {
            FROM = str_replace_all(FROM, " NA |^NA | NA$", " ")) %>% 
     select(DATE, chamber, first_name, last_name, FROM, SUBJECT, everything())
   
-  data %<>% extractMemberName(members, "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   data %<>% mutate(NOTES = ifelse(str_detect(SUBJECT, "multi "), 
                                   paste("FOIA", NOTES), 
                                   NOTES))
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(pattern == "404error",
-           is.na(ERROR)) 
-  
+
 
 data %<>% select(DATE, originalDATE, SUBJECT, last_name, chamber, everything())  
 

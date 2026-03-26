@@ -76,8 +76,20 @@ clean <- function(file.name){
   
   # FIXME # WORTH COMPARING THIS TO USING THE ORIGINAL FROM 
   data %<>% 
-    mutate(name = paste(first_name, last_name)) %>% 
-    extractMemberName(members, "name")
+    mutate(
+      FROM_old = FROM,
+      FROM = paste(first_name, last_name))
+  
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
+  # arrange columns for hand coding
+  data %<>% select(data_id, DATE,  FROM, everything())
   
     
   # add ERROR for invalid congress names
@@ -195,15 +207,6 @@ clean <- function(file.name){
   
   
   
-  
-  
-  
-  
-  
-  
-  
-     # arrange columns for further hand coding
-  data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
 return(data)
 }

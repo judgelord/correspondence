@@ -65,7 +65,15 @@ clean <- function(file.name) {
   
   
   # create variable for first and last name
-  data %<>%  extractMemberName(members, 'SUBJECT')
+  data %<>% mutate(FROM = SUBJECT)
+  
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
 
   unfoundnames <- data %>% 
@@ -73,7 +81,7 @@ clean <- function(file.name) {
     select(-first_name, -last_name) %>% 
     # add commas after member last names so pattern matches 
     mutate(SUBJECT = str_replace_all(SUBJECT, "(Senator|Representative) (\\w+)", "\\1 \\2,")) %>% 
-    extractMemberName(members, 'SUBJECT') 
+    extractMemberName(col_name = 'SUBJECT', congress = "congress") 
   
   data %<>% 
     # remove found names

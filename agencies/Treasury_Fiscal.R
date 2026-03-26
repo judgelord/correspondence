@@ -75,20 +75,17 @@ clean <- function(file.name) {
       mutate(FROM = ifelse(str_detect(FROM, "J FORBES") & str_detect(chamber, "House"), str_replace(FROM, "J FORBES", "James FORBES"), FROM)) %>%
       mutate(FROM = ifelse(FROM == "LUJAN GRISHAM", str_replace(FROM, "LUJAN GRISHAM", "Michelle LUJAN GRISHAM"), FROM)) %>%
       mutate(FROM = ifelse(FROM == "X PETERSON" & str_detect(congress, "115") & str_detect(chamber, "House"), str_replace(FROM, "X PETERSON", "Collin PETERSON"), FROM))
+
+    # apply extractmembername from legislators package 
+    data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
     
-  #Extract Member names
-  data <-  extractMemberName(data,members,"FROM") 
-  
-  # THERE WAS A PROBLEM WITH ANGUS KING
-  data %>% filter(str_detect(FROM, regex("angus", ignore_case = T))) %>% select(FROM, string, pattern)
-  
-  #Check for Duplicates
-  sample2data<- data
-  
-  sample2data %<>%
-    group_by(ID, SUBJECT, DATE) %>%
-    mutate(n = n(),
-           last_name = str_c(last_name, collapse = "; "))
+    # old ID still used in some places
+    if(!"ID" %in% names(data)){
+      data %<>% mutate(ID = data_id)
+    }
+    
+    
+
   
   #ERRORS
   data %<>%
@@ -96,13 +93,7 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(str_detect(FROM, "KEVIN FROMER|AMIEE SNYDER|AIMEE SNYDER|ELEANOR HOLMES-NORTON|ELEANOR HOLMES NORTON|PATRICIA LARKE|MADELEINE BORDALLO|MATT HUTCHINSON|CAROLYN PRICE|MATT HUTCHISON"), "Not Member", ERROR))
   
   
-  #Failing observations
-  Unfoundnames <- data %>%
-  filter(is.na(last_name),
-         ! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"),
-         str_detect(pattern, "404error"),
-         is.na(ERROR))  
- 
+
   
   
   ## Are we sure that we want to delete all of these observations? I'm commenting this out
@@ -127,3 +118,23 @@ return(data)
   
 }
 
+# testing 
+if(F){
+  # THERE WAS A PROBLEM WITH ANGUS KING
+  data %>% filter(str_detect(FROM, regex("angus", ignore_case = T))) %>% select(FROM, icpsr, pattern)
+  
+  #Check for Duplicates
+  sample2data<- data
+  
+  sample2data %<>%
+    group_by(ID, SUBJECT, DATE) %>%
+    mutate(n = n(),
+           last_name = str_c(last_name, collapse = "; "))
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           ! str_detect(FROM, "\\(b\\)\\(6\\) \\(b\\)\\(6\\)|NA NA"),
+           str_detect(pattern, "404error"),
+           is.na(ERROR))  
+  
+}

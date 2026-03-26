@@ -126,13 +126,20 @@ clean <- function(file.name) {
   nrow(data)
     #extract member names from FROM
   
-   data %<>% extractMemberName(members, col_name = "FROM") 
-   # inspect
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
+  # inspect
    nrow(data)
    
  data %<>%
    distinct() %>% 
-   select(DATE, FROM, first_name, last_name, pattern, everything())
+   select(DATE, FROM, first_name, last_name, everything())
   
   #Checks how many members are not captured
   FROMunamed <- data %>%

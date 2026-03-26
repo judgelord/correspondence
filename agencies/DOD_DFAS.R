@@ -33,7 +33,13 @@ clean <- function(file.name) {
 
   
   
-  data <- extractMemberName(data, members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   data %<>%
     mutate(ERROR = ifelse(grepl('^None$',FROM, ignore.case = T), 'None provided in FROM column', ERROR))

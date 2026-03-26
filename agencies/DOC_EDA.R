@@ -75,8 +75,15 @@ clean <- function(file.name) {
   }
   data2 <- data2[-grep("\\w{2}) ", data2$FROM, ignore.case = T),] # removes orginal row with all data
   ########
+
+  # apply extractmembername from legislators package 
+  data2 %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
-  data2 <- extractMemberName(data2,members, "FROM")
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
   ###############    
   # Creates duplicate rows for lines with multiple representatives
@@ -94,7 +101,13 @@ clean <- function(file.name) {
   ########
   
   # extract member names
-  data %<>% extractMemberName(members, "FROM") 
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   
   data <- full_join(data,data2)

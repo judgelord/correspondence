@@ -23,7 +23,16 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1) / 2)) + 107) # the 107th congress began in 2001
 
 
-  data <- extractMemberName(data, members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
+  # arrange columns for hand coding
+  data %<>% select(data_id, DATE,  FROM, everything())
   
   
   

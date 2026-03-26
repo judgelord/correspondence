@@ -60,11 +60,13 @@ clean <- function(file.name) {
   
   
   
-  #members
-  library(legislators)
-  data %<>% 
-    legislators::extractMemberName("FROM",
-                                   congress = "congress")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
@@ -84,6 +86,7 @@ if(F){
   
   data %>% filter(is.na(icpsr),
                   str_detect(FROM, "vacant")) %>% view()
+  
+  print(unique(data$FROM))
 }
 
-print(distinct(data$FROM))

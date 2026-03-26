@@ -14,6 +14,15 @@ clean <- function(file.name) {
            SUBJECT = Subject)
   
   
+  # LetterID = sheet row number
+  data$LetterID <- 1:nrow(data)
+  # select distinct observations 
+  data_distinct <- data %>% select(-LetterID) %>% distinct()
+  # join back in LetterID for distinct observations
+  data <- data_distinct %>% left_join(data) %>% distinct()
+  
+  
+  
   #create agency column
   data$agency <- file.name 
   
@@ -33,8 +42,13 @@ clean <- function(file.name) {
   
   data %<>% mutate(ERROR = ifelse(grepl("Randy Reeves", FROM), "Under Secretary", ERROR))
   
-  data <- extractMemberName(data, members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
   #Failing observations
   Unfoundnames <- data %>%
     filter(is.na(last_name),

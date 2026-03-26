@@ -122,8 +122,14 @@ clean <- function(file.name) {
   ################
   
   #Matches to member data
-  data <- extractMemberName(data, members, 'FROM')
-
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   #Filters for all rows that still don't match
   FROMunamed <- data %>%
     filter(is.na(last_name))
@@ -133,7 +139,7 @@ clean <- function(file.name) {
   #Filters for names still unmatched
   Unfoundnames <- data %>%
     filter(is.na(last_name)) %>%
-    extractMemberName(members = members, col_name = "SUBJECT") %>% 
+    extractMemberName(col_name = "SUBJECT", congress = "congress") %>% 
     select(ID, DATE, FROM, first_name, last_name, SUBJECT, everything())
 
   #Drops duplicate NAs when rejoined  

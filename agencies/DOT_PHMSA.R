@@ -87,8 +87,14 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Markey, Edward J.") & str_detect(congress, "111|112"), "House", chamber))
   
   
-  #Extract member names
-  data %<>% extractMemberName(members, "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
   #Not members
   data %<>%
@@ -99,7 +105,7 @@ clean <- function(file.name) {
 
   
   data %<>%
-    mutate(ERROR = ifelse(str_detect(FROM, "Price, Thomas. ") & str_detect(pattern, "tom rice"), "Wrong Tom, Duplicate", ERROR))
+    mutate(ERROR = ifelse(str_detect(FROM, "Price, Thomas. ") & icpsr == "20505", "Wrong Tom, Duplicate", ERROR))
   
            Unfoundnames <- data %>%
     filter(is.na(last_name),

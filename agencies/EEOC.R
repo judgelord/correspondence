@@ -5,6 +5,17 @@
 
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read() 
+  
+  data %<>%
+    mutate(
+      FROM = str_squish(FROM),
+      `Addressee Street 1` = str_squish(`Addressee Street 1`),
+      `Addressee State` = str_squish(`Addressee State`),
+      FROM = paste0(`Addressee Street 1`, " ", FROM, ", ", `Addressee State`) %>% 
+        str_remove_all("N/A")
+    )
+  
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -32,8 +43,15 @@ clean <- function(file.name) {
   
  
   #Extract member names from SUBJECT
-  data %<>%
-    extractMemberName(members = members, col_name = "FROM")
+
+  
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   #Failing observations
   Unfoundnames <- data %>%

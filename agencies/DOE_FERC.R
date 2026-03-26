@@ -723,9 +723,15 @@ data %<>%
   mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("20170324-0041", ID, ignore.case = TRUE), "1", CERTAINTY)) %>% 
   mutate(AntiBusiness = ifelse (grepl("20170324-0041", ID, ignore.case = TRUE), "PennEast Pipeline Company", AntiBusiness))
 
-data %<>% distinct()
+data %<>% distinct() %>% mutate(LetterID = FERC_LetterID)
 
-data %<>% extractMemberName(members, "FROM") %<>% distinct()
+# apply extractmembername from legislators package 
+data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+
+# old ID still used in some places
+if(!"ID" %in% names(data)){
+  data %<>% mutate(ID = data_id)
+}
 
 #sample <- data %>%
 #filter(is.na(last_name))  

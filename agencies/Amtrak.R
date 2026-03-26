@@ -58,16 +58,21 @@ clean <- function(file.name) {
              str_replace("Senate", "Senator") %>% 
              str_replace("House", "Representative") %>% str_squish() )
   
-  data %<>% extractMemberName(members, 'FROM')
-
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
   #data$state <- stateFromLower(data$State)
   
   
   #Failing observations
   Unfoundnames <- data %>%
-    filter(is.na(last_name),
+    filter(is.na(icpsr),
            is.na(ERROR)) %>%
-    count(FROM, string, congress, sort= T)
+    count(FROM, congress, sort= T)
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())

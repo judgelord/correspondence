@@ -86,8 +86,14 @@ clean <- function(file.name) {
   
   
   #Extract Member names (New edit from formatLastName)
-  data <-  extractMemberName(data,members,"FROM") 
-
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
   
   #checking for names that are NA
@@ -95,9 +101,9 @@ clean <- function(file.name) {
     filter(is.na(last_name))
   
   unfoundnames %<>%
-    select(ID, DATE, congress, FROM, string, pattern, everything())
+    select(ID, DATE, congress, FROM, everything())
   
-  unfoundnames %>%  count(FROM, string, sort= T) %>% kable()
+  unfoundnames %>%  count(FROM, sort= T) %>% kable()
   
   unfoundnames$FROM
   

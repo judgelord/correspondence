@@ -36,7 +36,10 @@ clean <- function(file.name){
   data <- data[-which(is.na(data$FROM)&is.na(data$DATE)&is.na(data$Addressee)),]
   
   # create first and last name variables
-  data <- extractMemberName(data, members, 'FROM')
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # arrange columns for hand coding
+  data %<>% select(data_id, DATE,  FROM, everything())
   
   
   ### Nearly 1500 names where extractMemberName() didn't match anything. These names were scanned through
@@ -68,10 +71,7 @@ clean <- function(file.name){
   #   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))  %>% 
   #   mutate(last_name = str_to_upper(last_name))
 
-  
-  # arrange columns for further hand coding
-  data %<>% select(ID, DATE, FROM, everything())
-  
+
   return(data)
 }
 

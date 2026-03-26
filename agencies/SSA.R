@@ -96,9 +96,15 @@ clean <- function(file.name) {
   data %<>% 
     mutate(FROM = str_replace(FROM, "Collins (GA-9)", "Doug Collins (GA-9)"))
   
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
-  # member name
-  data %<>% extractMemberName(members,"FROM") 
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
+  
   
   #FIXME THESE SHOULD ALL BE MATCHED IN extractMemberName() OR FIXE BEFORE
   # data %<>%
@@ -155,16 +161,7 @@ clean <- function(file.name) {
     mutate(NOTES = ifelse(str_detect(FROM, "Rep\\. Rogers") & is.na(last_name), "Multiple Rogers FOIA", NOTES))
   
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(is.na(last_name),
-           is.na(ERROR)) %>% 
-    count(FROM, string, congress, sort = T)
-  
-  
-  Unfoundnames %>% filter(str_detect(FROM, "\\("))
-  
-  
+
   data %<>%
   mutate(SUBJECT = paste(SUBJECT,ACTION)) %>% 
   mutate(SUBJECT = paste(SUBJECT, CCRS.Specialist)) %>%
@@ -192,6 +189,16 @@ clean <- function(file.name) {
 
 
 
+if(F){
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(last_name),
+           is.na(ERROR)) %>% 
+    count(FROM, icpsr, congress, sort = T)
+  
+  
+  Unfoundnames %>% filter(str_detect(FROM, "\\("))
 
+}
 
 

@@ -53,11 +53,13 @@ clean <- function(file.name) {
    mutate(FROM = str_to_lower(FROM))
   
   #member names
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
-  library(legislators)
-  data %<>% 
-    legislators::extractMemberName("FROM",
-                                   congress = "congress")
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   
   # arrange columns for hand coding

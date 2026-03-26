@@ -74,11 +74,18 @@ clean <- function(file.name) {
   
   data$FROM %<>% str_replace_all("\\.|-", " ") %>% str_squish()
   
-  data <- extractMemberName(data, members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
 
   Unfoundnames <- data %>% filter(is.na(last_name), 
                                   is.na(ERROR))  %>% 
-    count(FROM, string, congress, pattern)
+    count(FROM, congress, icpsr)
   Unfoundnames
   
   

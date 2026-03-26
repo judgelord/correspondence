@@ -75,9 +75,14 @@ clean <- function(file.name) {
 
 
   
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
-  # create variable for first and last name
-  data <- extractMemberName(data, members, 'FROM')
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
   #Error for nonmembers
   data %<>%

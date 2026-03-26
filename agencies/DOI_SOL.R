@@ -28,7 +28,14 @@ clean <- function(file.name) {
   
   data %<>% mutate(FROM = paste(Salutation, FROM))
   
-  data %<>% extractMemberName(members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
 
   bad <- data %>% filter(is.na(last_name)) %>% .$LetterID
   data %>% filter(LetterID %in% bad) %>% .$FROM %>% str_remove_all("NA")  %>% str_squish() %>% unique()

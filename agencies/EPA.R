@@ -85,8 +85,14 @@ clean <- function(file.name) {
   data %<>% select(ID, DATE, FROM, SUBJECT, everything())
   
   #changing from getfirstlast to extractMemberName
-  data <- extractMemberName(data, members, 'FROM')
-
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
     
   #Failing observations
@@ -95,7 +101,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   # is the chamber and state causing problems? 
-  Unfoundnames %<>% count(FROM, string, congress, pattern, chamber, state, sort = T)
+  Unfoundnames %<>% count(FROM, congress, chamber, state, sort = T)
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REPORT TO CONGRESS|WATERS OF THE US|REQUEST INFORMATION|LEAD IN AMMUNITION|HEARING INVITE|FUEL STANDARD|CLEAN AIR ACT|AGENCY'S|REGARDING FUNDING|QUESTIONS REGARDING|PAINTING RULE|BOILER MACT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%

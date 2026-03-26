@@ -1,5 +1,5 @@
 
-# file.name <- "Treasury_IRS" # for testing
+# file.name <- "Treasury_IRS Rochelle" # for testing
 
 
 clean <- function(file.name) {
@@ -53,53 +53,65 @@ data %>% filter(!str_detect(DATE, "^200|^201")) %>% select(Sort, DATE, `Received
 data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
 data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
+
+#extracting members from Subject becsome FROM IS BLANK 
+data %<>% mutate(FROM = SUBJECT)
+
+
 #Format Typo
 data %<>%
-  mutate(SUBJECT = str_remove_all(SUBJECT, "\\'s")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Patrick McHenrv", "Patrick McHenry")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Nancv Pelosi", "Nancy Pelosi")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Garv Peter", "Gary Peter")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Justine Amash", "Justin Amash")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Billv Lona", "Billy Long")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Meadow", "Mark Meadows")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Bill Cassidv", "Bill Cassidy")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Bennie Thomoson", "Bennie Thompson")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Tim Murohv", "Tim Murphy")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Tim Udall", "Tom Udall")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Debbie Dinaell", "Debbie DINGELL")) %>% 
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Bernard Sander", "Bernard Sanders")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "John Cornvn", "John Cornyn")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Vicente Gonxalez", "Vicente Gonzalez")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Llovd Doaaett", "Lloyd Doggett")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Cortex Masto", "Catherine Cortez Masto")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Tom Marion", "Tom Marino")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Tim Rvan", "Tim Ryan")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Thom Tlllis", "Thom Tillis")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Dana Rohrbacher", "Dana ROHRABACHER")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Pattv Murray", "Patty Murray")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Robert Whittman", "Robert Wittman")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Warren", "Mark Warner")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Edwards Royce", "Edward Royce")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Nita Lowev", "Nita Lowey")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Chris Val Hollen", "Chris Van Hollen")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Martha McSallv", "Martha McSally")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Patrick Toomev", "Patrick Toomey")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Sanders", "Mark Sanford")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Grassley", "Chuck Grassley")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Maxine Water", "Maxine Waters")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Martha Me Sally", "Martha McSally")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Sanford", "Mark Sanford")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Schiff", "Adam Schiff")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Schumer", "Chuck Schumer")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Rubio", "Marco Rubio")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Sandford", "Mark Sanford")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Sanford", "Mark Sanford")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "DeSantis", "DeSANTIS, Ron")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "John Comvn", "John Cornyn")) %>%
-  mutate(SUBJECT = str_replace_all(SUBJECT, "Mark Veasey", "Marc Veasey"))
+  mutate(FROM = str_remove_all(FROM, "\\'s")) %>%
+  mutate(FROM = str_replace_all(FROM, "Patrick McHenrv", "Patrick McHenry")) %>%
+  mutate(FROM = str_replace_all(FROM, "Nancv Pelosi", "Nancy Pelosi")) %>%
+  mutate(FROM = str_replace_all(FROM, "Garv Peter", "Gary Peter")) %>%
+  mutate(FROM = str_replace_all(FROM, "Justine Amash", "Justin Amash")) %>%
+  mutate(FROM = str_replace_all(FROM, "Billv Lona", "Billy Long")) %>%
+  mutate(FROM = str_replace_all(FROM, "Mark Meadow", "Mark Meadows")) %>%
+  mutate(FROM = str_replace_all(FROM, "Bill Cassidv", "Bill Cassidy")) %>%
+  mutate(FROM = str_replace_all(FROM, "Bennie Thomoson", "Bennie Thompson")) %>%
+  mutate(FROM = str_replace_all(FROM, "Tim Murohv", "Tim Murphy")) %>%
+  mutate(FROM = str_replace_all(FROM, "Tim Udall", "Tom Udall")) %>%
+  mutate(FROM = str_replace_all(FROM, "Debbie Dinaell", "Debbie DINGELL")) %>% 
+  mutate(FROM = str_replace_all(FROM, "Bernard Sander", "Bernard Sanders")) %>%
+  mutate(FROM = str_replace_all(FROM, "John Cornvn", "John Cornyn")) %>%
+  mutate(FROM = str_replace_all(FROM, "Vicente Gonxalez", "Vicente Gonzalez")) %>%
+  mutate(FROM = str_replace_all(FROM, "Llovd Doaaett", "Lloyd Doggett")) %>%
+  mutate(FROM = str_replace_all(FROM, "Cortex Masto", "Catherine Cortez Masto")) %>%
+  mutate(FROM = str_replace_all(FROM, "Tom Marion", "Tom Marino")) %>%
+  mutate(FROM = str_replace_all(FROM, "Tim Rvan", "Tim Ryan")) %>%
+  mutate(FROM = str_replace_all(FROM, "Thom Tlllis", "Thom Tillis")) %>%
+  mutate(FROM = str_replace_all(FROM, "Dana Rohrbacher", "Dana ROHRABACHER")) %>%
+  mutate(FROM = str_replace_all(FROM, "Pattv Murray", "Patty Murray")) %>%
+  mutate(FROM = str_replace_all(FROM, "Robert Whittman", "Robert Wittman")) %>%
+  mutate(FROM = str_replace_all(FROM, "Mark Warren", "Mark Warner")) %>%
+  mutate(FROM = str_replace_all(FROM, "Edwards Royce", "Edward Royce")) %>%
+  mutate(FROM = str_replace_all(FROM, "Nita Lowev", "Nita Lowey")) %>%
+  mutate(FROM = str_replace_all(FROM, "Chris Val Hollen", "Chris Van Hollen")) %>%
+  mutate(FROM = str_replace_all(FROM, "Martha McSallv", "Martha McSally")) %>%
+  mutate(FROM = str_replace_all(FROM, "Patrick Toomev", "Patrick Toomey")) %>%
+  mutate(FROM = str_replace_all(FROM, "Mark Sanders", "Mark Sanford")) %>%
+  mutate(FROM = str_replace_all(FROM, "Grassley", "Chuck Grassley")) %>%
+  mutate(FROM = str_replace_all(FROM, "Maxine Water", "Maxine Waters")) %>%
+  mutate(FROM = str_replace_all(FROM, "Martha Me Sally", "Martha McSally")) %>%
+  mutate(FROM = str_replace_all(FROM, "Sanford", "Mark Sanford")) %>%
+  mutate(FROM = str_replace_all(FROM, "Schiff", "Adam Schiff")) %>%
+  mutate(FROM = str_replace_all(FROM, "Schumer", "Chuck Schumer")) %>%
+  mutate(FROM = str_replace_all(FROM, "Rubio", "Marco Rubio")) %>%
+  mutate(FROM = str_replace_all(FROM, "Mark Sandford", "Mark Sanford")) %>%
+  mutate(FROM = str_replace_all(FROM, "Sanford", "Mark Sanford")) %>%
+  mutate(FROM = str_replace_all(FROM, "DeSantis", "DeSANTIS, Ron")) %>%
+  mutate(FROM = str_replace_all(FROM, "John Comvn", "John Cornyn")) %>%
+  mutate(FROM = str_replace_all(FROM, "Mark Veasey", "Marc Veasey"))
   
-#extracting members from Subject
-data <- extractMemberName(data, members, 'SUBJECT')
+
+
+# apply extractmembername from legislators package 
+data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+
+# old ID still used in some places
+if(!"ID" %in% names(data)){
+  data %<>% mutate(ID = data_id)
+}
 
 #non-members of congress   
 data %<>%
@@ -133,7 +145,7 @@ data %<>%
 
 
 ##checking for special characters
-#data %>% filter(ID==574) %>% select('SUBJECT')
+#data %>% filter(ID==574) %>% select('FROM')
 
 #Failing observations
 Unfoundnames <- data %>%
@@ -143,18 +155,18 @@ Unfoundnames <- data %>%
 
 
 # arrange columns for hand coding
-data %<>% select(ID, DATE, FROM, SUBJECT, everything())
+data %<>% select(ID, DATE, FROM, everything())
 
 data %<>%
-mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", SUBJECT, ignore.case = TRUE), "1", TYPE)) %>%
-mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMPANIES", SUBJECT, ignore.case = TRUE), "4", TYPE)) %>%
-mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMPANIES", SUBJECT, ignore.case = TRUE), "2", CERTAINTY)) %>%
-mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("COMPANIES", SUBJECT, ignore.case = TRUE), "2", ALT_TYPE)) %>%
-mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMISSIONER'S TRACKING|COMMISSIONER TRACKING", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
-mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEALTHCARE REFORM|COMMISSIONER'S TRACKING|COMMISSIONER TRACKING", SUBJECT, ignore.case = TRUE), "1", CERTAINTY)) %>%
-mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "6", TYPE)) %>%
-mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU", SUBJECT, ignore.case = TRUE), "1", TYPE)) 
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", FROM, ignore.case = TRUE), "1", TYPE)) %>%
+mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("CONSTITUENT", FROM, ignore.case = TRUE), "1", TYPE)) %>%
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMPANIES", FROM, ignore.case = TRUE), "4", TYPE)) %>%
+mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("COMPANIES", FROM, ignore.case = TRUE), "2", CERTAINTY)) %>%
+mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("COMPANIES", FROM, ignore.case = TRUE), "2", ALT_TYPE)) %>%
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("COMMISSIONER'S TRACKING|COMMISSIONER TRACKING", FROM, ignore.case = TRUE), "5", TYPE)) %>%
+mutate(CERTAINTY = ifelse (!grepl("[0-9]", CERTAINTY) & grepl("HEALTHCARE REFORM|COMMISSIONER'S TRACKING|COMMISSIONER TRACKING", FROM, ignore.case = TRUE), "1", CERTAINTY)) %>%
+mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU", FROM, ignore.case = TRUE), "6", TYPE)) %>%
+mutate(CERTAINTY = ifelse (!grepl("[0-9]", TYPE) & grepl("THANK YOU", FROM, ignore.case = TRUE), "1", TYPE)) 
 
 return(data)
 

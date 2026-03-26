@@ -3,8 +3,10 @@
 # load required functions
 source("setup.R") # clean.agency() cleans data and adds a sheet of unresolved intercoder discrepencies to google drive
 packageVersion("dplyr")
-drive_auth(email = "correspondenceresearch@gmail.com")
-gs4_auth(email = "correspondenceresearch@gmail.com")
+
+drive_auth(email = NA)
+gs4_auth(email = NA)
+
 
 # until we totally get rid of name methods loaded in setup, we need to specify the new version of extract member name from the legislators packge 
 extractMemberName <- legislators::extractMemberName
@@ -130,7 +132,7 @@ missing_data <- d1 %>%
 nrow(missing_data)
 
 # redo extractmembernames
-missing_data %<>% select(agency, DATE, FROM,congress, LetterID, ID, ERROR) %>% 
+missing_data %<>% select(any_of(c("agency", "DATE", "FROM","congress", "LetterID", "ID", "ERROR"))) %>% 
   legislators::extractMemberName("FROM", congress = "congress")
 
 # Inspect for things that should have matched but did not for some reason
@@ -200,11 +202,16 @@ while(!is.na(data_list[i,1])) {
   # print the agency 
   base::message(inverse("----", data_list$agency[i], "----"))
   
+  agency = as.character(data_list[i, 1])
+  status = as.character(data_list[i, 2])
+  coders = as.character(data_list[i, 3])
+  
   # clean the agency 
   d1 <- clean.agency(
-    agency = as.character(data_list[i, 1]),
-    status = as.character(data_list[i, 2]),
-    coders = as.character(data_list[i, 3]))
+    agency,
+    status,
+    coders
+    )
   
   # post hoc fix 
   d1$icpsr %<>% as.numeric() #FIXME in clean 
@@ -245,7 +252,7 @@ while(!is.na(data_list[i,1])) {
 
 stopped <- data_list$agency[i]
 
-base::message(white(paste("merge stopped at", stopped)))
+Tbase::message(white(paste("merge stopped at", stopped)))
  
 
 

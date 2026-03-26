@@ -85,7 +85,16 @@ data %<>%
   mutate(FROM = str_replace(FROM, "Marie K. Hirono", "Mazie K. Hirono")) %>%
   mutate(FROM = ifelse(str_detect(FROM, "Donald M. Payne") & str_detect(congress, "114"), str_replace(FROM, "Donald M. Payne", "Donald PAYNE"), FROM))
 
-data <- extractMemberName(data, members, 'FROM')
+# apply extractmembername from legislators package 
+data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+
+# old ID still used in some places
+if(!"ID" %in% names(data)){
+  data %<>% mutate(ID = data_id)
+}
+
+# arrange columns for hand coding
+data %<>%  select(ID, DATE,  FROM, everything())
 
 
 #Check for duplicates
@@ -212,10 +221,6 @@ data %<>%
   mutate(ALT_TYPE = ifelse (!grepl("[0-9]", ALT_TYPE) & grepl("OUTREACH", SUBJECT, ignore.case = TRUE), "1", ALT_TYPE))    
 
 
-
-
-  # arrange columns for further hand coding
-data %<>% select(ID, DATE, FROM, SUBJECT, everything())
 
 return(data)
 }

@@ -63,12 +63,13 @@ clean <- function(file.name) {
  
 
   
-    
-    library(legislators)
-  data %<>% 
-    legislators::extractMemberName("FROM",
-                                   congress = "congress")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   return(data)
 }

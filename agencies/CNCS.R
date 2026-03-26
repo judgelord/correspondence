@@ -75,8 +75,13 @@ clean <- function(file.name) {
   
 
   #Extract Member names
-  data %<>%
-    extractMemberName(members = members, col_name = "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   #Remove Blank Spaces
   data %<>% mutate(ERROR = ifelse(FROM == "", "blank", ERROR))

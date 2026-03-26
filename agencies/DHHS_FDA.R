@@ -110,12 +110,17 @@ clean <- function(file.name) {
   
   
   # trim extra white space before or after name
-  data$FROM %<>% trimws()
+  data$FROM %<>% str_squish()
   
 
   # #extract member names
-  data <-  extractMemberName(data,members,"FROM") 
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
 
   data %<>%
     mutate(ERROR = ifelse(str_detect(FROM, "von Eschenbach, Andrew C"), "Commissioner of Food and Drugs", ERROR)) %>%

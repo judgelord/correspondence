@@ -137,7 +137,13 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(FROM, "Davis, Tom \\(Chairman\\)") & congress == 109, "House", chamber))
     
   
-  data <- extractMemberName(data, members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Others|Other"), "Multiple Unnamed Members", NOTES)) %>%

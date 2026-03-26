@@ -39,9 +39,15 @@ clean <- function(file.name) {
   
   #Extract member names from SUBJECT
   data$FROM <- data$SUBJECT
-  data %<>%
-    #select(-chamber) %>% #FIXME? depends on how well it works without
-    extractMemberName(members = members, col_name = "FROM")
+
+  
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   #Failing observations
   Unfoundnames <- data %>%

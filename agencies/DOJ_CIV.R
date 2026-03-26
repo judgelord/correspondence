@@ -45,8 +45,16 @@ clean <- function(file.name) {
   
   # combine first and last name and call name method
   data$FROM <- paste(data$First.Name, data$Last.Name)
-  data <- extractMemberName(data, members, 'FROM')
-    
+
+  
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   # arrange columns for hand coding
   data %<>% select(ID, DATE, FROM, everything())
   

@@ -70,7 +70,13 @@ clean <- function(file.name) {
   # create variable for first and last name
   #data1 %<>% getFirstLast.Comma("FROM")
   
-  data %<>% extractMemberName(members, "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
   
   #data <- full_join(data2, data1)
   

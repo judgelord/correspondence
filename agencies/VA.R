@@ -197,9 +197,13 @@ data %<>%
   
   data %<>% select(-chamber)
   #Extract Member Names
-  data %<>%
-    extractMemberName(members = members, col_name = "FROM")
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
   
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }  
   
   
   
@@ -242,7 +246,7 @@ data %<>%
     filter(is.na(last_name),
            is.na(ERROR), 
            is.na(NOTES),
-           str_detect(pattern, "404error"),
+           #str_detect(pattern, "404error"),
            ! str_detect(FROM, "Senator NA|Representative NA"))
   
 # Unfoundnames2 %<>% extractMemberName(members, "FROM")

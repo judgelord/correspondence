@@ -66,7 +66,8 @@ clean <- function(file.name) {
   data$first_name %<>% addFirst(data$last_name)
   
   data %<>% 
-    mutate(FROM2 = paste(first_name, last_name) %>%
+    rename(FROM_old = FROM) %>% 
+    mutate(FROM = paste(first_name, last_name) %>%
              str_remove("^NA ")) %>% 
     select(-last_name, -first_name)
 
@@ -76,16 +77,21 @@ clean <- function(file.name) {
   # data$first_name <- ifelse(grepl("A.\nGreen", data$FROM), "Alan", data$first_name)
   # data$FROM <- gsub("A.\nGreen", "Green", data$FROM)
   
-
-  #extractmembername captures same amount of observations but is less efficient
-  data %<>% extractMemberName(members, 'FROM2')
+  
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, everything())
+  data %<>% select(data_id, DATE,  FROM, everything())
   
   # add ERROR notes
   data %<>%
-    mutate(ERROR = ifelse(grepl("Congress", data$FROM), "Not valid name info", ERROR))
+    mutate(ERROR = ifelse(grepl("Congress", data$FROM_old), "Not valid name info", ERROR))
   
   #Failing observations
   Unfoundnames <- data %>%

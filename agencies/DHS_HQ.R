@@ -7,6 +7,15 @@
 clean <- function(file.name) {
   data <- gs_title(file.name) %>% gs_read()
   
+  inspect <- data |> filter(FROM != FROM2) |> select(FROM, FROM2, SUBJECT, SUBJECT2)
+  inspect <- data |> filter(SUBJECT != SUBJECT2) |> select(FROM, FROM2, SUBJECT, SUBJECT2)
+  
+data %<>% 
+  mutate(FROM = ifelse(FROM != FROM2, 
+                       paste(FROM, FROM2), 
+                       FROM)
+         )
+  
   # LetterID = sheet row number
   data$LetterID <- 1:nrow(data)
   # select distinct observations 
@@ -96,8 +105,8 @@ data_distinct %<>% distinct() %>%
   
   # chamber
   data %<>%
-    mutate(chamber = ifelse (str_detect(FROM2, "Senator"), "Senate", NA)) %>% 
-    mutate(chamber = ifelse(str_detect(FROM2, "Congressman|Congressinan"), "House", chamber)) %>% 
+    mutate(chamber = ifelse (str_detect(FROM, "Senator"), "Senate", NA)) %>% 
+    mutate(chamber = ifelse(str_detect(FROM, "Congressman|Congressinan"), "House", chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & str_detect(FROM, "Senator"), "Senate", chamber)) %>%
     mutate(chamber = ifelse(is.na(chamber) & str_detect(FROM, "Congressman|Congressinan"), "House", chamber))
   
@@ -140,7 +149,7 @@ data_distinct %<>% distinct() %>%
     mutate(FROM=str_remove(FROM,"\".*\"|'’.*\"|\".*”"))
 
   # fix FROM
-  data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
+  # data$FROM <- gsub("Senator |Congressman ", "", data$FROM)
   data$FROM <- gsub(",", ".", data$FROM)
   
   # typos which should now be corrected in nameMethods
@@ -175,13 +184,20 @@ data_distinct %<>% distinct() %>%
   #data <- sampledata
   
   # names 
-  data <- extractMemberName(data, members, 'FROM2')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
+  
   
   Unfoundnames2 <- data %>%
   filter(is.na(last_name),
          is.na(ERROR), 
-         is.na(NOTES),
-         str_detect(pattern, "404error"))
+         is.na(NOTES)
+         )
   
    
 

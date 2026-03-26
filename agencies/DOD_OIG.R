@@ -46,7 +46,13 @@ clean <- function(file.name) {
     mutate(FROM = paste(first_name, last_name))
   #formatlastname works way better than extractMemberName
   
-  data %<>% extractMemberName(members, 'FROM')
+  # apply extractmembername from legislators package 
+  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  
+  # old ID still used in some places
+  if(!"ID" %in% names(data)){
+    data %<>% mutate(ID = data_id)
+  }
   
   #Failing observations
   Unfoundnames <- data %>%

@@ -179,8 +179,14 @@ data$FROM %<>%
 
 #extractMemberName
 
-data %<>% extractMemberName(members, 'FROM')
-
+ # apply extractmembername from legislators package 
+ data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+ 
+ # old ID still used in some places
+ if(!"ID" %in% names(data)){
+   data %<>% mutate(ID = data_id)
+ }
+ 
 
 
 # check for problems with duplication
@@ -225,7 +231,7 @@ data %<>%
 #Failing observations
 Unfoundnames <- data %>%
   filter(is.na(last_name),
-         str_detect(pattern, "404error"),
+         #str_detect(pattern, "404error"),
          is.na(ERROR),
          is.na(NOTES))  
 

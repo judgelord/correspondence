@@ -1,10 +1,22 @@
   options(stringsAsFactors = FALSE)
   
-  requires <- c("gmailr", "dplyr", "ggplot2", "gdata", "magrittr",
-                "googlesheets4","googledrive",
-                "devtools","stringi","stringr", "tidyverse",
-                #"pdftools", 
-                "here", "rvest","maps", "ineq", "mapproj", "dotwhisker", "crayon")
+  requires <- c(#"gmailr", 
+    "dplyr", 
+    "ggplot2", 
+    #"gdata", 
+    "magrittr",
+                
+    "googlesheets4",
+    "googledrive",
+                
+    "devtools",
+    "stringi",
+    "stringr", 
+    "tidyverse",
+                
+    #"pdftools", 
+    "Tbase", # messages 
+    "here", "rvest","maps", "ineq", "mapproj", "dotwhisker", "crayon")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
   
@@ -43,7 +55,7 @@
                     ERROR = col_character())
   }
   library(googledrive)
-  library(gmailr)
+  # library(gmailr)
   library(stringi)
   # library(pdftools)
   library(here)
