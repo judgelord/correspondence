@@ -6,7 +6,7 @@
 clean <- function(file.name) {
   # get data from google drive
   data1 <- gs_title(file.name) %>% gs_read()
-  #FIXME "EPA Devin" expands on EPA Julia, which expands on EPA Adam, right? These need to be combined in the clean script calculating inter-coder reliabity
+  #FIXME "EPA Devin" expands on EPA Julia, which expands on EPA Adam, right? These need to be combined in the clean script calculating inter-coder reliability
   data2 <- gs_title("EPA Devin") %>% gs_read() 
   
   data <- data2 %>% full_join(data1)
@@ -101,7 +101,7 @@ clean <- function(file.name) {
            is.na(ERROR)) 
   
   # is the chamber and state causing problems? 
-  Unfoundnames %<>% count(FROM, congress, chamber, state, sort = T)
+  Unfoundnames %<>% count(FROM, congress, chamber, sort = T)
   
   data%<>%
   mutate(TYPE = ifelse (!grepl("[0-9]", TYPE) & grepl("REPORT TO CONGRESS|WATERS OF THE US|REQUEST INFORMATION|LEAD IN AMMUNITION|HEARING INVITE|FUEL STANDARD|CLEAN AIR ACT|AGENCY'S|REGARDING FUNDING|QUESTIONS REGARDING|PAINTING RULE|BOILER MACT", SUBJECT, ignore.case = TRUE), "5", TYPE)) %>%
