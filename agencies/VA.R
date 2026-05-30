@@ -28,6 +28,8 @@ clean <- function(file.name) {
   
   
   
+  
+  
   #Check for NA Dates # FIXME
   NoDATE <- data %>%
     filter(is.na(DATE))
@@ -193,7 +195,7 @@ data %<>%
                          paste("Senator", FROM, sep = " "), FROM))
   
   # allow extractmembernames to match on state 
-  data$FROM %>% str_replace("Representative Rogers, M. \\(", "Representative Rogers ")
+  data$FROM %<>% str_replace("Representative Rogers, M. \\(", "Representative Rogers ")
   
   data %<>% select(-chamber)
   #Extract Member Names
@@ -206,13 +208,19 @@ data %<>%
   }  
   
   
-  
+  data %<>% distinct()
   
    #Check for duplicates
    sample2data <- data %>%
      group_by(ID, SUBJECT, DATE) %>%
-     mutate(n = n(),
-            last_name = str_c(last_name, collapse = "; "))
+     group_by(ID) %>%
+     transmute(n = n(),
+               FROM = FROM,
+            bionames = str_c(bioname |> unique(), collapse = "; ")) |> 
+     filter(n> 1,
+            str_detect(bionames, ";")) |> 
+     ungroup() |> 
+     distinct(bionames, FROM)
   
 
   
@@ -241,6 +249,8 @@ data %<>%
     mutate(NOTES = ifelse(str_detect(FROM, "Davis, A\\."), "Multiple Davis, A's FOIA", NOTES)) #Davis, Artur/Davis, Susan A.
  
 
+  # missing congress 
+  data %>% filter(is.na(congress))
  
   Unfoundnames <- data %>%
     filter(is.na(last_name),
@@ -248,6 +258,8 @@ data %<>%
            is.na(NOTES),
            #str_detect(pattern, "404error"),
            ! str_detect(FROM, "Senator NA|Representative NA"))
+  
+  Unfoundnames |> distinct(FROM, congress) |> kable()
   
 # Unfoundnames2 %<>% extractMemberName(members, "FROM")
   

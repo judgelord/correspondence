@@ -37,26 +37,13 @@ clean <- function(file.name) {
     mutate(ERROR = ifelse(grepl("Senate Agriculture Appropriations Subcommittee Majority Staff",FROM), "Senate Agriculture Appropriations Subcommittee Majority Staff",ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("House Agriculture Appropriations Committee",FROM), "House Agriculture Appropriations Committee",ERROR)) %>% 
     mutate(ERROR = ifelse(grepl("Senate Committee on Agriculture",FROM), "Senate Committee on Agriculture",ERROR))
+  
+  #TODO confirm that this is not dropping anything it should not
   data <- data[!(is.na(data$FROM)),]
   
-  
-  #remove extra string from names in the FROM column
-  
-  string <- ("senators")
   data$FROM %<>%
-    str_remove_all(string)
-  
-  string <- ("senator")
-  data$FROM %<>%
-    str_remove_all(string)
-  
-  string <- ("reprsentative")
-  data$FROM %<>%
-    str_remove_all(string)
-  
-  string <- ("reprsentatives")
-  data$FROM %<>%
-    str_remove_all(string)
+    str_replace_all("senators", "senator") %>% 
+    str_replace_all("reprsentatives", "reprsentative")
   
   
   

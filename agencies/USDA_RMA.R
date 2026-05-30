@@ -45,7 +45,7 @@ clean <- function(file.name) {
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
   ###     ###     ###
-  # Creates duplicate rows for lines with multiple representatives
+  # Creates duplicate rows for lines with multiple representatives (this is worth doing because we can match more with add_first)
   data %<>% 
     mutate(FROM = str_split(FROM, ",")) %>% 
     unnest(FROM)
@@ -61,9 +61,7 @@ clean <- function(file.name) {
   # create variable for last name
   data$last_name <- formatLastName(data, 'FROM')
   
-  data$first_name <- NA
-  
-  data$first_name %<>% addFirst(data$last_name)
+  data %<>% add_first()
   
   data %<>% 
     rename(FROM_old = FROM) %>% 
