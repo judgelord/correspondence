@@ -28,6 +28,7 @@ clean <- function(file.name) {
   
   data %<>% 
     mutate(FROM = `Originator`,
+           ID = `SIMS ID`,
            DATE = `Date Entered`,
            SUBJECT = Subject)
   
@@ -47,23 +48,23 @@ clean <- function(file.name) {
   
   #remove "(cong)" string from names in the FROM column
   
-  string <- ("(cong)")
-  data$FROM %<>%
-    str_remove_all(string)
-  
-  string2 <- ("(sen)")
-  data$FROM %<>%
-    str_remove_all(string2)
-  
-  string2_5 <- ("chair")
-  data$FROM %<>%
-    str_remove_all(string2_5)
-  
-  
-  string3 <- ("[()]")
-  data$FROM %<>%
-    str_remove_all(string3)
-  
+  # string <- ("(cong)")
+  # data$FROM %<>%
+  #   str_remove_all(string)
+  # 
+  # string2 <- ("(sen)")
+  # data$FROM %<>%
+  #   str_remove_all(string2)
+  # 
+  # string2_5 <- ("chair")
+  # data$FROM %<>%
+  #   str_remove_all(string2_5)
+  # 
+  # 
+  # string3 <- ("[()]")
+  # data$FROM %<>%
+  #   str_remove_all(string3)
+  # 
   
   
   #custom string changes for individuals - these are redundant with latest version of setup.r

@@ -43,15 +43,16 @@ clean.agency <- function(agency, status, coders) {
   
   # make consitant classes
   data %<>% mutate_at(names(data)[which(!names(data) %in% c("DATE", "congress"))], as.character)  
-  data %<>% mutate_at(names(data)[which(names(data) %in% c("year", "congress"))], as.numeric)
-
+  data %<>% mutate_at(names(data)[which(names(data) %in% c("year", "congress", "icpsr"))], as.numeric)
+  data %<>% mutate_at(names(data)[which(names(data) %in% c("DATE"))], as.Date)
+  
 
   
   data$agency <- agency %>% str_remove(" .*")# name agency
   data$department <- gsub("_.*", "", data$agency) # name dept
   
   
-  
+  if(F){
   # Correct chamber for Senators miscorectly assigned to the House
   
   if ("chamber" %in% names(data)){
@@ -64,22 +65,22 @@ clean.agency <- function(agency, status, coders) {
   
   
   # completing incomplete vars which will be used in merge
-  for (i in 1:length(members$id)) {
+  for (i in 1:length(members$icpsr)) {
     if (sum(c("first_name", "last_name", "state", "chamber", "congress") %in% names(data)) == 5) {
       data %<>%
-        # incomplete first names
-        mutate(
-          first_name = ifelse(
-            is.na(first_name) &
-              !is.na(last_name) & !is.na(state) & !is.na(congress) & !is.na(chamber) &
-              last_name == members$last_name[i] &
-              state == members$state[i] &
-              congress == members$congress[i] &
-              chamber == members$chamber[i],
-            members$first_name[i],
-            first_name
-          )
-        ) %>%
+        # # incomplete first names
+        # mutate(
+        #   first_name = ifelse(
+        #     is.na(first_name) &
+        #       !is.na(last_name) & !is.na(state) & !is.na(congress) & !is.na(chamber) &
+        #       last_name == members$last_name[i] &
+        #       state == members$state[i] &
+        #       congress == members$congress[i] &
+        #       chamber == members$chamber[i],
+        #     members$first_name[i],
+        #     first_name
+        #   )
+        # ) %>%
         # incomplete chamber
         mutate(
           chamber = ifelse(
@@ -111,29 +112,29 @@ clean.agency <- function(agency, status, coders) {
     if (sum(c("last_name", "first_name", "chamber", "congress") %in% names(data)) == 4) {
       data %<>%
         # missing first name, but we do have chamber
-        mutate(
-          first_name = ifelse(
-            is.na(first_name) &
-              !is.na(last_name) & !is.na(congress) & !is.na(chamber) &
-              last_name == members$last_name[i] &
-              congress == members$congress[i] &
-              chamber == members$chamber[i],
-            members$first_name[i],
-            first_name
-          )
-        ) %>%
-      # if first name is common name, but we do have chamber
-      mutate(
-        first_name = ifelse(
-          !is.na(last_name) & !is.na(congress) & !is.na(chamber) & !is.na(members$common_name[i]) & 
-            last_name == members$last_name[i] &
-            first_name == members$common_name[i] &
-            congress == members$congress[i] &
-            chamber == members$chamber[i],
-          members$first_name[i],
-          first_name
-        )
-      ) %>% 
+      #   mutate(
+      #     first_name = ifelse(
+      #       is.na(first_name) &
+      #         !is.na(last_name) & !is.na(congress) & !is.na(chamber) &
+      #         last_name == members$last_name[i] &
+      #         congress == members$congress[i] &
+      #         chamber == members$chamber[i],
+      #       members$first_name[i],
+      #       first_name
+      #     )
+      #   ) %>%
+      # # if first name is common name, but we do have chamber
+      # mutate(
+      #   first_name = ifelse(
+      #     !is.na(last_name) & !is.na(congress) & !is.na(chamber) & !is.na(members$common_name[i]) & 
+      #       last_name == members$last_name[i] &
+      #       first_name == members$common_name[i] &
+      #       congress == members$congress[i] &
+      #       chamber == members$chamber[i],
+      #     members$first_name[i],
+      #     first_name
+      #   )
+      # ) %>% 
         # if first and last are correct and chamber is present but partially missing
         mutate(
           chamber = ifelse(
@@ -214,6 +215,7 @@ clean.agency <- function(agency, status, coders) {
     
   }
   
-  
+  }
   return(data)
 }
+

@@ -43,8 +43,7 @@ clean <- function(file.name) {
   {gsub("^ |^MR. |^MS. ", "", .)}  %>%
   {gsub("-.*| .*|,.*|:.*", "", .)}
   
-  data$first_name <- NA
-  data$first_name <- addFirst(data$first_name,data$last_name)
+  data %<>% add_first()
   
   data %<>% 
     mutate(FROM = paste(chamber, first_name, last_name)) %>%
@@ -72,4 +71,11 @@ data %<>% select(DATE, originalDATE, SUBJECT, last_name, chamber, everything())
 return(data)
   
   
+}
+
+
+if(F){
+  look <- data |> filter(is.na(icpsr))
+  
+  look %<>% extractMemberName(col_name = "FROM", congress = "congress")
 }

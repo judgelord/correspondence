@@ -15,7 +15,6 @@
     "tidyverse",
                 
     #"pdftools", 
-    "Tbase", # messages 
     "here", "rvest","maps", "ineq", "mapproj", "dotwhisker", "crayon")
   to_install <- c(requires %in% rownames(installed.packages()) == FALSE)
   install.packages(c(requires[to_install], "NA"), repos = "https://cloud.r-project.org/" )
@@ -54,8 +53,6 @@
                     NOTES = col_character(),
                     ERROR = col_character())
   }
-  library(googledrive)
-  # library(gmailr)
   library(stringi)
   # library(pdftools)
   library(here)
@@ -85,11 +82,11 @@
   ## Load augmented member names without having to load voteview package
   
   #FIXME this should now come in with the legislators package, right? 
-  load(here("members/members.Rdata"))
+ #  load(here("members/members.Rdata"))
   
   ## Load committee data
   #source("committees/committees.R")
-  load(here("data/committees.Rdata"))
+  #load(here("data/committees.Rdata"))
   
   ## FIXME this should come in with the legislators package, right? 
   source(here("members/MemberNameTypos.R"))

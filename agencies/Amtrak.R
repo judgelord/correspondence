@@ -40,17 +40,35 @@ clean <- function(file.name) {
   data <- rbind(data, chamberswitchers)
   
   
+  # Multi-member letters 
+  data %>% filter(str_detect(FROM, " ")) %>% count(FROM) %>% kablebox()
+  data %>% filter(str_detect(FROM, "/")) %>% count(FROM) %>% kablebox()
+  
+  
   ##     ###     ###
   # Creates duplicate rows for lines with multiple representatives
  data %<>% 
-   mutate(FROM = str_split(FROM, "/")) %>% 
-   unnest(FROM)
+   mutate(
+     FROM = FROM %>% 
+       str_replace("Heinrich Udall Durbin Feinstein Roberts Bennet Moran Gardner Duckworth Harris",
+                   "Heinrich/Udall/Durbin/Feinstein/Roberts/Bennet/Moran/Gardner/Duckworth/Harris") %>%
+       str_replace("Lukan Tipton Lujan Grisham Pearce O'Halleran Estes Schakowsky Cook Loebsack Jenkins Cleaver Marshall Roybal-Allard Cardenas",
+                   "Lukan/Tipton/Lujan Grisham/Pearce/O'Halleran/Estes/Schakowsky/Cook/Loebsack/Jenkins/Cleaver/Marshall/Roybal-Allard/Cardenas	") %>%
+       str_replace("Tonko Stefanik Faso",
+                   "Tonko/Stefanik/Faso") %>%
+       str_replace("Wyden Booker Markey",
+                   "Wyden/Booker/Markey") %>%
+       str_replace(" et al",
+                   "/et al"),
+     FROM = str_split(FROM, "/")) %>% 
+   unnest(FROM) %>% 
+   distinct()
   
-  # create variable for first and last name
-  data$last_name <- formatLastName(data, 'FROM')
-  
-  data$first_name <- NA
-  data$first_name %<>% addFirst(data$last_name)
+ # in these data FROM is just last name
+  # create variables for first and last name
+  data %<>% 
+    mutate(last_name = FROM) %>% 
+    add_first()
   
   data %<>% 
     mutate(FROM = paste(chamber, first_name, last_name, State) %>% 
@@ -68,14 +86,28 @@ clean <- function(file.name) {
   #data$state <- stateFromLower(data$State)
   
   
-  #Failing observations
-  Unfoundnames <- data %>%
-    filter(is.na(icpsr),
-           is.na(ERROR)) %>%
-    count(FROM, congress, sort= T)
+
   
   # arrange columns for hand coding
   data %<>% select(ID, DATE,  FROM,  everything())
   
   return(data)
+}
+
+if(F){
+  #Failing observations
+  Unfoundnames <- data %>%
+    filter(is.na(icpsr),
+           is.na(ERROR)) %>%
+    count(FROM, congress, sort= T)
+  Unfoundnames |> kable()
+  
+  Unmatchedletters <- data %>%
+    filter(is.na(icpsr),
+           is.na(ERROR)) %>%
+    count(FROM, congress, LetterID, sort= T)
+  data %>% filter(LetterID %in% Unmatchedletters$LetterID & FROM %in% Unfoundnames$FROM) %>% count(FROM, congress, LetterID, sort = T) %>% 
+    extractMemberName("FROM", congress = "congress") %>% 
+    select(LetterID, congress, FROM) %>% 
+    kable()
 }

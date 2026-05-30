@@ -6,7 +6,9 @@ clean <- function(file.name) {
   
   # unlike other clean scripts, we load FERC data from Rdata rather than google drive
   # FIXME # FERC data should be put on google drive
-  load("data/DOE_FERC-letters-coded.Rdata")
+  # TODO FERC ELIBRARY SHOULBE RE-SCRAPED AND THIS WORKFLOW SHOULD BE REWORKED TO GO SOUP TO NUTS FROM THAT + THE HAND-CODED SHEETS 
+  load("data/DOE_FERC-letters-clean.Rdata")
+  
 
   data <- ungroup(FERC_letters)
   
@@ -32,8 +34,8 @@ clean <- function(file.name) {
   
   # chamber
   data %<>%
-    mutate(chamber = ifelse(grepl("(^Sen)",members), 'Senate', NA)) %>% 
-    mutate(chamber = ifelse(grepl("(^Rep)",members), 'House', chamber)) %>% 
+    #mutate(chamber = ifelse(grepl("(^Sen)",members), 'Senate', NA)) %>% 
+    #mutate(chamber = ifelse(grepl("(^Rep)",members), 'House', chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & grepl("(Senate|Senator)",SUBJECT), 'Senate', chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & grepl("Represenatative|Representative|US Rep|Congressman|Congresswoman|Congresswomen", SUBJECT), "House", chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & grepl("Sen",SUBJECT), 'Senate', chamber)) %>% 
@@ -46,8 +48,8 @@ clean <- function(file.name) {
                 # is.na(chamber)  & !is.na(members) & members != "NA") %>% select(members)
   
   # FROM = members (drops old FROM)
-  data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.")) %>% 
-    select(-members)
+  # data %<>% mutate(FROM = str_remove(members, "^Rep. |^Rep.|^Sen. |^Sen.")) %>% 
+  #   select(-members)
   
   #FIXED AND ADDED TO nameCongress AND nameMethods
 
@@ -738,7 +740,9 @@ if(!"ID" %in% names(data)){
 #View(sample)
 FERC_letters <- data
 save(FERC_letters, file = "data/DOE_FERC-letters-clean.Rdata")
-  return(data)
+  
+
+return(data)
 
 } ## END CLEAN FUNCTION
 

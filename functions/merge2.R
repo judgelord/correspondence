@@ -1,4 +1,4 @@
-
+# this script merges cleaned data files 
 source(here::here("setup.R"))
 source(here::here("data_list.R"))
 
@@ -9,27 +9,12 @@ source(here::here("data_list.R"))
 files <- str_c("data/agencies/", list.files(here("data/agencies"))) %>% 
   set_names(list.files(here("data/agencies"))) 
 
-
-# function to combine rdata files
+# a function to combine rdata files? 
 combine <- function(file){
   load(file)
-  d %<>% full_join(d1) 
-  return(d)
-}
-
-# a better function to combine rdata files? 
-combine <- function(file){
-  load(file)
+  message(unique(d1$agency))
   return(d1)
 }
-
-# initialize 
-load(files[1])
-d <- d1
-dim(d)
-
-# clear objects before mapping all data together
-rm(d, d1)
 
 # COMBINE FILES 
 d <- map_dfr(files, combine)
