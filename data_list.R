@@ -20,7 +20,7 @@ data_list <- tribble(
   "DHHS_HRSA", "not coded", NA,
   "DHHS_IHS", "coded", "Rochelle", #
   "DHHS_NIH", "coded", "Rochelle", #101
-  # "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
+  "DHHS_SAMHSA", "not coded", NA, # DATA PASTED IN GOOGLE SHEET WRONG, ISSUE #119
   # DHS
   "DHS_HQ", "coded", "Anna", # "Katie", "Megha") # Anna took over Katie's sheet and Megha's work is missing, complete 
   "DHS_ICE", "not coded", NA, # not much to code
@@ -34,7 +34,7 @@ data_list <- tribble(
   "DOC_NOAA", "not coded", NA, 
   "DOC_NTIA", "not coded", NA, 
   "DOC_OCPA", "not coded", NA,
-  #"DOC_OC", "not coded", NA, # No dates
+  "DOC_OC", "not coded", NA, # No dates
   "DOC_OS", "not coded", NA, # DOC-OS-2017-000958
   "DOC_SBA", "not coded", NA, # no records before 2010
   # DOD
@@ -49,7 +49,7 @@ data_list <- tribble(
   # DOE
   "DOE_FERC", "coded", NA, # at one time it was "Devin", but no longer?
   # DOI #25 we are missing scripts for new DOI agencies e.g. DOI OS, sometimes just called DOI, but we should avoid that 
-  # "DOI_BIA", "coded", "Rochelle", #184
+  "DOI_BIA", "coded", "Rochelle", #184
   "DOI_BOEM", "coded", "Aaron",
   "DOI_BSEE", "coded", "Hope",
   "DOI_NPS", "not coded", NA,
@@ -68,7 +68,7 @@ data_list <- tribble(
   "DOL_ETA", "coded", "Rochelle",
   "DOL_MSHA", "coded", "Hope", 
   "DOL_OCFO", "coded", "Devin",
-  # "DOL_OCIA", "not coded", "Rochelle" # in progress (8/18/2023)
+  #"DOL_OCIA", "not coded", "Rochelle", # in progress (8/18/2023)
   "DOL_OFCCP", "coded", "Rochelle",
   # "DOL_OALJ", "not coded", NA, # ???
   "DOL_OASAM", "coded", "Rochelle", #190
@@ -134,12 +134,12 @@ data_list <- tribble(
   "Treasury_Fiscal", "coded", "Julia", 
   # IRS 
   "Treasury_IRS", "coded", "Rochelle", #28
-  # "Treasury_Mint", "coded", "Rochelle", #59
+  "Treasury_Mint", "coded", "Rochelle", #59
   "Treasury_OCC", "coded", "Aaron",
   "TVA", "not coded", NA,
   # USDA 
   "USDA", "not coded", NA,
-  # "USDA_ARS", "not coded", NA, # No script, data doesn't have dates
+  "USDA_ARS", "not coded", NA, # a bunch of the data doesn't have dates
   "USDA_ERS", "not coded", NA, 
   "USDA_FS", "not coded", NA,
   "USDA_NASS", "coded", "Robert", # c("Robert", "Henry"),
