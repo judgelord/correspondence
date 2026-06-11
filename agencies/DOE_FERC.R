@@ -11,7 +11,7 @@ clean <- function(file.name) {
   
 
   data <- ungroup(FERC_letters) |> 
-    select(-icpsr, -bioname, -first_name, -last_name, -data_id) |>
+    select(-icpsr, -bioname, -first_name, -last_name, -data_id, -chamber) |>
     distinct() 
   
   data$rowname |> unique()
