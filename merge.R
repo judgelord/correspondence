@@ -12,19 +12,13 @@ gs4_auth(email = NA)
 # until we totally get rid of name methods loaded in setup, we need to specify the new version of extract member name from the legislators package 
 extractMemberName <- legislators::extractMemberName
 
-library(legislators)
-
-members <- legislators::members
-members$icpsr %<>% as.numeric()
-
-
 # add committees and stuff
 #FIXME move this to merge2 
 # source("members/augmentMembers.R")
 
 
 source(here("data_list.R"))
-data_list
+data_list |> kable()
 
 
 # if authorized, this should work
@@ -49,10 +43,7 @@ map_dfr(
 # Test one agency
 i <- which(data_list$agency == 
              #"DHS_USCIS")
-             #"DOL_ETA")
-             #"DHS_USCIS_2016")
-             #"DOJ_USMS")
-             "ABMC")
+             "USDA_FS")
 
 
 i
@@ -68,42 +59,6 @@ d1 <- clean.agency(
 #TODO go back and fix the code that changes icpsr to chr
 d1$icpsr %<>% as.numeric()
 d1$DATE %<>% as.Date()
-
-
-# # This should be empty; there should be no cases where bioname is NA and the name pattern matched is not 404error (i.e., no name is matched)
-# d1 %>% filter(pattern != "404error", is.na(bioname)) %>% count(pattern, congress, sort = T)
-
-  d1 %<>% 
-    distinct()
-  
-
-
-
-# post-hoc corrections to be fixed in legislators https://github.com/judgelord/legislators/issues/5
-
-d1 %<>% filter( !(FROM == "murphy, patrick" & bioname == "MURPHY, Patrick"),
-                !(FROM == "lujan michelle lujan grisham" & bioname == "LUJÁN, Ben Ray"),
-                !(FROM == "graves, garret" & bioname == "GRAVES, Tom")
-                )
-
-# check for over-matches
-d1 %>% add_count(LetterID) %>% filter(n > 1) %>% kablebox()
-
-fix <- d1 %>% add_count(LetterID) %>% filter(n > 1) %>% distinct(FROM, bioname, icpsr, congress)
-
-
-# check unmatched 
-d1 %>% filter( is.na(icpsr) ) %>% 
-  distinct(FROM, DATE) %>% 
-  group_by(FROM) %>% 
-  top_n(1) %>% 
-  kablebox()
-               
-# check how many unmatched observations per congress
-d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
-
-# check how many unmatched per agency 
-d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(agency, NAs) %>% spread(key = NAs, value = n) %>% kable()
 
 # # if this yields anything, something is wrong (obs are failing to match in the members file)
 # d1 %>% filter(is.na(chamber), pattern != "404error") %>% count(pattern, congress)
@@ -123,7 +78,7 @@ missing_data %<>% select(any_of(c("agency", "DATE", "FROM","congress", "LetterID
   legislators::extractMemberName("FROM", congress = "congress")
 
 # Inspect for things that should have matched but did not for some reason
-head(missing_data)
+head(missing_data |> distinct(DATE, FROM))
 
 # bad names (if any)
 missing_data %>% count(FROM, congress, sort = TRUE)  %>% 
@@ -159,7 +114,7 @@ if(F){
   #data_list %<>% filter(row_number() > which(data_list$agency == "DOT_SLSDC")) #FIXME error in DOT_SLSDC issue #207 # Seems to be fixed as of March 2026
   # data_list %<>% filter(row_number() >= which(data_list$agency == "USDA_NIFA")) #FIXME error in DOT_SLSDC issue #207 # Seems to be fixed as of March 2026
 }
-data_list
+
 
 
 # subset by date if you want to only update agencies that have not been updated recently 
@@ -176,13 +131,30 @@ if(F){
   files$file
   
   data_list %<>% filter(!agency %in% str_remove_all(files$file, ".*/|.Rdata"))
+  
+  head(data_list)
 }
 
-head(data_list)
+
+#######################################################################
+
+
+
+library(logr)
+log_open(show_notes = F)
+data_list |> kable() 
+
+######################################################################################
+
 
 # A function to loop over all agecies and run the clean script on them, saving Rdata files for each 
 i <- 1 # FIXME with purr walk + error handling
+# i = i-1
+
 while(!is.na(data_list[i,1])) {
+  
+  # for debugging, load members data from legislators repo as the merge runs 
+  here::here("data", "members.rda") |> str_replace("correspondence_data", "legislators-data") |> load()
   
   # print the agency 
   base::message(inverse("----", data_list$agency[i], "----"))
@@ -198,36 +170,72 @@ while(!is.na(data_list[i,1])) {
     coders
     )
   
-  # post hoc fix 
-  d1$icpsr %<>% as.numeric() #FIXME in clean 
+  # FIXME in clean 
+  d1$DATE <- as.Date(d1$DATE)
+  d1$icpsr <- as.numeric(d1$icpsr)
+
+  # check how many unmatched observations per congress
+  d1 %>% mutate(NAs = ifelse(is.na(icpsr), "missing", "matched with member")) %>% count(congress, NAs) %>% spread(key = NAs, value = n)
   
-  # check unmatched 
-  missing <- d1 %>% filter( is.na(icpsr) ) %>% 
-    distinct(FROM, DATE) %>% 
-    group_by(FROM) %>% 
-    top_n(1) %>% 
+  # bad dates 
+  bad_dates <- d1 %>% 
+    filter(is.na(DATE), nchar(FROM) > 6 ) %>% 
+    count(FROM) %>% 
+    ungroup() %>% 
     mutate(agency = agency)
   
-  kable(missing, caption = agency) |> print() 
+  head(bad_dates, 100) |> filter(nchar(FROM)< 150 ) |>  kable(caption = "Missing dates; can we infer from context?") |> print()
   
-  # post hoc correction 
-  d1$DATE <- as.Date(d1$DATE)
+  # check unmatched 
+  missing <- d1 %>% 
+    filter( is.na(icpsr), nchar(FROM) > 6 ) %>% 
+    mutate(congress = year_congress(year) ) %>% 
+    # drop bad date
+    drop_na(congress) %>%
+    count(FROM, congress) %>% 
+    arrange(-n) %>% 
+    ungroup() %>% 
+    mutate(agency = agency)
+
+  head(missing, 100) |> filter(n>1) |> filter(nchar(FROM)< 150 ) |> kable(caption = "missing/unmatched with a member of congress") |> print() 
   
-    file.name <- str_c("data/agencies/", 
-                       agency, 
-                       ".Rdata")
+  # missing |> filter(nchar(FROM)< 150 ) |> group_by(FROM) |>  tally(n, sort = T) |> filter(n>1) |> head(20) |> kable(caption = "These people are affilliated with US congress. What is their affiliation? If they served in congress, bold which congresses?") |> print() 
   
+  # check letters with multiple authors (or possible false matches) 
+  multi <- d1 %>% 
+    distinct(LetterID, FROM, congress, bioname) %>% 
+    group_by(LetterID, FROM) %>% 
+    add_count() %>% 
+    filter(n>1, nchar(FROM) > 6, nchar(FROM)<150 )  %>% 
+    ungroup() %>% 
+    select(-n, -LetterID) %>% 
+    count(FROM, congress, bioname) %>% 
+    arrange(-n) %>% 
+    ungroup() %>% 
+    mutate(agency = agency)
+  
+  head(multi, 100) |> filter(n>1) |>  kable(caption = "Multi-author letters (or possible false matches) ") |> print() 
+  
+    file.name <- here::here("data" , "agencies", paste0(agency, ".Rdata"))
+  
+    # save data 
   save(d1, file = file.name) 
   
-  save(missing, file = str_replace(file.name, ".Rdata", "-missing.rds") )
+  # save unmatched, multi-matched, and missing date data 
+  save(missing, file = str_replace(file.name, ".Rdata", "-missing.rda") )
+  save(multi, file = str_replace(file.name, ".Rdata", "-multi.rda") )
+  save(bad_dates, file = str_replace(file.name, ".Rdata", "-bad_dates.rda") )
   
   i <- i + 1
 }
+
+#TODO look at bad dates in acf 
+
 
 stopped <- data_list$agency[i]
 
 base::message(white(paste("merge stopped at", stopped)))
 
 
-
+log_close()
 

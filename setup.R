@@ -21,11 +21,13 @@
   
   library(devtools)
   if(!"fiftystater" %in% rownames(installed.packages())) {
-    devtools::install_github("wmurphyrd/fiftystater")
+    pak::pak("wmurphyrd/fiftystater")
+    #devtools::install_github("wmurphyrd/fiftystater")
   }
   
   if(!"legislators" %in% rownames(installed.packages())) {
-    devtools::install_github("judgelord/legislators")
+    # devtools::install_github("judgelord/legislators")
+    pak::pak("judgelord/legislators")
   }
   
   
@@ -159,4 +161,8 @@
     kable_styling() %>%
     scroll_box(height = "400px")
   
+  # CONGRESS VAR 
+  year_congress<- function(year){
+    return(floor((year - 1787)/2))
+  }
   
