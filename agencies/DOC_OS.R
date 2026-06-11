@@ -35,13 +35,7 @@ clean <- function(file.name) {
      data %<>% mutate(ID = data_id)
    }
    
-  
-  
-  
-  
-  
 return(data) 
   
-  
-  
+
 }
