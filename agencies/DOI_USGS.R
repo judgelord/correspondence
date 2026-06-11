@@ -57,7 +57,7 @@ clean <- function(file.name) {
   
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){
@@ -71,7 +71,7 @@ clean <- function(file.name) {
   
 
   # arrange columns for hand coding
-  data %<>% select(ID, DATE,  FROM, chamber, everything())%>% select(-chamber)
+  data %<>% select(ID, DATE,  FROM, chamber, everything()) 
 
   return(data)
 }

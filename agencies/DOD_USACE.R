@@ -53,7 +53,7 @@ clean <- function(file.name) {
     select(DATE, chamber, first_name, last_name, FROM, SUBJECT, everything())
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){
@@ -77,5 +77,5 @@ return(data)
 if(F){
   look <- data |> filter(is.na(icpsr))
   
-  look %<>% extractMemberName(col_name = "FROM", congress = "congress")
+  look %<>% extractMemberName(col_name = "FROM", members = members, congress = "congress")
 }

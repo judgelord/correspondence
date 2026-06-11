@@ -86,7 +86,7 @@ data %<>%
   mutate(FROM = ifelse(str_detect(FROM, "Donald M. Payne") & str_detect(congress, "114"), str_replace(FROM, "Donald M. Payne", "Donald PAYNE"), FROM))
 
 # apply extractmembername from legislators package 
-data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
 
 # old ID still used in some places
 if(!"ID" %in% names(data)){

@@ -61,7 +61,7 @@ clean <- function(file.name) {
   data  %<>% mutate(FROM = paste(first_name, FROM) %>% str_remove("NA "))
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

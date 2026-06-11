@@ -77,7 +77,7 @@ clean <- function(file.name) {
       mutate(FROM = ifelse(FROM == "X PETERSON" & str_detect(congress, "115") & str_detect(chamber, "House"), str_replace(FROM, "X PETERSON", "Collin PETERSON"), FROM))
 
     # apply extractmembername from legislators package 
-    data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+    data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
     
     # old ID still used in some places
     if(!"ID" %in% names(data)){

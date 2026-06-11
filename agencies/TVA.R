@@ -47,7 +47,7 @@ clean <- function(file.name) {
     mutate(chamber = ifelse(str_detect(SUBJECT, "Sen |Sen."), "Senate", chamber))
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

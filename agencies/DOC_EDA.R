@@ -77,7 +77,7 @@ clean <- function(file.name) {
   ########
 
   # apply extractmembername from legislators package 
-  data2 %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data2 %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

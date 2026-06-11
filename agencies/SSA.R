@@ -97,7 +97,7 @@ clean <- function(file.name) {
     mutate(FROM = str_replace(FROM, "Collins (GA-9)", "Doug Collins (GA-9)"))
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

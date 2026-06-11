@@ -30,17 +30,23 @@ clean <- function(file.name) {
   
   
   
-  #Check for NA Dates # FIXME
+  #Check for NA Dates # AS OF JUNE 2026, all dates seem good
   NoDATE <- data %>%
-    filter(is.na(DATE))
+    filter(is.na(DATE), FROM != "NA")
   
   data %<>% anti_join(NoDATE)
+  
+
 
   #create year and congress columns
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
   
 
+  #Check for dates that failed to turn into a congress
+  NoDATE <- data %>%
+  filter(is.na(congress), FROM != "NA")
+  
   
   #Filter out rows without data
   data %<>% 
@@ -200,7 +206,7 @@ data %<>%
   data %<>% select(-chamber)
   #Extract Member Names
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

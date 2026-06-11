@@ -38,20 +38,13 @@ clean <- function(file.name) {
   
   #Changing from getFirstLast to extractMemberName
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){
     data %<>% mutate(ID = data_id)
   }  
-  #Check for duplicates
-  sample2data<- data
-  
-  sample2data %<>%
-    group_by(ID, SUBJECT, DATE, FROM) %>%
-    mutate(n = n(),
-           last_name = str_c(last_name, collapse = "; "),
-           first_name = str_c(first_name, collapse = "; ")) 
+
   
   
   data %<>%

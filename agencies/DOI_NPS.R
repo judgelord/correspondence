@@ -49,7 +49,7 @@ clean <- function(file.name) {
   data %>% select(DATE, congress, FROM, agency, year, everything())
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

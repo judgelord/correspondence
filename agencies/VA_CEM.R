@@ -43,7 +43,7 @@ clean <- function(file.name) {
   data %<>% mutate(ERROR = ifelse(grepl("Randy Reeves", FROM), "Under Secretary", ERROR))
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){

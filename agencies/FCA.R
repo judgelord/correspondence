@@ -81,7 +81,7 @@ clean <- function(file.name) {
     select(-first_name, -last_name) %>% 
     # add commas after member last names so pattern matches 
     mutate(SUBJECT = str_replace_all(SUBJECT, "(Senator|Representative) (\\w+)", "\\1 \\2,")) %>% 
-    extractMemberName(col_name = 'SUBJECT', congress = "congress") 
+    extractMemberName(col_name = 'SUBJECT',  members = members,congress = "congress") 
   
   data %<>% 
     # remove found names
