@@ -48,6 +48,13 @@ clean <- function(file.name) {
   if(!"ID" %in% names(data)){
     data %<>% mutate(ID = data_id)
   }
+ 
+  
+  return(data)
+}
+
+if(F){
+  
   
   #Failing observations
   Unfoundnames <- data %>%
@@ -70,15 +77,13 @@ clean <- function(file.name) {
   
   #FIXME from here down DROP CHAMBER or complete missing chamber?
   
- lastnames <- str_c(members$last_name, collapse = "|")
-
- memberlastnames <- data %>%
-   filter(str_detect(SUBJECT, lastnames))
-   
- memberletters <- data %>%
-   filter(str_detect(SUBJECT, "entative|REPRESENTATIVE |SENATOR |CONGRESSMAN ", ignore.case = T))
- 
+  lastnames <- str_c(members$last_name, collapse = "|")
   
-  return(data)
+  memberlastnames <- data %>%
+    filter(str_detect(SUBJECT, lastnames))
+  
+  memberletters <- data %>%
+    filter(str_detect(SUBJECT, "entative|REPRESENTATIVE |SENATOR |CONGRESSMAN ", ignore.case = T))
+  
 }
   
