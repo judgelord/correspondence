@@ -36,12 +36,12 @@ clean <- function(file.name) {
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
 
-  #String Split for Multiple Members
-  data %<>%
-    mutate(FROM = str_split(FROM, ";")) %>%
-    unnest(FROM) 
-  
-  data %<>% mutate(FROM = str_remove_all(FROM, "\\bMOC ") %>% str_squish() )
+  # #String Split for Multiple Members
+  # data %<>%
+  #   mutate(FROM = str_split(FROM, ";")) %>%
+  #   unnest(FROM) 
+  # 
+  data %<>% mutate(FROM = str_remove_all(FROM, "\\bMOC ") %>% str_squish() ) |> distinct()
   data$FROM <- gsub("Chairman", " ", data$FROM, ignore.case = TRUE)
   
   # data$FROM <-  gsub("^(\\w+)(,||;)$", '\\1', data$FROM) # FIXME check this for errors
