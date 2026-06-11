@@ -32,7 +32,7 @@ clean <- function(file.name) {
   #date column is the column for date the request was received 
   
   data %<>%
-    mutate(DATE = coalesce('Doc Date', 'Date Rec'))
+    mutate(DATE = coalesce(`Doc Date`, `Date Rec`))
     
   data$DATE %<>% 
     as.Date("%m/%d/%y")
@@ -52,7 +52,7 @@ clean <- function(file.name) {
     
     string <- ("the honorable")
   data$FROM %<>%
-    str_remove_all(string)
+    str_remove_all(string) |> str_squish()
   
   #Indivdual line/member string changes
   
@@ -64,7 +64,9 @@ clean <- function(file.name) {
 
   
   # apply extractmembername from legislators package 
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', 
+                              members = members, 
+                              congress = "congress")
   
   # old ID still used in some places
   if(!"ID" %in% names(data)){
