@@ -19,6 +19,20 @@ clean <- function(file.name) {
   
   # Format date, year, Congress
   data$DATE %<>% as.Date("%m/%d/%Y") # FIXME THERE ARE OTHER DATE FORMATS IN FROM (MAY NEED TO BE FIXED BY HAND)
+  
+  count(data, is.na(DATE))
+  
+  data %<>% 
+    mutate(date2 = str_extract(FROM, "2.*") |> 
+             str_squish() |> 
+             as.Date())
+  
+  # data |>  drop_na(date2) |> select(date2)
+  
+  data %<>% 
+    mutate(DATE = coalesce(DATE, date2) )
+  
+  count(data, is.na(DATE))
 
   data %<>% mutate(year = as.numeric(substring(DATE,1,4) ))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
