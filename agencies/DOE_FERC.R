@@ -38,6 +38,7 @@ clean <- function(file.name) {
   
   # chamber
   data %<>%
+    mutate(chamber = NA) %>% 
     #mutate(chamber = ifelse(grepl("(^Sen)",members), 'Senate', NA)) %>% 
     #mutate(chamber = ifelse(grepl("(^Rep)",members), 'House', chamber)) %>% 
     mutate(chamber = ifelse(is.na(chamber) & grepl("(Senate|Senator)",SUBJECT), 'Senate', chamber)) %>% 
@@ -776,7 +777,7 @@ if(F){
   
   
   # arrange columns for hand coding
-  data %<>% select(ID, FROM, SUBJECT,  congress, chamber, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
+  data %<>% select(ID, FROM, SUBJECT,  congress, text_clean, TYPE, ALT_TYPE, CERTAINTY, everything())
   
   
   
