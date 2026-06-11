@@ -21,11 +21,32 @@ clean <- function(file.name){
   # create agency column 
   data$agency <- file.name
   
+  data %<>%
+    mutate(DATE = coalesce(DATE, DateReceived) )
+  #            str_replace("/13", "/2013")|> 
+  #            # str_replace("/14", "/2014") |> 
+  #            # str_replace("/15", "/2015") |> 
+  #            # str_replace("/16", "/2016") |> 
+  #            # str_replace("/17", "/2017") |> 
+  #            # str_replace("/18", "/2018") |> 
+  #            # str_replace("/19", "/2019") |> 
+  #            # #str_replace("/20", "/2020") |> 
+  #            # str_replace("/21", "/2021") |> 
+  #            # str_replace("/22", "/2022") |> 
+  #            # str_replace("/23", "/2023")  |> 
+  #            # str_replace("/24", "/2024")  |> 
+  #            # str_replace("/25", "/2025")  |> 
+  #            # str_replace("/26", "/2026")  |> 
+  #            str_replace("/27", "/2027")  )
+  data$DATE |> tail()
+  
   # First, format date, year, Congress, member name etc. (things found in all logs)
   data$DATE %<>% as.Date("%m/%d/%Y")
-  data$DateSigned %<>% as.Date("%m/%d/%Y")
+  data$DATE |> tail(100)
+  
   data %<>% mutate(year = as.integer(substr(DATE,1,4)))
   data %<>% mutate(congress = as.numeric(round((year - 2001.1)/2)) + 107) # the 107th congress began in 2001
+  
   
   #checking for NA dates
   NOdate <- data %>%
@@ -36,7 +57,7 @@ clean <- function(file.name){
   data <- data[-which(is.na(data$FROM)&is.na(data$DATE)&is.na(data$Addressee)),]
   
   # create first and last name variables
-  data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+  data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
   
   # arrange columns for hand coding
   data %<>% select(data_id, DATE,  FROM, everything())
@@ -46,31 +67,7 @@ clean <- function(file.name){
   # and none of the names were recognizable as congressman. Possible there were a handful of lesser known
   # representatives excluded, but I think it's unlikely. 
   data %<>%
-    mutate(ERROR = ifelse(is.na(data$last_name), "Probably not in congress. Worth checking again.", ERROR))
-  
-  
-  # #preprocess FROM column for creating names variables
-  # data %<>%
-  #   mutate(FROM = gsub("\\+", replacement= "", FROM))
-  # 
-  # # create variable for first name
-  # data %<>%
-  #   mutate(first_name =  gsub(pattern="^(\\w+) .*", replacement = "\\1", FROM)) %>% 
-  #   mutate(first_name =  gsub(pattern="^(\\w). (\\w+) .*", replacement = "\\1. \\2", first_name)) %>% 
-  #   mutate(first_name =  ifelse(grepl("Butch", first_name), "C.L. 'Butch'", first_name)) %>% 
-  #   mutate(first_name = stri_trans_totitle(first_name)) 
-  # 
-  # 
-  # 
-  # 
-  # # create variable for last name
-  # data %<>%
-  #   mutate(last_name = gsub(pattern= ".* (\\w+)$", replacement = "\\1", FROM)) %>% 
-  #   mutate(last_name = gsub(pattern= ".* (\\w+)-(\\w+)", replacement = "\\1-\\2", last_name)) %>% 
-  #   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)-(\\w+)", replacement = "\\1\\2-\\3", last_name)) %>% 
-  #   mutate(last_name = gsub(pattern= ".* (\\w')(\\w+)$", replacement = "\\1\\2", last_name))  %>% 
-  #   mutate(last_name = str_to_upper(last_name))
-
+    mutate(ERROR = ifelse(is.na(last_name), "Probably not in congress. Worth checking again.", ERROR))
 
   return(data)
 }
