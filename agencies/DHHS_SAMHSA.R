@@ -78,12 +78,7 @@ clean <- function(file.name) {
   mutate(POLICY_EVENT = ifelse (!grepl("[0-9]", POLICY_EVENT) & grepl("MEETING", SUBJECT, ignore.case = TRUE), "MEETING", POLICY_EVENT)) 
   
   
-  
-  
-  
-  
-  
-  
+
   
   
   
