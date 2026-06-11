@@ -6,11 +6,15 @@ clean <- function(file.name) {
   
   # unlike other clean scripts, we load FERC data from Rdata rather than google drive
   # FIXME # FERC data should be put on google drive
-  # TODO FERC ELIBRARY SHOULBE RE-SCRAPED AND THIS WORKFLOW SHOULD BE REWORKED TO GO SOUP TO NUTS FROM THAT + THE HAND-CODED SHEETS 
+  # TODO FERC ELIBRARY SHOULBE RE-SCRAPED AND THIS WORKFLOW SHOULD BE REWORKED TO GO SOUP TO NUTS FROM THAT + THE HAND-CODED SHEETS
   load("data/DOE_FERC-letters-clean.Rdata")
   
 
-  data <- ungroup(FERC_letters)
+  data <- ungroup(FERC_letters) |> 
+    select(-icpsr, -bioname, -first_name, -last_name, -data_id) |>
+    distinct() 
+  
+  data$rowname |> unique()
   
   data$CONSTITUENT_TYPE <- NA
   data$CONSTITUENT_CLASS <- NA
@@ -728,7 +732,7 @@ data %<>%
 data %<>% distinct() %>% mutate(LetterID = FERC_LetterID)
 
 # apply extractmembername from legislators package 
-data %<>% extractMemberName(col_name = 'FROM', congress = "congress")
+data %<>% extractMemberName(col_name = 'FROM', members = members, congress = "congress")
 
 # old ID still used in some places
 if(!"ID" %in% names(data)){
@@ -738,7 +742,7 @@ if(!"ID" %in% names(data)){
 #sample <- data %>%
 #filter(is.na(last_name))  
 #View(sample)
-FERC_letters <- data
+FERC_letters <- data |> distinct() 
 save(FERC_letters, file = "data/DOE_FERC-letters-clean.Rdata")
   
 
