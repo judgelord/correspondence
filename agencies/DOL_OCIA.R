@@ -2,7 +2,7 @@
 # It may also auto-code variables like TYPE based on agency-specific information
 
 # source("setup.R")
-#file.name <- "DOL_OCIA" # for testing
+#file.name <- "DOL_OCIA Rochelle" # for testing
 
 clean <- function(file.name) {
   data_raw <- gs_title(file.name) %>% gs_read()
@@ -82,5 +82,5 @@ if(F){
                   str_detect(FROM, "vacant")) %>% view()
 }
 
-print(distinct(data$FROM))
+
   
