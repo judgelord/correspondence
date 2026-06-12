@@ -100,12 +100,12 @@ fix.member.date.coding <- function(d){
                icpsr == 99767)) %>% # no Independent ICPSR after 2000
     
     # Rep Ed Markey elected to Senate in special election June 25, 2013
-    filter(bioname != "MARKEY, Edward John" |
-             chamber != "House" |
-             DATE < as.Date("2013-06-25")) %>% 
-    filter(bioname != "MARKEY, Edward John" |
-             chamber != "Senate" |
-             DATE >= as.Date("2013-06-25")) %>% 
+    filter(!(bioname == "MARKEY, Edward John" &
+             chamber == "House" &
+             DATE > as.Date("2013-06-25"))) %>% 
+    filter(!(bioname == "MARKEY, Edward John" &
+             chamber == "Senate" &
+             DATE <= as.Date("2013-06-25"))) %>% 
     
     # Mark Kirk went from House to Senate, filled Obama's vacancy
     filter(!(bioname == "KIRK, Mark Steven" &

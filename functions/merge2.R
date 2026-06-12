@@ -13,6 +13,12 @@ files <- list.files(here::here("data", "agencies"), pattern = "Rdata", full.name
 
 files <- files[!str_detect(files, "missing|date|multi")]
 
+agencies_data <- files |> str_remove_all(".*/|.Rdata")
+
+agencies_data %in% data_list$agency |> sum()
+
+data_list$agency %in% agencies_data  |> sum()
+
 #TODO check dates 
 
 # a function to combine rdata files? 
@@ -38,10 +44,15 @@ d <- d_temp
 d %<>% distinct()
 dim(d)
 write(names(d), "column_names.txt")
+write(nrow(d), "n_total_letters.txt")
 
 sum_na <- . %>% is.na() %>% {. %in% (F)} %>% sum()
 
 d |> group_by(agency) |> summarise_all(sum_na) |> write_csv("vars_by_agency.csv")
+
+#FIXME USCIS batches are processed in two scripts as if it is two different agencies 
+d %<>% mutate(agency = str_remove(agency, "_2016"))
+data_list %<>% filter(!str_detect(agency, "_2016"))
 
 here::here("data", "members.rda") |> str_replace("correspondence_data", "legislators-data") |> load()
 
@@ -62,11 +73,11 @@ to_keep <- c("LetterID", "agency", "ID", "DATE", "FROM", "data_id", "icpsr", "co
 
 d %<>% select(any_of(to_keep))  %>% distinct()
 
-write(nrow(d), "n_total_letters.txt")
 
 # join in member covariates 
-d %<>% left_join(members |> 
-                   select(congress, icpsr, bioname, chamber, party_code)) |> distinct()
+d %<>% left_join(members |>
+                   select(congress, icpsr, bioname, chamber, party_code)) %>%
+  distinct()
 
 d <- d |>
   mutate(
@@ -98,7 +109,7 @@ d |> distinct(icpsr, bioname) |>
 # fixes applied to members who left or joined congress, etc
 # n should go down
 nrow(d)
-d %<>% fix.member.date.coding() |> distinct()
+d %<>% fix.member.date.coding() %>% distinct()
 nrow(d)
 
 # confirm that fix date worked 
@@ -129,6 +140,11 @@ count(look, bioname, sort = T)
 count(look, FROM, sort = T)
 count(look, agency, wt = n, sort = T) 
 
+# post ho corrections 
+d %<>% filter( !( FROM == "johnson, timothy peter" & 
+                   bioname == "JOHNSON, Timothy Peter (Tim)") 
+               )
+
 ## Missing agencies:
 data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
 
@@ -147,9 +163,6 @@ d %>% distinct(agency, nchar(LetterID))
 # just CDC and USCIS
 filter(d, nchar(LetterID) != 6) %>% select(agency) %>% distinct()
 
-
-
-
 #########################################################################################
 # COMPARE TO LAST RUN 
 nrow(d)
@@ -164,7 +177,10 @@ change <- full_join(d %>%
                       group_by(agency) %>% 
                       filter(!is.na(icpsr)) %>% 
                       count(name = "draw") ) %>%
-  mutate(change = d-draw) %>% 
+  mutate(
+    d = replace_na(d, 0),
+    draw = replace_na(draw, 0),
+    change = d-draw) %>% 
   arrange(change) %>% 
   filter(change != 0) 
 
@@ -293,46 +309,7 @@ bad.dates <- d %>%
   select(LetterID, ID, agency, DATE, FROM, bioname, SUBJECT, TYPE, NOTES, ERROR)
 nrow(bad.dates)
 
-##############
-# fix date-specific member name and party issues. 
-# See bad.party object for party switchers to check
-
-
-d %<>% filter(!is.na(DATE)) # Remove observation with missing DATE
-nrow(d)
-
-############################################################################
-# Fix chamber and party switchers that were double-matched in members file
-# FIXME
-# Jeffords switched parties fix in MemberNameDateCorrections.R
-# DID THIS ALREADY ON LINE 100, should not need to do it again here 
-nrow(d)
-d %<>% fix.member.date.coding() # edit MemberNameDateCorrections.R script in members folder
-nrow(d) # should go down by a bit
-
-# check for party switchers 
-d %>% 
-  count(agency, LetterID, ID, DATE, FROM, SUBJECT, bioname, congress) %>% 
-  filter(n >1) %>% 
-  ungroup() %>% 
-  select(bioname, congress) %>% distinct() 
-
-
-# inspect
-bad.dates <- d %>% filter(DATE |> as.character() |>  nchar() < 10) 
-
-distinct(bad.dates, agency, DATE)
-
-bad.dates %>% 
-  kablebox()
-
-d %>% filter(nchar(as.character(DATE))  < 9 | year > 2026) %>% distinct(DATE, agency) %>% 
-  kablebox()
-
-bad.dates$DATE
-
-
-
+bad.dates |> head(25) |> distinct(agency, DATE, bioname, SUBJECT) |> kable()
 
 
 ##### OPTOINAL 
@@ -455,13 +432,11 @@ chamber_errors <- d %>% filter(!chamber %in% c("House", "Senate", "President"))
 nrow(chamber_errors)
 chamber_errors$bioname %>% unique()
 
-d %<>% filter(chamber %in% c("House", "Senate"))
-nrow(d) # SHOULD NOT GO DOWN 
+pres <- d %>% filter(chamber %in% c("President"))
 
-#FIXME - some duplicates were created when different FROM columns were created, I think just in CDC, dropping them here, but should be fixed in the CDC script
-nrow(d)
-# d %<>% select(-FROM) %>% distinct()
-nrow(d) # SHOULD PROBABLY NOT GO DOWN
+
+d %<>% filter(chamber %in% c("House", "Senate"))
+nrow(d) # DROPPING PRESIDNETS 
 
 # look for duplicates 
 duplicates <- d %>% 
@@ -469,7 +444,7 @@ duplicates <- d %>%
            data_id, # without this, you just get agencies where subjects are repeated and members wrote more than one letter on a date (still informative)
            bioname, SUBJECT) %>% # with the same icpsr and date
   add_count() %>% 
-  filter(dups>1) %>% 
+  filter(n>1) %>% 
   summarise_all(combine_strings)  %>%
   distinct() %>% 
   ungroup()
@@ -518,25 +493,22 @@ duplicate_icpsr <- duplicates %>%
   filter(str_detect(icpsr, ";;;") )
 duplicate_icpsr  %>% select(congress, bioname, party_name, icpsr)  %>% distinct()
 
-
-
-if(update){
-  write_csv(duplicates, file = here("data/likely_duplicates.csv"))
-}
-
 duplicates %>% 
   arrange(DATE) %>% 
   select(bioname, DATE, agency, SUBJECT, n)
 max(duplicates$n)
 
+if(update){
+  write_csv(duplicates, file = here("data/likely_duplicates.csv"))
+}
 
 
-nrow(d)
-##FIXME Collapse unique name, Date, agency, subject?
+
+
+##TODO Collapse unique name, Date, agency, subject?
 ## Can't do this because it over-collapses some agences with no SUBJECT or short subjects that are not in fact duplicates 
 ## there are true cases where a member wrote more than one letter on a date...sometimes a lot (e.g. Jeff Sessoins sent 44 letters about a rulemaking to CMS one day)
 # d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>%  summarise_all(combine_strings)
-
 if(F){ # WE WANT TO TAKE ONE OBSERVATION FOR DOUBLE-CODED - WE ALREADY DID THIS, SO THIS IS REDUNDENT 
 # IF N GOES DOWN HERE, IT WILL GO DOWN WHEN WE COMBINE STRINGS, should be the same n
 nrow(d)
@@ -554,11 +526,13 @@ d %<>% select(-n)
 }
 
 
-# OPTIONALLY UPDATE CONSTITUENT CODING SHEET 
-if(F){ 
-#FIXME constituent type and class codes from google sheet
+
+#FIXME constituent type and class codes from google sheet - this is a bit convoluted at the moment
+# issue #196 
 source("functions/constituent_types.R")
 
+# OPTIONALLY UPDATE CONSTITUENT CODING SHEET 
+if(F){ 
 # inspect observations successfully coded 
 constituent_coding <- d %>% 
   ungroup() %>% 
@@ -579,21 +553,25 @@ if(update){
 
 }
 
-
-
-
-
+# check that we have still complete data 
 unique(d$agency) %in% data_list$agency
+data_list$agency %in% unique(d$agency) 
+
+data_list$agency[!data_list$agency %in% unique(d$agency)  ]
+
 
 # save if all data sources merged, save data files
-if(length(unique(df$agency)) == length(unique(data_list$agency))){
+if(length(unique(d$agency)) == length(unique(data_list$agency))){
   
-  all_correspondence <- d
-  # create and save annual count data
+  all_contacts <- d
+  save(all_contacts, 
+       file = here::here("data", "all_contacts.rda"))
+  
+  # create and save annual count data (THIS TAKES A BIT TO RUN, CONSIDER CLEARING MEMORY TO MAKE IT RUN FASTER)
   source(here("functions/count.R"))
   
-  # and mothnly counts 
-  source(here("functions/count-monthly.R"))
+  # and monthly counts 
+  #source(here("functions/count-month.R"))
   
   
   write_csv(bad.names.1, here("data/bad.names.1.csv"))
@@ -619,7 +597,7 @@ look <- d %>% count(agency, department) %>% full_join(data_list %>% select(agenc
 look %>% filter(is.na(Department))
 
 # Check that FERC data is complete:
-df %>% filter(agency == "DOE_FERC") %>% count(year)
+d %>% filter(agency == "DOE_FERC") %>% count(year)
 
 # If everything looks good, update data summary table 
 # source("agencies/_FOIA_response_table.R")
@@ -627,6 +605,8 @@ df %>% filter(agency == "DOE_FERC") %>% count(year)
 data_complete()
 
 if(F){
-  save(all_correspondence, 
-       file = here::here("data", "all_correspondence.rda"))
+  all_contacts %<>% mutate(agency = str_remove(agency, "_2016"))
+  
+  save(all_contacts, 
+       file = here::here("data", "all_contacts.rda"))
 }
