@@ -1,0 +1,1094 @@
+---
+title: "Congressional Correspondence Metadata Documentation"
+author: Devin Judge-Lord
+format: 
+  #pdf: 
+  html:
+      self-contained: false
+      toc: true
+      code-fold: true
+execute: 
+  warning: false
+  message: false
+---
+
+<!-- LLM prompt 
+We need to revise documentation for a dataset. After merging data from about 100 agencies, we still have over 700 fields of metadata. However, we have made chnages and added data, so the files and values have changed. The csv below (vars_by_agency.csv) contains the raw counts of the values that are not NA for the current version of the dataset, before variables are renamed and consolidated. 
+Some of these are the same or similar across agencies and are consolidated with a lookup table. We need to update the documentation and lookup table, including which columns exist and how we are crosswalking them.
+---> 
+
+## 1. Overview
+
+This dataset combines congressional correspondence, inquiries, casework, referrals, and related metadata received from approximately 100 federal agencies, offices, commissions, and government-related entities.
+
+The merged dataset contains records from multiple source systems. Because agencies used different correspondence management systems, exported files contain many overlapping fields with different names. After merging, the dataset contains 700+ raw metadata columns, many of which represent the same or similar concepts.
+
+Examples include:
+
+- `DATE`, `Date Received`, `Receive Date`, `Received.Date`, `DATEREC`
+- `FROM`, `From`, `Correspondent`, `Constituent`, `Originator`
+- `SUBJECT`, `Subject`, `Issue`, `Topic`, `Description`
+- `Control`, `Control Number`, `Control No.`, `Case Number`, `Tracking Id`
+- `Due`, `Due Date`, `Date Due`, `Suspense Date`, `Response Due Date`
+
+For a list of all fields see @sec-all-fields.
+
+To support analysis, the project preserves raw fields while creating a documented crosswalk from agency-specific source columns to standardized canonical variables.
+
+---
+
+## 2. Dataset
+
+Each row represents one correspondence-related record as provided by a source agency, such as
+
+- Congressional inquiry
+- Constituent casework referral
+- Oversight or policy correspondence
+- Request for information
+
+---
+
+## 3. Source Agencies
+
+The dataset includes records from agencies such as:
+
+- ABMC
+- Amtrak
+- CNCS
+- CSOSA
+- DHHS subagencies
+- DHS subagencies
+- DOC subagencies
+- DOD subagencies
+- DOE subagencies
+- DOI subagencies
+- DOJ subagencies
+- DOL subagencies
+- DOT subagencies
+- ED
+- EEOC
+- EPA
+- FCC
+- FTC
+- HUD
+- NASA
+- SSA
+- Treasury subagencies
+- USDA subagencies
+- USPS
+- VA
+
+The `agency` column identifies the source agency or subagency for each record.
+
+---
+
+## 4. Core Fields Present Across Most Agencies
+
+Several standardized fields appear near-universally in the merged file. These should be treated as core dataset-level identifiers and metadata.
+
+| Field | Description |
+|---|---|
+| `agency` | Source agency or subagency acronym. |
+| `ID` | Unique record-level agency identifier, where present, otherwise the row number in the datasheet. |
+| `DATE` | May be the letter date or received date depending on the agency (where we have both, we use the letter date). |
+| `FROM` | Sender/correspondent field, often copied or collated from other columns (unfortunately, sometimes the original field was overwritten in earlier data).^[We can recover original field names from original pdfs] |
+| `data_id` | Legislator-letter-level unique within-agency id |
+| `icpsr` | ICPSR legislator identifier, where matched. |
+| `bioname` | Biographical Directory name for member of Congress, where matched. |
+| `congress` | Congress number associated with the member or record. |
+| `chamber` | Congressional chamber, usually House or Senate. |
+| `state_abbrev` | State abbreviation associated with the member. |
+| `district_code` | House district code, where applicable. |
+| `LetterID` | Id for each letter or record, corresponding to multiple `data_id`s when more than one legislator signed a letter  |
+| `year` | Year extracted from date. |
+| `department` | Parent department or agency group. |
+
+---
+
+## 5. Raw Metadata Columns
+
+The merged dataset includes 700+ raw metadata fields. These fields were retained to preserve the original source information from agency FOIA responses.
+
+
+Raw fields include:
+
+- Source identifiers
+- Case numbers
+- Control numbers
+- Tracking numbers
+- Received dates
+- Due dates
+- Closed dates
+- Response dates
+- Routing information
+- Staff assignments
+- Congressional offices
+- Committees
+- Subject, topic, or issue fields
+- Correspondent and constituent fields
+- Notes/status fields
+- Document type and correspondence type fields
+- Agency-specific workflow fields
+
+For a list of all fields see @sec-all-fields.
+
+Many raw fields are sparse because they only apply to one agency or one export format.
+
+---
+
+## 6. Metadata Coverage Counts
+
+
+A field coverage table `vars_by_agency.csv` provides counts non-missing values for each metadata column within each agency.
+
+Each row in the coverage table represents one agency.
+
+Each column after `agency` represents a metadata field.
+
+Each cell contains:
+
+> The number of records for that agency where the field is not missing.
+
+For example:
+
+| agency | ID | DATE | FROM | SUBJECT |
+|---|---:|---:|---:|---:|
+| ABMC | 87 | 87 | 87 | 87 |
+| Amtrak | 1571 | 1571 | 1571 | 0 |
+| DHHS_CMS | 69938 | 69938 | 69938 | 69937 |
+
+Interpretation:
+
+- A count of `0` means the field is absent or fully missing for that agency.
+- A count equal to the agency row count means the field is populated for all records from that agency.
+- Partial counts indicate incomplete coverage.
+
+---
+
+## 7. Field Consolidation Strategy
+
+Because many fields represent the same concept under different names, the project uses a crosswalk table to map raw agency-specific fields to canonical variables.
+
+The guiding principle is:
+
+> Preserve all raw source fields, but create standardized canonical fields for analysis.
+
+This allows analysts to:
+
+1. Use harmonized variables where possible.
+2. Trace every standardized value back to its source column.
+3. Retain agency-specific fields for auditing or specialized analysis.
+4. Avoid irreversible data loss during cleaning.
+
+---
+
+## 8. Data Fields by Type
+
+### 8.1 Record and Source Identifiers
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `agency` | Source agency/subagency. | `agency` |
+| `department` | Parent department or broader agency family. | `department`, inferred from agency prefix |
+| `source_file_id` | Internal file/source identifier. | `data_id`, `source`, `Source` |
+| `record_id_raw` | Original source-system record ID. | `ID`, `Id`, `Doc ID`, `Document ID`, `CaseID`, `FolderID` |
+| `record_id_project` | Project-generated unique row/record identifier. | `LetterID`, generated UUID |
+| `control_number` | Agency control, tracking, or correspondence number. | `Control`, `Control Number`, `Control No.`, `Control.No.`, `CNTL NO`, `OSD CNTL NO.`, `NIST Control Number`, `DL.Control.Number` |
+| `case_number` | Case-specific identifier. | `Case Number`, `CaseNumber`, `CaseID`, `CaseName`, `Case Type`, `CaseType` |
+| `tracking_number` | Tracking or workflow identifier. | `Tracking Id U`, `11 Tracking Number`, `LOGNUMBER`, `WebDocFlow ID`, `VIEWS Number`, `VAIQ Number` |
+
+---
+
+### 8.2 Dates
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `date_record` | Primary standardized date for the record. | `DATE`, `date`, `Date`, `Record Date`, `Created Date` |
+| `date_received` | Date received by agency. | `Date Received`, `Received Date`, `Receive Date`, `Received.Date`, `DATEREC`, `DATE RECEIVED`, `Date Rec`, `Date.Received` |
+| `date_correspondence` | Date on original letter/correspondence. | `Correspondence Date`, `Date on Correspondence`, `Date on Letter`, `DateonLetter`, `Doc Date` |
+| `date_assigned` | Date assigned/routed internally. | `Assigned Date`, `Assign Date`, `Date Assigned`, `assignment_date`, `Date Inquiry Assigned` |
+| `date_due` | Due date or suspense date. | `Due`, `Due Date`, `DATEDUE`, `DATE DUE`, `Date Due`, `DUEDATE`, `Suspense Date`, `Response Due Date`, `Members Due Date` |
+| `date_answered` | Date agency answered or replied. | `Date Answered`, `Answer Date`, `Answer.Date`, `Date of Reply`, `Date of Reply/Contact`, `Date Responded`, `Response Date` |
+| `date_closed` | Date record closed. | `Date Closed`, `Closed Date`, `Close Date`, `Date.Closed`, `date.closed`, `Closing Date`, `CloseDate`, `Final Date` |
+| `date_signed` | Date final response was signed. | `Date Signed`, `Signed Date`, `Final Signed Date`, `DateSigned`, `Signed.Date` |
+| `date_modified` | Date record was last modified. | `Last Modified Date`, `Modified On`, `Updated.On`, `Updated On` |
+
+---
+
+### 8.3 Congressional Member Metadata
+
+Fields from voteview.com or used to link to voteview data
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `member_icpsr` | ICPSR member identifier. | `icpsr` |
+| `member_bioname` | Member name from Biographical Directory. | `bioname` |
+| `member_first_name` | Member first name. | `first_name`, `First Name`, `First.Name`, `AUTHOR.FIRST.NAME` |
+| `member_last_name` | Member last name. | `last_name`, `Last Name`, `Last.Name`, `AUTHOR.LAST.NAME` |
+| `member_chamber` | House or Senate. | `chamber`, `Senate.Or.House`, `Senate or House` |
+| `member_district` | Congressional district. | `district_code`, `District`, `Place_District` |
+| `member_state` | State abbreviation. | `state_abbrev` |
+| `congress` | Congress number. | `congress` |
+| `member_or_committee` | Member, committee, or office name. | `Member of Congress`, `Member/Committee (HOR)`, `Member/Committee (Senate)`, `Primary Member of Congress`, `Congressional Office` |
+
+Additional fields about committees and staff 
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `committee_name` | Congressional committee. | `Committee`, `Committees`, `Primary Committee`, `Committee/Organization` |
+| `subcommittee_name` | Subcommittee. | `SubCommittee To Inquiry` |
+| `congressional_staff` | Congressional staff contact. | `Congressional Staff`, `Inquiring staff name`, `staffer`, `staff` |
+
+---
+
+### 8.4 Correspondent / Sender / Recipient
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `sender_name` | Person or organization sending the correspondence. | `FROM`, `From`, `Correspondent`, `Constituent`, `Constituent.Name`, `Originator`, `Recipient` |
+| `sender_first_name` | Sender first name. | `From First Name`, `First_Name`, `First Name`, `Additional Contacts: First Name` |
+| `sender_last_name` | Sender last name. | `From Last Name`, `Last_Name`, `Last Name`, `Additional Contacts: Last Name` |
+| `sender_organization` | Sender organization. | `Organization`, `Organization Name`, `Constituent/org name`, `Account Name: Account Name`, `Org` |
+| `sender_type` | Type/class of correspondent. | `CONSTITUENT_TYPE`, `CONSTITUENT_CLASS`, `Correspondent Type`, `Contact_Type _Name`, `Contact Category`, `Requestor Type` |
+| `recipient_name` | Addressee or recipient. | `TO`, `To`, `Addressee`, `ADDRESSED TO`, `Addressed To`, `Agency Recipient` |
+| `recipient_office` | Office or agency recipient. | `Office Assigned`, `Action Agency`, `Liable Office`, `Office Handling the Response` |
+| `contact_method` | Method of contact. | `Contact Method`, `Communication Type`, `Communication.Type`, `Type of Response Mail, Email, Phone Call`, `Request sent by SPS...` |
+| `address_city` | Addressee city. | `Addressee City`, `City` |
+| `address_state` | Addressee state. | `Addressee State`, `State` |
+| `address_zip` | Addressee ZIP code. | `Addressee Zip Code`, `ZIP` |
+
+---
+
+### 8.5 Subject, Issue, Topic, and Policy Metadata
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `subject` | Main subject/title/description. | `SUBJECT`, `Subject`, `Specific Subject`, `Title`, `Document Title`, `Description`, `Description of Inquiry` |
+| `issue` | Issue category. | `Issue`, `issue`, `Primary Inquiry Issue`, `Primary Inquiry Sub-Issue`, `Secondary Inquiry Issue`, `Sub_Issue` |
+| `topic` | Topic classification. | `Topic`, `Category`, `Query Category`, `Archival Category` |
+| `subject_state` | State abbreviation. | `State`, `Property.State`, `Place_State` |
+
+
+Hand-coded subject and related fields (hand-coded files are in all caps)
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `policy_event` | Standardized policy event indicator. | `POLICY_EVENT`, `nPE` |
+| `event_name` | Name of event. | `EVENT_NAME`, `EVENT` |
+| `event_date` | Date of event. | `EVENT_DATE`, `Event Date`, `Action Date` |
+| `document_type` | Type of document/correspondence. | `Document Type`, `Doc. Type`, `Doc..Type`, `DOC TYPE`, `Correspondence Type`, `Correspondence\nType`, `Corr. Type` |
+| `correspondence_type` | Broad correspondence category. | `TYPE`, `Type`, `Item Type`, `Inquiry Type`, `INQUIRY TYPE`, `Case Type`, `call.letter.memo.email` |
+| `alt_type` | Alternative or secondary type. | `ALT_TYPE`, `ALT.TYPE`, `nALT_TYPE` |
+| `certainty` | Classification certainty. | `CERTAINTY`, `nCERT` |
+
+---
+
+### 8.6 Workflow, Assignment, and Status
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `status` | Current or final status. | `Status`, `status`, `Current Status`, `Status Reason`, `Tasker.Status`, `Record Status`, `Location Status` |
+| `status_date` | Date associated with status. | `statusdate`, `Status Update`, `Last.Action` |
+| `assigned_to` | Person or office assigned. | `Assigned To`, `Assigned to`, `Assignee To`, `Assignee: Full Name`, `User Assigned`, `Assigned PA`, `AssignedOPR` |
+| `assigned_office` | Office assigned. | `Action Office`, `Action.Office`, `ActionOffice`, `LeadOffice`, `Lead IC/Office`, `Responsible Office/Individual`, `Office of Primary Responsibility` |
+| `coordinator` | Coordinator or lead. | `Coordinator`, `Policy Coordinator`, `OCR Staff`, `OGR Lead`, `CNCS Staff Lead` |
+| `priority` | Priority or urgency. | `Priority`, `Prority`, `PRIORITY`, `Sensitive`, `Special Attention` |
+| `action_required` | Required action. | `Action Required`, `Action`, `ACTION`, `ACTIONS`, `Action Code`, `Type of Action Required`, `Actions Required` |
+| `response_required` | Whether a response was required. | `Response Required? (1)`, `Reply Type (Action assigned)` |
+| `final_disposition` | Final action/disposition. | `Final`, `Final Action/Disposition Date`, `Action Taken`, `PRC Action Taken` |
+
+---
+
+### 8.7 Notes and Free Text
+
+| Canonical field | Description | Example raw source fields |
+|---|---|---|
+| `NOTES` | General notes from hand coders. | `NOTES` |
+| `notes` | General notes from agency staff. | `Notes`, `notes`, `Notes/Status`, `TICKETNOTE`, `Remarks`, `Comments`, `Additional Notes`, `Special Instructions` |
+| `error_flag` | Processing or classification error flag. | `ERROR` |
+| `ocr_text` | OCR or extracted text. | `text_clean`, `raw` |
+| `file_name` | File name. | `file_name`, `file` |
+| `file_path` | File path. | `Path` |
+| `url` | URL or link. | `url`, `link_text` |
+
+---
+
+## 9 All Data Fields {#sec-all-fields}
+
+Below is a list of fields in the data by agency, prior to standardization. As noted above, some are from the agency's tracking system and some were introduced in the OCR, cleaning, or coding process. 
+
+```{r agency_specific_fields}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+
+# -----------------------------
+# Input / output files
+# -----------------------------
+input_file <- here::here("vars_by_agency.csv")
+
+output_summary <- "agency_specific_fields.csv"
+output_counts  <- "agency_specific_fields_with_counts.csv"
+output_single  <- "single_agency_fields.csv"
+output_subset  <- "subset_specific_fields.csv"
+
+# -----------------------------
+# Read coverage table
+# -----------------------------
+coverage <- read_csv(input_file, show_col_types = FALSE)
+
+agency_col <- "agency"
+
+if (!agency_col %in% names(coverage)) {
+  stop("Expected an 'agency' column in the coverage table.")
+}
+
+# -----------------------------
+# Helper: detect placeholder/import artifact columns
+# -----------------------------
+is_placeholder_field <- function(x) {
+  x_norm <- x |>
+    str_replace_all("\u00a0", " ") |>
+    str_trim()
+
+  x_lower <- str_to_lower(x_norm)
+
+  str_detect(x_lower, "^x\\d+$") |      # X1, X32, x17
+    str_detect(x_lower, "^\\.\\.\\.\\d+$") | # ...21, ...36
+    str_detect(x_lower, "^field\\d+$") |     # Field1, Field2
+    str_detect(x_lower, "^blank$") |         # Blank
+    str_detect(x_lower, "^s$") |             # s
+    str_detect(x_lower, "^n$") |             # n
+    str_detect(x_lower, "^nn$")              # nn
+}
+
+# -----------------------------
+# Convert to long format
+# -----------------------------
+coverage_long <- coverage |>
+  pivot_longer(
+    cols = -all_of(agency_col),
+    names_to = "raw_field",
+    values_to = "non_missing_count"
+  ) |>
+  mutate(
+    non_missing_count = suppressWarnings(as.numeric(non_missing_count)),
+    non_missing_count = replace_na(non_missing_count, 0),
+    is_placeholder = is_placeholder_field(raw_field)
+  ) |>
+  filter(!is_placeholder)
+
+# -----------------------------
+# Count number of agencies
+# -----------------------------
+n_agencies <- coverage |>
+  distinct(.data[[agency_col]]) |>
+  nrow()
+
+# -----------------------------
+# Create agency/subset-specific field summary
+# -----------------------------
+agency_specific_fields <- coverage_long |>
+  group_by(raw_field) |>
+  summarise(
+    n_agencies_with_data = sum(non_missing_count > 0),
+    agencies_with_data = paste(
+      .data[[agency_col]][non_missing_count > 0],
+      collapse = "; "
+    ),
+    total_non_missing = sum(non_missing_count),
+    .groups = "drop"
+  ) |>
+  filter(
+    n_agencies_with_data > 0,
+    n_agencies_with_data < n_agencies
+  ) |>
+  arrange(n_agencies_with_data, raw_field)
+
+# -----------------------------
+# Write summary table
+# -----------------------------
+write_csv(agency_specific_fields, output_summary)
+
+# agency_specific_fields
+```
+
+
+
+```{r agency_specific_counts}
+fields_to_keep <- agency_specific_fields$raw_field
+
+agency_specific_counts <- coverage |>
+  select(all_of(agency_col), all_of(fields_to_keep)) |>
+  pivot_longer(
+    cols = -all_of(agency_col),
+    names_to = "raw_field",
+    values_to = "non_missing_count"
+  ) |>
+  mutate(
+    non_missing_count = suppressWarnings(as.numeric(non_missing_count)),
+    non_missing_count = replace_na(non_missing_count, 0)
+  ) |>
+  pivot_wider(
+    names_from = all_of(agency_col),
+    values_from = non_missing_count
+  ) |>
+  left_join(
+    agency_specific_fields |>
+      select(raw_field, n_agencies_with_data, total_non_missing),
+    by = "raw_field"
+  ) |>
+  relocate(
+    raw_field,
+    n_agencies_with_data,
+    total_non_missing
+  ) |>
+  arrange(n_agencies_with_data, raw_field)
+
+write_csv(agency_specific_counts, output_counts)
+
+# agency_specific_counts
+```
+
+
+
+
+```{r agency_specific_fields_table}
+library(knitr)
+
+markdown_table <- agency_specific_fields |>
+  filter(n_agencies_with_data<40) |> 
+  arrange(agencies_with_data) |> 
+  mutate(raw_field = str_squish(raw_field) |> str_replace_all("  ", " ")) |> 
+  kable(format = "markdown")
+
+markdown_table
+
+# writeLines(
+#   c(
+#     "# Agency- or Subset-Specific Metadata Fields",
+#     "",
+#     "This table lists raw metadata fields that are populated for at least one agency but not populated for all agencies.",
+#     "Placeholder or import-artifact fields such as `X1`, `X32`, and `...21` are excluded.",
+#     "",
+#     markdown_table
+#   ),
+#   "agency_specific_fields.md"
+# )
+```
+
+---
+
+
+<!--
+
+## 9. Crosswalk Table Design
+
+
+Recommended columns:
+
+| Column | Description |
+|---|---|
+| `agency` | Agency/subagency for which the mapping applies. Use `ALL` if mapping applies globally. |
+| `raw_column` | Original column name in the merged dataset. |
+| `canonical_column` | Standardized destination field. |
+| `concept_group` | High-level category, e.g. `date`, `identifier`, `subject`, `workflow`. |
+| `priority` | Integer priority when multiple raw fields map to same canonical field. Lower number = preferred. |
+| `transform_rule` | Cleaning or parsing rule applied. |
+| `data_type` | Expected standardized type, e.g. `string`, `date`, `integer`, `boolean`. |
+| `coverage_count` | Number of non-missing values for this field/agency. |
+| `coverage_pct` | Percent of agency records with non-missing values. |
+| `confidence` | Mapping confidence: `high`, `medium`, `low`, `review`. |
+| `notes` | Explanation, assumptions, or caveats. |
+| `retain_raw` | Whether the raw field should be retained in final dataset. Usually `TRUE`. |
+
+---
+
+## 10. Example Crosswalk Entries
+
+```csv
+agency,raw_column,canonical_column,concept_group,priority,transform_rule,data_type,confidence,notes,retain_raw
+ALL,agency,agency,source,1,none,string,high,Source agency identifier,TRUE
+ALL,data_id,source_file_id,source,1,none,string,high,Internal source dataset identifier,TRUE
+ALL,ID,record_id_raw,identifier,1,as_string,string,medium,Meaning varies by agency,TRUE
+ALL,LetterID,record_id_project,identifier,1,as_string,string,high,Project-level letter identifier,TRUE
+ALL,icpsr,member_icpsr,member,1,as_integer,integer,high,ICPSR member identifier,TRUE
+ALL,bioname,member_bioname,member,1,trim,string,high,Biographical Directory matched name,TRUE
+ALL,last_name,member_last_name,member,1,title_case,string,high,Matched member last name,TRUE
+ALL,first_name,member_first_name,member,1,title_case,string,high,Matched member first name,TRUE
+ALL,congress,congress,member,1,as_integer,integer,high,Congress number,TRUE
+ALL,chamber,member_chamber,member,1,standardize_chamber,string,high,House/Senate chamber,TRUE
+ALL,state_abbrev,member_state,member,1,uppercase_state,string,high,State abbreviation,TRUE
+ALL,district_code,member_district,member,1,as_string,string,high,Congressional district,TRUE
+ALL,DATE,date_record,date,1,parse_date,date,medium,Primary standardized date; interpretation may vary,TRUE
+ALL,Date Received,date_received,date,1,parse_date,date,high,Source received date,TRUE
+ALL,Receive Date,date_received,date,1,parse_date,date,high,Source received date,TRUE
+ALL,Received Date,date_received,date,1,parse_date,date,high,Source received date,TRUE
+ALL,Received.Date,date_received,date,1,parse_date,date,high,Source received date,TRUE
+ALL,DATEREC,date_received,date,1,parse_date,date,high,Source received date,TRUE
+ALL,Due,date_due,date,1,parse_date,date,high,Due date or suspense date,TRUE
+ALL,Due Date,date_due,date,1,parse_date,date,high,Due date or suspense date,TRUE
+ALL,DATE DUE,date_due,date,1,parse_date,date,high,Due date or suspense date,TRUE
+ALL,Suspense Date,date_due,date,1,parse_date,date,medium,Agency suspense date,TRUE
+ALL,Date Answered,date_answered,date,1,parse_date,date,high,Response/answer date,TRUE
+ALL,Answer Date,date_answered,date,1,parse_date,date,high,Response/answer date,TRUE
+ALL,Response Date,date_answered,date,1,parse_date,date,high,Response date,TRUE
+ALL,Date Closed,date_closed,date,1,parse_date,date,high,Closed date,TRUE
+ALL,Closed Date,date_closed,date,1,parse_date,date,high,Closed date,TRUE
+ALL,Close Date,date_closed,date,1,parse_date,date,high,Closed date,TRUE
+ALL,FROM,sender_name,correspondent,1,trim,string,medium,Sender/correspondent; may be congressional office or constituent,TRUE
+ALL,From,sender_name,correspondent,1,trim,string,medium,Sender/correspondent,TRUE
+ALL,Correspondent,sender_name,correspondent,1,trim,string,medium,Sender/correspondent,TRUE
+ALL,Constituent,sender_name,correspondent,2,trim,string,medium,Constituent name where available,TRUE
+ALL,Originator,sender_name,correspondent,2,trim,string,medium,Originating person/office,TRUE
+ALL,TO,recipient_name,correspondent,1,trim,string,medium,Recipient or addressee,TRUE
+ALL,To,recipient_name,correspondent,1,trim,string,medium,Recipient or addressee,TRUE
+ALL,Addressee,recipient_name,correspondent,1,trim,string,medium,Addressee,TRUE
+ALL,SUBJECT,subject,subject,1,trim,string,high,Subject text,TRUE
+ALL,Subject,subject,subject,1,trim,string,high,Subject text,TRUE
+ALL,Title,subject,subject,2,trim,string,medium,Title used as subject when subject absent,TRUE
+ALL,Description,subject,subject,3,trim,string,medium,Description used as fallback subject,TRUE
+ALL,Issue,issue,subject,1,trim,string,high,Issue field,TRUE
+ALL,Topic,topic,subject,1,trim,string,high,Topic field,TRUE
+ALL,Category,topic,subject,2,trim,string,medium,Category may overlap with topic,TRUE
+ALL,TYPE,correspondence_type,type,1,trim,string,medium,Correspondence or item type,TRUE
+ALL,Type,correspondence_type,type,1,trim,string,medium,Correspondence or item type,TRUE
+ALL,Item Type,correspondence_type,type,1,trim,string,medium,Item type,TRUE
+ALL,Inquiry Type,correspondence_type,type,1,trim,string,high,Inquiry type,TRUE
+ALL,Document Type,document_type,type,1,trim,string,high,Document type,TRUE
+ALL,Doc. Type,document_type,type,1,trim,string,high,Document type,TRUE
+ALL,Correspondence Type,document_type,type,1,trim,string,high,Correspondence/document type,TRUE
+ALL,Status,status,workflow,1,trim,string,high,Current status,TRUE
+ALL,status,status,workflow,1,trim,string,high,Current status,TRUE
+ALL,Current Status,status,workflow,1,trim,string,high,Current status,TRUE
+ALL,Assigned To,assigned_to,workflow,1,trim,string,high,Assigned person or office,TRUE
+ALL,Assigned to,assigned_to,workflow,1,trim,string,high,Assigned person or office,TRUE
+ALL,Assignee: Full Name,assigned_to,workflow,1,trim,string,high,Assigned staff name,TRUE
+ALL,Action Office,assigned_office,workflow,1,trim,string,high,Assigned/action office,TRUE
+ALL,ActionOffice,assigned_office,workflow,1,trim,string,high,Assigned/action office,TRUE
+ALL,LeadOffice,assigned_office,workflow,1,trim,string,medium,Lead office,TRUE
+ALL,Priority,priority,workflow,1,trim,string,high,Priority field,TRUE
+ALL,PRIORITY,priority,workflow,1,trim,string,high,Priority field,TRUE
+ALL,NOTES,notes,notes,1,trim,string,high,General notes,TRUE
+ALL,Notes,notes,notes,1,trim,string,high,General notes,TRUE
+ALL,Comments,notes,notes,2,trim,string,medium,Comments appended to notes,TRUE
+```
+
+---
+
+## 11. Recommended Canonical Dataset Structure
+
+The final analytical dataset should include three groups of columns.
+
+### 11.1 Required Project Columns
+
+```text
+record_id_project
+agency
+department
+source_file_id
+```
+
+### 11.2 Canonical Analytical Columns
+
+```text
+record_id_raw
+control_number
+case_number
+tracking_number
+
+date_record
+date_received
+date_correspondence
+date_assigned
+date_due
+date_answered
+date_closed
+date_signed
+date_modified
+
+member_icpsr
+member_bioname
+member_first_name
+member_last_name
+member_chamber
+member_state
+member_district
+congress
+member_or_committee
+committee_name
+subcommittee_name
+congressional_staff
+
+sender_name
+sender_first_name
+sender_last_name
+sender_organization
+sender_type
+recipient_name
+recipient_office
+contact_method
+address_city
+address_state
+address_zip
+
+subject
+issue
+topic
+policy_event
+event_name
+event_date
+document_type
+correspondence_type
+alt_type
+certainty
+
+status
+status_date
+assigned_to
+assigned_office
+coordinator
+priority
+action_required
+response_required
+final_disposition
+
+notes
+error_flag
+ocr_text
+file_name
+file_path
+url
+```
+
+### 11.3 Raw Source Columns
+
+All original agency-provided metadata fields should be retained, preferably with a prefix such as:
+
+```text
+raw_
+```
+
+Example:
+
+```text
+raw_DATE
+raw_Date Received
+raw_Control Number
+raw_Case Number
+raw_Status
+raw_Notes
+```
+
+If preserving the original names exactly is important, raw fields can instead be stored in a nested or companion table.
+
+---
+
+## 12. Handling Multiple Raw Fields Mapping to One Canonical Field
+
+Some agencies have several candidate fields for the same canonical concept. For example, a received date might appear in several columns.
+
+Recommended approach:
+
+1. Assign each raw field a `priority` in the crosswalk.
+2. Standardize each candidate field.
+3. Use the first non-missing valid value by priority.
+4. Store provenance showing which raw field supplied the canonical value.
+
+Example:
+
+```text
+date_received = coalesce(
+  parse_date(`Date Received`),
+  parse_date(`Received Date`),
+  parse_date(`Receive Date`),
+  parse_date(`Received.Date`),
+  parse_date(`DATEREC`),
+  parse_date(`DATE`)
+)
+```
+
+Recommended provenance fields:
+
+```text
+date_received_source_column
+date_received_source_value
+date_received_parse_status
+```
+
+This makes the harmonization auditable.
+
+---
+
+## 13. Data Quality Flags
+
+Create standardized flags to help analysts understand uncertainty.
+
+| Flag | Description |
+|---|---|
+| `flag_missing_core_date` | No usable date found for the record. |
+| `flag_multiple_dates_conflict` | Multiple date fields exist but disagree. |
+| `flag_missing_sender` | No sender/correspondent field populated. |
+| `flag_missing_subject` | No usable subject/title/issue field populated. |
+| `flag_unmapped_raw_fields` | Record contains populated raw fields not included in crosswalk. |
+| `flag_low_confidence_mapping` | Canonical value came from a low-confidence mapping. |
+| `flag_parse_error_date` | Date parsing failed for one or more candidate date fields. |
+| `flag_duplicate_record_id` | Duplicate source record ID within agency. |
+| `flag_placeholder_column_used` | Value came from a placeholder column such as `X1`, `...21`, etc. |
+
+---
+
+## 14. Placeholder and Import Artifact Columns
+
+The merged file includes several columns that appear to be import artifacts or unnamed columns, including examples such as:
+
+```text
+X1
+X3
+X6
+X7
+X8
+X9
+X10
+...
+X56
+...11
+...14
+...15
+...21
+...22
+...23
+...24
+...25
+...26
+...29
+...36
+```
+
+These columns should not be discarded automatically because some may contain agency-provided metadata. However, they should be reviewed and classified.
+
+Recommended classification:
+
+| Classification | Description |
+|---|---|
+| `artifact_empty` | Column is always empty or nearly empty. |
+| `artifact_duplicate` | Column duplicates another named field. |
+| `artifact_unknown` | Column contains values but meaning is unclear. |
+| `agency_specific_valid` | Column contains meaningful source data for one agency. |
+| `drop_candidate` | Column can likely be excluded from analytical dataset after review. |
+
+---
+
+## 15. Agency Coverage Summary
+
+The coverage table should be used to generate agency-level summaries.
+
+Recommended summary metrics:
+
+| Metric | Description |
+|---|---|
+| `agency_n_records` | Number of records for the agency. |
+| `n_populated_raw_fields` | Number of raw columns with at least one non-missing value for the agency. |
+| `n_fully_populated_raw_fields` | Number of raw columns populated for all agency records. |
+| `n_mapped_fields` | Number of populated fields mapped to canonical variables. |
+| `pct_populated_fields_mapped` | Percent of populated raw fields represented in the crosswalk. |
+| `n_unmapped_populated_fields` | Populated fields not yet mapped. |
+
+---
+
+## 16. Suggested Field Groups for Documentation
+
+For the full 700+ column data dictionary, each raw field should be assigned to one of these groups:
+
+| Group | Description |
+|---|---|
+| `source` | Agency/source/file identifiers |
+| `identifier` | IDs, control numbers, case numbers |
+| `date` | Received, due, answered, closed, signed, created dates |
+| `member` | Congressional member metadata |
+| `committee` | Committee/subcommittee metadata |
+| `correspondent` | Sender, constituent, addressee, recipient |
+| `subject` | Subject, issue, topic, description |
+| `type` | Correspondence, document, inquiry, case type |
+| `workflow` | Assignment, action office, status, priority |
+| `response` | Reply, response method, final disposition |
+| `notes` | Notes, comments, remarks, instructions |
+| `text` | OCR, extracted text, document body |
+| `file` | File path, URL, docket, attachment |
+| `classification` | Event/policy classification fields |
+| `artifact` | Placeholder or import artifact columns |
+| `unknown` | Requires review |
+
+---
+
+## 17. Recommended File Outputs
+
+The documentation and metadata system should include the following files.
+
+```text
+README.md
+DATA_DICTIONARY.md
+metadata_crosswalk.csv
+metadata_field_coverage.csv
+metadata_field_inventory.csv
+canonical_schema.md
+data_quality_report.md
+```
+
+### `README.md`
+
+High-level project overview, dataset grain, sources, processing pipeline, and usage notes.
+
+### `DATA_DICTIONARY.md`
+
+Human-readable list of canonical variables and raw fields.
+
+### `metadata_crosswalk.csv`
+
+Machine-readable mapping from raw columns to canonical fields.
+
+### `metadata_field_coverage.csv`
+
+The agency-by-column non-missing count table.
+
+### `metadata_field_inventory.csv`
+
+One row per raw column, with field group, mapped status, coverage totals, and notes.
+
+### `canonical_schema.md`
+
+Documentation of the harmonized analytical dataset.
+
+### `data_quality_report.md`
+
+Completeness, parsing, duplicate, and unresolved-field diagnostics.
+
+---
+
+# Data Dictionary Template
+
+Use the following Markdown template for each canonical field.
+
+```markdown
+## `date_received`
+
+**Label:** Date received  
+**Concept group:** Date  
+**Data type:** Date  
+**Format:** ISO 8601, `YYYY-MM-DD`  
+**Description:** Date the agency received the correspondence or inquiry.  
+**Source fields:**  
+- `Date Received`
+- `Received Date`
+- `Receive Date`
+- `Received.Date`
+- `DATEREC`
+- `DATE`, when no more specific received date is available
+
+**Transformation rules:**  
+1. Trim whitespace.  
+2. Parse using known source date formats.  
+3. Convert to ISO date.  
+4. If multiple candidate fields exist, use the highest-priority non-missing valid date.  
+5. Record source column in `date_received_source_column`.
+
+**Known issues:**  
+- Some agencies use `DATE` as received date; others use it as created or record date.  
+- Date formats vary across agencies.  
+- Some records have partial or invalid dates.
+
+**Recommended use:**  
+Use for temporal analysis of correspondence volume when agency-specific date semantics have been reviewed.
+```
+
+---
+
+# Processing Notes
+
+## 18. Recommended Standardization Rules
+
+### Column Name Normalization
+
+For matching and grouping raw fields, create a normalized version of each column name.
+
+Recommended normalization:
+
+1. Convert to lowercase.
+2. Trim leading/trailing whitespace.
+3. Replace punctuation with spaces.
+4. Collapse repeated whitespace.
+5. Remove non-breaking spaces.
+6. Standardize common abbreviations.
+
+Example:
+
+| Raw column | Normalized column |
+|---|---|
+| `Control No.` | `control no` |
+| `Received.Date` | `received date` |
+| `DATE RECEIVED` | `date received` |
+| `Doc..Type` | `doc type` |
+| `Correspondenc e Date` | `correspondence date` |
+
+---
+
+## 19. Suggested Priority Rules
+
+When multiple source fields map to the same canonical variable:
+
+1. Prefer agency-specific explicitly named fields over generic fields.
+2. Prefer fields with higher coverage, unless semantically weaker.
+3. Prefer parsed/validated dates over raw strings.
+4. Prefer exact source-system identifiers over derived IDs.
+5. Preserve all candidates in raw fields.
+6. Always record provenance.
+
+Example for `date_received`:
+
+| Priority | Raw field |
+|---:|---|
+| 1 | `Date Received` |
+| 1 | `Received Date` |
+| 1 | `Receive Date` |
+| 1 | `Received.Date` |
+| 2 | `Date Rec` |
+| 2 | `DATEREC` |
+| 3 | `DATE` |
+| 4 | `Created Date` |
+
+---
+
+## 20. Recommended Review Workflow
+
+1. **Generate field inventory**
+   - One row per raw column.
+   - Include total non-missing count, number of agencies using it, and example agencies.
+
+2. **Assign concept groups**
+   - Use automated rules first.
+   - Manually review ambiguous fields.
+
+3. **Create canonical mappings**
+   - Map high-coverage and high-value fields first.
+   - Start with identifiers, dates, congressional metadata, subject, status, and workflow fields.
+
+4. **Create harmonized variables**
+   - Use priority/coalesce rules.
+   - Track source column and parse status.
+
+5. **Validate**
+   - Check date ranges.
+   - Check duplicate IDs.
+   - Check agency-specific anomalies.
+   - Check fields with unexpected high missingness.
+
+6. **Document unresolved fields**
+   - Keep a list of populated but unmapped raw fields.
+   - Mark them for future review.
+
+---
+
+# Suggested Automation
+
+The full data dictionary should be generated programmatically from the coverage table and crosswalk.
+
+## Example Python Pseudocode
+
+```python
+import pandas as pd
+
+coverage = pd.read_csv("metadata_field_coverage.csv")
+crosswalk = pd.read_csv("metadata_crosswalk.csv")
+
+# Convert coverage table from wide to long
+coverage_long = coverage.melt(
+    id_vars=["agency"],
+    var_name="raw_column",
+    value_name="non_missing_count"
+)
+
+# Agency record counts can be approximated from a core field such as ID or DATE
+agency_n = coverage[["agency", "ID"]].rename(columns={"ID": "agency_n_records"})
+
+coverage_long = coverage_long.merge(agency_n, on="agency", how="left")
+coverage_long["coverage_pct"] = (
+    coverage_long["non_missing_count"] / coverage_long["agency_n_records"]
+)
+
+# Add crosswalk information
+inventory = coverage_long.merge(
+    crosswalk,
+    on=["agency", "raw_column"],
+    how="left"
+)
+
+# Also apply global mappings
+global_crosswalk = crosswalk[crosswalk["agency"] == "ALL"].drop(columns=["agency"])
+inventory = inventory.merge(
+    global_crosswalk,
+    on="raw_column",
+    how="left",
+    suffixes=("", "_global")
+)
+
+# Determine mapped status
+inventory["is_populated"] = inventory["non_missing_count"] > 0
+inventory["is_mapped"] = (
+    inventory["canonical_column"].notna() |
+    inventory["canonical_column_global"].notna()
+)
+
+# Produce summary
+summary = (
+    inventory
+    .groupby("agency")
+    .agg(
+        n_populated_raw_fields=("is_populated", "sum"),
+        n_mapped_fields=("is_mapped", "sum"),
+        n_unmapped_populated_fields=(
+            "is_mapped",
+            lambda x: None
+        )
+    )
+)
+```
+
+---
+
+## 21. Important Caveats
+
+- Same column names may not always mean the same thing across agencies.
+- Different column names may represent the same concept.
+- Some generic fields such as `DATE`, `FROM`, `TYPE`, and `Status` require agency-specific interpretation.
+- Some agencies may have multiple records per original correspondence.
+- Some identifiers are only unique within agency, source file, or year.
+- Date fields may represent received date, created date, signed date, or record date depending on agency.
+- Placeholder fields should be reviewed before dropping.
+- Raw fields should be retained until crosswalk validation is complete.
+
+---
+
+# Recommended Short Description for README
+
+```markdown
+This dataset aggregates congressional correspondence and inquiry metadata from federal agencies and related government entities. Source agencies used different correspondence management systems, resulting in more than 700 raw metadata fields after merging. The project preserves all original source fields and provides a crosswalk to standardized canonical variables for analysis. A separate field coverage table reports the number of non-missing values for each field by agency, supporting transparency about metadata availability and harmonization decisions.
+```
+
+---
+
+# Recommended Next Step
+
+Create three companion files:
+
+1. `metadata_field_coverage.csv`  
+   The pasted non-missing count table.
+
+2. `metadata_crosswalk.csv`  
+   Manual/curated mappings from raw fields to canonical variables.
+
+3. `metadata_field_inventory.csv`  
+   Generated from the first two files, showing field coverage, mappings, concept groups, and review status.
+
+
+--> 

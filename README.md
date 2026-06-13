@@ -19,21 +19,32 @@ This repository contains code to merge, augment, and analyze data on congression
 
 # Data
 
-- Correspondence data come from FOIA requests, FOIA reading rooms, and web scraping disclosed correspondence. Some data include the full text of letters, but most are in the form of correspondence logs maintained by agencies, which may include phone, email, letterhead contacts (#92). Some letters are signed by more than one member, so each member-level observation is given a unique `ID`, as well as a `LetterID` that is unique to each letter or phone call.
-- Member data from <https://www.voteview.com/> are augmented in `members/nameCongress.R`  [#9](https://github.com/judgelord/correspondence/issues/9), and committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html> in `committees/committees.R` [#12](https://github.com/judgelord/correspondence/issues/12)
+- Correspondence data come from FOIA requests, FOIA reading rooms, and web scraping disclosed correspondence. 
+Some data include the full text of letters, but most are in the form of correspondence logs maintained by agencies, which may include phone, email, letterhead contacts (#92). 
+Some letters are signed by more than one member, so each member-level observation is given a unique `data_id`, as well as a `LetterID` that is unique to each letter or phone call.
+Agency id's are preserved in `ID`. Otherwise, this is the row number of the datasheet. See [metadata documentation](docs/metadata). 
+
+- Member data from <https://www.voteview.com/> via the `legislators` package.
 
     -   chamber and party from J. B. Lewis et al. (2022) via voteview.com (also available on dataverse)
-    
+
+- Committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html>, 
+with corrections in `committees/committees.R` [#12](https://github.com/judgelord/correspondence/issues/12) 
+and then merged with historical committee membership data from the version history of @unitedstates-project committee membership data. 
+
     -   committee positions from Stewart and Woon (2017) and @unitedstates-project (2025)
-    
+
+State Population is from the US Census 
+
     -   state population from U.S. Census Bureau (2019)
 
-(See AJPS Dataverse linked)
+(See AJPS Dataverse linked above)
 
 # Software 
 
 The FOIA data are cleaned using scripts in the repo and linked to other data via ICPSR numbers using the `legislators` R package: <https://judgelord.github.io/legislators/>
 
+<!--
 ## TODO 
 - [ ] Add agency data [#83](https://github.com/judgelord/correspondence/issues/83)
 - [ ] Improve codebook to better code constituent class [#82](https://github.com/judgelord/correspondence/issues/82) and policy events [#4](https://github.com/judgelord/correspondence/issues/4)
@@ -41,15 +52,19 @@ The FOIA data are cleaned using scripts in the repo and linked to other data via
 - [ ] Add member comments from regulations.gov
 
 Tasks recently completed: 
+
 - [x] ~~Clean scrips for DHS_NIH, DOI_BIA, DOL_OASAM**, DOT_FRA**, EEOC**,Treasury_Mint~~
 - [x] Check members who switched chambers or left/joined mid-congress. These are corrected in the `MemberNameDateCorrections.R` script in the members folder [#10](https://github.com/judgelord/correspondence/issues/10)
+
+--> 
 
 # Want to help? 
 
 Here are some tasks that anyone can do: 
-- Find letters that Members of Congress write to agencies (e.g., letters they post on their website) and email them to CorrespondenceResearch@gmail.com. We will check to see if they are in our data and add them. 
-- Look at [this list](https://github.com/judgelord/correspondence/blob/master/data/worst.names.csv) of letter authors that we are failing to match to a legislator. Note typos or odd formatting in issue [#9](https://github.com/judgelord/correspondence/issues/9). Note cases where names appear to be spelled correctly and formatted in a conventional way in issue [#62](https://github.com/judgelord/correspondence/issues/62). Note cases where the author is not a Member of Congress in the "debug" issue for that agency (e.g., "debug EPA").
 
+- Find letters that Members of Congress write to agencies (e.g., letters they post on their website) and email them to CorrespondenceResearch@gmail.com. We will check to see if they are in our data and add them. 
+<!-- Look at [this list](https://github.com/judgelord/correspondence/blob/master/data/worst.names.csv) of letter authors that we are failing to match to a legislator. Note typos or odd formatting in issue [#9](https://github.com/judgelord/correspondence/issues/9). Note cases where names appear to be spelled correctly and formatted in a conventional way in issue [#62](https://github.com/judgelord/correspondence/issues/62). Note cases where the author is not a Member of Congress in the "debug" issue for that agency (e.g., "debug EPA").
+--> 
 
 # For collaborators
 
@@ -78,10 +93,14 @@ Other columns required for applying the [codebook](https://docs.google.com/docum
 If `extractMemberName()` fails to match:
 
 1. Inspect the `pattern` variable. There are two main causes of failing to match:
-  1. Missing permutations of names in the `members` data
-  2. Typos
-There will eventually be a process for users to submit additional permutations and typos to the `legislators` package data. Until then, you can submit these as issues at https://github.com/judgelord/legislators/issues 
-If the pattern exists, but `extractMemberName()` fails to find it, this may be a new or existing bug.
+  1. Missing permutations of names in the `members` data that comes with the legislators package. Please [add to or open an issue on the `legislators-data` repo](https://github.com/judgelord/legislators-data/issues)
+  2. Typos 
+    - if it is a common typo that we are likely to see in other data (not just from that agency), Please [add to or open an issue on the `legislators-data` repo](https://github.com/judgelord/legislators-data/issues)
+    - if you suspect it is an uncommon typo or unique to that agency, fix it with find and replace in the google sheet or with a regex in the clean script
+    
+There will eventually be a process for users to submit additional permutations and typos to the `legislators` package data, until then, use github issues.
+
+If the pattern exists, but `extractMemberName()` fails to find it, this may be a new or existing bug. please [add to or open an issue on the `legislators` repo](https://github.com/judgelord/legislators/issues)
 
 Where there is insufficient information to identify a letter's date or author, the `NOTES` column should include "FOIA," and commits tagging observations to FOIA should reference [#76](https://github.com/judgelord/correspondence/issues/76)
 

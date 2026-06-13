@@ -13,29 +13,7 @@ agencies <- dcounts_month$agency |> unique()
 
 breaks <- d |> ungroup() |> distinct(month) |> filter(str_detect(month, "-01") ) |> pull(month)
 
-plot_completeness <- function(a){
 
-  p <- d |> 
-    filter(agency == a) |> 
-    group_by(month, agency, TYPE) |> 
-    summarise(n = sum(per_icpsr_chamber_month_agency_type)) |> 
-    ggplot() + 
-    aes(x = month,
-        y = TYPE, 
-        fill = n) + 
-    labs(title = a) + 
-    geom_tile(color = "white") +
-    scale_x_discrete(breaks = breaks) +
-    theme_minimal()  +
-    theme(axis.text.x = element_text(angle = 90),
-          panel.grid = element_blank())
-
-ggsave(plot = p,
-       here::here("data", "completeness", paste0(a, ".png")),
-       height = 2.2, width = 10 )
-}
-
-walk(agencies, plot_completeness)
 
 
 
@@ -73,7 +51,7 @@ d |>
   aes(x = month,
       y = agency, 
       fill = percent,
-      label = month |> str_sub(3,4)) + 
+      label = month %>% str_sub(3,4) %>% {paste("   ", .)} ) + 
   geom_tile(color = "white") +
   labs(title = "Relative density of data per agency") + 
   geom_text(check_overlap = T, color = "grey") + 
@@ -90,3 +68,31 @@ d |>
 
 ggsave(here::here("data", "completeness", "completeness-percent.png"),
        height = 16, width = 12 )
+
+
+
+
+# plots by agency
+plot_completeness <- function(a){
+  
+  p <- d |> 
+    filter(agency == a) |> 
+    group_by(month, agency, TYPE) |> 
+    summarise(n = sum(per_icpsr_chamber_month_agency_type)) |> 
+    ggplot() + 
+    aes(x = month,
+        y = TYPE, 
+        fill = n) + 
+    labs(title = a) + 
+    geom_tile(color = "white") +
+    scale_x_discrete(breaks = breaks) +
+    theme_minimal()  +
+    theme(axis.text.x = element_text(angle = 90),
+          panel.grid = element_blank())
+  
+  ggsave(plot = p,
+         here::here("data", "completeness", paste0(a, ".png")),
+         height = 2.2, width = 10 )
+}
+
+walk(agencies, plot_completeness)
