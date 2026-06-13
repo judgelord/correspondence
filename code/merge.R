@@ -12,6 +12,10 @@ gs4_auth(email = NA)
 # until we totally get rid of name methods loaded in setup, we need to specify the new version of extract member name from the legislators package 
 extractMemberName <- legislators::extractMemberName
 
+# for debugging, load members data from legislators repo as the merge runs 
+here::here("data", "members.rda") |> str_replace("correspondence_data", "legislators-data") |> load()
+members |> arrange(nchar(pattern)) |> distinct(pattern, bioname)
+members |> filter(is.na(pattern))
 # add committees and stuff
 #FIXME move this to merge2 
 # source("members/augmentMembers.R")
@@ -43,7 +47,7 @@ map_dfr(
 # Test one agency
 i <- which(data_list$agency == 
              #"DHS_USCIS")
-             "USDA_FS")
+             "DOJ_FBI")
 
 
 i

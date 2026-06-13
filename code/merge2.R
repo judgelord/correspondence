@@ -2,6 +2,13 @@
 source(here::here("setup.R"))
 source(here::here("data_list.R"))
 
+# if testing, run checks, otherwise skip them
+testing = F
+
+# if locking in this run as the new baseline, update test data files for future comparisons
+# this should only be done after extensive testing, when everything looks good, and when all descrepencies with prior baseline have been investigated and explained
+update = F
+
 ##########################
 # load saved Rdata files #
 # created by merge.R     #
@@ -19,13 +26,11 @@ agencies_data %in% data_list$agency |> sum()
 
 data_list$agency %in% agencies_data  |> sum()
 
-#TODO check dates 
-
-# a function to combine rdata files? 
+# a function to combine rdata files
 combine <- function(file){
   load(file)
   message(unique(d1$agency))
-  # FIXME in clean 
+  # FIXME in functions/clean.R
   d1$DATE <- as.Date(d1$DATE)
   d1$icpsr <- as.numeric(d1$icpsr)
   
@@ -35,20 +40,28 @@ combine <- function(file){
 # COMBINE FILES 
 d <- map_dfr(files, combine)
 
+
+# store raw merged data
+if(testing){
 d_temp <- d
-
+}
 #########################################################
-
+if(testing){
 d <- d_temp 
+}
 
 d %<>% distinct()
-dim(d)
+
+# save column names and N
 write(names(d), "column_names.txt")
 write(nrow(d), "n_total_letters.txt")
 
-sum_na <- . %>% is.na() %>% {. %in% (F)} %>% sum()
+# which agencies have data in which columns (there are hundreds of distinct columns)
+#TODO - we should consolidate similar names, perhaps with a lookup table 
+sum_not_na <- . %>% is.na() %>% {. %in% (F)} %>% sum()
 
-d |> group_by(agency) |> summarise_all(sum_na) |> write_csv("vars_by_agency.csv")
+d |> group_by(agency) |> summarise_all(sum_not_na) |> write_csv("vars_by_agency.csv")
+read_csv("vars_by_agency.csv")
 
 #FIXME USCIS batches are processed in two scripts as if it is two different agencies 
 d %<>% mutate(agency = str_remove(agency, "_2016"))
@@ -529,10 +542,10 @@ d %<>% select(-n)
 
 #FIXME constituent type and class codes from google sheet - this is a bit convoluted at the moment
 # issue #196 
-source("functions/constituent_types.R")
+source("code/constituent_types.R")
 
 # OPTIONALLY UPDATE CONSTITUENT CODING SHEET 
-if(F){ 
+if(T){ 
 # inspect observations successfully coded 
 constituent_coding <- d %>% 
   ungroup() %>% 
@@ -564,14 +577,15 @@ data_list$agency[!data_list$agency %in% unique(d$agency)  ]
 if(length(unique(d$agency)) == length(unique(data_list$agency))){
   
   all_contacts <- d
+
   save(all_contacts, 
        file = here::here("data", "all_contacts.rda"))
   
   # create and save annual count data (THIS TAKES A BIT TO RUN, CONSIDER CLEARING MEMORY TO MAKE IT RUN FASTER)
-  source(here("functions/count.R"))
+  source(here("code/count.R"))
   
   # and monthly counts 
-  #source(here("functions/count-month.R"))
+  #source(here("code/count-month.R"))
   
   
   write_csv(bad.names.1, here("data/bad.names.1.csv"))
@@ -602,11 +616,3 @@ d %>% filter(agency == "DOE_FERC") %>% count(year)
 # If everything looks good, update data summary table 
 # source("agencies/_FOIA_response_table.R")
 
-data_complete()
-
-if(F){
-  all_contacts %<>% mutate(agency = str_remove(agency, "_2016"))
-  
-  save(all_contacts, 
-       file = here::here("data", "all_contacts.rda"))
-}
