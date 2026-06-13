@@ -1,7 +1,8 @@
 source("setup.R")
 load(here::here("data", "dcounts_month.rda"))
 
-dcounts_mont |> 
+dcounts_month |> 
+  mutate(year = str_remove(month, "-.*") |> as.numeric() ) |> 
   filter(agency == "DOE_FERC") |> 
   count(year)
 
@@ -45,15 +46,20 @@ d |>
   group_by(month, agency) |> 
   summarise(n = sum(per_icpsr_chamber_month_agency_type)) |> 
   group_by(agency) |> 
-  mutate(percent = percent_rank(n)) |> 
+  mutate(percent = percent_rank(n),
+         year = ifelse(str_detect(month, "-06"),
+                       month %>% str_sub(3,4), 
+                       NA)
+         ) |> 
   ungroup() |> 
   ggplot() + 
   aes(x = month,
       y = agency, 
       fill = percent,
-      label = month %>% str_sub(3,4) %>% {paste("   ", .)} ) + 
+      label = year ) + 
   geom_tile(color = "white") +
-  labs(title = "Relative density of data per agency") + 
+  labs(title = "Relative density of data per agency",
+       fill = "Density") + 
   geom_text(check_overlap = T, color = "grey") + 
   scale_x_discrete(breaks = breaks) +
   #geom_vline(xintercept = "2007-01", color = "red") + 

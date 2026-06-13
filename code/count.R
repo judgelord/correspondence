@@ -30,6 +30,7 @@ source(here::here("data_list.R"))
 
 # years to include as specifired in data list
 agency_years_long <- data_list %>%
+  filter(!str_detect(agency, "[0-9]")) %>% #NOTE USCCIS is processed in two scripts, both noted in data_list so they are called in merge.r. Then, merge2.r removes "_[year]" so that they all get tallied up to USCIS. However, we don't want to add them back in as 0 counts here, so we need to drop 
   tidyr::unnest_longer(years_to_include ) %>% 
   tidyr::unnest_longer(years_to_include, values_to = "year") %>%
   mutate(year = as.integer(year))
@@ -105,13 +106,14 @@ dcounts <- agency_years_long %>%
   ) %>%
   ungroup()
 
-# Checks
-sum(dcounts$per_icpsr_chamber_year_agency_type)
-nrow(dfac_year_included)
+# Check 
+# should be the same minus the n dropped 
+dcounts$per_icpsr_chamber_year_agency_type |> sum() 
+nrow(all_contacts)
 
 
 # OPTIONALLY add more counts
-if(F){
+if(T){
   all_contacts$CONSTITUENT_TYPE %<>% str_to_lower()
   
   all_contacts %>% filter(agency == "SSA") %>% 
@@ -190,9 +192,15 @@ if(F){
   nrow(all_contacts)
 }
 
+# USCIS 2016 should ve counted with 2018
+str_detect(dcounts$agency, "[0-9]") |> sum()
+
+
 # full yearly count data 
 save(dcounts, file = here("data", "dcounts.rda"))
 
+
+# minimal version without constituent type counts 
 dcounts %<>% 
   distinct(agency, year, icpsr, chamber, TYPE, per_icpsr_chamber_year_agency_type) 
 

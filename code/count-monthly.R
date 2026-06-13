@@ -30,6 +30,7 @@ source(here::here("data_list.R"))
 
 # years to include as specified in data list
 agency_years_long <- data_list %>%
+  filter(!str_detect(agency, "[0-9]")) %>% #NOTE USCCIS is processed in two scripts, both noted in data_list so they are called in merge.r. Then, merge2.r removes "_[year]" so that they all get tallied up to USCIS. However, we don't want to add them back in as 0 counts here, so we need to drop 
   tidyr::unnest_longer(years_to_include ) %>% 
   tidyr::unnest_longer(years_to_include, values_to = "year") %>%
   mutate(year = as.integer(year))
@@ -226,6 +227,10 @@ if(F){
   dcounts$per_icpsr_chamber_month_agency_type |> sum() 
   nrow(all_contacts)
 }
+
+
+# USCIS 2016 should ve counted with 2018
+str_detect(dcounts$agency, "[0-9]") |> sum()
 
 dcounts_month <- dcounts
 
