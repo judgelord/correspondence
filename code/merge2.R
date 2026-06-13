@@ -130,6 +130,12 @@ GILLIBRAND <- filter(d, bioname == "GILLIBRAND, Kirsten") |> arrange(DATE) |> di
 MARKEY <- filter(d, bioname == "MARKEY, Edward John") |> arrange(DATE) |> distinct(DATE, chamber)
 
 
+# post ho corrections 
+d %<>% filter( !( FROM == "johnson, timothy peter" & 
+                    bioname == "JOHNSON, Timothy Peter (Tim)") 
+               )
+
+if(testing){
 # check for party switchers 
 d %>% 
   count(agency, LetterID, ID, data_id,
@@ -152,11 +158,6 @@ look <- d %>% count(LetterID, ID,# data_id, # data_id is created by extractmembe
 count(look, bioname, sort = T)
 count(look, FROM, sort = T)
 count(look, agency, wt = n, sort = T) 
-
-# post ho corrections 
-d %<>% filter( !( FROM == "johnson, timothy peter" & 
-                   bioname == "JOHNSON, Timothy Peter (Tim)") 
-               )
 
 ## Missing agencies:
 data_list %>% filter(!(agency %in% d$agency)) %>% select(agency)
@@ -247,8 +248,8 @@ changed %>% filter(is.na(in_draw)) %>% select(agency, FROM, in_d)
 # archive raw version of merged data 
 draw <- d
 nrow(draw)
+}
 
-update = F
 if(update){
 save(draw, file = "draw.Rdata")
 }
@@ -325,7 +326,7 @@ nrow(bad.dates)
 bad.dates |> head(25) |> distinct(agency, DATE, bioname, SUBJECT) |> kable()
 
 
-##### OPTOINAL 
+##### OPTOINAL - THINGS TO INSPECT 
 if(update){
 # names that match more than one member - potential false positives, but they also may just be letters with multiple members
 bad.names.1 <- d %>% 
@@ -394,6 +395,20 @@ worst.names
 # push to google drive
 sheet_write(worst.names, gs_title("worst.names"), sheet = as.character(Sys.Date()))
 
+write_csv(bad.names.1, here("data/bad.names.1.csv"))
+save(bad.names.2, file = here("data/bad.names.2.csv"))
+bad.names.2 %>% 
+  drop_na(TYPE, FROM, SUBJECT) %>% #FIXME when this is smaller, we can preview more on github limit 500kb csv preveiw
+  select(ID, agency, DATE, FROM, TYPE, SUBJECT, NOTES) %>% 
+  arrange(agency) %>% 
+  write_csv(here("data/bad.names.2.csv"))
+worst.agencies %>% write_csv(here("data/worst.agencies.csv"))
+worst.names %>% write.csv(here("data/worst.names.csv"))
+bad.dates %>% write_csv(here("data/bad.dates.csv"))
+bad.party %>% write.csv(here("data/bad.party.csv"))
+#FIXME
+# save(bad.committees.1, file = "data/bad.committees.1.RData")
+
 }
 
 
@@ -451,6 +466,8 @@ pres <- d %>% filter(chamber %in% c("President"))
 d %<>% filter(chamber %in% c("House", "Senate"))
 nrow(d) # DROPPING PRESIDNETS 
 
+
+if(testing){
 # look for duplicates 
 duplicates <- d %>% 
   group_by(DATE, agency, 
@@ -522,7 +539,7 @@ if(update){
 ## Can't do this because it over-collapses some agences with no SUBJECT or short subjects that are not in fact duplicates 
 ## there are true cases where a member wrote more than one letter on a date...sometimes a lot (e.g. Jeff Sessoins sent 44 letters about a rulemaking to CMS one day)
 # d %>% group_by(DATE, agency, SUBJECT, icpsr, chamber) %>% top_n(1, TYPE) %>%  summarise_all(combine_strings)
-if(F){ # WE WANT TO TAKE ONE OBSERVATION FOR DOUBLE-CODED - WE ALREADY DID THIS, SO THIS IS REDUNDENT 
+# WE WANT TO TAKE ONE OBSERVATION FOR DOUBLE-CODED - WE ALREADY DID THIS, SO THIS IS REDUNDENT 
 # IF N GOES DOWN HERE, IT WILL GO DOWN WHEN WE COMBINE STRINGS, should be the same n
 nrow(d)
 d %>% count(LetterID, ID, DATE, agency, SUBJECT, icpsr, chamber, sort = T)
@@ -536,6 +553,14 @@ nrow(d2) # MIGHT GO DOWN
 d$TYPE %<>% str_remove(";;;.*")
 
 d %<>% select(-n)
+
+
+# counts per agency - check if this matches google sheet 
+look <- d %>% count(agency, department) %>% full_join(data_list %>% select(agency))
+look %>% filter(is.na(Department))
+
+# Check that FERC data is complete:
+d %>% filter(agency == "DOE_FERC") %>% count(year)
 }
 
 
@@ -557,19 +582,22 @@ constituent_coding <- d %>%
 
 constituent_coding
 
+if(testing){
 # FIXME split and recombine unique 
 constituent_coding %>% mutate(n = as.numeric(n))%>% count(agency, CONSTITUENT_TYPE, wt = n, sort = T) %>% kable()
+} 
 
 if(update){
   sheet_write(constituent_coding, gs_title("constituent_coding"), as.character(Sys.Date()))
 }
-
 }
+
 
 # check that we have still complete data 
 unique(d$agency) %in% data_list$agency
 data_list$agency %in% unique(d$agency) 
 
+# USCIS_2016 should not be in d$agency 
 data_list$agency[!data_list$agency %in% unique(d$agency)  ]
 
 
@@ -584,34 +612,17 @@ if(length(unique(d$agency)) == length(unique(data_list$agency))){
   # create and save annual count data (THIS TAKES A BIT TO RUN, CONSIDER CLEARING MEMORY TO MAKE IT RUN FASTER)
   source(here("code/count.R"))
   
-  # and monthly counts 
-  #source(here("code/count-month.R"))
+  # and monthly counts - this is slow and not needed for the main analysis
+  if(update | testing){
+  source(here("code/count-month.R"))
+  }
   
-  
-  write_csv(bad.names.1, here("data/bad.names.1.csv"))
-  save(bad.names.2, file = here("data/bad.names.2.csv"))
-  bad.names.2 %>% 
-    drop_na(TYPE, FROM, SUBJECT) %>% #FIXME when this is smaller, we can preview more on github limit 500kb csv preveiw
-    select(ID, agency, DATE, FROM, TYPE, SUBJECT, NOTES) %>% 
-    arrange(agency) %>% 
-    write_csv(here("data/bad.names.2.csv"))
-  worst.agencies %>% write_csv(here("data/worst.agencies.csv"))
-  worst.names %>% write.csv(here("data/worst.names.csv"))
-  bad.dates %>% write_csv(here("data/bad.dates.csv"))
-  bad.party %>% write.csv(here("data/bad.party.csv"))
-  #FIXME
-  # save(bad.committees.1, file = "data/bad.committees.1.RData")
-  # save(bad.committees.2, file = "data/bad.committees.2.RData")
   d %>% filter(str_detect(NOTES, "FOIA")) %>%
-    select(ID, agency, FROM, DATE, SUBJECT, NOTES) %>% write_csv(path = here("data/LETTERS_TO_FOIA.csv"))
+    select(ID, agency, FROM, DATE, SUBJECT, NOTES) %>% 
+    write_csv(file = here("data/LETTERS_TO_FOIA.csv"))
 }
 
-# counts per agency - check if this matches google sheet 
-look <- d %>% count(agency, department) %>% full_join(data_list %>% select(agency))
-look %>% filter(is.na(Department))
 
-# Check that FERC data is complete:
-d %>% filter(agency == "DOE_FERC") %>% count(year)
 
 # If everything looks good, update data summary table 
 # source("agencies/_FOIA_response_table.R")
