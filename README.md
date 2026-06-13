@@ -12,12 +12,12 @@ This repository contains code to merge, augment, and analyze data on congression
 
 # Publications using these data 
 
-1. ["How Shifting Priorities and Capacity Affect Policy Work and Constituency Service: Evidence from a Census of Legislator Requests to U.S. Federal Agencies"](https://judgelord.github.io/research/correspondence/)
+- ["How Shifting Priorities and Capacity Affect Policy Work and Constituency Service: Evidence from a Census of Legislator Requests to U.S. Federal Agencies"](https://judgelord.github.io/research/correspondence/)
 
   - Documentation and replication code <https://github.com/judgelord/corr>
-  - Replication data on Harvard Dataverse: <https://doi.org/10.7910/DVN/LWOCW>
+  - Replication data on Harvard Dataverse: <https://doi.org/10.7910/DVN/LWOCWO>
 
-2. ["Legislator Advocacy on Behalf of Constituents and Corporate Donors"](https://judgelord.github.io/research/ferc/)
+- ["Legislator Advocacy on Behalf of Constituents and Corporate Donors"](https://judgelord.github.io/research/ferc/)
    
   - Documentation and replication code <https://github.com/judgelord/ferc>
 
