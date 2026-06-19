@@ -28,23 +28,23 @@ Some data include the full text of letters, but most are in the form of correspo
 Some letters are signed by more than one member, so each member-level observation is given a unique `data_id`, as well as a `LetterID` that is unique to each letter or phone call.
 Agency id's are preserved in `ID`. Otherwise, this is the row number of the datasheet. See [metadata documentation](https://judgelord.github.io/correspondence/docs/metadata). 
 
+(See AJPS Dataverse linked above)
+
 - Member data from <https://www.voteview.com/> via the `legislators` package.
 
   -   chamber and party from J. B. Lewis et al. (2022) via voteview.com (also available on dataverse)
   
 
-- Committee membership data are augmented from Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html>, 
-with corrections in `committees/committees.R` [#12](https://github.com/judgelord/correspondence/issues/12) 
-and then merged with historical committee membership data from the version history of @unitedstates-project committee membership data. 
-
-  -   committee positions from Stewart and Woon (2017) and @unitedstates-project (2025)
-  
+- Committee membership data come from https://github.com/judgelord/committees, which includes Charles Stewart III and Jonathan Woon, Congressional Committee Assignments, 103rd to 114th Congresses, 1993--2017, <http://web.mit.edu/17.251/www/data_page.html>, 
+with corrections (originally discussed in [#12](https://github.com/judgelord/correspondence/issues/12), now in https://github.com/judgelord/committees/issues)
+and then merged with historical committee membership data from the version history of @unitedstates-project committee membership data.  
 
 - State Population is from the U.S. Census 
 
   -   state population from U.S. Census Bureau (2019)
+ 
+- Oversight committee jurisdiction data come from Lewis and Selin, crosswalked with committee data above in https://github.com/judgelord/committees
 
-(See AJPS Dataverse linked above)
 
 # Software 
 
